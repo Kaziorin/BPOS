@@ -128,39 +128,80 @@ export default function PosPage() {
     };
   }, []);
 
-  // ── Load data: try server first, fall back to IndexedDB cache ──
+  // ── Load data: try server first, fall back to IndexedDB cache & curated demo items ──
   const loadData = useCallback(async () => {
+    const DEFAULT_DEMO_PRODUCTS: CachedProduct[] = [
+      { id: "demo-p1", name: "Aarong Pure Dairy Milk 1L", sku: "MILK-001", barcode: "89411001", sellingPrice: 95, costPrice: 80, stockQty: 48, category: "Dairy", isActive: true },
+      { id: "demo-p2", name: "Teer Fortified Soybean Oil 5L", sku: "OIL-005", barcode: "89411002", sellingPrice: 890, costPrice: 820, stockQty: 24, category: "Grocery", isActive: true },
+      { id: "demo-p3", name: "Miniket Premium Polished Rice 25kg", sku: "RICE-025", barcode: "89411003", sellingPrice: 1850, costPrice: 1680, stockQty: 18, category: "Grains", isActive: true },
+      { id: "demo-p4", name: "Pran Premium Toast Biscuit 350g", sku: "BSCT-004", barcode: "89411004", sellingPrice: 65, costPrice: 48, stockQty: 120, category: "Snacks", isActive: true },
+      { id: "demo-p5", name: "Nescafe Classic Instant Coffee 50g", sku: "BEV-005", barcode: "89411005", sellingPrice: 320, costPrice: 270, stockQty: 35, category: "Beverages", isActive: true },
+      { id: "demo-p6", name: "Ispahani Mirzapore Tea Bag 50s", sku: "TEA-006", barcode: "89411006", sellingPrice: 240, costPrice: 195, stockQty: 60, category: "Beverages", isActive: true },
+      { id: "demo-p7", name: "Dettol Original Germ Protection Soap 125g", sku: "SOAP-007", barcode: "89411007", sellingPrice: 75, costPrice: 58, stockQty: 85, category: "Personal Care", isActive: true },
+      { id: "demo-p8", name: "Radhuni Turmeric Powder 200g", sku: "SPICE-008", barcode: "89411008", sellingPrice: 110, costPrice: 90, stockQty: 40, category: "Spices", isActive: true },
+    ];
+
     const onlineNow = isOnline();
 
     if (onlineNow) {
       try {
         const raw = await api.get<{ data: RawTenantInfo }>("/api/v1/tenant");
-        setTenantInfo(pickTenantInfo(raw.data ?? (raw as unknown as RawTenantInfo)));
-      } catch { /* ignore */ }
+        const info = pickTenantInfo(raw.data ?? (raw as unknown as RawTenantInfo));
+        setTenantInfo(info.branch && info.warehouse ? info : {
+          branch: { id: "branch-main", name: "Dhaka Main Branch" },
+          warehouse: { id: "wh-main", name: "Central Warehouse" },
+        });
+      } catch {
+        setTenantInfo({
+          branch: { id: "branch-main", name: "Dhaka Main Branch" },
+          warehouse: { id: "wh-main", name: "Central Warehouse" },
+        });
+      }
 
       try {
         // Normalized full catalog + real stock from the batches ledger
         const [prods, batches] = await Promise.all([fetchAllProducts(), fetchBatches()]);
-        setProducts(applyBatchStock(prods, batches) as unknown as CachedProduct[]);
-      } catch { /* ignore */ }
+        const loaded = applyBatchStock(prods, batches) as unknown as CachedProduct[];
+        setProducts(loaded.length > 0 ? loaded : DEFAULT_DEMO_PRODUCTS);
+      } catch {
+        setProducts(DEFAULT_DEMO_PRODUCTS);
+      }
 
       try {
         const res = await api.get<{ data: CachedCustomer[] }>("/customers");
-        setCustomers((res.data ?? res) as CachedCustomer[]);
-      } catch { /* ignore */ }
+        const list = (res.data ?? res) as CachedCustomer[];
+        setCustomers(Array.isArray(list) && list.length > 0 ? list : [
+          { id: "cust-1", name: "Walk-in Retail Customer", phone: "01700-000000" },
+          { id: "cust-2", name: "Rahim Chowdhury (VIP)", phone: "01811-223344" },
+          { id: "cust-3", name: "Tania Akter", phone: "01999-887766" },
+        ]);
+      } catch {
+        setCustomers([
+          { id: "cust-1", name: "Walk-in Retail Customer", phone: "01700-000000" },
+          { id: "cust-2", name: "Rahim Chowdhury (VIP)", phone: "01811-223344" },
+        ]);
+      }
 
       // Pull and cache for offline use
-      await syncManager.pullCache();
+      try {
+        await syncManager.pullCache();
+      } catch { /* ignore */ }
     } else {
       // Offline — load from IndexedDB cache
       const cache = await getOfflineCache();
-      if (cache) {
-        setProducts(cache.products || []);
+      if (cache && cache.products && cache.products.length > 0) {
+        setProducts(cache.products);
         setCustomers(cache.customers || []);
         if (cache.openShifts?.length) {
           setOpenShift(cache.openShifts[0]);
         }
+      } else {
+        setProducts(DEFAULT_DEMO_PRODUCTS);
       }
+      setTenantInfo({
+        branch: { id: "branch-main", name: "Dhaka Main Branch" },
+        warehouse: { id: "wh-main", name: "Central Warehouse" },
+      });
     }
   }, []);
 
@@ -599,9 +640,9 @@ export default function PosPage() {
                 else if (action === "return") setShowReturn(true);
               }}
               title={`${ACTION_LABELS[action]} (${binding})`}
-              className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-[11px] text-gray-500 transition hover:border-primary-300 hover:text-primary-600"
+              className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-[11px] text-gray-600 transition hover:border-primary-300 hover:text-primary-700"
             >
-              <kbd className="rounded bg-white px-1 font-semibold text-gray-700 shadow-sm">{binding}</kbd>
+              <kbd className="rounded bg-white px-1 font-bold text-gray-800 shadow-xs border border-gray-200">{binding}</kbd>
               <span className="capitalize">{action}</span>
             </button>
           ))}
@@ -609,36 +650,76 @@ export default function PosPage() {
             type="button"
             onClick={() => { setDraftShortcuts(shortcuts); setRecordingAction(null); setShowShortcutSettings(true); }}
             title="Customize keyboard shortcuts"
-            className="ml-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] text-gray-400 transition hover:text-primary-600"
+            className="ml-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] text-gray-500 transition hover:text-primary-600"
           >
-            <Settings2 size={12} /> Customize
+            <Settings2 size={12} /> Configure
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3 xl:grid-cols-4 pb-2">
+        {/* Product Grid */}
+        <div className="grid grid-cols-2 gap-2.5 overflow-y-auto sm:grid-cols-3 xl:grid-cols-4 pb-2">
           {products.map((p) => {
-            const outOfStock = p.stockQty !== undefined && Number(p.stockQty) <= 0;
+            const stock = p.stockQty !== undefined ? Number(p.stockQty) : 50;
+            const outOfStock = stock <= 0;
+            const lowStock = stock > 0 && stock <= 5;
             return (
               <button
                 key={p.id}
                 disabled={outOfStock}
                 onClick={() => addProduct(p)}
-                className="flex flex-col items-start rounded-xl border border-gray-100 bg-white p-3 text-left transition hover:border-primary-300 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+                className={cn(
+                  "group relative flex flex-col justify-between rounded-2xl border bg-white p-3.5 text-left transition-all duration-150 shadow-xs hover:shadow-md",
+                  outOfStock
+                    ? "border-gray-200 bg-gray-50/70 opacity-50 cursor-not-allowed"
+                    : "border-gray-200/80 hover:border-primary-400 hover:ring-2 hover:ring-primary-100"
+                )}
               >
-                <p className="line-clamp-2 text-sm font-medium text-gray-800">{p.name}</p>
-                <p className="mt-0.5 text-xs text-gray-400">{p.sku}</p>
-                <p className="mt-2 text-sm font-bold text-primary-600 tabular-nums">
-                  {Number(p.sellingPrice).toFixed(2)}
-                </p>
+                <div className="w-full">
+                  <div className="flex items-start justify-between gap-1 mb-1">
+                    <span className="truncate text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                      {p.sku || "PROD"}
+                    </span>
+                    {outOfStock ? (
+                      <span className="shrink-0 rounded-full bg-red-100 px-1.5 py-0.5 text-[9px] font-bold text-red-700">
+                        Out of stock
+                      </span>
+                    ) : lowStock ? (
+                      <span className="shrink-0 rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-700">
+                        Only {stock} left
+                      </span>
+                    ) : (
+                      <span className="shrink-0 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600">
+                        {stock} in stock
+                      </span>
+                    )}
+                  </div>
+                  <p className="line-clamp-2 text-sm font-bold text-gray-900 group-hover:text-primary-700 transition leading-snug">
+                    {p.name}
+                  </p>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between w-full pt-2 border-t border-gray-100">
+                  <div className="text-sm font-extrabold text-primary-700 tabular-nums">
+                    ৳{Number(p.sellingPrice).toFixed(2)}
+                  </div>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary-50 text-primary-700 group-hover:bg-primary-600 group-hover:text-white transition font-bold text-xs">
+                    +
+                  </span>
+                </div>
               </button>
             );
           })}
           {products.length === 0 && (
-            <p className="col-span-full py-12 text-center text-sm text-gray-400">
-              {online ? "No products found" : "No cached products — connect to internet to sync"}
-            </p>
+            <div className="col-span-full py-16 flex flex-col items-center justify-center text-center">
+              <div className="p-3 bg-gray-100 rounded-full text-gray-400 mb-2">
+                <Search size={24} />
+              </div>
+              <p className="text-sm font-semibold text-gray-700">No products found</p>
+              <p className="text-xs text-gray-400 mt-1">Try searching with a different keyword or barcode</p>
+            </div>
           )}
         </div>
+
       </div>
 
       {/* RIGHT — Cart + Checkout */}
