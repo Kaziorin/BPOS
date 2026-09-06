@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2, Plus, Shield, Users, Edit, Trash2, Check, X } from "lucide-react";
+import { api } from "@/lib/api";
 
 interface Permission {
   id: string;
@@ -70,29 +71,15 @@ export default function RBACPage() {
 
   async function loadData() {
     try {
-      const tenantId = localStorage.getItem("tenantId") || "demo-shop";
-      const headers = { "x-tenant-id": tenantId };
-
-      const [rolesRes, permsRes, usersRes] = await Promise.all([
-        fetch("/api/v1/rbac/roles", { headers }),
-        fetch("/api/v1/rbac/permissions/modules", { headers }),
-        fetch("/api/v1/rbac/users", { headers }),
+      const [rolesData, permsData, usersData] = await Promise.all([
+        api.get<{ data: Role[] }>("/rbac/roles").then((r) => r.data || []),
+        api.get<{ data: Record<string, Permission[]> }>("/rbac/permissions/modules").then((r) => r.data || {}),
+        api.get<{ data: User[] }>("/rbac/users").then((r) => r.data || []),
       ]);
 
-      if (rolesRes.ok) {
-        const { data } = await rolesRes.json();
-        setRoles(data);
-      }
-
-      if (permsRes.ok) {
-        const { data } = await permsRes.json();
-        setPermissions(data);
-      }
-
-      if (usersRes.ok) {
-        const { data } = await usersRes.json();
-        setUsers(data);
-      }
+      setRoles(rolesData);
+      setPermissions(permsData);
+      setUsers(usersData);
     } catch (err) {
       console.error("Failed to load RBAC data:", err);
     } finally {
@@ -103,13 +90,9 @@ export default function RBACPage() {
   async function loadRolePermissions(role: Role) {
     setSelectedRole(role);
     try {
-      const tenantId = localStorage.getItem("tenantId") || "demo-shop";
-      const res = await fetch(`/api/v1/rbac/roles/${role.id}/permissions`, {
-        headers: { "x-tenant-id": tenantId },
-      });
-      if (res.ok) {
-        const { data } = await res.json();
-        setSelectedRolePerms(new Set(data.permissions.map((p: Permission) => p.code)));
+      const res = await api.get<{ data: { permissions: Permission[] } }>(`/rbac/roles/${role.id}/permissions`);
+      if (res.data?.permissions) {
+        setSelectedRolePerms(new Set(res.data.permissions.map((p: Permission) => p.code)));
       }
     } catch (err) {
       console.error("Failed to load role permissions:", err);
@@ -120,20 +103,11 @@ export default function RBACPage() {
     if (!selectedRole) return;
     setSaving(true);
     try {
-      const tenantId = localStorage.getItem("tenantId") || "demo-shop";
-      const res = await fetch(`/api/v1/rbac/roles/${selectedRole.id}/permissions`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-tenant-id": tenantId,
-        },
-        body: JSON.stringify({ permissionCodes: Array.from(selectedRolePerms) }),
+      await api.put(`/rbac/roles/${selectedRole.id}/permissions`, {
+        permissionCodes: Array.from(selectedRolePerms),
       });
-
-      if (res.ok) {
-        await loadData();
-        alert("Permissions saved successfully!");
-      }
+      await loadData();
+      alert("Permissions saved successfully!");
     } catch (err) {
       console.error("Failed to save permissions:", err);
     } finally {
@@ -144,25 +118,14 @@ export default function RBACPage() {
   async function createRole() {
     if (!newRoleName.trim()) return;
     try {
-      const tenantId = localStorage.getItem("tenantId") || "demo-shop";
-      const res = await fetch("/api/v1/rbac/roles", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-tenant-id": tenantId,
-        },
-        body: JSON.stringify({
-          name: newRoleName,
-          description: newRoleDesc || undefined,
-        }),
+      await api.post("/rbac/roles", {
+        name: newRoleName,
+        description: newRoleDesc || undefined,
       });
-
-      if (res.ok) {
-        setShowCreateModal(false);
-        setNewRoleName("");
-        setNewRoleDesc("");
-        await loadData();
-      }
+      setShowCreateModal(false);
+      setNewRoleName("");
+      setNewRoleDesc("");
+      await loadData();
     } catch (err) {
       console.error("Failed to create role:", err);
     }
@@ -180,19 +143,12 @@ export default function RBACPage() {
     if (!confirm(`Delete role "${role.name}"?`)) return;
 
     try {
-      const tenantId = localStorage.getItem("tenantId") || "demo-shop";
-      const res = await fetch(`/api/v1/rbac/roles/${role.id}`, {
-        method: "DELETE",
-        headers: { "x-tenant-id": tenantId },
-      });
-
-      if (res.ok) {
-        if (selectedRole?.id === role.id) {
-          setSelectedRole(null);
-          setSelectedRolePerms(new Set());
-        }
-        await loadData();
+      await api.del(`/rbac/roles/${role.id}`);
+      if (selectedRole?.id === role.id) {
+        setSelectedRole(null);
+        setSelectedRolePerms(new Set());
       }
+      await loadData();
     } catch (err) {
       console.error("Failed to delete role:", err);
     }

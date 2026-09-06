@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
 
 const TABS = ["Audit Trail", "Security Events", "Security Health", "Settings"];
 
@@ -23,30 +24,25 @@ export default function AuditSecurityPage() {
         const params = new URLSearchParams({ limit: String(filter.limit) });
         if (filter.action) params.set("action", filter.action);
         if (filter.entityType) params.set("entityType", filter.entityType);
-        const [logsRes, statsRes] = await Promise.all([
-          fetch(`/api/v1/audit/logs?${params}`, { headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } }),
-          fetch(`/api/v1/audit/stats`, { headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } }),
+        const [logsData, statsData] = await Promise.all([
+          api.get<{ data: any[] }>(`/audit/logs?${params}`).then((r) => r.data || []),
+          api.get<{ data: any }>(`/audit/stats`).then((r) => r.data || {}),
         ]);
-        const logsData = await logsRes.json();
-        const statsData = await statsRes.json();
-        setAuditLogs(logsData.data || []);
-        setStats(statsData.data || {});
+        setAuditLogs(logsData);
+        setStats(statsData);
       } else if (tab === 1) {
         const params = new URLSearchParams({ limit: "50" });
         if (secFilter.eventType) params.set("eventType", secFilter.eventType);
         if (secFilter.severity) params.set("severity", secFilter.severity);
-        const [evRes, stRes] = await Promise.all([
-          fetch(`/api/v1/security/events?${params}`, { headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } }),
-          fetch(`/api/v1/security/stats`, { headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } }),
+        const [evData, stData] = await Promise.all([
+          api.get<{ data: any[] }>(`/security/events?${params}`).then((r) => r.data || []),
+          api.get<{ data: any }>(`/security/stats`).then((r) => r.data || {}),
         ]);
-        const evData = await evRes.json();
-        const stData = await stRes.json();
-        setSecEvents(evData.data || []);
-        setSecStats(stData.data || {});
+        setSecEvents(evData);
+        setSecStats(stData);
       } else if (tab === 2) {
-        const res = await fetch(`/api/v1/security/health`, { headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } });
-        const data = await res.json();
-        setHealth(data.data || {});
+        const data = await api.get<{ data: any }>(`/security/health`).then((r) => r.data || {});
+        setHealth(data);
       }
     } catch (e) { console.error(e); }
     setLoading(false);

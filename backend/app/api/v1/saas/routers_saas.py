@@ -19,7 +19,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
-from security import require_auth, resolve_tenant, AuthUser
+from security import require_auth, resolve_tenant, AuthUser, hash_password
 from util import ok, err, rows_to_dicts
 
 router = APIRouter()
@@ -665,3 +665,263 @@ async def check_limit(
 
     return ok({"resource": resourceType, "current": count, "limit": limit, "allowed": allowed,
                "message": f"{resourceType}: {count}/{limit}"})
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 10. ONBOARDING WIZARD ENDPOINTS
+# ═══════════════════════════════════════════════════════════════════
+
+@router.get("/api/v1/onboarding/state")
+async def onboarding_state(
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    tenant = (await db.execute(text("SELECT id, name, slug, businessType, status, currency, timezone FROM tenants WHERE id = :t"), {"t": tenantId})).first()
+    company = (await db.execute(text("SELECT * FROM companies WHERE tenantId = :t LIMIT 1"), {"t": tenantId})).first()
+    branch = (await db.execute(text("SELECT * FROM branches WHERE tenantId = :t ORDER BY isMain DESC, createdAt ASC LIMIT 1"), {"t": tenantId})).first()
+    warehouse = (await db.execute(text("SELECT * FROM warehouses WHERE tenantId = :t ORDER BY createdAt ASC LIMIT 1"), {"t": tenantId})).first()
+    tax_rate = (await db.execute(text("SELECT * FROM tax_rates WHERE tenantId = :t ORDER BY isDefault DESC, createdAt ASC LIMIT 1"), {"t": tenantId})).first()
+    roles = rows_to_dicts((await db.execute(text("SELECT id, name, description FROM roles WHERE tenantId = :t OR isSystem = 1 ORDER BY name"), {"t": tenantId})).fetchall())
+
+    return ok({
+        "businessType": tenant[3] if tenant and len(tenant) > 3 and tenant[3] else "RETAIL",
+        "status": tenant[4] if tenant and len(tenant) > 4 else "ONBOARDING",
+        "company": {
+            "name": company[2] if company and len(company) > 2 else (tenant[1] if tenant else ""),
+            "legalName": company[3] if company and len(company) > 3 else "",
+            "phone": company[4] if company and len(company) > 4 else "",
+            "email": company[5] if company and len(company) > 5 else "",
+            "address": company[6] if company and len(company) > 6 else "",
+            "vatRegNo": company[7] if company and len(company) > 7 else "",
+        } if company else None,
+        "branch": {
+            "code": branch[2] if branch and len(branch) > 2 else "MAIN",
+            "name": branch[3] if branch and len(branch) > 3 else "Main Branch",
+            "phone": branch[4] if branch and len(branch) > 4 else "",
+            "email": branch[5] if branch and len(branch) > 5 else "",
+            "address": branch[6] if branch and len(branch) > 6 else "",
+        } if branch else None,
+        "warehouse": {
+            "code": warehouse[2] if warehouse and len(warehouse) > 2 else "WH-01",
+            "name": warehouse[3] if warehouse and len(warehouse) > 3 else "Main Warehouse",
+            "type": warehouse[4] if warehouse and len(warehouse) > 4 else "CENTRAL",
+        } if warehouse else None,
+        "tax": {
+            "taxEnabled": True if tax_rate else False,
+            "vatRate": float(tax_rate[4]) if tax_rate and len(tax_rate) > 4 and tax_rate[4] is not None else 15,
+            "taxRegistrationNumber": company[7] if company and len(company) > 7 and company[7] else "",
+        },
+        "roles": roles,
+    })
+
+
+@router.post("/api/v1/onboarding/business-type")
+async def onboarding_business_type(
+    body: dict,
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    btype = body.get("businessType", "RETAIL")
+    await db.execute(
+        text("UPDATE tenants SET businessType = :bt, updatedAt = NOW() WHERE id = :t"),
+        {"bt": btype, "t": tenantId},
+    )
+    await db.commit()
+    return ok({"businessType": btype, "message": "Business type configured successfully"})
+
+
+@router.post("/api/v1/onboarding/company")
+async def onboarding_company(
+    body: dict,
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    name = body.get("name") or "Main Company"
+    legalName = body.get("legalName") or ""
+    phone = body.get("phone") or ""
+    email = body.get("email") or ""
+    address = body.get("address") or ""
+    vatRegNo = body.get("vatRegNo") or ""
+
+    existing = (await db.execute(text("SELECT id FROM companies WHERE tenantId = :t LIMIT 1"), {"t": tenantId})).first()
+    if existing:
+        await db.execute(
+            text(
+                "UPDATE companies SET name = :n, legalName = :ln, phone = :p, email = :e, "
+                "address = :a, vatRegNo = :v, updatedAt = NOW() WHERE id = :id"
+            ),
+            {"id": existing[0], "n": name, "ln": legalName, "p": phone, "e": email, "a": address, "v": vatRegNo},
+        )
+    else:
+        await db.execute(
+            text(
+                "INSERT INTO companies (id, tenantId, name, legalName, phone, email, address, vatRegNo, createdAt, updatedAt) "
+                "VALUES (UUID(), :t, :n, :ln, :p, :e, :a, :v, NOW(), NOW())"
+            ),
+            {"t": tenantId, "n": name, "ln": legalName, "p": phone, "e": email, "a": address, "v": vatRegNo},
+        )
+    await db.commit()
+    return ok({"message": "Company details saved successfully"})
+
+
+@router.post("/api/v1/onboarding/branch")
+async def onboarding_branch(
+    body: dict,
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    code = body.get("code") or "MAIN"
+    name = body.get("name") or "Main Branch"
+    phone = body.get("phone") or ""
+    email = body.get("email") or ""
+    address = body.get("address") or ""
+
+    existing = (await db.execute(text("SELECT id FROM branches WHERE tenantId = :t AND (code = :c OR isMain = 1) LIMIT 1"), {"t": tenantId, "c": code})).first()
+    if existing:
+        await db.execute(
+            text(
+                "UPDATE branches SET code = :c, name = :n, phone = :p, email = :e, address = :a, isMain = 1, isActive = 1, updatedAt = NOW() "
+                "WHERE id = :id"
+            ),
+            {"id": existing[0], "c": code, "n": name, "p": phone, "e": email, "a": address},
+        )
+    else:
+        await db.execute(
+            text(
+                "INSERT INTO branches (id, tenantId, code, name, phone, email, address, isMain, isActive, createdAt, updatedAt) "
+                "VALUES (UUID(), :t, :c, :n, :p, :e, :a, 1, 1, NOW(), NOW())"
+            ),
+            {"t": tenantId, "c": code, "n": name, "p": phone, "e": email, "a": address},
+        )
+    await db.commit()
+    return ok({"message": "Branch configured successfully"})
+
+
+@router.post("/api/v1/onboarding/warehouse")
+async def onboarding_warehouse(
+    body: dict,
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    code = body.get("code") or "WH-01"
+    name = body.get("name") or "Main Warehouse"
+    wtype = body.get("type") or "CENTRAL"
+
+    existing = (await db.execute(text("SELECT id FROM warehouses WHERE tenantId = :t AND code = :c LIMIT 1"), {"t": tenantId, "c": code})).first()
+    if existing:
+        await db.execute(
+            text("UPDATE warehouses SET name = :n, type = :ty, isActive = 1, updatedAt = NOW() WHERE id = :id"),
+            {"id": existing[0], "n": name, "ty": wtype},
+        )
+    else:
+        await db.execute(
+            text(
+                "INSERT INTO warehouses (id, tenantId, code, name, type, isActive, createdAt, updatedAt) "
+                "VALUES (UUID(), :t, :c, :n, :ty, 1, NOW(), NOW())"
+            ),
+            {"t": tenantId, "c": code, "n": name, "ty": wtype},
+        )
+    await db.commit()
+    return ok({"message": "Warehouse configured successfully"})
+
+
+@router.post("/api/v1/onboarding/tax")
+async def onboarding_tax(
+    body: dict,
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    tax_enabled = body.get("taxEnabled", True)
+    vat_rate = float(body.get("vatRate") or 15)
+    tax_reg_no = body.get("taxRegistrationNumber") or ""
+
+    if tax_reg_no:
+        await db.execute(
+            text("UPDATE companies SET vatRegNo = :v, updatedAt = NOW() WHERE tenantId = :t"),
+            {"v": tax_reg_no, "t": tenantId},
+        )
+
+    if tax_enabled:
+        existing = (await db.execute(text("SELECT id FROM tax_rates WHERE tenantId = :t AND code = 'VAT' LIMIT 1"), {"t": tenantId})).first()
+        if existing:
+            await db.execute(
+                text("UPDATE tax_rates SET rate = :r, isDefault = 1, isActive = 1, updatedAt = NOW() WHERE id = :id"),
+                {"id": existing[0], "r": vat_rate},
+            )
+        else:
+            await db.execute(
+                text(
+                    "INSERT INTO tax_rates (id, tenantId, code, name, rate, isDefault, isActive, createdAt, updatedAt) "
+                    "VALUES (UUID(), :t, 'VAT', 'Standard VAT', :r, 1, 1, NOW(), NOW())"
+                ),
+                {"t": tenantId, "r": vat_rate},
+            )
+    await db.commit()
+    return ok({"message": "Tax configuration saved successfully"})
+
+
+@router.post("/api/v1/onboarding/payment")
+async def onboarding_payment(
+    body: dict,
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    enabled = body.get("enabledMethods") or ["CASH", "CARD", "MOBILE_BANKING"]
+    default_m = body.get("defaultMethod") or "CASH"
+    return ok({"message": "Payment methods configured successfully", "enabled": enabled, "default": default_m})
+
+
+@router.post("/api/v1/onboarding/users")
+async def onboarding_users(
+    body: dict,
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    name = (body.get("name") or "").strip()
+    email = (body.get("email") or "").strip().lower()
+    password = body.get("password") or ""
+    role_id = body.get("roleId")
+
+    if not name or not email:
+        return err("Name and email are required to create a user", 400)
+    if not password:
+        password = "Password@123"
+
+    existing = (await db.execute(text("SELECT id FROM users WHERE email = :e"), {"e": email})).first()
+    if existing:
+        return err(f"User with email '{email}' already exists", 409)
+
+    branch = (await db.execute(text("SELECT id FROM branches WHERE tenantId = :t ORDER BY isMain DESC LIMIT 1"), {"t": tenantId})).first()
+    branch_id = branch[0] if branch else None
+
+    if not role_id:
+        role = (await db.execute(text("SELECT id FROM roles WHERE (tenantId = :t OR isSystem = 1) AND name LIKE '%Cashier%' LIMIT 1"), {"t": tenantId})).first()
+        if not role:
+            role = (await db.execute(text("SELECT id FROM roles WHERE tenantId = :t OR isSystem = 1 LIMIT 1"), {"t": tenantId})).first()
+        role_id = role[0] if role else None
+
+    pw_hash = hash_password(password)
+    user_id = _uid()
+    await db.execute(
+        text(
+            "INSERT INTO users (id, tenantId, branchId, name, email, passwordHash, roleId, status, createdAt, updatedAt) "
+            "VALUES (:id, :t, :b, :n, :e, :p, :r, 'ACTIVE', NOW(), NOW())"
+        ),
+        {"id": user_id, "t": tenantId, "b": branch_id, "n": name, "e": email, "p": pw_hash, "r": role_id},
+    )
+    await db.commit()
+    return ok({"id": user_id, "name": name, "email": email, "message": "User created successfully"}, 201)
+
+
+@router.post("/api/v1/onboarding/complete")
+async def onboarding_complete(
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    await db.execute(
+        text("UPDATE tenants SET status = 'ACTIVE', updatedAt = NOW() WHERE id = :t"),
+        {"t": tenantId},
+    )
+    await db.commit()
+    return ok({"message": "Onboarding completed successfully", "status": "ACTIVE"})
+
