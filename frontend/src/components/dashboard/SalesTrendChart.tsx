@@ -39,10 +39,11 @@ function CustomTooltip({
   );
 }
 
-export function SalesTrendChart({ data }: { data: TrendPoint[] }) {
+export function SalesTrendChart({ data }: { data?: TrendPoint[] | null }) {
+  const chartData = Array.isArray(data) ? data : [];
   return (
     <ResponsiveContainer width="100%" height={220}>
-      <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+      <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="salesFill" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={SERIES_COLOR} stopOpacity={0.16} />

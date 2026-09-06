@@ -27,12 +27,17 @@ export default function DashboardPage() {
 
   useEffect(() => {
     Promise.all([
-      api.get<DashboardSummary>("/dashboard/summary"),
-      api.get<TrendPoint[]>("/dashboard/trend"),
+      api.get<any>("/dashboard/summary"),
+      api.get<any>("/dashboard/trend"),
     ])
       .then(([s, t]) => {
-        setSummary(s);
-        setTrend(t);
+        const summaryData = s?.data ? s.data : s;
+        const trendData = Array.isArray(t) ? t : (Array.isArray(t?.data) ? t.data : []);
+        setSummary(summaryData);
+        setTrend(trendData);
+      })
+      .catch((err) => {
+        console.error("Dashboard load error:", err);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -76,9 +81,9 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <CustomStatCard label="Today's Sales" value={money(summary.todaySalesTotal)} icon={DollarSign} tone="primary" />
-        <CustomStatCard label="Today's Orders" value={String(summary.todaySalesCount)} icon={Package} tone="blue" />
-        <CustomStatCard label="Low Stock Items" value={String(summary.lowStockCount)} icon={AlertTriangle} tone="amber" />
-        <CustomStatCard label="Total Customers" value={String(summary.totalCustomers)} icon={Users} tone="violet" />
+        <CustomStatCard label="Today's Orders" value={String(summary.todaySalesCount ?? 0)} icon={Package} tone="blue" />
+        <CustomStatCard label="Low Stock Items" value={String(summary.lowStockCount ?? 0)} icon={AlertTriangle} tone="amber" />
+        <CustomStatCard label="Total Customers" value={String(summary.totalCustomers ?? 0)} icon={Users} tone="violet" />
         <CustomStatCard label="Total Due" value={money(summary.totalDue)} icon={Wallet} tone="red" />
       </div>
 
@@ -86,16 +91,16 @@ export default function DashboardPage() {
         <div className="rounded-2xl border border-gray-100 bg-white p-5 lg:col-span-2">
           <h2 className="mb-1 text-sm font-semibold text-gray-900">Sales trend</h2>
           <p className="mb-2 text-xs text-gray-400">Last 7 days</p>
-          <SalesTrendChart data={trend} />
+          <SalesTrendChart data={trend ?? []} />
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white p-5">
           <h2 className="mb-4 text-sm font-semibold text-gray-900">Recent sales</h2>
           <div className="space-y-3">
-            {summary.recentSales.length === 0 && (
+            {(summary.recentSales ?? []).length === 0 && (
               <p className="text-sm text-gray-400">No sales yet.</p>
             )}
-            {summary.recentSales.map((s) => (
+            {(summary.recentSales ?? []).map((s) => (
               <div key={s.id} className="flex items-center justify-between text-sm">
                 <div>
                   <p className="font-medium text-gray-800">{s.invoiceNo}</p>

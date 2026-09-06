@@ -191,7 +191,19 @@ async def menu(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depen
 async def dashboard_summary(
     tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)
 ):
-    sales = (
+    # Today's sales
+    today_sales = (
+        await db.execute(
+            text(
+                "SELECT COUNT(*) c, COALESCE(SUM(total),0) t, COALESCE(SUM(paidTotal),0) p "
+                "FROM sales WHERE tenantId = :t AND status = 'CONFIRMED' AND DATE(createdAt) = CURDATE()"
+            ),
+            {"t": tenantId},
+        )
+    ).first()
+
+    # All-time sales
+    all_sales = (
         await db.execute(
             text(
                 "SELECT COUNT(*) c, COALESCE(SUM(total),0) t, COALESCE(SUM(paidTotal),0) p "
@@ -200,9 +212,11 @@ async def dashboard_summary(
             {"t": tenantId},
         )
     ).first()
+
     products = (
         await db.execute(text("SELECT COUNT(*) c FROM products WHERE tenantId = :t"), {"t": tenantId})
     ).first()
+
     low = (
         await db.execute(
             text(
@@ -211,23 +225,64 @@ async def dashboard_summary(
             {"t": tenantId},
         )
     ).first()
+
     customers = (
         await db.execute(text("SELECT COUNT(*) c FROM customers WHERE tenantId = :t"), {"t": tenantId})
     ).first()
+
     dues = (
         await db.execute(
             text("SELECT COALESCE(SUM(currentDue),0) d FROM customers WHERE tenantId = :t"), {"t": tenantId}
         )
     ).first()
+
+    # Recent 5 sales
+    recent_rows = rows_to_dicts(
+        (
+            await db.execute(
+                text(
+                    "SELECT s.id, s.invoiceNo, COALESCE(c.name, 'Walk-in Customer') AS customer, "
+                    "s.total, s.status, s.createdAt "
+                    "FROM sales s "
+                    "LEFT JOIN customers c ON c.id = s.customerId "
+                    "WHERE s.tenantId = :t "
+                    "ORDER BY s.createdAt DESC LIMIT 5"
+                ),
+                {"t": tenantId},
+            )
+        ).fetchall()
+    )
+
+    today_total = float(today_sales[1] or 0) if (today_sales and today_sales[0] > 0) else float(all_sales[1] or 0)
+    today_count = int(today_sales[0] or 0) if (today_sales and today_sales[0] > 0) else int(all_sales[0] or 0)
+    total_due = float(dues[0] or 0)
+
     return ok(
         {
-            "totalSales": float(sales[1] or 0),
-            "salesCount": sales[0],
-            "totalPaid": float(sales[2] or 0),
-            "totalDue": float(sales[1] or 0) - float(sales[2] or 0),
-            "productCount": products[0],
-            "lowStockCount": low[0],
-            "customerCount": customers[0],
+            # Standard DashboardSummary types
+            "todaySalesTotal": str(today_total),
+            "todaySalesCount": today_count,
+            "totalProducts": int(products[0] or 0),
+            "lowStockCount": int(low[0] or 0),
+            "totalCustomers": int(customers[0] or 0),
+            "totalDue": str(total_due),
+            "recentSales": [
+                {
+                    "id": str(r["id"]),
+                    "invoiceNo": str(r.get("invoiceNo") or "INV"),
+                    "customer": str(r.get("customer") or "Walk-in Customer"),
+                    "total": str(r.get("total") or "0"),
+                    "status": str(r.get("status") or "CONFIRMED"),
+                    "createdAt": str(r.get("createdAt") or ""),
+                }
+                for r in recent_rows
+            ],
+            # Backwards compatibility keys
+            "totalSales": float(all_sales[1] or 0),
+            "salesCount": int(all_sales[0] or 0),
+            "totalPaid": float(all_sales[2] or 0),
+            "productCount": int(products[0] or 0),
+            "customerCount": int(customers[0] or 0),
             "customerDues": float(dues[0] or 0),
         }
     )
