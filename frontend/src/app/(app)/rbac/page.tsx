@@ -18,7 +18,9 @@ interface Role {
   description: string | null;
   isSystem: boolean;
   status: string;
-  _count: {
+  permCount?: number;
+  userCount?: number;
+  _count?: {
     rolePermissions: number;
     userAccounts: number;
   };
@@ -30,11 +32,11 @@ interface User {
   name: string;
   email: string;
   status: string;
-  role: {
+  role?: {
     id: string;
     name: string;
-    isSystem: boolean;
-    _count: {
+    isSystem?: boolean;
+    _count?: {
       rolePermissions: number;
     };
   };
@@ -136,8 +138,9 @@ export default function RBACPage() {
       alert("Cannot delete system roles");
       return;
     }
-    if (role._count.userAccounts > 0) {
-      alert(`Cannot delete role "${role.name}" — ${role._count.userAccounts} user(s) are assigned.`);
+    const uCount = role.userCount ?? role._count?.userAccounts ?? 0;
+    if (uCount > 0) {
+      alert(`Cannot delete role "${role.name}" — ${uCount} user(s) are assigned.`);
       return;
     }
     if (!confirm(`Delete role "${role.name}"?`)) return;
@@ -260,7 +263,7 @@ export default function RBACPage() {
                         )}
                       </div>
                       <p className="mt-0.5 text-xs text-gray-500 truncate">
-                        {role._count.rolePermissions} permissions · {role._count.userAccounts} users
+                        {role.permCount ?? role._count?.rolePermissions ?? 0} permissions · {role.userCount ?? role._count?.userAccounts ?? 0} users
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
@@ -401,7 +404,7 @@ export default function RBACPage() {
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center gap-1 rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-medium text-primary-700">
                         <Shield size={12} />
-                        {user.role.name}
+                        {user.role?.name ?? "No Role"}
                       </span>
                     </td>
                     <td className="px-4 py-3">
