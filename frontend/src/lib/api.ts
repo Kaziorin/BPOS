@@ -65,7 +65,10 @@ axiosClient.interceptors.request.use((config) => {
 axiosClient.interceptors.response.use(
   (res) => res,
   (error: AxiosError<{ error?: string }>) => {
-    const message = error.response?.data?.error ?? error.message ?? "Something went wrong";
+    let message = error.response?.data?.error ?? error.message ?? "Something went wrong";
+    if (error.code === "ERR_NETWORK" || message === "Network Error" || !error.response) {
+      message = `Network Error: Failed to connect to API backend at ${API_URL}. Please verify the backend service is running on port 4000.`;
+    }
     return Promise.reject(new ApiError(message, error.response?.status ?? 0));
   }
 );

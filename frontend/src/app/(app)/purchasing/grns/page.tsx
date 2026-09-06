@@ -76,8 +76,9 @@ export default function GrnsPage() {
       ) : (
         <div className="space-y-3">
           {grns.map((grn) => {
-            const total = grn.items.reduce((s, i) => s + Number(i.qty) * Number(i.costPrice), 0);
-            const rejected = grn.items.reduce((s, i) => s + Number(i.qtyRejected), 0);
+            const items = Array.isArray(grn.items) ? grn.items : [];
+            const total = items.reduce((s, i) => s + Number(i.qty) * Number(i.costPrice), 0);
+            const rejected = items.reduce((s, i) => s + Number(i.qtyRejected), 0);
             return (
               <div key={grn.id} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:shadow-md">
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -103,15 +104,15 @@ export default function GrnsPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-bold tabular-nums text-gray-900">{fmt(total)}</p>
-                    <p className="text-[10px] text-gray-400">{grn.items.length} line{grn.items.length > 1 ? "s" : ""}</p>
+                    <p className="text-[10px] text-gray-400">{items.length} line{items.length > 1 ? "s" : ""}</p>
                   </div>
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {grn.items.map((item) => (
+                  {items.map((item) => (
                     <span key={item.id} className="rounded-lg bg-gray-50 px-3 py-1.5 text-xs text-gray-600">
                       <CheckCircle size={10} className="mr-1 inline text-emerald-500" />
-                      {item.product?.name} × {Number(item.qty)} @ {fmt(Number(item.costPrice))}
+                      {item.product?.name ?? "Item"} × {Number(item.qty)} @ {fmt(Number(item.costPrice))}
                       {item.batchNo && <span className="ml-1 text-gray-400">(batch {item.batchNo})</span>}
                     </span>
                   ))}

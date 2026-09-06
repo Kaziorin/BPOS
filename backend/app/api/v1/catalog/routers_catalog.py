@@ -106,6 +106,34 @@ async def create_product(
     return ok({"id": row.id, "name": row.name, "sku": row.sku}, 201)
 
 
+# ─────────────────────────── CATEGORIES ───────────────────────────
+
+@router.get("/api/v1/products/categories")
+async def list_categories(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    rows = rows_to_dicts(
+        (
+            await db.execute(
+                text("SELECT id, name, parentId, status FROM categories WHERE tenantId=:t AND parentId IS NULL ORDER BY name"),
+                {"t": tenantId},
+            )
+        ).fetchall()
+    )
+    return ok(rows)
+
+
+@router.post("/api/v1/products/categories")
+async def create_category(body: dict, user: AuthUser = Depends(require_permission("products.categories.create")),
+                          tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    name = body.get("name")
+    if not name: return err("Name is required", 400)
+    dup = (await db.execute(text("SELECT id FROM categories WHERE tenantId=:t AND name=:n"), {"t": tenantId, "n": name})).first()
+    if dup: return err("Category already exists", 409)
+    await db.execute(text("INSERT INTO categories (id, tenantId, name, createdBy) VALUES (UUID(), :t, :n, :u)"),
+                     {"t": tenantId, "n": name, "u": user.id},)
+    await db.commit()
+    return ok({"created": True}, 201)
+
+
 @router.get("/api/v1/products/{productId}")
 async def get_product(
     productId: str,
@@ -232,32 +260,7 @@ async def delete_product(
     return ok({"deleted": res.rowcount > 0})
 
 
-# ─────────────────────────── CATEGORIES / BRANDS ───────────────────────────
-
-@router.get("/api/v1/products/categories")
-async def list_categories(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts(
-        (
-            await db.execute(
-                text("SELECT id, name, parentId, status FROM categories WHERE tenantId=:t AND parentId IS NULL ORDER BY name"),
-                {"t": tenantId},
-            )
-        ).fetchall()
-    )
-    return ok(rows)
-
-
-@router.post("/api/v1/products/categories")
-async def create_category(body: dict, user: AuthUser = Depends(require_permission("products.categories.create")),
-                          tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
-    name = body.get("name")
-    if not name: return err("Name is required", 400)
-    dup = (await db.execute(text("SELECT id FROM categories WHERE tenantId=:t AND name=:n"), {"t": tenantId, "n": name})).first()
-    if dup: return err("Category already exists", 409)
-    await db.execute(text("INSERT INTO categories (id, tenantId, name, createdBy) VALUES (UUID(), :t, :n, :u)"),
-                     {"t": tenantId, "n": name, "u": user.id},)
-    await db.commit()
-    return ok({"created": True}, 201)
+# ─────────────────────────── BRANDS ───────────────────────────
 
 
 @router.get("/api/v1/brands")

@@ -35,19 +35,20 @@ export default function SerialsPage() {
     setLoading(true);
     const params = new URLSearchParams();
     if (status) params.set("status", status);
-    api.get<Serial[]>(`/api/v1/inventory/serials?${params}`)
-      .then(setSerials)
-      .catch(() => {})
+    api.get<{ data: Serial[] } | Serial[]>(`/api/v1/inventory/serials?${params}`)
+      .then((res) => setSerials(Array.isArray(res) ? res : res?.data ?? []))
+      .catch(() => setSerials([]))
       .finally(() => setLoading(false));
   }, [status]);
 
+  const serialList = Array.isArray(serials) ? serials : [];
   const filtered = search
-    ? serials.filter(
+    ? serialList.filter(
         (s) =>
           s.serialNo.toLowerCase().includes(search.toLowerCase()) ||
-          s.product.name.toLowerCase().includes(search.toLowerCase()),
+          (s.product?.name ?? (s as any).productName ?? "").toLowerCase().includes(search.toLowerCase()),
       )
-    : serials;
+    : serialList;
 
   const columns: CustomTableColumn<Serial>[] = [
     {
@@ -60,8 +61,8 @@ export default function SerialsPage() {
       header: "Product",
       render: (r) => (
         <div>
-          <p className="font-medium text-gray-900">{r.product.name}</p>
-          <p className="text-xs text-gray-400">{r.product.sku}</p>
+          <p className="font-medium text-gray-900">{r.product?.name ?? (r as any).productName ?? "Unknown Product"}</p>
+          <p className="text-xs text-gray-400">{r.product?.sku ?? (r as any).productSku ?? (r as any).sku ?? "—"}</p>
         </div>
       ),
     },

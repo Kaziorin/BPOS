@@ -456,17 +456,25 @@ async def stock_by_warehouse(warehouseId: str, search: str = "", user: AuthUser 
 
 
 @router.get("/api/v1/inventory/movements")
-async def stock_movements(productId: str = "", warehouseId: str = "", limit: int = Query(50),
+async def stock_movements(productId: str = "", warehouseId: str = "", movementType: str = "", limit: int = Query(50),
                           user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
                           db: AsyncSession = Depends(get_db)):
     where = "sm.tenantId=:t"; params: dict = {"t": tenantId}
     if productId: where += " AND sm.productId=:p"; params["p"] = productId
     if warehouseId: where += " AND sm.warehouseId=:w"; params["w"] = warehouseId
+    if movementType: where += " AND sm.movementType=:mt"; params["mt"] = movementType
     rows = rows_to_dicts((await db.execute(text(
-        f"SELECT sm.*, p.name AS productName, w.name AS warehouseName FROM stock_movements sm "
-        f"JOIN products p ON p.id=sm.productId JOIN warehouses w ON w.id=sm.warehouseId "
+        f"SELECT sm.*, p.name AS productName, p.sku AS productSku, w.name AS warehouseName, w.code AS warehouseCode FROM stock_movements sm "
+        f"LEFT JOIN products p ON p.id=sm.productId LEFT JOIN warehouses w ON w.id=sm.warehouseId "
         f"WHERE {where} ORDER BY sm.createdAt DESC LIMIT :lim"),
         {**params, "lim": min(limit, 200)})).fetchall())
+    for r in rows:
+        p_name = r.pop("productName", None) or "Unknown Product"
+        p_sku = r.pop("productSku", None) or "—"
+        w_name = r.pop("warehouseName", None) or "Main Warehouse"
+        w_code = r.pop("warehouseCode", None) or "MAIN"
+        r["product"] = {"id": r.get("productId") or "", "name": p_name, "sku": p_sku}
+        r["warehouse"] = {"id": r.get("warehouseId") or "", "name": w_name, "code": w_code}
     return ok(rows)
 
 

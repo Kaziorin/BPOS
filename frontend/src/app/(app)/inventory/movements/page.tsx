@@ -77,15 +77,15 @@ export default function MovementsPage() {
       header: "Product",
       render: (r) => (
         <div>
-          <p className="font-medium text-gray-900">{r.product.name}</p>
-          <p className="text-xs text-gray-400">{r.product.sku}</p>
+          <p className="font-medium text-gray-900">{r.product?.name ?? (r as any).productName ?? "Unknown Product"}</p>
+          <p className="text-xs text-gray-400">{r.product?.sku ?? (r as any).productSku ?? (r as any).sku ?? "—"}</p>
         </div>
       ),
     },
     {
       key: "warehouse",
       header: "Warehouse",
-      render: (r) => <span className="text-gray-600">{r.warehouse.code}</span>,
+      render: (r) => <span className="text-gray-600">{r.warehouse?.code ?? r.warehouse?.name ?? (r as any).warehouseName ?? "MAIN"}</span>,
     },
     {
       key: "qty",

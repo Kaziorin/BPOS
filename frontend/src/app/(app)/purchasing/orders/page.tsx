@@ -78,7 +78,9 @@ export default function PurchaseOrdersPage() {
         api.get<{ data: any[] }>("/products?limit=100").catch(() => ({ data: [] as any[] })),
         api.get<{ data: any }>("/branches").catch(() => ({ data: { data: [] } })),
       ]);
-      setPos(poRes.data);
+      const rawPos = (poRes as any)?.data ?? poRes;
+      const poList = Array.isArray(rawPos) ? rawPos : Array.isArray((rawPos as any)?.data) ? (rawPos as any).data : [];
+      setPos(poList);
       const sups = (supRes.data as any)?.data ?? supRes.data ?? [];
       setSuppliers(Array.isArray(sups) ? sups.map((s: any) => ({ id: s.id, name: s.name })) : []);
       const prods = (prodRes.data as any)?.data ?? prodRes.data ?? [];
@@ -120,7 +122,8 @@ export default function PurchaseOrdersPage() {
   function openReceive(po: PO) {
     setReceivePo(po);
     setGrnError(null);
-    setGrnLines(po.items.map((i) => ({
+    const items = Array.isArray(po.items) ? po.items : [];
+    setGrnLines(items.map((i) => ({
       productId: i.productId,
       qty: String(Math.max(Number(i.qty) - Number(i.qtyReceived), 0)),
       costPrice: String(Number(i.unitPrice)),
@@ -232,8 +235,11 @@ export default function PurchaseOrdersPage() {
         <div className="space-y-3">
           {pos.map((po) => {
             const meta = STATUS[po.status] ?? STATUS.DRAFT;
-            const ordered = po.items.reduce((s, i) => s + Number(i.qty), 0);
-            const received = po.items.reduce((s, i) => s + Number(i.qtyReceived), 0);
+            const items = Array.isArray(po.items) ? po.items : [];
+            const goodsReceipts = Array.isArray(po.goodsReceipts) ? po.goodsReceipts : [];
+            const purchaseInvoices = Array.isArray(po.purchaseInvoices) ? po.purchaseInvoices : [];
+            const ordered = items.reduce((s, i) => s + Number(i.qty), 0);
+            const received = items.reduce((s, i) => s + Number(i.qtyReceived), 0);
             const pct = ordered > 0 ? Math.round((received / ordered) * 100) : 0;
             const canApprove = po.status === "SUBMITTED";
             const canReceive = ["APPROVED", "PARTIALLY_RECEIVED"].includes(po.status);
@@ -254,7 +260,7 @@ export default function PurchaseOrdersPage() {
                         )}
                       </div>
                       <p className="mt-0.5 text-xs text-gray-400">
-                        {po.supplier?.name} · {new Date(po.orderDate).toLocaleDateString()}
+                        {po.supplier?.name ?? "Supplier"} · {new Date(po.orderDate).toLocaleDateString()}
                         {po.expectedDate ? ` · expected ${new Date(po.expectedDate).toLocaleDateString()}` : ""}
                       </p>
                     </div>
@@ -263,9 +269,9 @@ export default function PurchaseOrdersPage() {
                   <div className="flex items-center gap-3">
                     <div className="text-right">
                       <p className="text-lg font-bold tabular-nums text-gray-900">{fmt(Number(po.total))}</p>
-                      {po.purchaseInvoices.length > 0 && (
+                      {purchaseInvoices.length > 0 && (
                         <p className="flex items-center justify-end gap-1 text-[10px] text-gray-400">
-                          <FileText size={10} /> {po.purchaseInvoices.map((i) => i.piNo).join(", ")}
+                          <FileText size={10} /> {purchaseInvoices.map((i) => i.piNo).join(", ")}
                         </p>
                       )}
                     </div>
@@ -285,7 +291,7 @@ export default function PurchaseOrdersPage() {
 
                 {/* Items */}
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {po.items.map((item) => {
+                  {items.map((item) => {
                     const itemPct = Number(item.qty) > 0 ? Math.round((Number(item.qtyReceived) / Number(item.qty)) * 100) : 0;
                     return (
                       <span key={item.id} className={`rounded-lg px-3 py-1.5 text-xs ${itemPct === 100 ? "bg-emerald-50 text-emerald-700" : itemPct > 0 ? "bg-amber-50 text-amber-700" : "bg-gray-50 text-gray-600"}`}>
@@ -315,8 +321,8 @@ export default function PurchaseOrdersPage() {
                       Cancel
                     </button>
                   )}
-                  {po.goodsReceipts.length > 0 && (
-                    <span className="text-xs text-gray-400">GRNs: {po.goodsReceipts.map((g) => g.grnNo).join(", ")}</span>
+                  {goodsReceipts.length > 0 && (
+                    <span className="text-xs text-gray-400">GRNs: {goodsReceipts.map((g) => g.grnNo).join(", ")}</span>
                   )}
                 </div>
               </div>

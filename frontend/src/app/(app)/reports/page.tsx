@@ -6,7 +6,7 @@ import {
   BarChart3, TrendingUp, Package, DollarSign, Users, CreditCard,
   FileText, RefreshCw, Calendar, Download, Clock, Target,
   AlertTriangle, ArrowUpRight, ArrowDownRight, Layers, PieChart,
-  Wallet, Filter, ChevronDown, Save, Trash2, Plus,
+  Wallet, Filter, ChevronDown, Save, Trash2, Plus, ShoppingCart,
 } from "lucide-react";
 
 type TabType =
@@ -117,7 +117,12 @@ export default function ReportsPage() {
   const [saveName, setSaveName] = useState("");
 
   useEffect(() => {
-    api.get<any[]>("/api/v1/branches").then((r) => setBranches(r)).catch(() => {});
+    api.get<{ data: any[] } | any[]>("/api/v1/branches")
+      .then((r) => {
+        const list = Array.isArray(r) ? r : r?.data ?? [];
+        setBranches(Array.isArray(list) ? list : []);
+      })
+      .catch(() => setBranches([]));
   }, []);
 
   const buildParams = useCallback(() => {
@@ -140,10 +145,10 @@ export default function ReportsPage() {
     try {
       const params = qs();
       const [sum, prod, cat, pay] = await Promise.all([
-        api.get<any[]>(`/api/v1/reports/sales/summary?${params}`),
-        api.get<any[]>(`/api/v1/reports/sales/by-product?${params}`),
-        api.get<any[]>(`/api/v1/reports/sales/by-category?${params}`),
-        api.get<any[]>(`/api/v1/reports/sales/by-payment?${params}`),
+        api.get<any>(`/api/v1/reports/sales/summary?${params}`),
+        api.get<any>(`/api/v1/reports/sales/by-product?${params}`),
+        api.get<any>(`/api/v1/reports/sales/by-category?${params}`),
+        api.get<any>(`/api/v1/reports/sales/by-payment?${params}`),
       ]);
       setSalesSummary(Array.isArray(sum) ? sum : sum?.data || []);
       setSalesByProduct(Array.isArray(prod) ? prod : prod?.data || []);
@@ -158,8 +163,8 @@ export default function ReportsPage() {
     try {
       const params = qs();
       const [val, low, ag, ex] = await Promise.all([
-        api.get<any[]>(`/api/v1/reports/inventory/valuation?${params}`),
-        api.get<any[]>(`/api/v1/reports/inventory/low-stock?${params}`),
+        api.get<any>(`/api/v1/reports/inventory/valuation?${params}`),
+        api.get<any>(`/api/v1/reports/inventory/low-stock?${params}`),
         api.get<any>(`/api/v1/reports/inventory/aging?${params}`),
         api.get<any>(`/api/v1/reports/inventory/expiry?${params}`),
       ]);
@@ -204,7 +209,7 @@ export default function ReportsPage() {
     try {
       const [sum, over] = await Promise.all([
         api.get<any>(`/api/v1/reports/installments/summary`),
-        api.get<any[]>(`/api/v1/reports/installments/overdue`),
+        api.get<any>(`/api/v1/reports/installments/overdue`),
       ]);
       setInstallmentSummary(sum?.data || sum);
       setOverdueInstallments(Array.isArray(over) ? over : over?.data || []);
@@ -216,8 +221,8 @@ export default function ReportsPage() {
     setLoading(true);
     try {
       const [saved, sched] = await Promise.all([
-        api.get<any[]>(`/api/v1/reports/saved`),
-        api.get<any[]>(`/api/v1/reports/scheduled`),
+        api.get<any>(`/api/v1/reports/saved`),
+        api.get<any>(`/api/v1/reports/scheduled`),
       ]);
       setSavedReports(Array.isArray(saved) ? saved : saved?.data || []);
       setScheduledReports(Array.isArray(sched) ? sched : sched?.data || []);
@@ -308,7 +313,7 @@ export default function ReportsPage() {
             className="px-3 py-1.5 text-sm border rounded-lg"
           >
             <option value="">All Branches</option>
-            {branches.map((b: any) => (
+            {(Array.isArray(branches) ? branches : []).map((b: any) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}
           </select>

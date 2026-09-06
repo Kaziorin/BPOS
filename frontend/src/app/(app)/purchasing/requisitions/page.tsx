@@ -154,7 +154,9 @@ export default function RequisitionsPage() {
         <div className="space-y-3">
           {requisitions.map((req) => {
             const meta = STATUS[req.status] ?? STATUS.DRAFT;
-            const total = req.items.reduce((s, i) => s + Number(i.qty) * Number(i.estUnitPrice), 0);
+            const items = Array.isArray(req.items) ? req.items : [];
+            const purchaseOrders = Array.isArray(req.purchaseOrders) ? req.purchaseOrders : [];
+            const total = items.reduce((s, i) => s + Number(i.qty) * Number(i.estUnitPrice), 0);
             return (
               <div key={req.id} className="group rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:shadow-md">
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -168,7 +170,7 @@ export default function RequisitionsPage() {
                         <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${meta.cls}`}>{meta.label}</span>
                       </div>
                       <p className="mt-0.5 text-xs text-gray-400">
-                        {new Date(req.requestDate).toLocaleDateString()} · {req.items.length} item{req.items.length > 1 ? "s" : ""} · est. {fmt(total)}
+                        {new Date(req.requestDate).toLocaleDateString()} · {items.length} item{items.length > 1 ? "s" : ""} · est. {fmt(total)}
                       </p>
                     </div>
                   </div>
@@ -197,7 +199,7 @@ export default function RequisitionsPage() {
 
                 {/* Items */}
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {req.items.map((item) => (
+                  {items.map((item) => (
                     <span key={item.id} className="rounded-lg bg-gray-50 px-3 py-1.5 text-xs text-gray-600">
                       {item.product?.name ?? "Product"} × <strong>{Number(item.qty)}</strong>
                     </span>
@@ -205,9 +207,9 @@ export default function RequisitionsPage() {
                 </div>
 
                 {/* Linked POs / rejection */}
-                {req.purchaseOrders.length > 0 && (
+                {purchaseOrders.length > 0 && (
                   <p className="mt-3 flex items-center gap-1.5 text-xs text-violet-600">
-                    <ShoppingCart size={12} /> Converted: {req.purchaseOrders.map((p) => p.poNo).join(", ")}
+                    <ShoppingCart size={12} /> Converted: {purchaseOrders.map((p) => p.poNo).join(", ")}
                   </p>
                 )}
                 {req.rejectionReason && (

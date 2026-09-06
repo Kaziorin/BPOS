@@ -37,6 +37,12 @@ export function CustomTable<T>({
   emptyMessage = "No records found",
   onRowClick,
 }: CustomTableProps<T>) {
+  const rows: T[] = Array.isArray(data)
+    ? data
+    : Array.isArray((data as any)?.data)
+    ? (data as any).data
+    : [];
+
   if (loading) {
     return (
       <div className="flex h-40 items-center justify-center">
@@ -45,7 +51,7 @@ export function CustomTable<T>({
     );
   }
 
-  if (data.length === 0) {
+  if (rows.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-16 text-gray-400">
         <EmptyIcon size={28} />
@@ -70,7 +76,7 @@ export function CustomTable<T>({
           </tr>
         </thead>
         <tbody>
-          {data.map((row) => (
+          {rows.map((row) => (
             <tr
               key={rowKey(row)}
               onClick={() => onRowClick?.(row)}

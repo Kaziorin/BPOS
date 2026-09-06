@@ -60,8 +60,8 @@ export default function StockPage() {
       header: "Product",
       render: (r) => (
         <div>
-          <p className="font-medium text-gray-900">{r.product.name}</p>
-          <p className="text-xs text-gray-400">{r.variant ? `${r.product.sku} / ${r.variant.sku}` : r.product.sku}</p>
+          <p className="font-medium text-gray-900">{r.product?.name ?? (r as any).productName ?? "Unknown Product"}</p>
+          <p className="text-xs text-gray-400">{r.variant ? `${r.product?.sku ?? ""} / ${r.variant.sku}` : (r.product?.sku ?? (r as any).productSku ?? "—")}</p>
         </div>
       ),
     },

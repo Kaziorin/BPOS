@@ -38,13 +38,16 @@ export default function TargetsPage() {
   const loadScopes = useCallback(async () => {
     try {
       const [b, d, c] = await Promise.all([
-        api.get<{ data: any[] }>("/v1/branches"),
-        api.get<{ data: any[] }>("/v1/hrm/departments?limit=100"),
-        api.get<{ data: any[] }>("/v1/products/categories"),
+        api.get<{ data: any[] }>("/v1/branches").catch(() => ({ data: [] as any[] })),
+        api.get<{ data: any[] }>("/v1/hrm/departments?limit=100").catch(() => ({ data: [] as any[] })),
+        api.get<{ data: any[] }>("/v1/products/categories").catch(() => ({ data: [] as any[] })),
       ]);
-      setBranches((b.data || []).map((x) => ({ id: x.id, name: x.name })));
-      setDepts((d.data || []).map((x) => ({ id: x.id, name: x.name })));
-      setCats((c.data || []).map((x) => ({ id: x.id, name: x.name })));
+      const bList = (b as any)?.data ?? b ?? [];
+      const dList = (d as any)?.data ?? d ?? [];
+      const cList = (c as any)?.data ?? c ?? [];
+      setBranches(Array.isArray(bList) ? bList.map((x: any) => ({ id: x.id, name: x.name })) : []);
+      setDepts(Array.isArray(dList) ? dList.map((x: any) => ({ id: x.id, name: x.name })) : []);
+      setCats(Array.isArray(cList) ? cList.map((x: any) => ({ id: x.id, name: x.name })) : []);
     } catch (err: any) { console.error(err); }
   }, []);
 

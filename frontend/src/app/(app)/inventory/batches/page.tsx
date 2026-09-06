@@ -44,17 +44,18 @@ export default function BatchesPage() {
     setLoading(true);
     const params = new URLSearchParams();
     if (expiringSoon) params.set("expiringSoon", "true");
-    api.get<Batch[]>(`/api/v1/inventory/batches?${params}`)
-      .then(setBatches)
-      .catch(() => {})
+    api.get<{ data: Batch[] } | Batch[]>(`/api/v1/inventory/batches?${params}`)
+      .then((res) => setBatches(Array.isArray(res) ? res : res?.data ?? []))
+      .catch(() => setBatches([]))
       .finally(() => setLoading(false));
   }
 
   useEffect(() => { load(); }, [expiringSoon]);
 
+  const batchList = Array.isArray(batches) ? batches : [];
   const filtered = search
-    ? batches.filter((b) => b.product.name.toLowerCase().includes(search.toLowerCase()) || b.batchNo.toLowerCase().includes(search.toLowerCase()))
-    : batches;
+    ? batchList.filter((b) => (b.product?.name ?? (b as any).productName ?? "").toLowerCase().includes(search.toLowerCase()) || b.batchNo.toLowerCase().includes(search.toLowerCase()))
+    : batchList;
 
   const columns: CustomTableColumn<Batch>[] = [
     {
@@ -62,8 +63,8 @@ export default function BatchesPage() {
       header: "Product",
       render: (r) => (
         <div>
-          <p className="font-medium text-gray-900">{r.product.name}</p>
-          <p className="text-xs text-gray-400">{r.product.sku}</p>
+          <p className="font-medium text-gray-900">{r.product?.name ?? (r as any).productName ?? "Unknown Product"}</p>
+          <p className="text-xs text-gray-400">{r.product?.sku ?? (r as any).productSku ?? (r as any).sku ?? "—"}</p>
         </div>
       ),
     },
