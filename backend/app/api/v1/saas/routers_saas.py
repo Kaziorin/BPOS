@@ -786,11 +786,11 @@ async def onboarding_branch(
     email = body.get("email") or ""
     address = body.get("address") or ""
 
-    existing = (await db.execute(text("SELECT id FROM branches WHERE tenantId = :t AND (code = :c OR isMain = 1) LIMIT 1"), {"t": tenantId, "c": code})).first()
+    existing = (await db.execute(text("SELECT id FROM branches WHERE tenantId = :t AND (code = :c OR status = 'ACTIVE') LIMIT 1"), {"t": tenantId, "c": code})).first()
     if existing:
         await db.execute(
             text(
-                "UPDATE branches SET code = :c, name = :n, phone = :p, email = :e, address = :a, isMain = 1, isActive = 1, updatedAt = NOW() "
+                "UPDATE branches SET code = :c, name = :n, phone = :p, email = :e, address = :a, status = 'ACTIVE', updatedAt = NOW() "
                 "WHERE id = :id"
             ),
             {"id": existing[0], "c": code, "n": name, "p": phone, "e": email, "a": address},
@@ -798,8 +798,8 @@ async def onboarding_branch(
     else:
         await db.execute(
             text(
-                "INSERT INTO branches (id, tenantId, code, name, phone, email, address, isMain, isActive, createdAt, updatedAt) "
-                "VALUES (UUID(), :t, :c, :n, :p, :e, :a, 1, 1, NOW(), NOW())"
+                "INSERT INTO branches (id, tenantId, code, name, phone, email, address, status, createdAt, updatedAt) "
+                "VALUES (UUID(), :t, :c, :n, :p, :e, :a, 'ACTIVE', NOW(), NOW())"
             ),
             {"t": tenantId, "c": code, "n": name, "p": phone, "e": email, "a": address},
         )
@@ -817,19 +817,22 @@ async def onboarding_warehouse(
     name = body.get("name") or "Main Warehouse"
     wtype = body.get("type") or "CENTRAL"
 
+    branch = (await db.execute(text("SELECT id FROM branches WHERE tenantId = :t ORDER BY status DESC LIMIT 1"), {"t": tenantId})).first()
+    branch_id = branch[0] if branch else None
+
     existing = (await db.execute(text("SELECT id FROM warehouses WHERE tenantId = :t AND code = :c LIMIT 1"), {"t": tenantId, "c": code})).first()
     if existing:
         await db.execute(
-            text("UPDATE warehouses SET name = :n, type = :ty, isActive = 1, updatedAt = NOW() WHERE id = :id"),
-            {"id": existing[0], "n": name, "ty": wtype},
+            text("UPDATE warehouses SET name = :n, type = :ty, branchId = COALESCE(branchId, :b), status = 'ACTIVE', updatedAt = NOW() WHERE id = :id"),
+            {"id": existing[0], "n": name, "ty": wtype, "b": branch_id},
         )
     else:
         await db.execute(
             text(
-                "INSERT INTO warehouses (id, tenantId, code, name, type, isActive, createdAt, updatedAt) "
-                "VALUES (UUID(), :t, :c, :n, :ty, 1, NOW(), NOW())"
+                "INSERT INTO warehouses (id, tenantId, branchId, code, name, type, status, createdAt, updatedAt) "
+                "VALUES (UUID(), :t, :b, :c, :n, :ty, 'ACTIVE', NOW(), NOW())"
             ),
-            {"t": tenantId, "c": code, "n": name, "ty": wtype},
+            {"t": tenantId, "b": branch_id, "c": code, "n": name, "ty": wtype},
         )
     await db.commit()
     return ok({"message": "Warehouse configured successfully"})
@@ -855,14 +858,14 @@ async def onboarding_tax(
         existing = (await db.execute(text("SELECT id FROM tax_rates WHERE tenantId = :t AND code = 'VAT' LIMIT 1"), {"t": tenantId})).first()
         if existing:
             await db.execute(
-                text("UPDATE tax_rates SET rate = :r, isDefault = 1, isActive = 1, updatedAt = NOW() WHERE id = :id"),
+                text("UPDATE tax_rates SET rate = :r, isDefault = 1, isActive = 1, status = 'ACTIVE', updatedAt = NOW() WHERE id = :id"),
                 {"id": existing[0], "r": vat_rate},
             )
         else:
             await db.execute(
                 text(
-                    "INSERT INTO tax_rates (id, tenantId, code, name, rate, isDefault, isActive, createdAt, updatedAt) "
-                    "VALUES (UUID(), :t, 'VAT', 'Standard VAT', :r, 1, 1, NOW(), NOW())"
+                    "INSERT INTO tax_rates (id, tenantId, code, name, rate, isDefault, isActive, status, createdAt, updatedAt) "
+                    "VALUES (UUID(), :t, 'VAT', 'Standard VAT', :r, 1, 1, 'ACTIVE', NOW(), NOW())"
                 ),
                 {"t": tenantId, "r": vat_rate},
             )
@@ -901,7 +904,7 @@ async def onboarding_users(
     if existing:
         return err(f"User with email '{email}' already exists", 409)
 
-    branch = (await db.execute(text("SELECT id FROM branches WHERE tenantId = :t ORDER BY isMain DESC LIMIT 1"), {"t": tenantId})).first()
+    branch = (await db.execute(text("SELECT id FROM branches WHERE tenantId = :t ORDER BY status DESC LIMIT 1"), {"t": tenantId})).first()
     branch_id = branch[0] if branch else None
 
     if not role_id:

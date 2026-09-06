@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 
-const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/api\/?$/, "");
+const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000").replace(/\/api\/?$/, "");
 
 /** localStorage key for the workspace (tenant) selected at login — DB-backed via /auth/tenants. */
 export const TENANT_STORAGE_KEY = "blueoceans_tenant";
