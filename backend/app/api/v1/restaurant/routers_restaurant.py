@@ -40,11 +40,14 @@ async def _check_restaurant_enabled(db: AsyncSession, tenantId: str):
     btype = (t[0] or "").upper()
     if btype != "RESTAURANT" and btype != "ALL":
         # Check setting override if businessType is general
-        s = (await db.execute(
-            text("SELECT value FROM tenant_settings WHERE tenantId = :t AND settingKey = 'restaurant_enabled'"),
-            {"t": tenantId},
-        )).first()
-        enabled = s[0] if s else "true"  # Default enabled if not restricted
+        try:
+            s = (await db.execute(
+                text("SELECT value FROM tenant_settings WHERE tenantId = :t AND settingKey = 'restaurant_enabled'"),
+                {"t": tenantId},
+            )).first()
+            enabled = s[0] if s else "true"  # Default enabled if not restricted
+        except Exception:
+            enabled = "true"  # Fallback to enabled if table missing or query fails
         if str(enabled).lower() in ("false", "0", "off"):
             raise Exception("Restaurant module is disabled for this tenant (§11.9)")
 

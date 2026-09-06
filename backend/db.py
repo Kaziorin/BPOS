@@ -42,6 +42,17 @@ AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=F
 
 # ── Auto-migration: create missing tables (idempotent) ──────────────
 _MIGRATION_SQL = [
+    # Tenant Settings table
+    """CREATE TABLE IF NOT EXISTS tenant_settings (
+        id VARCHAR(36) NOT NULL PRIMARY KEY,
+        tenantId VARCHAR(36) NOT NULL,
+        settingKey VARCHAR(100) NOT NULL,
+        value TEXT DEFAULT NULL,
+        createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uk_tenant_setting (tenantId, settingKey),
+        INDEX idx_ts_tenant (tenantId)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci""",
     # Loyalty transactions (§10.22 return reversal audit trail)
     """CREATE TABLE IF NOT EXISTS loyalty_transactions (
         id VARCHAR(36) NOT NULL PRIMARY KEY,
