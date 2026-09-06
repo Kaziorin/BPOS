@@ -454,23 +454,23 @@ function SubscriptionSettings() {
       <div className="grid gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Current Plan</label>
-          <select className="w-full rounded-lg border border-gray-300 px-3 py-2">
+          <select defaultValue="BUSINESS" className="w-full rounded-lg border border-gray-300 px-3 py-2">
             <option value="STARTER">Starter</option>
-            <option value="BUSINESS" selected>Business</option>
+            <option value="BUSINESS">Business</option>
             <option value="ENTERPRISE">Enterprise</option>
           </select>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Max Users</label>
-          <input type="number" className="w-full rounded-lg border border-gray-300 px-3 py-2" value="10" />
+          <input type="number" className="w-full rounded-lg border border-gray-300 px-3 py-2" defaultValue={10} />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Max Branches</label>
-          <input type="number" className="w-full rounded-lg border border-gray-300 px-3 py-2" value="5" />
+          <input type="number" className="w-full rounded-lg border border-gray-300 px-3 py-2" defaultValue={5} />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Max POS Terminals</label>
-          <input type="number" className="w-full rounded-lg border border-gray-300 px-3 py-2" value="20" />
+          <input type="number" className="w-full rounded-lg border border-gray-300 px-3 py-2" defaultValue={20} />
         </div>
       </div>
       <button className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700">
