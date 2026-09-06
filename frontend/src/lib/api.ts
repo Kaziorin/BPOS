@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/api\/?$/, "");
 
 /** localStorage key for the workspace (tenant) selected at login — DB-backed via /auth/tenants. */
 export const TENANT_STORAGE_KEY = "blueoceans_tenant";
@@ -23,6 +23,7 @@ export const axiosClient = axios.create({
   baseURL: API_URL,
   headers: { "Content-Type": "application/json" },
 });
+
 
 /**
  * Normalize a frontend path to the Python backend's real route space.

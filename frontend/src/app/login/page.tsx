@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   const formik = useFormik({
-    initialValues: { email: "", password: "", tenantSlug: "demo-shop" },
+    initialValues: { email: "admin@gmail.com", password: "12345678", tenantSlug: "demo-shop" },
     validationSchema: loginSchema,
     onSubmit: async (values, { setSubmitting }) => {
       setError(null);
@@ -39,6 +39,7 @@ export default function LoginPage() {
     formik.setFieldValue("password", pass);
     formik.setFieldValue("tenantSlug", slug);
   }
+
 
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-radial from-slate-900 via-ink-950 to-black px-4 py-12">
@@ -131,13 +132,14 @@ export default function LoginPage() {
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
-              onClick={() => fillDemo("admin@blueoceanspos.com", "Admin@123")}
+              onClick={() => fillDemo("admin@gmail.com", "12345678")}
               className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/10 hover:bg-white/20 transition border border-white/5 text-center group"
             >
               <ShieldCheck size={16} className="text-cyan-400 mb-1 group-hover:scale-110 transition" />
               <span className="text-xs font-semibold">Super Admin</span>
               <span className="text-[10px] text-ink-300">Full ERP</span>
             </button>
+
             <button
               type="button"
               onClick={() => fillDemo("manager@blueoceanspos.com", "Admin@123")}

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import textwrap
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Query
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -231,6 +231,42 @@ async def dashboard_summary(
             "customerDues": float(dues[0] or 0),
         }
     )
+
+
+@router.get("/api/v1/dashboard/trend")
+async def dashboard_trend(
+    days: int = Query(7),
+    branchId: str = "",
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    """Daily sales trend for dashboard charts."""
+    params: dict = {"t": tenantId, "d": max(1, days)}
+    branch_filter = ""
+    if branchId:
+        branch_filter = " AND s.branchId = :b"
+        params["b"] = branchId
+
+    rows = rows_to_dicts(
+        (
+            await db.execute(
+                text(
+                    f"SELECT DATE(s.createdAt) AS date, "
+                    f"COALESCE(SUM(s.total), 0) AS total "
+                    f"FROM sales s "
+                    f"WHERE s.tenantId = :t AND s.status = 'CONFIRMED' "
+                    f"AND s.createdAt >= DATE_SUB(NOW(), INTERVAL :d DAY) "
+                    f"{branch_filter} "
+                    f"GROUP BY DATE(s.createdAt) ORDER BY date"
+                ),
+                params,
+            )
+        ).fetchall()
+    )
+
+    # Format into TrendPoint list: [{"date": "2026-09-06", "total": 12500.0}]
+    results = [{"date": str(r["date"]), "total": float(r["total"] or 0)} for r in rows]
+    return ok(results)
 
 
 @router.get("/api/v1/modules")

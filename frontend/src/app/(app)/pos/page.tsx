@@ -7,6 +7,7 @@ import {
   Keyboard,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { cn } from "@/lib/cn";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomSelect } from "@/components/custom/CustomSelect";
 import { CustomButton } from "@/components/custom/CustomButton";

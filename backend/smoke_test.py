@@ -30,9 +30,9 @@ def req(method, path, body=None, token=None, tenant="demo-shop"):
         return 0, {"error": str(e)}
 
 
-def check(name, cond, extra=""):
-    mark = "✓" if cond else "✗"
-    print(f"  {mark} {name}" + (f" — {extra}" if extra and not cond else ""))
+def check(name: str, cond: bool, extra: str = ""):
+    mark = "[OK]" if cond else "[FAIL]"
+    print(f"  {mark} {name}" + (f" -> {extra}" if extra and not cond else ""))
     if not cond:
         FAILS.append(name)
 
