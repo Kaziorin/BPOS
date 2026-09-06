@@ -462,15 +462,15 @@ function SubscriptionSettings() {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Max Users</label>
-          <input type="number" className="w-full rounded-lg border border-gray-300 px-3 py-2" defaultValue={10} />
+          <input type="number" className="w-full rounded-lg border border-gray-300 px-3 py-2" defaultValue={10} readOnly />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Max Branches</label>
-          <input type="number" className="w-full rounded-lg border border-gray-300 px-3 py-2" defaultValue={5} />
+          <input type="number" className="w-full rounded-lg border border-gray-300 px-3 py-2" defaultValue={5} readOnly />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Max POS Terminals</label>
-          <input type="number" className="w-full rounded-lg border border-gray-300 px-3 py-2" defaultValue={20} />
+          <input type="number" className="w-full rounded-lg border border-gray-300 px-3 py-2" defaultValue={20} readOnly />
         </div>
       </div>
       <button className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700">
