@@ -1,0 +1,23 @@
+[Unit]
+Description=Blue Oceans POS — FastAPI backend (:4000)
+After=network.target mysql.service mariadb.service
+Wants=network.target
+
+[Service]
+Type=simple
+# Adjust User/Group + WorkingDirectory to the deploy user on the target host.
+User=wadi
+Group=wadi
+WorkingDirectory=/home/wadi/Project/NextJs/modernpos/backend
+# EnvironmentFile: real secrets live in /etc/omni-pos/backend.env (0600 root:deploy)
+EnvironmentFile=-/etc/omni-pos/backend.env
+ExecStart=/usr/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 4000
+Restart=on-failure
+RestartSec=3
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

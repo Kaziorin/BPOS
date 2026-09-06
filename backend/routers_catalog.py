@@ -1,0 +1,539 @@
+"""Catalog routers — products, categories, brands, customers, suppliers (Prompts 6-7 parity)."""
+from __future__ import annotations
+
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from db import get_db, txn
+from security import require_auth, require_permission, resolve_tenant, AuthUser
+from util import ok, err, rows_to_dicts, paginate_params, ApiJSONResponse
+import cache as cache_mod  # Prompt 39: TTL cache (products/customers quick-lookup)
+import workflow as wf
+
+router = APIRouter()
+
+# ─────────────────────────── PRODUCTS ───────────────────────────
+
+@router.get("/api/v1/products")
+async def list_products(
+    search: str = "", productType: str = "", status: str = "",
+    page: int = Query(1), limit: int = Query(20),
+    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
+):
+    # Prompt 39: product catalog list is cached (30s TTL, per tenant + filters).
+    cache_key = f"products:{tenantId}:list:{search}|{productType}|{status}|{page}|{limit}"
+    hit = cache_mod.get(cache_key)
+    if hit is not None:
+        return ApiJSONResponse(hit)
+    where = "p.tenantId = :t"
+    params: dict = {"t": tenantId}
+    if search:
+        where += " AND (p.name LIKE :s OR p.sku LIKE :s OR p.barcode LIKE :s)"
+        params["s"] = f"%{search}%"
+    if productType:
+        where += " AND p.productType = :pt"; params["pt"] = productType
+    if status:
+        where += " AND p.status = :st"; params["st"] = status
+    off, lim = paginate_params(page, limit)
+    rows = rows_to_dicts(
+        (
+            await db.execute(
+                text(
+                    f"SELECT p.id, p.name, p.sku, p.barcode, p.productType, p.costPrice, p.sellingPrice, "
+                    f"p.wholesalePrice, p.status, p.createdAt, c.name AS categoryName, c.id AS categoryId, "
+                    f"b.name AS brandName, u.name AS unitName "
+                    f"FROM products p LEFT JOIN categories c ON c.id = p.categoryId "
+                    f"LEFT JOIN brands b ON b.id = p.brandId LEFT JOIN units u ON u.id = p.unitId "
+                    f"WHERE {where} ORDER BY p.createdAt DESC LIMIT :lim OFFSET :off"
+                ),
+                {**params, "lim": lim, "off": off},
+            )
+        ).fetchall()
+    )
+    for r in rows:
+        r["category"] = {"id": r.pop("categoryId"), "name": r.pop("categoryName")} if r.get("categoryId") else None
+        r["brand"] = {"id": None, "name": r.pop("brandName")} if r.get("brandName") else None
+        r["unit"] = {"id": None, "name": r.pop("unitName")} if r.get("unitName") else None
+        r["productType"] = r.pop("productType")
+        r["costPrice"] = r.pop("costPrice"); r["sellingPrice"] = r.pop("sellingPrice")
+        r["wholesalePrice"] = r.pop("wholesalePrice")
+        r["createdAt"] = r.pop("createdAt")
+        r["_count"] = {"variants": 0, "stockRows": 0}
+    total = (await db.execute(text(f"SELECT COUNT(*) FROM products p WHERE {where}"), params)).first()[0]
+    body = {"data": rows, "pagination": {"page": page, "limit": lim, "total": total,
+                                         "totalPages": (total + lim - 1) // lim}}
+    cache_mod.set(cache_key, body, ttl=30)
+    return ApiJSONResponse(body)
+
+
+@router.post("/api/v1/products")
+async def create_product(
+    body: dict,
+    user: AuthUser = Depends(require_permission("products.create")),
+    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
+):
+    name, sku = body.get("name"), body.get("sku")
+    if not name or not sku:
+        return err("Name and SKU are required", 400)
+    dup = (
+        await db.execute(text("SELECT id FROM products WHERE tenantId=:t AND (sku=:s OR (barcode=:b AND barcode IS NOT NULL))"),
+                          {"t": tenantId, "s": sku, "b": body.get("barcode")})
+    ).first()
+    if dup:
+        return err("Product with this SKU/barcode already exists", 409)
+    await db.execute(
+        text(
+            "INSERT INTO products (id, tenantId, categoryId, brandId, unitId, supplierId, name, sku, barcode, "
+            "manufacturer, productType, costPrice, sellingPrice, wholesalePrice, minPrice, maxPrice, taxRate, "
+            "warrantyDays, description, createdBy) "
+            "VALUES (UUID(), :t, :c, :b, :u, :sup, :n, :sku, :bar, :man, :pt, :cp, :sp, :wp, :minp, :maxp, :tax, :war, :d, :cb)"
+        ),
+        {
+            "t": tenantId, "c": body.get("categoryId"), "b": body.get("brandId"), "u": body.get("unitId"),
+            "sup": body.get("supplierId"), "n": name, "sku": sku, "bar": body.get("barcode"),
+            "man": body.get("manufacturer"), "pt": body.get("productType", "SIMPLE"),
+            "cp": body.get("costPrice", 0), "sp": body.get("sellingPrice", 0),
+            "wp": body.get("wholesalePrice"), "minp": body.get("minPrice"), "maxp": body.get("maxPrice"),
+            "tax": body.get("taxRate"), "war": body.get("warrantyDays"), "d": body.get("description"), "cb": user.id,
+        },
+    )
+    await db.commit()
+    cache_mod.invalidate_namespace("products", tenantId)
+    row = (
+        await db.execute(text("SELECT id, name, sku FROM products WHERE tenantId=:t AND sku=:s"), {"t": tenantId, "s": sku})
+    ).first()
+    return ok({"id": row.id, "name": row.name, "sku": row.sku}, 201)
+
+
+@router.get("/api/v1/products/{productId}")
+async def get_product(
+    productId: str,
+    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
+):
+    # Prompt 39: product detail cached 30s per tenant — invalidated on any write.
+    cache_key = f"products:{tenantId}:{productId}"
+    hit = cache_mod.get(cache_key)
+    if hit is not None:
+        return ApiJSONResponse(hit)
+    r = (
+        await db.execute(
+            text(
+                "SELECT p.*, c.name AS cat_name, b.name AS brandName, u.name AS unitName, sup.name AS supplierName "
+                "FROM products p LEFT JOIN categories c ON c.id=p.categoryId LEFT JOIN brands b ON b.id=p.brandId "
+                "LEFT JOIN units u ON u.id=p.unitId LEFT JOIN suppliers sup ON sup.id=p.supplierId "
+                "WHERE p.id=:id AND p.tenantId=:t"
+            ),
+            {"id": productId, "t": tenantId},
+        )
+    ).first()
+    if not r:
+        return err("Product not found", 404)
+    d = dict(r._mapping)
+    for k_old, k_new in [("productType", "productType"), ("costPrice", "costPrice"), ("sellingPrice", "sellingPrice"),
+                          ("wholesalePrice", "wholesalePrice"), ("minPrice", "minPrice"), ("maxPrice", "maxPrice"),
+                          ("taxRate", "taxRate"), ("warrantyDays", "warrantyDays"), ("createdAt", "createdAt")]:
+        d[k_new] = d.pop(k_old, None)
+    d["category"] = {"id": d.pop("categoryId"), "name": d.pop("cat_name")} if d.get("categoryId") else None
+    d["brand"] = {"id": d.pop("brandId"), "name": d.pop("brandName")} if d.get("brandName") else None
+    d["unit"] = {"id": d.pop("unitId"), "name": d.pop("unitName")} if d.get("unitName") else None
+    d["supplier"] = {"id": d.pop("supplierId"), "name": d.pop("supplierName")} if d.get("supplierName") else None
+    variants = rows_to_dicts(
+        (
+            await db.execute(
+                text("SELECT id, name, sku, barcode, costPrice, sellingPrice, wholesalePrice, minPrice, maxPrice, status "
+                     "FROM product_variants WHERE tenantId=:t AND productId=:id"),
+                {"t": tenantId, "id": productId},
+            )
+        ).fetchall()
+    )
+    stock = rows_to_dicts(
+        (
+            await db.execute(
+                text("SELECT s.*, w.name AS warehouseName, w.code AS wh_code FROM stock s JOIN warehouses w ON w.id=s.warehouseId "
+                     "WHERE s.tenantId=:t AND s.productId=:id"),
+                {"t": tenantId, "id": productId},
+            )
+        ).fetchall()
+    )
+    body = {"data": {**d, "variants": variants, "stockRows": stock,
+                    "_count": {"variants": len(variants), "stockRows": len(stock)}}}
+    cache_mod.set(cache_key, body, ttl=30)
+    return ApiJSONResponse(body)
+
+
+@router.put("/api/v1/products/{productId}")
+async def update_product(
+    productId: str,
+    body: dict,
+    user: AuthUser = Depends(require_permission("products.edit")),
+    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
+):
+    exists = (
+        await db.execute(text("SELECT id FROM products WHERE id=:id AND tenantId=:t"), {"id": productId, "t": tenantId})
+    ).first()
+    if not exists:
+        return err("Product not found", 404)
+    allowed = {"name": "name", "categoryId": "categoryId", "brandId": "brandId", "unitId": "unitId",
+               "supplierId": "supplierId", "barcode": "barcode", "manufacturer": "manufacturer",
+               "productType": "productType", "costPrice": "costPrice", "sellingPrice": "sellingPrice",
+               "wholesalePrice": "wholesalePrice", "minPrice": "minPrice", "maxPrice": "maxPrice",
+               "taxRate": "taxRate", "warrantyDays": "warrantyDays", "description": "description", "status": "status"}
+    sets, params = [], {"id": productId, "u": user.id}
+    # ── Prompt 27 price approval: big price moves need manager sign-off (§10.26) ──
+    price_keys = ["sellingPrice", "wholesalePrice", "costPrice"]
+    proposed_prices = {k: body[k] for k in price_keys if k in body and body[k] is not None}
+    if proposed_prices:
+        cur = (await db.execute(text(
+            "SELECT name, sku, sellingPrice, wholesalePrice, costPrice FROM products WHERE id=:id AND tenantId=:t"),
+            {"id": productId, "t": tenantId})).first()
+        if cur:
+            delta = 0.0
+            for k in price_keys:
+                if k in proposed_prices:
+                    old = float(cur[2] if k == "sellingPrice" else cur[3] if k == "wholesalePrice" else cur[4] or 0)
+                    delta = max(delta, abs(float(proposed_prices[k]) - old))
+            apr = await wf.create_approval(
+                db, tenantId, "PRICE_CHANGE", productId, cur[1],
+                f"Price change on {cur[0]} (৳{delta:,.0f})", delta,
+                {"productId": productId, "prices": proposed_prices, "delta": delta}, user.id)
+            if apr:
+                await db.commit()
+                cache_mod.invalidate_namespace("products", tenantId)
+                return ok({"updated": False, "needsApproval": True, "approval": apr}, 202)
+    for jk, ck in allowed.items():
+        if jk in body:
+            sets.append(f"{ck} = :{ck}"); params[ck] = body[jk]
+    if sets:
+        sets.append("updatedBy = :u")
+        await db.execute(text(f"UPDATE products SET {', '.join(sets)} WHERE id = :id"), params)
+        await db.commit()
+        cache_mod.invalidate_namespace("products", tenantId)
+    return ok({"updated": True})
+
+
+@router.delete("/api/v1/products/{productId}")
+async def delete_product(
+    productId: str,
+    user: AuthUser = Depends(require_permission("products.delete")),
+    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
+):
+    used = (
+        await db.execute(text("SELECT COUNT(*) FROM sale_items WHERE productId=:id"), {"id": productId})
+    ).first()
+    if used[0] > 0:
+        await db.execute(text("UPDATE products SET status='INACTIVE' WHERE id=:id AND tenantId=:t"), {"id": productId, "t": tenantId})
+        await db.commit()
+        cache_mod.invalidate_namespace("products", tenantId)
+        return ok({"deleted": False, "deactivated": True, "reason": "has sales"})
+    res = await db.execute(text("DELETE FROM products WHERE id=:id AND tenantId=:t"), {"id": productId, "t": tenantId})
+    await db.commit()
+    cache_mod.invalidate_namespace("products", tenantId)
+    return ok({"deleted": res.rowcount > 0})
+
+
+# ─────────────────────────── CATEGORIES / BRANDS ───────────────────────────
+
+@router.get("/api/v1/products/categories")
+async def list_categories(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    rows = rows_to_dicts(
+        (
+            await db.execute(
+                text("SELECT id, name, parentId, status FROM categories WHERE tenantId=:t AND parentId IS NULL ORDER BY name"),
+                {"t": tenantId},
+            )
+        ).fetchall()
+    )
+    return ok(rows)
+
+
+@router.post("/api/v1/products/categories")
+async def create_category(body: dict, user: AuthUser = Depends(require_permission("products.categories.create")),
+                          tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    name = body.get("name")
+    if not name: return err("Name is required", 400)
+    dup = (await db.execute(text("SELECT id FROM categories WHERE tenantId=:t AND name=:n"), {"t": tenantId, "n": name})).first()
+    if dup: return err("Category already exists", 409)
+    await db.execute(text("INSERT INTO categories (id, tenantId, name, createdBy) VALUES (UUID(), :t, :n, :u)"),
+                     {"t": tenantId, "n": name, "u": user.id},)
+    await db.commit()
+    return ok({"created": True}, 201)
+
+
+@router.get("/api/v1/brands")
+async def list_brands(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    rows = rows_to_dicts(
+        (await db.execute(text("SELECT id, name, status FROM brands WHERE tenantId=:t ORDER BY name"), {"t": tenantId})).fetchall()
+    )
+    return ok(rows)
+
+
+# ─────────────────────────── CUSTOMERS ───────────────────────────
+
+@router.get("/api/v1/customers")
+async def list_customers(
+    search: str = "", segmentation: str = "", groupId: str = "", status: str = "",
+    page: int = Query(1), limit: int = Query(20),
+    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
+):
+    # Prompt 39: customer quick-lookup cached 20s per tenant + filters.
+    cache_key = f"customers:{tenantId}:list:{search}|{segmentation}|{groupId}|{status}|{page}|{limit}"
+    hit = cache_mod.get(cache_key)
+    if hit is not None:
+        return ApiJSONResponse(hit)
+    where = "c.tenantId = :t"
+    params: dict = {"t": tenantId}
+    if search:
+        where += " AND (c.name LIKE :s OR c.phone LIKE :s OR c.email LIKE :s)"; params["s"] = f"%{search}%"
+    if segmentation: where += " AND c.segmentation = :seg"; params["seg"] = segmentation
+    if groupId: where += " AND c.groupId = :g"; params["g"] = groupId
+    if status: where += " AND c.status = :st"; params["st"] = status
+    off, lim = paginate_params(page, limit)
+    rows = rows_to_dicts(
+        (
+            await db.execute(
+                text(
+                    f"SELECT c.*, g.name AS group_name, "
+                    f"(SELECT COUNT(*) FROM sales s WHERE s.customerId = c.id) salesCount "
+                    f"FROM customers c LEFT JOIN customer_groups g ON g.id = c.groupId "
+                    f"WHERE {where} ORDER BY c.createdAt DESC LIMIT :lim OFFSET :off"
+                ),
+                {**params, "lim": lim, "off": off},
+            )
+        ).fetchall()
+    )
+    for r in rows:
+        r["group"] = {"id": r.pop("groupId"), "name": r.pop("group_name")} if r.get("group_name") else None
+        r["_count"] = {"sales": r.pop("salesCount"), "invoices": 0, "complaints": 0}
+    total = (await db.execute(text(f"SELECT COUNT(*) FROM customers c WHERE {where}"), params)).first()[0]
+    body = {"data": rows, "pagination": {"page": page, "limit": lim, "total": total,
+                                         "totalPages": (total + lim - 1) // lim}}
+    cache_mod.set(cache_key, body, ttl=20)
+    return ApiJSONResponse(body)
+
+
+@router.post("/api/v1/customers")
+async def create_customer(
+    body: dict, user: AuthUser = Depends(require_permission("customers.create")),
+    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
+):
+    name = body.get("name")
+    if not name: return err("Name is required", 400)
+    phone = body.get("phone")
+    if phone:
+        dup = (await db.execute(text("SELECT id FROM customers WHERE tenantId=:t AND phone=:p"), {"t": tenantId, "p": phone})).first()
+        if dup: return err("Customer with this phone already exists", 409)
+    await db.execute(
+        text(
+            "INSERT INTO customers (id, tenantId, name, phone, email, address, city, dateOfBirth, gender, taxRegNo, "
+            "groupId, segmentation, creditLimit, creditPeriodDays, openingDue, currentDue, notes, createdBy) "
+            "VALUES (UUID(), :t, :n, :p, :e, :a, :c, :dob, :g, :tax, :gr, :seg, :cl, :cp, :od, :od, :notes, :u)"
+        ),
+        {"t": tenantId, "n": name, "p": phone, "e": body.get("email"), "a": body.get("address"), "c": body.get("city"),
+         "dob": body.get("dateOfBirth"), "g": body.get("gender"), "tax": body.get("taxRegNo"), "gr": body.get("groupId"),
+         "seg": body.get("segmentation", "NEW"), "cl": body.get("creditLimit", 0), "cp": body.get("creditPeriodDays"),
+         "od": body.get("openingDue", 0), "notes": body.get("notes"), "u": user.id},
+    )
+    await db.commit()
+    cache_mod.invalidate_namespace("customers", tenantId)
+    return ok({"created": True, "name": name}, 201)
+
+
+@router.get("/api/v1/customers/{customerId}")
+async def get_customer(customerId: str, tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    r = (
+        await db.execute(
+            text(
+                "SELECT c.*, g.name AS group_name FROM customers c LEFT JOIN customer_groups g ON g.id=c.groupId "
+                "WHERE c.id=:id AND c.tenantId=:t"
+            ),
+            {"id": customerId, "t": tenantId},
+        )
+    ).first()
+    if not r: return err("Customer not found", 404)
+    d = dict(r._mapping)
+    d["group"] = {"id": d.pop("groupId"), "name": d.pop("group_name")} if d.get("group_name") else None
+    notes = rows_to_dicts(
+        (await db.execute(text("SELECT * FROM customer_notes WHERE customerId=:id ORDER BY createdAt DESC LIMIT 20"), {"id": customerId})).fetchall()
+    )
+    complaints = rows_to_dicts(
+        (await db.execute(text("SELECT * FROM customer_complaints WHERE customerId=:id ORDER BY createdAt DESC LIMIT 20"), {"id": customerId})).fetchall()
+    )
+    sales_agg = (
+        await db.execute(
+            text("SELECT COUNT(*) c, COALESCE(SUM(total),0) s FROM sales WHERE customerId=:id AND status != 'CANCELLED'"),
+            {"id": customerId},
+        )
+    ).first()
+    recent = rows_to_dicts(
+        (
+            await db.execute(
+                text("SELECT id, invoiceNo, total, status, createdAt FROM sales WHERE tenantId=:t AND customerId=:id ORDER BY createdAt DESC LIMIT 10"),
+                {"t": tenantId, "id": customerId},
+            )
+        ).fetchall()
+    )
+    return ok({**d, "customerNotes": notes, "complaints": complaints,
+               "purchaseHistory": {"totalSpent": float(sales_agg.s or 0), "totalOrders": sales_agg.c},
+               "recentSales": recent, "_count": {"sales": sales_agg.c, "invoices": 0, "complaints": len(complaints)}})
+
+
+@router.put("/api/v1/customers/{customerId}")
+async def update_customer(customerId: str, body: dict,
+                          user: AuthUser = Depends(require_permission("customers.edit")),
+                          tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    allowed = {"name": "name", "phone": "phone", "email": "email", "address": "address", "city": "city",
+               "segmentation": "segmentation", "groupId": "groupId", "creditLimit": "creditLimit",
+               "creditPeriodDays": "creditPeriodDays", "currentDue": "currentDue", "walletBalance": "walletBalance",
+               "storeCredit": "storeCredit", "loyaltyPoints": "loyaltyPoints", "notes": "notes", "status": "status"}
+    sets, params = [], {"id": customerId, "t": tenantId, "u": user.id}
+    for jk, ck in allowed.items():
+        if jk in body: sets.append(f"{ck} = :{ck}"); params[ck] = body[jk]
+    if not sets: return err("Nothing to update", 400)
+    sets.append("updatedBy = :u")
+    res = await db.execute(text(f"UPDATE customers SET {', '.join(sets)} WHERE id=:id AND tenantId=:t"), params)
+    await db.commit()
+    cache_mod.invalidate_namespace("customers", tenantId)
+    if res.rowcount == 0: return err("Customer not found", 404)
+    return ok({"updated": True})
+
+
+@router.post("/api/v1/customers/{customerId}/notes")
+async def add_note(customerId: str, body: dict,
+                   user: AuthUser = Depends(require_permission("customers.edit")),
+                   tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    note = body.get("note")
+    if not note: return err("Note is required", 400)
+    await db.execute(
+        text("INSERT INTO customer_notes (id, tenantId, customerId, note, createdBy, updatedAt) VALUES (UUID(), :t, :id, :n, :u, NOW())"),
+        {"t": tenantId, "id": customerId, "n": note, "u": user.id},
+    )
+    await db.commit()
+    return ok({"created": True}, 201)
+
+
+@router.post("/api/v1/customers/{customerId}/complaints")
+async def add_complaint(customerId: str, body: dict,
+                        user: AuthUser = Depends(require_permission("customers.edit")),
+                        tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    subject = body.get("subject")
+    if not subject: return err("Subject is required", 400)
+    await db.execute(
+        text(
+            "INSERT INTO customer_complaints (id, tenantId, customerId, subject, description, priority, createdBy) "
+            "VALUES (UUID(), :t, :id, :s, :d, :p, :u)"
+        ),
+        {"t": tenantId, "id": customerId, "s": subject, "d": body.get("description"),
+         "p": body.get("priority", "MEDIUM"), "u": user.id},
+    )
+    await db.commit()
+    return ok({"created": True}, 201)
+
+
+@router.get("/api/v1/customer-groups")
+async def list_customer_groups(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    rows = rows_to_dicts(
+        (
+            await db.execute(
+                text("SELECT g.*, (SELECT COUNT(*) FROM customers c WHERE c.groupId = g.id) customerCount "
+                     "FROM customer_groups g WHERE g.tenantId=:t ORDER BY g.name"),
+                {"t": tenantId},
+            )
+        ).fetchall()
+    )
+    for r in rows:
+        r["_count"] = {"customers": r.pop("customerCount")}
+    return ok(rows)
+
+
+# ─────────────────────────── SUPPLIERS ───────────────────────────
+
+@router.get("/api/v1/suppliers")
+async def list_suppliers(
+    search: str = "", status: str = "", page: int = Query(1), limit: int = Query(20),
+    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
+):
+    where = "s.tenantId = :t"
+    params: dict = {"t": tenantId}
+    if search:
+        where += " AND (s.name LIKE :q OR s.company LIKE :q OR s.phone LIKE :q)"; params["q"] = f"%{search}%"
+    if status: where += " AND s.status = :st"; params["st"] = status
+    off, lim = paginate_params(page, limit)
+    rows = rows_to_dicts(
+        (
+            await db.execute(
+                text(
+                    f"SELECT s.*, (SELECT COUNT(*) FROM purchase_orders po WHERE po.supplierId = s.id) poCount, "
+                    f"(SELECT COUNT(*) FROM products p WHERE p.supplierId = s.id) productCount "
+                    f"FROM suppliers s WHERE {where} ORDER BY s.createdAt DESC LIMIT :lim OFFSET :off"
+                ),
+                {**params, "lim": lim, "off": off},
+            )
+        ).fetchall()
+    )
+    for r in rows:
+        r["_count"] = {"purchaseOrders": r.pop("poCount"), "goodsReceipts": 0, "products": r.pop("productCount")}
+    total = (await db.execute(text(f"SELECT COUNT(*) FROM suppliers s WHERE {where}"), params)).first()[0]
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": (total + lim - 1) // lim}})
+
+
+@router.post("/api/v1/suppliers")
+async def create_supplier(body: dict, user: AuthUser = Depends(require_permission("suppliers.create")),
+                          tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    name = body.get("name")
+    if not name: return err("Name is required", 400)
+    dup = (await db.execute(text("SELECT id FROM suppliers WHERE tenantId=:t AND name=:n"), {"t": tenantId, "n": name})).first()
+    if dup: return err("Supplier with this name already exists", 409)
+    await db.execute(
+        text(
+            "INSERT INTO suppliers (id, tenantId, name, company, contactPerson, phone, email, address, city, vatRegNo, "
+            "paymentTermsDays, creditLimit, openingDue, currentDue, rebatePercent, notes, createdBy) "
+            "VALUES (UUID(), :t, :n, :c, :cp, :p, :e, :a, :ct, :v, :pt, :cl, :od, :od, :rb, :notes, :u)"
+        ),
+        {"t": tenantId, "n": name, "c": body.get("company"), "cp": body.get("contactPerson"), "p": body.get("phone"),
+         "e": body.get("email"), "a": body.get("address"), "ct": body.get("city"), "v": body.get("vatRegNo"),
+         "pt": body.get("paymentTermsDays"), "cl": body.get("creditLimit", 0), "od": body.get("openingDue", 0),
+         "rb": body.get("rebatePercent") if body.get("rebatePercent") is not None else 0,
+         "notes": body.get("notes"), "u": user.id},
+    )
+    await db.commit()
+    return ok({"created": True, "name": name}, 201)
+
+
+@router.get("/api/v1/suppliers/{supplierId}")
+async def get_supplier(supplierId: str, tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    r = (await db.execute(text("SELECT * FROM suppliers WHERE id=:id AND tenantId=:t"), {"id": supplierId, "t": tenantId})).first()
+    if not r: return err("Supplier not found", 404)
+    d = dict(r._mapping)
+    agg = (await db.execute(
+        text("SELECT COUNT(*) c, COALESCE(SUM(total),0) s FROM purchase_orders WHERE supplierId=:id AND status != 'CANCELLED'"),
+        {"id": supplierId})).first()
+    recent = rows_to_dicts(
+        (await db.execute(
+            text("SELECT id, poNo, total, status, createdAt FROM purchase_orders WHERE tenantId=:t AND supplierId=:id ORDER BY createdAt DESC LIMIT 10"),
+            {"t": tenantId, "id": supplierId})).fetchall()
+    )
+    productCount = (await db.execute(text("SELECT COUNT(*) FROM products WHERE supplierId=:id"), {"id": supplierId})).first()[0]
+    return ok({**d, "purchaseHistory": {"totalPurchased": float(agg.s or 0), "totalOrders": agg.c},
+               "recentPOs": recent, "_count": {"purchaseOrders": agg.c, "goodsReceipts": 0, "products": productCount}})
+
+
+@router.put("/api/v1/suppliers/{supplierId}")
+async def update_supplier(supplierId: str, body: dict,
+                          user: AuthUser = Depends(require_permission("suppliers.edit")),
+                          tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    allowed = {"name": "name", "company": "company", "contactPerson": "contactPerson", "phone": "phone",
+               "email": "email", "address": "address", "city": "city", "vatRegNo": "vatRegNo",
+               "paymentTermsDays": "paymentTermsDays", "creditLimit": "creditLimit", "currentDue": "currentDue",
+               "rebatePercent": "rebatePercent", "deliveryPerformanceScore": "deliveryPerformanceScore",
+               "qualityScore": "qualityScore", "defectRate": "defectRate", "returnRate": "returnRate",
+               "notes": "notes", "status": "status"}
+    sets, params = [], {"id": supplierId, "t": tenantId, "u": user.id}
+    for jk, ck in allowed.items():
+        if jk in body: sets.append(f"{ck} = :{ck}"); params[ck] = body[jk]
+    if not sets: return err("Nothing to update", 400)
+    sets.append("updatedBy = :u")
+    res = await db.execute(text(f"UPDATE suppliers SET {', '.join(sets)} WHERE id=:id AND tenantId=:t"), params)
+    await db.commit()
+    if res.rowcount == 0: return err("Supplier not found", 404)
+    return ok({"updated": True})

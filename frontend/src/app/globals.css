@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4f8fa;
+  --foreground: #0f1f2b;
+}
+
+/*
+  Global color system for Blue Oceans POS.
+  "primary" (ocean cyan/teal) is the sole brand hue, paired with "ink"
+  (a deep navy used for dark surfaces like the dashboard hero card)
+  and Tailwind's built-in blue/violet/red/emerald for functional accents.
+  Every component should reference these tokens (bg-primary-600,
+  text-ink-400, ...) instead of hard-coded hex values, so the whole theme
+  can be re-colored from here.
+*/
+@theme {
+  --color-primary-50: #ecfeff;
+  --color-primary-100: #cffafe;
+  --color-primary-200: #a5f3fc;
+  --color-primary-300: #67e8f9;
+  --color-primary-400: #22d3ee;
+  --color-primary-500: #06b6d4;
+  --color-primary-600: #0891b2;
+  --color-primary-700: #0e7490;
+  --color-primary-800: #155e75;
+  --color-primary-900: #164e63;
+
+  --color-ink-50: #eef6fb;
+  --color-ink-100: #d9ebf5;
+  --color-ink-200: #b3d7ea;
+  --color-ink-300: #82b9d9;
+  --color-ink-400: #4e94bd;
+  --color-ink-500: #2e73a0;
+  --color-ink-600: #225d86;
+  --color-ink-700: #1d4d70;
+  --color-ink-800: #1a3f5c;
+  --color-ink-900: #142f46;
+  --color-ink-950: #0b1d2e;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Smooth, reusable enter animations for overlays (modal, dropdown, popover). */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-14px) translateX(10px);
+  }
+}
+
+* {
+  scrollbar-width: thin;
+}

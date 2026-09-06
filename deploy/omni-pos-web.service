@@ -1,0 +1,21 @@
+[Unit]
+Description=Blue Oceans POS — Next.js frontend (:3000)
+After=network.target omni-pos-api.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=wadi
+Group=wadi
+WorkingDirectory=/home/wadi/Project/NextJs/modernpos/frontend
+EnvironmentFile=-/etc/omni-pos/frontend.env
+# Point the built app at the API (dev fallback is localhost:4000/api)
+Environment=NEXT_PUBLIC_API_URL=http://localhost:4000/api
+ExecStart=/usr/bin/npm run start
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

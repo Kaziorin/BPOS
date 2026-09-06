@@ -1,0 +1,45 @@
+# OmniPOS CI — runs lint + tests only when relevant folders change
+stages:
+  - verify
+
+backend:verify:
+  stage: verify
+  image: python:3.12-slim
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - "backend/**/*"
+        - ".gitlab-ci.yml"
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      changes:
+        - "backend/**/*"
+        - ".gitlab-ci.yml"
+    - when: never
+  script:
+    # Syntax check of all FastAPI sources (venv/ is gitignored so CI sees only real code)
+    - python -m compileall -q backend
+
+frontend:lint:
+  stage: verify
+  image: node:22
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - "frontend/**/*"
+        - ".gitlab-ci.yml"
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      changes:
+        - "frontend/**/*"
+        - ".gitlab-ci.yml"
+    - when: never
+  before_script:
+    - cd frontend
+    - npm ci --cache .npm-frontend --prefer-offline
+  cache:
+    key:
+      files:
+        - frontend/package-lock.json
+    paths:
+      - frontend/.npm-frontend/
+  script:
+    - npm run lint
