@@ -18,7 +18,7 @@ from app.core.config import settings
 from app.core.middleware import install_middleware
 from app.services.job_worker import start_worker, stop_worker
 from app.api.v1.router import api_v1_router
-from routers_system import record_latency
+from app.api.v1.system.routers_system import record_latency
 
 
 @asynccontextmanager

@@ -243,12 +243,19 @@ function ModuleRow({
       <Link
         href={item.href}
         className={cn(
-          "mx-2 flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition",
+          "mx-2 flex items-center justify-between gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition",
           active ? "bg-primary-50 text-primary-700" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800",
         )}
       >
-        <Icon size={16} className={active ? "text-primary-600" : "text-gray-400"} />
-        <span className="truncate">{item.label}</span>
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Icon size={16} className={active ? "text-primary-600" : "text-gray-400"} />
+          <span className="truncate">{item.label}</span>
+        </div>
+        {item.badge && (
+          <span className="shrink-0 text-[10px] font-semibold bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-full">
+            {item.badge}
+          </span>
+        )}
       </Link>
     );
   }
@@ -265,6 +272,11 @@ function ModuleRow({
       >
         <Icon size={16} className={active ? "text-primary-600" : "text-gray-400"} />
         <span className="flex-1 truncate text-left">{item.label}</span>
+        {item.badge && (
+          <span className="shrink-0 mr-1 text-[10px] font-semibold bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-full">
+            {item.badge}
+          </span>
+        )}
         <ChevronDown
           size={13}
           className={cn(

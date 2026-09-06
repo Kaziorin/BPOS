@@ -676,40 +676,50 @@ async def onboarding_state(
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
-    tenant = (await db.execute(text("SELECT id, name, slug, businessType, status, currency, timezone FROM tenants WHERE id = :t"), {"t": tenantId})).first()
-    company = (await db.execute(text("SELECT * FROM companies WHERE tenantId = :t LIMIT 1"), {"t": tenantId})).first()
-    branch = (await db.execute(text("SELECT * FROM branches WHERE tenantId = :t ORDER BY isMain DESC, createdAt ASC LIMIT 1"), {"t": tenantId})).first()
-    warehouse = (await db.execute(text("SELECT * FROM warehouses WHERE tenantId = :t ORDER BY createdAt ASC LIMIT 1"), {"t": tenantId})).first()
-    tax_rate = (await db.execute(text("SELECT * FROM tax_rates WHERE tenantId = :t ORDER BY isDefault DESC, createdAt ASC LIMIT 1"), {"t": tenantId})).first()
+    tenants = rows_to_dicts((await db.execute(text("SELECT id, name, slug, businessType, status, currency, timezone FROM tenants WHERE id = :t"), {"t": tenantId})).fetchall())
+    tenant = tenants[0] if tenants else {}
+
+    companies = rows_to_dicts((await db.execute(text("SELECT id, name, legalName, phone, email, address, vatRegNo FROM companies WHERE tenantId = :t LIMIT 1"), {"t": tenantId})).fetchall())
+    company = companies[0] if companies else None
+
+    branches = rows_to_dicts((await db.execute(text("SELECT id, code, name, phone, email, address FROM branches WHERE tenantId = :t ORDER BY isMain DESC, createdAt ASC LIMIT 1"), {"t": tenantId})).fetchall())
+    branch = branches[0] if branches else None
+
+    warehouses = rows_to_dicts((await db.execute(text("SELECT id, code, name, type FROM warehouses WHERE tenantId = :t ORDER BY createdAt ASC LIMIT 1"), {"t": tenantId})).fetchall())
+    warehouse = warehouses[0] if warehouses else None
+
+    tax_rates = rows_to_dicts((await db.execute(text("SELECT id, code, name, rate, isDefault FROM tax_rates WHERE tenantId = :t ORDER BY isDefault DESC, createdAt ASC LIMIT 1"), {"t": tenantId})).fetchall())
+    tax_rate = tax_rates[0] if tax_rates else None
+
     roles = rows_to_dicts((await db.execute(text("SELECT id, name, description FROM roles WHERE tenantId = :t OR isSystem = 1 ORDER BY name"), {"t": tenantId})).fetchall())
 
     return ok({
-        "businessType": tenant[3] if tenant and len(tenant) > 3 and tenant[3] else "RETAIL",
-        "status": tenant[4] if tenant and len(tenant) > 4 else "ONBOARDING",
+        "businessType": tenant.get("businessType") or "RETAIL",
+        "status": tenant.get("status") or "ONBOARDING",
         "company": {
-            "name": company[2] if company and len(company) > 2 else (tenant[1] if tenant else ""),
-            "legalName": company[3] if company and len(company) > 3 else "",
-            "phone": company[4] if company and len(company) > 4 else "",
-            "email": company[5] if company and len(company) > 5 else "",
-            "address": company[6] if company and len(company) > 6 else "",
-            "vatRegNo": company[7] if company and len(company) > 7 else "",
+            "name": company.get("name") if company else (tenant.get("name") or ""),
+            "legalName": company.get("legalName") if company else "",
+            "phone": company.get("phone") if company else "",
+            "email": company.get("email") if company else "",
+            "address": company.get("address") if company else "",
+            "vatRegNo": company.get("vatRegNo") if company else "",
         } if company else None,
         "branch": {
-            "code": branch[2] if branch and len(branch) > 2 else "MAIN",
-            "name": branch[3] if branch and len(branch) > 3 else "Main Branch",
-            "phone": branch[4] if branch and len(branch) > 4 else "",
-            "email": branch[5] if branch and len(branch) > 5 else "",
-            "address": branch[6] if branch and len(branch) > 6 else "",
+            "code": branch.get("code") if branch else "MAIN",
+            "name": branch.get("name") if branch else "Main Branch",
+            "phone": branch.get("phone") if branch else "",
+            "email": branch.get("email") if branch else "",
+            "address": branch.get("address") if branch else "",
         } if branch else None,
         "warehouse": {
-            "code": warehouse[2] if warehouse and len(warehouse) > 2 else "WH-01",
-            "name": warehouse[3] if warehouse and len(warehouse) > 3 else "Main Warehouse",
-            "type": warehouse[4] if warehouse and len(warehouse) > 4 else "CENTRAL",
+            "code": warehouse.get("code") if warehouse else "WH-01",
+            "name": warehouse.get("name") if warehouse else "Main Warehouse",
+            "type": warehouse.get("type") if warehouse else "CENTRAL",
         } if warehouse else None,
         "tax": {
             "taxEnabled": True if tax_rate else False,
-            "vatRate": float(tax_rate[4]) if tax_rate and len(tax_rate) > 4 and tax_rate[4] is not None else 15,
-            "taxRegistrationNumber": company[7] if company and len(company) > 7 and company[7] else "",
+            "vatRate": float(tax_rate.get("rate") or 15) if tax_rate else 15,
+            "taxRegistrationNumber": (company.get("vatRegNo") if company else "") or "",
         },
         "roles": roles,
     })

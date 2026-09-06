@@ -2,48 +2,164 @@
 
 import { useEffect, useState } from "react";
 import {
-  LayoutDashboard, ShoppingCart, Receipt, Package, Tags, Users, Truck,
-  ClipboardList, UtensilsCrossed, Landmark, UserCog, BarChart3,
-  Settings, CreditCard, FileText, Warehouse, Monitor, FolderTree, Star,
-  Wallet, Gift, BookOpen, BookMarked, DollarSign, Clock, Calendar, Percent, MapPin,
-  Building2, Shield, Bell, Eye, RefreshCw, FolderOpen, CheckSquare,
-  Megaphone, Target, Plug, Scissors, Hash, Layers, Activity, Tag,
-  PauseCircle, RotateCcw, Search, ArrowLeftRight, FlaskConical,
-  Handshake, Sparkles, type LucideIcon,
+  LayoutDashboard,
+  ShoppingCart,
+  Receipt,
+  Package,
+  Tags,
+  Users,
+  Truck,
+  ClipboardList,
+  UtensilsCrossed,
+  Landmark,
+  UserCog,
+  BarChart3,
+  Settings,
+  CreditCard,
+  FileText,
+  Warehouse,
+  Monitor,
+  FolderTree,
+  Star,
+  Wallet,
+  Gift,
+  BookOpen,
+  BookMarked,
+  DollarSign,
+  Clock,
+  Calendar,
+  Percent,
+  MapPin,
+  Building2,
+  Shield,
+  Bell,
+  Eye,
+  RefreshCw,
+  FolderOpen,
+  CheckSquare,
+  Megaphone,
+  Target,
+  Plug,
+  Scissors,
+  Hash,
+  Layers,
+  Activity,
+  Tag,
+  PauseCircle,
+  RotateCcw,
+  Search,
+  ArrowLeftRight,
+  FlaskConical,
+  Handshake,
+  Sparkles,
+  Scale,
+  type LucideIcon,
 } from "lucide-react";
 import { api } from "./api";
 
 // ─── Icon map ─────────────────────────────────────────────────────────
 const iconMap: Record<string, LucideIcon> = {
-  LayoutDashboard, ShoppingCart, Receipt, Package, Tags, Users, Truck,
-  ClipboardList, UtensilsCrossed, Landmark, UserCog, BarChart3,
-  Settings, CreditCard, FileText, Warehouse, Monitor, FolderTree, Star,
-  Wallet, Gift, BookOpen, BookMarked, DollarSign, Clock, Calendar, Percent, MapPin,
-  Building2, Shield, Bell, Eye, RefreshCw, FolderOpen, CheckSquare,
-  Megaphone, Target, Plug, Scissors, Hash, Layers, Activity, Tag,
-  PauseCircle, RotateCcw, Search, ArrowLeftRight, FlaskConical, Handshake,
+  LayoutDashboard,
+  ShoppingCart,
+  Receipt,
+  Package,
+  Tags,
+  Users,
+  Truck,
+  ClipboardList,
+  UtensilsCrossed,
+  Landmark,
+  UserCog,
+  BarChart3,
+  Settings,
+  CreditCard,
+  FileText,
+  Warehouse,
+  Monitor,
+  FolderTree,
+  Star,
+  Wallet,
+  Gift,
+  BookOpen,
+  BookMarked,
+  DollarSign,
+  Clock,
+  Calendar,
+  Percent,
+  MapPin,
+  Building2,
+  Shield,
+  Bell,
+  Eye,
+  RefreshCw,
+  FolderOpen,
+  CheckSquare,
+  Megaphone,
+  Target,
+  Plug,
+  Scissors,
+  Hash,
+  Layers,
+  Activity,
+  Tag,
+  PauseCircle,
+  RotateCcw,
+  Search,
+  ArrowLeftRight,
+  FlaskConical,
+  Handshake,
   Sparkles,
 
-
-  Wallet, Gift, BookOpen, DollarSign, Clock, Calendar, Percent, MapPin,
-  Building2, Shield, Bell, Eye, RefreshCw, FolderOpen, CheckSquare,
-  Megaphone, Target, Plug, Scissors, Hash, Layers, Activity, Tag,
-  PauseCircle, RotateCcw, Search, ArrowLeftRight, FlaskConical, Handshake,
   // Aliases
-  GitBranch: Building2, Key: Shield, Lock: Shield, ShieldCheck: Shield,
-  Calculator: Landmark, FileMinus: FileText, Ruler: Tags,
-  Coins: DollarSign, Crown: Star, Ticket: ClipboardList, Bike: MapPin,
-  Building: Building2, CalendarOff: Calendar, History: Clock,
-  AlertCircle: Clock, AlertTriangle: Clock, List: ClipboardList, Zap: Target,
-  PieChart: BarChart3, ListOrdered: ClipboardList, Brain: BarChart3,
-  Scale: Landmark, TrendingUp: BarChart3, Barcode: Tags, Grid: Package,
-  Map: MapPin, Route: MapPin, ChefHat: UtensilsCrossed, Layout: LayoutDashboard,
-  Square: Package, PackageCheck: Package, Webhook: Plug,
-  Store: Building2, Edit: Settings, Transfer: RefreshCw, BookMarked: BookOpen,
-  Rocket: Settings, Flag: Settings, Server: Warehouse,
-  Ban: Shield, Palette: Settings, Globe: Settings, Play: DollarSign,
-  Printer: Tags, User: Users, Upload: FileText, Plus: Settings,
-  ShoppingBag: ShoppingCart, GitMerge: RefreshCw, Book: BookOpen,
+  GitBranch: Building2,
+  Key: Shield,
+  Lock: Shield,
+  ShieldCheck: Shield,
+  Calculator: Landmark,
+  FileMinus: FileText,
+  Ruler: Tags,
+  Coins: DollarSign,
+  Crown: Star,
+  Ticket: ClipboardList,
+  Bike: MapPin,
+  Building: Building2,
+  CalendarOff: Calendar,
+  History: Clock,
+  AlertCircle: Clock,
+  AlertTriangle: Clock,
+  List: ClipboardList,
+  Zap: Target,
+  PieChart: BarChart3,
+  ListOrdered: ClipboardList,
+  Brain: BarChart3,
+  Scale: Landmark,
+  TrendingUp: BarChart3,
+  Barcode: Tags,
+  Grid: Package,
+  Map: MapPin,
+  Route: MapPin,
+  ChefHat: UtensilsCrossed,
+  Layout: LayoutDashboard,
+  Square: Package,
+  PackageCheck: Package,
+  Webhook: Plug,
+  Store: Building2,
+  Edit: Settings,
+  Transfer: RefreshCw,
+  Rocket: Settings,
+  Flag: Settings,
+  Server: Warehouse,
+  Ban: Shield,
+  Palette: Settings,
+  Globe: Settings,
+  Play: DollarSign,
+  Printer: Tags,
+  User: Users,
+  Upload: FileText,
+  Plus: Settings,
+  ShoppingBag: ShoppingCart,
+  GitMerge: RefreshCw,
+  Book: BookOpen,
 };
 
 function getIcon(name: string | null | undefined): LucideIcon {
@@ -73,6 +189,7 @@ export interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
+  badge?: string;
   /** If undefined → direct link. If present → accordion. */
   children?: NavChild[];
 }
@@ -82,138 +199,133 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-// ─── Category display names & order ──────────────────────────────────
-
-// ─── Default 44-Module Master Navigation Fallback ────────────────────
+// ─── 5-Workspace Master Navigation Architecture ───────────────────────
 export const DEFAULT_MASTER_NAV: NavGroup[] = [
   {
-    title: "Platform & Management",
-    items: [
-      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-      { label: "POS / New Sale", href: "/pos", icon: ShoppingCart },
-      { label: "SaaS Admin", href: "/saas", icon: Building2 },
-      { label: "Tenant Onboarding", href: "/onboarding", icon: Sparkles },
-      { label: "Branches", href: "/branches", icon: Building2 },
-      { label: "Warehouses", href: "/warehouses", icon: Warehouse },
-      { label: "RBAC & Permissions", href: "/rbac", icon: Shield },
-      { label: "Audit & Security", href: "/audit-security", icon: Eye },
-      { label: "System Settings", href: "/settings", icon: Settings },
-    ],
-  },
-  {
-    title: "Sales & Registers",
+    title: "1. POS & Retail Counter",
     items: [
       {
-        label: "POS & Terminal",
+        label: "POS Terminal",
         href: "/pos",
         icon: ShoppingCart,
+        badge: "Express",
         children: [
-          { label: "Standard POS", href: "/pos", icon: ShoppingCart },
-          { label: "Self-Checkout", href: "/pos/self-checkout", icon: Monitor },
-          { label: "Price Checker", href: "/pos/price-checker", icon: Search },
-          { label: "Held Sales", href: "/pos/holds", icon: PauseCircle },
+          { label: "Standard POS Checkout", href: "/pos", icon: ShoppingCart },
+          { label: "Held Carts / Orders", href: "/pos/holds", icon: PauseCircle },
+          { label: "Price & Barcode Checker", href: "/pos/price-checker", icon: Search },
+          { label: "Self-Checkout Kiosk", href: "/pos/self-checkout", icon: Monitor },
+          { label: "Customer Facing Display", href: "/customer-display", icon: Monitor },
         ],
       },
       { label: "Cash Register & Shifts", href: "/cash-register", icon: DollarSign },
-      { label: "Sales History", href: "/sales", icon: Receipt },
-      { label: "Sales Orders", href: "/sales/orders", icon: ClipboardList },
-      { label: "Quotations", href: "/sales/quotations", icon: FileText },
-      { label: "Invoices", href: "/invoices", icon: FileText },
-      { label: "Customer Display", href: "/customer-display", icon: Monitor },
-      { label: "Payments", href: "/payments", icon: CreditCard },
-      { label: "Returns & Refunds", href: "/returns", icon: RotateCcw },
+      { label: "Customers & Loyalty", href: "/customers", icon: Users },
     ],
   },
   {
-    title: "Catalog & Inventory",
+    title: "2. Inventory & Procurement",
     items: [
-      { label: "Products", href: "/products", icon: Package },
-      { label: "Categories", href: "/categories", icon: Tags },
-      { label: "Price Lists", href: "/price-lists", icon: Tag },
       {
-        label: "Inventory Ops",
-        href: "/inventory",
+        label: "Product Catalog",
+        href: "/products",
+        icon: Package,
+        children: [
+          { label: "All Products", href: "/products", icon: Package },
+          { label: "Add New Product", href: "/products/create", icon: Sparkles },
+          { label: "Categories & Tags", href: "/categories", icon: Tags },
+          { label: "Price Lists & Tiers", href: "/price-lists", icon: Tag },
+        ],
+      },
+      {
+        label: "Inventory Operations",
+        href: "/inventory/stock",
         icon: Warehouse,
         children: [
           { label: "Stock Overview", href: "/inventory/stock", icon: Package },
           { label: "Stock Movements", href: "/inventory/movements", icon: ArrowLeftRight },
-          { label: "Stock Transfers", href: "/inventory/transfers", icon: RefreshCw },
-          { label: "Batches & FEFO", href: "/inventory/batches", icon: FlaskConical },
+          { label: "Inter-Branch Transfers", href: "/inventory/transfers", icon: RefreshCw },
+          { label: "Batches & Expiry (FEFO)", href: "/inventory/batches", icon: FlaskConical },
           { label: "Serial Numbers", href: "/inventory/serials", icon: Hash },
           { label: "Consignments", href: "/inventory/consignments", icon: Layers },
-          { label: "Physical Counts", href: "/inventory/counts", icon: CheckSquare },
+          { label: "Physical Stock Counts", href: "/inventory/counts", icon: CheckSquare },
+          { label: "Landed Costs", href: "/inventory/landed-costs", icon: DollarSign },
         ],
       },
-      { label: "Purchasing", href: "/purchasing", icon: ClipboardList },
-      { label: "Suppliers", href: "/suppliers", icon: Truck },
+      {
+        label: "Purchasing & Receiving",
+        href: "/purchasing",
+        icon: ClipboardList,
+        children: [
+          { label: "Purchasing Summary", href: "/purchasing", icon: BarChart3 },
+          { label: "Purchase Orders (PO)", href: "/purchasing/orders", icon: ClipboardList },
+          { label: "Goods Received (GRN)", href: "/purchasing/grns", icon: CheckSquare },
+          { label: "Requisitions (PR)", href: "/purchasing/requisitions", icon: FileText },
+          { label: "Purchase Returns", href: "/purchasing/returns", icon: RotateCcw },
+          { label: "Supplier Directory", href: "/suppliers", icon: Truck },
+        ],
+      },
+      { label: "Warehouses & Storage", href: "/warehouses", icon: Warehouse },
     ],
   },
   {
-    title: "Finance & Accounting",
+    title: "3. Sales & Omnichannel",
+    items: [
+      { label: "Sales Invoices & History", href: "/sales", icon: Receipt },
+      { label: "Sales Orders", href: "/sales/orders", icon: ClipboardList },
+      { label: "Quotations & Estimates", href: "/sales/quotations", icon: FileText },
+      { label: "Customer Credit & Dues", href: "/credit", icon: Wallet },
+      { label: "Installments & EMI", href: "/installments", icon: Calendar },
+      { label: "Customer Returns & RMA", href: "/returns", icon: RotateCcw },
+      { label: "Promotions & Coupons", href: "/promotions", icon: Gift },
+      { label: "Delivery & Logistics", href: "/delivery", icon: Truck },
+    ],
+  },
+  {
+    title: "4. Finance & Accounting",
     items: [
       {
-        label: "Accounting Engine",
+        label: "Financial Accounting",
         href: "/accounting",
         icon: Landmark,
         children: [
+          { label: "Accounting Overview", href: "/accounting", icon: Landmark },
           { label: "Chart of Accounts", href: "/accounting/accounts", icon: BookOpen },
           { label: "General Journals", href: "/accounting/journals", icon: BookMarked },
           { label: "General Ledger", href: "/accounting/ledger", icon: Wallet },
-          { label: "Trial Balance", href: "/accounting/trial-balance", icon: Landmark },
-          { label: "Profit & Loss", href: "/accounting/pnl", icon: BarChart3 },
+          { label: "Trial Balance", href: "/accounting/trial-balance", icon: Scale },
+          { label: "Profit & Loss (P&L)", href: "/accounting/pnl", icon: BarChart3 },
           { label: "Balance Sheet", href: "/accounting/balance-sheet", icon: FileText },
         ],
       },
-      { label: "Tax & VAT (NBR)", href: "/tax", icon: DollarSign },
-      { label: "Customer Credit & Due", href: "/credit", icon: Wallet },
-      { label: "Installments & EMI", href: "/installments", icon: Calendar },
+      { label: "Tax & NBR VAT (Mushak)", href: "/tax", icon: DollarSign },
       { label: "Expenses & Petty Cash", href: "/expenses", icon: DollarSign },
       { label: "Sales Commission", href: "/commission", icon: Percent },
     ],
   },
   {
-    title: "Industry Extensions",
+    title: "5. Administration & Intelligence",
     items: [
-      { label: "Restaurant & KDS", href: "/restaurant", icon: UtensilsCrossed },
-      { label: "Pharmacy Register", href: "/pharmacy", icon: FlaskConical },
-      { label: "Salon & Spa Ops", href: "/salon", icon: Scissors },
-      { label: "Repair & Service", href: "/repair", icon: Settings },
-      { label: "Manufacturing & BOM", href: "/manufacturing", icon: Layers },
-      { label: "Franchise Network", href: "/franchise", icon: Building2 },
-      { label: "Appointments & Booking", href: "/appointments", icon: Calendar },
-    ],
-  },
-  {
-    title: "CRM, Growth & AI",
-    items: [
-      { label: "Customers & CRM", href: "/customers", icon: Users },
-      { label: "Loyalty & Rewards", href: "/loyalty", icon: Star },
-      { label: "Promotions & Discounts", href: "/promotions", icon: Gift },
-      { label: "Marketing Automation", href: "/marketing", icon: Megaphone },
-      { label: "Omnichannel & E-com", href: "/omnichannel", icon: Plug },
+      { label: "Executive Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { label: "Onboarding Wizard", href: "/onboarding", icon: Sparkles },
+      { label: "Multi-Branch Outlets", href: "/branches", icon: Building2 },
+      { label: "Roles & Permissions (RBAC)", href: "/rbac", icon: Shield },
+      { label: "Audit & Security Logs", href: "/audit-security", icon: Eye },
+      { label: "HRM & Staff Members", href: "/hrm", icon: UserCog },
       { label: "AI Business Assistant", href: "/ai", icon: Activity },
-      { label: "Reports & BI", href: "/reports", icon: BarChart3 },
-      { label: "HRM & Employees", href: "/hrm", icon: UserCog },
-      { label: "Workflow & Approvals", href: "/workflow", icon: CheckSquare },
-      { label: "Business Rules Engine", href: "/business-rules", icon: Shield },
-      { label: "Tasks Management", href: "/tasks", icon: Target },
-      { label: "Sales Targets", href: "/targets", icon: Target },
-      { label: "Hardware & Printers", href: "/hardware", icon: Monitor },
-      { label: "RMA & Warranty", href: "/warranty", icon: Shield },
+      { label: "Business Intelligence Reports", href: "/reports", icon: BarChart3 },
+      { label: "System & Store Settings", href: "/settings", icon: Settings },
     ],
   },
 ];
 
-
 const CATEGORY_NAMES: Record<string, string> = {
-  PLATFORM: "Platform & Management",
-  CORE: "Core Business & Retail",
-  ENGINE: "Advanced Engines",
+  PLATFORM: "Administration & System",
+  CORE: "POS & Retail Operations",
+  ENGINE: "Advanced Engines & Finance",
   INDUSTRY: "Industry Verticals",
-  FEATURE: "Features & Utilities",
+  FEATURE: "Features & Growth",
 };
 
-const CATEGORY_ORDER = ["PLATFORM", "CORE", "ENGINE", "INDUSTRY", "FEATURE"];
+const CATEGORY_ORDER = ["CORE", "ENGINE", "PLATFORM", "INDUSTRY", "FEATURE"];
 
 export function useDynamicNav() {
   const [navGroups, setNavGroups] = useState<NavGroup[]>(DEFAULT_MASTER_NAV);
@@ -223,16 +335,18 @@ export function useDynamicNav() {
   useEffect(() => {
     async function fetchMenu() {
       try {
-        const { data } = await api.get<{ data: Record<string, any[]> }>("/v1/menu");
-        if (!data || Object.keys(data).length === 0) return;
+        const res = await api.get<{ data: Record<string, any[]> }>("/api/v1/menu");
+        const data = (res as any)?.data || (res as any);
+        if (!data || typeof data !== "object" || Object.keys(data).length === 0) return;
 
         const groups: NavGroup[] = [];
         const sortedCategories = Object.keys(data).sort(
-          (a, b) => CATEGORY_ORDER.indexOf(a) - CATEGORY_ORDER.indexOf(b),
+          (a, b) => (CATEGORY_ORDER.indexOf(a) === -1 ? 99 : CATEGORY_ORDER.indexOf(a)) - (CATEGORY_ORDER.indexOf(b) === -1 ? 99 : CATEGORY_ORDER.indexOf(b)),
         );
 
         for (const category of sortedCategories) {
           const modules = data[category];
+          if (!Array.isArray(modules) || modules.length === 0) continue;
           const title = CATEGORY_NAMES[category] ?? category;
           const items: NavItem[] = [];
 
@@ -276,8 +390,8 @@ export function useDynamicNav() {
           setNavGroups(groups);
         }
       } catch (err) {
-        // Silently use the rich DEFAULT_MASTER_NAV
-        console.warn("Using master fallback navigation:", err);
+        // Fallback cleanly to DEFAULT_MASTER_NAV
+        setNavGroups(DEFAULT_MASTER_NAV);
       }
     }
 
@@ -286,4 +400,3 @@ export function useDynamicNav() {
 
   return { navGroups, loading, error };
 }
-
