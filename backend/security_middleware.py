@@ -111,9 +111,10 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         if forwarded:
             client_ip = forwarded.split(",")[0].strip()
 
-        # Rate limiting (skip health check and docs)
+        # Rate limiting (skip health check, docs, and localhost in dev)
         path = request.url.path
-        if path not in ("/health", "/docs", "/openapi.json"):
+        is_local = client_ip in ("127.0.0.1", "::1", "localhost", "testclient")
+        if not is_local and path not in ("/health", "/docs", "/openapi.json"):
             rl_key = f"{client_ip}:{path}"
             allowed, remaining = rate_limit_store.check(rl_key, self.rate_limit, self.window)
             if not allowed:

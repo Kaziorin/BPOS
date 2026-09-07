@@ -241,6 +241,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: Warehouse,
         children: [
           { label: "Stock Overview", href: "/inventory/stock", icon: Package },
+          { label: "Warehouses & Storage", href: "/warehouses", icon: Warehouse },
           { label: "Stock Movements", href: "/inventory/movements", icon: ArrowLeftRight },
           { label: "Inter-Branch Transfers", href: "/inventory/transfers", icon: RefreshCw },
           { label: "Batches & Expiry (FEFO)", href: "/inventory/batches", icon: FlaskConical },

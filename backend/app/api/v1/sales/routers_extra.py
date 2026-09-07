@@ -1039,7 +1039,7 @@ async def list_warehouses(user: AuthUser = Depends(require_auth), tenantId: str 
     rows = rows_to_dicts((await db.execute(text("""
         SELECT w.*, b.name AS branch_name, b.code AS branch_code,
                (SELECT COUNT(*) FROM stock s WHERE s.warehouseId = w.id AND s.tenantId = :t) AS stock_count,
-               (SELECT COUNT(*) FROM pos_terminals pt WHERE pt.branchId = w.branchId AND pt.tenantId = :t) AS terminal_count,
+               (SELECT COUNT(*) FROM terminals pt WHERE pt.branchId = w.branchId AND pt.tenantId = :t) AS terminal_count,
                (SELECT COUNT(*) FROM warehouse_locations wl WHERE wl.warehouseId = w.id AND wl.tenantId = :t) AS bin_count
         FROM warehouses w 
         JOIN branches b ON b.id = w.branchId 
