@@ -357,7 +357,7 @@ export function useDynamicNav() {
             const ModIcon = getIcon(mod.moduleIcon);
 
             // Build 2nd-level children (menuItems), each may have 3rd-level sub-children
-            const children: NavChild[] = (mod.items ?? []).map((menuItem: any) => ({
+            const rawChildren: NavChild[] = (mod.items ?? []).map((menuItem: any) => ({
               label: menuItem.label,
               href: menuItem.route,
               icon: getIcon(menuItem.icon),
@@ -369,6 +369,17 @@ export function useDynamicNav() {
                   }))
                 : undefined,
             }));
+
+            // Deduplicate children by label + href combination
+            const children: NavChild[] = [];
+            const seenKeys = new Set<string>();
+            for (const child of rawChildren) {
+              const key = `${child.label.trim().toLowerCase()}-${child.href.trim().toLowerCase()}`;
+              if (!seenKeys.has(key)) {
+                seenKeys.add(key);
+                children.push(child);
+              }
+            }
 
             // Single item that matches module route → direct link (no accordion)
             const singleDirect =
