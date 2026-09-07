@@ -132,7 +132,54 @@ async def create_category(body: dict, user: AuthUser = Depends(require_permissio
     await db.execute(text("INSERT INTO categories (id, tenantId, name, parentId, createdBy) VALUES (UUID(), :t, :n, :p, :u)"),
                      {"t": tenantId, "n": name, "p": body.get("parentId"), "u": user.id})
     await db.commit()
-    return ok({"created": True}, 201)
+    row = (await db.execute(text("SELECT id, name, parentId FROM categories WHERE tenantId=:t AND name=:n ORDER BY createdAt DESC LIMIT 1"),
+                     {"t": tenantId, "n": name})).first()
+    return ok({"id": row[0] if row else None, "name": name, "created": True}, 201)
+
+
+@router.put("/api/v1/products/categories/{categoryId}")
+async def update_category(categoryId: str, body: dict,
+                          user: AuthUser = Depends(require_auth),
+                          tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    exists = (await db.execute(text("SELECT id FROM categories WHERE id=:id AND tenantId=:t"), {"id": categoryId, "t": tenantId})).first()
+    if not exists:
+        return err("Category not found", 404)
+    allowed = {"name": "name", "parentId": "parentId", "status": "status", "description": "description"}
+    sets, params = [], {"id": categoryId, "t": tenantId, "u": user.id}
+    for jk, ck in allowed.items():
+        if jk in body:
+            sets.append(f"{ck} = :{ck}"); params[ck] = body[jk]
+    if not sets:
+        return err("Nothing to update", 400)
+    sets.append("updatedBy = :u")
+    res = await db.execute(text(f"UPDATE categories SET {', '.join(sets)} WHERE id=:id AND tenantId=:t"), params)
+    await db.commit()
+    if res.rowcount == 0:
+        return err("Category not found", 404)
+    return ok({"updated": True})
+
+
+@router.delete("/api/v1/products/categories/{categoryId}")
+async def delete_category(categoryId: str,
+                          user: AuthUser = Depends(require_auth),
+                          tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    used = (await db.execute(text("SELECT COUNT(*) FROM products WHERE (categoryId=:id OR subCategoryId=:id) AND tenantId=:t"),
+                              {"id": categoryId, "t": tenantId})).first()
+    if used[0] > 0:
+        await db.execute(text("UPDATE categories SET status='INACTIVE', updatedBy=:u WHERE id=:id AND tenantId=:t"),
+                         {"id": categoryId, "t": tenantId, "u": user.id})
+        await db.commit()
+        return ok({"deleted": False, "deactivated": True, "reason": "Category is used by products"})
+    subs = (await db.execute(text("SELECT COUNT(*) FROM categories WHERE parentId=:id AND tenantId=:t"),
+                              {"id": categoryId, "t": tenantId})).first()
+    if subs[0] > 0:
+        await db.execute(text("UPDATE categories SET status='INACTIVE', updatedBy=:u WHERE id=:id AND tenantId=:t"),
+                         {"id": categoryId, "t": tenantId, "u": user.id})
+        await db.commit()
+        return ok({"deleted": False, "deactivated": True, "reason": "Category has sub-categories"})
+    res = await db.execute(text("DELETE FROM categories WHERE id=:id AND tenantId=:t"), {"id": categoryId, "t": tenantId})
+    await db.commit()
+    return ok({"deleted": res.rowcount > 0})
 
 
 @router.get("/api/v1/units")
@@ -283,6 +330,110 @@ async def list_brands(tenantId: str = Depends(resolve_tenant), db: AsyncSession 
         (await db.execute(text("SELECT id, name, status FROM brands WHERE tenantId=:t ORDER BY name"), {"t": tenantId})).fetchall()
     )
     return ok(rows)
+
+
+@router.post("/api/v1/brands")
+async def create_brand(body: dict, user: AuthUser = Depends(require_auth),
+                       tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    name = body.get("name")
+    if not name: return err("Brand name is required", 400)
+    dup = (await db.execute(text("SELECT id FROM brands WHERE tenantId=:t AND name=:n"), {"t": tenantId, "n": name})).first()
+    if dup: return err("Brand already exists", 409)
+    await db.execute(text("INSERT INTO brands (id, tenantId, name, status, createdBy) VALUES (UUID(), :t, :n, 'ACTIVE', :u)"),
+                     {"t": tenantId, "n": name, "u": user.id})
+    await db.commit()
+    row = (await db.execute(text("SELECT id, name FROM brands WHERE tenantId=:t AND name=:n"), {"t": tenantId, "n": name})).first()
+    return ok({"id": row[0], "name": row[1], "created": True}, 201)
+
+
+@router.put("/api/v1/brands/{brandId}")
+async def update_brand(brandId: str, body: dict,
+                       user: AuthUser = Depends(require_auth),
+                       tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    exists = (await db.execute(text("SELECT id FROM brands WHERE id=:id AND tenantId=:t"), {"id": brandId, "t": tenantId})).first()
+    if not exists:
+        return err("Brand not found", 404)
+    allowed = {"name": "name", "status": "status"}
+    sets, params = [], {"id": brandId, "t": tenantId, "u": user.id}
+    for jk, ck in allowed.items():
+        if jk in body:
+            sets.append(f"{ck} = :{ck}"); params[ck] = body[jk]
+    if not sets:
+        return err("Nothing to update", 400)
+    sets.append("updatedBy = :u")
+    res = await db.execute(text(f"UPDATE brands SET {', '.join(sets)} WHERE id=:id AND tenantId=:t"), params)
+    await db.commit()
+    if res.rowcount == 0:
+        return err("Brand not found", 404)
+    return ok({"updated": True})
+
+
+@router.delete("/api/v1/brands/{brandId}")
+async def delete_brand(brandId: str,
+                       user: AuthUser = Depends(require_auth),
+                       tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    used = (await db.execute(text("SELECT COUNT(*) FROM products WHERE brandId=:id AND tenantId=:t"),
+                              {"id": brandId, "t": tenantId})).first()
+    if used[0] > 0:
+        await db.execute(text("UPDATE brands SET status='INACTIVE', updatedBy=:u WHERE id=:id AND tenantId=:t"),
+                         {"id": brandId, "t": tenantId, "u": user.id})
+        await db.commit()
+        return ok({"deleted": False, "deactivated": True, "reason": "Brand is used by products"})
+    res = await db.execute(text("DELETE FROM brands WHERE id=:id AND tenantId=:t"), {"id": brandId, "t": tenantId})
+    await db.commit()
+    return ok({"deleted": res.rowcount > 0})
+
+
+@router.post("/api/v1/units")
+async def create_unit(body: dict, user: AuthUser = Depends(require_auth),
+                      tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    name, code = body.get("name"), body.get("code") or body.get("name", "").lower()[:10]
+    if not name: return err("Unit name is required", 400)
+    dup = (await db.execute(text("SELECT id FROM units WHERE tenantId=:t AND name=:n"), {"t": tenantId, "n": name})).first()
+    if dup: return err("Unit already exists", 409)
+    await db.execute(text("INSERT INTO units (id, tenantId, name, code, status, createdBy) VALUES (UUID(), :t, :n, :c, 'ACTIVE', :u)"),
+                     {"t": tenantId, "n": name, "c": code, "u": user.id})
+    await db.commit()
+    row = (await db.execute(text("SELECT id, name, code FROM units WHERE tenantId=:t AND name=:n"), {"t": tenantId, "n": name})).first()
+    return ok({"id": row[0], "name": row[1], "code": row[2], "created": True}, 201)
+
+
+@router.put("/api/v1/units/{unitId}")
+async def update_unit(unitId: str, body: dict,
+                      user: AuthUser = Depends(require_auth),
+                      tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    exists = (await db.execute(text("SELECT id FROM units WHERE id=:id AND tenantId=:t"), {"id": unitId, "t": tenantId})).first()
+    if not exists:
+        return err("Unit not found", 404)
+    allowed = {"name": "name", "code": "code", "status": "status"}
+    sets, params = [], {"id": unitId, "t": tenantId, "u": user.id}
+    for jk, ck in allowed.items():
+        if jk in body:
+            sets.append(f"{ck} = :{ck}"); params[ck] = body[jk]
+    if not sets:
+        return err("Nothing to update", 400)
+    sets.append("updatedBy = :u")
+    res = await db.execute(text(f"UPDATE units SET {', '.join(sets)} WHERE id=:id AND tenantId=:t"), params)
+    await db.commit()
+    if res.rowcount == 0:
+        return err("Unit not found", 404)
+    return ok({"updated": True})
+
+
+@router.delete("/api/v1/units/{unitId}")
+async def delete_unit(unitId: str,
+                      user: AuthUser = Depends(require_auth),
+                      tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    used = (await db.execute(text("SELECT COUNT(*) FROM products WHERE unitId=:id AND tenantId=:t"),
+                              {"id": unitId, "t": tenantId})).first()
+    if used[0] > 0:
+        await db.execute(text("UPDATE units SET status='INACTIVE', updatedBy=:u WHERE id=:id AND tenantId=:t"),
+                         {"id": unitId, "t": tenantId, "u": user.id})
+        await db.commit()
+        return ok({"deleted": False, "deactivated": True, "reason": "Unit is used by products"})
+    res = await db.execute(text("DELETE FROM units WHERE id=:id AND tenantId=:t"), {"id": unitId, "t": tenantId})
+    await db.commit()
+    return ok({"deleted": res.rowcount > 0})
 
 
 # ─────────────────────────── CUSTOMERS ───────────────────────────
@@ -554,3 +705,94 @@ async def update_supplier(supplierId: str, body: dict,
     await db.commit()
     if res.rowcount == 0: return err("Supplier not found", 404)
     return ok({"updated": True})
+
+
+@router.delete("/api/v1/suppliers/{supplierId}")
+async def delete_supplier(supplierId: str,
+                          user: AuthUser = Depends(require_permission("suppliers.delete")),
+                          tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    used = (await db.execute(text("SELECT COUNT(*) FROM products WHERE supplierId=:id AND tenantId=:t"),
+                              {"id": supplierId, "t": tenantId})).first()
+    po_used = (await db.execute(text("SELECT COUNT(*) FROM purchase_orders WHERE supplierId=:id"),
+                                 {"id": supplierId})).first()
+    if (used[0] > 0) or (po_used[0] > 0):
+        await db.execute(text("UPDATE suppliers SET status='INACTIVE', updatedBy=:u WHERE id=:id AND tenantId=:t"),
+                         {"id": supplierId, "t": tenantId, "u": user.id})
+        await db.commit()
+        return ok({"deleted": False, "deactivated": True, "reason": "Supplier has products or purchase orders"})
+    res = await db.execute(text("DELETE FROM suppliers WHERE id=:id AND tenantId=:t"), {"id": supplierId, "t": tenantId})
+    await db.commit()
+    return ok({"deleted": res.rowcount > 0})
+
+
+# ─────────────────────────── WAREHOUSES ───────────────────────────
+
+@router.get("/api/v1/warehouses")
+async def list_warehouses(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    rows = rows_to_dicts(
+        (await db.execute(
+            text("SELECT w.*, b.name AS branchName FROM warehouses w LEFT JOIN branches b ON b.id=w.branchId "
+                 "WHERE w.tenantId=:t ORDER BY w.name"),
+            {"t": tenantId})).fetchall()
+    )
+    for r in rows:
+        r["branch"] = {"id": r.pop("branchId"), "name": r.pop("branchName")}
+    return ok(rows)
+
+
+@router.post("/api/v1/warehouses")
+async def create_warehouse(body: dict, user: AuthUser = Depends(require_auth),
+                           tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    name = body.get("name")
+    if not name: return err("Name is required", 400)
+    code = body.get("code") or name.upper().replace(" ", "-")[:10]
+    branchId = body.get("branchId")
+    if not branchId: return err("Branch is required", 400)
+    dup = (await db.execute(text("SELECT id FROM warehouses WHERE tenantId=:t AND code=:c"), {"t": tenantId, "c": code})).first()
+    if dup: return err("Warehouse with this code already exists", 409)
+    await db.execute(
+        text("INSERT INTO warehouses (id, tenantId, branchId, code, name, type, status, isLocationBased, createdBy) "
+             "VALUES (UUID(), :t, :b, :c, :n, :tp, 'ACTIVE', :loc, :u)"),
+        {"t": tenantId, "b": branchId, "c": code, "n": name,
+         "tp": body.get("type", "GENERAL"), "loc": body.get("isLocationBased", False), "u": user.id})
+    await db.commit()
+    row = (await db.execute(text("SELECT id, name, code FROM warehouses WHERE tenantId=:t AND code=:c"), {"t": tenantId, "c": code})).first()
+    return ok({"id": row[0], "name": row[1], "code": row[2], "created": True}, 201)
+
+
+@router.put("/api/v1/warehouses/{warehouseId}")
+async def update_warehouse(warehouseId: str, body: dict,
+                           user: AuthUser = Depends(require_auth),
+                           tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    exists = (await db.execute(text("SELECT id FROM warehouses WHERE id=:id AND tenantId=:t"), {"id": warehouseId, "t": tenantId})).first()
+    if not exists:
+        return err("Warehouse not found", 404)
+    allowed = {"name": "name", "code": "code", "branchId": "branchId", "type": "type", "status": "status", "isLocationBased": "isLocationBased"}
+    sets, params = [], {"id": warehouseId, "t": tenantId, "u": user.id}
+    for jk, ck in allowed.items():
+        if jk in body:
+            sets.append(f"{ck} = :{ck}"); params[ck] = body[jk]
+    if not sets:
+        return err("Nothing to update", 400)
+    sets.append("updatedBy = :u")
+    res = await db.execute(text(f"UPDATE warehouses SET {', '.join(sets)} WHERE id=:id AND tenantId=:t"), params)
+    await db.commit()
+    if res.rowcount == 0:
+        return err("Warehouse not found", 404)
+    return ok({"updated": True})
+
+
+@router.delete("/api/v1/warehouses/{warehouseId}")
+async def delete_warehouse(warehouseId: str,
+                           user: AuthUser = Depends(require_auth),
+                           tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    used = (await db.execute(text("SELECT COUNT(*) FROM stock WHERE warehouseId=:id AND tenantId=:t"),
+                              {"id": warehouseId, "t": tenantId})).first()
+    if used[0] > 0:
+        await db.execute(text("UPDATE warehouses SET status='INACTIVE', updatedBy=:u WHERE id=:id AND tenantId=:t"),
+                         {"id": warehouseId, "t": tenantId, "u": user.id})
+        await db.commit()
+        return ok({"deleted": False, "deactivated": True, "reason": "Warehouse has stock entries"})
+    res = await db.execute(text("DELETE FROM warehouses WHERE id=:id AND tenantId=:t"), {"id": warehouseId, "t": tenantId})
+    await db.commit()
+    return ok({"deleted": res.rowcount > 0})

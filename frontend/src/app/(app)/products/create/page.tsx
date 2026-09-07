@@ -22,6 +22,7 @@ import {
   RefreshCw,
   Info,
   Check,
+  X,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { SearchableSelect, SearchableSelectOption } from "@/components/custom/SearchableSelect";
@@ -65,6 +66,12 @@ export default function CreateProductPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+
+  // Quick Create Modal state
+  const [activeModal, setActiveModal] = useState<"BRAND" | "CATEGORY" | "SUBCATEGORY" | "UNIT" | "SUPPLIER" | null>(null);
+  const [newItemName, setNewItemName] = useState("");
+  const [newItemCode, setNewItemCode] = useState("");
+  const [creatingItem, setCreatingItem] = useState(false);
 
   // Product Type Pill selection
   const [productType, setProductType] = useState<string>("Standard");
@@ -218,6 +225,55 @@ export default function CreateProductPage() {
     setVariants((prev) => prev.filter((_, i) => i !== index));
   }
 
+  // Quick Create Modal Handler
+  async function handleQuickCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newItemName.trim() || !activeModal) return;
+    setCreatingItem(true);
+    try {
+      if (activeModal === "BRAND") {
+        const res: any = await api.post("/v1/brands", { name: newItemName });
+        const newBrand = { id: res.id || res.data?.id, name: newItemName };
+        setBrands((prev) => [...prev, newBrand]);
+        updateForm("brandId", newBrand.id);
+      } else if (activeModal === "CATEGORY") {
+        const res: any = await api.post("/v1/products/categories", { name: newItemName });
+        const newCat = { id: res.id || res.data?.id, name: newItemName, parentId: null };
+        setCategories((prev) => [...prev, newCat]);
+        updateForm("categoryId", newCat.id);
+      } else if (activeModal === "SUBCATEGORY") {
+        const res: any = await api.post("/v1/products/categories", {
+          name: newItemName,
+          parentId: form.categoryId || undefined,
+        });
+        const newSubCat = { id: res.id || res.data?.id, name: newItemName, parentId: form.categoryId };
+        setCategories((prev) => [...prev, newSubCat]);
+        updateForm("subCategoryId", newSubCat.id);
+      } else if (activeModal === "UNIT") {
+        const res: any = await api.post("/v1/units", {
+          name: newItemName,
+          code: newItemCode || newItemName.toLowerCase().slice(0, 5),
+        });
+        const newUnit = { id: res.id || res.data?.id, name: newItemName, code: newItemCode };
+        setUnits((prev) => [...prev, newUnit]);
+        updateForm("unitId", newUnit.id);
+      } else if (activeModal === "SUPPLIER") {
+        const res: any = await api.post("/v1/suppliers", { name: newItemName, company: newItemCode });
+        const newSup = { id: res.id || res.data?.id, name: newItemName, company: newItemCode };
+        setSuppliers((prev) => [...prev, newSup]);
+        updateForm("supplierId", newSup.id);
+      }
+
+      setActiveModal(null);
+      setNewItemName("");
+      setNewItemCode("");
+    } catch (err: any) {
+      alert(err.message || "Failed to create item");
+    } finally {
+      setCreatingItem(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent, andInsertAnother = false) {
     if (e) e.preventDefault();
     if (!form.name || !form.sku) {
@@ -229,7 +285,6 @@ export default function CreateProductPage() {
     setError(null);
     setSuccessMsg(null);
 
-    // Map ProductType string to DB Enum
     const typeEnumMap: Record<string, string> = {
       Standard: "SIMPLE",
       Combo: "BUNDLE",
@@ -737,7 +792,7 @@ export default function CreateProductPage() {
                   value={form.unitId}
                   onChange={(val) => updateForm("unitId", val)}
                   placeholder="Select Product Unit..."
-                  onAddClick={() => alert("Add Unit Modal")}
+                  onAddClick={() => setActiveModal("UNIT")}
                 />
               </div>
 
@@ -979,7 +1034,7 @@ export default function CreateProductPage() {
                   value={form.brandId}
                   onChange={(val) => updateForm("brandId", val)}
                   placeholder="Select Brand..."
-                  onAddClick={() => alert("Add Brand Modal")}
+                  onAddClick={() => setActiveModal("BRAND")}
                 />
               </div>
 
@@ -991,7 +1046,7 @@ export default function CreateProductPage() {
                   value={form.categoryId}
                   onChange={(val) => updateForm("categoryId", val)}
                   placeholder="Select Category..."
-                  onAddClick={() => alert("Add Category Modal")}
+                  onAddClick={() => setActiveModal("CATEGORY")}
                 />
               </div>
 
@@ -1009,7 +1064,7 @@ export default function CreateProductPage() {
                         : "No Subcategories Found"
                       : "Select Category First"
                   }
-                  onAddClick={() => alert("Add Subcategory Modal")}
+                  onAddClick={() => setActiveModal("SUBCATEGORY")}
                 />
               </div>
 
@@ -1020,7 +1075,7 @@ export default function CreateProductPage() {
                   value={form.supplierId}
                   onChange={(val) => updateForm("supplierId", val)}
                   placeholder="Select Supplier..."
-                  onAddClick={() => alert("Add Supplier Modal")}
+                  onAddClick={() => setActiveModal("SUPPLIER")}
                 />
               </div>
             </div>
@@ -1109,6 +1164,76 @@ export default function CreateProductPage() {
           </div>
         </div>
       </div>
+
+      {/* QUICK CREATE POPUP MODAL */}
+      {activeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+          <div className="w-full max-w-sm rounded-md border border-slate-200 bg-white p-5 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h3 className="text-sm font-bold text-slate-900">
+                Quick Add {activeModal === "BRAND" ? "Brand" : activeModal === "CATEGORY" ? "Main Category" : activeModal === "SUBCATEGORY" ? "Sub Category" : activeModal === "UNIT" ? "Unit" : "Supplier"}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleQuickCreate} className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Name *
+                </label>
+                <input
+                  type="text"
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  placeholder={`Enter ${activeModal.toLowerCase()} name...`}
+                  className={inputClass}
+                  required
+                  autoFocus
+                />
+              </div>
+
+              {(activeModal === "UNIT" || activeModal === "SUPPLIER") && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    {activeModal === "UNIT" ? "Unit Abbreviation / Code" : "Company Name (Optional)"}
+                  </label>
+                  <input
+                    type="text"
+                    value={newItemCode}
+                    onChange={(e) => setNewItemCode(e.target.value)}
+                    placeholder={activeModal === "UNIT" ? "e.g. kg, box, pcs" : "e.g. Company Ltd."}
+                    className={inputClass}
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setActiveModal(null)}
+                  className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingItem}
+                  className="flex items-center gap-1 rounded-md bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {creatingItem ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+                  Save & Select
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

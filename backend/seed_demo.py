@@ -112,6 +112,12 @@ MODULE_LANDING_LABEL = {
 # Modules with real sub-pages → (label, route) top-level menu items appended
 # after the landing item. Mirrors what the Prompt 42 nav fix verified live.
 MODULE_SUB_PAGES = {
+    "products": [
+        ("Add New Product", "/products/create"),
+        ("Categories & Subcategories", "/categories"),
+        ("Brands & Manufacturers", "/brands"),
+        ("Units of Measure", "/units"),
+    ],
     "customers": [("New Customer", "/customers/create")],
     "pos": [
         ("Held Sales", "/pos/holds"),

@@ -231,7 +231,9 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         children: [
           { label: "All Products", href: "/products", icon: Package },
           { label: "Add New Product", href: "/products/create", icon: Sparkles },
-          { label: "Categories & Tags", href: "/categories", icon: Tags },
+          { label: "Categories & Subcategories", href: "/categories", icon: Tags },
+          { label: "Brands & Manufacturers", href: "/brands", icon: Building2 },
+          { label: "Units of Measure", href: "/units", icon: Scale },
           { label: "Price Lists & Tiers", href: "/price-lists", icon: Tag },
         ],
       },
