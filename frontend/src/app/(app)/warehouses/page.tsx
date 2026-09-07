@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import {
   Plus, Warehouse as WhIcon, Building2, Layers,
   Grid3X3, Package, ArrowRightLeft, Sparkles,
-  Boxes
+  Boxes, Trash2
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { CustomButton } from "@/components/custom/CustomButton";
@@ -401,6 +401,7 @@ export default function WarehousesPage() {
         open={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         title="Create New Warehouse"
+        size="lg"
       >
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -477,123 +478,178 @@ export default function WarehousesPage() {
           open={!!selectedWarehouse}
           onClose={() => setSelectedWarehouse(null)}
           title={`Location Management — ${selectedWarehouse.name} (${selectedWarehouse.code})`}
+          size="6xl"
         >
-          <div className="space-y-5">
+          <div className="space-y-6">
             {/* Top Navigation Tabs */}
-            <div className="flex border-b border-gray-200">
+            <div className="flex flex-wrap items-center gap-2 border-b border-gray-100 pb-3">
               <button
                 type="button"
                 onClick={() => setLocTab("grid")}
-                className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-xs font-semibold transition-colors ${
+                className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold transition-all ${
                   locTab === "grid"
-                    ? "border-primary-600 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-900"
+                    ? "bg-primary-50 text-primary-700 shadow-xs border border-primary-200"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent"
                 }`}
               >
-                <Grid3X3 size={14} />
-                Hierarchy & Bin Grid ({locationData?.totalBins || 0})
+                <Grid3X3 size={15} className={locTab === "grid" ? "text-primary-600" : "text-gray-400"} />
+                <span>Hierarchy & Bin Grid</span>
+                <span className="rounded-full bg-primary-100 px-2 py-0.5 text-[11px] font-bold text-primary-800">
+                  {locationData?.totalBins || 0}
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() => setLocTab("inventory")}
-                className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-xs font-semibold transition-colors ${
+                className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold transition-all ${
                   locTab === "inventory"
-                    ? "border-primary-600 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-900"
+                    ? "bg-primary-50 text-primary-700 shadow-xs border border-primary-200"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent"
                 }`}
               >
-                <Boxes size={14} />
-                Bin Product Inventory ({binStocks.length})
+                <Boxes size={15} className={locTab === "inventory" ? "text-primary-600" : "text-gray-400"} />
+                <span>Bin Product Inventory</span>
+                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-bold text-gray-700">
+                  {binStocks.length}
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() => setLocTab("generator")}
-                className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-xs font-semibold transition-colors ${
+                className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold transition-all ${
                   locTab === "generator"
-                    ? "border-primary-600 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-900"
+                    ? "bg-primary-50 text-primary-700 shadow-xs border border-primary-200"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent"
                 }`}
               >
-                <Sparkles size={14} />
-                1-Click Bulk Generator
+                <Sparkles size={15} className={locTab === "generator" ? "text-primary-600" : "text-gray-400"} />
+                <span>1-Click Bulk Generator</span>
               </button>
               <button
                 type="button"
                 onClick={() => setLocTab("single")}
-                className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-xs font-semibold transition-colors ${
+                className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold transition-all ${
                   locTab === "single"
-                    ? "border-primary-600 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-900"
+                    ? "bg-primary-50 text-primary-700 shadow-xs border border-primary-200"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent"
                 }`}
               >
-                <Plus size={14} />
-                Add Single Bin
+                <Plus size={15} className={locTab === "single" ? "text-primary-600" : "text-gray-400"} />
+                <span>Add Single Bin</span>
               </button>
             </div>
 
             {locLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600" />
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="h-8 w-8 animate-spin rounded-full border-3 border-gray-200 border-t-primary-600 mb-3" />
+                <p className="text-xs text-gray-500 font-medium">Loading warehouse locations...</p>
               </div>
             ) : (
               <>
                 {/* TAB 1: 4-TIER HIERARCHY / GRID VIEW */}
                 {locTab === "grid" && (
-                  <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+                  <div className="space-y-6 max-h-[65vh] overflow-y-auto pr-2">
                     {locationData?.hierarchy && locationData.hierarchy.length > 0 ? (
                       locationData.hierarchy.map((row) => (
-                        <div key={row.rowCode} className="rounded-xl border border-gray-200 bg-gray-50/50 p-4">
-                          <div className="flex items-center gap-2 mb-3">
-                            <span className="rounded-md bg-indigo-100 px-2.5 py-1 font-mono text-xs font-bold text-indigo-800">
-                              Row / Aisle: {row.rowCode}
-                            </span>
-                            <span className="text-xs text-gray-400">
-                              {row.cols.reduce((acc, c) => acc + c.racks.reduce((rAcc, rk) => rAcc + rk.bins.length, 0), 0)} Total Bins
+                        <div key={row.rowCode} className="rounded-2xl border border-gray-200 bg-gray-50/70 p-5 shadow-xs">
+                          {/* Row Header */}
+                          <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-gray-200/80">
+                            <div className="flex items-center gap-2.5">
+                              <span className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 font-mono text-xs font-bold text-white shadow-xs">
+                                <Layers size={13} />
+                                Row / Aisle: {row.rowCode}
+                              </span>
+                              <span className="text-xs font-semibold text-gray-500">
+                                {row.cols.length} Column{row.cols.length > 1 ? "s" : ""}
+                              </span>
+                            </div>
+                            <span className="rounded-md bg-white px-2.5 py-1 text-xs font-bold text-gray-700 border border-gray-200 shadow-2xs">
+                              {row.cols.reduce((acc, c) => acc + c.racks.reduce((rAcc, rk) => rAcc + rk.bins.length, 0), 0)} Bins in Row
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+                          {/* Columns Grid */}
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                             {row.cols.map((col) => (
-                              <div key={col.colCode} className="rounded-lg border border-gray-200 bg-white p-3 shadow-2xs">
-                                <div className="text-xs font-semibold text-gray-600 mb-2">
-                                  Column / Bay: <span className="font-mono text-gray-900 font-bold">{col.colCode}</span>
-                                </div>
-                                <div className="space-y-2">
-                                  {col.racks.map((rack) => (
-                                    <div key={rack.rackCode} className="rounded-md bg-gray-50 p-2 border border-gray-100">
-                                      <div className="text-[11px] font-medium text-gray-500 mb-1.5 flex items-center gap-1">
-                                        <Layers size={11} /> Rack: <span className="font-mono font-semibold text-gray-800">{rack.rackCode}</span>
-                                      </div>
-                                      <div className="grid grid-cols-2 gap-1.5">
-                                        {rack.bins.map((bin) => (
-                                          <div
-                                            key={bin.id}
-                                            className="group relative rounded border border-gray-200 bg-white p-2 hover:border-primary-400 hover:shadow-xs transition-all"
-                                          >
-                                            <div className="font-mono text-xs font-bold text-primary-700 truncate">
-                                              {bin.binCode}
-                                            </div>
-                                            <div className="text-[10px] text-gray-400 truncate">
-                                              {bin.fullCode}
-                                            </div>
-                                            <div className="mt-1 flex items-center justify-between text-[10px]">
-                                              <span className={(bin.totalQty || 0) > 0 ? "text-emerald-600 font-semibold" : "text-gray-400"}>
-                                                {(bin.totalQty || 0)} Qty
-                                              </span>
-                                              <button
-                                                type="button"
-                                                onClick={() => handleDeleteBin(bin.id)}
-                                                className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-opacity"
-                                                title="Delete Bin"
-                                              >
-                                                ✕
-                                              </button>
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
+                              <div key={col.colCode} className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs flex flex-col justify-between">
+                                <div>
+                                  {/* Column Header */}
+                                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
+                                    <div className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                                      <span className="h-2 w-2 rounded-full bg-primary-500" />
+                                      Column / Bay: <span className="font-mono text-primary-700 font-extrabold">{col.colCode}</span>
                                     </div>
-                                  ))}
+                                    <span className="text-[11px] font-medium text-gray-400">
+                                      {col.racks.length} Rack{col.racks.length > 1 ? "s" : ""}
+                                    </span>
+                                  </div>
+
+                                  {/* Racks List */}
+                                  <div className="space-y-3">
+                                    {col.racks.map((rack) => (
+                                      <div key={rack.rackCode} className="rounded-lg bg-gray-50/80 p-3 border border-gray-150">
+                                        <div className="text-[11px] font-bold text-gray-600 mb-2 flex items-center justify-between">
+                                          <div className="flex items-center gap-1.5">
+                                            <span className="rounded bg-gray-200 px-1.5 py-0.5 font-mono text-[10px] text-gray-700 font-semibold">
+                                              Rack: {rack.rackCode}
+                                            </span>
+                                          </div>
+                                          <span className="text-[10px] text-gray-400 font-medium">
+                                            {rack.bins.length} Bin{rack.bins.length > 1 ? "s" : ""}
+                                          </span>
+                                        </div>
+
+                                        {/* Bins Grid */}
+                                        <div className="grid grid-cols-2 gap-2">
+                                          {rack.bins.map((bin) => {
+                                            const qty = Number(bin.totalQty || 0);
+                                            const isOccupied = qty > 0;
+                                            return (
+                                              <div
+                                                key={bin.id}
+                                                className={`group relative rounded-lg border p-2.5 transition-all ${
+                                                  isOccupied
+                                                    ? "border-emerald-200 bg-emerald-50/40 hover:border-emerald-400 shadow-2xs"
+                                                    : "border-gray-200 bg-white hover:border-primary-400 hover:shadow-xs"
+                                                }`}
+                                              >
+                                                <div className="flex items-start justify-between">
+                                                  <div className="font-mono text-xs font-black text-gray-900">
+                                                    {bin.binCode}
+                                                  </div>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => handleDeleteBin(bin.id)}
+                                                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 transition-opacity p-0.5 rounded hover:bg-red-50"
+                                                    title="Delete this bin location"
+                                                  >
+                                                    <Trash2 size={12} />
+                                                  </button>
+                                                </div>
+
+                                                <div className="text-[10px] text-gray-400 font-mono mt-0.5 truncate" title={bin.fullCode}>
+                                                  {bin.fullCode}
+                                                </div>
+
+                                                <div className="mt-2 flex items-center justify-between">
+                                                  <span
+                                                    className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold ${
+                                                      isOccupied
+                                                        ? "bg-emerald-100 text-emerald-800"
+                                                        : "bg-gray-100 text-gray-500"
+                                                    }`}
+                                                  >
+                                                    <Package size={10} />
+                                                    {qty} Qty
+                                                  </span>
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
                               </div>
                             ))}
@@ -601,15 +657,15 @@ export default function WarehousesPage() {
                         </div>
                       ))
                     ) : (
-                      <div className="rounded-xl border border-dashed border-gray-200 py-12 text-center">
-                        <Layers size={32} className="mx-auto text-gray-300 mb-2" />
-                        <p className="text-sm font-semibold text-gray-700">No Bin Locations configured yet</p>
-                        <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1 mb-4">
-                          This location-based warehouse needs bins setup. Use our 1-Click Generator to generate a complete layout in seconds!
+                      <div className="rounded-2xl border-2 border-dashed border-gray-200 py-16 text-center bg-gray-50/50">
+                        <Layers size={40} className="mx-auto text-gray-300 mb-3" />
+                        <h3 className="text-sm font-bold text-gray-800">No Bin Locations configured yet</h3>
+                        <p className="text-xs text-gray-500 max-w-md mx-auto mt-1 mb-5">
+                          This location-based warehouse needs bins setup. You can generate all Rows, Columns, Racks, and Bins in 1 click!
                         </p>
                         <CustomButton size="sm" onClick={() => setLocTab("generator")}>
                           <Sparkles size={14} className="mr-1.5" />
-                          Open 1-Click Generator
+                          Open 1-Click Bulk Generator
                         </CustomButton>
                       </div>
                     )}
@@ -789,6 +845,7 @@ export default function WarehousesPage() {
           open={showMoveModal}
           onClose={() => setShowMoveModal(false)}
           title="Move Stock Between Bins"
+          size="lg"
         >
           <div className="space-y-4">
             <CustomSelect
