@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   Loader2, ClipboardList, ShoppingCart, PackageCheck, FileText, CreditCard,
   Undo2, ChevronRight, CheckCircle, Clock, AlertTriangle, TrendingUp, Boxes, Truck,
+  Layers, Plus, RefreshCw,
 } from "lucide-react";
 import { api } from "@/lib/api";
 
@@ -78,19 +79,56 @@ export default function PurchasingPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Purchasing</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Purchase Requisition → Approval → PO → GRN → Invoice → Payment (§10.17)
+          <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
+            <span className="text-gray-900 font-bold">Purchasing Hub</span>
+            <ChevronRight size={13} className="text-gray-400" />
+            <span>Overview</span>
+          </div>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">Purchasing & Procurement</h1>
+          <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
+            End-to-end Procurement Lifecycle: PR → Multi-tier Approval → PO → GRN → Invoice & Payments
           </p>
         </div>
-        <div className="flex gap-2">
-          <Link href="/purchasing/requisitions" className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50">
-            <ClipboardList size={16} className="text-blue-600" /> New Requisition
+        <div className="flex items-center gap-2">
+          <button
+            onClick={load}
+            disabled={loading}
+            className="rounded-xl border border-gray-200 bg-white p-2.5 text-gray-600 shadow-sm transition hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50"
+            title="Refresh Data"
+          >
+            <RefreshCw size={17} className={loading ? "animate-spin text-primary-600" : ""} />
+          </button>
+          <Link href="/purchasing/requisitions" className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-xs sm:text-sm font-bold text-gray-700 shadow-sm transition hover:bg-gray-50">
+            <ClipboardList size={16} className="text-blue-600" /> New PR
           </Link>
-          <Link href="/purchasing/orders" className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-primary-700">
+          <Link href="/purchasing/orders" className="flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-xs sm:text-sm font-bold text-white shadow-lg shadow-primary-600/25 transition hover:bg-primary-700 active:scale-[0.98]">
             <ShoppingCart size={16} /> New PO
           </Link>
         </div>
+      </div>
+
+      {/* Sub-Navigation Tabs */}
+      <div className="flex items-center gap-1.5 overflow-x-auto rounded-2xl border border-gray-200/80 bg-white p-1.5 shadow-sm">
+        {[
+          { href: "/purchasing", label: "Overview", icon: Layers, active: true },
+          { href: "/purchasing/requisitions", label: "Requisitions (PR)", icon: ClipboardList },
+          { href: "/purchasing/orders", label: "Purchase Orders (PO)", icon: ShoppingCart },
+          { href: "/purchasing/grns", label: "Goods Received (GRN)", icon: PackageCheck },
+          { href: "/purchasing/returns", label: "Returns & Debit Notes", icon: Undo2 },
+        ].map((tab) => (
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition whitespace-nowrap ${
+              tab.active
+                ? "bg-primary-600 text-white shadow-sm"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            }`}
+          >
+            <tab.icon size={15} />
+            {tab.label}
+          </Link>
+        ))}
       </div>
 
       {error && (
