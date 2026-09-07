@@ -42,14 +42,8 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # CORS Middleware
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS_LIST,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    # Rate Limiting & Security Headers
+    install_middleware(app)
 
     # Timing & Observability Middleware
     @app.middleware("http")
@@ -64,8 +58,15 @@ def create_app() -> FastAPI:
             record_latency(route or request.url.path, (time.perf_counter() - t0) * 1000, status)
         return response
 
-    # Rate Limiting & Security Headers
-    install_middleware(app)
+    # CORS Middleware — MUST be outermost (added last) so all responses get CORS headers
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.CORS_ORIGINS_LIST,
+        allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     # Mount Master API v1 Router
     app.include_router(api_v1_router)

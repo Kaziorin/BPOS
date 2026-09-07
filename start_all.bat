@@ -36,7 +36,7 @@ for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":3000" ^| findstr "LI
 )
 
 echo [3/4] Starting FastAPI Backend on port 4000...
-start "BlueOceans POS - Backend API (:4000)" cmd /k "cd /d "%ROOT_DIR%backend" && echo Starting FastAPI Backend on http://127.0.0.1:4000... && python -m uvicorn main:app --port 4000 --host 127.0.0.1 --reload"
+start "BlueOceans POS - Backend API (:4000)" cmd /k "cd /d "%ROOT_DIR%backend" && echo Starting FastAPI Backend on http://127.0.0.1:4000... && python -m uvicorn main:app --port 4000 --host 0.0.0.0 --reload"
 
 echo [4/4] Starting Next.js Frontend on port 3000...
 start "BlueOceans POS - Frontend App (:3000)" cmd /k "cd /d "%ROOT_DIR%frontend" && echo Starting Next.js Frontend on http://localhost:3000... && npm run dev"

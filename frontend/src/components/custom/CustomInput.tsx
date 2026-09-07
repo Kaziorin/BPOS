@@ -7,6 +7,7 @@ export interface CustomInputProps extends InputHTMLAttributes<HTMLInputElement> 
   label?: string;
   error?: string;
   hint?: string;
+  helperText?: string;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   containerClassName?: string;
@@ -14,11 +15,12 @@ export interface CustomInputProps extends InputHTMLAttributes<HTMLInputElement> 
 
 export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
   (
-    { label, error, hint, leftIcon, rightIcon, containerClassName, className, id, ...props },
+    { label, error, hint, helperText, leftIcon, rightIcon, containerClassName, className, id, ...props },
     ref
   ) => {
     const autoId = useId();
     const inputId = id ?? autoId;
+    const bottomHint = error ? null : (helperText ?? hint);
 
     return (
       <div className={cn("w-full", containerClassName)}>
@@ -54,8 +56,8 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
         </div>
         {error ? (
           <p className="mt-1.5 text-xs text-red-600">{error}</p>
-        ) : hint ? (
-          <p className="mt-1.5 text-xs text-gray-400">{hint}</p>
+        ) : bottomHint ? (
+          <p className="mt-1.5 text-xs text-gray-400">{bottomHint}</p>
         ) : null}
       </div>
     );
