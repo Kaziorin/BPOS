@@ -103,12 +103,28 @@ export default function ProductsPage() {
       key: "name",
       header: "Product",
       sortable: true,
-      render: (product) => (
-        <div>
-          <p className="font-bold text-gray-600 text-sm">{product.name}</p>
-          {product.brand && <p className="text-xs text-slate-400">{product.brand.name}</p>}
-        </div>
-      ),
+      render: (product) => {
+        const imgUrl = (product as any).imageUrl || product.images?.[0]?.url;
+        return (
+          <div className="flex items-center gap-2.5">
+            {imgUrl ? (
+              <img
+                src={imgUrl}
+                alt={product.name}
+                className="h-9 w-9 rounded-md object-cover border border-slate-200 shrink-0 bg-slate-50"
+              />
+            ) : (
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-teal-50 text-teal-600 border border-teal-100 shrink-0">
+                <Package size={16} />
+              </div>
+            )}
+            <div>
+              <p className="font-bold text-gray-600 text-sm">{product.name}</p>
+              {product.brand && <p className="text-xs text-slate-400">{product.brand.name}</p>}
+            </div>
+          </div>
+        );
+      },
     },
     {
       key: "sku",

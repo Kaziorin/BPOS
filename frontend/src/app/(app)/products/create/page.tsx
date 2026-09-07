@@ -9,17 +9,12 @@ import {
   Package,
   DollarSign,
   Image as ImageIcon,
-  Barcode as BarcodeIcon,
   Layers,
   Tag,
   ShieldCheck,
   Sparkles,
-  ArrowLeft,
-  Upload,
-  Percent,
-  Calculator,
-  CheckCircle2,
   RefreshCw,
+  CheckCircle2,
   Info,
   Check,
   X,
@@ -27,6 +22,8 @@ import {
 import { api } from "@/lib/api";
 import { SearchableSelect, SearchableSelectOption } from "@/components/custom/SearchableSelect";
 import { ImageUploader } from "@/components/custom/ImageUploader";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
 
 interface Category {
   id: string;
@@ -74,7 +71,7 @@ export default function CreateProductPage() {
   const [newItemCode, setNewItemCode] = useState("");
   const [creatingItem, setCreatingItem] = useState(false);
 
-  // Product Type Pill selection
+  // Product Type selection
   const [productType, setProductType] = useState<string>("Standard");
 
   // Pricing Mode: PERCENTAGE or FLAT
@@ -118,12 +115,6 @@ export default function CreateProductPage() {
     hasDiffPriceWarehouse: false,
     hasBatchExpiry: false,
     hasSerial: false,
-    kitchen: "",
-    menuType: "",
-    publishSocial: false,
-    socialTitle: "",
-    socialDescription: "",
-    socialImageUrl: "",
   });
 
   const [variants, setVariants] = useState<VariantForm[]>([]);
@@ -138,7 +129,6 @@ export default function CreateProductPage() {
     { value: "Serialized", label: "Serialized (Unique serial number per item)" },
   ];
 
-  // Load Categories, Brands, Units, Suppliers
   async function loadFormData() {
     try {
       const [catRes, brandRes, unitRes, supRes] = await Promise.all([
@@ -153,7 +143,6 @@ export default function CreateProductPage() {
       setUnits(Array.isArray(unitRes.data || unitRes) ? unitRes.data || unitRes : []);
       setSuppliers(Array.isArray(supRes.data || supRes) ? supRes.data || supRes : []);
 
-      // Auto generate initial Product Code
       generateSku();
     } catch (err) {
       console.error("Failed to load options:", err);
@@ -191,7 +180,6 @@ export default function CreateProductPage() {
     });
   }
 
-  // Price calculations
   function handleCostChange(cost: string) {
     updateForm("costPrice", cost);
     computeSellingPrice(cost, marginType, marginValue);
@@ -236,7 +224,6 @@ export default function CreateProductPage() {
     setVariants((prev) => prev.filter((_, i) => i !== index));
   }
 
-  // Quick Create Modal Handler
   async function handleQuickCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!newItemName.trim() || !activeModal) return;
@@ -341,7 +328,7 @@ export default function CreateProductPage() {
       }
 
       await api.post("/v1/products", body);
-      setSuccessMsg("Product added successfully!");
+      setSuccessMsg("Product created successfully!");
 
       if (andInsertAnother) {
         setForm({
@@ -377,12 +364,6 @@ export default function CreateProductPage() {
           hasDiffPriceWarehouse: false,
           hasBatchExpiry: false,
           hasSerial: false,
-          kitchen: "",
-          menuType: "",
-          publishSocial: false,
-          socialTitle: "",
-          socialDescription: "",
-          socialImageUrl: "",
         });
         setVariants([]);
       } else {
@@ -397,17 +378,11 @@ export default function CreateProductPage() {
     }
   }
 
-  // Dropdown options formatting for SearchableSelect
   const barcodeOptions: SearchableSelectOption[] = [
     { value: "CODE128", label: "Code 128 (Standard)" },
     { value: "EAN13", label: "EAN-13 (Standard Retail)" },
     { value: "UPCA", label: "UPC-A (Universal)" },
     { value: "QRCODE", label: "QR Code Symbology" },
-  ];
-
-  const marginTypeOptions: SearchableSelectOption[] = [
-    { value: "PERCENTAGE", label: "Percentage (%)" },
-    { value: "FLAT", label: "Flat Amount (৳)" },
   ];
 
   const taxMethodOptions: SearchableSelectOption[] = [
@@ -451,74 +426,67 @@ export default function CreateProductPage() {
   }));
 
   const inputClass =
-    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 transition focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 placeholder:text-slate-400";
-  const labelClass = "block text-xs font-semibold text-slate-700 mb-1";
+    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 placeholder:text-slate-400";
+  const labelClass = "block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize";
 
   return (
-    <div className="w-full max-w-full space-y-4 p-2 sm:p-4 bg-slate-50/50 min-h-screen">
-      {/* Top Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-3.5 rounded-md border border-slate-200/80 shadow-xs">
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() => router.push("/products")}
-            className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          <div>
-            <h1 className="text-lg font-bold text-slate-900">Add Product</h1>
-            <p className="text-[11px] text-slate-500">Create new item with pricing, barcode & inventory</p>
+    <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
+      {/* Reusable Custom Breadcrumb Header */}
+      <CustomBreadcrumb
+        title="Add New Product"
+        icon={<Package size={20} />}
+        items={[{ label: "Catalog", href: "/products" }, { label: "Create Product" }]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={(e) => handleSubmit(e, true)}
+              disabled={saving}
+              className="rounded-md text-xs font-semibold"
+            >
+              Save and Insert Another
+            </CustomButton>
+            <CustomButton
+              type="button"
+              size="sm"
+              onClick={(e) => handleSubmit(e, false)}
+              loading={saving}
+              leftIcon={<Check size={14} />}
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+            >
+              Add Product
+            </CustomButton>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={(e) => handleSubmit(e, true)}
-            disabled={saving}
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 disabled:opacity-50"
-          >
-            Save and Insert Another
-          </button>
-          <button
-            type="button"
-            onClick={(e) => handleSubmit(e, false)}
-            disabled={saving}
-            className="flex items-center gap-1.5 rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-            ✓ Add Product
-          </button>
-        </div>
-      </div>
+        }
+      />
 
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-700">
+        <div className="rounded-md border border-red-200 bg-red-50 p-3.5 text-xs font-medium text-red-700 animate-in slide-in-from-top-2">
           ⚠️ {error}
         </div>
       )}
 
       {successMsg && (
-        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs font-medium text-emerald-700">
+        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-600" /> {successMsg}
         </div>
       )}
 
-      {/* Main Grid: Left Column (70%) & Right Sidebar (30%) */}
+      {/* Main Grid Layout: Left Column (70%) & Right Sidebar (30%) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* LEFT COLUMN - 8 out of 12 cols (~70%) */}
+        {/* LEFT COLUMN */}
         <div className="lg:col-span-8 space-y-4">
           {/* BOX 1: Basic Information */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5 mb-3.5 text-slate-800">
-              <Package className="h-4 w-4 text-indigo-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+              <Package className="h-4 w-4 text-teal-600" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                 Basic Information
               </h2>
             </div>
 
-            {/* Product Type Dropdown */}
             <div className="mb-4">
               <SearchableSelect
                 label="Product Type"
@@ -530,7 +498,7 @@ export default function CreateProductPage() {
               />
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3.5 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label className={labelClass}>
                   Product Name <span className="text-red-500">*</span>
@@ -540,7 +508,7 @@ export default function CreateProductPage() {
                   value={form.name}
                   onChange={(e) => updateForm("name", e.target.value)}
                   className={inputClass}
-                  placeholder="Enter product title..."
+                  placeholder="e.g. Wireless Ergonomic Mouse"
                   required
                 />
               </div>
@@ -561,7 +529,7 @@ export default function CreateProductPage() {
                   <button
                     type="button"
                     onClick={generateSku}
-                    className="absolute right-2 text-slate-400 hover:text-indigo-600 transition"
+                    className="absolute right-2 text-slate-400 hover:text-teal-600 transition cursor-pointer"
                     title="Generate New SKU"
                   >
                     <RefreshCw className="h-3.5 w-3.5" />
@@ -581,14 +549,14 @@ export default function CreateProductPage() {
               </div>
 
               <div className="sm:col-span-2">
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-slate-700">Barcode Value</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[15px] font-semibold text-gray-600 capitalize">Barcode Value</label>
                   <button
                     type="button"
                     onClick={generateBarcode}
-                    className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                    className="text-xs font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-1 cursor-pointer"
                   >
-                    <Sparkles className="h-3 w-3" /> Auto Generate Barcode
+                    <Sparkles className="h-3.5 w-3.5" /> Auto Generate Barcode
                   </button>
                 </div>
                 <input
@@ -614,10 +582,10 @@ export default function CreateProductPage() {
           </div>
 
           {/* BOX 2: Media */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5 mb-3.5 text-slate-800">
-              <ImageIcon className="h-4 w-4 text-indigo-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+              <ImageIcon className="h-4 w-4 text-teal-600" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                 Product Media & Image
               </h2>
             </div>
@@ -630,18 +598,18 @@ export default function CreateProductPage() {
           </div>
 
           {/* BOX 3: Pricing */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3.5">
-              <div className="flex items-center gap-2 text-slate-800">
-                <DollarSign className="h-4 w-4 text-indigo-600" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">Pricing</h2>
+          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <div className="flex items-center gap-2 text-gray-600">
+                <DollarSign className="h-4 w-4 text-teal-600" />
+                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Pricing</h2>
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3.5 sm:grid-cols-3">
               <div>
                 <label className={labelClass}>
-                  Product Cost <span className="text-red-500">*</span>
+                  Product Cost (৳) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -654,15 +622,15 @@ export default function CreateProductPage() {
               </div>
 
               <div className="sm:col-span-2">
-                <div className="flex items-center justify-between mb-1">
-                  <label className={labelClass}>Profit Margin Mode & Value</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[15px] font-semibold text-gray-600 capitalize">Profit Margin Mode & Value</label>
                   <div className="inline-flex rounded-md border border-slate-200 bg-slate-100 p-0.5 text-xs font-semibold">
                     <button
                       type="button"
                       onClick={() => handleMarginTypeChange("PERCENTAGE")}
-                      className={`px-2.5 py-0.5 text-[11px] rounded font-bold transition ${
+                      className={`px-2.5 py-0.5 text-[11px] rounded-md font-bold transition cursor-pointer ${
                         marginType === "PERCENTAGE"
-                          ? "bg-indigo-600 text-white shadow-xs"
+                          ? "bg-teal-600 text-white shadow-xs"
                           : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
@@ -671,9 +639,9 @@ export default function CreateProductPage() {
                     <button
                       type="button"
                       onClick={() => handleMarginTypeChange("FLAT")}
-                      className={`px-2.5 py-0.5 text-[11px] rounded font-bold transition ${
+                      className={`px-2.5 py-0.5 text-[11px] rounded-md font-bold transition cursor-pointer ${
                         marginType === "FLAT"
-                          ? "bg-indigo-600 text-white shadow-xs"
+                          ? "bg-teal-600 text-white shadow-xs"
                           : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
@@ -698,21 +666,21 @@ export default function CreateProductPage() {
 
               <div>
                 <label className={labelClass}>
-                  Product Price (Selling) <span className="text-red-500">*</span>
+                  Selling Price (৳) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   step="0.01"
                   value={form.sellingPrice}
                   onChange={(e) => updateForm("sellingPrice", e.target.value)}
-                  className={`${inputClass} font-bold text-indigo-700`}
+                  className={`${inputClass} font-bold text-teal-700 bg-teal-50/50`}
                   placeholder="0.00"
                   required
                 />
               </div>
 
               <div>
-                <label className={labelClass}>Wholesale Price</label>
+                <label className={labelClass}>Wholesale Price (৳)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -745,13 +713,13 @@ export default function CreateProductPage() {
                 />
               </div>
 
-              <div className="sm:col-span-2 flex items-center mt-5">
-                <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+              <div className="sm:col-span-2 flex items-center mt-4">
+                <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.hasPromoPrice}
                     onChange={(e) => updateForm("hasPromoPrice", e.target.checked)}
-                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                   />
                   Add Promotional Price
                 </label>
@@ -760,13 +728,13 @@ export default function CreateProductPage() {
           </div>
 
           {/* BOX 4: Units */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5 mb-3.5 text-slate-800">
-              <Layers className="h-4 w-4 text-indigo-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">Units</h2>
+          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+              <Layers className="h-4 w-4 text-teal-600" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Units</h2>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3.5 sm:grid-cols-3">
               <div>
                 <SearchableSelect
                   label="Product Unit"
@@ -802,23 +770,23 @@ export default function CreateProductPage() {
           </div>
 
           {/* BOX 5: Variants */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3.5">
-              <div className="flex items-center gap-2 text-slate-800">
-                <Tag className="h-4 w-4 text-indigo-600" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">Variants</h2>
+          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <div className="flex items-center gap-2 text-gray-600">
+                <Tag className="h-4 w-4 text-teal-600" />
+                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Variants</h2>
               </div>
             </div>
 
             <div className="space-y-3">
-              <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+              <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={form.hasVariants}
                   onChange={(e) => updateForm("hasVariants", e.target.checked)}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                 />
-                This product has variant (e.g. Size, Color)
+                This product has variants (e.g. Size, Color)
               </label>
 
               {form.hasVariants && (
@@ -827,20 +795,20 @@ export default function CreateProductPage() {
                     <button
                       type="button"
                       onClick={addVariant}
-                      className="flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200"
+                      className="flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-700 bg-teal-50 px-2.5 py-1.5 rounded-md border border-teal-200 cursor-pointer"
                     >
                       <Plus className="h-3.5 w-3.5" /> Add Variant Item
                     </button>
                   </div>
 
                   {variants.map((variant, idx) => (
-                    <div key={idx} className="rounded-md border border-slate-200 bg-slate-50 p-3 relative">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] font-bold text-slate-600">Variant #{idx + 1}</span>
+                    <div key={idx} className="rounded-md border border-slate-200 bg-slate-50/60 p-3 relative space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-gray-600">Variant #{idx + 1}</span>
                         <button
                           type="button"
                           onClick={() => removeVariant(idx)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-red-500 hover:text-red-700 cursor-pointer"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -898,118 +866,18 @@ export default function CreateProductPage() {
               )}
             </div>
           </div>
-
-          {/* BOX 6: Inventory Controls */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5 mb-3.5 text-slate-800">
-              <Package className="h-4 w-4 text-indigo-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">Inventory</h2>
-            </div>
-
-            <div className="space-y-2.5">
-              <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.hasInitialStock}
-                  onChange={(e) => updateForm("hasInitialStock", e.target.checked)}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                Initial Stock <span className="text-[11px] text-slate-400 ml-1">(This feature will not work for product with variants and batches)</span>
-              </label>
-
-              <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.hasDiffPriceWarehouse}
-                  onChange={(e) => updateForm("hasDiffPriceWarehouse", e.target.checked)}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                This product has different price for different warehouse
-              </label>
-
-              <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.hasBatchExpiry}
-                  onChange={(e) => updateForm("hasBatchExpiry", e.target.checked)}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                This product has batch and expired date
-              </label>
-
-              <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.hasSerial}
-                  onChange={(e) => updateForm("hasSerial", e.target.checked)}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                This product has IMEI or Serial numbers
-              </label>
-            </div>
-          </div>
         </div>
 
-        {/* RIGHT COLUMN - 4 out of 12 cols (~30% Sidebar) */}
+        {/* RIGHT COLUMN SIDEBAR (30%) */}
         <div className="lg:col-span-4 space-y-4">
-          {/* SIDEBAR BOX 1: Status */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5 mb-3.5 text-slate-800">
-              <ShieldCheck className="h-4 w-4 text-indigo-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">Status</h2>
+          {/* SIDEBAR 1: Organization */}
+          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+              <Layers className="h-4 w-4 text-teal-600" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Organization</h2>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-semibold text-slate-700">Featured</div>
-                  <div className="text-[10px] text-slate-400">Featured product will be displayed in POS</div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => updateForm("isFeatured", !form.isFeatured)}
-                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    form.isFeatured ? "bg-indigo-600" : "bg-slate-200"
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
-                      form.isFeatured ? "translate-x-4" : "translate-x-0"
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                <div>
-                  <div className="text-xs font-semibold text-slate-700">Embedded Barcode</div>
-                  <div className="text-[10px] text-slate-400">Check this if product will be used in weight scale machine</div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => updateForm("isEmbeddedBarcode", !form.isEmbeddedBarcode)}
-                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    form.isEmbeddedBarcode ? "bg-indigo-600" : "bg-slate-200"
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
-                      form.isEmbeddedBarcode ? "translate-x-4" : "translate-x-0"
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* SIDEBAR BOX 2: Organization */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5 mb-3.5 text-slate-800">
-              <Layers className="h-4 w-4 text-indigo-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">Organization</h2>
-            </div>
-
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               <div>
                 <SearchableSelect
                   label="Brand"
@@ -1064,11 +932,61 @@ export default function CreateProductPage() {
             </div>
           </div>
 
-          {/* SIDEBAR BOX 3: Warranty & Guarantee */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5 mb-3.5 text-slate-800">
-              <ShieldCheck className="h-4 w-4 text-indigo-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+          {/* SIDEBAR 2: Status & Badges */}
+          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+              <ShieldCheck className="h-4 w-4 text-teal-600" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Status & Badges</h2>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-semibold text-gray-600">Featured Item</div>
+                  <div className="text-[10px] text-slate-400">Featured product will be displayed in POS grid</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => updateForm("isFeatured", !form.isFeatured)}
+                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    form.isFeatured ? "bg-teal-600" : "bg-slate-200"
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
+                      form.isFeatured ? "translate-x-4" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                <div>
+                  <div className="text-xs font-semibold text-gray-600">Embedded Barcode</div>
+                  <div className="text-[10px] text-slate-400">Check for weight scale barcode scanning</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => updateForm("isEmbeddedBarcode", !form.isEmbeddedBarcode)}
+                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    form.isEmbeddedBarcode ? "bg-teal-600" : "bg-slate-200"
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
+                      form.isEmbeddedBarcode ? "translate-x-4" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* SIDEBAR 3: Warranty & Guarantee */}
+          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+              <ShieldCheck className="h-4 w-4 text-teal-600" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                 Warranty & Guarantee
               </h2>
             </div>
@@ -1112,11 +1030,11 @@ export default function CreateProductPage() {
             </div>
           </div>
 
-          {/* SIDEBAR BOX 4: Inventory Settings */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5 mb-3.5 text-slate-800">
-              <Info className="h-4 w-4 text-indigo-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+          {/* SIDEBAR 4: Inventory Settings */}
+          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+              <Info className="h-4 w-4 text-teal-600" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                 Inventory Settings
               </h2>
             </div>
@@ -1153,13 +1071,13 @@ export default function CreateProductPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
           <div className="w-full max-w-sm rounded-md border border-slate-200 bg-white p-5 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="text-sm font-bold text-slate-900">
+              <h3 className="text-sm font-bold text-gray-600">
                 Quick Add {activeModal === "BRAND" ? "Brand" : activeModal === "CATEGORY" ? "Main Category" : activeModal === "SUBCATEGORY" ? "Sub Category" : activeModal === "UNIT" ? "Unit" : "Supplier"}
               </h3>
               <button
                 type="button"
                 onClick={() => setActiveModal(null)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1167,8 +1085,8 @@ export default function CreateProductPage() {
 
             <form onSubmit={handleQuickCreate} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Name *
+                <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
+                  Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -1183,7 +1101,7 @@ export default function CreateProductPage() {
 
               {(activeModal === "UNIT" || activeModal === "SUPPLIER") && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
                     {activeModal === "UNIT" ? "Unit Abbreviation / Code" : "Company Name (Optional)"}
                   </label>
                   <input
@@ -1197,21 +1115,24 @@ export default function CreateProductPage() {
               )}
 
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                <button
+                <CustomButton
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => setActiveModal(null)}
-                  className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600"
+                  className="rounded-md text-xs"
                 >
                   Cancel
-                </button>
-                <button
+                </CustomButton>
+                <CustomButton
                   type="submit"
-                  disabled={creatingItem}
-                  className="flex items-center gap-1 rounded-md bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                  size="sm"
+                  loading={creatingItem}
+                  leftIcon={<Plus className="h-3.5 w-3.5" />}
+                  className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs"
                 >
-                  {creatingItem ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
                   Save & Select
-                </button>
+                </CustomButton>
               </div>
             </form>
           </div>

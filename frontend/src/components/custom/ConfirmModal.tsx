@@ -106,7 +106,7 @@ export function ConfirmModal({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition disabled:opacity-50"
+              className="rounded-md border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition disabled:opacity-50"
             >
               {cancelText}
             </button>
@@ -118,7 +118,7 @@ export function ConfirmModal({
               else onClose();
             }}
             disabled={loading}
-            className={`rounded-xl px-4 py-1.5 text-xs font-semibold shadow-2xs transition disabled:opacity-50 ${typeConfig.confirmBtn}`}
+            className={`rounded-md px-4 py-1.5 text-xs font-semibold shadow-2xs transition disabled:opacity-50 ${typeConfig.confirmBtn}`}
           >
             {loading ? "Processing..." : (confirmText || (isAlertOnly ? "OK" : typeConfig.defaultConfirm))}
           </button>

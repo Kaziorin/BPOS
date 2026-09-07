@@ -49,7 +49,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Header />
         <OfflineIndicator />
         <main className="flex-1 overflow-y-auto p-4 pb-20 sm:p-6 sm:pb-6 lg:pb-6">
-          <div className="min-h-full w-full rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
+          <div className="min-h-full w-full rounded-md border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
             {children}
           </div>
         </main>
