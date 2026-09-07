@@ -849,18 +849,22 @@ export default function WarehousesPage() {
         >
           <div className="space-y-4">
             <CustomSelect
-              label="Product to Move *"
-              value={moveProduct}
-              onChange={(e) => setMoveProduct(e.target.value)}
+              label="Stock Item to Move *"
+              value={moveProduct ? `${moveProduct}__${moveFromBin}` : ""}
+              onChange={(e) => {
+                const parts = e.target.value.split("__");
+                setMoveProduct(parts[0] || "");
+                if (parts[1]) setMoveFromBin(parts[1]);
+              }}
               options={binStocks.map((st) => ({
-                value: st.productId,
+                value: `${st.productId}__${st.binId}`,
                 label: `${st.productName} (In: ${st.binCode}, Avail: ${st.qtyOnHand})`,
               }))}
             />
 
             <div className="grid grid-cols-2 gap-3">
               <CustomSelect
-                label="From Bin *"
+                label="From Source Bin *"
                 value={moveFromBin}
                 onChange={(e) => setMoveFromBin(e.target.value)}
                 options={(locationData?.locations || []).map((l) => ({

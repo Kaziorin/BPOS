@@ -46,8 +46,8 @@ export const CustomSelect = forwardRef<HTMLSelectElement, CustomSelectProps>(
             {...props}
           >
             {placeholder && <option value="">{placeholder}</option>}
-            {options?.map((opt) => (
-              <option key={opt.value} value={opt.value}>
+            {options?.map((opt, idx) => (
+              <option key={`${opt.value}-${idx}`} value={opt.value}>
                 {opt.label}
               </option>
             ))}
