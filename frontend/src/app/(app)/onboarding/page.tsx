@@ -62,36 +62,36 @@ export default function OnboardingPage() {
   // Form states
   const [selectedBusinessType, setSelectedBusinessType] = useState<string>("RETAIL");
   const [companyForm, setCompanyForm] = useState({
-    name: "My Business",
+    name: "",
     legalName: "",
-    phone: "+8801700000000",
-    email: "contact@mybusiness.com",
-    address: "Dhaka, Bangladesh",
-    vatRegNo: "BIN-001234567-0101",
+    phone: "",
+    email: "",
+    address: "",
+    vatRegNo: "",
   });
   const [branchForm, setBranchForm] = useState({
-    code: "MAIN",
-    name: "Main Branch",
-    phone: "+8801700000000",
-    email: "branch@mybusiness.com",
-    address: "Dhaka, Bangladesh",
+    code: "",
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
   });
   const [warehouseForm, setWarehouseForm] = useState({
-    code: "WH-01",
-    name: "Main Central Warehouse",
+    code: "",
+    name: "",
     type: "CENTRAL",
   });
   const [taxForm, setTaxForm] = useState({
     taxEnabled: true,
     vatRate: 15,
-    taxRegistrationNumber: "BIN-001234567-0101",
+    taxRegistrationNumber: "",
   });
   const [paymentForm, setPaymentForm] = useState({
     enabledMethods: ["CASH", "CARD", "MOBILE_BANKING", "BANK", "CREDIT"],
     defaultMethod: "CASH",
   });
   const [userForm, setUserForm] = useState({
-    name: "Store Manager",
+    name: "",
     email: "",
     password: "",
     roleId: "",
@@ -108,43 +108,6 @@ export default function OnboardingPage() {
         const state = (res as any)?.data || (res as any);
         if (state) {
           if (state.businessType) setSelectedBusinessType(state.businessType);
-          if (state.company) {
-            setCompanyForm((prev) => ({
-              ...prev,
-              name: state.company.name || prev.name,
-              legalName: state.company.legalName || prev.legalName,
-              phone: state.company.phone || prev.phone,
-              email: state.company.email || prev.email,
-              address: state.company.address || prev.address,
-              vatRegNo: state.company.vatRegNo || prev.vatRegNo,
-            }));
-          }
-          if (state.branch) {
-            setBranchForm((prev) => ({
-              ...prev,
-              code: state.branch.code || prev.code,
-              name: state.branch.name || prev.name,
-              phone: state.branch.phone || prev.phone,
-              email: state.branch.email || prev.email,
-              address: state.branch.address || prev.address,
-            }));
-          }
-          if (state.warehouse) {
-            setWarehouseForm((prev) => ({
-              ...prev,
-              code: state.warehouse.code || prev.code,
-              name: state.warehouse.name || prev.name,
-              type: state.warehouse.type || prev.type,
-            }));
-          }
-          if (state.tax) {
-            setTaxForm((prev) => ({
-              ...prev,
-              taxEnabled: state.tax.taxEnabled ?? prev.taxEnabled,
-              vatRate: state.tax.vatRate ?? prev.vatRate,
-              taxRegistrationNumber: state.tax.taxRegistrationNumber || prev.taxRegistrationNumber,
-            }));
-          }
           if (state.roles && Array.isArray(state.roles)) {
             setRolesList(state.roles);
             if (state.roles.length > 0 && !userForm.roleId) {
