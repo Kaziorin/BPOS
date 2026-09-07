@@ -40,12 +40,12 @@ export default function OmnichannelPage() {
         api.get('/api/v1/kiosk/sessions'),
         api.get('/api/v1/qr/menus'),
       ]);
-      setChannels(chRes.data?.data || []);
-      const orderData = orRes.data?.data;
+      setChannels((chRes as any).data || []);
+      const orderData = (orRes as any).data;
       setOrders(orderData?.items || orderData || []);
-      setAdapters(adRes.data?.data || []);
-      setKiosks(ksRes.data?.data || []);
-      setQRMenus(qrRes.data?.data || []);
+      setAdapters((adRes as any).data || []);
+      setKiosks((ksRes as any).data || []);
+      setQRMenus((qrRes as any).data || []);
     } catch (e) { console.error(e); }
     setLoading(false);
   };
