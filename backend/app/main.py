@@ -71,6 +71,14 @@ def create_app() -> FastAPI:
     # Mount Master API v1 Router
     app.include_router(api_v1_router)
 
+    # Mount Physical Image Storage directory (§ media uploads)
+    import os
+    from fastapi.staticfiles import StaticFiles
+
+    image_storage_dir = os.path.join(BACKEND_DIR, "image_storage")
+    os.makedirs(image_storage_dir, exist_ok=True)
+    app.mount("/image_storage", StaticFiles(directory=image_storage_dir), name="image_storage")
+
     @app.get("/health", tags=["Health"])
     async def health_check():
         return {"status": "ok", "version": settings.VERSION, "uptime": time.time()}

@@ -1,9 +1,12 @@
 """Catalog routers — products, categories, brands, customers, suppliers (Prompts 6-7 parity)."""
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, UploadFile, File
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+import os
+import uuid
+from pathlib import Path
 
 from db import get_db, txn
 from security import require_auth, require_permission, resolve_tenant, AuthUser
@@ -12,6 +15,32 @@ import cache as cache_mod  # Prompt 39: TTL cache (products/customers quick-look
 import workflow as wf
 
 router = APIRouter()
+
+
+# ─────────────────────────── MEDIA UPLOADER ───────────────────────────
+
+@router.post("/api/v1/media/upload")
+@router.post("/api/v1/upload/image")
+async def upload_image_media(file: UploadFile = File(...)):
+    if not file or not file.filename:
+        return err("No file uploaded", 400)
+
+    # Save physically to backend/image_storage folder
+    backend_dir = Path(__file__).resolve().parent.parent.parent.parent.parent
+    storage_dir = os.path.join(backend_dir, "image_storage")
+    os.makedirs(storage_dir, exist_ok=True)
+
+    ext = os.path.splitext(file.filename)[1] or ".jpg"
+    safe_filename = f"{uuid.uuid4().hex[:12]}{ext.lower()}"
+    file_path = os.path.join(storage_dir, safe_filename)
+
+    contents = await file.read()
+    with open(file_path, "wb") as f:
+        f.write(contents)
+
+    url = f"http://localhost:4000/image_storage/{safe_filename}"
+    return ok({"url": url, "filename": safe_filename, "originalName": file.filename, "size": len(contents)}, 201)
+
 
 # ─────────────────────────── PRODUCTS ───────────────────────────
 

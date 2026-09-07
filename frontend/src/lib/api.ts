@@ -1,8 +1,5 @@
 import axios, { AxiosError } from "axios";
 
-const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000").replace(/\/api\/?$/, "");
-
-/** localStorage key for the workspace (tenant) selected at login — DB-backed via /auth/tenants. */
 export const TENANT_STORAGE_KEY = "blueoceans_tenant";
 
 export interface StoredTenant {
@@ -18,6 +15,18 @@ export class ApiError extends Error {
     this.status = status;
   }
 }
+
+function getApiUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/?$/, "");
+  }
+  if (typeof window !== "undefined") {
+    return `http://${window.location.hostname || "localhost"}:4000`;
+  }
+  return "http://localhost:4000";
+}
+
+export const API_URL = getApiUrl();
 
 export const axiosClient = axios.create({
   baseURL: API_URL,
