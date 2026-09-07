@@ -42,6 +42,8 @@ AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=F
 
 # ── Auto-migration: create missing tables (idempotent) ──────────────
 _MIGRATION_SQL = [
+    "ALTER TABLE products ADD COLUMN IF NOT EXISTS subCategoryId VARCHAR(191) DEFAULT NULL",
+    "ALTER TABLE products ADD COLUMN IF NOT EXISTS imageUrl TEXT DEFAULT NULL",
     # Tenant Settings table
     """CREATE TABLE IF NOT EXISTS tenant_settings (
         id VARCHAR(36) NOT NULL PRIMARY KEY,

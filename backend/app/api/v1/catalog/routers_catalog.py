@@ -84,18 +84,19 @@ async def create_product(
         return err("Product with this SKU/barcode already exists", 409)
     await db.execute(
         text(
-            "INSERT INTO products (id, tenantId, categoryId, brandId, unitId, supplierId, name, sku, barcode, "
+            "INSERT INTO products (id, tenantId, categoryId, subCategoryId, brandId, unitId, supplierId, name, sku, barcode, "
             "manufacturer, productType, costPrice, sellingPrice, wholesalePrice, minPrice, maxPrice, taxRate, "
-            "warrantyDays, description, createdBy) "
-            "VALUES (UUID(), :t, :c, :b, :u, :sup, :n, :sku, :bar, :man, :pt, :cp, :sp, :wp, :minp, :maxp, :tax, :war, :d, :cb)"
+            "warrantyDays, description, imageUrl, createdBy) "
+            "VALUES (UUID(), :t, :c, :subc, :b, :u, :sup, :n, :sku, :bar, :man, :pt, :cp, :sp, :wp, :minp, :maxp, :tax, :war, :d, :img, :cb)"
         ),
         {
-            "t": tenantId, "c": body.get("categoryId"), "b": body.get("brandId"), "u": body.get("unitId"),
+            "t": tenantId, "c": body.get("categoryId"), "subc": body.get("subCategoryId"), "b": body.get("brandId"), "u": body.get("unitId"),
             "sup": body.get("supplierId"), "n": name, "sku": sku, "bar": body.get("barcode"),
             "man": body.get("manufacturer"), "pt": body.get("productType", "SIMPLE"),
             "cp": body.get("costPrice", 0), "sp": body.get("sellingPrice", 0),
             "wp": body.get("wholesalePrice"), "minp": body.get("minPrice"), "maxp": body.get("maxPrice"),
-            "tax": body.get("taxRate"), "war": body.get("warrantyDays"), "d": body.get("description"), "cb": user.id,
+            "tax": body.get("taxRate"), "war": body.get("warrantyDays"), "d": body.get("description"),
+            "img": body.get("imageUrl"), "cb": user.id,
         },
     )
     await db.commit()
@@ -106,14 +107,14 @@ async def create_product(
     return ok({"id": row.id, "name": row.name, "sku": row.sku}, 201)
 
 
-# ─────────────────────────── CATEGORIES ───────────────────────────
+# ─────────────────────────── CATEGORIES & UNITS ───────────────────────────
 
 @router.get("/api/v1/products/categories")
 async def list_categories(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
     rows = rows_to_dicts(
         (
             await db.execute(
-                text("SELECT id, name, parentId, status FROM categories WHERE tenantId=:t AND parentId IS NULL ORDER BY name"),
+                text("SELECT id, name, parentId, status FROM categories WHERE tenantId=:t ORDER BY name"),
                 {"t": tenantId},
             )
         ).fetchall()
@@ -128,10 +129,23 @@ async def create_category(body: dict, user: AuthUser = Depends(require_permissio
     if not name: return err("Name is required", 400)
     dup = (await db.execute(text("SELECT id FROM categories WHERE tenantId=:t AND name=:n"), {"t": tenantId, "n": name})).first()
     if dup: return err("Category already exists", 409)
-    await db.execute(text("INSERT INTO categories (id, tenantId, name, createdBy) VALUES (UUID(), :t, :n, :u)"),
-                     {"t": tenantId, "n": name, "u": user.id},)
+    await db.execute(text("INSERT INTO categories (id, tenantId, name, parentId, createdBy) VALUES (UUID(), :t, :n, :p, :u)"),
+                     {"t": tenantId, "n": name, "p": body.get("parentId"), "u": user.id})
     await db.commit()
     return ok({"created": True}, 201)
+
+
+@router.get("/api/v1/units")
+async def list_units(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    rows = rows_to_dicts(
+        (
+            await db.execute(
+                text("SELECT id, name, code, status FROM units WHERE tenantId=:t OR tenantId IS NULL ORDER BY name"),
+                {"t": tenantId},
+            )
+        ).fetchall()
+    )
+    return ok(rows)
 
 
 @router.get("/api/v1/products/{productId}")

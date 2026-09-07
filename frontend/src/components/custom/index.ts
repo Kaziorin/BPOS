@@ -7,3 +7,5 @@ export * from "./CustomTable";
 export * from "./CustomBadge";
 export * from "./CustomModal";
 export * from "./CustomStatCard";
+export * from "./SearchableSelect";
+
