@@ -497,13 +497,59 @@ async def create_price_list(body: dict, user: AuthUser = Depends(require_auth),
                             tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
     name = body.get("name")
     if not name: return err("Name is required", 400)
+    import uuid
+    pl_id = str(uuid.uuid4())
     await db.execute(text(
-        "INSERT INTO price_lists (id, tenantId, name, listType, isDefault, createdBy) VALUES (UUID(), :t, :n, :lt, :d, :u)"),
-        {"t": tenantId, "n": name, "lt": body.get("listType", "RETAIL"), "d": 1 if body.get("isDefault") else 0, "u": user.id})
+        "INSERT INTO price_lists (id, tenantId, name, currency, isDefault, createdBy) VALUES (:id, :t, :n, :c, :d, :u)"),
+        {"id": pl_id, "t": tenantId, "n": name, "c": body.get("currency", "BDT"), "d": 1 if body.get("isDefault") else 0, "u": user.id})
     await db.commit()
     import cache as cache_mod
     cache_mod.invalidate_namespace("price_lists", tenantId)
-    return ok({"created": True}, 201)
+    return ok({"created": True, "id": pl_id}, 201)
+
+@router.delete("/api/v1/price-lists/{id}")
+async def delete_price_list(id: str, user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    async with txn(db):
+        await db.execute(text("DELETE FROM price_list_items WHERE priceListId = :id AND tenantId = :t"), {"id": id, "t": tenantId})
+        await db.execute(text("DELETE FROM price_lists WHERE id = :id AND tenantId = :t"), {"id": id, "t": tenantId})
+    import cache as cache_mod
+    cache_mod.invalidate_namespace("price_lists", tenantId)
+    return ok({"deleted": True})
+
+@router.get("/api/v1/price-lists/{id}/items")
+async def list_price_list_items(id: str, user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    rows = rows_to_dicts((await db.execute(text(
+        "SELECT pli.*, p.name AS productName, p.sku AS productSku, p.sellingPrice AS defaultSellingPrice "
+        "FROM price_list_items pli "
+        "JOIN products p ON p.id = pli.productId "
+        "WHERE pli.priceListId = :id AND pli.tenantId = :t ORDER BY pli.createdAt DESC"
+    ), {"id": id, "t": tenantId})).fetchall())
+    for r in rows:
+        r["price"] = float(r.get("price") or 0)
+        r["defaultSellingPrice"] = float(r.get("defaultSellingPrice") or 0)
+    return ok(rows)
+
+@router.post("/api/v1/price-lists/{id}/items")
+async def add_price_list_item(id: str, body: dict, user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    import uuid
+    productId = body.get("productId")
+    price = float(body.get("price") or 0)
+    minQty = int(body.get("minQty") or 1)
+    if not productId:
+        return err("productId is required", 400)
+    item_id = str(uuid.uuid4())
+    async with txn(db):
+        existing = (await db.execute(text("SELECT id FROM price_list_items WHERE priceListId = :id AND productId = :p AND tenantId = :t"), {"id": id, "p": productId, "t": tenantId})).first()
+        if existing:
+            await db.execute(text("UPDATE price_list_items SET price = :pr, minQty = :mq, updatedAt = NOW() WHERE id = :item_id"), {"pr": price, "mq": minQty, "item_id": existing[0]})
+        else:
+            await db.execute(text(
+                "INSERT INTO price_list_items (id, tenantId, priceListId, productId, minQty, price, status, createdAt, updatedAt) "
+                "VALUES (:id, :t, :plid, :pid, :mq, :pr, 'ACTIVE', NOW(), NOW())"
+            ), {"id": item_id, "t": tenantId, "plid": id, "pid": productId, "mq": minQty, "pr": price})
+    import cache as cache_mod
+    cache_mod.invalidate_namespace("price_lists", tenantId)
+    return ok({"saved": True}, 201)
 
 
 @router.get("/api/v1/promotions")

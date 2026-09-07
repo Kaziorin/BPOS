@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { SearchableSelect, SearchableSelectOption } from "@/components/custom/SearchableSelect";
+import { ImageUploader } from "@/components/custom/ImageUploader";
 
 interface Category {
   id: string;
@@ -623,47 +624,18 @@ export default function CreateProductPage() {
 
           {/* BOX 2: Media */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3.5">
-              <div className="flex items-center gap-2 text-slate-800">
-                <ImageIcon className="h-4 w-4 text-indigo-600" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">Media</h2>
-              </div>
-              <span className="text-[11px] text-slate-400">JPEG, JPG, PNG, GIF • Direct URL or Drag Image</span>
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5 mb-3.5 text-slate-800">
+              <ImageIcon className="h-4 w-4 text-indigo-600" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                Product Media & Image
+              </h2>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-12 items-center">
-              <div className="sm:col-span-8 space-y-2">
-                <label className={labelClass}>Product Image Link (URL)</label>
-                <input
-                  type="url"
-                  value={form.imageUrl}
-                  onChange={(e) => updateForm("imageUrl", e.target.value)}
-                  className={inputClass}
-                  placeholder="https://example.com/image.jpg"
-                />
-                <p className="text-[11px] text-slate-400">Paste direct web image link to preview below</p>
-              </div>
-
-              <div className="sm:col-span-4 flex justify-center">
-                <div className="flex h-24 w-full items-center justify-center rounded-md border-2 border-dashed border-slate-200 bg-slate-50 text-slate-400 overflow-hidden">
-                  {form.imageUrl ? (
-                    <img
-                      src={form.imageUrl}
-                      alt="Preview"
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLElement).style.display = "none";
-                      }}
-                    />
-                  ) : (
-                    <div className="text-center p-2">
-                      <Upload className="mx-auto h-5 w-5 text-slate-400 mb-1" />
-                      <span className="text-[10px] text-slate-400 block">Drop image URL here</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <ImageUploader
+              value={form.imageUrl}
+              onChange={(url) => updateForm("imageUrl", url)}
+              label="Upload Product Feature Image"
+            />
           </div>
 
           {/* BOX 3: Pricing */}
