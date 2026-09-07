@@ -53,6 +53,10 @@ import {
   Handshake,
   Sparkles,
   Scale,
+  Pill,
+  Wrench,
+  Factory,
+  Store,
   type LucideIcon,
 } from "lucide-react";
 import { api } from "./api";
@@ -109,6 +113,11 @@ const iconMap: Record<string, LucideIcon> = {
   FlaskConical,
   Handshake,
   Sparkles,
+  Scale,
+  Pill,
+  Wrench,
+  Factory,
+  Store,
 
   // Aliases
   GitBranch: Building2,
@@ -316,6 +325,83 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
       { label: "AI Business Assistant", href: "/ai", icon: Activity },
       { label: "Business Intelligence Reports", href: "/reports", icon: BarChart3 },
       { label: "System & Store Settings", href: "/settings", icon: Settings },
+    ],
+  },
+  {
+    title: "6. Industry Verticals",
+    items: [
+      {
+        label: "Restaurant & Cafe",
+        href: "/restaurant",
+        icon: UtensilsCrossed,
+        children: [
+          { label: "Floor & Table Map POS", href: "/restaurant/pos", icon: UtensilsCrossed },
+          { label: "Restaurant Management", href: "/restaurant", icon: LayoutDashboard },
+        ],
+      },
+      {
+        label: "Pharmacy & Healthcare",
+        href: "/pharmacy",
+        icon: Pill,
+        children: [
+          { label: "FEFO Batch & Expiry POS", href: "/pharmacy/pos", icon: Pill },
+          { label: "Pharmacy Operations", href: "/pharmacy", icon: FlaskConical },
+        ],
+      },
+      {
+        label: "Grocery & Supermarket",
+        href: "/grocery",
+        icon: Scale,
+        children: [
+          { label: "Fast Scanner Lane POS", href: "/grocery/pos", icon: ShoppingCart },
+          { label: "Supermarket Operations", href: "/grocery", icon: Package },
+        ],
+      },
+      {
+        label: "Wholesale & B2B",
+        href: "/wholesale",
+        icon: Truck,
+        children: [
+          { label: "B2B Credit & Tier POS", href: "/wholesale/pos", icon: FileText },
+          { label: "Wholesale Commercial Hub", href: "/wholesale", icon: Building2 },
+        ],
+      },
+      {
+        label: "Manufacturing & Bakery",
+        href: "/manufacturing",
+        icon: Factory,
+        children: [
+          { label: "Recipe & Batch POS", href: "/manufacturing/pos", icon: Factory },
+          { label: "Production & BOM Hub", href: "/manufacturing", icon: Layers },
+        ],
+      },
+      {
+        label: "Salon & Spa Center",
+        href: "/salon",
+        icon: Scissors,
+        children: [
+          { label: "Stylist & Service POS", href: "/salon/pos", icon: Scissors },
+          { label: "Salon & Booking Hub", href: "/salon", icon: Calendar },
+        ],
+      },
+      {
+        label: "Repair & Service",
+        href: "/repair",
+        icon: Wrench,
+        children: [
+          { label: "Device Intake & Job POS", href: "/repair/pos", icon: Wrench },
+          { label: "Repair Service Center", href: "/repair", icon: CheckSquare },
+        ],
+      },
+      {
+        label: "Franchise Network",
+        href: "/franchise",
+        icon: Store,
+        children: [
+          { label: "Multi-Outlet Store POS", href: "/franchise/pos", icon: Store },
+          { label: "Franchise HQ Hub", href: "/franchise", icon: Building2 },
+        ],
+      },
     ],
   },
 ];

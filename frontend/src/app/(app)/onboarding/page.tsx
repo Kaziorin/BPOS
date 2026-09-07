@@ -20,6 +20,7 @@ import {
   Sparkles,
   Wrench,
   Factory,
+  Building2,
   Check,
   AlertCircle,
 } from "lucide-react";
@@ -44,11 +45,12 @@ const BUSINESS_TYPES = [
   { id: "RETAIL", name: "Retail", description: "General retail, apparel, electronics, lifestyle", icon: ShoppingBag },
   { id: "RESTAURANT", name: "Restaurant", description: "Food service, cafes, QSR, cloud kitchens", icon: Utensils },
   { id: "PHARMACY", name: "Pharmacy", description: "Medicine retail with batch & expiry tracking", icon: Pill },
-  { id: "WHOLESALE", name: "Wholesale & B2B", description: "B2B distribution, bulk pricing, credit accounts", icon: Truck },
   { id: "GROCERY", name: "Grocery & Supermarket", description: "Fast barcode checkout, weighing scales", icon: ShoppingCart },
+  { id: "WHOLESALE", name: "Wholesale & Distribution", description: "B2B distribution, bulk pricing, credit accounts", icon: Truck },
+  { id: "MANUFACTURING", name: "Manufacturing & Bakery", description: "Bill of materials, light assembly, production", icon: Factory },
   { id: "SALON", name: "Salon & Spa", description: "Beauty salon and spa services", icon: Sparkles },
-  { id: "REPAIR", name: "Repair & Service", description: "Job ticketing, warranty & device tracking", icon: Wrench },
-  { id: "MANUFACTURING", name: "Manufacturing", description: "Bill of materials, light assembly, production", icon: Factory },
+  { id: "REPAIR", name: "Repair & Service Center", description: "Job ticketing, warranty & device tracking", icon: Wrench },
+  { id: "FRANCHISE", name: "Franchise Management", description: "Multi-outlet franchise operations, royalty tracking & master control", icon: Building2 },
 ];
 
 export default function OnboardingPage() {
@@ -425,7 +427,7 @@ function BusinessTypeStep({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
         {BUSINESS_TYPES.map((type) => {
           const Icon = type.icon;
           const isSelected = selected === type.id;
