@@ -2,8 +2,12 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Loader2, Plus, Search, Package, Edit, Eye, Trash2 } from "lucide-react";
+import { Loader2, Plus, Search, Package, Eye, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
+import { CustomTable, CustomTableColumn } from "@/components/custom/CustomTable";
+import { ConfirmModal } from "@/components/custom/ConfirmModal";
 
 interface Product {
   id: string;
@@ -24,39 +28,49 @@ interface Product {
   images?: { url: string }[];
 }
 
-interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 });
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-  const [deleting, setDeleting] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
-  const loadProducts = useCallback(async (p: number, type: string, status: string, q: string) => {
+  const loadProducts = useCallback(async (p: number, l: number, type: string, status: string, q: string) => {
     setLoading(true);
     setError(null);
     try {
       const params = new URLSearchParams({
         page: String(p),
-        limit: "20",
+        limit: String(l),
       });
       if (q) params.set("search", q);
       if (type) params.set("productType", type);
       if (status) params.set("status", status);
 
-      const result = await api.get<{ data: Product[]; pagination: Pagination }>(`/v1/products?${params}`);
-      setProducts(result.data);
-      setPagination(result.pagination);
+      const result = await api.get<any>(`/v1/products?${params}`);
+      const rows = Array.isArray(result?.data?.data)
+        ? result.data.data
+        : Array.isArray(result?.data)
+        ? result.data
+        : Array.isArray(result)
+        ? result
+        : [];
+      const totalCount = typeof result?.pagination?.total === "number"
+        ? result.pagination.total
+        : typeof result?.data?.total === "number"
+        ? result.data.total
+        : typeof result?.total === "number"
+        ? result.total
+        : rows.length;
+
+      setProducts(rows);
+      setTotal(totalCount);
     } catch (err: any) {
       console.error("Failed to load products:", err);
       setError(err.message || "Failed to load products");
@@ -67,211 +81,210 @@ export default function ProductsPage() {
   }, []);
 
   useEffect(() => {
-    loadProducts(page, filterType, filterStatus, search);
-  }, [page, filterType, filterStatus, loadProducts]);
+    loadProducts(page, limit, filterType, filterStatus, search);
+  }, [page, limit, filterType, filterStatus, loadProducts]);
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    setPage(1);
-    loadProducts(1, filterType, filterStatus, search);
-  }
-
-  async function deleteProduct(id: string) {
-    if (!confirm("Delete this product?")) return;
-    setDeleting(id);
+  async function handleDelete() {
+    if (!deleteId) return;
+    setDeleting(true);
     try {
-      await api.del(`/v1/products/${id}`);
-      loadProducts(page, filterType, filterStatus, search);
-    } catch (err) {
-      console.error("Delete failed:", err);
+      await api.del(`/v1/products/${deleteId}`);
+      setDeleteId(null);
+      loadProducts(page, limit, filterType, filterStatus, search);
+    } catch (err: any) {
+      alert(err.message || "Delete failed");
     } finally {
-      setDeleting(null);
+      setDeleting(false);
     }
   }
 
-  const typeColors: Record<string, string> = {
-    SIMPLE: "bg-gray-100 text-gray-700",
-    VARIABLE: "bg-blue-100 text-blue-700",
-    SERVICE: "bg-purple-100 text-purple-700",
-    BUNDLE: "bg-orange-100 text-orange-700",
-    KIT: "bg-yellow-100 text-yellow-700",
-    RECIPE: "bg-green-100 text-green-700",
-    BATCH_CONTROLLED: "bg-red-100 text-red-700",
-    SERIALIZED: "bg-indigo-100 text-indigo-700",
-    WEIGHTED: "bg-pink-100 text-pink-700",
-  };
+  const columns: CustomTableColumn<Product>[] = [
+    {
+      key: "name",
+      header: "Product",
+      sortable: true,
+      render: (product) => (
+        <div>
+          <p className="font-bold text-gray-600 text-sm">{product.name}</p>
+          {product.brand && <p className="text-xs text-slate-400">{product.brand.name}</p>}
+        </div>
+      ),
+    },
+    {
+      key: "sku",
+      header: "SKU",
+      sortable: true,
+      render: (product) => <span className="font-mono text-xs text-slate-600">{product.sku}</span>,
+    },
+    {
+      key: "category",
+      header: "Category",
+      render: (product) => <span className="text-gray-600 text-sm">{product.category?.name || "—"}</span>,
+    },
+    {
+      key: "productType",
+      header: "Type",
+      align: "center",
+      render: (product) => (
+        <span className="inline-flex rounded-md bg-teal-50 px-2 py-0.5 text-xs font-semibold text-teal-700 border border-teal-100">
+          {product.productType}
+        </span>
+      ),
+    },
+    {
+      key: "costPrice",
+      header: "Cost",
+      align: "right",
+      render: (product) => <span className="text-gray-600">৳{Number(product.costPrice).toFixed(0)}</span>,
+    },
+    {
+      key: "sellingPrice",
+      header: "Selling Price",
+      align: "right",
+      render: (product) => <span className="font-bold text-gray-600">৳{Number(product.sellingPrice).toFixed(0)}</span>,
+    },
+    {
+      key: "status",
+      header: "Status",
+      align: "center",
+      render: (product) => (
+        <span
+          className={`inline-flex rounded-md px-2 py-0.5 text-xs font-semibold ${
+            product.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"
+          }`}
+        >
+          {product.status}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "center",
+      render: (product) => (
+        <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <Link
+            href={`/products/${product.id}`}
+            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600 transition"
+            title="View Details"
+          >
+            <Eye className="h-4 w-4" />
+          </Link>
+          <button
+            onClick={() => setDeleteId(product.id)}
+            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+            title="Delete Product"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-          <p className="mt-1 text-sm text-gray-500">Manage your product catalog</p>
-        </div>
-        <Link
-          href="/products/create"
-          className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
-        >
-          <Plus size={16} />
-          Add Product
-        </Link>
-      </div>
-
-      {/* Search & Filters */}
-      <div className="flex flex-wrap items-center gap-3">
-        <form onSubmit={handleSearch} className="flex items-center gap-2">
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-            />
-          </div>
-          <button type="submit" className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-            Search
-          </button>
-        </form>
-        <select
-          value={filterType}
-          onChange={(e) => { setFilterType(e.target.value); setPage(1); }}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-        >
-          <option value="">All Types</option>
-          <option value="SIMPLE">Simple</option>
-          <option value="VARIABLE">Variable</option>
-          <option value="SERVICE">Service</option>
-          <option value="BUNDLE">Bundle</option>
-          <option value="KIT">Kit</option>
-          <option value="RECIPE">Recipe</option>
-          <option value="BATCH_CONTROLLED">Batch Controlled</option>
-        </select>
-        <select
-          value={filterStatus}
-          onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-        >
-          <option value="">All Status</option>
-          <option value="ACTIVE">Active</option>
-          <option value="INACTIVE">Inactive</option>
-        </select>
-        <span className="text-sm text-gray-500">
-          {pagination.total} products
-        </span>
-      </div>
-
-      {/* Error display */}
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          <p className="font-medium">Error loading products</p>
-          <p className="mt-1">{error}</p>
-          <button onClick={() => loadProducts(page, filterType, filterStatus, search)} className="mt-2 text-sm font-medium text-red-600 underline hover:text-red-800">
-            Retry
-          </button>
-        </div>
-      )}
-
-      {/* Products Table */}
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 size={24} className="animate-spin text-gray-400" />
-        </div>
-      ) : products.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
-          <Package size={48} className="mx-auto text-gray-300" />
-          <p className="mt-4 text-gray-500">No products found</p>
-          <Link href="/products/create" className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700">
-            <Plus size={14} /> Add your first product
+    <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
+      {/* Reusable Custom Breadcrumb Header */}
+      <CustomBreadcrumb
+        title="Products Catalog"
+        icon={<Package size={20} />}
+        items={[{ label: "Catalog", href: "/products" }, { label: "Products" }]}
+        actions={
+          <Link href="/products/create">
+            <CustomButton
+              size="sm"
+              leftIcon={<Plus size={14} />}
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+            >
+              Add Product
+            </CustomButton>
           </Link>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-gray-200 bg-white overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 text-left text-xs font-medium text-gray-500 uppercase">
-                <th className="px-4 py-3">Product</th>
-                <th className="px-4 py-3">SKU</th>
-                <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Type</th>
-                <th className="px-4 py-3 text-right">Cost</th>
-                <th className="px-4 py-3 text-right">Price</th>
-                <th className="px-4 py-3 text-center">Variants</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {products.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <div>
-                      <p className="font-medium text-gray-900">{product.name}</p>
-                      {product.brand && <p className="text-xs text-gray-500">{product.brand.name}</p>}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs text-gray-600">{product.sku}</td>
-                  <td className="px-4 py-3 text-gray-600">{product.category?.name || "—"}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${typeColors[product.productType] || "bg-gray-100 text-gray-700"}`}>
-                      {product.productType}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right text-gray-600">{Number(product.costPrice).toFixed(0)}</td>
-                  <td className="px-4 py-3 text-right font-medium text-gray-900">{Number(product.sellingPrice).toFixed(0)}</td>
-                  <td className="px-4 py-3 text-center text-gray-600">{product._count.variants}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${product.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                      {product.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Link href={`/products/${product.id}`} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600" title="View">
-                        <Eye size={14} />
-                      </Link>
-                      <button
-                        onClick={() => deleteProduct(product.id)}
-                        disabled={deleting === product.id}
-                        className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
-                        title="Delete"
-                      >
-                        {deleting === product.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        }
+      />
+
+      {/* Error Display */}
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium">
+          Error loading products: {error}
         </div>
       )}
 
-      {/* Pagination */}
-      {pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            Page {pagination.page} of {pagination.totalPages}
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+      {/* Table Container */}
+      <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+        {/* Search & Filters */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2 flex-1 max-w-lg">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              />
+            </div>
+            <select
+              value={filterType}
+              onChange={(e) => {
+                setFilterType(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
             >
-              Previous
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
-              disabled={page >= pagination.totalPages}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              <option value="">All Types</option>
+              <option value="SIMPLE">Simple</option>
+              <option value="VARIABLE">Variable</option>
+              <option value="SERVICE">Service</option>
+              <option value="BUNDLE">Bundle</option>
+            </select>
+            <select
+              value={filterStatus}
+              onChange={(e) => {
+                setFilterStatus(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
             >
-              Next
-            </button>
+              <option value="">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
           </div>
+          <span className="text-xs font-semibold text-slate-500">Total Products: {total}</span>
         </div>
-      )}
+
+        {/* Custom Table with Server Pagination */}
+        <CustomTable
+          columns={columns}
+          data={products}
+          rowKey={(p) => p.id}
+          loading={loading}
+          pageSize={limit}
+          totalItems={total}
+          currentPage={page}
+          onPageChange={(p) => setPage(p)}
+          onPageSizeChange={(s) => {
+            setLimit(s);
+            setPage(1);
+          }}
+          emptyMessage="No products found."
+        />
+      </div>
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Delete Product"
+        message="Are you sure you want to delete this product? This action cannot be undone."
+        type="DANGER"
+        loading={deleting}
+      />
     </div>
   );
 }

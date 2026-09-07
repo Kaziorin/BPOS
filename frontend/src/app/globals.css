@@ -52,6 +52,14 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+button:not(:disabled),
+select:not(:disabled),
+input[type="submit"]:not(:disabled),
+input[type="button"]:not(:disabled),
+[role="button"]:not(:disabled) {
+  cursor: pointer;
+}
+
 /* Smooth, reusable enter animations for overlays (modal, dropdown, popover). */
 @keyframes fade-in {
   from {

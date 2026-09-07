@@ -25,7 +25,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
     return (
       <div className={cn("w-full", containerClassName)}>
         {label && (
-          <label htmlFor={inputId} className="mb-1.5 block text-sm font-medium text-gray-700">
+          <label htmlFor={inputId} className="mb-1.5 block text-[15px] font-semibold text-gray-600 capitalize">
             {label}
           </label>
         )}

@@ -53,7 +53,7 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          "inline-flex items-center justify-center rounded-lg font-medium transition-colors",
+          "inline-flex items-center justify-center rounded-lg font-medium transition-colors cursor-pointer",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
           "disabled:cursor-not-allowed disabled:opacity-50",
           VARIANT_CLASSES[variant],

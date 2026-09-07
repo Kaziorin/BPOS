@@ -128,6 +128,16 @@ export default function CreateProductPage() {
 
   const [variants, setVariants] = useState<VariantForm[]>([]);
 
+  const productTypeOptions: SearchableSelectOption[] = [
+    { value: "Standard", label: "Standard Product (Physical item)" },
+    { value: "Combo", label: "Combo / Kit (Package deal)" },
+    { value: "Digital", label: "Digital / License (Non-physical download)" },
+    { value: "Service", label: "Service (Labor or consulting)" },
+    { value: "Weighted", label: "Weighted Product (Sold by weight/volume)" },
+    { value: "Batch Controlled", label: "Batch Controlled (Lot & Expiry)" },
+    { value: "Serialized", label: "Serialized (Unique serial number per item)" },
+  ];
+
   // Load Categories, Brands, Units, Suppliers
   async function loadFormData() {
     try {
@@ -508,35 +518,16 @@ export default function CreateProductPage() {
               </h2>
             </div>
 
-            {/* Product Type Pills */}
+            {/* Product Type Dropdown */}
             <div className="mb-4">
-              <label className={labelClass}>
-                Product Type <span className="text-red-500">*</span>
-              </label>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {[
-                  "Standard",
-                  "Combo",
-                  "Digital",
-                  "Service",
-                  "Weighted",
-                  "Batch Controlled",
-                  "Serialized",
-                ].map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setProductType(type)}
-                    className={`px-3 py-1 text-xs font-medium rounded-full border transition ${
-                      productType === type
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
-                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-                    }`}
-                  >
-                    {type}
-                  </button>
-                ))}
-              </div>
+              <SearchableSelect
+                label="Product Type"
+                required
+                options={productTypeOptions}
+                value={productType}
+                onChange={(val) => setProductType(val)}
+                placeholder="Select Product Type..."
+              />
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -662,27 +653,47 @@ export default function CreateProductPage() {
                 />
               </div>
 
-              <div>
-                <SearchableSelect
-                  label="Profit Margin Type"
-                  required
-                  options={marginTypeOptions}
-                  value={marginType}
-                  onChange={(val) => handleMarginTypeChange(val)}
-                  placeholder="Select Type..."
-                />
-              </div>
-
-              <div>
-                <label className={labelClass}>Profit Margin</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={marginValue}
-                  onChange={(e) => handleMarginValueChange(e.target.value)}
-                  className={inputClass}
-                  placeholder="25.00"
-                />
+              <div className="sm:col-span-2">
+                <div className="flex items-center justify-between mb-1">
+                  <label className={labelClass}>Profit Margin Mode & Value</label>
+                  <div className="inline-flex rounded-md border border-slate-200 bg-slate-100 p-0.5 text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => handleMarginTypeChange("PERCENTAGE")}
+                      className={`px-2.5 py-0.5 text-[11px] rounded font-bold transition ${
+                        marginType === "PERCENTAGE"
+                          ? "bg-indigo-600 text-white shadow-xs"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      % Percentage
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleMarginTypeChange("FLAT")}
+                      className={`px-2.5 py-0.5 text-[11px] rounded font-bold transition ${
+                        marginType === "FLAT"
+                          ? "bg-indigo-600 text-white shadow-xs"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      Flat (৳)
+                    </button>
+                  </div>
+                </div>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={marginValue}
+                    onChange={(e) => handleMarginValueChange(e.target.value)}
+                    className={`${inputClass} pr-8`}
+                    placeholder={marginType === "PERCENTAGE" ? "25.00" : "50.00"}
+                  />
+                  <span className="absolute right-3 top-2.5 text-xs text-slate-400 font-bold">
+                    {marginType === "PERCENTAGE" ? "%" : "৳"}
+                  </span>
+                </div>
               </div>
 
               <div>

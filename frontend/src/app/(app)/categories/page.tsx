@@ -1,12 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
-  Plus, Tags, Loader2, CheckCircle2, FolderTree, Edit3, Trash2, X, Save, ToggleLeft, ToggleRight,
+  Plus,
+  Tags,
+  Loader2,
+  CheckCircle2,
+  FolderTree,
+  Edit3,
+  Trash2,
+  Search,
+  Check,
+  ToggleLeft,
+  ToggleRight,
+  CornerDownRight,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { SearchableSelect } from "@/components/custom/SearchableSelect";
 import { ConfirmModal } from "@/components/custom/ConfirmModal";
+import { CustomTable, CustomTableColumn } from "@/components/custom/CustomTable";
+import { CustomModal } from "@/components/custom/CustomModal";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
 
 interface Category {
   id: string;
@@ -15,95 +30,216 @@ interface Category {
   status?: string;
 }
 
+type ModalMode = "ADD_MAIN" | "EDIT_MAIN" | "ADD_SUB" | "EDIT_SUB" | null;
+
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [name, setName] = useState("");
-  const [parentId, setParentId] = useState("");
-  const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
-  // Edit state
-  const [editId, setEditId] = useState<string | null>(null);
-  const [editName, setEditName] = useState("");
-  const [editParentId, setEditParentId] = useState("");
-  const [editSaving, setEditSaving] = useState(false);
+  // Main Categories State (Server Paginated)
+  const [mainCategories, setMainCategories] = useState<Category[]>([]);
+  const [mainLoading, setMainLoading] = useState(true);
+  const [mainTotal, setMainTotal] = useState(0);
+  const [mainPage, setMainPage] = useState(1);
+  const [mainLimit, setMainLimit] = useState(5);
+  const [searchMain, setSearchMain] = useState("");
+  const [statusFilterMain, setStatusFilterMain] = useState<string>("ALL");
 
-  // Delete state
+  // Subcategories State (Server Paginated)
+  const [subCategories, setSubCategories] = useState<Category[]>([]);
+  const [subLoading, setSubLoading] = useState(true);
+  const [subTotal, setSubTotal] = useState(0);
+  const [subPage, setSubPage] = useState(1);
+  const [subLimit, setSubLimit] = useState(5);
+  const [searchSub, setSearchSub] = useState("");
+  const [statusFilterSub, setStatusFilterSub] = useState<string>("ALL");
+
+  // All Parent Main Categories for Modal Dropdown
+  const [allMainCats, setAllMainCats] = useState<Category[]>([]);
+
+  // Modal State
+  const [modalMode, setModalMode] = useState<ModalMode>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [formName, setFormName] = useState("");
+  const [formParentId, setFormParentId] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  // Delete State
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   // Status toggle
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  async function loadData() {
-    setLoading(true);
+  // API Call: Load Main Categories
+  const loadMainData = useCallback(async () => {
+    setMainLoading(true);
     try {
-      const res = await api.get<any>("/v1/products/categories");
-      setCategories(Array.isArray(res.data || res) ? res.data || res : []);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }
+      const res = await api.get<any>("/v1/products/categories", {
+        params: {
+          isMain: true,
+          page: mainPage,
+          limit: mainLimit,
+          search: searchMain || undefined,
+          status: statusFilterMain !== "ALL" ? statusFilterMain : undefined,
+        },
+      });
 
-  useEffect(() => {
-    loadData();
+      const rows = Array.isArray(res?.data?.data)
+        ? res.data.data
+        : Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res)
+        ? res
+        : [];
+      const totalCount = typeof res?.data?.total === "number"
+        ? res.data.total
+        : typeof res?.total === "number"
+        ? res.total
+        : rows.length;
+
+      setMainCategories(rows);
+      setMainTotal(totalCount);
+    } catch (e) {
+      console.error("Failed to load main categories", e);
+    } finally {
+      setMainLoading(false);
+    }
+  }, [mainPage, mainLimit, searchMain, statusFilterMain]);
+
+  // API Call: Load Subcategories
+  const loadSubData = useCallback(async () => {
+    setSubLoading(true);
+    try {
+      const res = await api.get<any>("/v1/products/categories", {
+        params: {
+          isMain: false,
+          page: subPage,
+          limit: subLimit,
+          search: searchSub || undefined,
+          status: statusFilterSub !== "ALL" ? statusFilterSub : undefined,
+        },
+      });
+
+      const rows = Array.isArray(res?.data?.data)
+        ? res.data.data
+        : Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res)
+        ? res
+        : [];
+      const totalCount = typeof res?.data?.total === "number"
+        ? res.data.total
+        : typeof res?.total === "number"
+        ? res.total
+        : rows.length;
+
+      setSubCategories(rows);
+      setSubTotal(totalCount);
+    } catch (e) {
+      console.error("Failed to load subcategories", e);
+    } finally {
+      setSubLoading(false);
+    }
+  }, [subPage, subLimit, searchSub, statusFilterSub]);
+
+  // API Call: Load All Main Categories for Modal Dropdown
+  const loadAllMainCats = useCallback(async () => {
+    try {
+      const res = await api.get<any>("/v1/products/categories", {
+        params: { isMain: true },
+      });
+      const list = Array.isArray(res?.data?.data)
+        ? res.data.data
+        : Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res)
+        ? res
+        : [];
+      setAllMainCats(list);
+    } catch (e) {
+      console.error("Failed to load parent main categories dropdown", e);
+    }
   }, []);
 
-  const parentCats = categories.filter((c) => !c.parentId);
+  useEffect(() => {
+    loadMainData();
+  }, [loadMainData]);
 
-  async function handleCreate(e: React.FormEvent) {
+  useEffect(() => {
+    loadSubData();
+  }, [loadSubData]);
+
+  useEffect(() => {
+    loadAllMainCats();
+  }, [loadAllMainCats]);
+
+  // Open Handlers
+  function handleOpenAddMain() {
+    setEditingCategory(null);
+    setFormName("");
+    setFormParentId("");
+    setModalMode("ADD_MAIN");
+  }
+
+  function handleOpenEditMain(cat: Category) {
+    setEditingCategory(cat);
+    setFormName(cat.name);
+    setFormParentId("");
+    setModalMode("EDIT_MAIN");
+  }
+
+  function handleOpenAddSub() {
+    setEditingCategory(null);
+    setFormName("");
+    setFormParentId(allMainCats.length > 0 ? allMainCats[0].id : "");
+    setModalMode("ADD_SUB");
+  }
+
+  function handleOpenEditSub(cat: Category) {
+    setEditingCategory(cat);
+    setFormName(cat.name);
+    setFormParentId(cat.parentId || (allMainCats.length > 0 ? allMainCats[0].id : ""));
+    setModalMode("EDIT_SUB");
+  }
+
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!name) return;
+    if (!formName.trim()) return;
+
+    if ((modalMode === "ADD_SUB" || modalMode === "EDIT_SUB") && !formParentId) {
+      alert("Please select a parent category for the subcategory.");
+      return;
+    }
+
     setSaving(true);
-    setMsg(null);
     try {
-      await api.post("/v1/products/categories", {
-        name,
-        parentId: parentId || undefined,
-      });
-      setName("");
-      setParentId("");
-      setMsg("Category created successfully!");
-      loadData();
+      if (modalMode === "EDIT_MAIN" || modalMode === "EDIT_SUB") {
+        if (!editingCategory) return;
+        await api.put(`/v1/products/categories/${editingCategory.id}`, {
+          name: formName,
+          parentId: modalMode === "EDIT_SUB" ? formParentId : null,
+        });
+        setMsg("Category updated successfully!");
+      } else {
+        await api.post("/v1/products/categories", {
+          name: formName,
+          parentId: modalMode === "ADD_SUB" ? formParentId : undefined,
+        });
+        setMsg(
+          modalMode === "ADD_SUB"
+            ? "Subcategory created successfully!"
+            : "Main Category created successfully!"
+        );
+      }
+      setModalMode(null);
+      loadMainData();
+      loadSubData();
+      loadAllMainCats();
       setTimeout(() => setMsg(null), 3000);
     } catch (err: any) {
-      alert(err.message || "Failed to create category");
+      alert(err.message || "Failed to save category");
     } finally {
       setSaving(false);
-    }
-  }
-
-  function startEdit(cat: Category) {
-    setEditId(cat.id);
-    setEditName(cat.name);
-    setEditParentId(cat.parentId || "");
-  }
-
-  function cancelEdit() {
-    setEditId(null);
-    setEditName("");
-    setEditParentId("");
-  }
-
-  async function saveEdit() {
-    if (!editId || !editName) return;
-    setEditSaving(true);
-    try {
-      await api.put(`/v1/products/categories/${editId}`, {
-        name: editName,
-        parentId: editParentId || null,
-      });
-      setMsg("Category updated!");
-      cancelEdit();
-      loadData();
-      setTimeout(() => setMsg(null), 3000);
-    } catch (err: any) {
-      alert(err.message || "Failed to update");
-    } finally {
-      setEditSaving(false);
     }
   }
 
@@ -118,7 +254,9 @@ export default function CategoriesPage() {
         setMsg("Category deleted!");
       }
       setDeleteId(null);
-      loadData();
+      loadMainData();
+      loadSubData();
+      loadAllMainCats();
       setTimeout(() => setMsg(null), 3000);
     } catch (err: any) {
       alert(err.message || "Failed to delete");
@@ -132,7 +270,8 @@ export default function CategoriesPage() {
     const newStatus = cat.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
     try {
       await api.put(`/v1/products/categories/${cat.id}`, { status: newStatus });
-      loadData();
+      loadMainData();
+      loadSubData();
     } catch (err: any) {
       alert(err.message || "Failed to toggle status");
     } finally {
@@ -140,204 +279,425 @@ export default function CategoriesPage() {
     }
   }
 
+  // Columns for Main Categories Table
+  const mainColumns: CustomTableColumn<Category>[] = [
+    {
+      key: "name",
+      header: "Category",
+      sortable: true,
+      render: (cat) => (
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-teal-50 text-teal-600 shrink-0">
+            <Tags size={16} />
+          </div>
+          <span className="font-bold text-gray-600 text-sm">{cat.name}</span>
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      align: "center",
+      render: (cat) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleStatus(cat);
+          }}
+          disabled={togglingId === cat.id}
+          className="flex items-center justify-center gap-1 group cursor-pointer"
+          title="Toggle status"
+        >
+          {togglingId === cat.id ? (
+            <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+          ) : cat.status === "ACTIVE" ? (
+            <>
+              <ToggleRight className="h-4.5 w-4.5 text-emerald-600" />
+              <span className="rounded-md bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">
+                Active
+              </span>
+            </>
+          ) : (
+            <>
+              <ToggleLeft className="h-4.5 w-4.5 text-red-400" />
+              <span className="rounded-md bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 group-hover:bg-red-100 transition">
+                Inactive
+              </span>
+            </>
+          )}
+        </button>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "center",
+      render: (cat) => (
+        <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => handleOpenEditMain(cat)}
+            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600 transition"
+            title="Edit Main Category"
+          >
+            <Edit3 className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setDeleteId(cat.id)}
+            className="rounded-lg border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+            title="Delete Main Category"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  // Columns for Subcategories Table
+  const subColumns: CustomTableColumn<Category>[] = [
+    {
+      key: "subName",
+      header: "Subcategory",
+      sortable: true,
+      getSortValue: (row) => row.name,
+      render: (cat) => (
+        <div className="flex items-center gap-2 font-bold text-gray-600 text-sm">
+          <CornerDownRight size={15} className="text-teal-600 shrink-0" />
+          <span>{cat.name}</span>
+        </div>
+      ),
+    },
+    {
+      key: "parentName",
+      header: "Category",
+      sortable: true,
+      align: "center",
+      getSortValue: (row) => allMainCats.find((c) => c.id === row.parentId)?.name || "",
+      render: (cat) => {
+        const parentObj = allMainCats.find((c) => c.id === cat.parentId);
+        return (
+          <span className="inline-flex items-center rounded-md bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-700 border border-teal-100">
+            {parentObj?.name || "Parent"}
+          </span>
+        );
+      },
+    },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      align: "center",
+      render: (cat) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleStatus(cat);
+          }}
+          disabled={togglingId === cat.id}
+          className="flex items-center justify-center gap-1 group cursor-pointer"
+          title="Toggle status"
+        >
+          {togglingId === cat.id ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
+          ) : cat.status === "ACTIVE" ? (
+            <>
+              <ToggleRight className="h-4 w-4 text-emerald-600" />
+              <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">
+                Active
+              </span>
+            </>
+          ) : (
+            <>
+              <ToggleLeft className="h-4 w-4 text-red-400" />
+              <span className="rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600 group-hover:bg-red-100 transition">
+                Inactive
+              </span>
+            </>
+          )}
+        </button>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "center",
+      render: (cat) => (
+        <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => handleOpenEditSub(cat)}
+            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600 transition"
+            title="Edit Subcategory"
+          >
+            <Edit3 className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => setDeleteId(cat.id)}
+            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+            title="Delete Subcategory"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
-      {/* Header */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-md border border-slate-200/80 shadow-xs">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-indigo-50 text-indigo-600">
-            <Tags className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-slate-900">Categories & Subcategories</h1>
-            <p className="text-xs text-slate-500">Manage product categories and sub-classification hierarchy</p>
-          </div>
-        </div>
-      </div>
+      {/* Reusable Custom Breadcrumb Header */}
+      <CustomBreadcrumb
+        title="Category & Subcategory Management"
+        icon={<FolderTree size={20} />}
+        items={[{ label: "Catalog", href: "/products" }, { label: "Categories" }]}
+      />
 
-      {/* Toast */}
+      {/* Toast Notification */}
       {msg && (
-        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
+        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-600" /> {msg}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* CREATE FORM */}
-        <div className="lg:col-span-4 bg-white p-4 rounded-md border border-slate-200 shadow-xs space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800 border-b pb-2">
-            Add New Category
-          </h2>
+      {/* 2-COLUMN SIDE BY SIDE LAYOUT — Dynamic Height items-start */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+        {/* LEFT COLUMN: MAIN CATEGORIES TABLE */}
+        <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+          {/* Top Bar with Add Button */}
+          <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2">
+              <Tags className="h-4 w-4 text-teal-600" />
+              <h2 className="text-sm font-bold text-gray-600">Main Categories ({mainTotal})</h2>
+            </div>
+            <CustomButton
+              size="sm"
+              leftIcon={<Plus size={14} />}
+              onClick={handleOpenAddMain}
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+            >
+              Add Main Category
+            </CustomButton>
+          </div>
 
-          <form onSubmit={handleCreate} className="space-y-3">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Category Name *</label>
+          {/* Search & Status Filter Controls */}
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Beverages, Electronics"
-                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:border-indigo-500 focus:outline-none"
-                required
+                value={searchMain}
+                onChange={(e) => {
+                  setSearchMain(e.target.value);
+                  setMainPage(1);
+                }}
+                placeholder="Search main categories..."
+                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-teal-500 focus:outline-none transition"
               />
             </div>
-
-            <div>
-              <SearchableSelect
-                label="Parent Category (Leave empty for Main Category)"
-                options={parentCats.map((c) => ({ value: c.id, label: c.name }))}
-                value={parentId}
-                onChange={(val) => setParentId(val)}
-                placeholder="Select Parent (Optional)..."
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full flex items-center justify-center gap-1.5 rounded-md bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 disabled:opacity-50 transition"
+            <select
+              value={statusFilterMain}
+              onChange={(e) => {
+                setStatusFilterMain(e.target.value);
+                setMainPage(1);
+              }}
+              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
             >
-              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-              Save Category
-            </button>
-          </form>
+              <option value="ALL">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+
+          {/* Table with Real API Pagination */}
+          <div className="pt-1">
+            <CustomTable
+              columns={mainColumns}
+              data={mainCategories}
+              rowKey={(cat) => cat.id}
+              loading={mainLoading}
+              pageSize={mainLimit}
+              totalItems={mainTotal}
+              currentPage={mainPage}
+              onPageChange={(p) => setMainPage(p)}
+              onPageSizeChange={(s) => {
+                setMainLimit(s);
+                setMainPage(1);
+              }}
+              emptyMessage="No main categories found."
+            />
+          </div>
         </div>
 
-        {/* LIST TABLE */}
-        <div className="lg:col-span-8 bg-white p-4 rounded-md border border-slate-200 shadow-xs">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800 border-b pb-2 mb-3">
-            Category Hierarchy List ({categories.length})
-          </h2>
-
-          {loading ? (
-            <div className="flex items-center justify-center p-8 text-slate-400">
-              <Loader2 className="h-5 w-5 animate-spin" />
+        {/* RIGHT COLUMN: SUBCATEGORIES TABLE */}
+        <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+          {/* Top Bar with Add Button */}
+          <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2">
+              <CornerDownRight className="h-4 w-4 text-teal-600" />
+              <h2 className="text-sm font-bold text-gray-600">Subcategories ({subTotal})</h2>
             </div>
-          ) : categories.length === 0 ? (
-            <p className="text-xs text-slate-400 p-4 text-center">No categories created yet</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold">
-                    <th className="p-2.5">Category Name</th>
-                    <th className="p-2.5">Type</th>
-                    <th className="p-2.5">Status</th>
-                    <th className="p-2.5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {categories.map((cat) => {
-                    const isParent = !cat.parentId;
-                    const parentObj = categories.find((c) => c.id === cat.parentId);
-                    const isEditing = editId === cat.id;
+            <CustomButton
+              size="sm"
+              leftIcon={<Plus size={14} />}
+              onClick={handleOpenAddSub}
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+            >
+              Add Subcategory
+            </CustomButton>
+          </div>
 
-                    return (
-                      <tr key={cat.id} className={`hover:bg-slate-50/80 transition ${isEditing ? "bg-indigo-50/40" : ""}`}>
-                        <td className="p-2.5 font-medium text-slate-900">
-                          {isEditing ? (
-                            <input
-                              type="text"
-                              value={editName}
-                              onChange={(e) => setEditName(e.target.value)}
-                              className="w-full rounded border border-indigo-300 bg-white px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none"
-                              autoFocus
-                            />
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              {!isParent && <FolderTree className="h-3.5 w-3.5 text-slate-400 ml-3" />}
-                              <span className={isParent ? "font-bold text-indigo-900" : "text-slate-700"}>
-                                {cat.name}
-                              </span>
-                            </div>
-                          )}
-                        </td>
-                        <td className="p-2.5">
-                          {isParent ? (
-                            <span className="rounded bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700">
-                              Main Category
-                            </span>
-                          ) : (
-                            <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600">
-                              Sub of {parentObj?.name || "Parent"}
-                            </span>
-                          )}
-                        </td>
-                        <td className="p-2.5">
-                          <button
-                            onClick={() => toggleStatus(cat)}
-                            disabled={togglingId === cat.id}
-                            className="flex items-center gap-1 group cursor-pointer"
-                            title="Toggle status"
-                          >
-                            {togglingId === cat.id ? (
-                              <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
-                            ) : cat.status === "ACTIVE" ? (
-                              <>
-                                <ToggleRight className="h-4 w-4 text-emerald-600" />
-                                <span className="rounded bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">
-                                  Active
-                                </span>
-                              </>
-                            ) : (
-                              <>
-                                <ToggleLeft className="h-4 w-4 text-red-400" />
-                                <span className="rounded bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600 group-hover:bg-red-100 transition">
-                                  Inactive
-                                </span>
-                              </>
-                            )}
-                          </button>
-                        </td>
-                        <td className="p-2.5 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            {isEditing ? (
-                              <>
-                                <button
-                                  onClick={saveEdit}
-                                  disabled={editSaving}
-                                  className="rounded p-1 text-emerald-600 hover:bg-emerald-50 transition"
-                                  title="Save"
-                                >
-                                  {editSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                                </button>
-                                <button
-                                  onClick={cancelEdit}
-                                  className="rounded p-1 text-slate-400 hover:bg-slate-100 transition"
-                                  title="Cancel"
-                                >
-                                  <X className="h-3.5 w-3.5" />
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  onClick={() => startEdit(cat)}
-                                  className="rounded p-1 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition"
-                                  title="Edit"
-                                >
-                                  <Edit3 className="h-3.5 w-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => setDeleteId(cat.id)}
-                                  className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
-                                  title="Delete"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+          {/* Search & Status Filter Controls */}
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+              <input
+                type="text"
+                value={searchSub}
+                onChange={(e) => {
+                  setSearchSub(e.target.value);
+                  setSubPage(1);
+                }}
+                placeholder="Search subcategories..."
+                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              />
             </div>
-          )}
+            <select
+              value={statusFilterSub}
+              onChange={(e) => {
+                setStatusFilterSub(e.target.value);
+                setSubPage(1);
+              }}
+              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+            >
+              <option value="ALL">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+
+          {/* Table with Real API Pagination */}
+          <div className="pt-1">
+            <CustomTable
+              columns={subColumns}
+              data={subCategories}
+              rowKey={(cat) => cat.id}
+              loading={subLoading}
+              pageSize={subLimit}
+              totalItems={subTotal}
+              currentPage={subPage}
+              onPageChange={(p) => setSubPage(p)}
+              onPageSizeChange={(s) => {
+                setSubLimit(s);
+                setSubPage(1);
+              }}
+              emptyMessage="No subcategories found."
+            />
+          </div>
         </div>
       </div>
+
+      {/* ADD / EDIT MODAL FOR MAIN CATEGORY */}
+      <CustomModal
+        open={modalMode === "ADD_MAIN" || modalMode === "EDIT_MAIN"}
+        onClose={() => setModalMode(null)}
+        title={modalMode === "EDIT_MAIN" ? "Edit Main Category" : "Create New Main Category"}
+        size="md"
+      >
+        <form onSubmit={handleSave} className="space-y-4">
+          <div>
+            <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
+              Category Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              placeholder="e.g. Beverages, Electronics, Clothing"
+              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-teal-500 focus:outline-none"
+              required
+              autoFocus
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <CustomButton
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setModalMode(null)}
+              className="rounded-md text-xs"
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              type="submit"
+              size="sm"
+              loading={saving}
+              leftIcon={<Check size={14} />}
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs"
+            >
+              {modalMode === "EDIT_MAIN" ? "Update Category" : "Save Category"}
+            </CustomButton>
+          </div>
+        </form>
+      </CustomModal>
+
+      {/* ADD / EDIT MODAL FOR SUBCATEGORY */}
+      <CustomModal
+        open={modalMode === "ADD_SUB" || modalMode === "EDIT_SUB"}
+        onClose={() => setModalMode(null)}
+        title={modalMode === "EDIT_SUB" ? "Edit Subcategory" : "Create New Subcategory"}
+        size="md"
+      >
+        <form onSubmit={handleSave} className="space-y-4">
+          <div>
+            <SearchableSelect
+              label="Parent Main Category"
+              required
+              options={allMainCats.map((c) => ({ value: c.id, label: c.name }))}
+              value={formParentId}
+              onChange={(val) => setFormParentId(val)}
+              placeholder="Select Parent Main Category..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
+              Subcategory Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              placeholder="e.g. Soft Drinks, Laptops, Men Shirts"
+              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-teal-500 focus:outline-none"
+              required
+              autoFocus
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <CustomButton
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setModalMode(null)}
+              className="rounded-md text-xs"
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              type="submit"
+              size="sm"
+              loading={saving}
+              leftIcon={<Check size={14} />}
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs"
+            >
+              {modalMode === "EDIT_SUB" ? "Update Subcategory" : "Save Subcategory"}
+            </CustomButton>
+          </div>
+        </form>
+      </CustomModal>
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal
@@ -345,7 +705,7 @@ export default function CategoriesPage() {
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
         title="Delete Category"
-        message="This action cannot be undone. If category is in use, it will be deactivated instead."
+        message="This action cannot be undone. If category is assigned to products, it will be safely deactivated instead."
         type="DANGER"
         loading={deleting}
       />
