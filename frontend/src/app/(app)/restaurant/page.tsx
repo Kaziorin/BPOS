@@ -31,6 +31,14 @@ export default function RestaurantPage() {
             </p>
           </div>
         </div>
+        <div>
+          <a
+            href="/restaurant/pos"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-500 transition-all"
+          >
+            Open Restaurant POS
+          </a>
+        </div>
       </div>
 
       {/* Main Tabs Navigation */}
