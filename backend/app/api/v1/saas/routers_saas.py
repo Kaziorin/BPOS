@@ -682,7 +682,7 @@ async def onboarding_state(
     companies = rows_to_dicts((await db.execute(text("SELECT id, name, legalName, phone, email, address, vatRegNo FROM companies WHERE tenantId = :t LIMIT 1"), {"t": tenantId})).fetchall())
     company = companies[0] if companies else None
 
-    branches = rows_to_dicts((await db.execute(text("SELECT id, code, name, phone, email, address FROM branches WHERE tenantId = :t ORDER BY isMain DESC, createdAt ASC LIMIT 1"), {"t": tenantId})).fetchall())
+    branches = rows_to_dicts((await db.execute(text("SELECT id, code, name, phone, email, address FROM branches WHERE tenantId = :t ORDER BY createdAt ASC LIMIT 1"), {"t": tenantId})).fetchall())
     branch = branches[0] if branches else None
 
     warehouses = rows_to_dicts((await db.execute(text("SELECT id, code, name, type FROM warehouses WHERE tenantId = :t ORDER BY createdAt ASC LIMIT 1"), {"t": tenantId})).fetchall())
@@ -691,7 +691,7 @@ async def onboarding_state(
     tax_rates = rows_to_dicts((await db.execute(text("SELECT id, code, name, rate, isDefault FROM tax_rates WHERE tenantId = :t ORDER BY isDefault DESC, createdAt ASC LIMIT 1"), {"t": tenantId})).fetchall())
     tax_rate = tax_rates[0] if tax_rates else None
 
-    roles = rows_to_dicts((await db.execute(text("SELECT id, name, description FROM roles WHERE tenantId = :t OR isSystem = 1 ORDER BY name"), {"t": tenantId})).fetchall())
+    roles = rows_to_dicts((await db.execute(text("SELECT id, name, description FROM roles WHERE tenantId = :t OR (isSystem = 1 AND tenantId IS NULL) ORDER BY name"), {"t": tenantId})).fetchall())
 
     return ok({
         "businessType": tenant.get("businessType") or "RETAIL",
