@@ -493,6 +493,22 @@ async def approve_requisition(req_id: str, user: AuthUser = Depends(require_auth
     return ok({"approved": True})
 
 
+@router.post("/api/v1/purchasing/requisitions/{req_id}/reject")
+async def reject_requisition(req_id: str, body: Optional[dict] = None, user: AuthUser = Depends(require_auth),
+                            tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    r = (await db.execute(text("SELECT status FROM purchase_requisitions WHERE id=:id AND tenantId=:t"),
+                          {"id": req_id, "t": tenantId})).first()
+    if not r: return err("Requisition not found", 404)
+    if r[0] not in ("DRAFT", "SUBMITTED"): return err(f"Cannot reject in status {r[0]}", 400)
+    b = body or {}
+    reason = b.get("reason", "Rejected by manager")
+    await db.execute(text(
+        "UPDATE purchase_requisitions SET status='REJECTED', note=COALESCE(:r, note), updatedBy=:u WHERE id=:id"),
+        {"r": f"Rejected: {reason}", "u": user.id, "id": req_id})
+    await db.commit()
+    return ok({"rejected": True})
+
+
 @router.get("/api/v1/purchasing/orders")
 async def list_purchase_orders(status: str = "", supplierId: str = "", page: int = Query(1), limit: int = Query(20),
                                user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
@@ -508,11 +524,13 @@ async def list_purchase_orders(status: str = "", supplierId: str = "", page: int
     for r in rows:
         r["supplier"] = {"id": r.pop("supplierId"), "name": r.pop("supplierName")}
         items = rows_to_dicts((await db.execute(text(
-            "SELECT poi.*, p.name AS productName FROM purchase_order_items poi "
+            "SELECT poi.*, p.name AS productName, p.sku AS productSku, p.barcode AS productBarcode FROM purchase_order_items poi "
             "JOIN products p ON p.id=poi.productId WHERE poi.purchaseOrderId=:id"), {"id": r["id"]})).fetchall())
         r["items"] = items
         r["goodsReceipts"] = rows_to_dicts((await db.execute(text(
             "SELECT id, grnNo FROM goods_receipts WHERE purchaseOrderId=:id"), {"id": r["id"]})).fetchall())
+        r["purchaseInvoices"] = rows_to_dicts((await db.execute(text(
+            "SELECT id, piNo, total, paidTotal, status FROM purchase_invoices WHERE purchaseOrderId=:id"), {"id": r["id"]})).fetchall())
     total = (await db.execute(text(f"SELECT COUNT(*) FROM purchase_orders po WHERE {where}"), params)).first()[0]
     return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": (total + lim - 1) // lim}})
 
@@ -705,9 +723,9 @@ async def receive_goods(body: dict, user: AuthUser = Depends(require_auth),
         if grn_lines:
             await acc.post_journal(db, tenantId, refType="GRN", refId=grn_id,
                                    narration=f"Goods received {grnNo}", lines=grn_lines, userId=user.id)
-        # Accounts payable: a GRN against a PO creates the supplier invoice and
+        # Accounts payable: a GRN against a PO or direct supplier creates the supplier invoice and
         # increments the supplier's currentDue — stock in, payable owed (§10.17).
-        if po and supplierId:
+        if supplierId:
             piNo = gen_no("PI")
             pi_subtotal = grn_cost
             pi_total = round(grn_cost + purchase_tax, 2)
@@ -907,12 +925,21 @@ async def purchase_return(body: dict, user: AuthUser = Depends(require_auth),
 async def list_purchase_returns(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
                                 db: AsyncSession = Depends(get_db)):
     rows = rows_to_dicts((await db.execute(text(
-        "SELECT pr.*, s.name AS supplierName FROM purchase_returns pr JOIN suppliers s ON s.id=pr.supplierId "
+        "SELECT pr.*, s.name AS supplierName, po.poNo, w.name AS warehouseName FROM purchase_returns pr "
+        "JOIN suppliers s ON s.id=pr.supplierId "
+        "LEFT JOIN warehouses w ON w.id=pr.warehouseId "
+        "LEFT JOIN purchase_orders po ON po.id=pr.purchaseOrderId "
         "WHERE pr.tenantId=:t ORDER BY pr.createdAt DESC LIMIT 100"), {"t": tenantId})).fetchall())
     for r in rows:
         r["supplier"] = {"id": r.pop("supplierId"), "name": r.pop("supplierName")}
+        wh_name = r.pop("warehouseName", None)
+        wh_id = r.pop("warehouseId", None)
+        r["warehouse"] = {"id": wh_id, "name": wh_name} if wh_name else None
+        po_no = r.pop("poNo", None)
+        po_id = r.pop("purchaseOrderId", None)
+        r["purchaseOrder"] = {"id": po_id, "poNo": po_no} if po_no else None
         r["items"] = rows_to_dicts((await db.execute(text(
-            "SELECT pri.*, p.name AS productName FROM purchase_return_items pri JOIN products p ON p.id=pri.productId WHERE pri.returnId=:id"),
+            "SELECT pri.*, p.name AS productName, p.sku AS productSku FROM purchase_return_items pri JOIN products p ON p.id=pri.productId WHERE pri.returnId=:id"),
             {"id": r["id"]})).fetchall())
     return ok(rows)
 
