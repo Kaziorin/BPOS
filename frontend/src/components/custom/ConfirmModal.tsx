@@ -53,9 +53,9 @@ export function ConfirmModal({
     },
     INFO: {
       icon: Info,
-      iconBg: "bg-blue-100 text-blue-600",
-      border: "border-blue-200",
-      confirmBtn: "bg-blue-600 hover:bg-blue-700 text-white",
+      iconBg: "bg-teal-100 text-teal-600",
+      border: "border-teal-200",
+      confirmBtn: "bg-teal-600 hover:bg-teal-700 text-white",
       defaultTitle: "Information",
       defaultConfirm: "OK",
     },
@@ -73,24 +73,24 @@ export function ConfirmModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className={`relative w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl border ${typeConfig.border} animate-in zoom-in-95 duration-200`}>
+      <div className={`relative w-full max-w-sm rounded-md bg-white p-5 shadow-xl border ${typeConfig.border} animate-in zoom-in-95 duration-200`}>
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute right-3.5 top-3.5 rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+          className="absolute right-3.5 top-3.5 rounded-md p-1 text-slate-400 hover:bg-teal-50 hover:text-teal-600 transition"
         >
           <X size={16} />
         </button>
 
         <div className="flex items-start gap-3.5">
           {/* Icon Badge */}
-          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${typeConfig.iconBg}`}>
+          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md ${typeConfig.iconBg}`}>
             <Icon size={20} />
           </div>
 
           {/* Title & Message */}
           <div className="flex-1 min-w-0 pr-4">
-            <h3 className="text-sm font-bold text-slate-900">
+            <h3 className="text-sm font-bold text-gray-600">
               {title || typeConfig.defaultTitle}
             </h3>
             <p className="mt-1 text-xs text-slate-600 leading-relaxed break-words">

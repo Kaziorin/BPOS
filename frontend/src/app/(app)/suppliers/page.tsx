@@ -2,8 +2,12 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Loader2, Plus, Search, Truck, Eye, Trash2 } from "lucide-react";
+import { Plus, Search, Truck, Eye, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
+import { CustomTable, CustomTableColumn } from "@/components/custom/CustomTable";
+import { ConfirmModal } from "@/components/custom/ConfirmModal";
 
 interface Supplier {
   id: string;
@@ -22,33 +26,44 @@ interface Supplier {
   _count: { purchaseOrders: number; goodsReceipts: number; products: number };
 }
 
-interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 });
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
-  const loadSuppliers = useCallback(async (p: number, status: string, q: string) => {
+  const loadSuppliers = useCallback(async (p: number, l: number, status: string, q: string) => {
     setLoading(true);
     setError(null);
     try {
-      const params = new URLSearchParams({ page: String(p), limit: "20" });
+      const params = new URLSearchParams({ page: String(p), limit: String(l) });
       if (q) params.set("search", q);
       if (status) params.set("status", status);
 
-      const result = await api.get<{ data: Supplier[]; pagination: Pagination }>(`/v1/suppliers?${params}`);
-      setSuppliers(result.data);
-      setPagination(result.pagination);
+      const result = await api.get<any>(`/v1/suppliers?${params}`);
+      const rows = Array.isArray(result?.data?.data)
+        ? result.data.data
+        : Array.isArray(result?.data)
+        ? result.data
+        : Array.isArray(result)
+        ? result
+        : [];
+      const totalCount = typeof result?.pagination?.total === "number"
+        ? result.pagination.total
+        : typeof result?.data?.total === "number"
+        ? result.data.total
+        : typeof result?.total === "number"
+        ? result.total
+        : rows.length;
+
+      setSuppliers(rows);
+      setTotal(totalCount);
     } catch (err: any) {
       console.error("Failed to load suppliers:", err);
       setError(err.message || "Failed to load suppliers");
@@ -59,186 +74,188 @@ export default function SuppliersPage() {
   }, []);
 
   useEffect(() => {
-    loadSuppliers(page, filterStatus, search);
-  }, [page, filterStatus, loadSuppliers]);
+    loadSuppliers(page, limit, filterStatus, search);
+  }, [page, limit, filterStatus, loadSuppliers]);
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    setPage(1);
-    loadSuppliers(1, filterStatus, search);
-  }
-
-  async function deleteSupplier(id: string) {
-    if (!confirm("Delete this supplier?")) return;
+  async function handleDelete() {
+    if (!deleteId) return;
+    setDeleting(true);
     try {
-      await api.del(`/v1/suppliers/${id}`);
-      loadSuppliers(page, filterStatus, search);
+      await api.del(`/v1/suppliers/${deleteId}`);
+      setDeleteId(null);
+      loadSuppliers(page, limit, filterStatus, search);
     } catch (err: any) {
       alert(err.message || "Delete failed");
+    } finally {
+      setDeleting(false);
     }
   }
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+  const columns: CustomTableColumn<Supplier>[] = [
+    {
+      key: "name",
+      header: "Supplier",
+      sortable: true,
+      render: (s) => (
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Suppliers</h1>
-          <p className="mt-1 text-sm text-gray-500">Manage suppliers & procurement</p>
+          <p className="font-bold text-gray-600 text-sm">{s.name}</p>
+          {s.company && <p className="text-xs text-slate-400">{s.company}</p>}
         </div>
-        <Link
-          href="/suppliers/create"
-          className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
+      ),
+    },
+    {
+      key: "contact",
+      header: "Contact",
+      render: (s) => (
+        <div>
+          <p className="text-gray-600 text-sm">{s.contactPerson || "—"}</p>
+          {s.phone && <p className="text-xs text-slate-400">{s.phone}</p>}
+        </div>
+      ),
+    },
+    {
+      key: "city",
+      header: "City",
+      render: (s) => <span className="text-gray-600 text-sm">{s.city || "—"}</span>,
+    },
+    {
+      key: "currentDue",
+      header: "Due Amount",
+      align: "right",
+      render: (s) => (
+        <span className={Number(s.currentDue) > 0 ? "text-red-600 font-bold" : "text-gray-600 font-medium"}>
+          ৳{Number(s.currentDue).toFixed(0)}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      align: "center",
+      render: (s) => (
+        <span
+          className={`inline-flex rounded-md px-2 py-0.5 text-xs font-semibold ${
+            s.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"
+          }`}
         >
-          <Plus size={16} />
-          Add Supplier
-        </Link>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <form onSubmit={handleSearch} className="flex items-center gap-2">
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search suppliers..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-            />
-          </div>
-          <button type="submit" className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-            Search
-          </button>
-        </form>
-        <select
-          value={filterStatus}
-          onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-        >
-          <option value="">All Status</option>
-          <option value="ACTIVE">Active</option>
-          <option value="INACTIVE">Inactive</option>
-        </select>
-        <span className="text-sm text-gray-500">{pagination.total} suppliers</span>
-      </div>
-
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          <p className="font-medium">Error loading suppliers</p>
-          <p className="mt-1">{error}</p>
-          <button onClick={() => loadSuppliers(page, filterStatus, search)} className="mt-2 text-sm font-medium text-red-600 underline hover:text-red-800">Retry</button>
-        </div>
-      )}
-
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 size={24} className="animate-spin text-gray-400" />
-        </div>
-      ) : suppliers.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
-          <Truck size={48} className="mx-auto text-gray-300" />
-          <p className="mt-4 text-gray-500">No suppliers found</p>
-          <Link href="/suppliers/create" className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700">
-            <Plus size={14} /> Add your first supplier
+          {s.status}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "center",
+      render: (s) => (
+        <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <Link
+            href={`/suppliers/${s.id}`}
+            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600 transition"
+            title="View Details"
+          >
+            <Eye className="h-4 w-4" />
           </Link>
+          <button
+            onClick={() => setDeleteId(s.id)}
+            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+            title="Delete Supplier"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
         </div>
-      ) : (
-        <div className="rounded-xl border border-gray-200 bg-white overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 text-left text-xs font-medium text-gray-500 uppercase">
-                <th className="px-4 py-3">Supplier</th>
-                <th className="px-4 py-3">Contact</th>
-                <th className="px-4 py-3">City</th>
-                <th className="px-4 py-3 text-right">Due</th>
-                <th className="px-4 py-3 text-center">Delivery Score</th>
-                <th className="px-4 py-3 text-center">Quality</th>
-                <th className="px-4 py-3 text-center">POs</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {suppliers.map((s) => (
-                <tr key={s.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <div>
-                      <p className="font-medium text-gray-900">{s.name}</p>
-                      {s.company && <p className="text-xs text-gray-500">{s.company}</p>}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <p className="text-gray-600">{s.contactPerson || "—"}</p>
-                    <p className="text-xs text-gray-500">{s.phone || ""}</p>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">{s.city || "—"}</td>
-                  <td className="px-4 py-3 text-right">
-                    <span className={Number(s.currentDue) > 0 ? "text-red-600 font-medium" : "text-gray-600"}>
-                      ৳{Number(s.currentDue).toFixed(0)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {s.deliveryPerformanceScore != null ? (
-                      <span className={`text-sm font-medium ${s.deliveryPerformanceScore >= 90 ? "text-green-600" : s.deliveryPerformanceScore >= 75 ? "text-yellow-600" : "text-red-600"}`}>
-                        {s.deliveryPerformanceScore}%
-                      </span>
-                    ) : <span className="text-gray-400">—</span>}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {s.qualityScore != null ? (
-                      <span className={`text-sm font-medium ${s.qualityScore >= 90 ? "text-green-600" : s.qualityScore >= 75 ? "text-yellow-600" : "text-red-600"}`}>
-                        {s.qualityScore}%
-                      </span>
-                    ) : <span className="text-gray-400">—</span>}
-                  </td>
-                  <td className="px-4 py-3 text-center text-gray-600">{s._count.purchaseOrders}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${s.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                      {s.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Link href={`/suppliers/${s.id}`} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600" title="View">
-                        <Eye size={14} />
-                      </Link>
-                      <button
-                        onClick={() => deleteSupplier(s.id)}
-                        className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
-                        title="Delete"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      ),
+    },
+  ];
+
+  return (
+    <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
+      {/* Reusable Custom Breadcrumb Header */}
+      <CustomBreadcrumb
+        title="Suppliers & Procurement"
+        icon={<Truck size={20} />}
+        items={[{ label: "Purchasing", href: "/purchasing/orders" }, { label: "Suppliers" }]}
+        actions={
+          <Link href="/suppliers/create">
+            <CustomButton
+              size="sm"
+              leftIcon={<Plus size={14} />}
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+            >
+              Add Supplier
+            </CustomButton>
+          </Link>
+        }
+      />
+
+      {/* Error Display */}
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium">
+          Error loading suppliers: {error}
         </div>
       )}
 
-      {pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">Page {pagination.page} of {pagination.totalPages}</p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+      {/* Table Container */}
+      <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+        {/* Search & Filters */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2 flex-1 max-w-md">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search suppliers..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              />
+            </div>
+            <select
+              value={filterStatus}
+              onChange={(e) => {
+                setFilterStatus(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
             >
-              Previous
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
-              disabled={page >= pagination.totalPages}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-            >
-              Next
-            </button>
+              <option value="">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
           </div>
+          <span className="text-xs font-semibold text-slate-500">Total Suppliers: {total}</span>
         </div>
-      )}
+
+        {/* Custom Table with Server Pagination */}
+        <CustomTable
+          columns={columns}
+          data={suppliers}
+          rowKey={(s) => s.id}
+          loading={loading}
+          pageSize={limit}
+          totalItems={total}
+          currentPage={page}
+          onPageChange={(p) => setPage(p)}
+          onPageSizeChange={(s) => {
+            setLimit(s);
+            setPage(1);
+          }}
+          emptyMessage="No suppliers found."
+        />
+      </div>
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Delete Supplier"
+        message="Are you sure you want to delete this supplier? This action cannot be undone."
+        type="DANGER"
+        loading={deleting}
+      />
     </div>
   );
 }

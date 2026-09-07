@@ -1,11 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
-  Plus, Scale, Loader2, CheckCircle2, Edit3, Trash2, X, Save, ToggleLeft, ToggleRight,
+  Plus,
+  Scale,
+  Loader2,
+  CheckCircle2,
+  Edit3,
+  Trash2,
+  Search,
+  Check,
+  ToggleLeft,
+  ToggleRight,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { ConfirmModal } from "@/components/custom/ConfirmModal";
+import { CustomTable, CustomTableColumn } from "@/components/custom/CustomTable";
+import { CustomModal } from "@/components/custom/CustomModal";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
 
 interface Unit {
   id: string;
@@ -17,84 +30,106 @@ interface Unit {
 export default function UnitsPage() {
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(true);
-  const [name, setName] = useState("");
-  const [code, setCode] = useState("");
-  const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
-  // Edit state
-  const [editId, setEditId] = useState<string | null>(null);
-  const [editName, setEditName] = useState("");
-  const [editCode, setEditCode] = useState("");
-  const [editSaving, setEditSaving] = useState(false);
+  // API Pagination & Filter State
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
-  // Delete
+  // Add / Edit Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
+  const [formName, setFormName] = useState("");
+  const [formCode, setFormCode] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  // Delete state
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   // Status toggle
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get<any>("/v1/units");
-      setUnits(Array.isArray(res.data || res) ? res.data || res : []);
+      const res = await api.get<any>("/v1/units", {
+        params: {
+          page,
+          limit,
+          search: searchQuery || undefined,
+          status: statusFilter !== "ALL" ? statusFilter : undefined,
+        },
+      });
+
+      const rows = Array.isArray(res?.data?.data)
+        ? res.data.data
+        : Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res)
+        ? res
+        : [];
+      const totalCount = typeof res?.data?.total === "number"
+        ? res.data.total
+        : typeof res?.total === "number"
+        ? res.total
+        : rows.length;
+
+      setUnits(rows);
+      setTotal(totalCount);
     } catch (e) {
-      console.error(e);
+      console.error("Failed to load units", e);
     } finally {
       setLoading(false);
     }
-  }
+  }, [page, limit, searchQuery, statusFilter]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
-  async function handleCreate(e: React.FormEvent) {
+  function handleOpenAddModal() {
+    setEditingUnit(null);
+    setFormName("");
+    setFormCode("");
+    setModalOpen(true);
+  }
+
+  function handleOpenEditModal(u: Unit) {
+    setEditingUnit(u);
+    setFormName(u.name);
+    setFormCode(u.code || "");
+    setModalOpen(true);
+  }
+
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!name) return;
+    if (!formName.trim()) return;
     setSaving(true);
-    setMsg(null);
     try {
-      await api.post("/v1/units", { name, code: code || name.toLowerCase().slice(0, 8) });
-      setName("");
-      setCode("");
-      setMsg("Unit created successfully!");
+      if (editingUnit) {
+        await api.put(`/v1/units/${editingUnit.id}`, {
+          name: formName,
+          code: formCode || formName.toLowerCase().slice(0, 8),
+        });
+        setMsg("Unit updated successfully!");
+      } else {
+        await api.post("/v1/units", {
+          name: formName,
+          code: formCode || formName.toLowerCase().slice(0, 8),
+        });
+        setMsg("Unit created successfully!");
+      }
+      setModalOpen(false);
       loadData();
       setTimeout(() => setMsg(null), 3000);
     } catch (err: any) {
-      alert(err.message || "Failed to create unit");
+      alert(err.message || "Failed to save unit");
     } finally {
       setSaving(false);
-    }
-  }
-
-  function startEdit(u: Unit) {
-    setEditId(u.id);
-    setEditName(u.name);
-    setEditCode(u.code || "");
-  }
-
-  function cancelEdit() {
-    setEditId(null);
-    setEditName("");
-    setEditCode("");
-  }
-
-  async function saveEdit() {
-    if (!editId || !editName) return;
-    setEditSaving(true);
-    try {
-      await api.put(`/v1/units/${editId}`, { name: editName, code: editCode });
-      setMsg("Unit updated!");
-      cancelEdit();
-      loadData();
-      setTimeout(() => setMsg(null), 3000);
-    } catch (err: any) {
-      alert(err.message || "Failed to update");
-    } finally {
-      setEditSaving(false);
     }
   }
 
@@ -131,179 +166,235 @@ export default function UnitsPage() {
     }
   }
 
+  const columns: CustomTableColumn<Unit>[] = [
+    {
+      key: "name",
+      header: "Unit Name",
+      sortable: true,
+      render: (u) => (
+        <span className="font-bold text-gray-600 text-sm">{u.name}</span>
+      ),
+    },
+    {
+      key: "code",
+      header: "Code / Abbreviation",
+      sortable: true,
+      align: "center",
+      render: (u) => (
+        <span className="font-mono text-slate-600 font-medium bg-slate-100 px-2 py-0.5 rounded-md text-xs">
+          {u.code || "—"}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      align: "center",
+      render: (u) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleStatus(u);
+          }}
+          disabled={togglingId === u.id}
+          className="flex items-center justify-center gap-1 group cursor-pointer"
+          title="Toggle status"
+        >
+          {togglingId === u.id ? (
+            <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+          ) : u.status === "ACTIVE" ? (
+            <>
+              <ToggleRight className="h-4.5 w-4.5 text-emerald-600" />
+              <span className="rounded-md bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">
+                Active
+              </span>
+            </>
+          ) : (
+            <>
+              <ToggleLeft className="h-4.5 w-4.5 text-red-400" />
+              <span className="rounded-md bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 group-hover:bg-red-100 transition">
+                Inactive
+              </span>
+            </>
+          )}
+        </button>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "center",
+      render: (u) => (
+        <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => handleOpenEditModal(u)}
+            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600 transition"
+            title="Edit Unit"
+          >
+            <Edit3 className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setDeleteId(u.id)}
+            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+            title="Delete Unit"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
-      {/* Header */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-md border border-slate-200/80 shadow-xs">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-amber-50 text-amber-600">
-            <Scale className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-slate-900">Units of Measure</h1>
-            <p className="text-xs text-slate-500">Manage product units (Piece, Kg, Box, Bottle, Liter)</p>
-          </div>
-        </div>
-      </div>
+      {/* Reusable Custom Breadcrumb Header */}
+      <CustomBreadcrumb
+        title="Units of Measure"
+        icon={<Scale size={20} />}
+        items={[{ label: "Catalog", href: "/products" }, { label: "Units" }]}
+        actions={
+          <CustomButton
+            size="sm"
+            leftIcon={<Plus size={14} />}
+            onClick={handleOpenAddModal}
+            className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+          >
+            Add New Unit
+          </CustomButton>
+        }
+      />
 
+      {/* Toast Notification */}
       {msg && (
-        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs font-medium text-emerald-700">
+        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-600" /> {msg}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* CREATE FORM */}
-        <div className="lg:col-span-4 bg-white p-4 rounded-md border border-slate-200 shadow-xs space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800 border-b pb-2">
-            Add New Unit
-          </h2>
-
-          <form onSubmit={handleCreate} className="space-y-3">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Unit Name *</label>
+      {/* Table Container */}
+      <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+        {/* Search & Status Filter Toolbar */}
+        <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2 flex-1 max-w-md">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Kilogram, Box, Bottle"
-                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:border-indigo-500 focus:outline-none"
-                required
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Search units or abbreviation..."
+                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
               />
             </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Unit Code / Abbreviation</label>
-              <input
-                type="text"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="e.g. kg, box, btl, pcs"
-                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:border-indigo-500 focus:outline-none"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full flex items-center justify-center gap-1.5 rounded-md bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 disabled:opacity-50 transition"
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
             >
-              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-              Save Unit
-            </button>
-          </form>
+              <option value="ALL">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+
+          <span className="text-xs font-semibold text-slate-500">
+            Total Units: {total}
+          </span>
         </div>
 
-        {/* LIST TABLE */}
-        <div className="lg:col-span-8 bg-white p-4 rounded-md border border-slate-200 shadow-xs">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800 border-b pb-2 mb-3">
-            Units List ({units.length})
-          </h2>
-
-          {loading ? (
-            <div className="flex items-center justify-center p-8 text-slate-400">
-              <Loader2 className="h-5 w-5 animate-spin" />
-            </div>
-          ) : units.length === 0 ? (
-            <p className="text-xs text-slate-400 p-4 text-center">No units created yet</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold">
-                    <th className="p-2.5">Unit Name</th>
-                    <th className="p-2.5">Code</th>
-                    <th className="p-2.5">Status</th>
-                    <th className="p-2.5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {units.map((u) => {
-                    const isEditing = editId === u.id;
-                    return (
-                      <tr key={u.id} className={`hover:bg-slate-50/80 transition ${isEditing ? "bg-indigo-50/40" : ""}`}>
-                        <td className="p-2.5 font-bold text-slate-900">
-                          {isEditing ? (
-                            <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)}
-                              className="w-full rounded border border-indigo-300 bg-white px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none" autoFocus />
-                          ) : (
-                            u.name
-                          )}
-                        </td>
-                        <td className="p-2.5 font-mono text-slate-600">
-                          {isEditing ? (
-                            <input type="text" value={editCode} onChange={(e) => setEditCode(e.target.value)}
-                              className="w-full rounded border border-indigo-300 bg-white px-2 py-1 text-xs font-mono focus:border-indigo-500 focus:outline-none" />
-                          ) : (
-                            u.code || "—"
-                          )}
-                        </td>
-                        <td className="p-2.5">
-                          <button onClick={() => toggleStatus(u)} disabled={togglingId === u.id}
-                            className="flex items-center gap-1 group cursor-pointer" title="Toggle status">
-                            {togglingId === u.id ? (
-                              <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
-                            ) : u.status === "ACTIVE" ? (
-                              <>
-                                <ToggleRight className="h-4 w-4 text-emerald-600" />
-                                <span className="rounded bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">Active</span>
-                              </>
-                            ) : (
-                              <>
-                                <ToggleLeft className="h-4 w-4 text-red-400" />
-                                <span className="rounded bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600 group-hover:bg-red-100 transition">Inactive</span>
-                              </>
-                            )}
-                          </button>
-                        </td>
-                        <td className="p-2.5 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            {isEditing ? (
-                              <>
-                                <button onClick={saveEdit} disabled={editSaving}
-                                  className="rounded p-1 text-emerald-600 hover:bg-emerald-50 transition" title="Save">
-                                  {editSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                                </button>
-                                <button onClick={cancelEdit}
-                                  className="rounded p-1 text-slate-400 hover:bg-slate-100 transition" title="Cancel">
-                                  <X className="h-3.5 w-3.5" />
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button onClick={() => startEdit(u)}
-                                  className="rounded p-1 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition" title="Edit">
-                                  <Edit3 className="h-3.5 w-3.5" />
-                                </button>
-                                <button onClick={() => setDeleteId(u.id)}
-                                  className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-600 transition" title="Delete">
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+        {/* Custom Table with API Pagination & Sorting */}
+        <CustomTable
+          columns={columns}
+          data={units}
+          rowKey={(u) => u.id}
+          loading={loading}
+          pageSize={limit}
+          totalItems={total}
+          currentPage={page}
+          onPageChange={(p) => setPage(p)}
+          onPageSizeChange={(s) => {
+            setLimit(s);
+            setPage(1);
+          }}
+          emptyMessage="No units found matching your query."
+        />
       </div>
+
+      {/* Add / Edit Unit Modal */}
+      <CustomModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingUnit ? "Edit Unit" : "Create New Unit"}
+        size="md"
+      >
+        <form onSubmit={handleSave} className="space-y-4">
+          <div>
+            <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
+              Unit Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              placeholder="e.g. Kilogram, Box, Bottle, Piece"
+              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-teal-500 focus:outline-none"
+              required
+              autoFocus
+            />
+          </div>
+
+          <div>
+            <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
+              Unit Code / Abbreviation
+            </label>
+            <input
+              type="text"
+              value={formCode}
+              onChange={(e) => setFormCode(e.target.value)}
+              placeholder="e.g. kg, pcs, box, btl, ltr"
+              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-teal-500 focus:outline-none"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <CustomButton
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setModalOpen(false)}
+              className="rounded-md text-xs"
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              type="submit"
+              size="sm"
+              loading={saving}
+              leftIcon={<Check size={14} />}
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs"
+            >
+              {editingUnit ? "Update Unit" : "Save Unit"}
+            </CustomButton>
+          </div>
+        </form>
+      </CustomModal>
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={!!deleteId}
-        type="DANGER"
-        title="Delete Unit"
-        description="If this unit is assigned to existing products, it will be safely deactivated instead of deleted."
-        confirmText="Delete Unit"
-        cancelText="Cancel"
-        loading={deleting}
-        onConfirm={handleDelete}
         onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Delete Unit"
+        message="If unit is assigned to existing products, it will be safely deactivated instead of deleted."
+        type="DANGER"
+        loading={deleting}
       />
     </div>
   );

@@ -292,6 +292,20 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
     ],
   },
   {
+    title: "Industry Verticals",
+    items: [
+      {
+        label: "Restaurant",
+        href: "/restaurant",
+        icon: UtensilsCrossed,
+        children: [
+          { label: "Restaurant Dashboard", href: "/restaurant", icon: UtensilsCrossed },
+          { label: "Restaurant POS", href: "/restaurant/pos", icon: Monitor },
+        ],
+      },
+    ],
+  },
+  {
     title: "4. Finance & Accounting",
     items: [
       {

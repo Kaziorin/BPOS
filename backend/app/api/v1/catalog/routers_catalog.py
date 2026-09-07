@@ -8,6 +8,7 @@ import os
 import uuid
 from pathlib import Path
 
+import math
 from db import get_db, txn
 from security import require_auth, require_permission, resolve_tenant, AuthUser
 from util import ok, err, rows_to_dicts, paginate_params, ApiJSONResponse
@@ -139,12 +140,46 @@ async def create_product(
 # ─────────────────────────── CATEGORIES & UNITS ───────────────────────────
 
 @router.get("/api/v1/products/categories")
-async def list_categories(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+async def list_categories(
+    page: int = Query(None),
+    limit: int = Query(None),
+    search: str = Query(None),
+    status: str = Query(None),
+    isMain: bool = Query(None),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "WHERE tenantId=:t"
+    params = {"t": tenantId}
+    if search:
+        where += " AND LOWER(name) LIKE :s"
+        params["s"] = f"%{search.lower()}%"
+    if status and status != "ALL":
+        where += " AND status = :st"
+        params["st"] = status
+    if isMain is True:
+        where += " AND parentId IS NULL"
+    elif isMain is False:
+        where += " AND parentId IS NOT NULL"
+
+    if page is not None or limit is not None:
+        p = max(1, page or 1)
+        l = max(1, limit or 25)
+        count_res = (await db.execute(text(f"SELECT COUNT(*) FROM categories {where}"), params)).first()
+        total = count_res[0] if count_res else 0
+        offset = (p - 1) * l
+        params["l"] = l
+        params["o"] = offset
+        rows = rows_to_dicts(
+            (await db.execute(text(f"SELECT id, name, parentId, status FROM categories {where} ORDER BY name LIMIT :l OFFSET :o"), params)).fetchall()
+        )
+        return ok({"data": rows, "total": total, "page": p, "limit": l, "totalPages": math.ceil(total / l) if l > 0 else 1})
+
     rows = rows_to_dicts(
         (
             await db.execute(
-                text("SELECT id, name, parentId, status FROM categories WHERE tenantId=:t ORDER BY name"),
-                {"t": tenantId},
+                text(f"SELECT id, name, parentId, status FROM categories {where} ORDER BY name"),
+                params,
             )
         ).fetchall()
     )
@@ -212,12 +247,41 @@ async def delete_category(categoryId: str,
 
 
 @router.get("/api/v1/units")
-async def list_units(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+async def list_units(
+    page: int = Query(None),
+    limit: int = Query(None),
+    search: str = Query(None),
+    status: str = Query(None),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "WHERE (tenantId=:t OR tenantId IS NULL)"
+    params = {"t": tenantId}
+    if search:
+        where += " AND (LOWER(name) LIKE :s OR LOWER(code) LIKE :s)"
+        params["s"] = f"%{search.lower()}%"
+    if status and status != "ALL":
+        where += " AND status = :st"
+        params["st"] = status
+
+    if page is not None or limit is not None:
+        p = max(1, page or 1)
+        l = max(1, limit or 25)
+        count_res = (await db.execute(text(f"SELECT COUNT(*) FROM units {where}"), params)).first()
+        total = count_res[0] if count_res else 0
+        offset = (p - 1) * l
+        params["l"] = l
+        params["o"] = offset
+        rows = rows_to_dicts(
+            (await db.execute(text(f"SELECT id, name, code, status FROM units {where} ORDER BY name LIMIT :l OFFSET :o"), params)).fetchall()
+        )
+        return ok({"data": rows, "total": total, "page": p, "limit": l, "totalPages": math.ceil(total / l) if l > 0 else 1})
+
     rows = rows_to_dicts(
         (
             await db.execute(
-                text("SELECT id, name, code, status FROM units WHERE tenantId=:t OR tenantId IS NULL ORDER BY name"),
-                {"t": tenantId},
+                text(f"SELECT id, name, code, status FROM units {where} ORDER BY name"),
+                params,
             )
         ).fetchall()
     )
@@ -354,9 +418,38 @@ async def delete_product(
 
 
 @router.get("/api/v1/brands")
-async def list_brands(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+async def list_brands(
+    page: int = Query(None),
+    limit: int = Query(None),
+    search: str = Query(None),
+    status: str = Query(None),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "WHERE tenantId=:t"
+    params = {"t": tenantId}
+    if search:
+        where += " AND LOWER(name) LIKE :s"
+        params["s"] = f"%{search.lower()}%"
+    if status and status != "ALL":
+        where += " AND status = :st"
+        params["st"] = status
+
+    if page is not None or limit is not None:
+        p = max(1, page or 1)
+        l = max(1, limit or 25)
+        count_res = (await db.execute(text(f"SELECT COUNT(*) FROM brands {where}"), params)).first()
+        total = count_res[0] if count_res else 0
+        offset = (p - 1) * l
+        params["l"] = l
+        params["o"] = offset
+        rows = rows_to_dicts(
+            (await db.execute(text(f"SELECT id, name, status FROM brands {where} ORDER BY name LIMIT :l OFFSET :o"), params)).fetchall()
+        )
+        return ok({"data": rows, "total": total, "page": p, "limit": l, "totalPages": math.ceil(total / l) if l > 0 else 1})
+
     rows = rows_to_dicts(
-        (await db.execute(text("SELECT id, name, status FROM brands WHERE tenantId=:t ORDER BY name"), {"t": tenantId})).fetchall()
+        (await db.execute(text(f"SELECT id, name, status FROM brands {where} ORDER BY name"), params)).fetchall()
     )
     return ok(rows)
 
