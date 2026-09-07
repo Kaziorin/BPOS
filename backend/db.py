@@ -2478,6 +2478,46 @@ _MIGRATION_SQL = [
         INDEX idx_sb_status (status, createdAt),
         INDEX idx_sb_created (createdAt)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci""",
+
+    # ── 4-Level Location-Based Warehouse (Row, Col, Rack, Bin) & Bin Stocks ──
+    """ALTER TABLE warehouses ADD COLUMN isLocationBased TINYINT(1) NOT NULL DEFAULT 0""",
+    """CREATE TABLE IF NOT EXISTS warehouse_locations (
+        id VARCHAR(36) NOT NULL PRIMARY KEY,
+        tenantId VARCHAR(191) NOT NULL,
+        warehouseId VARCHAR(191) NOT NULL,
+        rowCode VARCHAR(50) NOT NULL,
+        colCode VARCHAR(50) NOT NULL,
+        rackCode VARCHAR(50) NOT NULL,
+        binCode VARCHAR(50) NOT NULL,
+        fullCode VARCHAR(100) NOT NULL,
+        name VARCHAR(100) DEFAULT NULL,
+        type VARCHAR(50) NOT NULL DEFAULT 'STANDARD',
+        maxCapacity DECIMAL(14,3) DEFAULT NULL,
+        status ENUM('ACTIVE','INACTIVE','FULL','LOCKED') NOT NULL DEFAULT 'ACTIVE',
+        createdBy VARCHAR(191) DEFAULT NULL,
+        createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uk_wh_bin (tenantId, warehouseId, fullCode),
+        INDEX idx_wl_tenant_wh (tenantId, warehouseId),
+        INDEX idx_wl_row_col (tenantId, warehouseId, rowCode, colCode),
+        INDEX idx_wl_status (status)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci""",
+    """CREATE TABLE IF NOT EXISTS warehouse_bin_stocks (
+        id VARCHAR(36) NOT NULL PRIMARY KEY,
+        tenantId VARCHAR(191) NOT NULL,
+        warehouseId VARCHAR(191) NOT NULL,
+        binId VARCHAR(36) NOT NULL,
+        productId VARCHAR(191) NOT NULL,
+        variantId VARCHAR(191) DEFAULT NULL,
+        batchNo VARCHAR(100) DEFAULT NULL,
+        qtyOnHand DECIMAL(14,3) NOT NULL DEFAULT 0.000,
+        qtyReserved DECIMAL(14,3) NOT NULL DEFAULT 0.000,
+        updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uk_bin_prod (tenantId, binId, productId, variantId, batchNo),
+        INDEX idx_wbs_tenant_wh (tenantId, warehouseId),
+        INDEX idx_wbs_bin (binId),
+        INDEX idx_wbs_prod (productId)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci""",
 ]
 
 def seed_notification_channels(tenant_id: str):

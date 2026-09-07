@@ -503,9 +503,71 @@ async def list_serials(user: AuthUser = Depends(require_auth), tenantId: str = D
 @router.get("/api/v1/inventory/transfers")
 async def list_transfers(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
                          db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts((await db.execute(text(
-        "SELECT * FROM stock_transfers WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 100"), {"t": tenantId})).fetchall())
-    return ok(rows)
+    t_rows = (await db.execute(text("""
+        SELECT st.id, st.transferNo, st.status, st.note, st.createdAt,
+               wf.id AS from_id, wf.name AS from_name, wf.code AS from_code,
+               wt.id AS to_id, wt.name AS to_name, wt.code AS to_code
+        FROM stock_transfers st
+        LEFT JOIN warehouses wf ON wf.id = st.fromWarehouseId
+        LEFT JOIN warehouses wt ON wt.id = st.toWarehouseId
+        WHERE st.tenantId = :t
+        ORDER BY st.createdAt DESC LIMIT 100
+    """), {"t": tenantId})).fetchall()
+
+    if not t_rows:
+        return ok([])
+
+    t_ids = [r[0] for r in t_rows]
+    items_by_transfer = {}
+    if t_ids:
+        placeholders = ", ".join(f":t_{i}" for i in range(len(t_ids)))
+        params = {"t": tenantId, **{f"t_{i}": tid for i, tid in enumerate(t_ids)}}
+        item_rows = (await db.execute(text(f"""
+            SELECT sti.id, sti.transferId, sti.qty, sti.productId,
+                   COALESCE(p.name, sti.productId) AS product_name,
+                   COALESCE(p.sku, '') AS product_sku
+            FROM stock_transfer_items sti
+            LEFT JOIN products p ON p.id = sti.productId
+            WHERE sti.tenantId = :t AND sti.transferId IN ({placeholders})
+        """), params)).fetchall()
+
+        for ir in item_rows:
+            tr_id = ir[1]
+            if tr_id not in items_by_transfer:
+                items_by_transfer[tr_id] = []
+            items_by_transfer[tr_id].append({
+                "id": ir[0],
+                "qty": float(ir[2]),
+                "productId": ir[3],
+                "product": {
+                    "name": ir[4],
+                    "sku": ir[5]
+                }
+            })
+
+    result = []
+    for r in t_rows:
+        tid = r[0]
+        result.append({
+            "id": tid,
+            "transferNo": r[1],
+            "status": r[2],
+            "note": r[3],
+            "createdAt": r[4].isoformat() if hasattr(r[4], "isoformat") else str(r[4]),
+            "fromWarehouse": {
+                "id": r[5] or "",
+                "name": r[6] or "Unknown Source",
+                "code": r[7] or "SRC"
+            },
+            "toWarehouse": {
+                "id": r[8] or "",
+                "name": r[9] or "Unknown Destination",
+                "code": r[10] or "DST"
+            },
+            "items": items_by_transfer.get(tid, [])
+        })
+
+    return ok(result)
 
 
 @router.post("/api/v1/inventory/transfers")
@@ -517,19 +579,202 @@ async def create_transfer(body: dict, user: AuthUser = Depends(require_auth),
     if not from_ or not to_: return err("fromWarehouseId and toWarehouseId required", 400)
     if from_ == to_: return err("Source and destination must differ", 400)
     trf_no = gen_no("TRF")
+    trf_id = _uuid()
     async with txn(db):
         await db.execute(text(
             "INSERT INTO stock_transfers (id, tenantId, transferNo, fromWarehouseId, toWarehouseId, transferDate, status, note, createdBy, updatedAt) "
-            "VALUES (UUID(), :t, :no, :f, :to, NOW(), 'REQUESTED', :n, :u, NOW())"),
-            {"t": tenantId, "no": trf_no, "f": from_, "to": to_, "n": body.get("note"), "u": user.id})
-        trf_id = (await db.execute(text("SELECT id FROM stock_transfers WHERE tenantId=:t AND transferNo=:no"),
-                                   {"t": tenantId, "no": trf_no})).first()[0]
+            "VALUES (:id, :t, :no, :f, :to, NOW(), 'REQUESTED', :n, :u, NOW())"),
+            {"id": trf_id, "t": tenantId, "no": trf_no, "f": from_, "to": to_, "n": body.get("note"), "u": user.id})
         for i in items:
             await db.execute(text(
                 "INSERT INTO stock_transfer_items (id, tenantId, transferId, productId, variantId, qty, toWarehouseId, updatedAt) "
                 "VALUES (UUID(), :t, :trf, :p, :v, :q, :to, NOW())"),
-                {"t": tenantId, "trf": trf_id, "p": i["productId"], "v": i.get("variantId"), "q": i["qty"], "to": to_})
+                {"t": tenantId, "trf": trf_id, "p": i["productId"], "v": i.get("variantId"), "q": float(i["qty"]), "to": to_})
     return ok({"transferNo": trf_no, "id": trf_id, "status": "REQUESTED"}, 201)
+
+
+@router.post("/api/v1/inventory/transfers/{transfer_id}/approve")
+async def approve_transfer(transfer_id: str, user: AuthUser = Depends(require_auth),
+                           tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    trf = (await db.execute(text(
+        "SELECT id, status FROM stock_transfers WHERE id=:id AND tenantId=:t"),
+        {"id": transfer_id, "t": tenantId})).first()
+    if not trf: return err("Transfer not found", 404)
+    if trf[1] not in ("DRAFT", "REQUESTED"):
+        return err(f"Cannot approve transfer with status {trf[1]}", 400)
+
+    async with txn(db):
+        await db.execute(text(
+            "UPDATE stock_transfers SET status='APPROVED', updatedBy=:u, updatedAt=NOW() WHERE id=:id AND tenantId=:t"),
+            {"id": transfer_id, "t": tenantId, "u": user.id})
+    return ok({"id": transfer_id, "status": "APPROVED", "message": "Transfer approved"})
+
+
+@router.post("/api/v1/inventory/transfers/{transfer_id}/ship")
+async def ship_transfer(transfer_id: str, user: AuthUser = Depends(require_auth),
+                        tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    trf = (await db.execute(text(
+        "SELECT id, status, fromWarehouseId, toWarehouseId, transferNo FROM stock_transfers WHERE id=:id AND tenantId=:t"),
+        {"id": transfer_id, "t": tenantId})).first()
+    if not trf: return err("Transfer not found", 404)
+    if trf[1] not in ("APPROVED", "REQUESTED", "DRAFT"):
+        return err(f"Cannot ship transfer with status {trf[1]}", 400)
+
+    from_wh, to_wh, trf_no = trf[2], trf[3], trf[4]
+    items = (await db.execute(text(
+        "SELECT productId, variantId, qty FROM stock_transfer_items WHERE transferId=:id AND tenantId=:t"),
+        {"id": transfer_id, "t": tenantId})).fetchall()
+    if not items: return err("Transfer has no items", 400)
+
+    # Check allow negative stock config
+    cfg = (await db.execute(text("SELECT allowNegativeStock FROM tenant_inventory_configs WHERE tenantId=:t"), {"t": tenantId})).first()
+    allow_neg = bool(cfg[0]) if cfg else False
+
+    async with txn(db):
+        for it in items:
+            pid, vid, qty = it[0], it[1], float(it[2])
+            st = (await db.execute(text(
+                "SELECT id, qtyOnHand FROM stock WHERE tenantId=:t AND warehouseId=:w AND productId=:p AND (variantId IS NULL OR variantId=:v) FOR UPDATE"),
+                {"t": tenantId, "w": from_wh, "p": pid, "v": vid})).first()
+            curr_qty = float(st[1]) if st else 0.0
+            if not allow_neg and curr_qty < qty:
+                return err(f"Insufficient stock at source warehouse for product {pid}: available {curr_qty}, need {qty}", 400)
+
+            if st:
+                await db.execute(text("UPDATE stock SET qtyOnHand = qtyOnHand - :q, updatedAt=NOW() WHERE id=:id"),
+                                 {"q": qty, "id": st[0]})
+            else:
+                await db.execute(text(
+                    "INSERT INTO stock (id, tenantId, warehouseId, productId, variantId, qtyOnHand, qtyReserved, updatedAt) "
+                    "VALUES (UUID(), :t, :w, :p, :v, :q, 0, NOW())"),
+                    {"t": tenantId, "w": from_wh, "p": pid, "v": vid, "q": -qty})
+
+            # Record stock movement TRANSFER_OUT
+            await db.execute(text(
+                "INSERT INTO stock_movements (id, tenantId, warehouseId, productId, variantId, movementType, qty, qtyBefore, qtyAfter, refType, refId, note, userId, createdBy, createdAt) "
+                "VALUES (UUID(), :t, :w, :p, :v, 'TRANSFER_OUT', :q, :qb, :qa, 'TRANSFER', :rid, :note, :u, :u, NOW())"),
+                {"t": tenantId, "w": from_wh, "p": pid, "v": vid, "q": -qty, "qb": curr_qty, "qa": curr_qty - qty,
+                 "rid": transfer_id, "note": f"Transfer Ship {trf_no}", "u": user.id})
+
+        await db.execute(text(
+            "UPDATE stock_transfers SET status='IN_TRANSIT', updatedBy=:u, updatedAt=NOW() WHERE id=:id AND tenantId=:t"),
+            {"id": transfer_id, "t": tenantId, "u": user.id})
+
+    return ok({"id": transfer_id, "status": "IN_TRANSIT", "message": "Transfer marked as in-transit"})
+
+
+@router.post("/api/v1/inventory/transfers/{transfer_id}/receive")
+async def receive_transfer(transfer_id: str, user: AuthUser = Depends(require_auth),
+                           tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    trf = (await db.execute(text(
+        "SELECT id, status, fromWarehouseId, toWarehouseId, transferNo FROM stock_transfers WHERE id=:id AND tenantId=:t"),
+        {"id": transfer_id, "t": tenantId})).first()
+    if not trf: return err("Transfer not found", 404)
+    if trf[1] in ("RECEIVED", "CANCELLED"):
+        return err(f"Transfer already {trf[1]}", 400)
+
+    from_wh, to_wh, trf_no, prev_status = trf[2], trf[3], trf[4], trf[1]
+    items = (await db.execute(text(
+        "SELECT productId, variantId, qty FROM stock_transfer_items WHERE transferId=:id AND tenantId=:t"),
+        {"id": transfer_id, "t": tenantId})).fetchall()
+    if not items: return err("Transfer has no items", 400)
+
+    async with txn(db):
+        # If not shipped yet, deduct source warehouse first
+        if prev_status != "IN_TRANSIT":
+            for it in items:
+                pid, vid, qty = it[0], it[1], float(it[2])
+                st_src = (await db.execute(text(
+                    "SELECT id, qtyOnHand FROM stock WHERE tenantId=:t AND warehouseId=:w AND productId=:p AND (variantId IS NULL OR variantId=:v) FOR UPDATE"),
+                    {"t": tenantId, "w": from_wh, "p": pid, "v": vid})).first()
+                curr_src = float(st_src[1]) if st_src else 0.0
+                if st_src:
+                    await db.execute(text("UPDATE stock SET qtyOnHand = qtyOnHand - :q, updatedAt=NOW() WHERE id=:id"),
+                                     {"q": qty, "id": st_src[0]})
+                else:
+                    await db.execute(text(
+                        "INSERT INTO stock (id, tenantId, warehouseId, productId, variantId, qtyOnHand, qtyReserved, updatedAt) "
+                        "VALUES (UUID(), :t, :w, :p, :v, :q, 0, NOW())"),
+                        {"t": tenantId, "w": from_wh, "p": pid, "v": vid, "q": -qty})
+                await db.execute(text(
+                    "INSERT INTO stock_movements (id, tenantId, warehouseId, productId, variantId, movementType, qty, qtyBefore, qtyAfter, refType, refId, note, userId, createdBy, createdAt) "
+                    "VALUES (UUID(), :t, :w, :p, :v, 'TRANSFER_OUT', :q, :qb, :qa, 'TRANSFER', :rid, :note, :u, :u, NOW())"),
+                    {"t": tenantId, "w": from_wh, "p": pid, "v": vid, "q": -qty, "qb": curr_src, "qa": curr_src - qty,
+                     "rid": transfer_id, "note": f"Transfer Direct Receive {trf_no}", "u": user.id})
+
+        # Add to destination warehouse
+        for it in items:
+            pid, vid, qty = it[0], it[1], float(it[2])
+            st_dst = (await db.execute(text(
+                "SELECT id, qtyOnHand FROM stock WHERE tenantId=:t AND warehouseId=:w AND productId=:p AND (variantId IS NULL OR variantId=:v) FOR UPDATE"),
+                {"t": tenantId, "w": to_wh, "p": pid, "v": vid})).first()
+            curr_dst = float(st_dst[1]) if st_dst else 0.0
+            if st_dst:
+                await db.execute(text("UPDATE stock SET qtyOnHand = qtyOnHand + :q, updatedAt=NOW() WHERE id=:id"),
+                                 {"q": qty, "id": st_dst[0]})
+            else:
+                await db.execute(text(
+                    "INSERT INTO stock (id, tenantId, warehouseId, productId, variantId, qtyOnHand, qtyReserved, updatedAt) "
+                    "VALUES (UUID(), :t, :w, :p, :v, :q, 0, NOW())"),
+                    {"t": tenantId, "w": to_wh, "p": pid, "v": vid, "q": qty})
+
+            await db.execute(text(
+                "INSERT INTO stock_movements (id, tenantId, warehouseId, productId, variantId, movementType, qty, qtyBefore, qtyAfter, refType, refId, note, userId, createdBy, createdAt) "
+                "VALUES (UUID(), :t, :w, :p, :v, 'TRANSFER_IN', :q, :qb, :qa, 'TRANSFER', :rid, :note, :u, :u, NOW())"),
+                {"t": tenantId, "w": to_wh, "p": pid, "v": vid, "q": qty, "qb": curr_dst, "qa": curr_dst + qty,
+                 "rid": transfer_id, "note": f"Transfer Received {trf_no}", "u": user.id})
+
+        await db.execute(text(
+            "UPDATE stock_transfers SET status='RECEIVED', updatedBy=:u, updatedAt=NOW() WHERE id=:id AND tenantId=:t"),
+            {"id": transfer_id, "t": tenantId, "u": user.id})
+
+    return ok({"id": transfer_id, "status": "RECEIVED", "message": "Transfer successfully received and stock added"})
+
+
+@router.post("/api/v1/inventory/transfers/{transfer_id}/cancel")
+async def cancel_transfer(transfer_id: str, user: AuthUser = Depends(require_auth),
+                          tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    trf = (await db.execute(text(
+        "SELECT id, status, fromWarehouseId, transferNo FROM stock_transfers WHERE id=:id AND tenantId=:t"),
+        {"id": transfer_id, "t": tenantId})).first()
+    if not trf: return err("Transfer not found", 404)
+    if trf[1] in ("RECEIVED", "CANCELLED"):
+        return err(f"Cannot cancel transfer in status {trf[1]}", 400)
+
+    from_wh, trf_no, prev_status = trf[2], trf[3], trf[1]
+    items = (await db.execute(text(
+        "SELECT productId, variantId, qty FROM stock_transfer_items WHERE transferId=:id AND tenantId=:t"),
+        {"id": transfer_id, "t": tenantId})).fetchall()
+
+    async with txn(db):
+        # If was in-transit, restore stock back to source warehouse
+        if prev_status == "IN_TRANSIT":
+            for it in items:
+                pid, vid, qty = it[0], it[1], float(it[2])
+                st = (await db.execute(text(
+                    "SELECT id, qtyOnHand FROM stock WHERE tenantId=:t AND warehouseId=:w AND productId=:p AND (variantId IS NULL OR variantId=:v) FOR UPDATE"),
+                    {"t": tenantId, "w": from_wh, "p": pid, "v": vid})).first()
+                curr_qty = float(st[1]) if st else 0.0
+                if st:
+                    await db.execute(text("UPDATE stock SET qtyOnHand = qtyOnHand + :q, updatedAt=NOW() WHERE id=:id"),
+                                     {"q": qty, "id": st[0]})
+                else:
+                    await db.execute(text(
+                        "INSERT INTO stock (id, tenantId, warehouseId, productId, variantId, qtyOnHand, qtyReserved, updatedAt) "
+                        "VALUES (UUID(), :t, :w, :p, :v, :q, 0, NOW())"),
+                        {"t": tenantId, "w": from_wh, "p": pid, "v": vid, "q": qty})
+
+                await db.execute(text(
+                    "INSERT INTO stock_movements (id, tenantId, warehouseId, productId, variantId, movementType, qty, qtyBefore, qtyAfter, refType, refId, note, userId, createdBy, createdAt) "
+                    "VALUES (UUID(), :t, :w, :p, :v, 'ADJUSTMENT_IN', :q, :qb, :qa, 'TRANSFER_CANCEL', :rid, :note, :u, :u, NOW())"),
+                    {"t": tenantId, "w": from_wh, "p": pid, "v": vid, "q": qty, "qb": curr_qty, "qa": curr_qty + qty,
+                     "rid": transfer_id, "note": f"Transfer Cancelled Restock {trf_no}", "u": user.id})
+
+        await db.execute(text(
+            "UPDATE stock_transfers SET status='CANCELLED', updatedBy=:u, updatedAt=NOW() WHERE id=:id AND tenantId=:t"),
+            {"id": transfer_id, "t": tenantId, "u": user.id})
+
+    return ok({"id": transfer_id, "status": "CANCELLED", "message": "Transfer cancelled"})
 
 
 @router.get("/api/v1/inventory/counts")
@@ -791,23 +1036,326 @@ async def create_branch(body: dict, user: AuthUser = Depends(require_auth),
 @router.get("/api/v1/warehouses")
 async def list_warehouses(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
                           db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts((await db.execute(text(
-        "SELECT w.* FROM warehouses w JOIN branches b ON b.id=w.branchId WHERE b.tenantId=:t"),
-        {"t": tenantId})).fetchall())
+    rows = rows_to_dicts((await db.execute(text("""
+        SELECT w.*, b.name AS branch_name, b.code AS branch_code,
+               (SELECT COUNT(*) FROM stock s WHERE s.warehouseId = w.id AND s.tenantId = :t) AS stock_count,
+               (SELECT COUNT(*) FROM pos_terminals pt WHERE pt.branchId = w.branchId AND pt.tenantId = :t) AS terminal_count,
+               (SELECT COUNT(*) FROM warehouse_locations wl WHERE wl.warehouseId = w.id AND wl.tenantId = :t) AS bin_count
+        FROM warehouses w 
+        JOIN branches b ON b.id = w.branchId 
+        WHERE b.tenantId = :t
+        ORDER BY w.createdAt DESC
+    """), {"t": tenantId})).fetchall())
+
+    out = []
+    for r in rows:
+        out.append({
+            "id": r["id"],
+            "code": r["code"],
+            "name": r["name"],
+            "type": r.get("type"),
+            "status": r.get("status", "ACTIVE"),
+            "isLocationBased": bool(r.get("isLocationBased", 0)),
+            "branchId": r["branchId"],
+            "branch": {
+                "id": r["branchId"],
+                "name": r.pop("branch_name", ""),
+                "code": r.pop("branch_code", "")
+            },
+            "_count": {
+                "stockRows": int(r.pop("stock_count", 0) or 0),
+                "terminals": int(r.pop("terminal_count", 0) or 0),
+                "binCount": int(r.pop("bin_count", 0) or 0)
+            }
+        })
+    return ok(out)
+
+
+@router.post("/api/v1/warehouses")
+@router.post("/api/v1/branches/{branchId}/warehouses")
+async def create_warehouse(body: dict, branchId: Optional[str] = None, user: AuthUser = Depends(require_auth),
+                           tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    branch_id = branchId or body.get("branchId")
+    if not branch_id:
+        row = (await db.execute(text("SELECT id FROM branches WHERE tenantId=:t LIMIT 1"), {"t": tenantId})).first()
+        if not row: return err("No branch configured", 400)
+        branch_id = row[0]
+
+    name = body.get("name")
+    if not name: return err("Name is required", 400)
+    code = body.get("code") or name[:8].upper()
+    is_location_based = 1 if body.get("isLocationBased") else 0
+    wh_type = body.get("type") or "BRANCH"
+    wh_id = _uuid()
+
+    async with txn(db):
+        await db.execute(text("""
+            INSERT INTO warehouses (id, tenantId, branchId, code, name, type, isLocationBased, createdBy, createdAt, updatedAt)
+            VALUES (:id, :t, :b, :c, :n, :ty, :loc, :u, NOW(), NOW())
+        """), {
+            "id": wh_id, "t": tenantId, "b": branch_id, "c": code,
+            "n": name, "ty": wh_type, "loc": is_location_based, "u": user.id
+        })
+
+    return ok({"id": wh_id, "code": code, "name": name, "isLocationBased": bool(is_location_based), "created": True}, 201)
+
+
+@router.get("/api/v1/warehouses/{warehouseId}/locations")
+async def list_warehouse_locations(warehouseId: str, user: AuthUser = Depends(require_auth),
+                                   tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    wh = (await db.execute(text("SELECT id, name, code, isLocationBased FROM warehouses WHERE id=:id AND tenantId=:t"),
+                           {"id": warehouseId, "t": tenantId})).first()
+    if not wh: return err("Warehouse not found", 404)
+
+    bins = rows_to_dicts((await db.execute(text("""
+        SELECT wl.*,
+               COALESCE((SELECT SUM(wbs.qtyOnHand) FROM warehouse_bin_stocks wbs WHERE wbs.binId = wl.id AND wbs.tenantId = :t), 0) AS totalQty,
+               COALESCE((SELECT COUNT(DISTINCT wbs.productId) FROM warehouse_bin_stocks wbs WHERE wbs.binId = wl.id AND wbs.tenantId = :t AND wbs.qtyOnHand > 0), 0) AS productCount
+        FROM warehouse_locations wl
+        WHERE wl.warehouseId = :w AND wl.tenantId = :t
+        ORDER BY wl.rowCode, wl.colCode, wl.rackCode, wl.binCode
+    """), {"w": warehouseId, "t": tenantId})).fetchall())
+
+    tree: dict = {}
+    for b in bins:
+        r_code = b["rowCode"]
+        c_code = b["colCode"]
+        rk_code = b["rackCode"]
+        
+        if r_code not in tree:
+            tree[r_code] = {"rowCode": r_code, "cols": {}}
+        if c_code not in tree[r_code]["cols"]:
+            tree[r_code]["cols"][c_code] = {"colCode": c_code, "racks": {}}
+        if rk_code not in tree[r_code]["cols"][c_code]["racks"]:
+            tree[r_code]["cols"][c_code]["racks"][rk_code] = {"rackCode": rk_code, "bins": []}
+        
+        tree[r_code]["cols"][c_code]["racks"][rk_code]["bins"].append(b)
+
+    hierarchy = []
+    for r_k, r_v in tree.items():
+        cols_arr = []
+        for c_k, c_v in r_v["cols"].items():
+            racks_arr = []
+            for rk_k, rk_v in c_v["racks"].items():
+                racks_arr.append({
+                    "rackCode": rk_k,
+                    "bins": rk_v["bins"]
+                })
+            cols_arr.append({
+                "colCode": c_k,
+                "racks": racks_arr
+            })
+        hierarchy.append({
+            "rowCode": r_k,
+            "cols": cols_arr
+        })
+
+    return ok({
+        "warehouse": {
+            "id": wh[0],
+            "name": wh[1],
+            "code": wh[2],
+            "isLocationBased": bool(wh[3])
+        },
+        "totalBins": len(bins),
+        "locations": bins,
+        "hierarchy": hierarchy
+    })
+
+
+@router.post("/api/v1/warehouses/{warehouseId}/locations")
+async def create_warehouse_location(warehouseId: str, body: dict, user: AuthUser = Depends(require_auth),
+                                    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    row_code = (body.get("rowCode") or "R01").strip().upper()
+    col_code = (body.get("colCode") or "C01").strip().upper()
+    rack_code = (body.get("rackCode") or "RK01").strip().upper()
+    bin_code = (body.get("binCode") or "B01").strip().upper()
+    full_code = (body.get("fullCode") or f"{row_code}-{col_code}-{rack_code}-{bin_code}").strip().upper()
+    name = body.get("name") or full_code
+    loc_type = body.get("type") or "STANDARD"
+    max_cap = body.get("maxCapacity")
+    bin_id = _uuid()
+
+    async with txn(db):
+        await db.execute(text("""
+            INSERT INTO warehouse_locations (id, tenantId, warehouseId, rowCode, colCode, rackCode, binCode, fullCode, name, type, maxCapacity, status, createdBy, createdAt, updatedAt)
+            VALUES (:id, :t, :w, :row, :col, :rack, :bin, :full, :name, :ty, :cap, 'ACTIVE', :u, NOW(), NOW())
+        """), {
+            "id": bin_id, "t": tenantId, "w": warehouseId, "row": row_code, "col": col_code,
+            "rack": rack_code, "bin": bin_code, "full": full_code, "name": name, "ty": loc_type,
+            "cap": max_cap, "u": user.id
+        })
+
+    return ok({"id": bin_id, "fullCode": full_code, "name": name, "created": True}, 201)
+
+
+@router.post("/api/v1/warehouses/{warehouseId}/locations/bulk-generate")
+async def bulk_generate_locations(warehouseId: str, body: dict, user: AuthUser = Depends(require_auth),
+                                  tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    def expand_tier(tier_input, default_prefix: str, default_count: int = 1):
+        if isinstance(tier_input, list):
+            return [str(x).strip().upper() for x in tier_input if str(x).strip()]
+        if isinstance(tier_input, dict):
+            prefix = str(tier_input.get("prefix", default_prefix)).strip().upper()
+            count = max(int(tier_input.get("count", default_count)), 1)
+            pad = int(tier_input.get("pad", 2))
+            return [f"{prefix}{str(i).zfill(pad)}" for i in range(1, count + 1)]
+        if isinstance(tier_input, int):
+            return [f"{default_prefix}{str(i).zfill(2)}" for i in range(1, max(tier_input, 1) + 1)]
+        return [f"{default_prefix}01"]
+
+    row_list = expand_tier(body.get("rows"), "R", 2)
+    col_list = expand_tier(body.get("cols"), "C", 2)
+    rack_list = expand_tier(body.get("racks"), "RK", 2)
+    bin_list = expand_tier(body.get("bins"), "B", 2)
+
+    loc_type = body.get("type") or "STANDARD"
+    max_cap = body.get("maxCapacity")
+
+    created_count = 0
+    async with txn(db):
+        for r in row_list:
+            for c in col_list:
+                for rk in rack_list:
+                    for b in bin_list:
+                        full_code = f"{r}-{c}-{rk}-{b}"
+                        exists = (await db.execute(text(
+                            "SELECT id FROM warehouse_locations WHERE tenantId=:t AND warehouseId=:w AND fullCode=:fc"),
+                            {"t": tenantId, "w": warehouseId, "fc": full_code})).first()
+                        if not exists:
+                            await db.execute(text("""
+                                INSERT INTO warehouse_locations (id, tenantId, warehouseId, rowCode, colCode, rackCode, binCode, fullCode, name, type, maxCapacity, status, createdBy, createdAt, updatedAt)
+                                VALUES (UUID(), :t, :w, :row, :col, :rack, :bin, :full, :name, :ty, :cap, 'ACTIVE', :u, NOW(), NOW())
+                            """), {
+                                "t": tenantId, "w": warehouseId, "row": r, "col": c, "rack": rk, "bin": b,
+                                "full": full_code, "name": full_code, "ty": loc_type, "cap": max_cap, "u": user.id
+                            })
+                            created_count += 1
+
+    return ok({
+        "success": True,
+        "totalGenerated": created_count,
+        "message": f"Successfully generated {created_count} bin locations across {len(row_list)} rows, {len(col_list)} cols, {len(rack_list)} racks."
+    }, 201)
+
+
+@router.delete("/api/v1/warehouses/{warehouseId}/locations/{binId}")
+async def delete_warehouse_location(warehouseId: str, binId: str, user: AuthUser = Depends(require_auth),
+                                    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    stock_exists = (await db.execute(text(
+        "SELECT SUM(qtyOnHand) FROM warehouse_bin_stocks WHERE binId=:b AND tenantId=:t AND qtyOnHand > 0"),
+        {"b": binId, "t": tenantId})).first()
+    if stock_exists and stock_exists[0] and float(stock_exists[0]) > 0:
+        return err(f"Cannot delete bin — it currently holds {float(stock_exists[0])} units of stock. Move stock first.", 400)
+
+    async with txn(db):
+        await db.execute(text("DELETE FROM warehouse_bin_stocks WHERE binId=:b AND tenantId=:t"), {"b": binId, "t": tenantId})
+        await db.execute(text("DELETE FROM warehouse_locations WHERE id=:b AND warehouseId=:w AND tenantId=:t"),
+                         {"b": binId, "w": warehouseId, "t": tenantId})
+    return ok({"deleted": True})
+
+
+@router.get("/api/v1/warehouses/{warehouseId}/bin-stocks")
+async def list_warehouse_bin_stocks(warehouseId: str, productId: Optional[str] = None, binId: Optional[str] = None,
+                                    user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+                                    db: AsyncSession = Depends(get_db)):
+    where = "wbs.tenantId=:t AND wbs.warehouseId=:w"
+    params: dict = {"t": tenantId, "w": warehouseId}
+    if productId:
+        where += " AND wbs.productId = :p"
+        params["p"] = productId
+    if binId:
+        where += " AND wbs.binId = :b"
+        params["b"] = binId
+
+    rows = rows_to_dicts((await db.execute(text(f"""
+        SELECT wbs.*, wl.fullCode AS binCode, wl.name AS binName, wl.rowCode, wl.colCode, wl.rackCode,
+               p.name AS productName, p.sku AS productSku, p.barcode AS productBarcode
+        FROM warehouse_bin_stocks wbs
+        JOIN warehouse_locations wl ON wl.id = wbs.binId
+        JOIN products p ON p.id = wbs.productId
+        WHERE {where} AND wbs.qtyOnHand > 0
+        ORDER BY wl.fullCode, p.name
+    """), params)).fetchall())
+
     return ok(rows)
 
 
-@router.post("/api/v1/branches/{branchId}/warehouses")
-async def create_warehouse(branchId: str, body: dict, user: AuthUser = Depends(require_auth),
+@router.post("/api/v1/warehouses/{warehouseId}/bin-stocks/assign")
+async def assign_bin_stock(warehouseId: str, body: dict, user: AuthUser = Depends(require_auth),
                            tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
-    name = body.get("name")
-    if not name: return err("Name is required", 400)
-    await db.execute(text(
-        "INSERT INTO warehouses (id, tenantId, branchId, code, name, type, createdBy) VALUES (UUID(), :t, :b, :c, :n, :ty, :u)"),
-        {"t": tenantId, "b": branchId, "c": body.get("code", name[:8].upper()), "n": name,
-         "ty": body.get("type", "BRANCH"), "u": user.id})
-    await db.commit()
-    return ok({"created": True}, 201)
+    bin_id = body.get("binId")
+    product_id = body.get("productId")
+    variant_id = body.get("variantId")
+    batch_no = body.get("batchNo")
+    qty = float(body.get("qty", 0))
+    if not bin_id or not product_id or qty <= 0:
+        return err("binId, productId, and positive qty required", 400)
+
+    async with txn(db):
+        st = (await db.execute(text("""
+            SELECT id, qtyOnHand FROM warehouse_bin_stocks 
+            WHERE tenantId=:t AND warehouseId=:w AND binId=:b AND productId=:p 
+              AND (variantId IS NULL OR variantId=:v) AND (batchNo IS NULL OR batchNo=:bn)
+        """), {"t": tenantId, "w": warehouseId, "b": bin_id, "p": product_id, "v": variant_id, "bn": batch_no})).first()
+
+        if st:
+            await db.execute(text("UPDATE warehouse_bin_stocks SET qtyOnHand = qtyOnHand + :q, updatedAt=NOW() WHERE id=:id"),
+                             {"q": qty, "id": st[0]})
+        else:
+            await db.execute(text("""
+                INSERT INTO warehouse_bin_stocks (id, tenantId, warehouseId, binId, productId, variantId, batchNo, qtyOnHand, qtyReserved, updatedAt)
+                VALUES (UUID(), :t, :w, :b, :p, :v, :bn, :q, 0, NOW())
+            """), {"t": tenantId, "w": warehouseId, "b": bin_id, "p": product_id, "v": variant_id, "bn": batch_no, "q": qty})
+
+    return ok({"assigned": True, "qty": qty})
+
+
+@router.post("/api/v1/warehouses/{warehouseId}/bin-stocks/transfer")
+async def transfer_bin_stock(warehouseId: str, body: dict, user: AuthUser = Depends(require_auth),
+                             tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    from_bin = body.get("fromBinId")
+    to_bin = body.get("toBinId")
+    product_id = body.get("productId")
+    variant_id = body.get("variantId")
+    batch_no = body.get("batchNo")
+    qty = float(body.get("qty", 0))
+
+    if not from_bin or not to_bin or not product_id or qty <= 0:
+        return err("fromBinId, toBinId, productId, and positive qty required", 400)
+    if from_bin == to_bin:
+        return err("Source and destination bins must differ", 400)
+
+    async with txn(db):
+        st_src = (await db.execute(text("""
+            SELECT id, qtyOnHand FROM warehouse_bin_stocks 
+            WHERE tenantId=:t AND warehouseId=:w AND binId=:b AND productId=:p 
+              AND (variantId IS NULL OR variantId=:v) AND (batchNo IS NULL OR batchNo=:bn) FOR UPDATE
+        """), {"t": tenantId, "w": warehouseId, "b": from_bin, "p": product_id, "v": variant_id, "bn": batch_no})).first()
+
+        curr_src = float(st_src[1]) if st_src else 0.0
+        if curr_src < qty:
+            return err(f"Insufficient stock in source bin (available: {curr_src}, requested: {qty})", 400)
+
+        await db.execute(text("UPDATE warehouse_bin_stocks SET qtyOnHand = qtyOnHand - :q, updatedAt=NOW() WHERE id=:id"),
+                         {"q": qty, "id": st_src[0]})
+
+        st_dst = (await db.execute(text("""
+            SELECT id, qtyOnHand FROM warehouse_bin_stocks 
+            WHERE tenantId=:t AND warehouseId=:w AND binId=:b AND productId=:p 
+              AND (variantId IS NULL OR variantId=:v) AND (batchNo IS NULL OR batchNo=:bn) FOR UPDATE
+        """), {"t": tenantId, "w": warehouseId, "b": to_bin, "p": product_id, "v": variant_id, "bn": batch_no})).first()
+
+        if st_dst:
+            await db.execute(text("UPDATE warehouse_bin_stocks SET qtyOnHand = qtyOnHand + :q, updatedAt=NOW() WHERE id=:id"),
+                             {"q": qty, "id": st_dst[0]})
+        else:
+            await db.execute(text("""
+                INSERT INTO warehouse_bin_stocks (id, tenantId, warehouseId, binId, productId, variantId, batchNo, qtyOnHand, qtyReserved, updatedAt)
+                VALUES (UUID(), :t, :w, :b, :p, :v, :bn, :q, 0, NOW())
+            """), {"t": tenantId, "w": warehouseId, "b": to_bin, "p": product_id, "v": variant_id, "bn": batch_no, "q": qty})
+
+    return ok({"moved": True, "qty": qty})
 
 
 
