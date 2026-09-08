@@ -19,6 +19,7 @@ import { CustomTable, CustomTableColumn } from "@/components/custom/CustomTable"
 import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { CustomButton } from "@/components/custom/CustomButton";
+import { toast } from "react-toastify";
 
 interface Brand {
   id: string;
@@ -108,16 +109,15 @@ export default function BrandsPage() {
     try {
       if (editingBrand) {
         await api.put(`/v1/brands/${editingBrand.id}`, { name: formName });
-        setMsg("Brand updated successfully!");
+        toast.success("Brand updated successfully!");
       } else {
         await api.post("/v1/brands", { name: formName });
-        setMsg("Brand created successfully!");
+        toast.success("Brand created successfully!");
       }
       setModalOpen(false);
       loadData();
-      setTimeout(() => setMsg(null), 3000);
     } catch (err: any) {
-      alert(err.message || "Failed to save brand");
+      toast.error(err.message || "Failed to save brand");
     } finally {
       setSaving(false);
     }
@@ -129,15 +129,14 @@ export default function BrandsPage() {
     try {
       const res: any = await api.del(`/v1/brands/${deleteId}`);
       if (res?.deactivated) {
-        setMsg(`Brand deactivated (${res.reason})`);
+        toast.success(`Brand deactivated (${res.reason})`);
       } else {
-        setMsg("Brand deleted!");
+        toast.success("Brand deleted!");
       }
       setDeleteId(null);
       loadData();
-      setTimeout(() => setMsg(null), 3000);
     } catch (err: any) {
-      alert(err.message || "Failed to delete");
+      toast.error(err.message || "Failed to delete");
     } finally {
       setDeleting(false);
     }
@@ -148,9 +147,10 @@ export default function BrandsPage() {
     const newStatus = b.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
     try {
       await api.put(`/v1/brands/${b.id}`, { status: newStatus });
+      toast.success(`Status updated to ${newStatus}`);
       loadData();
     } catch (err: any) {
-      alert(err.message || "Failed to toggle status");
+      toast.error(err.message || "Failed to toggle status");
     } finally {
       setTogglingId(null);
     }

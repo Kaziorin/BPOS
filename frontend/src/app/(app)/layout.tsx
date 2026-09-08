@@ -10,6 +10,9 @@ import { MobileNav } from "@/components/layout/MobileNav";
 import OfflineIndicator from "@/components/offline/OfflineIndicator";
 import { syncManager } from "@/lib/offline/sync";
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -56,6 +59,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Footer />
         <MobileNav open={menuOpen} onOpenChange={setMenuOpen} />
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 }

@@ -71,7 +71,7 @@ async def list_products(
             await db.execute(
                 text(
                     f"SELECT p.id, p.name, p.sku, p.barcode, p.productType, p.costPrice, p.sellingPrice, "
-                    f"p.wholesalePrice, p.status, p.createdAt, c.name AS categoryName, c.id AS categoryId, "
+                    f"p.wholesalePrice, p.status, p.createdAt, p.imageUrl, c.name AS categoryName, c.id AS categoryId, "
                     f"b.name AS brandName, u.name AS unitName "
                     f"FROM products p LEFT JOIN categories c ON c.id = p.categoryId "
                     f"LEFT JOIN brands b ON b.id = p.brandId LEFT JOIN units u ON u.id = p.unitId "
@@ -89,6 +89,7 @@ async def list_products(
         r["costPrice"] = r.pop("costPrice"); r["sellingPrice"] = r.pop("sellingPrice")
         r["wholesalePrice"] = r.pop("wholesalePrice")
         r["createdAt"] = r.pop("createdAt")
+        r["imageUrl"] = r.get("imageUrl")
         r["_count"] = {"variants": 0, "stockRows": 0}
     total = (await db.execute(text(f"SELECT COUNT(*) FROM products p WHERE {where}"), params)).first()[0]
     body = {"data": rows, "pagination": {"page": page, "limit": lim, "total": total,
@@ -242,6 +243,119 @@ async def delete_category(categoryId: str,
         await db.commit()
         return ok({"deleted": False, "deactivated": True, "reason": "Category has sub-categories"})
     res = await db.execute(text("DELETE FROM categories WHERE id=:id AND tenantId=:t"), {"id": categoryId, "t": tenantId})
+    await db.commit()
+    return ok({"deleted": res.rowcount > 0})
+
+
+# ─────────────────────────── PRODUCT TYPES ───────────────────────────
+
+DEFAULT_PRODUCT_TYPES = [
+    "Standard Product (Physical item)",
+    "Combo / Kit (Package deal)",
+    "Digital / License (Download)",
+    "Service (Labor / Consulting)",
+    "Weighted Product (Scale)",
+    "Batch Controlled (Lot & Expiry)",
+    "Serialized (Unique Serial #)",
+]
+
+@router.get("/api/v1/product-types")
+async def list_product_types(
+    search: str = Query(None),
+    status: str = Query(None),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        count_res = (await db.execute(text("SELECT COUNT(*) FROM product_types WHERE tenantId=:t"), {"t": tenantId})).first()
+        if not count_res or count_res[0] == 0:
+            for pt_name in DEFAULT_PRODUCT_TYPES:
+                await db.execute(
+                    text(
+                        "INSERT INTO product_types (id, tenantId, name, status) "
+                        "VALUES (UUID(), :t, :n, 'ACTIVE')"
+                    ),
+                    {"t": tenantId, "n": pt_name}
+                )
+            await db.commit()
+    except Exception as e:
+        print("Auto-seed product types warning:", e)
+
+    where = "WHERE tenantId=:t"
+    params = {"t": tenantId}
+    if search:
+        where += " AND LOWER(name) LIKE :s"
+        params["s"] = f"%{search.lower()}%"
+    if status and status != "ALL":
+        where += " AND status = :st"
+        params["st"] = status
+
+    rows = rows_to_dicts(
+        (await db.execute(text(f"SELECT id, name, status, createdAt FROM product_types {where} ORDER BY createdAt ASC"), params)).fetchall()
+    )
+    return ok(rows)
+
+
+@router.post("/api/v1/product-types")
+async def create_product_type(
+    body: dict,
+    user: AuthUser = Depends(require_permission("products.create")),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    name = body.get("name")
+    if not name:
+        return err("Name is required", 400)
+
+    dup = (await db.execute(text("SELECT id FROM product_types WHERE tenantId=:t AND name=:n"), {"t": tenantId, "n": name})).first()
+    if dup:
+        return err("Product Type with this name already exists", 409)
+
+    await db.execute(
+        text(
+            "INSERT INTO product_types (id, tenantId, name, status, createdBy) "
+            "VALUES (UUID(), :t, :n, 'ACTIVE', :u)"
+        ),
+        {"t": tenantId, "n": name, "u": user.id}
+    )
+    await db.commit()
+    row = (await db.execute(text("SELECT id, name, status FROM product_types WHERE tenantId=:t AND name=:n ORDER BY createdAt DESC LIMIT 1"), {"t": tenantId, "n": name})).first()
+    return ok({"id": row[0] if row else None, "name": name, "created": True}, 201)
+
+
+@router.put("/api/v1/product-types/{typeId}")
+async def update_product_type(
+    typeId: str,
+    body: dict,
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    exists = (await db.execute(text("SELECT id FROM product_types WHERE id=:id AND tenantId=:t"), {"id": typeId, "t": tenantId})).first()
+    if not exists:
+        return err("Product Type not found", 404)
+
+    allowed = {"name": "name", "status": "status"}
+    sets, params = [], {"id": typeId, "t": tenantId}
+    for jk, ck in allowed.items():
+        if jk in body:
+            sets.append(f"{ck} = :{ck}"); params[ck] = body[jk]
+    if not sets:
+        return err("Nothing to update", 400)
+
+    res = await db.execute(text(f"UPDATE product_types SET {', '.join(sets)} WHERE id=:id AND tenantId=:t"), params)
+    await db.commit()
+    return ok({"updated": True})
+
+
+@router.delete("/api/v1/product-types/{typeId}")
+async def delete_product_type(
+    typeId: str,
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    res = await db.execute(text("DELETE FROM product_types WHERE id=:id AND tenantId=:t"), {"id": typeId, "t": tenantId})
     await db.commit()
     return ok({"deleted": res.rowcount > 0})
 

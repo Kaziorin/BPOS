@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, Search, Check, X, Plus } from "lucide-react";
+import { ChevronDown, Search, Check, X, Plus, Lock } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 export interface SearchableSelectOption {
@@ -22,6 +22,7 @@ export interface SearchableSelectProps {
   onAddClick?: () => void;
   className?: string;
   disabled?: boolean;
+  disabledHint?: string;
 }
 
 export function SearchableSelect({
@@ -35,6 +36,7 @@ export function SearchableSelect({
   onAddClick,
   className,
   disabled = false,
+  disabledHint,
 }: SearchableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -140,22 +142,55 @@ export function SearchableSelect({
           type="button"
           disabled={disabled}
           onClick={handleToggle}
+          title={disabled ? disabledHint || "Select Category first to unlock subcategories" : undefined}
           className={cn(
-            "flex w-full items-center justify-between rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition cursor-pointer focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500",
-            disabled && "cursor-not-allowed bg-slate-50 text-slate-400",
-            !selectedOption && "text-slate-400"
+            "flex w-full items-center justify-between rounded-md border px-3 py-2 text-xs font-medium transition focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500",
+            disabled
+              ? "cursor-not-allowed bg-slate-100/90 text-slate-400 border-slate-300 border-dashed shadow-none select-none"
+              : "border-slate-200 bg-white text-gray-600 cursor-pointer",
+            !selectedOption && !disabled && "text-slate-400"
           )}
         >
-          <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
-          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+          <span className={cn("truncate flex items-center gap-1.5", disabled && "italic text-slate-500")}>
+            {disabled ? (
+              <>
+                <Lock className="h-3.5 w-3.5 shrink-0 text-amber-600/70" />
+                <span>{disabledHint || placeholder}</span>
+              </>
+            ) : selectedOption ? (
+              selectedOption.label
+            ) : (
+              placeholder
+            )}
+          </span>
+          {disabled ? (
+            <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-500 shrink-0">
+              Locked
+            </span>
+          ) : (
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+          )}
         </button>
 
         {onAddClick && (
           <button
             type="button"
-            onClick={onAddClick}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-teal-200 bg-teal-50 text-teal-600 transition cursor-pointer hover:bg-teal-100"
-            title="Add New"
+            disabled={disabled}
+            onClick={(e) => {
+              if (disabled) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              onAddClick();
+            }}
+            className={cn(
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-md border transition",
+              disabled
+                ? "cursor-not-allowed bg-slate-100 text-slate-300 border-slate-200 opacity-40 pointer-events-none shadow-none"
+                : "border-teal-200 bg-teal-50 text-teal-600 cursor-pointer hover:bg-teal-100 shadow-2xs"
+            )}
+            title={disabled ? disabledHint || "Selection is currently locked" : "Add New"}
           >
             <Plus className="h-4 w-4" />
           </button>

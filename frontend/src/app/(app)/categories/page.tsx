@@ -22,6 +22,7 @@ import { CustomTable, CustomTableColumn } from "@/components/custom/CustomTable"
 import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { CustomButton } from "@/components/custom/CustomButton";
+import { toast } from "react-toastify";
 
 interface Category {
   id: string;
@@ -207,7 +208,7 @@ export default function CategoriesPage() {
     if (!formName.trim()) return;
 
     if ((modalMode === "ADD_SUB" || modalMode === "EDIT_SUB") && !formParentId) {
-      alert("Please select a parent category for the subcategory.");
+      toast.error("Please select a parent category for the subcategory.");
       return;
     }
 
@@ -219,13 +220,13 @@ export default function CategoriesPage() {
           name: formName,
           parentId: modalMode === "EDIT_SUB" ? formParentId : null,
         });
-        setMsg("Category updated successfully!");
+        toast.success("Category updated successfully!");
       } else {
         await api.post("/v1/products/categories", {
           name: formName,
           parentId: modalMode === "ADD_SUB" ? formParentId : undefined,
         });
-        setMsg(
+        toast.success(
           modalMode === "ADD_SUB"
             ? "Subcategory created successfully!"
             : "Main Category created successfully!"
@@ -237,7 +238,7 @@ export default function CategoriesPage() {
       loadAllMainCats();
       setTimeout(() => setMsg(null), 3000);
     } catch (err: any) {
-      alert(err.message || "Failed to save category");
+      toast.error(err.message || "Failed to save category");
     } finally {
       setSaving(false);
     }

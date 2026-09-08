@@ -37,15 +37,15 @@ export function ConfirmModal({
   const typeConfig = {
     WARNING: {
       icon: AlertTriangle,
-      iconBg: "bg-amber-100 text-amber-600",
-      border: "border-amber-200",
-      confirmBtn: "bg-amber-600 hover:bg-amber-700 text-white",
+      iconBg: "bg-teal-50 text-teal-600 border border-teal-100",
+      border: "border-teal-200",
+      confirmBtn: "bg-teal-600 hover:bg-teal-700 text-white",
       defaultTitle: "Warning Notice",
       defaultConfirm: "Proceed",
     },
     DANGER: {
       icon: Trash2,
-      iconBg: "bg-red-100 text-red-600",
+      iconBg: "bg-red-50 text-red-600 border border-red-100",
       border: "border-red-200",
       confirmBtn: "bg-red-600 hover:bg-red-700 text-white",
       defaultTitle: "Confirm Action",
@@ -53,7 +53,7 @@ export function ConfirmModal({
     },
     INFO: {
       icon: Info,
-      iconBg: "bg-teal-100 text-teal-600",
+      iconBg: "bg-teal-50 text-teal-600 border border-teal-100",
       border: "border-teal-200",
       confirmBtn: "bg-teal-600 hover:bg-teal-700 text-white",
       defaultTitle: "Information",
@@ -61,9 +61,9 @@ export function ConfirmModal({
     },
     SUCCESS: {
       icon: CheckCircle2,
-      iconBg: "bg-emerald-100 text-emerald-600",
+      iconBg: "bg-emerald-50 text-emerald-600 border border-emerald-100",
       border: "border-emerald-200",
-      confirmBtn: "bg-emerald-600 hover:bg-emerald-700 text-white",
+      confirmBtn: "bg-teal-600 hover:bg-teal-700 text-white",
       defaultTitle: "Success",
       defaultConfirm: "OK",
     },

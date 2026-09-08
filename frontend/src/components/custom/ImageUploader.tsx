@@ -2,7 +2,7 @@
 
 import { useState, useRef, ChangeEvent, DragEvent } from "react";
 import { UploadCloud, Image as ImageIcon, X, Link as LinkIcon, RefreshCw, CheckCircle2, FileImage, Loader2 } from "lucide-react";
-import { axiosClient, api } from "@/lib/api";
+import { axiosClient } from "@/lib/api";
 
 interface ImageUploaderProps {
   value?: string;
@@ -47,26 +47,7 @@ export function ImageUploader({
     setFileName(file.name);
     setFileSize((file.size / (1024 * 1024)).toFixed(2) + " MB");
 
-    try {
-      // 1. Physical upload to backend endpoint /api/v1/media/upload -> saves into backend/image_storage
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await axiosClient.post("/api/v1/media/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      const uploadedUrl = response.data?.data?.url || response.data?.url;
-      if (uploadedUrl) {
-        onChange(uploadedUrl);
-        setUploading(false);
-        return;
-      }
-    } catch (err: any) {
-      console.warn("Backend upload failed, falling back to local Base64 URL:", err);
-    }
-
-    // 2. Fallback: Base64 Data URL for standalone / offline usage
+    // Read image locally for preview without uploading until form submit
     const reader = new FileReader();
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
@@ -122,15 +103,15 @@ export function ImageUploader({
     <div className={`space-y-3 ${className}`}>
       {/* Header with Mode Selector */}
       <div className="flex items-center justify-between">
-        <label className="text-xs font-semibold text-slate-700">{label}</label>
-        <div className="flex items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs font-medium">
+        <label className="text-[15px] font-semibold capitalize text-gray-600">{label}</label>
+        <div className="flex items-center rounded-xs border border-slate-200 bg-slate-100/90 p-0.5 text-xs font-semibold shadow-2xs">
           <button
             type="button"
             onClick={() => setMode("FILE")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xs transition-all duration-150 cursor-pointer ${
               mode === "FILE"
-                ? "bg-white text-indigo-600 shadow-2xs font-semibold"
-                : "text-slate-500 hover:text-slate-800"
+                ? "bg-teal-600 text-white shadow-2xs font-bold"
+                : "text-slate-600 hover:text-gray-800 hover:bg-slate-200/50"
             }`}
           >
             <UploadCloud className="h-3.5 w-3.5" /> Drag & Drop / File
@@ -138,10 +119,10 @@ export function ImageUploader({
           <button
             type="button"
             onClick={() => setMode("URL")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xs transition-all duration-150 cursor-pointer ${
               mode === "URL"
-                ? "bg-white text-indigo-600 shadow-2xs font-semibold"
-                : "text-slate-500 hover:text-slate-800"
+                ? "bg-teal-600 text-white shadow-2xs font-bold"
+                : "text-slate-600 hover:text-gray-800 hover:bg-slate-200/50"
             }`}
           >
             <LinkIcon className="h-3.5 w-3.5" /> Web Image URL
@@ -162,40 +143,40 @@ export function ImageUploader({
       {mode === "FILE" && (
         <div>
           {uploading ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-8 text-center gap-2">
-              <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
-              <span className="text-xs font-medium text-slate-600">Uploading to backend/image_storage...</span>
+            <div className="flex flex-col items-center justify-center rounded-md border border-teal-200 bg-teal-50/40 p-8 text-center gap-2">
+              <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
+              <span className="text-xs font-semibold text-teal-800">Uploading image to server...</span>
             </div>
           ) : value ? (
             /* Selected Image Preview Box */
-            <div className="relative rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
+            <div className="relative rounded-md border border-slate-200 bg-white p-3 shadow-2xs">
               <div className="flex items-center gap-4">
-                <div className="relative h-20 w-20 shrink-0 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
+                <div className="relative h-20 w-20 shrink-0 rounded-md border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={value} alt="Preview" className="h-full w-full object-contain p-1" />
                 </div>
                 <div className="flex-1 min-w-0 space-y-1">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800 truncate">
-                    <FileImage className="h-4 w-4 text-indigo-600 shrink-0" />
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 truncate">
+                    <FileImage className="h-4 w-4 text-teal-600 shrink-0" />
                     <span className="truncate">{fileName || (value.includes("/image_storage/") ? value.split("/").pop() : "Uploaded Image")}</span>
                   </div>
                   {fileSize && <p className="text-[11px] text-slate-400">Size: {fileSize}</p>}
                   <div className="flex items-center gap-1 text-[11px] font-medium text-emerald-600">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> Saved in backend/image_storage
+                    <CheckCircle2 className="h-3.5 w-3.5" /> {value.startsWith("data:") ? "Image selected (Will upload on product creation)" : "Uploaded Image"}
                   </div>
                 </div>
                 <div className="flex flex-col gap-1.5 shrink-0">
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-md transition cursor-pointer"
                   >
                     <RefreshCw className="h-3.5 w-3.5" /> Replace
                   </button>
                   <button
                     type="button"
                     onClick={handleClear}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition cursor-pointer"
                   >
                     <X className="h-3.5 w-3.5" /> Remove
                   </button>
@@ -209,17 +190,17 @@ export function ImageUploader({
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`group cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-all ${
+              className={`group cursor-pointer rounded-md border-2 border-dashed p-6 text-center transition-all ${
                 isDragging
-                  ? "border-indigo-500 bg-indigo-50/60 ring-4 ring-indigo-500/10 scale-[1.005]"
-                  : "border-slate-200 bg-slate-50/50 hover:border-indigo-400 hover:bg-slate-50"
+                  ? "border-teal-500 bg-teal-50/70 ring-4 ring-teal-500/10 scale-[1.002]"
+                  : "border-teal-200/80 bg-teal-50/20 hover:border-teal-400 hover:bg-teal-50/50"
               }`}
             >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-2xs text-indigo-600 group-hover:scale-110 transition-transform">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-teal-50 border border-teal-200/60 text-teal-600 group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white group-hover:border-teal-600 transition-all shadow-2xs">
                 <UploadCloud className="h-6 w-6" />
               </div>
-              <p className="mt-2 text-xs font-semibold text-slate-800">
-                <span className="text-indigo-600 underline underline-offset-2">Click to choose image</span> or drag & drop file here
+              <p className="mt-3 text-xs font-semibold text-gray-600">
+                <span className="text-teal-600 font-bold underline underline-offset-2 hover:text-teal-700">Click to choose image</span> or drag & drop file here
               </p>
               <p className="mt-1 text-[11px] text-slate-400">
                 Saves into backend/image_storage folder • Supports PNG, JPG, JPEG, WEBP, GIF, SVG (Max {maxSizeMB}MB)
@@ -237,14 +218,14 @@ export function ImageUploader({
               type="url"
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full rounded-md border border-slate-200 px-3 py-2 text-xs text-gray-600 placeholder-slate-400 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               placeholder="https://example.com/product-image.jpg"
             />
             {value && (
               <button
                 type="button"
                 onClick={handleClear}
-                className="absolute right-2 top-2 text-slate-400 hover:text-slate-600"
+                className="absolute right-2 top-2 text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -252,7 +233,7 @@ export function ImageUploader({
           </div>
 
           {value && (
-            <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-2">
+            <div className="flex items-center gap-3 rounded-md border border-slate-200 bg-white p-2">
               <div className="h-16 w-16 shrink-0 rounded-md border border-slate-100 bg-slate-50 overflow-hidden flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -263,7 +244,7 @@ export function ImageUploader({
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-slate-800 truncate">{value}</p>
+                <p className="text-xs font-semibold text-gray-600 truncate">{value}</p>
                 <p className="text-[11px] text-slate-400">Web Image Link</p>
               </div>
             </div>

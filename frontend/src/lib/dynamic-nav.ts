@@ -141,7 +141,6 @@ const iconMap: Record<string, LucideIcon> = {
   PieChart: BarChart3,
   ListOrdered: ClipboardList,
   Brain: BarChart3,
-  Scale: Landmark,
   TrendingUp: BarChart3,
   Barcode: Tags,
   Grid: Package,
@@ -152,7 +151,6 @@ const iconMap: Record<string, LucideIcon> = {
   Square: Package,
   PackageCheck: Package,
   Webhook: Plug,
-  Store: Building2,
   Edit: Settings,
   Transfer: RefreshCw,
   Rocket: Settings,
@@ -240,6 +238,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         children: [
           { label: "All Products", href: "/products", icon: Package },
           { label: "Add New Product", href: "/products/create", icon: Sparkles },
+          { label: "Product Types", href: "/product-types", icon: Layers },
           { label: "Categories & Subcategories", href: "/categories", icon: Tags },
           { label: "Brands & Manufacturers", href: "/brands", icon: Building2 },
           { label: "Units of Measure", href: "/units", icon: Scale },
@@ -469,6 +468,26 @@ export function useDynamicNav() {
                   }))
                 : undefined,
             }));
+
+            // Inject Product Types submenu if missing under Product Catalog
+            if (mod.moduleName === "Product Catalog" || mod.moduleRoute === "/products") {
+              const hasTypes = rawChildren.some(
+                (c) => c.href === "/product-types" || c.href === "/products/types"
+              );
+              if (!hasTypes) {
+                const createIdx = rawChildren.findIndex((c) => c.href === "/products/create");
+                const ptChild: NavChild = {
+                  label: "Product Types",
+                  href: "/product-types",
+                  icon: Layers,
+                };
+                if (createIdx !== -1) {
+                  rawChildren.splice(createIdx + 1, 0, ptChild);
+                } else {
+                  rawChildren.push(ptChild);
+                }
+              }
+            }
 
             // Deduplicate children by label + href combination
             const children: NavChild[] = [];

@@ -19,11 +19,13 @@ import {
   Check,
   X,
 } from "lucide-react";
-import { api } from "@/lib/api";
+import { api, axiosClient } from "@/lib/api";
 import { SearchableSelect, SearchableSelectOption } from "@/components/custom/SearchableSelect";
 import { ImageUploader } from "@/components/custom/ImageUploader";
 import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { CustomButton } from "@/components/custom/CustomButton";
+import { CustomCheckbox } from "@/components/custom/CustomCheckbox";
+import { toast } from "react-toastify";
 
 interface Category {
   id: string;
@@ -117,9 +119,10 @@ export default function CreateProductPage() {
     hasSerial: false,
   });
 
+  const [fetchedProductTypes, setFetchedProductTypes] = useState<any[]>([]);
   const [variants, setVariants] = useState<VariantForm[]>([]);
 
-  const productTypeOptions: SearchableSelectOption[] = [
+  const defaultTypeOptions: SearchableSelectOption[] = [
     { value: "Standard", label: "Standard Product (Physical item)" },
     { value: "Combo", label: "Combo / Kit (Package deal)" },
     { value: "Digital", label: "Digital / License (Non-physical download)" },
@@ -129,19 +132,28 @@ export default function CreateProductPage() {
     { value: "Serialized", label: "Serialized (Unique serial number per item)" },
   ];
 
+  const productTypeOptions: SearchableSelectOption[] = fetchedProductTypes.length > 0
+    ? fetchedProductTypes.map((pt) => ({
+        value: pt.name,
+        label: pt.name,
+      }))
+    : defaultTypeOptions;
+
   async function loadFormData() {
     try {
-      const [catRes, brandRes, unitRes, supRes] = await Promise.all([
+      const [catRes, brandRes, unitRes, supRes, typeRes] = await Promise.all([
         api.get<any>("/v1/products/categories").catch(() => ({ data: [] })),
         api.get<any>("/v1/brands").catch(() => ({ data: [] })),
         api.get<any>("/v1/units").catch(() => ({ data: [] })),
         api.get<any>("/v1/suppliers").catch(() => ({ data: [] })),
+        api.get<any>("/v1/product-types").catch(() => ({ data: [] })),
       ]);
 
       setCategories(Array.isArray(catRes.data || catRes) ? catRes.data || catRes : []);
       setBrands(Array.isArray(brandRes.data || brandRes) ? brandRes.data || brandRes : []);
       setUnits(Array.isArray(unitRes.data || unitRes) ? unitRes.data || unitRes : []);
       setSuppliers(Array.isArray(supRes.data || supRes) ? supRes.data || supRes : []);
+      setFetchedProductTypes(Array.isArray(typeRes.data || typeRes) ? typeRes.data || typeRes : []);
 
       generateSku();
     } catch (err) {
@@ -262,11 +274,14 @@ export default function CreateProductPage() {
         updateForm("supplierId", newSup.id);
       }
 
+      const modalLabel = activeModal === "BRAND" ? "Brand" : activeModal === "CATEGORY" ? "Category" : activeModal === "SUBCATEGORY" ? "Sub Category" : activeModal === "UNIT" ? "Unit" : "Supplier";
+      toast.success(`${modalLabel} created successfully!`);
+
       setActiveModal(null);
       setNewItemName("");
       setNewItemCode("");
     } catch (err: any) {
-      alert(err.message || "Failed to create item");
+      toast.error(err.message || "Failed to create item");
     } finally {
       setCreatingItem(false);
     }
@@ -294,6 +309,22 @@ export default function CreateProductPage() {
     };
 
     try {
+      let finalImageUrl = form.imageUrl || undefined;
+      if (form.imageUrl && form.imageUrl.startsWith("data:")) {
+        try {
+          const res = await fetch(form.imageUrl);
+          const blob = await res.blob();
+          const formData = new FormData();
+          formData.append("file", blob, "product_image.png");
+          const uploadRes: any = await axiosClient.post("/api/v1/media/upload", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          finalImageUrl = uploadRes?.data?.data?.url || uploadRes?.data?.url || uploadRes?.url || form.imageUrl;
+        } catch (uploadErr) {
+          console.warn("Failed to upload image during product submit:", uploadErr);
+        }
+      }
+
       const body: any = {
         name: form.name,
         sku: form.sku,
@@ -311,7 +342,7 @@ export default function CreateProductPage() {
         taxRate: form.taxRate ? parseFloat(form.taxRate) : undefined,
         warrantyDays: form.warrantyValue ? parseInt(form.warrantyValue) * 30 : undefined,
         description: form.description || undefined,
-        imageUrl: form.imageUrl || undefined,
+        imageUrl: finalImageUrl,
       };
 
       if (variants.length > 0 && form.hasVariants) {
@@ -495,6 +526,7 @@ export default function CreateProductPage() {
                 value={productType}
                 onChange={(val) => setProductType(val)}
                 placeholder="Select Product Type..."
+                onAddClick={() => router.push("/product-types")}
               />
             </div>
 
@@ -624,14 +656,16 @@ export default function CreateProductPage() {
               <div className="sm:col-span-2">
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-[15px] font-semibold text-gray-600 capitalize">Profit Margin Mode & Value</label>
-                  <div className="inline-flex rounded-md border border-slate-200 bg-slate-100 p-0.5 text-xs font-semibold">
+
+                  {/* Compact Sleek Toggle Button */}
+                  <div className="inline-flex rounded-xs border border-slate-200 bg-slate-100/90 p-0.5 shadow-2xs">
                     <button
                       type="button"
                       onClick={() => handleMarginTypeChange("PERCENTAGE")}
-                      className={`px-2.5 py-0.5 text-[11px] rounded-md font-bold transition cursor-pointer ${
+                      className={`px-3 py-1 text-[11px] rounded-xs font-bold transition-all duration-150 cursor-pointer flex items-center gap-1 ${
                         marginType === "PERCENTAGE"
-                          ? "bg-teal-600 text-white shadow-xs"
-                          : "text-slate-600 hover:text-slate-900"
+                          ? "bg-teal-600 text-white shadow-2xs scale-[1.02]"
+                          : "text-slate-600 hover:text-gray-900 hover:bg-slate-200/60"
                       }`}
                     >
                       % Percentage
@@ -639,10 +673,10 @@ export default function CreateProductPage() {
                     <button
                       type="button"
                       onClick={() => handleMarginTypeChange("FLAT")}
-                      className={`px-2.5 py-0.5 text-[11px] rounded-md font-bold transition cursor-pointer ${
+                      className={`px-3 py-1 text-[11px] rounded-xs font-bold transition-all duration-150 cursor-pointer flex items-center gap-1 ${
                         marginType === "FLAT"
-                          ? "bg-teal-600 text-white shadow-xs"
-                          : "text-slate-600 hover:text-slate-900"
+                          ? "bg-teal-600 text-white shadow-2xs scale-[1.02]"
+                          : "text-slate-600 hover:text-gray-900 hover:bg-slate-200/60"
                       }`}
                     >
                       Flat (৳)
@@ -713,16 +747,12 @@ export default function CreateProductPage() {
                 />
               </div>
 
-              <div className="sm:col-span-2 flex items-center mt-4">
-                <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.hasPromoPrice}
-                    onChange={(e) => updateForm("hasPromoPrice", e.target.checked)}
-                    className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
-                  />
-                  Add Promotional Price
-                </label>
+              <div className="sm:col-span-2 flex items-center mt-3">
+                <CustomCheckbox
+                  label="Add Promotional Price"
+                  checked={form.hasPromoPrice}
+                  onChange={(e) => updateForm("hasPromoPrice", e.target.checked)}
+                />
               </div>
             </div>
           </div>
@@ -779,15 +809,11 @@ export default function CreateProductPage() {
             </div>
 
             <div className="space-y-3">
-              <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.hasVariants}
-                  onChange={(e) => updateForm("hasVariants", e.target.checked)}
-                  className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
-                />
-                This product has variants (e.g. Size, Color)
-              </label>
+              <CustomCheckbox
+                label="This product has variants (e.g. Size, Color)"
+                checked={form.hasVariants}
+                onChange={(e) => updateForm("hasVariants", e.target.checked)}
+              />
 
               {form.hasVariants && (
                 <div className="pt-2 space-y-3">
@@ -866,6 +892,44 @@ export default function CreateProductPage() {
               )}
             </div>
           </div>
+
+          {/* BOX 6: Inventory Controls */}
+          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+              <Package className="h-4 w-4 text-teal-600" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Inventory Controls</h2>
+            </div>
+
+            <div className="space-y-3">
+              <CustomCheckbox
+                label="Initial Stock"
+                description="Initial stock addition is available for single non-variant products"
+                checked={form.hasInitialStock}
+                onChange={(e) => updateForm("hasInitialStock", e.target.checked)}
+              />
+
+              <CustomCheckbox
+                label="Warehouse Specific Pricing"
+                description="Set custom prices for different warehouse locations"
+                checked={form.hasDiffPriceWarehouse}
+                onChange={(e) => updateForm("hasDiffPriceWarehouse", e.target.checked)}
+              />
+
+              <CustomCheckbox
+                label="Batch & Expiry Date Tracking"
+                description="Track lot numbers, manufacturing and expiry dates"
+                checked={form.hasBatchExpiry}
+                onChange={(e) => updateForm("hasBatchExpiry", e.target.checked)}
+              />
+
+              <CustomCheckbox
+                label="IMEI / Serial Number Tracking"
+                description="Track unique serial or IMEI numbers per item"
+                checked={form.hasSerial}
+                onChange={(e) => updateForm("hasSerial", e.target.checked)}
+              />
+            </div>
+          </div>
         </div>
 
         {/* RIGHT COLUMN SIDEBAR (30%) */}
@@ -908,12 +972,13 @@ export default function CreateProductPage() {
                   value={form.subCategoryId}
                   onChange={(val) => updateForm("subCategoryId", val)}
                   disabled={!form.categoryId}
+                  disabledHint="Select Main Category First"
                   placeholder={
                     form.categoryId
                       ? subCategoryOptions.length > 0
                         ? "Select Sub Category..."
                         : "No Subcategories Found"
-                      : "Select Category First"
+                      : "Select Main Category First"
                   }
                   onAddClick={() => setActiveModal("SUBCATEGORY")}
                 />

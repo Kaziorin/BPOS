@@ -114,6 +114,7 @@ MODULE_LANDING_LABEL = {
 MODULE_SUB_PAGES = {
     "products": [
         ("Add New Product", "/products/create"),
+        ("Product Types", "/product-types"),
         ("Categories & Subcategories", "/categories"),
         ("Brands & Manufacturers", "/brands"),
         ("Units of Measure", "/units"),

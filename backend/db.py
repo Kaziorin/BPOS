@@ -55,6 +55,20 @@ _MIGRATION_SQL = [
         UNIQUE KEY uk_tenant_setting (tenantId, settingKey),
         INDEX idx_ts_tenant (tenantId)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci""",
+    # Product Types table
+    """CREATE TABLE IF NOT EXISTS product_types (
+        id VARCHAR(36) NOT NULL PRIMARY KEY,
+        tenantId VARCHAR(36) NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+        createdBy VARCHAR(36) DEFAULT NULL,
+        createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_pt_tenant (tenantId)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci""",
+    "ALTER TABLE product_types DROP COLUMN IF EXISTS code",
+    "ALTER TABLE product_types DROP COLUMN IF EXISTS description",
+    "ALTER TABLE product_types DROP COLUMN IF EXISTS isSystem",
     # Loyalty transactions (§10.22 return reversal audit trail)
     """CREATE TABLE IF NOT EXISTS loyalty_transactions (
         id VARCHAR(36) NOT NULL PRIMARY KEY,

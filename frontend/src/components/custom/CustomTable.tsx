@@ -17,7 +17,7 @@ export interface CustomTableColumn<T> {
 export interface CustomTableProps<T> {
   columns: CustomTableColumn<T>[];
   data: T[];
-  rowKey: (row: T) => string;
+  rowKey?: ((row: T) => string) | keyof T | string;
   loading?: boolean;
   emptyIcon?: LucideIcon;
   emptyMessage?: string;
@@ -46,6 +46,17 @@ export function CustomTable<T>({
   onPageChange,
   onPageSizeChange,
 }: CustomTableProps<T>) {
+  const getRowKey = (row: T, index: number): string => {
+    if (typeof rowKey === "function") return rowKey(row);
+    if (typeof rowKey === "string" && row && typeof row === "object" && rowKey in row) {
+      return String((row as any)[rowKey]);
+    }
+    if (row && typeof row === "object" && "id" in row && (row as any).id) {
+      return String((row as any).id);
+    }
+    return String(index);
+  };
+
   // Sort State
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -221,9 +232,9 @@ export function CustomTable<T>({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {paginatedRows.map((row) => (
+            {paginatedRows.map((row, idx) => (
               <tr
-                key={rowKey(row)}
+                key={getRowKey(row, idx)}
                 onClick={() => onRowClick?.(row)}
                 className={cn(
                   "hover:bg-slate-50 transition",
