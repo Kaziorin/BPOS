@@ -227,7 +227,7 @@ async def delete_tier(tierId: str, user: AuthUser = Depends(require_auth),
                             {"id": tierId, "t": tenantId})).first()
     if not row:
         return err("Tier not found", 404)
-    await db.execute(text("UPDATE loyalty_tiers SET isActive=0 WHERE id=:id"), {"id": tierId})
+    await db.execute(text("DELETE FROM loyalty_tiers WHERE id=:id AND tenantId=:t"), {"id": tierId, "t": tenantId})
     await db.commit()
     return ok({"deleted": True})
 
