@@ -35,13 +35,14 @@ export default function ProductsPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("");
+  const [filterBusinessType, setFilterBusinessType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
-  const loadProducts = useCallback(async (p: number, l: number, type: string, status: string, q: string) => {
+  const loadProducts = useCallback(async (p: number, l: number, type: string, bType: string, status: string, q: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -51,6 +52,7 @@ export default function ProductsPage() {
       });
       if (q) params.set("search", q);
       if (type) params.set("productType", type);
+      if (bType) params.set("businessType", bType);
       if (status) params.set("status", status);
 
       const result = await api.get<any>(`/v1/products?${params}`);
@@ -81,8 +83,8 @@ export default function ProductsPage() {
   }, []);
 
   useEffect(() => {
-    loadProducts(page, limit, filterType, filterStatus, search);
-  }, [page, limit, filterType, filterStatus, loadProducts]);
+    loadProducts(page, limit, filterType, filterBusinessType, filterStatus, search);
+  }, [page, limit, filterType, filterBusinessType, filterStatus, loadProducts]);
 
   async function handleDelete() {
     if (!deleteId) return;
@@ -90,7 +92,7 @@ export default function ProductsPage() {
     try {
       await api.del(`/v1/products/${deleteId}`);
       setDeleteId(null);
-      loadProducts(page, limit, filterType, filterStatus, search);
+      loadProducts(page, limit, filterType, filterBusinessType, filterStatus, search);
     } catch (err: any) {
       alert(err.message || "Delete failed");
     } finally {
@@ -244,6 +246,25 @@ export default function ProductsPage() {
               />
             </div>
             <select
+              value={filterBusinessType}
+              onChange={(e) => {
+                setFilterBusinessType(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-md border border-teal-200 bg-teal-50/60 px-2.5 py-1.5 text-xs font-bold text-teal-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+            >
+              <option value="">🏢 All 9 Business Verticals</option>
+              <option value="RETAIL">🛒 Retail & Apparel</option>
+              <option value="RESTAURANT">🍽️ Restaurant & Food</option>
+              <option value="PHARMACY">💊 Pharmacy & Medicine</option>
+              <option value="GROCERY">🥦 Grocery & Scale</option>
+              <option value="WHOLESALE">🚚 Wholesale B2B</option>
+              <option value="MANUFACTURING">🏭 Manufacturing</option>
+              <option value="SALON">💅 Salon & Spa</option>
+              <option value="REPAIR">🔧 Repair & Service</option>
+              <option value="FRANCHISE">🏢 Franchise Control</option>
+            </select>
+            <select
               value={filterType}
               onChange={(e) => {
                 setFilterType(e.target.value);
@@ -251,11 +272,11 @@ export default function ProductsPage() {
               }}
               className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
             >
-              <option value="">All Types</option>
-              <option value="SIMPLE">Simple</option>
-              <option value="VARIABLE">Variable</option>
-              <option value="SERVICE">Service</option>
-              <option value="BUNDLE">Bundle</option>
+              <option value="">All Standard Types</option>
+              <option value="SIMPLE">Simple Item</option>
+              <option value="VARIABLE">Variable Matrix</option>
+              <option value="SERVICE">Service Labor</option>
+              <option value="BUNDLE">Combo Bundle</option>
             </select>
             <select
               value={filterStatus}

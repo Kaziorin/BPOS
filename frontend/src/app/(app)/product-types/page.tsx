@@ -13,20 +13,42 @@ import {
   Shield,
   Tag,
   Sparkles,
+  ShoppingBag,
+  Utensils,
+  Pill,
+  ShoppingCart,
+  Truck,
+  Factory,
+  Wrench,
+  Building2,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { ConfirmModal } from "@/components/custom/ConfirmModal";
 import { CustomTable, CustomTableColumn } from "@/components/custom/CustomTable";
 import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
 import { toast } from "react-toastify";
 
 interface ProductTypeItem {
   id: string;
   name: string;
   status: string;
+  businessTypes?: string | null;
   createdAt?: string;
 }
+
+const BUSINESS_VERTICALS = [
+  { id: "RETAIL", label: "Retail", icon: ShoppingBag },
+  { id: "RESTAURANT", label: "Restaurant", icon: Utensils },
+  { id: "PHARMACY", label: "Pharmacy", icon: Pill },
+  { id: "GROCERY", label: "Grocery", icon: ShoppingCart },
+  { id: "WHOLESALE", label: "Wholesale", icon: Truck },
+  { id: "MANUFACTURING", label: "Manufacturing", icon: Factory },
+  { id: "SALON", label: "Salon", icon: Sparkles },
+  { id: "REPAIR", label: "Repair", icon: Wrench },
+  { id: "FRANCHISE", label: "Franchise", icon: Building2 },
+];
 
 export default function ProductTypesPage() {
   const [productTypes, setProductTypes] = useState<ProductTypeItem[]>([]);
@@ -37,13 +59,21 @@ export default function ProductTypesPage() {
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [verticalFilter, setVerticalFilter] = useState<string>("");
 
   // Add / Edit Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ProductTypeItem | null>(null);
   const [formName, setFormName] = useState("");
   const [formStatus, setFormStatus] = useState("ACTIVE");
+  const [selectedBusinessTypes, setSelectedBusinessTypes] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+
+  function toggleBusinessType(vId: string) {
+    setSelectedBusinessTypes((prev) =>
+      prev.includes(vId) ? prev.filter((id) => id !== vId) : [...prev, vId]
+    );
+  }
 
   // Delete state
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -57,6 +87,7 @@ export default function ProductTypesPage() {
         params: {
           search: searchQuery || undefined,
           status: statusFilter !== "ALL" ? statusFilter : undefined,
+          businessType: verticalFilter || undefined,
         },
       });
 
@@ -73,7 +104,7 @@ export default function ProductTypesPage() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, statusFilter]);
+  }, [searchQuery, statusFilter, verticalFilter]);
 
   useEffect(() => {
     loadData();
@@ -83,6 +114,7 @@ export default function ProductTypesPage() {
     setEditingItem(null);
     setFormName("");
     setFormStatus("ACTIVE");
+    setSelectedBusinessTypes([]);
     setModalOpen(true);
   }
 
@@ -90,6 +122,8 @@ export default function ProductTypesPage() {
     setEditingItem(item);
     setFormName(item.name);
     setFormStatus(item.status || "ACTIVE");
+    const parsedBt = item.businessTypes ? item.businessTypes.split(",").filter(Boolean) : [];
+    setSelectedBusinessTypes(parsedBt);
     setModalOpen(true);
   }
 
@@ -103,12 +137,14 @@ export default function ProductTypesPage() {
         await api.put(`/v1/product-types/${editingItem.id}`, {
           name: formName,
           status: formStatus,
+          businessTypes: selectedBusinessTypes,
         });
         toast.success("Product Type updated successfully!");
       } else {
         await api.post("/v1/product-types", {
           name: formName,
           status: formStatus,
+          businessTypes: selectedBusinessTypes,
         });
         toast.success("New Product Type created successfully!");
       }
@@ -166,6 +202,7 @@ export default function ProductTypesPage() {
         </div>
       ),
     },
+
     {
       header: "Status",
       key: "status",
@@ -241,6 +278,8 @@ export default function ProductTypesPage() {
         </div>
       )}
 
+
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div className="rounded-md border border-slate-200 bg-white p-3.5 shadow-2xs">
@@ -308,13 +347,15 @@ export default function ProductTypesPage() {
             <input
               type="text"
               value={formName}
-              onChange={(e) => handleNameChange(e.target.value)}
+              onChange={(e) => setFormName(e.target.value)}
               placeholder="e.g. Gift Card, Medicine, Menu Item..."
               className="w-full rounded-md border border-slate-200 px-3 py-2 text-xs text-gray-600 focus:border-teal-500 focus:outline-none"
               required
               autoFocus
             />
           </div>
+
+
 
           <div>
             <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">Status</label>
