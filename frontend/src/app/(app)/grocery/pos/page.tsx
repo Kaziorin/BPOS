@@ -102,11 +102,11 @@ const DEMO_CART: CartItem[] = [
 ];
 
 const PAY_CFG = [
-  {id:"Cash",         label:"Cash",      Icon:Camera,     activeBg:"#f0fdf4",activeBorder:"#86efac",activeText:"#15803d",iconBg:"#dcfce7"},
-  {id:"Card",         label:"Card",      Icon:CreditCard, activeBg:"#eff6ff",activeBorder:"#93c5fd",activeText:"#1d4ed8",iconBg:"#dbeafe"},
-  {id:"UPI / QR",     label:"UPI / QR", Icon:Grid,       activeBg:"#faf5ff",activeBorder:"#c4b5fd",activeText:"#7c3aed",iconBg:"#ede9fe"},
-  {id:"Wallet",       label:"Wallet",    Icon:Wallet,     activeBg:"#fff7ed",activeBorder:"#fdba74",activeText:"#c2410c",iconBg:"#ffedd5"},
-  {id:"Split Payment",label:"Split Pay", Icon:Layers,     activeBg:"#f0fdf4",activeBorder:"#6ee7b7",activeText:"#065f46",iconBg:"#d1fae5"},
+  {id:"Cash",         label:"Cash",          Icon:Camera,     bg:"bg-[#f0fdf4]", border:"border-[#dcfce7]", text:"text-[#15803d]", activeBorder:"border-[#16a34a]", activeRing:"ring-2 ring-[#16a34a]/30"},
+  {id:"Card",         label:"Card",          Icon:CreditCard, bg:"bg-[#eff6ff]", border:"border-[#dbeafe]", text:"text-[#1d4ed8]", activeBorder:"border-[#2563eb]", activeRing:"ring-2 ring-[#2563eb]/30"},
+  {id:"UPI / QR",     label:"UPI / QR",      Icon:Grid,       bg:"bg-[#faf5ff]", border:"border-[#ede9fe]", text:"text-[#7c3aed]", activeBorder:"border-[#9333ea]", activeRing:"ring-2 ring-[#9333ea]/30"},
+  {id:"Wallet",       label:"Wallet",        Icon:Wallet,     bg:"bg-[#fff7ed]", border:"border-[#ffedd5]", text:"text-[#c2410c]", activeBorder:"border-[#ea580c]", activeRing:"ring-2 ring-[#ea580c]/30"},
+  {id:"Split Payment",label:"Split Payment", Icon:Layers,     bg:"bg-[#e6f4f1]", border:"border-[#ccfbf1]", text:"text-[#0d9488]", activeBorder:"border-[#0d9488]", activeRing:"ring-2 ring-[#0d9488]/30"},
 ] as const;
 
 const FN_KEYS = [
@@ -196,20 +196,20 @@ export default function GroceryPOSPage() {
   const MAIN_CATS = ["All Items","Fruits & Veg","Grocery","Beverages","Snacks","Dairy","Household"];
   const MORE_CATS = ["Bakery","Frozen Foods","Meat & Fish","Personal Care","Baby Care","Pet Supplies"];
   const CATS = [...MAIN_CATS, ...MORE_CATS];
-  const CAT_ICONS: Record<string, React.ReactNode> = {
-    "All Items": <Grid size={14}/>,
-    "Fruits & Veg": <Apple size={14}/>,
-    "Grocery": <ShoppingBag size={14}/>,
-    "Beverages": <Coffee size={14}/>,
-    "Snacks": <Package size={14}/>,
-    "Dairy": <Star size={14}/>,
-    "Household": <Home size={14}/>,
-    "Bakery": <Utensils size={14}/>,
-    "Frozen Foods": <Snowflake size={14}/>,
-    "Meat & Fish": <Fish size={14}/>,
-    "Personal Care": <Sparkles size={14}/>,
-    "Baby Care": <Heart size={14}/>,
-    "Pet Supplies": <ShieldCheck size={14}/>,
+  const CAT_ICON_MAP: Record<string, { icon: React.ReactNode; color: string }> = {
+    "All Items":    { icon: <Grid size={15}/>,         color: "text-emerald-600" },
+    "Fruits & Veg": { icon: <Apple size={15}/>,        color: "text-emerald-500" },
+    "Grocery":      { icon: <ShoppingBag size={15}/>,  color: "text-orange-500" },
+    "Beverages":    { icon: <Coffee size={15}/>,       color: "text-blue-500" },
+    "Snacks":       { icon: <Package size={15}/>,      color: "text-amber-500" },
+    "Dairy":        { icon: <Star size={15}/>,         color: "text-sky-500" },
+    "Household":    { icon: <Home size={15}/>,         color: "text-indigo-500" },
+    "Bakery":       { icon: <Utensils size={15}/>,     color: "text-amber-600" },
+    "Frozen Foods": { icon: <Snowflake size={15}/>,    color: "text-cyan-500" },
+    "Meat & Fish":  { icon: <Fish size={15}/>,         color: "text-rose-500" },
+    "Personal Care":{ icon: <Sparkles size={15}/>,     color: "text-pink-500" },
+    "Baby Care":    { icon: <Heart size={15}/>,        color: "text-red-400" },
+    "Pet Supplies": { icon: <ShieldCheck size={15}/>, color: "text-emerald-700" },
   };
   const filteredProducts=products.filter(p=>{const matchCat=selectedCat==="All Items"||(p.category?.name||"Grocery")===selectedCat;const q=searchFilter.toLowerCase().trim();return matchCat&&(!q||p.name.toLowerCase().includes(q)||p.sku?.toLowerCase().includes(q)||p.barcode?.includes(q));});
 
@@ -281,11 +281,11 @@ export default function GroceryPOSPage() {
         <div className="flex items-center gap-2">
           {[
             {icon:<Users size={15} strokeWidth={2.5}/>,bg:"bg-green-50 text-green-600",label:"Walk-in Customer",sub:"Default Customer"},
-            {icon:<span className="text-xs font-bold">★</span>,bg:"bg-green-600 text-white",label:"Loyalty Points",sub:"120 Pts"},
+            {icon:<span className="text-xs font-bold">★</span>,bg:"bg-green-600 text-white shadow-xs animate-pulse",label:"Loyalty Points",sub:"120 Pts"},
             {icon:<FileText size={15} strokeWidth={2.2}/>,bg:"bg-green-50 text-green-600",label:"Invoice",sub:"INV-250520-0012"},
-            {icon:<Clock size={15} strokeWidth={2.2}/>,bg:"bg-green-50 text-green-600",label:now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),sub:now.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})},
+            {icon:<Clock size={15} strokeWidth={2.2}/>,bg:"bg-green-50 text-green-600 relative",label:now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),sub:now.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})},
           ].map((c,i)=>(
-            <div key={i} className="flex items-center gap-2.5 bg-white rounded-2xl px-3.5 py-2 border border-white/90 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
+            <div key={i} className="flex items-center gap-2.5 bg-white rounded-2xl px-3.5 py-2 border border-white/90 shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
               <div className={`w-7 h-7 rounded-xl flex items-center justify-center ${c.bg}`}>{c.icon}</div>
               <div className="leading-tight">
                 <p className="text-xs font-extrabold text-[#1e293b] whitespace-nowrap">{c.label}</p>
@@ -303,18 +303,19 @@ export default function GroceryPOSPage() {
         <div className="flex flex-col w-[65%] min-w-0 overflow-hidden border-r border-gray-200 shrink-0">
 
           {/* Category tabs */}
-          <div className="flex-none bg-white border-b border-gray-100 px-3 py-2.5">
+          <div className="flex-none bg-white/90 backdrop-blur-md border-b border-emerald-100/60 px-3 py-2.5">
             <div className="grid grid-cols-8 gap-1.5 w-full">
               {MAIN_CATS.map(cat => {
                 const on = selectedCat === cat;
+                const item = CAT_ICON_MAP[cat] || { icon: <Package size={15}/>, color: "text-emerald-600" };
                 return (
                   <button key={cat} onClick={() => { setSelectedCat(cat); setMoreOpen(false); }}
-                    className={`flex items-center justify-center gap-1.5 px-2 py-2 rounded-2xl text-xs font-bold transition-all truncate ${
+                    className={`flex items-center justify-center gap-1.5 px-2 py-2 rounded-2xl text-xs font-black transition-all duration-200 transform truncate ${
                       on 
-                        ? "bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-md shadow-green-600/20 scale-[1.02]" 
-                        : "bg-white border border-gray-200/80 text-gray-700 hover:bg-gray-50 hover:border-gray-300 shadow-2xs"
+                        ? "bg-gradient-to-r from-[#16a34a] via-[#22c55e] to-[#65a30d] text-white shadow-md shadow-emerald-600/30 scale-[1.03] active:scale-95" 
+                        : "bg-white border border-gray-200/80 text-gray-800 hover:bg-emerald-50/60 hover:border-emerald-300 hover:-translate-y-0.5 shadow-2xs active:scale-95"
                     }`}>
-                    <span className={on ? "text-white shrink-0" : "shrink-0"}>{CAT_ICONS[cat]}</span>
+                    <span className={on ? "text-white shrink-0" : `${item.color} shrink-0`}>{item.icon}</span>
                     <span className="truncate">{cat}</span>
                   </button>
                 );
@@ -322,10 +323,10 @@ export default function GroceryPOSPage() {
 
               {/* More Categories Button */}
               <button onClick={() => setMoreOpen(p => !p)}
-                className={`flex items-center justify-center gap-1 px-2 py-2 rounded-2xl text-xs font-bold transition-all truncate ${
+                className={`flex items-center justify-center gap-1 px-2 py-2 rounded-2xl text-xs font-black transition-all duration-200 transform truncate ${
                   MORE_CATS.includes(selectedCat) || moreOpen
-                    ? "bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-md shadow-green-600/20"
-                    : "bg-white border border-gray-200/80 text-gray-700 hover:bg-gray-50 hover:border-gray-300 shadow-2xs"
+                    ? "bg-gradient-to-r from-[#16a34a] via-[#22c55e] to-[#65a30d] text-white shadow-md shadow-emerald-600/30 scale-[1.03]"
+                    : "bg-white border border-gray-200/80 text-gray-800 hover:bg-emerald-50/60 hover:border-emerald-300 hover:-translate-y-0.5 shadow-2xs active:scale-95"
                 }`}>
                 <span className="truncate">••• More {MORE_CATS.includes(selectedCat) ? `(${selectedCat})` : ""}</span>
                 <ChevronDown size={14} className={`shrink-0 transition-transform duration-200 ${moreOpen ? "rotate-180" : ""}`}/>
@@ -333,23 +334,24 @@ export default function GroceryPOSPage() {
             </div>
           </div>
 
-          {/* Inline Expanded Category Drawer (Never clipped by overflow-hidden) */}
+          {/* Inline Expanded Category Drawer */}
           {moreOpen && (
-            <div className="flex-none bg-emerald-50/70 border-b border-emerald-100 px-4 py-2.5 flex items-center gap-2 flex-wrap shadow-inner animate-in fade-in slide-in-from-top-1">
+            <div className="flex-none bg-emerald-50/80 backdrop-blur-sm border-b border-emerald-200/60 px-4 py-2.5 flex items-center gap-2 flex-wrap shadow-inner animate-in fade-in slide-in-from-top-1">
               <span className="text-[10px] font-black text-emerald-800 uppercase tracking-wider mr-1">
                 More Categories:
               </span>
               {MORE_CATS.map(cat => {
                 const on = selectedCat === cat;
                 const count = products.filter(p => p.category?.name === cat).length;
+                const item = CAT_ICON_MAP[cat] || { icon: <Package size={14}/>, color: "text-emerald-600" };
                 return (
                   <button key={cat} onClick={() => { setSelectedCat(cat); setMoreOpen(false); }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all transform hover:scale-105 active:scale-95 ${
                       on 
                         ? "bg-emerald-600 text-white shadow-sm" 
                         : "bg-white border border-emerald-200/70 text-emerald-900 hover:bg-emerald-100/70"
                     }`}>
-                    <span className={on ? "text-white" : "text-emerald-600"}>{CAT_ICONS[cat]}</span>
+                    <span className={on ? "text-white" : item.color}>{item.icon}</span>
                     <span>{cat}</span>
                     <span className={`text-[10px] font-mono rounded px-1 py-0.5 ${on ? "bg-white/20 text-white" : "bg-emerald-100 text-emerald-800"}`}>
                       {count}
@@ -372,7 +374,7 @@ export default function GroceryPOSPage() {
                 { label: "Hold Bill", key: "F7", icon: <PauseCircle size={15}/>, bg: "bg-emerald-50 text-emerald-600", onClick: holdCart },
               ].map(a => (
                 <button key={a.label} onClick={a.onClick}
-                  className="flex-1 bg-white rounded-2xl border border-gray-200/80 p-2 flex items-center gap-2.5 shadow-2xs hover:shadow-md hover:border-emerald-300 transition text-left">
+                  className="flex-1 bg-white rounded-2xl border border-gray-200/80 p-2 flex items-center gap-2.5 shadow-2xs hover:shadow-md hover:border-emerald-300 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 text-left">
                   <div className={`w-8 h-8 rounded-xl ${a.bg} flex items-center justify-center shrink-0`}>
                     {a.icon}
                   </div>
@@ -382,7 +384,7 @@ export default function GroceryPOSPage() {
                   </div>
                 </button>
               ))}
-              <button className="p-2.5 rounded-2xl border border-gray-200/80 bg-white text-gray-400 hover:text-gray-700 hover:bg-gray-50 shadow-2xs shrink-0">
+              <button className="p-2.5 rounded-2xl border border-gray-200/80 bg-white text-gray-400 hover:text-gray-700 hover:bg-gray-50 hover:scale-105 active:scale-95 shadow-2xs shrink-0 transition-all">
                 <Settings size={16}/>
               </button>
             </div>
@@ -394,7 +396,7 @@ export default function GroceryPOSPage() {
             <button className="text-xs font-bold text-emerald-600 hover:underline">View All</button>
           </div>
 
-          {/* Product grid - 6 Columns */}
+          {/* Product grid - 6 Columns (3D Tilt & Pop Micro-Animations) */}
           <div className="flex-1 min-h-0 overflow-y-auto p-4 bg-transparent">
             <div className="grid grid-cols-6 gap-3">
               {filteredProducts.map(p => {
@@ -402,18 +404,18 @@ export default function GroceryPOSPage() {
                 const emoji = getEmoji(p.name); const bg = getEmojiColor(emoji);
                 return (
                   <button key={p.id} onClick={() => isKg ? openScale(p) : addToCart(p)}
-                    className="flex flex-col bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-xl hover:border-emerald-400 transition-all duration-200 overflow-hidden p-2.5 text-left group">
-                    <div className="w-full flex items-center justify-center py-3 rounded-xl bg-gray-50/70 text-[48px] leading-none mb-2 select-none" style={{ background: bg }}>
+                    className="flex flex-col bg-white rounded-2xl border border-gray-100 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(22,163,74,0.18)] hover:border-emerald-400 hover:-translate-y-1.5 active:scale-95 transition-all duration-300 overflow-hidden p-2.5 text-left group transform">
+                    <div className="w-full flex items-center justify-center py-3 rounded-xl bg-gray-50/70 text-[48px] leading-none mb-2 select-none group-hover:scale-120 group-hover:rotate-6 transition-transform duration-300 shadow-2xs" style={{ background: bg }}>
                       {emoji}
                     </div>
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
-                        <p className="text-xs font-black text-gray-900 truncate">{p.name}</p>
+                        <p className="text-xs font-black text-gray-900 truncate group-hover:text-emerald-700 transition-colors">{p.name}</p>
                         <p className="text-[11px] font-semibold text-gray-400 mt-0.5">{p.uom || "1kg"}</p>
                       </div>
                       <div className="flex items-center justify-between mt-2.5 pt-1">
                         <span className="text-xs font-black text-emerald-700">৳ {Number(p.sellingPrice).toFixed(2)}</span>
-                        <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center group-hover:scale-110 transition shadow-sm">
+                        <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center group-hover:scale-115 group-hover:rotate-90 group-hover:bg-emerald-500 transition-all duration-300 shadow-md">
                           <Plus size={14} strokeWidth={2.5}/>
                         </div>
                       </div>
@@ -637,17 +639,17 @@ export default function GroceryPOSPage() {
 
           {/* ── 3. BOTTOM — Numpad | Payment + Pay CTA ── shrink-0 */}
           <div className="shrink-0 bg-white rounded-2xl border border-gray-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden" style={{height:210}}>
-            <div className="grid grid-cols-2 divide-x divide-gray-100 h-full">
+            <div className="grid grid-cols-12 divide-x divide-gray-100 h-full">
 
-              {/* LEFT: Function Keys + Numpad */}
-              <div className="flex gap-2 p-2.5 overflow-hidden">
-                <div className="flex flex-col gap-1 shrink-0 w-[115px]">
+              {/* LEFT: Function Keys + Numpad (5 columns) */}
+              <div className="col-span-5 flex gap-1.5 p-2 overflow-hidden">
+                <div className="flex flex-col gap-1 shrink-0 w-[100px]">
                   {FN_KEYS.map(({label,key,Icon})=>(
-                    <button key={key} className="flex items-center gap-2 pl-2.5 rounded-xl bg-[#f0fdf4] border border-[#d1fae5] hover:bg-green-100 transition flex-1 overflow-hidden text-left">
-                      <Icon size={12} className="text-[#16a34a] shrink-0"/>
-                      <div style={{overflow:"hidden"}}>
-                        <p style={{fontSize:11,fontWeight:700,color:"#374151",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",lineHeight:1}}>{label}</p>
-                        <span style={{fontSize:9,color:"#9ca3af",fontFamily:"monospace"}}>{key}</span>
+                    <button key={key} className="flex items-center gap-1.5 px-2 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] hover:bg-emerald-100/80 hover:-translate-y-0.5 active:scale-95 transition-all duration-150 flex-1 overflow-hidden text-left shadow-2xs">
+                      <Icon size={13} className="text-[#10b981] shrink-0"/>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-black text-[#15803d] truncate leading-tight">{label}</p>
+                        <p className="text-[8px] font-bold text-gray-400 font-mono leading-none">{key}</p>
                       </div>
                     </button>
                   ))}
@@ -655,61 +657,73 @@ export default function GroceryPOSPage() {
                 <div className="flex-1 grid grid-cols-4 gap-1 min-w-0">
                   {NUM_KEYS.map(k=>(
                     <button key={k} onClick={()=>numPress(k)}
-                      className={`rounded-xl font-extrabold text-sm flex items-center justify-center transition ${
-                        k==="="?"bg-[#16a34a] text-white hover:bg-[#15803d]"
-                        :k==="⌫"?"bg-red-50 text-red-400 border border-red-100 hover:bg-red-100"
-                        :"bg-white border border-gray-200 text-gray-800 hover:bg-gray-50"}`}>
+                      className={`rounded-xl font-black text-sm flex items-center justify-center transition-all duration-150 transform hover:-translate-y-0.5 active:scale-90 ${
+                        k==="="?"bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white shadow-md shadow-green-600/30 hover:brightness-110 active:bg-green-700"
+                        :k==="⌫"?"bg-red-50 text-red-400 border border-red-100 hover:bg-red-100 hover:text-red-500"
+                        :"bg-white border border-gray-200/80 text-gray-800 hover:bg-gray-50 hover:border-emerald-300 shadow-2xs"}`}>
                       {k}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* RIGHT: Payment Pills + Pay CTA */}
-              <div className="flex flex-col gap-2 p-2.5 overflow-hidden h-full">
+              {/* RIGHT: Payment Pills (Vertical Column) + Pay CTA & Save & Print (7 columns) */}
+              <div className="col-span-7 flex gap-2.5 p-2.5 overflow-hidden h-full">
                 
-                {/* 1. 5-Segment Payment Control - 100% Width Segment Bar */}
-                <div className="bg-gray-100/90 p-1 rounded-2xl border border-gray-200/80 grid grid-cols-5 gap-0.5 shrink-0 shadow-inner">
+                {/* 1. Left: 5 Vertical Payment Method Pills */}
+                <div className="flex flex-col gap-1.5 shrink-0 w-[115px] h-full">
                   {PAY_CFG.map(pm => {
                     const on = payMethod === pm.id;
-                    const displayLabel = pm.id === "upiqr" ? "UPI" : pm.id === "split" ? "Split" : pm.label;
                     return (
                       <button key={pm.id} onClick={() => setPayMethod(pm.id as any)}
-                        className={`flex items-center justify-center gap-1 py-1.5 px-0.5 rounded-xl text-[10px] font-extrabold transition-all ${
+                        className={`flex-1 flex items-center gap-2 px-2.5 rounded-xl border text-xs font-bold transition-all duration-150 transform hover:-translate-y-0.5 active:scale-95 text-left min-w-0 ${pm.bg} ${pm.text} ${
                           on 
-                            ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30 scale-[1.02]" 
-                            : "text-gray-600 hover:text-gray-900 hover:bg-white/60"
+                            ? `${pm.activeBorder} ${pm.activeRing} font-black shadow-xs scale-[1.02]` 
+                            : `${pm.border} opacity-85 hover:opacity-100`
                         }`}>
-                        <pm.Icon size={11} className={on ? "text-white" : "text-gray-500"}/>
-                        <span className="truncate">{displayLabel}</span>
+                        <pm.Icon size={15} className="shrink-0"/>
+                        <span className="truncate leading-none">{pm.label}</span>
                       </button>
                     );
                   })}
                 </div>
 
-                {/* 2. Hero Pay CTA Card (Matching Image 2) */}
-                <button onClick={handleCheckout} disabled={!cart.length || submitting}
-                  className="flex-1 w-full rounded-2xl text-white flex items-center justify-between px-4 py-2.5 shadow-md shadow-emerald-600/20 transition hover:brightness-105 active:scale-[0.99] disabled:opacity-40 bg-gradient-to-br from-[#16a34a] via-[#22c55e] to-[#84cc16] border border-emerald-400/30">
-                  <div className="text-left flex flex-col justify-center">
-                    <p className="text-sm font-black text-white/90 uppercase tracking-wider">Pay</p>
-                    <p className="text-2xl font-black text-white leading-tight tracking-tight mt-0.5">
-                      ৳ {grandTotal.toFixed(2)}
-                    </p>
-                  </div>
-                  <div className="w-11 h-11 rounded-full bg-white/25 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shrink-0 shadow-xs hover:bg-white/40 transition">
-                    {submitting ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
-                    ) : (
-                      <ArrowRight size={20} strokeWidth={3}/>
-                    )}
-                  </div>
-                </button>
+                {/* 2. Right: Hero Pay CTA Box (Top) + Save & Print Bill (Bottom) */}
+                <div className="flex-1 flex flex-col gap-2 min-w-0 h-full">
+                  
+                  {/* Top: Hero Pay CTA Card */}
+                  <button onClick={handleCheckout} disabled={!cart.length || submitting}
+                    className="flex-1 w-full rounded-2xl text-white flex items-center justify-between px-3.5 sm:px-4 py-2.5 shadow-[0_8px_20px_rgba(22,163,74,0.35)] hover:shadow-[0_12px_28px_rgba(22,163,74,0.5)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 disabled:opacity-40 bg-gradient-to-r from-[#16a34a] via-[#22c55e] to-[#84cc16] border border-emerald-400/40 relative overflow-hidden group min-w-0">
+                    <div className="text-left flex flex-col justify-center relative z-10 min-w-0 flex-1 mr-1.5">
+                      <p className="text-xs sm:text-sm font-extrabold text-white/95 leading-none tracking-wide">Pay</p>
+                      {(() => {
+                        const str = grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        const len = str.length;
+                        const sizeClass = len > 13 ? 'text-base sm:text-lg' : len > 10 ? 'text-lg sm:text-xl' : len > 7 ? 'text-xl sm:text-[24px]' : 'text-[24px] sm:text-[27px]';
+                        return (
+                          <p className={`${sizeClass} font-black text-white leading-tight tracking-tight mt-0.5 whitespace-nowrap`}>
+                            ৳ {str}
+                          </p>
+                        );
+                      })()}
+                    </div>
+                    <div className="relative z-10 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/25 backdrop-blur-md border border-white/40 text-white flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 group-hover:bg-white/35 transition-all duration-300">
+                      {submitting ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
+                      ) : (
+                        <ArrowRight size={21} strokeWidth={2.5} className="group-hover:translate-x-0.5 transition-transform"/>
+                      )}
+                    </div>
+                  </button>
 
-                {/* 3. Save & Print Bill */}
-                <button onClick={() => window.print()} disabled={!cart.length}
-                  className="w-full py-1.5 rounded-xl border text-xs font-extrabold flex items-center justify-center gap-1.5 transition disabled:opacity-40 bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-800 shadow-sm shrink-0">
-                  <Printer size={13}/> Save &amp; Print Bill
-                </button>
+                  {/* Bottom: Save & Print Bill */}
+                  <button onClick={() => window.print()} disabled={!cart.length}
+                    className="w-full py-2.5 rounded-xl border text-xs font-black flex items-center justify-center gap-2 transition-all duration-150 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-40 bg-[#f0fdf4] hover:bg-emerald-100/80 border-[#dcfce7] text-[#15803d] shadow-2xs shrink-0">
+                    <Printer size={15} className="shrink-0"/>
+                    <span className="truncate">Save &amp; Print Bill</span>
+                  </button>
+
+                </div>
 
               </div>
 
