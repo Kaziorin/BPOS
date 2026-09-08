@@ -214,10 +214,50 @@ export default function GroceryPOSPage() {
   const filteredProducts=products.filter(p=>{const matchCat=selectedCat==="All Items"||(p.category?.name||"Grocery")===selectedCat;const q=searchFilter.toLowerCase().trim();return matchCat&&(!q||p.name.toLowerCase().includes(q)||p.sku?.toLowerCase().includes(q)||p.barcode?.includes(q));});
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-gray-50 select-none overflow-hidden" style={{fontFamily:"'Inter','Segoe UI',sans-serif"}}>
+    <div className="relative flex flex-col h-screen w-screen bg-[#f7fdf4] select-none overflow-hidden" style={{fontFamily:"'Inter','Segoe UI',sans-serif"}}>
 
-      {/* ══ HEADER ══ */}
-      <header className="flex-none flex items-center justify-between gap-4 px-6 py-3 border-b border-green-200/50 shadow-sm"
+      {/* ══ VIVID ORGANIC CURVED WAVE BACKDROP (Matching User Image Footer) ══ */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Upper Soft Mint Wave — Rises under Status Bar */}
+        <svg className="absolute bottom-0 left-0 w-[70%] h-[280px] opacity-95" viewBox="0 0 1000 280" fill="none" preserveAspectRatio="none">
+          <path d="M 0 110 C 180 200, 380 20, 680 160 C 830 220, 940 70, 1000 110 L 1000 280 L 0 280 Z" fill="url(#mint-wave-top)" />
+          <defs>
+            <linearGradient id="mint-wave-top" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#eefce3" stopOpacity="0.95"/>
+              <stop offset="45%" stopColor="#dcfce7" stopOpacity="0.7"/>
+              <stop offset="85%" stopColor="#f7fdf4" stopOpacity="0.1"/>
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Main Vivid Lime-Green Front Wave — Matches Image 2 bottom-left wave! */}
+        <svg className="absolute bottom-0 left-0 w-[62%] h-[210px] opacity-100" viewBox="0 0 1000 210" fill="none" preserveAspectRatio="none">
+          <path d="M 0 45 C 160 165, 360 15, 630 140 C 790 195, 910 85, 1000 125 L 1000 210 L 0 210 Z" fill="url(#lime-wave-vivid)" />
+          <defs>
+            <linearGradient id="lime-wave-vivid" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#d9f99d" stopOpacity="1"/>
+              <stop offset="30%" stopColor="#bef264" stopOpacity="0.9"/>
+              <stop offset="65%" stopColor="#dcfce7" stopOpacity="0.6"/>
+              <stop offset="100%" stopColor="#f7fdf4" stopOpacity="0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Bottom Left Deep Yellow-Green Glow Wave */}
+        <svg className="absolute -bottom-2 -left-4 w-[48%] h-[150px] opacity-95" viewBox="0 0 800 150" fill="none" preserveAspectRatio="none">
+          <path d="M 0 25 C 130 125, 290 5, 520 105 C 670 155, 760 65, 800 95 L 800 150 L 0 150 Z" fill="url(#lime-wave-glow)" />
+          <defs>
+            <linearGradient id="lime-wave-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#a3e635" stopOpacity="0.95"/>
+              <stop offset="40%" stopColor="#d9f99d" stopOpacity="0.6"/>
+              <stop offset="100%" stopColor="#f7fdf4" stopOpacity="0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      {/* ══ HEADER — Exact Gradient from Image 1 ══ */}
+      <header className="relative z-10 flex-none flex items-center justify-between gap-4 px-6 py-3 border-b border-green-200/50 shadow-sm"
         style={{background:"linear-gradient(90deg,#d9f99d 0%,#e2f9cc 25%,#eefce3 65%,#f7fdf4 100%)",minHeight:64}}>
         <div className="flex items-center gap-3">
           <Link href="/grocery" className="flex items-center text-green-800 hover:text-green-950 transition mr-1"><ChevronLeft size={18}/></Link>
@@ -230,8 +270,8 @@ export default function GroceryPOSPage() {
           </div>
         </div>
         <div className="flex-1 max-w-xl">
-          <div className="flex items-center bg-white rounded-2xl border border-white/90 shadow-[0_2px_10px_rgba(0,0,0,0.04)] px-4 py-2">
-            <Search size={17} className="text-[#65a30d] shrink-0 mr-3"/>
+          <div className="flex items-center bg-white rounded-full border border-white/90 shadow-[0_2px_10px_rgba(0,0,0,0.04)] px-4 py-2">
+            <Search size={18} className="text-[#84cc16] shrink-0 mr-3"/>
             <input ref={scanRef} type="text" value={scanInput} onChange={e=>{setScanInput(e.target.value);setSearchFilter(e.target.value);}} onKeyDown={handleScanKey}
               placeholder="Search product by name, barcode or scan..."
               className="w-full bg-transparent text-sm font-semibold text-gray-800 placeholder:text-gray-400 placeholder:font-normal focus:outline-none"/>
@@ -240,13 +280,13 @@ export default function GroceryPOSPage() {
         </div>
         <div className="flex items-center gap-2">
           {[
-            {icon:<Users size={15} strokeWidth={2.5}/>,bg:"bg-green-50",label:"Walk-in Customer",sub:"Default Customer"},
+            {icon:<Users size={15} strokeWidth={2.5}/>,bg:"bg-green-50 text-green-600",label:"Walk-in Customer",sub:"Default Customer"},
             {icon:<span className="text-xs font-bold">★</span>,bg:"bg-green-600 text-white",label:"Loyalty Points",sub:"120 Pts"},
-            {icon:<FileText size={15} strokeWidth={2.2}/>,bg:"bg-green-50",label:"Invoice",sub:"INV-250520-0012"},
-            {icon:<Clock size={15} strokeWidth={2.2}/>,bg:"bg-green-50",label:now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),sub:now.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})},
+            {icon:<FileText size={15} strokeWidth={2.2}/>,bg:"bg-green-50 text-green-600",label:"Invoice",sub:"INV-250520-0012"},
+            {icon:<Clock size={15} strokeWidth={2.2}/>,bg:"bg-green-50 text-green-600",label:now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),sub:now.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})},
           ].map((c,i)=>(
-            <div key={i} className="flex items-center gap-2.5 bg-white rounded-2xl px-3 py-2 border border-white/90 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[#16a34a] ${c.bg}`}>{c.icon}</div>
+            <div key={i} className="flex items-center gap-2.5 bg-white rounded-2xl px-3.5 py-2 border border-white/90 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
+              <div className={`w-7 h-7 rounded-xl flex items-center justify-center ${c.bg}`}>{c.icon}</div>
               <div className="leading-tight">
                 <p className="text-xs font-extrabold text-[#1e293b] whitespace-nowrap">{c.label}</p>
                 <p className="text-[10px] font-semibold text-[#64748b]">{c.sub}</p>
@@ -257,7 +297,7 @@ export default function GroceryPOSPage() {
       </header>
 
       {/* ══ BODY ══ */}
-      <div className="flex-1 min-h-0 flex overflow-hidden">
+      <div className="relative z-10 flex-1 min-h-0 flex overflow-hidden">
 
         {/* ════ LEFT — Product Grid ════ */}
         <div className="flex flex-col w-[65%] min-w-0 overflow-hidden border-r border-gray-200 shrink-0">
@@ -355,7 +395,7 @@ export default function GroceryPOSPage() {
           </div>
 
           {/* Product grid - 6 Columns */}
-          <div className="flex-1 min-h-0 overflow-y-auto p-4 bg-gray-50/50">
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 bg-transparent">
             <div className="grid grid-cols-6 gap-3">
               {filteredProducts.map(p => {
                 const isKg = p.uom?.toLowerCase().includes("kg") || p.uom?.toLowerCase().includes("gm");
@@ -390,24 +430,24 @@ export default function GroceryPOSPage() {
             </div>
           </div>
 
-          {/* Status & Action Bars Container */}
-          <div className="flex-none bg-gray-50/50 border-t border-gray-100 p-3 flex flex-col gap-2.5">
+          {/* Status & Action Bars Container — Transparent so SVG wave pops through */}
+          <div className="flex-none bg-transparent p-3 flex flex-col gap-2.5 relative z-10">
             
             {/* Status Summary Bar */}
-            <div className="bg-white rounded-2xl border border-gray-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] px-4 py-2.5 flex items-center justify-between divide-x divide-gray-100">
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-emerald-100/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] px-4 py-2.5 flex items-center justify-between divide-x divide-emerald-50">
               {[
-                { icon: <ShoppingBag size={17}/>, label: "Total Items", val: totalItems, bg: "bg-emerald-50 text-emerald-600" },
-                { icon: <Package size={17}/>, label: "Total Qty", val: Math.round(totalQty*100)/100, bg: "bg-blue-50 text-blue-600" },
-                { icon: <FileText size={17}/>, label: "Subtotal", val: fmt(subTotal), bg: "bg-emerald-50 text-emerald-600" },
-                { icon: <Tag size={17}/>, label: "Discount", val: fmt(discAmt), bg: "bg-emerald-50 text-emerald-600" },
-                { icon: <Gift size={17}/>, label: "Total Savings", val: fmt(discAmt), bg: "bg-emerald-50 text-emerald-600" },
+                { icon: <ShoppingBag size={17}/>, label: "Total Items", val: totalItems, bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
+                { icon: <Package size={17}/>, label: "Total Qty", val: Math.round(totalQty*100)/100, bg: "bg-[#eff6ff] text-[#3b82f6] border border-[#bfdbfe]/60" },
+                { icon: <FileText size={17}/>, label: "Subtotal", val: fmt(subTotal), bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
+                { icon: <Tag size={17}/>, label: "Discount", val: fmt(discAmt), bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
+                { icon: <Gift size={17}/>, label: "Total Savings", val: fmt(discAmt), bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
               ].map((s, idx) => (
                 <div key={s.label} className={`flex items-center gap-3 ${idx === 0 ? "" : "pl-4"} ${idx === 4 ? "" : "pr-4"} flex-1`}>
                   <div className={`w-9 h-9 rounded-xl ${s.bg} flex items-center justify-center shrink-0 shadow-2xs`}>
                     {s.icon}
                   </div>
                   <div>
-                    <p className="text-[11px] font-medium text-gray-400 leading-tight">{s.label}</p>
+                    <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider leading-tight">{s.label}</p>
                     <p className="text-sm font-black text-gray-900 leading-snug mt-0.5">{s.val}</p>
                   </div>
                 </div>
@@ -415,13 +455,13 @@ export default function GroceryPOSPage() {
             </div>
 
             {/* Quick Action Bar */}
-            <div className="bg-emerald-50/40 rounded-2xl border border-emerald-100/80 px-4 py-2.5 flex items-center justify-between divide-x divide-emerald-100/80">
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-emerald-100/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] px-4 py-2.5 flex items-center justify-between divide-x divide-emerald-50">
               {[
-                { label: "Sales History", key: "F8", icon: <History size={17}/>, bg: "bg-emerald-50 text-emerald-600" },
-                { label: "Open Drawer", key: "F9", icon: <Printer size={17}/>, bg: "bg-emerald-50 text-emerald-600" },
-                { label: "Add Customer", key: "F10", icon: <Users size={17}/>, bg: "bg-emerald-50 text-emerald-600" },
-                { label: "Clear Cart", key: "F11", icon: <Trash2 size={17}/>, bg: "bg-rose-50 text-rose-500", onClick: clearCart },
-                { label: "Save & Print", key: "F12", icon: <Printer size={17}/>, bg: "bg-emerald-50 text-emerald-600", onClick: () => window.print() },
+                { label: "Sales History", key: "F8", icon: <History size={17}/>, bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
+                { label: "Open Drawer", key: "F9", icon: <Printer size={17}/>, bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
+                { label: "Add Customer", key: "F10", icon: <Users size={17}/>, bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
+                { label: "Clear Cart", key: "F11", icon: <Trash2 size={17}/>, bg: "bg-[#fef2f2] text-[#ef4444] border border-[#fecaca]/60", onClick: clearCart },
+                { label: "Save & Print", key: "F12", icon: <Printer size={17}/>, bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60", onClick: () => window.print() },
               ].map((a, idx) => (
                 <button key={a.label} onClick={a.onClick}
                   className={`flex items-center gap-3 ${idx === 0 ? "" : "pl-4"} ${idx === 4 ? "" : "pr-4"} flex-1 text-left hover:opacity-80 transition`}>
@@ -439,13 +479,8 @@ export default function GroceryPOSPage() {
           </div>
         </div>
 
-        {/* ════ RIGHT — Cart / Summary / Payment ════
-             KEY LAYOUT RULE:
-             - This panel is h-full overflow-hidden (NO page scroll)
-             - Cart card is flex-1 min-h-0 (grows to fill remaining space)
-             - Middle & Bottom are shrink-0 (fixed height, always visible)
-        ════ */}
-        <div className="flex flex-col gap-2 p-2 bg-gray-50/60 border-l border-gray-200 overflow-hidden shrink-0 w-[35%]" style={{width:"35%"}}>
+        {/* ════ RIGHT — Cart / Summary / Payment ════ */}
+        <div className="flex flex-col gap-2 p-2 bg-transparent border-l border-emerald-100/50 overflow-hidden shrink-0 w-[35%] relative z-10" style={{width:"35%"}}>
 
           {/* ── 1. CART CARD — flex-1 so it fills remaining space ── */}
           <div className="bg-white rounded-2xl border border-gray-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col flex-1 min-h-0">
@@ -652,28 +687,21 @@ export default function GroceryPOSPage() {
                   })}
                 </div>
 
-                {/* 2. Hero Pay CTA Card */}
+                {/* 2. Hero Pay CTA Card (Matching Image 2) */}
                 <button onClick={handleCheckout} disabled={!cart.length || submitting}
-                  className="flex-1 w-full rounded-2xl text-white flex items-center justify-between px-3.5 py-2.5 shadow-lg shadow-emerald-600/25 transition hover:brightness-105 active:scale-[0.99] disabled:opacity-40 bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 border border-emerald-500/30">
+                  className="flex-1 w-full rounded-2xl text-white flex items-center justify-between px-4 py-2.5 shadow-md shadow-emerald-600/20 transition hover:brightness-105 active:scale-[0.99] disabled:opacity-40 bg-gradient-to-br from-[#16a34a] via-[#22c55e] to-[#84cc16] border border-emerald-400/30">
                   <div className="text-left flex flex-col justify-center">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-emerald-100 bg-emerald-950/30 px-2 py-0.5 rounded-md">
-                        {PAY_CFG.find(p => p.id === payMethod)?.label || "PAY"} • F12
-                      </span>
-                    </div>
-                    <p className="text-2xl font-black text-white leading-none tracking-tight">
+                    <p className="text-sm font-black text-white/90 uppercase tracking-wider">Pay</p>
+                    <p className="text-2xl font-black text-white leading-tight tracking-tight mt-0.5">
                       ৳ {grandTotal.toFixed(2)}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-2 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-sm">
-                      <span>{submitting ? "Processing..." : "PAY NOW"}</span>
-                      {submitting ? (
-                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"/>
-                      ) : (
-                        <ArrowRight size={15} strokeWidth={2.5}/>
-                      )}
-                    </div>
+                  <div className="w-11 h-11 rounded-full bg-white/25 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shrink-0 shadow-xs hover:bg-white/40 transition">
+                    {submitting ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
+                    ) : (
+                      <ArrowRight size={20} strokeWidth={3}/>
+                    )}
                   </div>
                 </button>
 
