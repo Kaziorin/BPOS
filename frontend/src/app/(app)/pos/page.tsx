@@ -600,7 +600,7 @@ export default function PosPage() {
   // ── Main POS layout ──────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col gap-4 overflow-y-auto pb-14 lg:h-[calc(100vh-4rem)] lg:flex-row lg:overflow-hidden lg:pb-0">
+    <div className="h-screen w-screen flex flex-col lg:flex-row gap-3 p-3 overflow-hidden bg-slate-50 select-none">
 
       {/* LEFT — Product grid */}
       <div className="flex h-[55dvh] min-h-0 flex-1 flex-col gap-3 overflow-hidden lg:h-auto">

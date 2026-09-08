@@ -32,12 +32,12 @@ export default function GroceryHubPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [salesRes, prodRes] = await Promise.all([
-        api.get("/sales", { params: { limit: 50 } }),
+      const [salesRes, prodRes] = await Promise.allSettled([
+        api.get("/pos/sales", { params: { limit: 50 } }),
         api.get("/products", { params: { limit: 100 } }),
       ]);
-      const sData = (salesRes.data as any)?.data ?? salesRes.data ?? [];
-      const pData = (prodRes.data as any)?.data ?? prodRes.data ?? [];
+      const sData = salesRes.status === "fulfilled" ? ((salesRes.value as any)?.data ?? salesRes.value ?? []) : [];
+      const pData = prodRes.status === "fulfilled" ? ((prodRes.value as any)?.data ?? prodRes.value ?? []) : [];
       setSales(Array.isArray(sData) ? sData : []);
       setProducts(Array.isArray(pData) ? pData : []);
     } catch (err) {
@@ -80,25 +80,29 @@ export default function GroceryHubPage() {
   return (
     <div className="w-full space-y-6">
       {/* Header Banner */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 p-6 sm:p-8 text-white shadow-xl border border-emerald-500/20">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-widest">
-            <Scale size={15} /> Industry Vertical 4 · Grocery & Supermarket
+      <div className="flex flex-wrap items-center justify-between gap-4 p-6 bg-gradient-to-r from-emerald-900/40 via-teal-900/20 to-slate-900 border border-emerald-500/20 rounded-2xl shadow-2xl backdrop-blur-md">
+        <div className="flex items-center gap-4">
+          <div className="p-3.5 bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 rounded-2xl shadow-inner">
+            <Scale size={32} />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">Supermarket Lane Hub & POS</h1>
-          <p className="text-xs sm:text-sm text-emerald-200/80 max-w-2xl">
-            High-speed lane checkout with weighing scale (Kg/g) tare calculation, rapid barcode scanner, express cashier lanes & produce PLU lookup.
-          </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-extrabold text-white tracking-tight">Grocery & Supermarket</h1>
+              <span className="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full">
+                Industry Vertical 4
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-1">
+              High-speed lane checkout with weighing scale (Kg/g) tare calculation, rapid barcode scanner, express cashier lanes & produce PLU lookup.
+            </p>
+          </div>
         </div>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href="/grocery/pos"
-            className="flex items-center gap-2 rounded-2xl bg-emerald-500 px-6 py-3.5 text-sm font-black text-slate-950 hover:bg-emerald-400 shadow-lg shadow-emerald-500/30 transition transform hover:-translate-y-0.5"
-          >
-            <ShoppingCart size={18} /> Launch Supermarket POS Lane
-          </Link>
-        </div>
+        <Link
+          href="/grocery/pos"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-500 transition-all"
+        >
+          <ShoppingCart size={16} /> Open Grocery POS
+        </Link>
       </div>
 
       {/* KPI Stats */}

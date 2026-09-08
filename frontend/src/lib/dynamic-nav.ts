@@ -365,10 +365,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Grocery & Supermarket",
         href: "/grocery",
         icon: Scale,
-        children: [
-          { label: "Fast Scanner Lane POS", href: "/grocery/pos", icon: ShoppingCart },
-          { label: "Supermarket Operations", href: "/grocery", icon: Package },
-        ],
       },
       {
         label: "Wholesale & B2B",
@@ -506,11 +502,15 @@ export function useDynamicNav() {
               children[0].href === mod.moduleRoute &&
               !children[0].children?.length;
 
+            // Modules that should be direct links (no sub-menu accordion)
+            const DIRECT_LINK_ROUTES = ["/grocery"];
+            const forceDirectLink = DIRECT_LINK_ROUTES.includes(mod.moduleRoute ?? "");
+
             items.push({
               label: mod.moduleName,
               href: mod.moduleRoute ?? "#",
               icon: ModIcon,
-              children: singleDirect || children.length === 0 ? undefined : children,
+              children: forceDirectLink || singleDirect || children.length === 0 ? undefined : children,
             });
           }
 

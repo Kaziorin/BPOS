@@ -88,7 +88,7 @@ MODULES = [
     ("restaurant", "Restaurant", "INDUSTRY", "UtensilsCrossed", "/restaurant", 50),
     ("pharmacy", "Pharmacy", "INDUSTRY", "Package", "/pharmacy", 51),
     ("retail", "Retail", "INDUSTRY", "ShoppingBag", "/omnichannel", 52),
-    ("grocery", "Grocery / Supermarket", "INDUSTRY", "Package", "/omnichannel", 53),
+    ("grocery", "Grocery / Supermarket", "INDUSTRY", "Scale", "/grocery", 53),
     ("wholesale", "Wholesale & Distribution", "INDUSTRY", "Truck", "/omnichannel", 54),
     ("manufacturing", "Manufacturing / Bakery", "INDUSTRY", "Settings", "/manufacturing", 55),
     ("salon", "Salon & Spa", "INDUSTRY", "Scissors", "/salon", 56),

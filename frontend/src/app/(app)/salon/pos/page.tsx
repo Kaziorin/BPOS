@@ -188,7 +188,7 @@ export default function SalonPOSPage() {
   });
 
   return (
-    <div className="h-[calc(100vh-5rem)] flex flex-col gap-3 -m-4 sm:-m-6 p-3 sm:p-4 bg-slate-950 text-slate-100 select-none overflow-hidden">
+    <div className="h-screen w-screen flex flex-col gap-3 p-3 sm:p-4 bg-slate-950 text-slate-100 select-none overflow-hidden">
       
       {/* Top Salon Header */}
       <div className="flex-none flex flex-wrap items-center justify-between gap-3 bg-slate-900 rounded-2xl p-3 sm:px-4 border border-pink-900/60 shadow-lg">

@@ -32,12 +32,12 @@ export default function WholesaleHubPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [ordersRes, custRes] = await Promise.all([
-        api.get("/sales", { params: { limit: 50 } }),
+      const [ordersRes, custRes] = await Promise.allSettled([
+        api.get("/pos/sales", { params: { limit: 50 } }),
         api.get("/customers", { params: { limit: 100 } }),
       ]);
-      const oData = (ordersRes.data as any)?.data ?? ordersRes.data ?? [];
-      const cData = (custRes.data as any)?.data ?? custRes.data ?? [];
+      const oData = ordersRes.status === "fulfilled" ? ((ordersRes.value as any)?.data ?? ordersRes.value ?? []) : [];
+      const cData = custRes.status === "fulfilled" ? ((custRes.value as any)?.data ?? custRes.value ?? []) : [];
       setOrders(Array.isArray(oData) ? oData : []);
       setCustomers(Array.isArray(cData) ? cData : []);
     } catch (err) {
