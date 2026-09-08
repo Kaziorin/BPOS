@@ -477,8 +477,8 @@ export default function GroceryPOSPage() {
           )}
 
           {/* Quick actions */}
-          <div className="flex-none bg-white border-b border-gray-100 px-4 py-3">
-            <p className="text-xs font-black text-gray-800 mb-2.5">Quick Actions</p>
+          <div className="flex-none bg-white border-b border-gray-100 px-4 py-2.5">
+            <p className="text-xs font-bold text-slate-700 mb-2">Quick Actions</p>
             <div className="flex items-center gap-2.5">
               {[
                 { label: "Price Check", key: "F3", icon: <Search size={15}/>, onClick: () => setPriceCheckOpen(true) },
@@ -488,49 +488,73 @@ export default function GroceryPOSPage() {
                 { label: "Hold Bill", key: "F7", icon: <PauseCircle size={15}/>, onClick: () => { if (cart.length) holdCart(); else setHeldCartsOpen(true); } },
               ].map(a => (
                 <button key={a.label} onClick={a.onClick}
-                  className="flex-1 bg-gradient-to-b from-white via-[#fcfdfe] to-[#f0fdf4] rounded-2xl border-t border-x border-emerald-200/90 border-b-[3px] border-b-emerald-300/90 p-2 flex items-center gap-2.5 shadow-[0_3px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_18px_rgba(22,163,74,0.18)] hover:border-emerald-400 hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[0.98] active:shadow-inner transition-all duration-150 text-left group cursor-pointer">
-                  <div className="w-8 h-8 rounded-xl bg-white border border-emerald-200/80 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-emerald-600 group-hover:text-white transition-all duration-200">
+                  className="flex-1 bg-gradient-to-b from-white via-[#fcfdfe] to-[#f0fdf4] rounded-xl border-t border-x border-emerald-200/80 border-b-[2.5px] border-b-emerald-300/80 p-2 flex items-center gap-2 shadow-2xs hover:shadow-md hover:border-emerald-400 hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[0.98] transition-all duration-150 text-left group cursor-pointer">
+                  <div className="w-8 h-8 rounded-lg bg-white border border-emerald-200/80 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-emerald-600 group-hover:text-white transition-all duration-200">
                     {a.icon}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-black text-gray-900 truncate leading-tight group-hover:text-emerald-800 transition-colors">{a.label}</p>
-                    <span className="text-[9px] font-mono font-black bg-[#15803d] text-white px-1.5 py-0.5 rounded-md shadow-2xs inline-block mt-0.5 tracking-wider border border-emerald-800/40">{a.key}</span>
+                    <p className="text-xs font-bold text-slate-800 truncate leading-snug group-hover:text-emerald-700 transition-colors">{a.label}</p>
+                    <span className="text-[10px] font-semibold font-mono text-emerald-800 bg-emerald-100/80 px-1.5 py-0.2 rounded inline-block mt-0.5">{a.key}</span>
                   </div>
                 </button>
               ))}
-              <button onClick={() => setSettingsOpen(true)} className="p-2.5 rounded-2xl border-t border-x border-gray-200 border-b-[3px] border-b-gray-300 bg-gradient-to-b from-white via-gray-50 to-gray-100 text-gray-600 hover:text-emerald-700 hover:border-emerald-300 hover:shadow-md active:translate-y-0.5 active:scale-95 shadow-2xs shrink-0 transition-all cursor-pointer">
-                <Settings size={18}/>
+              <button onClick={() => setSettingsOpen(true)} className="p-2.5 rounded-xl border-t border-x border-gray-200 border-b-[2.5px] border-b-gray-300 bg-gradient-to-b from-white via-gray-50 to-gray-100 text-slate-600 hover:text-emerald-700 hover:border-emerald-300 hover:shadow-md active:translate-y-0.5 active:scale-95 shadow-2xs shrink-0 transition-all cursor-pointer">
+                <Settings size={17}/>
               </button>
             </div>
           </div>
 
           {/* Sub-header */}
-          <div className="flex-none px-4 py-2.5 bg-white border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-sm font-black text-gray-900">All Products ({filteredProducts.length})</h2>
+          <div className="flex-none px-4 py-2 bg-white border-b border-gray-100 flex items-center justify-between">
+            <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wide">All Products ({filteredProducts.length})</h2>
             <button onClick={() => { setSelectedCat("All Items"); setSearchFilter(""); }} className="text-xs font-bold text-emerald-600 hover:underline">View All</button>
           </div>
 
-          {/* Product grid - 6 Columns (3D Tilt & Pop Micro-Animations) */}
-          <div className="flex-1 min-h-0 overflow-y-auto p-4 bg-transparent">
+          {/* Product grid - 6 Columns (Perfect Balanced 3D Product Cards) */}
+          <div className="flex-1 min-h-0 overflow-y-auto p-3.5 bg-transparent">
             <div className="grid grid-cols-6 gap-3">
               {filteredProducts.map(p => {
                 const isKg = p.uom?.toLowerCase().includes("kg") || p.uom?.toLowerCase().includes("gm");
                 const emoji = getEmoji(p.name); const bg = getEmojiColor(emoji);
+                const cartItem = cart.find(c => c.id === p.id);
+                const inCartQty = cartItem ? cartItem.qty : 0;
+
                 return (
                   <button key={p.id} onClick={() => isKg ? openScale(p) : addToCart(p)}
-                    className="flex flex-col bg-white rounded-2xl border border-gray-100 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(22,163,74,0.18)] hover:border-emerald-400 hover:-translate-y-1.5 active:scale-95 transition-all duration-300 overflow-hidden p-2.5 text-left group transform">
-                    <div className="w-full flex items-center justify-center py-3 rounded-xl bg-gray-50/70 text-[48px] leading-none mb-2 select-none group-hover:scale-120 group-hover:rotate-6 transition-transform duration-300 shadow-2xs" style={{ background: bg }}>
-                      {emoji}
-                    </div>
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <p className="text-xs font-black text-gray-900 truncate group-hover:text-emerald-700 transition-colors">{p.name}</p>
-                        <p className="text-[11px] font-semibold text-gray-400 mt-0.5">{p.uom || "1kg"}</p>
+                    className={`flex flex-col rounded-2xl border-t border-x border-b-[3px] shadow-[0_4px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_20px_rgba(22,163,74,0.18)] hover:border-emerald-400 hover:border-b-emerald-500 hover:-translate-y-1 active:translate-y-0.5 active:scale-[0.98] transition-all duration-200 overflow-hidden p-2.5 text-left group cursor-pointer relative ${
+                      inCartQty > 0 
+                        ? "bg-gradient-to-b from-emerald-50/70 via-white to-emerald-100/60 border-emerald-300 border-b-emerald-500 ring-2 ring-emerald-400/30" 
+                        : "bg-gradient-to-b from-white via-[#fcfdfe] to-[#f0fdf4]/50 border-emerald-200/80 border-b-emerald-300/80"
+                    }`}>
+                    
+                    {/* Floating Cart Quantity Badge */}
+                    {inCartQty > 0 && (
+                      <div className="absolute top-2 right-2 z-20 bg-emerald-600 text-white text-[9.5px] font-bold px-2 py-0.5 rounded-full shadow-2xs border border-white/80 animate-in zoom-in-75">
+                        {inCartQty} in cart
                       </div>
-                      <div className="flex items-center justify-between mt-2.5 pt-1">
-                        <span className="text-xs font-black text-emerald-700">৳ {Number(p.sellingPrice).toFixed(2)}</span>
-                        <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center group-hover:scale-115 group-hover:rotate-90 group-hover:bg-emerald-500 transition-all duration-300 shadow-md">
-                          <Plus size={14} strokeWidth={2.5}/>
+                    )}
+
+                    {/* Perfect Medium Square Emoji Showcase */}
+                    <div className="w-full h-20 sm:h-22 aspect-square flex items-center justify-center rounded-xl text-[38px] leading-none mb-2 select-none group-hover:scale-108 transition-all duration-200 shadow-[inset_0_1.5px_3px_rgba(255,255,255,0.9),0_3px_8px_rgba(0,0,0,0.03)] border border-emerald-100/70 relative overflow-hidden shrink-0" style={{ background: bg }}>
+                      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-white/60 opacity-60 pointer-events-none"/>
+                      <span className="relative z-10 drop-shadow-xs select-none">{emoji}</span>
+                    </div>
+
+                    <div className="flex-1 flex flex-col justify-between min-w-0">
+                      <div>
+                        <p className="text-xs font-bold text-slate-800 truncate group-hover:text-emerald-700 transition-colors leading-snug tracking-tight">{p.name}</p>
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="text-[10px] font-semibold font-mono text-emerald-800 bg-emerald-100/70 border border-emerald-200/60 px-1.5 py-0.2 rounded">{p.uom || "1kg"}</span>
+                          {isKg && <span className="text-[9px] font-semibold text-amber-800 bg-amber-100/70 border border-amber-200/70 px-1 rounded">Scale</span>}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-2.5 pt-1.5 border-t border-emerald-100/60">
+                        <span className="text-xs font-extrabold text-emerald-800 bg-emerald-50/90 border border-emerald-200/80 px-2 py-0.5 rounded-lg shadow-2xs">
+                          ৳ {Number(p.sellingPrice).toFixed(2)}
+                        </span>
+                        <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-2xs group-hover:scale-110 group-hover:bg-emerald-500 transition-all duration-200">
+                          <Plus size={13} strokeWidth={2.5}/>
                         </div>
                       </div>
                     </div>
@@ -538,39 +562,39 @@ export default function GroceryPOSPage() {
                 );
               })}
               {filteredProducts.length === 0 && (
-                <div className="col-span-6 py-12 text-center">
-                  <Package size={36} className="mx-auto mb-2 opacity-40 text-gray-300"/>
-                  <p className="text-sm font-semibold text-gray-400">No products found</p>
+                <div className="col-span-6 py-12 text-center bg-white/80 rounded-2xl border border-gray-100 shadow-2xs">
+                  <Package size={36} className="mx-auto mb-2 opacity-40 text-gray-400"/>
+                  <p className="text-xs font-bold text-gray-500">No products found</p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Status & Action Bars Container — Transparent so SVG wave pops through */}
+          {/* Status & Action Bars Container */}
           <div className="flex-none bg-transparent p-3 flex flex-col gap-2.5 relative z-10">
             
             {/* Status Summary Bar */}
             <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-emerald-100/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] px-4 py-2.5 flex items-center justify-between divide-x divide-emerald-50">
               {[
-                { icon: <ShoppingBag size={17}/>, label: "Total Items", val: totalItems, bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
-                { icon: <Package size={17}/>, label: "Total Qty", val: Math.round(totalQty*100)/100, bg: "bg-[#eff6ff] text-[#3b82f6] border border-[#bfdbfe]/60" },
-                { icon: <FileText size={17}/>, label: "Subtotal", val: fmt(subTotal), bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
-                { icon: <Tag size={17}/>, label: "Discount", val: fmt(discAmt), bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
-                { icon: <Gift size={17}/>, label: "Total Savings", val: fmt(discAmt), bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
+                { icon: <ShoppingBag size={16}/>, label: "Total Items", val: totalItems, bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
+                { icon: <Package size={16}/>, label: "Total Qty", val: Math.round(totalQty*100)/100, bg: "bg-[#eff6ff] text-[#3b82f6] border border-[#bfdbfe]/60" },
+                { icon: <FileText size={16}/>, label: "Subtotal", val: fmt(subTotal), bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
+                { icon: <Tag size={16}/>, label: "Discount", val: fmt(discAmt), bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
+                { icon: <Gift size={16}/>, label: "Total Savings", val: fmt(discAmt), bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60" },
               ].map((s, idx) => (
-                <div key={s.label} className={`flex items-center gap-3 ${idx === 0 ? "" : "pl-4"} ${idx === 4 ? "" : "pr-4"} flex-1`}>
-                  <div className={`w-9 h-9 rounded-xl ${s.bg} flex items-center justify-center shrink-0 shadow-2xs`}>
+                <div key={s.label} className={`flex items-center gap-2.5 ${idx === 0 ? "" : "pl-3.5"} ${idx === 4 ? "" : "pr-3.5"} flex-1`}>
+                  <div className={`w-8 h-8 rounded-xl ${s.bg} flex items-center justify-center shrink-0 shadow-2xs`}>
                     {s.icon}
                   </div>
                   <div>
-                    <p className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider leading-tight">{s.label}</p>
-                    <p className="text-sm font-black text-gray-900 leading-snug mt-0.5">{s.val}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide leading-tight">{s.label}</p>
+                    <p className="text-xs sm:text-sm font-extrabold text-slate-800 leading-snug mt-0.5">{s.val}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Quick Action Bar (5 Distinct Tactile 3D Buttons) */}
+            {/* Quick Action Bar (5 Distinct Tactile Buttons) */}
             <div className="grid grid-cols-5 gap-2.5">
               {[
                 { label: "Sales History", key: "F8", icon: <History size={16}/>, onClick: () => setRecentSalesOpen(true) },
@@ -580,20 +604,20 @@ export default function GroceryPOSPage() {
                 { label: "Save & Print", key: "F12", icon: <Printer size={16}/>, onClick: () => window.print() },
               ].map((a) => (
                 <button key={a.label} onClick={a.onClick}
-                  className={`border-t border-x border-b-[3.5px] rounded-2xl p-2.5 flex items-center justify-between shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_22px_rgba(22,163,74,0.22)] hover:-translate-y-1 active:translate-y-0.5 active:scale-[0.98] active:shadow-inner transition-all duration-150 text-left group overflow-hidden cursor-pointer ${
+                  className={`border-t border-x border-b-[3px] rounded-xl p-2 flex items-center justify-between shadow-2xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[0.98] transition-all duration-150 text-left group overflow-hidden cursor-pointer ${
                     a.isDanger 
-                      ? "bg-gradient-to-b from-white via-rose-50/50 to-red-100/70 border-red-200/90 border-b-red-400/90 hover:border-red-500 hover:shadow-[0_8px_22px_rgba(239,68,68,0.22)]" 
+                      ? "bg-gradient-to-b from-white via-rose-50/50 to-red-100/70 border-red-200/90 border-b-red-400/90 hover:border-red-500" 
                       : "bg-gradient-to-b from-white via-[#f0fdf4]/50 to-[#dcfce7]/70 border-emerald-200/90 border-b-emerald-400/90 hover:border-emerald-500"
                   }`}>
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className={`w-9 h-9 rounded-xl bg-white border flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 transition-all duration-200 ${
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className={`w-8 h-8 rounded-lg bg-white border flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-all duration-200 ${
                       a.isDanger ? "border-red-200 text-red-600 group-hover:bg-red-600 group-hover:text-white" : "border-emerald-200 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white"
                     }`}>
                       {a.icon}
                     </div>
                     <div className="min-w-0">
-                      <p className={`text-xs font-black truncate leading-tight transition-colors ${a.isDanger ? "text-red-900 group-hover:text-red-700" : "text-gray-900 group-hover:text-emerald-800"}`}>{a.label}</p>
-                      <span className={`text-[9.5px] font-mono font-black px-2 py-0.5 rounded-md shadow-2xs inline-block mt-0.5 tracking-wider border ${
+                      <p className={`text-xs font-bold truncate leading-snug transition-colors ${a.isDanger ? "text-red-900 group-hover:text-red-700" : "text-slate-800 group-hover:text-emerald-700"}`}>{a.label}</p>
+                      <span className={`text-[9.5px] font-mono font-semibold px-1.5 py-0.2 rounded inline-block mt-0.5 border ${
                         a.isDanger ? "bg-red-600 text-white border-red-700/50" : "bg-[#15803d] text-white border-emerald-800/50"
                       }`}>{a.key}</span>
                     </div>
@@ -614,70 +638,70 @@ export default function GroceryPOSPage() {
             {/* Cart header */}
             <div className="shrink-0 flex items-center justify-between px-4 pt-3 pb-2">
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-black text-gray-900">Cart</h2>
-                <span className="text-[#16a34a] font-extrabold text-sm">({totalItems} Items)</span>
+                <h2 className="text-base font-bold text-slate-800">Cart</h2>
+                <span className="text-emerald-600 font-bold text-xs">({totalItems} Items)</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <button onClick={() => { if (cart.length) holdCart(); else setHeldCartsOpen(true); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition ${
-                    heldCarts.length > 0 ? "border-amber-400 bg-amber-50 text-amber-800" : "border-green-300 bg-[#f0fdf4] text-[#15803d] hover:bg-green-100"
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                    heldCarts.length > 0 ? "border-amber-300 bg-amber-50 text-amber-800" : "border-emerald-200 bg-emerald-50/70 text-emerald-800 hover:bg-emerald-100/70"
                   }`}>
-                  <span className="font-mono font-bold">|--|</span> Hold (F7) {heldCarts.length > 0 ? `(${heldCarts.length})` : ""}
+                  Hold (F7) {heldCarts.length > 0 ? `(${heldCarts.length})` : ""}
                 </button>
                 <button onClick={clearCart} disabled={!cart.length}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-200 bg-[#fef2f2] text-xs font-bold text-[#ef4444] hover:bg-red-100 transition disabled:opacity-40">
-                  <Trash2 size={12}/> Clear Cart
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-xl border border-red-200 bg-red-50/70 text-xs font-bold text-red-600 hover:bg-red-100 transition disabled:opacity-40 cursor-pointer">
+                  <Trash2 size={12}/> Clear
                 </button>
               </div>
             </div>
 
             {/* Table header */}
-            <div className="shrink-0 grid px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider text-[#94a3b8] border-b border-gray-100"
+            <div className="shrink-0 grid px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-400 border-b border-gray-100"
               style={{gridTemplateColumns:"1.8fr 1fr 0.9fr 0.9fr 0.9fr 26px"}}>
               <span>ITEM</span><span className="text-center">QTY</span><span className="text-right">PRICE</span>
-              <span className="text-center">DISCOUNT</span><span className="text-right">TOTAL</span><span/>
+              <span className="text-center">DISC</span><span className="text-right">TOTAL</span><span/>
             </div>
 
             {/* Cart rows — flex-1 min-h-0 overflow-y-auto: scrolls internally */}
             <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-gray-50">
               {cart.length===0?(
                 <div className="py-8 text-center">
-                  <ShoppingCart size={32} className="mx-auto text-gray-200 mb-2"/>
-                  <p className="text-xs text-gray-400 font-bold">Cart is empty</p>
-                  <p className="text-[11px] text-gray-300 mt-0.5">Scan or click products to add</p>
+                  <ShoppingCart size={32} className="mx-auto text-slate-300 mb-2"/>
+                  <p className="text-xs text-slate-500 font-bold">Cart is empty</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Click products on left to add</p>
                 </div>
               ):cart.map(item=>{
                 const emoji=getEmoji(item.name);const bg=getEmojiColor(emoji);
                 const lineFinal=item.discountPct?item.lineTotal*(1-item.discountPct/100):item.lineTotal;
                 return (
                   <div key={item.id} onClick={()=>setNumTarget(item.id)}
-                    className={`grid items-center px-3 py-2.5 hover:bg-green-50/30 cursor-pointer transition ${numTarget===item.id?"bg-green-50/60":""}`}
+                    className={`grid items-center px-3 py-2 hover:bg-emerald-50/30 cursor-pointer transition ${numTarget===item.id?"bg-emerald-50/60":""}`}
                     style={{gridTemplateColumns:"1.8fr 1fr 0.9fr 0.9fr 0.9fr 26px"}}>
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-base leading-none" style={{background:bg}}>{emoji}</div>
+                      <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-sm leading-none" style={{background:bg}}>{emoji}</div>
                       <div className="min-w-0">
-                        <p className="text-xs font-extrabold text-[#0f172a] truncate">{item.name}</p>
-                        <p className="text-[10px] text-[#64748b]">৳ {item.unitPrice.toFixed(2)} / {item.uom||"pcs"}</p>
+                        <p className="text-xs font-bold text-slate-800 truncate leading-tight">{item.name}</p>
+                        <p className="text-[10px] text-slate-500 font-medium">৳ {item.unitPrice.toFixed(2)} / {item.uom||"pcs"}</p>
                       </div>
                     </div>
                     <div className="flex items-center justify-center">
-                      <div className="flex items-center bg-white border border-gray-200 rounded-xl px-1.5 py-0.5">
-                        <button onClick={e=>{e.stopPropagation();updateQty(item.id,item.isWeighed?-0.1:-1);}} className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-900 font-bold text-xs">−</button>
-                        <span className="w-6 text-center font-extrabold text-xs text-[#0f172a]">{item.isWeighed?item.qty.toFixed(1):item.qty}</span>
-                        <button onClick={e=>{e.stopPropagation();updateQty(item.id,item.isWeighed?0.1:1);}} className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-900 font-bold text-xs">+</button>
+                      <div className="flex items-center bg-white border border-gray-200 rounded-lg px-1 py-0.5 shadow-2xs">
+                        <button onClick={e=>{e.stopPropagation();updateQty(item.id,item.isWeighed?-0.1:-1);}} className="w-4 h-4 flex items-center justify-center text-slate-500 hover:text-slate-900 font-bold text-xs flex-shrink-0 cursor-pointer">−</button>
+                        <span className="w-6 text-center font-bold text-xs text-slate-800">{item.isWeighed?item.qty.toFixed(1):item.qty}</span>
+                        <button onClick={e=>{e.stopPropagation();updateQty(item.id,item.isWeighed?0.1:1);}} className="w-4 h-4 flex items-center justify-center text-slate-500 hover:text-slate-900 font-bold text-xs flex-shrink-0 cursor-pointer">+</button>
                       </div>
                     </div>
-                    <div className="text-right text-xs font-extrabold text-[#0f172a]">৳ {item.unitPrice.toFixed(2)}</div>
+                    <div className="text-right text-xs font-semibold text-slate-700">৳ {item.unitPrice.toFixed(2)}</div>
                     <div className="text-center">
                       {item.discountPct
-                        ?<span className="bg-[#dcfce7] text-[#15803d] text-[10px] font-extrabold px-2 py-0.5 rounded-full inline-block">{item.discountPct}%</span>
-                        :<span className="text-[#94a3b8]">-</span>}
+                        ?<span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded inline-block">{item.discountPct}%</span>
+                        :<span className="text-slate-300">-</span>}
                     </div>
-                    <div className="text-right text-xs font-black text-[#0f172a]">৳ {lineFinal.toFixed(2)}</div>
+                    <div className="text-right text-xs font-bold text-emerald-700">৳ {lineFinal.toFixed(2)}</div>
                     <div className="text-right">
                       <button onClick={e=>{e.stopPropagation();removeItem(item.id);}}
-                        className="w-6 h-6 rounded-full bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition border border-gray-100">
-                        <X size={12}/>
+                        className="w-5 h-5 rounded-full bg-gray-50 text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition border border-gray-200 cursor-pointer">
+                        <X size={11}/>
                       </button>
                     </div>
                   </div>
@@ -688,18 +712,18 @@ export default function GroceryPOSPage() {
             {/* Cart footer */}
             <div className="shrink-0 flex items-center justify-between px-3 py-2 border-t border-gray-100">
               <div className="flex items-center gap-1.5">
-                <button onClick={() => noteInputRef.current?.focus()} className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-extrabold text-[#0f172a] hover:bg-gray-50 transition">
-                  <Plus size={12} className="text-[#16a34a]"/> Add Note
+                <button onClick={() => noteInputRef.current?.focus()} className="flex items-center gap-1 px-2 py-1 rounded-lg border border-gray-200 bg-white text-xs font-bold text-slate-700 hover:bg-gray-50 transition cursor-pointer">
+                  <Plus size={12} className="text-emerald-600"/> Note
                 </button>
-                <button onClick={() => discountInputRef.current?.focus()} className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-extrabold text-[#15803d] hover:bg-gray-50 transition">
-                  <Tag size={12} className="text-[#16a34a]"/> Add Discount
+                <button onClick={() => discountInputRef.current?.focus()} className="flex items-center gap-1 px-2 py-1 rounded-lg border border-gray-200 bg-white text-xs font-bold text-emerald-700 hover:bg-gray-50 transition cursor-pointer">
+                  <Tag size={12} className="text-emerald-600"/> Discount
                 </button>
-                <button onClick={() => couponInputRef.current?.focus()} className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-extrabold text-[#ef4444] hover:bg-gray-50 transition">
-                  <Gift size={12} className="text-[#ef4444]"/> Add Coupon
+                <button onClick={() => couponInputRef.current?.focus()} className="flex items-center gap-1 px-2 py-1 rounded-lg border border-gray-200 bg-white text-xs font-bold text-rose-600 hover:bg-gray-50 transition cursor-pointer">
+                  <Gift size={12} className="text-rose-500"/> Coupon
                 </button>
               </div>
-              <div className="text-xs font-extrabold text-[#0f172a]">
-                Items: <b>{totalItems}</b> <span className="ml-3">Qty: <b>{Math.round(totalQty*100)/100}</b></span>
+              <div className="text-xs font-bold text-slate-700">
+                Items: <b className="text-slate-900">{totalItems}</b> <span className="ml-2">Qty: <b className="text-slate-900">{Math.round(totalQty*100)/100}</b></span>
               </div>
             </div>
           </div>
@@ -708,58 +732,56 @@ export default function GroceryPOSPage() {
           <div className="shrink-0 grid grid-cols-2 gap-2">
 
             {/* Discount / Coupon / Note */}
-            <div className="bg-[#f2faf4] rounded-2xl p-3 border border-[#e2f5e7] flex flex-col gap-2">
+            <div className="bg-gradient-to-b from-[#f2faf4] to-[#e6f7ec] rounded-xl p-2.5 border-t border-x border-[#e2f5e7] border-b-[2.5px] border-b-[#c8eed3] flex flex-col gap-1.5 shadow-2xs">
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-black text-[#1e293b] w-20 shrink-0">Discount</span>
-                <div className="flex-1 bg-white rounded-xl border border-gray-200/60 px-2.5 py-1.5 flex items-center shadow-sm">
+                <span className="text-[11px] font-bold text-slate-700 w-14 shrink-0">Discount</span>
+                <div className="flex-1 bg-white rounded-lg border border-gray-200 px-2 py-1 flex items-center shadow-2xs">
                   <input ref={discountInputRef} type="number" value={discountPct} onChange={e=>setDiscountPct(e.target.value)}
-                    className="w-full bg-transparent text-sm font-extrabold text-[#1e293b] text-right focus:outline-none pr-1"/>
-                  <span className="text-xs font-bold text-[#94a3b8]">%</span>
+                    className="w-full bg-transparent text-xs font-bold text-slate-800 text-right focus:outline-none pr-1"/>
+                  <span className="text-xs font-semibold text-slate-400">%</span>
                 </div>
                 <button onClick={() => { setCouponToast("Discount Percentage Updated!"); setTimeout(() => setCouponToast(""), 2500); }}
-                  className="rounded-xl text-xs font-black text-white px-3 py-2 shadow-sm transition hover:brightness-105"
-                  style={{background:"linear-gradient(180deg,#34d399 0%,#16a34a 100%)"}}>Apply</button>
+                  className="rounded-lg text-xs font-bold text-white px-2.5 py-1 shadow-xs transition hover:brightness-110 active:scale-95 cursor-pointer bg-emerald-600 border-b border-emerald-800">Apply</button>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-black text-[#1e293b] w-20 shrink-0">Coupon</span>
-                <div className="flex-1 bg-white rounded-xl border border-gray-200/60 px-2.5 py-1.5 flex items-center shadow-sm">
-                  <input ref={couponInputRef} type="text" value={couponCode} onChange={e=>setCouponCode(e.target.value)} placeholder="e.g. SAVE10, FLAT50"
-                    className="w-full bg-transparent text-xs font-semibold text-[#1e293b] placeholder:text-[#a1a1aa] focus:outline-none"/>
+                <span className="text-[11px] font-bold text-slate-700 w-14 shrink-0">Coupon</span>
+                <div className="flex-1 bg-white rounded-lg border border-gray-200 px-2 py-1 flex items-center shadow-2xs">
+                  <input ref={couponInputRef} type="text" value={couponCode} onChange={e=>setCouponCode(e.target.value)} placeholder="e.g. SAVE10"
+                    className="w-full bg-transparent text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none"/>
                 </div>
                 <button onClick={() => applyCouponCode()}
-                  className="rounded-xl text-xs font-black text-white px-3 py-2 shadow-sm transition hover:brightness-105"
-                  style={{background:"linear-gradient(180deg,#34d399 0%,#16a34a 100%)"}}>Apply</button>
+                  className="rounded-lg text-xs font-bold text-white px-2.5 py-1 shadow-xs transition hover:brightness-110 active:scale-95 cursor-pointer bg-emerald-600 border-b border-emerald-800">Apply</button>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-black text-[#1e293b] w-20 shrink-0">Note</span>
-                <div className="flex-1 bg-white rounded-xl border border-gray-200/60 pl-2.5 pr-1 py-1 flex items-center shadow-sm">
-                  <input ref={noteInputRef} type="text" value={salesNote} onChange={e=>setSalesNote(e.target.value)} placeholder="Add a note (optional)..."
-                    className="w-full bg-transparent text-xs font-semibold text-[#1e293b] placeholder:text-[#a1a1aa] focus:outline-none"/>
-                  <div className="w-6 h-6 rounded-lg bg-white border border-gray-200/70 flex items-center justify-center text-[#16a34a] shrink-0 ml-1">
-                    <AlignLeft size={12}/>
+                <span className="text-[11px] font-bold text-slate-700 w-14 shrink-0">Note</span>
+                <div className="flex-1 bg-white rounded-lg border border-gray-200 pl-2 pr-1 py-0.5 flex items-center shadow-2xs">
+                  <input ref={noteInputRef} type="text" value={salesNote} onChange={e=>setSalesNote(e.target.value)} placeholder="Add note..."
+                    className="w-full bg-transparent text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none"/>
+                  <div className="w-5 h-5 rounded bg-gray-50 flex items-center justify-center text-emerald-600 shrink-0 ml-1">
+                    <AlignLeft size={11}/>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Financial Summary */}
-            <div className="bg-white rounded-2xl px-4 py-3 border border-gray-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-              <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between items-center text-[#64748b] font-bold">
-                  <span>Subtotal</span><span className="text-[#0f172a] font-extrabold">৳ {subTotal.toFixed(2)}</span>
+            <div className="bg-gradient-to-b from-white via-emerald-50/30 to-emerald-100/40 rounded-xl px-3 py-2.5 border-t border-x border-emerald-200/90 border-b-[2.5px] border-b-emerald-300 shadow-2xs flex flex-col justify-between">
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between items-center text-slate-500 font-semibold">
+                  <span>Subtotal</span><span className="text-slate-800 font-bold">৳ {subTotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center text-[#64748b] font-bold">
-                  <span>Discount</span><span className="text-[#16a34a] font-extrabold">- ৳ {discAmt.toFixed(2)}</span>
+                <div className="flex justify-between items-center text-slate-500 font-semibold">
+                  <span>Discount</span><span className="text-emerald-700 font-bold">- ৳ {discAmt.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center text-[#64748b] font-bold">
-                  <span>VAT (0%)</span><span className="text-[#0f172a] font-extrabold">৳ 0.00</span>
+                <div className="flex justify-between items-center text-slate-500 font-semibold">
+                  <span>VAT (0%)</span><span className="text-slate-800 font-bold">৳ 0.00</span>
                 </div>
-                <div className="pt-2 border-t border-dashed border-gray-200 flex justify-between items-baseline">
-                  <span className="text-lg font-black text-[#0f172a]">Total</span>
-                  <span className="text-2xl font-black text-[#16a34a]">৳ {grandTotal.toFixed(2)}</span>
+                <div className="pt-1.5 border-t border-dashed border-emerald-200 flex justify-between items-baseline">
+                  <span className="text-base font-bold text-slate-900">Total</span>
+                  <span className="text-xl font-extrabold text-emerald-600">৳ {grandTotal.toFixed(2)}</span>
                 </div>
               </div>
-              <div className="mt-2 bg-[#f0fdf4] border border-[#bbf7d0]/70 text-[#16a34a] text-center py-1.5 px-3 rounded-xl font-black text-xs">
+              <div className="mt-1.5 bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-center py-1 px-2 rounded-lg font-bold text-xs">
                 You Save ৳ {discAmt.toFixed(2)}
               </div>
             </div>
