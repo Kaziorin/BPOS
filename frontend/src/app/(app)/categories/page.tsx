@@ -14,6 +14,15 @@ import {
   ToggleLeft,
   ToggleRight,
   CornerDownRight,
+  ShoppingBag,
+  Utensils,
+  Pill,
+  ShoppingCart,
+  Truck,
+  Factory,
+  Sparkles,
+  Wrench,
+  Building2,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { SearchableSelect } from "@/components/custom/SearchableSelect";
@@ -29,7 +38,20 @@ interface Category {
   name: string;
   parentId?: string | null;
   status?: string;
+  businessTypes?: string | null;
 }
+
+const BUSINESS_VERTICALS = [
+  { id: "RETAIL", label: "Retail", icon: ShoppingBag },
+  { id: "RESTAURANT", label: "Restaurant", icon: Utensils },
+  { id: "PHARMACY", label: "Pharmacy", icon: Pill },
+  { id: "GROCERY", label: "Grocery", icon: ShoppingCart },
+  { id: "WHOLESALE", label: "Wholesale", icon: Truck },
+  { id: "MANUFACTURING", label: "Manufacturing", icon: Factory },
+  { id: "SALON", label: "Salon", icon: Sparkles },
+  { id: "REPAIR", label: "Repair", icon: Wrench },
+  { id: "FRANCHISE", label: "Franchise", icon: Building2 },
+];
 
 type ModalMode = "ADD_MAIN" | "EDIT_MAIN" | "ADD_SUB" | "EDIT_SUB" | null;
 
@@ -44,6 +66,7 @@ export default function CategoriesPage() {
   const [mainLimit, setMainLimit] = useState(5);
   const [searchMain, setSearchMain] = useState("");
   const [statusFilterMain, setStatusFilterMain] = useState<string>("ALL");
+  const [verticalFilterMain, setVerticalFilterMain] = useState<string>("");
 
   // Subcategories State (Server Paginated)
   const [subCategories, setSubCategories] = useState<Category[]>([]);
@@ -53,6 +76,7 @@ export default function CategoriesPage() {
   const [subLimit, setSubLimit] = useState(5);
   const [searchSub, setSearchSub] = useState("");
   const [statusFilterSub, setStatusFilterSub] = useState<string>("ALL");
+  const [verticalFilterSub, setVerticalFilterSub] = useState<string>("");
 
   // All Parent Main Categories for Modal Dropdown
   const [allMainCats, setAllMainCats] = useState<Category[]>([]);
@@ -62,7 +86,14 @@ export default function CategoriesPage() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formName, setFormName] = useState("");
   const [formParentId, setFormParentId] = useState("");
+  const [selectedBusinessTypes, setSelectedBusinessTypes] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+
+  function toggleBusinessType(vId: string) {
+    setSelectedBusinessTypes((prev) =>
+      prev.includes(vId) ? prev.filter((id) => id !== vId) : [...prev, vId]
+    );
+  }
 
   // Delete State
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -82,6 +113,7 @@ export default function CategoriesPage() {
           limit: mainLimit,
           search: searchMain || undefined,
           status: statusFilterMain !== "ALL" ? statusFilterMain : undefined,
+          businessType: verticalFilterMain || undefined,
         },
       });
 
@@ -105,7 +137,7 @@ export default function CategoriesPage() {
     } finally {
       setMainLoading(false);
     }
-  }, [mainPage, mainLimit, searchMain, statusFilterMain]);
+  }, [mainPage, mainLimit, searchMain, statusFilterMain, verticalFilterMain]);
 
   // API Call: Load Subcategories
   const loadSubData = useCallback(async () => {
@@ -118,6 +150,7 @@ export default function CategoriesPage() {
           limit: subLimit,
           search: searchSub || undefined,
           status: statusFilterSub !== "ALL" ? statusFilterSub : undefined,
+          businessType: verticalFilterSub || undefined,
         },
       });
 
@@ -141,7 +174,7 @@ export default function CategoriesPage() {
     } finally {
       setSubLoading(false);
     }
-  }, [subPage, subLimit, searchSub, statusFilterSub]);
+  }, [subPage, subLimit, searchSub, statusFilterSub, verticalFilterSub]);
 
   // API Call: Load All Main Categories for Modal Dropdown
   const loadAllMainCats = useCallback(async () => {
@@ -179,6 +212,7 @@ export default function CategoriesPage() {
     setEditingCategory(null);
     setFormName("");
     setFormParentId("");
+    setSelectedBusinessTypes([]);
     setModalMode("ADD_MAIN");
   }
 
@@ -186,6 +220,8 @@ export default function CategoriesPage() {
     setEditingCategory(cat);
     setFormName(cat.name);
     setFormParentId("");
+    const parsedBt = cat.businessTypes ? cat.businessTypes.split(",").filter(Boolean) : [];
+    setSelectedBusinessTypes(parsedBt);
     setModalMode("EDIT_MAIN");
   }
 
@@ -193,6 +229,7 @@ export default function CategoriesPage() {
     setEditingCategory(null);
     setFormName("");
     setFormParentId(allMainCats.length > 0 ? allMainCats[0].id : "");
+    setSelectedBusinessTypes([]);
     setModalMode("ADD_SUB");
   }
 
@@ -200,6 +237,8 @@ export default function CategoriesPage() {
     setEditingCategory(cat);
     setFormName(cat.name);
     setFormParentId(cat.parentId || (allMainCats.length > 0 ? allMainCats[0].id : ""));
+    const parsedBt = cat.businessTypes ? cat.businessTypes.split(",").filter(Boolean) : [];
+    setSelectedBusinessTypes(parsedBt);
     setModalMode("EDIT_SUB");
   }
 
@@ -219,12 +258,14 @@ export default function CategoriesPage() {
         await api.put(`/v1/products/categories/${editingCategory.id}`, {
           name: formName,
           parentId: modalMode === "EDIT_SUB" ? formParentId : null,
+          businessTypes: selectedBusinessTypes,
         });
         toast.success("Category updated successfully!");
       } else {
         await api.post("/v1/products/categories", {
           name: formName,
           parentId: modalMode === "ADD_SUB" ? formParentId : undefined,
+          businessTypes: selectedBusinessTypes,
         });
         toast.success(
           modalMode === "ADD_SUB"
@@ -295,6 +336,7 @@ export default function CategoriesPage() {
         </div>
       ),
     },
+
     {
       key: "status",
       header: "Status",
@@ -381,6 +423,34 @@ export default function CategoriesPage() {
           <span className="inline-flex items-center rounded-md bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-700 border border-teal-100">
             {parentObj?.name || "Parent"}
           </span>
+        );
+      },
+    },
+    {
+      key: "businessTypes",
+      header: "Business Verticals",
+      render: (cat) => {
+        const bts = cat.businessTypes ? cat.businessTypes.split(",").filter(Boolean) : [];
+        if (bts.length === 0) {
+          return (
+            <span className="inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+              🏢 All Verticals
+            </span>
+          );
+        }
+        return (
+          <div className="flex flex-wrap gap-1">
+              {bts.map((bt) => {
+                const vObj = BUSINESS_VERTICALS.find((v) => v.id === bt);
+                const VIcon = vObj?.icon || Tags;
+                return (
+                  <span key={bt} className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">
+                    <VIcon size={11} className="text-teal-600" />
+                    <span>{vObj?.label || bt}</span>
+                  </span>
+                );
+              })}
+          </div>
         );
       },
     },
@@ -620,6 +690,8 @@ export default function CategoriesPage() {
             />
           </div>
 
+
+
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
             <CustomButton
               type="button"
@@ -676,6 +748,8 @@ export default function CategoriesPage() {
               autoFocus
             />
           </div>
+
+
 
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
             <CustomButton

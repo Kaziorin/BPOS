@@ -47,12 +47,12 @@ async def upload_image_media(file: UploadFile = File(...)):
 
 @router.get("/api/v1/products")
 async def list_products(
-    search: str = "", productType: str = "", status: str = "",
+    search: str = "", productType: str = "", status: str = "", businessType: str = "",
     page: int = Query(1), limit: int = Query(20),
     tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
 ):
     # Prompt 39: product catalog list is cached (30s TTL, per tenant + filters).
-    cache_key = f"products:{tenantId}:list:{search}|{productType}|{status}|{page}|{limit}"
+    cache_key = f"products:{tenantId}:list:{search}|{productType}|{status}|{businessType}|{page}|{limit}"
     hit = cache_mod.get(cache_key)
     if hit is not None:
         return ApiJSONResponse(hit)
@@ -63,6 +63,10 @@ async def list_products(
         params["s"] = f"%{search}%"
     if productType:
         where += " AND p.productType = :pt"; params["pt"] = productType
+    if businessType:
+        where += " AND (p.productType = :bt OR LOWER(p.name) LIKE :bt_s)"
+        params["bt"] = businessType
+        params["bt_s"] = f"%{businessType.lower()}%"
     if status:
         where += " AND p.status = :st"; params["st"] = status
     off, lim = paginate_params(page, limit)
@@ -147,9 +151,16 @@ async def list_categories(
     search: str = Query(None),
     status: str = Query(None),
     isMain: bool = Query(None),
+    businessType: str = Query(None),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db)
 ):
+    try:
+        await db.execute(text("ALTER TABLE categories ADD COLUMN businessTypes TEXT"))
+        await db.commit()
+    except Exception:
+        pass
+
     where = "WHERE tenantId=:t"
     params = {"t": tenantId}
     if search:
@@ -162,6 +173,9 @@ async def list_categories(
         where += " AND parentId IS NULL"
     elif isMain is False:
         where += " AND parentId IS NOT NULL"
+    if businessType:
+        where += " AND (businessTypes IS NULL OR businessTypes = '' OR LOWER(businessTypes) LIKE :bt)"
+        params["bt"] = f"%{businessType.lower()}%"
 
     if page is not None or limit is not None:
         p = max(1, page or 1)
@@ -172,14 +186,14 @@ async def list_categories(
         params["l"] = l
         params["o"] = offset
         rows = rows_to_dicts(
-            (await db.execute(text(f"SELECT id, name, parentId, status FROM categories {where} ORDER BY name LIMIT :l OFFSET :o"), params)).fetchall()
+            (await db.execute(text(f"SELECT id, name, parentId, status, businessTypes FROM categories {where} ORDER BY name LIMIT :l OFFSET :o"), params)).fetchall()
         )
         return ok({"data": rows, "total": total, "page": p, "limit": l, "totalPages": math.ceil(total / l) if l > 0 else 1})
 
     rows = rows_to_dicts(
         (
             await db.execute(
-                text(f"SELECT id, name, parentId, status FROM categories {where} ORDER BY name"),
+                text(f"SELECT id, name, parentId, status, businessTypes FROM categories {where} ORDER BY name"),
                 params,
             )
         ).fetchall()
@@ -194,12 +208,25 @@ async def create_category(body: dict, user: AuthUser = Depends(require_permissio
     if not name: return err("Name is required", 400)
     dup = (await db.execute(text("SELECT id FROM categories WHERE tenantId=:t AND name=:n"), {"t": tenantId, "n": name})).first()
     if dup: return err("Category already exists", 409)
-    await db.execute(text("INSERT INTO categories (id, tenantId, name, parentId, createdBy) VALUES (UUID(), :t, :n, :p, :u)"),
-                     {"t": tenantId, "n": name, "p": body.get("parentId"), "u": user.id})
+
+    b_types = body.get("businessTypes")
+    if isinstance(b_types, list):
+        b_types_str = ",".join(b_types)
+    else:
+        b_types_str = str(b_types) if b_types else None
+
+    try:
+        await db.execute(text("ALTER TABLE categories ADD COLUMN businessTypes TEXT"))
+        await db.commit()
+    except Exception:
+        pass
+
+    await db.execute(text("INSERT INTO categories (id, tenantId, name, parentId, businessTypes, createdBy) VALUES (UUID(), :t, :n, :p, :bt, :u)"),
+                     {"t": tenantId, "n": name, "p": body.get("parentId"), "bt": b_types_str, "u": user.id})
     await db.commit()
-    row = (await db.execute(text("SELECT id, name, parentId FROM categories WHERE tenantId=:t AND name=:n ORDER BY createdAt DESC LIMIT 1"),
+    row = (await db.execute(text("SELECT id, name, parentId, businessTypes FROM categories WHERE tenantId=:t AND name=:n ORDER BY createdAt DESC LIMIT 1"),
                      {"t": tenantId, "n": name})).first()
-    return ok({"id": row[0] if row else None, "name": name, "created": True}, 201)
+    return ok({"id": row[0] if row else None, "name": name, "businessTypes": b_types_str, "created": True}, 201)
 
 
 @router.put("/api/v1/products/categories/{categoryId}")
@@ -209,7 +236,17 @@ async def update_category(categoryId: str, body: dict,
     exists = (await db.execute(text("SELECT id FROM categories WHERE id=:id AND tenantId=:t"), {"id": categoryId, "t": tenantId})).first()
     if not exists:
         return err("Category not found", 404)
-    allowed = {"name": "name", "parentId": "parentId", "status": "status", "description": "description"}
+
+    try:
+        await db.execute(text("ALTER TABLE categories ADD COLUMN businessTypes TEXT"))
+        await db.commit()
+    except Exception:
+        pass
+
+    if "businessTypes" in body and isinstance(body["businessTypes"], list):
+        body["businessTypes"] = ",".join(body["businessTypes"])
+
+    allowed = {"name": "name", "parentId": "parentId", "status": "status", "description": "description", "businessTypes": "businessTypes"}
     sets, params = [], {"id": categoryId, "t": tenantId, "u": user.id}
     for jk, ck in allowed.items():
         if jk in body:
@@ -263,9 +300,16 @@ DEFAULT_PRODUCT_TYPES = [
 async def list_product_types(
     search: str = Query(None),
     status: str = Query(None),
+    businessType: str = Query(None),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db)
 ):
+    try:
+        await db.execute(text("ALTER TABLE product_types ADD COLUMN businessTypes TEXT"))
+        await db.commit()
+    except Exception:
+        pass
+
     try:
         count_res = (await db.execute(text("SELECT COUNT(*) FROM product_types WHERE tenantId=:t"), {"t": tenantId})).first()
         if not count_res or count_res[0] == 0:
@@ -289,9 +333,12 @@ async def list_product_types(
     if status and status != "ALL":
         where += " AND status = :st"
         params["st"] = status
+    if businessType:
+        where += " AND (businessTypes IS NULL OR businessTypes = '' OR LOWER(businessTypes) LIKE :bt)"
+        params["bt"] = f"%{businessType.lower()}%"
 
     rows = rows_to_dicts(
-        (await db.execute(text(f"SELECT id, name, status, createdAt FROM product_types {where} ORDER BY createdAt ASC"), params)).fetchall()
+        (await db.execute(text(f"SELECT id, name, status, businessTypes, createdAt FROM product_types {where} ORDER BY createdAt ASC"), params)).fetchall()
     )
     return ok(rows)
 
@@ -311,16 +358,28 @@ async def create_product_type(
     if dup:
         return err("Product Type with this name already exists", 409)
 
+    b_types = body.get("businessTypes")
+    if isinstance(b_types, list):
+        b_types_str = ",".join(b_types)
+    else:
+        b_types_str = str(b_types) if b_types else None
+
+    try:
+        await db.execute(text("ALTER TABLE product_types ADD COLUMN businessTypes TEXT"))
+        await db.commit()
+    except Exception:
+        pass
+
     await db.execute(
         text(
-            "INSERT INTO product_types (id, tenantId, name, status, createdBy) "
-            "VALUES (UUID(), :t, :n, 'ACTIVE', :u)"
+            "INSERT INTO product_types (id, tenantId, name, status, businessTypes, createdBy) "
+            "VALUES (UUID(), :t, :n, 'ACTIVE', :bt, :u)"
         ),
-        {"t": tenantId, "n": name, "u": user.id}
+        {"t": tenantId, "n": name, "bt": b_types_str, "u": user.id}
     )
     await db.commit()
-    row = (await db.execute(text("SELECT id, name, status FROM product_types WHERE tenantId=:t AND name=:n ORDER BY createdAt DESC LIMIT 1"), {"t": tenantId, "n": name})).first()
-    return ok({"id": row[0] if row else None, "name": name, "created": True}, 201)
+    row = (await db.execute(text("SELECT id, name, status, businessTypes FROM product_types WHERE tenantId=:t AND name=:n ORDER BY createdAt DESC LIMIT 1"), {"t": tenantId, "n": name})).first()
+    return ok({"id": row[0] if row else None, "name": name, "businessTypes": b_types_str, "created": True}, 201)
 
 
 @router.put("/api/v1/product-types/{typeId}")
@@ -335,7 +394,16 @@ async def update_product_type(
     if not exists:
         return err("Product Type not found", 404)
 
-    allowed = {"name": "name", "status": "status"}
+    try:
+        await db.execute(text("ALTER TABLE product_types ADD COLUMN businessTypes TEXT"))
+        await db.commit()
+    except Exception:
+        pass
+
+    if "businessTypes" in body and isinstance(body["businessTypes"], list):
+        body["businessTypes"] = ",".join(body["businessTypes"])
+
+    allowed = {"name": "name", "status": "status", "businessTypes": "businessTypes"}
     sets, params = [], {"id": typeId, "t": tenantId}
     for jk, ck in allowed.items():
         if jk in body:
@@ -475,7 +543,7 @@ async def update_product(
                "productType": "productType", "costPrice": "costPrice", "sellingPrice": "sellingPrice",
                "wholesalePrice": "wholesalePrice", "minPrice": "minPrice", "maxPrice": "maxPrice",
                "taxRate": "taxRate", "warrantyDays": "warrantyDays", "description": "description", "status": "status"}
-    sets, params = [], {"id": productId, "u": user.id}
+    sets, params = [], {"id": productId, "t": tenantId, "u": user.id}
     # ── Prompt 27 price approval: big price moves need manager sign-off (§10.26) ──
     price_keys = ["sellingPrice", "wholesalePrice", "costPrice"]
     proposed_prices = {k: body[k] for k in price_keys if k in body and body[k] is not None}
@@ -502,7 +570,7 @@ async def update_product(
             sets.append(f"{ck} = :{ck}"); params[ck] = body[jk]
     if sets:
         sets.append("updatedBy = :u")
-        await db.execute(text(f"UPDATE products SET {', '.join(sets)} WHERE id = :id"), params)
+        await db.execute(text(f"UPDATE products SET {', '.join(sets)} WHERE id = :id AND tenantId = :t"), params)
         await db.commit()
         cache_mod.invalidate_namespace("products", tenantId)
     return ok({"updated": True})

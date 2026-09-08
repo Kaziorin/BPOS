@@ -18,6 +18,14 @@ import {
   Info,
   Check,
   X,
+  ShoppingBag,
+  Utensils,
+  Pill,
+  ShoppingCart,
+  Truck,
+  Factory,
+  Wrench,
+  Building2,
 } from "lucide-react";
 import { api, axiosClient } from "@/lib/api";
 import { SearchableSelect, SearchableSelectOption } from "@/components/custom/SearchableSelect";
@@ -26,6 +34,11 @@ import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomCheckbox } from "@/components/custom/CustomCheckbox";
 import { toast } from "react-toastify";
+import {
+  renderVerticalProductFields,
+  initialVerticalFormState,
+  VerticalFormState,
+} from "@/components/products/ProductFormRegistry";
 
 interface Category {
   id: string;
@@ -56,6 +69,18 @@ interface VariantForm {
   wholesalePrice: string;
 }
 
+const BUSINESS_VERTICALS = [
+  { id: "RETAIL", label: "Retail & Apparel", icon: ShoppingBag },
+  { id: "RESTAURANT", label: "Restaurant & Food", icon: Utensils },
+  { id: "PHARMACY", label: "Pharmacy & Medicine", icon: Pill },
+  { id: "GROCERY", label: "Grocery & Scale", icon: ShoppingCart },
+  { id: "WHOLESALE", label: "Wholesale B2B", icon: Truck },
+  { id: "MANUFACTURING", label: "Manufacturing", icon: Factory },
+  { id: "SALON", label: "Salon & Spa", icon: Sparkles },
+  { id: "REPAIR", label: "Repair & Service", icon: Wrench },
+  { id: "FRANCHISE", label: "Franchise Control", icon: Building2 },
+];
+
 export default function CreateProductPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -66,6 +91,20 @@ export default function CreateProductPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+
+  // Vertical Business Type Selector state
+  const [selectedVertical, setSelectedVertical] = useState<string>("RETAIL");
+  const [verticalFormState, setVerticalFormState] = useState<VerticalFormState>(initialVerticalFormState);
+
+  const handleUpdateVertical = (module: keyof VerticalFormState, field: string, val: any) => {
+    setVerticalFormState((prev) => ({
+      ...prev,
+      [module]: {
+        ...prev[module],
+        [field]: val,
+      },
+    }));
+  };
 
   // Quick Create Modal state
   const [activeModal, setActiveModal] = useState<"BRAND" | "CATEGORY" | "SUBCATEGORY" | "UNIT" | "SUPPLIER" | null>(null);
@@ -132,12 +171,18 @@ export default function CreateProductPage() {
     { value: "Serialized", label: "Serialized (Unique serial number per item)" },
   ];
 
-  const productTypeOptions: SearchableSelectOption[] = fetchedProductTypes.length > 0
-    ? fetchedProductTypes.map((pt) => ({
-        value: pt.name,
-        label: pt.name,
-      }))
-    : defaultTypeOptions;
+  const filteredFetchedProductTypes = fetchedProductTypes.filter((pt: any) => {
+    if (!pt.businessTypes || pt.businessTypes.trim() === "") return true;
+    const bts = pt.businessTypes.split(",").map((s: string) => s.trim().toUpperCase());
+    return bts.length === 0 || bts.includes(selectedVertical.toUpperCase());
+  });
+
+  const productTypeOptions: SearchableSelectOption[] = (
+    filteredFetchedProductTypes.length > 0 ? filteredFetchedProductTypes : (fetchedProductTypes.length === 0 ? defaultTypeOptions : filteredFetchedProductTypes)
+  ).map((pt: any) => ({
+    value: typeof pt === "string" ? pt : pt.name || pt.value,
+    label: typeof pt === "string" ? pt : pt.name || pt.label,
+  }));
 
   async function loadFormData() {
     try {
@@ -247,16 +292,20 @@ export default function CreateProductPage() {
         setBrands((prev) => [...prev, newBrand]);
         updateForm("brandId", newBrand.id);
       } else if (activeModal === "CATEGORY") {
-        const res: any = await api.post("/v1/products/categories", { name: newItemName });
-        const newCat = { id: res.id || res.data?.id, name: newItemName, parentId: null };
+        const res: any = await api.post("/v1/products/categories", {
+          name: newItemName,
+          businessTypes: [selectedVertical],
+        });
+        const newCat = { id: res.id || res.data?.id, name: newItemName, parentId: null, businessTypes: selectedVertical };
         setCategories((prev) => [...prev, newCat]);
         updateForm("categoryId", newCat.id);
       } else if (activeModal === "SUBCATEGORY") {
         const res: any = await api.post("/v1/products/categories", {
           name: newItemName,
           parentId: form.categoryId || undefined,
+          businessTypes: [selectedVertical],
         });
-        const newSubCat = { id: res.id || res.data?.id, name: newItemName, parentId: form.categoryId };
+        const newSubCat = { id: res.id || res.data?.id, name: newItemName, parentId: form.categoryId, businessTypes: selectedVertical };
         setCategories((prev) => [...prev, newSubCat]);
         updateForm("subCategoryId", newSubCat.id);
       } else if (activeModal === "UNIT") {
@@ -432,7 +481,12 @@ export default function CreateProductPage() {
     label: b.name,
   }));
 
-  const parentCatList = categories.filter((c) => !c.parentId);
+  const parentCatList = categories.filter((c: any) => {
+    if (c.parentId) return false;
+    if (!c.businessTypes) return true; // All Verticals
+    const bts = c.businessTypes.split(",").map((s: string) => s.trim().toUpperCase());
+    return bts.length === 0 || bts.includes(selectedVertical.toUpperCase());
+  });
   const categoryOptions: SearchableSelectOption[] = parentCatList.map((c) => ({
     value: c.id,
     label: c.name,
@@ -509,6 +563,14 @@ export default function CreateProductPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* LEFT COLUMN */}
         <div className="lg:col-span-8 space-y-4">
+
+
+
+          {/* DYNAMIC BUSINESS VERTICAL FORM FIELDS */}
+          <div>
+            {renderVerticalProductFields(selectedVertical, verticalFormState, handleUpdateVertical)}
+          </div>
+
           {/* BOX 1: Basic Information */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
