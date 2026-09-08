@@ -38,6 +38,7 @@ import {
   Smartphone,
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { UniversalInvoiceModal } from '@/components/invoices/UniversalInvoiceModal';
 import GroceryHubPage from '@/app/(app)/grocery/page';
 import WholesaleHubPage from '@/app/(app)/wholesale/page';
 
@@ -465,65 +466,31 @@ function RetailHubView() {
         )}
       </div>
 
-      {/* Receipt Modal */}
+      {/* Specialized Retail Invoice & Print Modal */}
       {selectedSale && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
-          onClick={() => setSelectedSale(null)}
-        >
-          <div
-            className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-100 space-y-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="text-center border-b border-dashed border-slate-200 pb-4">
-              <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Retail POS Slip</h3>
-              <p className="text-xs text-slate-500 font-mono mt-0.5">Invoice: {selectedSale.invoiceNo || selectedSale.id}</p>
-              <p className="text-[11px] text-slate-400">{new Date(selectedSale.createdAt).toLocaleString()}</p>
-            </div>
-
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {(selectedSale.items || []).map((item: any, idx: number) => (
-                <div key={idx} className="flex justify-between text-xs py-1 border-b border-slate-50">
-                  <div>
-                    <span className="font-bold text-slate-800">{item.productName || item.product?.name || 'Item'}</span>
-                    <span className="block text-[10px] text-slate-400">
-                      {item.qty} × {fmt(Number(item.unitPrice || 0))}
-                    </span>
-                  </div>
-                  <span className="font-black text-slate-900 tabular-nums">
-                    {fmt(Number(item.qty || 1) * Number(item.unitPrice || 0))}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="border-t border-dashed border-slate-200 pt-3 space-y-1 text-xs">
-              <div className="flex justify-between font-bold text-slate-600">
-                <span>Subtotal:</span>
-                <span>{fmt(Number(selectedSale.subTotal || selectedSale.grandTotal || selectedSale.total || 0))}</span>
-              </div>
-              <div className="flex justify-between font-black text-base text-indigo-700 pt-1">
-                <span>Grand Total:</span>
-                <span>{fmt(Number(selectedSale.grandTotal || selectedSale.totalAmount || selectedSale.total || 0))}</span>
-              </div>
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <button
-                onClick={() => window.print()}
-                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-slate-900 p-2.5 text-xs font-bold text-white hover:bg-slate-800"
-              >
-                <Printer size={14} /> Print Receipt
-              </button>
-              <button
-                onClick={() => setSelectedSale(null)}
-                className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+        <UniversalInvoiceModal
+          data={{
+            id: selectedSale.id,
+            invoiceNo: selectedSale.invoiceNo || `POS-${selectedSale.id.slice(0, 8)}`,
+            saleDate: selectedSale.createdAt,
+            vertical: "retail",
+            customer: selectedSale.customer,
+            items: (selectedSale.items || []).map((it: any) => ({
+              name: it.productName || it.product?.name || "Retail Product",
+              productName: it.productName || it.product?.name || "Retail Product",
+              qty: Number(it.qty || 1),
+              unitPrice: Number(it.unitPrice || 0),
+              sku: it.sku || "POS-SKU",
+            })),
+            subTotal: Number(selectedSale.subTotal || selectedSale.grandTotal || selectedSale.total || 0),
+            grandTotal: Number(selectedSale.grandTotal || selectedSale.totalAmount || selectedSale.total || 0),
+            paidTotal: Number(selectedSale.paidTotal || selectedSale.grandTotal || selectedSale.total || 0),
+            dueTotal: Number(selectedSale.dueTotal || 0),
+            paymentMethod: selectedSale.paymentMethod || "CASH",
+          }}
+          initialVertical="retail"
+          onClose={() => setSelectedSale(null)}
+        />
       )}
     </div>
   );

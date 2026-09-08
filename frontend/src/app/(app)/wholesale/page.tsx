@@ -20,6 +20,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { UniversalInvoiceModal } from "@/components/invoices/UniversalInvoiceModal";
 
 export default function WholesaleHubPage() {
   const [loading, setLoading] = useState(true);
@@ -273,79 +274,36 @@ export default function WholesaleHubPage() {
         </div>
       </div>
 
-      {/* Commercial Wholesale Slip Details Modal */}
+      {/* Specialized Wholesale B2B Challan Modal */}
       {selectedOrder && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
-          onClick={() => setSelectedOrder(null)}
-        >
-          <div
-            className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl border border-slate-100 space-y-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="text-center border-b border-dashed border-slate-200 pb-4">
-              <div className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full mb-1">
-                <Truck size={12} /> B2B Commercial Invoice & Challan
-              </div>
-              <h3 className="text-xl font-black text-slate-900">Wholesale Commercial Slip</h3>
-              <p className="text-xs text-slate-500 font-mono mt-0.5">Order Ref: {selectedOrder.invoiceNo || selectedOrder.id}</p>
-              <p className="text-[11px] text-slate-400">Date: {new Date(selectedOrder.createdAt).toLocaleString()}</p>
-            </div>
-
-            <div className="p-3 bg-slate-50 rounded-2xl text-xs space-y-1">
-              <div className="flex justify-between">
-                <span className="text-slate-500">B2B Client:</span>
-                <span className="font-bold text-slate-900">{selectedOrder.customer?.name || "Corporate Account"}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Payment Terms:</span>
-                <span className="font-mono font-bold text-slate-700">{selectedOrder.paymentMethod || "Net 30 Days"}</span>
-              </div>
-            </div>
-
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {(selectedOrder.items || []).map((item: any, idx: number) => (
-                <div key={idx} className="flex justify-between text-xs py-1.5 border-b border-slate-50">
-                  <div>
-                    <span className="font-bold text-slate-800">{item.productName || item.product?.name || "Item"}</span>
-                    <span className="block text-[10px] text-slate-400 font-mono">
-                      Quantity: {item.qty} units × {fmt(Number(item.unitPrice || 0))}
-                    </span>
-                  </div>
-                  <span className="font-black text-slate-900 tabular-nums">
-                    {fmt(Number(item.qty || 1) * Number(item.unitPrice || 0))}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="border-t border-dashed border-slate-200 pt-3 space-y-1 text-xs">
-              <div className="flex justify-between font-bold text-slate-600">
-                <span>Total Items:</span>
-                <span>{(selectedOrder.items || []).length} items</span>
-              </div>
-              <div className="flex justify-between font-black text-base text-blue-700 pt-1">
-                <span>Grand Invoiced Total:</span>
-                <span>{fmt(Number(selectedOrder.grandTotal || selectedOrder.totalAmount || 0))}</span>
-              </div>
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <button
-                onClick={() => window.print()}
-                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-blue-900 p-2.5 text-xs font-bold text-white hover:bg-blue-800"
-              >
-                <Printer size={14} /> Print Commercial Invoice / Challan
-              </button>
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+        <UniversalInvoiceModal
+          data={{
+            id: selectedOrder.id,
+            invoiceNo: selectedOrder.invoiceNo || `WS-${selectedOrder.id.slice(0, 8)}`,
+            challanNo: `CH-${selectedOrder.invoiceNo || selectedOrder.id.slice(0, 8)}`,
+            saleDate: selectedOrder.createdAt,
+            vertical: "wholesale",
+            customer: selectedOrder.customer,
+            items: (selectedOrder.items || []).map((it: any) => ({
+              name: it.productName || it.product?.name || "B2B Commercial Product",
+              productName: it.productName || it.product?.name || "B2B Commercial Product",
+              qty: Number(it.qty || 1),
+              unitPrice: Number(it.unitPrice || 0),
+              sku: it.sku || "WS-SKU",
+              uom: it.uom || "units",
+            })),
+            subTotal: Number(selectedOrder.subTotal || selectedOrder.grandTotal || selectedOrder.totalAmount || 0),
+            grandTotal: Number(selectedOrder.grandTotal || selectedOrder.totalAmount || 0),
+            paidTotal: Number(selectedOrder.paidTotal || 0),
+            dueTotal: Number(selectedOrder.dueTotal || selectedOrder.grandTotal || selectedOrder.totalAmount || 0),
+            paymentMethod: selectedOrder.paymentMethod || "CREDIT / NET 30",
+            paymentTerms: selectedOrder.paymentMethod || "Net 30 Days",
+            vehicleNo: "DHAKA METRO-TA-11-9482",
+            driverName: "Md. Rafiqul Islam (+880 1819-223344)",
+          }}
+          initialVertical="wholesale"
+          onClose={() => setSelectedOrder(null)}
+        />
       )}
     </div>
   );
