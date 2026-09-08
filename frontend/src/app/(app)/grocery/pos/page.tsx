@@ -478,28 +478,28 @@ export default function GroceryPOSPage() {
 
           {/* Quick actions */}
           <div className="flex-none bg-white border-b border-gray-100 px-4 py-3">
-            <p className="text-xs font-black text-gray-800 mb-2">Quick Actions</p>
+            <p className="text-xs font-black text-gray-800 mb-2.5">Quick Actions</p>
             <div className="flex items-center gap-2.5">
               {[
-                { label: "Price Check", key: "F3", icon: <Search size={15}/>, bg: "bg-emerald-50 text-emerald-600", onClick: () => setPriceCheckOpen(true) },
-                { label: "Recent Items", key: "F4", icon: <Clock size={15}/>, bg: "bg-amber-50 text-amber-600", onClick: () => scanRef.current?.focus() },
-                { label: "Stock Check", key: "F5", icon: <Package size={15}/>, bg: "bg-emerald-50 text-emerald-600", onClick: () => setStockCheckOpen(true) },
-                { label: "Offers", key: "F6", icon: <Tag size={15}/>, bg: "bg-rose-50 text-rose-500", onClick: () => setOffersOpen(true) },
-                { label: "Hold Bill", key: "F7", icon: <PauseCircle size={15}/>, bg: "bg-emerald-50 text-emerald-600", onClick: () => { if (cart.length) holdCart(); else setHeldCartsOpen(true); } },
+                { label: "Price Check", key: "F3", icon: <Search size={15}/>, onClick: () => setPriceCheckOpen(true) },
+                { label: "Recent Items", key: "F4", icon: <Clock size={15}/>, onClick: () => scanRef.current?.focus() },
+                { label: "Stock Check", key: "F5", icon: <Package size={15}/>, onClick: () => setStockCheckOpen(true) },
+                { label: "Offers", key: "F6", icon: <Tag size={15}/>, onClick: () => setOffersOpen(true) },
+                { label: "Hold Bill", key: "F7", icon: <PauseCircle size={15}/>, onClick: () => { if (cart.length) holdCart(); else setHeldCartsOpen(true); } },
               ].map(a => (
                 <button key={a.label} onClick={a.onClick}
-                  className="flex-1 bg-white rounded-2xl border border-gray-200/80 p-2 flex items-center gap-2.5 shadow-2xs hover:shadow-md hover:border-emerald-300 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 text-left">
-                  <div className={`w-8 h-8 rounded-xl ${a.bg} flex items-center justify-center shrink-0`}>
+                  className="flex-1 bg-gradient-to-b from-white via-[#fcfdfe] to-[#f0fdf4] rounded-2xl border-t border-x border-emerald-200/90 border-b-[3px] border-b-emerald-300/90 p-2 flex items-center gap-2.5 shadow-[0_3px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_18px_rgba(22,163,74,0.18)] hover:border-emerald-400 hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[0.98] active:shadow-inner transition-all duration-150 text-left group cursor-pointer">
+                  <div className="w-8 h-8 rounded-xl bg-white border border-emerald-200/80 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-emerald-600 group-hover:text-white transition-all duration-200">
                     {a.icon}
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-gray-800 leading-tight">{a.label}</p>
-                    <p className="text-[10px] font-semibold text-gray-400 font-mono leading-none mt-0.5">{a.key}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs font-black text-gray-900 truncate leading-tight group-hover:text-emerald-800 transition-colors">{a.label}</p>
+                    <span className="text-[9px] font-mono font-black bg-[#15803d] text-white px-1.5 py-0.5 rounded-md shadow-2xs inline-block mt-0.5 tracking-wider border border-emerald-800/40">{a.key}</span>
                   </div>
                 </button>
               ))}
-              <button onClick={() => setSettingsOpen(true)} className="p-2.5 rounded-2xl border border-gray-200/80 bg-white text-gray-400 hover:text-gray-700 hover:bg-gray-50 hover:scale-105 active:scale-95 shadow-2xs shrink-0 transition-all">
-                <Settings size={16}/>
+              <button onClick={() => setSettingsOpen(true)} className="p-2.5 rounded-2xl border-t border-x border-gray-200 border-b-[3px] border-b-gray-300 bg-gradient-to-b from-white via-gray-50 to-gray-100 text-gray-600 hover:text-emerald-700 hover:border-emerald-300 hover:shadow-md active:translate-y-0.5 active:scale-95 shadow-2xs shrink-0 transition-all cursor-pointer">
+                <Settings size={18}/>
               </button>
             </div>
           </div>
@@ -570,23 +570,33 @@ export default function GroceryPOSPage() {
               ))}
             </div>
 
-            {/* Quick Action Bar */}
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-emerald-100/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] px-4 py-2.5 flex items-center justify-between divide-x divide-emerald-50">
+            {/* Quick Action Bar (5 Distinct Tactile 3D Buttons) */}
+            <div className="grid grid-cols-5 gap-2.5">
               {[
-                { label: "Sales History", key: "F8", icon: <History size={17}/>, bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60", onClick: () => setRecentSalesOpen(true) },
-                { label: "Open Drawer", key: "F9", icon: <Printer size={17}/>, bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60", onClick: triggerCashDrawer },
-                { label: "Add Customer", key: "F10", icon: <Users size={17}/>, bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60", onClick: () => setCustomerModalOpen(true) },
-                { label: "Clear Cart", key: "F11", icon: <Trash2 size={17}/>, bg: "bg-[#fef2f2] text-[#ef4444] border border-[#fecaca]/60", onClick: clearCart },
-                { label: "Save & Print", key: "F12", icon: <Printer size={17}/>, bg: "bg-[#ecfdf5] text-[#10b981] border border-[#a7f3d0]/60", onClick: () => window.print() },
-              ].map((a, idx) => (
+                { label: "Sales History", key: "F8", icon: <History size={16}/>, onClick: () => setRecentSalesOpen(true) },
+                { label: "Open Drawer", key: "F9", icon: <Printer size={16}/>, onClick: triggerCashDrawer },
+                { label: "Add Customer", key: "F10", icon: <Users size={16}/>, onClick: () => setCustomerModalOpen(true) },
+                { label: "Clear Cart", key: "F11", icon: <Trash2 size={16}/>, isDanger: true, onClick: clearCart },
+                { label: "Save & Print", key: "F12", icon: <Printer size={16}/>, onClick: () => window.print() },
+              ].map((a) => (
                 <button key={a.label} onClick={a.onClick}
-                  className={`flex items-center gap-3 ${idx === 0 ? "" : "pl-4"} ${idx === 4 ? "" : "pr-4"} flex-1 text-left hover:opacity-80 transition`}>
-                  <div className={`w-9 h-9 rounded-xl ${a.bg} flex items-center justify-center shrink-0 shadow-2xs`}>
-                    {a.icon}
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-gray-900 leading-tight">{a.label}</p>
-                    <p className="text-[11px] font-semibold text-gray-400 font-mono leading-none mt-0.5">{a.key}</p>
+                  className={`border-t border-x border-b-[3.5px] rounded-2xl p-2.5 flex items-center justify-between shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_22px_rgba(22,163,74,0.22)] hover:-translate-y-1 active:translate-y-0.5 active:scale-[0.98] active:shadow-inner transition-all duration-150 text-left group overflow-hidden cursor-pointer ${
+                    a.isDanger 
+                      ? "bg-gradient-to-b from-white via-rose-50/50 to-red-100/70 border-red-200/90 border-b-red-400/90 hover:border-red-500 hover:shadow-[0_8px_22px_rgba(239,68,68,0.22)]" 
+                      : "bg-gradient-to-b from-white via-[#f0fdf4]/50 to-[#dcfce7]/70 border-emerald-200/90 border-b-emerald-400/90 hover:border-emerald-500"
+                  }`}>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`w-9 h-9 rounded-xl bg-white border flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 transition-all duration-200 ${
+                      a.isDanger ? "border-red-200 text-red-600 group-hover:bg-red-600 group-hover:text-white" : "border-emerald-200 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white"
+                    }`}>
+                      {a.icon}
+                    </div>
+                    <div className="min-w-0">
+                      <p className={`text-xs font-black truncate leading-tight transition-colors ${a.isDanger ? "text-red-900 group-hover:text-red-700" : "text-gray-900 group-hover:text-emerald-800"}`}>{a.label}</p>
+                      <span className={`text-[9.5px] font-mono font-black px-2 py-0.5 rounded-md shadow-2xs inline-block mt-0.5 tracking-wider border ${
+                        a.isDanger ? "bg-red-600 text-white border-red-700/50" : "bg-[#15803d] text-white border-emerald-800/50"
+                      }`}>{a.key}</span>
+                    </div>
                   </div>
                 </button>
               ))}
@@ -768,11 +778,11 @@ export default function GroceryPOSPage() {
                     { label: "Recent Sales", key: "F5", Icon: History, onClick: () => setRecentSalesOpen(true) },
                     { label: "Return/Refund", key: "F6", Icon: RotateCcw, onClick: () => setRecentSalesOpen(true) },
                   ].map(({label,key,Icon,onClick})=>(
-                    <button key={key} onClick={onClick} className="flex items-center gap-1.5 px-2 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] hover:bg-emerald-100/80 hover:-translate-y-0.5 active:scale-95 transition-all duration-150 flex-1 overflow-hidden text-left shadow-2xs">
-                      <Icon size={13} className="text-[#10b981] shrink-0"/>
+                    <button key={key} onClick={onClick} className="flex items-center gap-1.5 px-2 rounded-xl bg-gradient-to-b from-white via-[#f0fdf4]/50 to-[#dcfce7]/70 border-t border-x border-emerald-200/90 border-b-[2.5px] border-b-emerald-300 hover:border-emerald-400 hover:shadow-xs hover:-translate-y-0.5 active:translate-y-0.5 active:scale-95 transition-all duration-150 flex-1 overflow-hidden text-left shadow-2xs group cursor-pointer">
+                      <Icon size={13} className="text-[#10b981] group-hover:scale-110 transition-transform shrink-0"/>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-black text-[#15803d] truncate leading-tight">{label}</p>
-                        <p className="text-[8px] font-bold text-gray-400 font-mono leading-none">{key}</p>
+                        <p className="text-[10px] font-black text-[#15803d] truncate leading-tight group-hover:text-emerald-900">{label}</p>
+                        <span className="text-[8px] font-bold font-mono bg-[#15803d] text-white px-1 py-0.2 rounded inline-block mt-0.5">{key}</span>
                       </div>
                     </button>
                   ))}
@@ -780,10 +790,10 @@ export default function GroceryPOSPage() {
                 <div className="flex-1 grid grid-cols-4 gap-1 min-w-0">
                   {NUM_KEYS.map(k=>(
                     <button key={k} onClick={()=>numPress(k)}
-                      className={`rounded-xl font-black text-sm flex items-center justify-center transition-all duration-150 transform hover:-translate-y-0.5 active:scale-90 ${
-                        k==="="?"bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white shadow-md shadow-green-600/30 hover:brightness-110 active:bg-green-700"
-                        :k==="⌫"?"bg-red-50 text-red-400 border border-red-100 hover:bg-red-100 hover:text-red-500"
-                        :"bg-white border border-gray-200/80 text-gray-800 hover:bg-gray-50 hover:border-emerald-300 shadow-2xs"}`}>
+                      className={`rounded-xl font-black text-sm flex items-center justify-center transition-all duration-150 transform hover:-translate-y-0.5 active:translate-y-0.5 active:scale-90 cursor-pointer ${
+                        k==="="?"bg-gradient-to-b from-[#22c55e] via-[#16a34a] to-[#15803d] border-t border-x border-emerald-400 border-b-[3px] border-b-emerald-800 text-white shadow-md shadow-green-600/30 hover:brightness-110"
+                        :k==="⌫"?"bg-gradient-to-b from-white via-rose-50 to-red-100 text-red-600 border-t border-x border-red-200 border-b-[2.5px] border-b-red-300 hover:bg-red-100 hover:text-red-700 shadow-2xs"
+                        :"bg-gradient-to-b from-white via-gray-50/50 to-gray-100/80 border-t border-x border-gray-200/90 border-b-[2.5px] border-b-gray-300 text-gray-800 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 shadow-2xs"}`}>
                       {k}
                     </button>
                   ))}
@@ -799,12 +809,12 @@ export default function GroceryPOSPage() {
                     const on = payMethod === pm.id;
                     return (
                       <button key={pm.id} onClick={() => setPayMethod(pm.id as any)}
-                        className={`flex-1 flex items-center gap-2 px-2.5 rounded-xl border text-xs font-bold transition-all duration-150 transform hover:-translate-y-0.5 active:scale-95 text-left min-w-0 ${pm.bg} ${pm.text} ${
+                        className={`flex-1 flex items-center gap-2 px-2.5 rounded-xl border-t border-x border-b-[2.5px] text-xs font-black transition-all duration-150 transform hover:-translate-y-0.5 active:translate-y-0.5 active:scale-95 text-left min-w-0 cursor-pointer ${
                           on 
-                            ? `${pm.activeBorder} ${pm.activeRing} font-black shadow-xs scale-[1.02]` 
-                            : `${pm.border} opacity-85 hover:opacity-100`
+                            ? "bg-gradient-to-b from-white via-emerald-50 to-emerald-100/90 border-emerald-300 border-b-emerald-500 text-emerald-900 shadow-sm scale-[1.02]" 
+                            : "bg-gradient-to-b from-white to-gray-50/80 border-gray-200/90 border-b-gray-300 text-gray-700 opacity-90 hover:opacity-100 hover:border-emerald-300"
                         }`}>
-                        <pm.Icon size={15} className="shrink-0"/>
+                        <pm.Icon size={15} className={`shrink-0 ${on ? "text-emerald-700" : "text-gray-500"}`}/>
                         <span className="truncate leading-none">{pm.label}</span>
                       </button>
                     );
@@ -816,7 +826,7 @@ export default function GroceryPOSPage() {
                   
                   {/* Top: Hero Pay CTA Card */}
                   <button onClick={handleCheckout} disabled={!cart.length || submitting}
-                    className="flex-1 w-full rounded-2xl text-white flex items-center justify-between px-3.5 sm:px-4 py-2.5 shadow-[0_8px_20px_rgba(22,163,74,0.35)] hover:shadow-[0_12px_28px_rgba(22,163,74,0.5)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 disabled:opacity-40 bg-gradient-to-r from-[#16a34a] via-[#22c55e] to-[#84cc16] border border-emerald-400/40 relative overflow-hidden group min-w-0">
+                    className="flex-1 w-full rounded-2xl text-white flex items-center justify-between px-3.5 sm:px-4 py-2.5 shadow-[0_8px_20px_rgba(22,163,74,0.35)] hover:shadow-[0_12px_28px_rgba(22,163,74,0.5)] hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[0.98] transition-all duration-300 disabled:opacity-40 bg-gradient-to-b from-[#22c55e] via-[#16a34a] to-[#15803d] border-t border-x border-emerald-400 border-b-[4px] border-b-emerald-900 relative overflow-hidden group min-w-0 cursor-pointer">
                     <div className="text-left flex flex-col justify-center relative z-10 min-w-0 flex-1 mr-1.5">
                       <p className="text-xs sm:text-sm font-extrabold text-white/95 leading-none tracking-wide">Pay</p>
                       {(() => {
@@ -841,8 +851,8 @@ export default function GroceryPOSPage() {
 
                   {/* Bottom: Save & Print Bill */}
                   <button onClick={() => window.print()} disabled={!cart.length}
-                    className="w-full py-2.5 rounded-xl border text-xs font-black flex items-center justify-center gap-2 transition-all duration-150 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-40 bg-[#f0fdf4] hover:bg-emerald-100/80 border-[#dcfce7] text-[#15803d] shadow-2xs shrink-0">
-                    <Printer size={15} className="shrink-0"/>
+                    className="w-full py-2.5 rounded-xl border-t border-x border-emerald-200/90 border-b-[3px] border-b-emerald-400/90 text-xs font-black flex items-center justify-center gap-2 transition-all duration-150 transform hover:-translate-y-0.5 active:translate-y-0.5 active:scale-95 disabled:opacity-40 bg-gradient-to-b from-white via-[#f0fdf4] to-emerald-100 hover:bg-emerald-100 text-[#15803d] shadow-2xs shrink-0 cursor-pointer group">
+                    <Printer size={15} className="shrink-0 group-hover:scale-110 transition-transform"/>
                     <span className="truncate">Save &amp; Print Bill</span>
                   </button>
 
