@@ -75,7 +75,7 @@ async def list_products(
             await db.execute(
                 text(
                     f"SELECT p.id, p.name, p.sku, p.barcode, p.productType, p.costPrice, p.sellingPrice, "
-                    f"p.wholesalePrice, p.status, p.createdAt, p.imageUrl, p.manufacturer, p.taxRate, p.warrantyDays, p.description, "
+                    f"p.wholesalePrice, p.status, p.createdAt, p.imageUrl, p.manufacturer, p.taxRate, p.warrantyDays, p.description, p.reorderPoint, p.attributes, p.createdBy, "
                     f"c.name AS categoryName, c.id AS categoryId, "
                     f"subc.id AS subCategoryId, subc.name AS subCategoryName, "
                     f"b.id AS brandId, b.name AS brandName, u.id AS unitId, u.name AS unitName, "
@@ -111,6 +111,17 @@ async def list_products(
         sup_id = r.pop("supplierId", None)
         sup_name = r.pop("supplierName", None)
         r["supplier"] = {"id": sup_id, "name": sup_name} if sup_id or sup_name else None
+
+        raw_attr = r.get("attributes")
+        if raw_attr:
+            try:
+                import json
+                r["attributes"] = json.loads(raw_attr) if isinstance(raw_attr, str) else raw_attr
+            except Exception:
+                r["attributes"] = {}
+        else:
+            r["attributes"] = {}
+
         r["productType"] = r.pop("productType")
         r["costPrice"] = r.pop("costPrice"); r["sellingPrice"] = r.pop("sellingPrice")
         r["wholesalePrice"] = r.pop("wholesalePrice")

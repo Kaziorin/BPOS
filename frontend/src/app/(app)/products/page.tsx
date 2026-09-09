@@ -290,6 +290,56 @@ export default function ProductsPage() {
       ),
     },
     {
+      key: "manufacturer" as any,
+      header: "Manufacturer",
+      align: "center",
+      sortable: true,
+      render: (product: any) => (
+        <span className="text-xs font-medium text-slate-600">{product.manufacturer || "—"}</span>
+      ),
+    },
+    {
+      key: "taxRate" as any,
+      header: "Tax Rate",
+      align: "center",
+      sortable: true,
+      render: (product: any) => (
+        product.taxRate ? (
+          <span className="text-xs font-semibold text-slate-700">{product.taxRate}%</span>
+        ) : (
+          <span className="text-xs text-slate-300">—</span>
+        )
+      ),
+    },
+    {
+      key: "warrantyDays" as any,
+      header: "Warranty",
+      align: "center",
+      sortable: true,
+      render: (product: any) => (
+        product.warrantyDays ? (
+          <span className="text-xs font-semibold text-slate-700">{Math.round(product.warrantyDays / 30)} Mos</span>
+        ) : (
+          <span className="text-xs text-slate-300">—</span>
+        )
+      ),
+    },
+    {
+      key: "reorderPoint" as any,
+      header: "Reorder Alert",
+      align: "center",
+      sortable: true,
+      render: (product: any) => (
+        product.reorderPoint !== undefined && product.reorderPoint !== null ? (
+          <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+            {product.reorderPoint}
+          </span>
+        ) : (
+          <span className="text-xs text-slate-300">—</span>
+        )
+      ),
+    },
+    {
       key: "status",
       header: "Status",
       align: "center",
