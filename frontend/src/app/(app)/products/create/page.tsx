@@ -719,6 +719,21 @@ export default function CreateProductPage() {
         ]}
         actions={
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs shadow-2xs">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vertical:</span>
+              <select
+                value={selectedVertical}
+                onChange={(e) => setSelectedVertical(e.target.value)}
+                className="bg-transparent font-bold text-teal-700 text-xs focus:outline-none cursor-pointer"
+              >
+                {BUSINESS_VERTICALS.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {!isEditMode && (
               <CustomButton
                 type="button"

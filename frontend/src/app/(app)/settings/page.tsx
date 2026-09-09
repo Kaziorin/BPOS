@@ -250,29 +250,74 @@ function CompanySettingsTab({ tenantData, onSave }: { tenantData: any; onSave: (
   const [phone, setPhone] = useState("+880 1711-000000");
   const [email, setEmail] = useState("admin@blueocean.com.bd");
   const [vatRegNo, setVatRegNo] = useState(company.vatRegNo || "BIN-002938194-0101");
-  const [businessType, setBusinessType] = useState(tenant.businessType || "RETAIL_SUPERSTORE");
+  const [businessType, setBusinessType] = useState(tenant.businessType || "GROCERY");
   const [currency, setCurrency] = useState(tenant.currency || "BDT");
   const [timezone, setTimezone] = useState(tenant.timezone || "Asia/Dhaka");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (tenant.name) setName(tenant.name);
     if (company.legalName) setLegalName(company.legalName);
     if (company.address) setAddress(company.address);
     if (company.vatRegNo) setVatRegNo(company.vatRegNo);
+    if (tenant.businessType) setBusinessType(tenant.businessType);
     if (tenant.currency) setCurrency(tenant.currency);
     if (tenant.timezone) setTimezone(tenant.timezone);
   }, [tenant, company]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave();
+    setSaving(true);
+    try {
+      const res: any = await api.put("/v1/tenant", {
+        name,
+        legalName,
+        address,
+        phone,
+        email,
+        vatRegNo,
+        businessType,
+        currency,
+        timezone,
+      });
+
+      // Update local storage so rest of UI immediately reflects new businessType
+      const mappedBt = res?.data?.businessType || res?.businessType || businessType;
+      if (typeof window !== "undefined") {
+        try {
+          const curTenant = localStorage.getItem("blueoceans_tenant");
+          const parsed = curTenant ? JSON.parse(curTenant) : {};
+          localStorage.setItem("blueoceans_tenant", JSON.stringify({
+            ...parsed,
+            name,
+            businessType: mappedBt,
+          }));
+
+          const curUser = localStorage.getItem("modernpos_user");
+          if (curUser) {
+            const parsedUser = JSON.parse(curUser);
+            localStorage.setItem("modernpos_user", JSON.stringify({
+              ...parsedUser,
+              businessType: mappedBt,
+            }));
+          }
+        } catch (err) {}
+      }
+
+      onSave();
+    } catch (err: any) {
+      console.error("Failed to update company profile:", err);
+      alert(err?.message || "Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="border-b border-slate-100 pb-4">
         <h2 className="text-lg font-black text-slate-900">Company & Tenant Profile</h2>
-        <p className="text-xs text-slate-500">Legal entity registration, contact info, and tax identity</p>
+        <p className="text-xs text-slate-500">Legal entity registration, contact info, and industry business vertical</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
@@ -341,18 +386,21 @@ function CompanySettingsTab({ tenantData, onSave }: { tenantData: any; onSave: (
         </div>
 
         <div>
-          <label className="block font-bold text-slate-700 mb-1">Industry Vertical Type</label>
+          <label className="block font-bold text-slate-700 mb-1">Industry Business Vertical</label>
           <select
             value={businessType}
             onChange={(e) => setBusinessType(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-bold focus:outline-none focus:border-slate-400 bg-slate-50/60"
+            className="w-full rounded-xl border border-teal-500 bg-teal-50/40 text-teal-900 px-3.5 py-2.5 font-bold focus:outline-none focus:border-teal-600"
           >
-            <option value="RETAIL_SUPERSTORE">Retail Superstore & Chain</option>
-            <option value="GROCERY_SUPERMARKET">Grocery & Supermarket</option>
-            <option value="WHOLESALE_DISTRIBUTION">Wholesale & B2B Distribution</option>
-            <option value="RESTAURANT_CAFE">Restaurant & Cafe Dining</option>
-            <option value="PHARMACY_HEALTHCARE">Pharmacy & Healthcare</option>
-            <option value="MANUFACTURING_BAKERY">Manufacturing & Bakery</option>
+            <option value="GROCERY">Grocery & Supermarket</option>
+            <option value="RESTAURANT">Restaurant & Cafe Dining</option>
+            <option value="PHARMACY">Pharmacy & Medicine</option>
+            <option value="RETAIL">Retail & Apparel</option>
+            <option value="WHOLESALE">Wholesale & B2B Distribution</option>
+            <option value="MANUFACTURING">Manufacturing & Bakery</option>
+            <option value="SALON">Salon & Spa</option>
+            <option value="REPAIR">Repair & Service</option>
+            <option value="FRANCHISE">Franchise Multi-Outlet</option>
           </select>
         </div>
 
@@ -384,9 +432,10 @@ function CompanySettingsTab({ tenantData, onSave }: { tenantData: any; onSave: (
       <div className="pt-2 flex justify-end">
         <button
           type="submit"
-          className="flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2.5 text-xs transition shadow-sm"
+          disabled={saving}
+          className="flex items-center gap-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold px-6 py-2.5 text-xs transition shadow-sm cursor-pointer disabled:opacity-50"
         >
-          <Save size={14} /> Save Company Profile
+          <Save size={14} /> {saving ? "Saving Changes..." : "Save Company Profile"}
         </button>
       </div>
     </form>

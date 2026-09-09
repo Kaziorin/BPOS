@@ -264,6 +264,79 @@ async def tenant_info(
     )
 
 
+@router.put("/api/v1/tenant")
+@router.post("/api/v1/tenant")
+async def update_tenant(
+    body: dict,
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    from db import txn
+    from app.api.v1.saas.routers_saas import seed_tenant_business_metadata
+
+    name = (body.get("name") or "").strip()
+    business_type = (body.get("businessType") or "").strip().upper()
+    currency = (body.get("currency") or "").strip().upper()
+    timezone = (body.get("timezone") or "").strip()
+    legal_name = (body.get("legalName") or name).strip()
+    address = (body.get("address") or "").strip()
+    phone = (body.get("phone") or "").strip()
+    email = (body.get("email") or "").strip()
+    vat_reg_no = (body.get("vatRegNo") or "").strip()
+
+    mapped_bt = business_type
+    if "GROCERY" in mapped_bt: mapped_bt = "GROCERY"
+    elif "RESTAURANT" in mapped_bt: mapped_bt = "RESTAURANT"
+    elif "PHARMACY" in mapped_bt: mapped_bt = "PHARMACY"
+    elif "WHOLESALE" in mapped_bt: mapped_bt = "WHOLESALE"
+    elif "MANUFACTURING" in mapped_bt: mapped_bt = "MANUFACTURING"
+    elif "SALON" in mapped_bt: mapped_bt = "SALON"
+    elif "REPAIR" in mapped_bt: mapped_bt = "REPAIR"
+    elif "FRANCHISE" in mapped_bt: mapped_bt = "FRANCHISE"
+    elif "RETAIL" in mapped_bt: mapped_bt = "RETAIL"
+
+    async with txn(db):
+        updates = []
+        params: dict = {"t": tenantId}
+        if name:
+            updates.append("name = :name")
+            params["name"] = name
+        if mapped_bt:
+            updates.append("businessType = :bt")
+            params["bt"] = mapped_bt
+        if currency:
+            updates.append("currency = :currency")
+            params["currency"] = currency
+        if timezone:
+            updates.append("timezone = :timezone")
+            params["timezone"] = timezone
+
+        if updates:
+            sql = f"UPDATE tenants SET {', '.join(updates)}, updatedAt = NOW() WHERE id = :t"
+            await db.execute(text(sql), params)
+
+        # Update company
+        comp = (await db.execute(text("SELECT id FROM companies WHERE tenantId = :t LIMIT 1"), {"t": tenantId})).first()
+        if comp:
+            await db.execute(text("""
+                UPDATE companies SET
+                    legalName = COALESCE(:ln, legalName),
+                    address = COALESCE(:addr, address),
+                    phone = COALESCE(:ph, phone),
+                    email = COALESCE(:em, email),
+                    vatRegNo = COALESCE(:vat, vatRegNo),
+                    updatedAt = NOW()
+                WHERE id = :cid
+            """), {"cid": comp.id, "ln": legal_name or None, "addr": address or None, "ph": phone or None, "em": email or None, "vat": vat_reg_no or None})
+
+        # Seed new metadata if businessType was changed
+        if mapped_bt:
+            await seed_tenant_business_metadata(db, tenantId, mapped_bt)
+
+    return ok({"message": "Tenant settings updated successfully", "businessType": mapped_bt})
+
+
 @router.get("/api/v1/menu")
 async def menu(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
     """Dynamic menu grouped by category (spec §9/§32) — identical shape to TS."""
