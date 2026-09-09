@@ -83,7 +83,7 @@ export const RetailProductFields: React.FC<Props> = ({ formData, onChange }) => 
           <CustomCheckbox
             id="hasVariantMatrix"
             checked={formData.hasVariantMatrix}
-            onChange={(checked) => onChange("hasVariantMatrix", checked)}
+            onChange={(e: any) => onChange("hasVariantMatrix", e?.target ? e.target.checked : e)}
             label="Enable Variant Matrix (Size, Color, Material grid SKU generation)"
           />
         </div>
@@ -92,7 +92,7 @@ export const RetailProductFields: React.FC<Props> = ({ formData, onChange }) => 
           <CustomCheckbox
             id="isReturnable"
             checked={formData.isReturnable}
-            onChange={(checked) => onChange("isReturnable", checked)}
+            onChange={(e: any) => onChange("isReturnable", e?.target ? e.target.checked : e)}
             label="Customer Returnable & Exchangeable (With receipt tag)"
           />
         </div>

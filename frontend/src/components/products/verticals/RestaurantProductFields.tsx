@@ -370,7 +370,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="dineInAvailable"
                   checked={formData.dineInAvailable ?? true}
-                  onChange={(checked) => onChange("dineInAvailable", checked)}
+                  onChange={(e: any) => onChange("dineInAvailable", e?.target ? e.target.checked : e)}
                   label="Available for Dine-in"
                 />
               </div>
@@ -378,7 +378,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="takeawayAvailable"
                   checked={formData.takeawayAvailable ?? true}
-                  onChange={(checked) => onChange("takeawayAvailable", checked)}
+                  onChange={(e: any) => onChange("takeawayAvailable", e?.target ? e.target.checked : e)}
                   label="Available for Takeaway / Parcel"
                 />
               </div>
@@ -386,7 +386,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="deliveryAvailable"
                   checked={formData.deliveryAvailable ?? true}
-                  onChange={(checked) => onChange("deliveryAvailable", checked)}
+                  onChange={(e: any) => onChange("deliveryAvailable", e?.target ? e.target.checked : e)}
                   label="Available for Online Delivery"
                 />
               </div>
@@ -404,7 +404,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="isVegetarian"
                   checked={formData.isVegetarian}
-                  onChange={(checked) => onChange("isVegetarian", checked)}
+                  onChange={(e: any) => onChange("isVegetarian", e?.target ? e.target.checked : e)}
                   label="🌱 100% Vegetarian (Veg)"
                 />
               </div>
@@ -412,7 +412,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="isHalal"
                   checked={formData.isHalal ?? true}
-                  onChange={(checked) => onChange("isHalal", checked)}
+                  onChange={(e: any) => onChange("isHalal", e?.target ? e.target.checked : e)}
                   label="✨ 100% Halal Certified"
                 />
               </div>
@@ -420,7 +420,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="isChefSpecial"
                   checked={formData.isChefSpecial}
-                  onChange={(checked) => onChange("isChefSpecial", checked)}
+                  onChange={(e: any) => onChange("isChefSpecial", e?.target ? e.target.checked : e)}
                   label="👨‍🍳 Chef's Special / Signature"
                 />
               </div>
@@ -428,7 +428,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="isGlutenFree"
                   checked={formData.isGlutenFree}
-                  onChange={(checked) => onChange("isGlutenFree", checked)}
+                  onChange={(e: any) => onChange("isGlutenFree", e?.target ? e.target.checked : e)}
                   label="🌾 Gluten-Free Dish"
                 />
               </div>
@@ -709,7 +709,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
               <CustomCheckbox
                 id="hasRecipeBom"
                 checked={formData.hasRecipeBom}
-                onChange={(checked) => onChange("hasRecipeBom", checked)}
+                onChange={(e: any) => onChange("hasRecipeBom", e?.target ? e.target.checked : e)}
                 label="Enable Automatic Raw Material Stock Deduction on POS Sale"
               />
             </div>

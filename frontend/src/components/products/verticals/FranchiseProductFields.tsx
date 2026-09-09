@@ -75,7 +75,7 @@ export const FranchiseProductFields: React.FC<Props> = ({ formData, onChange }) 
           <CustomCheckbox
             id="allowBranchPriceOverride"
             checked={formData.allowBranchPriceOverride}
-            onChange={(checked) => onChange("allowBranchPriceOverride", checked)}
+            onChange={(e: any) => onChange("allowBranchPriceOverride", e?.target ? e.target.checked : e)}
             label="Allow Outlet Managers to Override POS Selling Price"
           />
         </div>
@@ -84,7 +84,7 @@ export const FranchiseProductFields: React.FC<Props> = ({ formData, onChange }) 
           <CustomCheckbox
             id="isCentralRestricted"
             checked={formData.isCentralRestricted}
-            onChange={(checked) => onChange("isCentralRestricted", checked)}
+            onChange={(e: any) => onChange("isCentralRestricted", e?.target ? e.target.checked : e)}
             label="Strict Central Purchasing Only (Outlet cannot locally order)"
           />
         </div>

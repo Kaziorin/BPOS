@@ -190,7 +190,7 @@ export const PharmacyProductFields: React.FC<Props> = ({ formData, onChange }) =
           <CustomCheckbox
             id="isPrescriptionRequired"
             checked={formData.isPrescriptionRequired}
-            onChange={(checked) => onChange("isPrescriptionRequired", checked)}
+            onChange={(e: any) => onChange("isPrescriptionRequired", e?.target ? e.target.checked : e)}
             label="Rx Prescription Required (Doctor's prescription needed at POS)"
           />
         </div>
@@ -199,7 +199,7 @@ export const PharmacyProductFields: React.FC<Props> = ({ formData, onChange }) =
           <CustomCheckbox
             id="hasBatchExpiry"
             checked={formData.hasBatchExpiry}
-            onChange={(checked) => onChange("hasBatchExpiry", checked)}
+            onChange={(e: any) => onChange("hasBatchExpiry", e?.target ? e.target.checked : e)}
             label="Mandatory Batch No & Expiry Tracking (FEFO logic enabled)"
           />
         </div>

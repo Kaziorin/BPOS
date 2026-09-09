@@ -101,7 +101,7 @@ export const ServiceProductFields: React.FC<Props> = ({ formData, onChange, mode
             <CustomCheckbox
               id="requiresSerialNumber"
               checked={formData.requiresSerialNumber}
-              onChange={(checked) => onChange("requiresSerialNumber", checked)}
+              onChange={(e: any) => onChange("requiresSerialNumber", e?.target ? e.target.checked : e)}
               label="Mandatory IMEI / Device Serial Number (Job Ticket Tracking)"
             />
           </div>
@@ -111,7 +111,7 @@ export const ServiceProductFields: React.FC<Props> = ({ formData, onChange, mode
           <CustomCheckbox
             id="isAppointmentRequired"
             checked={formData.isAppointmentRequired}
-            onChange={(checked) => onChange("isAppointmentRequired", checked)}
+            onChange={(e: any) => onChange("isAppointmentRequired", e?.target ? e.target.checked : e)}
             label="Requires Slot Reservation / Appointment Booking"
           />
         </div>
@@ -120,7 +120,7 @@ export const ServiceProductFields: React.FC<Props> = ({ formData, onChange, mode
           <CustomCheckbox
             id="laborChargeOnly"
             checked={formData.laborChargeOnly}
-            onChange={(checked) => onChange("laborChargeOnly", checked)}
+            onChange={(e: any) => onChange("laborChargeOnly", e?.target ? e.target.checked : e)}
             label="Pure Labor / Non-Inventory Service (Zero physical stock tracking)"
           />
         </div>

@@ -408,7 +408,13 @@ export default function CreateProductPage() {
 
   function updateForm(field: string, value: any) {
     setForm((prev) => {
-      const next = { ...prev, [field]: value };
+      const realValue =
+        value && typeof value === "object" && "target" in value
+          ? (value.target as HTMLInputElement).type === "checkbox"
+            ? (value.target as HTMLInputElement).checked
+            : (value.target as HTMLInputElement).value
+          : value;
+      const next = { ...prev, [field]: realValue };
       if (field === "categoryId") {
         next.subCategoryId = "";
       }

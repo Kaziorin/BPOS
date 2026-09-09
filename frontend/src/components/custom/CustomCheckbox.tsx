@@ -44,6 +44,13 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
     const autoId = useId();
     const checkboxId = id ?? autoId;
     const themeStyles = CHECKBOX_THEME_MAP[themeColor] || CHECKBOX_THEME_MAP.teal;
+    const isChecked = Boolean(checked);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (onChange) {
+        onChange(e);
+      }
+    };
 
     return (
       <label
@@ -59,9 +66,9 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
             ref={ref}
             id={checkboxId}
             type="checkbox"
-            checked={checked}
+            checked={isChecked}
             disabled={disabled}
-            onChange={onChange}
+            onChange={handleChange}
             className="peer sr-only"
             {...props}
           />
@@ -77,7 +84,7 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
             <Check
               className={cn(
                 "h-3 w-3 stroke-[3.5] text-white transition-opacity",
-                checked ? "opacity-100" : "opacity-0"
+                isChecked ? "opacity-100" : "opacity-0"
               )}
             />
           </div>

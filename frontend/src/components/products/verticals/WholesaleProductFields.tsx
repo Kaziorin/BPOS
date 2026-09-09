@@ -159,7 +159,7 @@ export const WholesaleProductFields: React.FC<Props> = ({ formData, onChange }) 
         <CustomCheckbox
           id="isCreditEligible"
           checked={formData.isCreditEligible}
-          onChange={(checked) => onChange("isCreditEligible", checked)}
+          onChange={(e: any) => onChange("isCreditEligible", e?.target ? e.target.checked : e)}
           label="Eligible for B2B Wholesale Credit Account Billing (Post-paid ledger)"
         />
       </div>
