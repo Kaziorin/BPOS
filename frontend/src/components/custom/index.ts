@@ -6,6 +6,8 @@ export * from "./CustomFileUploader";
 export * from "./CustomTable";
 export * from "./CustomBadge";
 export * from "./CustomModal";
+export * from "./ConfirmModal";
+export * from "./CustomPromptModal";
 export * from "./CustomStatCard";
 export * from "./SearchableSelect";
 export * from "./CustomCheckbox";
