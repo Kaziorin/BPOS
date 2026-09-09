@@ -32,6 +32,7 @@ import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { toast } from "react-toastify";
+import { CATEGORY_ICONS_LIST, getCategoryIcon } from "@/lib/categoryIcons";
 
 interface Category {
   id: string;
@@ -39,6 +40,7 @@ interface Category {
   parentId?: string | null;
   status?: string;
   businessTypes?: string | null;
+  icon?: string | null;
 }
 
 const BUSINESS_VERTICALS = [
@@ -86,6 +88,7 @@ export default function CategoriesPage() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formName, setFormName] = useState("");
   const [formParentId, setFormParentId] = useState("");
+  const [formIcon, setFormIcon] = useState<string>("Utensils");
   const [selectedBusinessTypes, setSelectedBusinessTypes] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -212,6 +215,7 @@ export default function CategoriesPage() {
     setEditingCategory(null);
     setFormName("");
     setFormParentId("");
+    setFormIcon("Utensils");
     setSelectedBusinessTypes([]);
     setModalMode("ADD_MAIN");
   }
@@ -220,6 +224,7 @@ export default function CategoriesPage() {
     setEditingCategory(cat);
     setFormName(cat.name);
     setFormParentId("");
+    setFormIcon(cat.icon || "Utensils");
     const parsedBt = cat.businessTypes ? cat.businessTypes.split(",").filter(Boolean) : [];
     setSelectedBusinessTypes(parsedBt);
     setModalMode("EDIT_MAIN");
@@ -229,6 +234,7 @@ export default function CategoriesPage() {
     setEditingCategory(null);
     setFormName("");
     setFormParentId(allMainCats.length > 0 ? allMainCats[0].id : "");
+    setFormIcon("Utensils");
     setSelectedBusinessTypes([]);
     setModalMode("ADD_SUB");
   }
@@ -237,6 +243,7 @@ export default function CategoriesPage() {
     setEditingCategory(cat);
     setFormName(cat.name);
     setFormParentId(cat.parentId || (allMainCats.length > 0 ? allMainCats[0].id : ""));
+    setFormIcon(cat.icon || "Utensils");
     const parsedBt = cat.businessTypes ? cat.businessTypes.split(",").filter(Boolean) : [];
     setSelectedBusinessTypes(parsedBt);
     setModalMode("EDIT_SUB");
@@ -259,6 +266,7 @@ export default function CategoriesPage() {
           name: formName,
           parentId: modalMode === "EDIT_SUB" ? formParentId : null,
           businessTypes: selectedBusinessTypes,
+          icon: formIcon,
         });
         toast.success("Category updated successfully!");
       } else {
@@ -266,6 +274,7 @@ export default function CategoriesPage() {
           name: formName,
           parentId: modalMode === "ADD_SUB" ? formParentId : undefined,
           businessTypes: selectedBusinessTypes,
+          icon: formIcon,
         });
         toast.success(
           modalMode === "ADD_SUB"
@@ -327,14 +336,17 @@ export default function CategoriesPage() {
       key: "name",
       header: "Category",
       sortable: true,
-      render: (cat) => (
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-teal-50 text-teal-600 shrink-0">
-            <Tags size={16} />
+      render: (cat) => {
+        const IconComponent = getCategoryIcon(cat.icon, cat.name);
+        return (
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-teal-50 text-teal-600 shrink-0 border border-teal-100">
+              <IconComponent size={16} />
+            </div>
+            <span className="font-bold text-gray-600 text-sm">{cat.name}</span>
           </div>
-          <span className="font-bold text-gray-600 text-sm">{cat.name}</span>
-        </div>
-      ),
+        );
+      },
     },
 
     {
@@ -404,12 +416,17 @@ export default function CategoriesPage() {
       header: "Subcategory",
       sortable: true,
       getSortValue: (row) => row.name,
-      render: (cat) => (
-        <div className="flex items-center gap-2 font-bold text-gray-600 text-sm">
-          <CornerDownRight size={15} className="text-teal-600 shrink-0" />
-          <span>{cat.name}</span>
-        </div>
-      ),
+      render: (cat) => {
+        const IconComponent = getCategoryIcon(cat.icon, cat.name);
+        return (
+          <div className="flex items-center gap-2 font-bold text-gray-600 text-sm">
+            <div className="flex h-6 w-6 items-center justify-center rounded bg-teal-50 text-teal-600 shrink-0 border border-teal-100">
+              <IconComponent size={13} />
+            </div>
+            <span>{cat.name}</span>
+          </div>
+        );
+      },
     },
     {
       key: "parentName",
@@ -676,7 +693,7 @@ export default function CategoriesPage() {
       >
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
+            <label className="block text-[14px] font-semibold text-gray-600 mb-1.5 capitalize">
               Category Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -688,6 +705,34 @@ export default function CategoriesPage() {
               required
               autoFocus
             />
+          </div>
+
+          <div>
+            <label className="block text-[14px] font-semibold text-gray-600 mb-1.5 capitalize">
+              Select Category Icon
+            </label>
+            <div className="grid grid-cols-7 gap-1.5 p-2 bg-slate-50 border border-slate-200 rounded-md max-h-36 overflow-y-auto">
+              {CATEGORY_ICONS_LIST.map((item) => {
+                const ItemIcon = item.icon;
+                const isSelected = formIcon === item.name;
+                return (
+                  <button
+                    key={item.name}
+                    type="button"
+                    onClick={() => setFormIcon(item.name)}
+                    title={item.label}
+                    className={`flex flex-col items-center justify-center p-2 rounded-md transition ${
+                      isSelected
+                        ? "bg-teal-600 text-white shadow-xs font-bold"
+                        : "bg-white text-slate-600 border border-slate-200 hover:bg-teal-50 hover:text-teal-600"
+                    }`}
+                  >
+                    <ItemIcon size={18} />
+                    <span className="text-[9px] mt-0.5 truncate max-w-full">{item.name}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
 
@@ -735,7 +780,7 @@ export default function CategoriesPage() {
           </div>
 
           <div>
-            <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
+            <label className="block text-[14px] font-semibold text-gray-600 mb-1.5 capitalize">
               Subcategory Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -747,6 +792,34 @@ export default function CategoriesPage() {
               required
               autoFocus
             />
+          </div>
+
+          <div>
+            <label className="block text-[14px] font-semibold text-gray-600 mb-1.5 capitalize">
+              Select Subcategory Icon
+            </label>
+            <div className="grid grid-cols-7 gap-1.5 p-2 bg-slate-50 border border-slate-200 rounded-md max-h-36 overflow-y-auto">
+              {CATEGORY_ICONS_LIST.map((item) => {
+                const ItemIcon = item.icon;
+                const isSelected = formIcon === item.name;
+                return (
+                  <button
+                    key={item.name}
+                    type="button"
+                    onClick={() => setFormIcon(item.name)}
+                    title={item.label}
+                    className={`flex flex-col items-center justify-center p-2 rounded-md transition ${
+                      isSelected
+                        ? "bg-teal-600 text-white shadow-xs font-bold"
+                        : "bg-white text-slate-600 border border-slate-200 hover:bg-teal-50 hover:text-teal-600"
+                    }`}
+                  >
+                    <ItemIcon size={18} />
+                    <span className="text-[9px] mt-0.5 truncate max-w-full">{item.name}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
 
