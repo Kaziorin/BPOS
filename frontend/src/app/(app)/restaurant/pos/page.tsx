@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 import { api, TENANT_STORAGE_KEY } from "@/lib/api";
 import { toast } from "react-toastify";
-import { ConfirmModal, CustomPromptModal } from "@/components/custom";
+import { ConfirmModal, CustomModal, CustomPromptModal, CustomInput, CustomButton } from "@/components/custom";
 import { getCategoryIcon } from "@/lib/categoryIcons";
 
 interface TableOption {
