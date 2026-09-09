@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Loader2, Plus, Search, Package, Eye, Trash2 } from "lucide-react";
+import { Plus, Search, Package, Eye, Edit3, Trash2, RotateCcw, Filter, Image as ImageIcon, Warehouse } from "lucide-react";
 import { api } from "@/lib/api";
 import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { CustomButton } from "@/components/custom/CustomButton";
@@ -18,8 +18,10 @@ interface Product {
   costPrice: string;
   sellingPrice: string;
   wholesalePrice: string | null;
+  totalStock?: number;
   status: string;
   createdAt: string;
+  imageUrl?: string | null;
   category?: { id: string; name: string } | null;
   brand?: { id: string; name: string } | null;
   unit?: { id: string; name: string } | null;
@@ -33,16 +35,21 @@ export default function ProductsPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Filters & Search
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("");
-  const [filterBusinessType, setFilterBusinessType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  
+  // Pagination
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  
+  // Delete modal
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
-  const loadProducts = useCallback(async (p: number, l: number, type: string, bType: string, status: string, q: string) => {
+  const loadProducts = useCallback(async (p: number, l: number, type: string, status: string, q: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -52,7 +59,6 @@ export default function ProductsPage() {
       });
       if (q) params.set("search", q);
       if (type) params.set("productType", type);
-      if (bType) params.set("businessType", bType);
       if (status) params.set("status", status);
 
       const result = await api.get<any>(`/v1/products?${params}`);
@@ -83,8 +89,15 @@ export default function ProductsPage() {
   }, []);
 
   useEffect(() => {
-    loadProducts(page, limit, filterType, filterBusinessType, filterStatus, search);
-  }, [page, limit, filterType, filterBusinessType, filterStatus, loadProducts]);
+    loadProducts(page, limit, filterType, filterStatus, search);
+  }, [page, limit, filterType, filterStatus, search, loadProducts]);
+
+  function handleResetFilters() {
+    setSearch("");
+    setFilterType("");
+    setFilterStatus("");
+    setPage(1);
+  }
 
   async function handleDelete() {
     if (!deleteId) return;
@@ -92,7 +105,7 @@ export default function ProductsPage() {
     try {
       await api.del(`/v1/products/${deleteId}`);
       setDeleteId(null);
-      loadProducts(page, limit, filterType, filterBusinessType, filterStatus, search);
+      loadProducts(page, limit, filterType, filterStatus, search);
     } catch (err: any) {
       alert(err.message || "Delete failed");
     } finally {
@@ -104,11 +117,12 @@ export default function ProductsPage() {
     {
       key: "name",
       header: "Product",
+      align: "left",
       sortable: true,
       render: (product) => {
         const imgUrl = (product as any).imageUrl || product.images?.[0]?.url;
         return (
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             {imgUrl ? (
               <img
                 src={imgUrl}
@@ -120,10 +134,12 @@ export default function ProductsPage() {
                 <Package size={16} />
               </div>
             )}
-            <div>
-              <p className="font-bold text-gray-600 text-sm">{product.name}</p>
-              {product.brand && <p className="text-xs text-slate-400">{product.brand.name}</p>}
-            </div>
+            <Link
+              href={`/products/${product.id}`}
+              className="font-bold text-gray-700 text-xs hover:text-teal-600 transition block truncate max-w-[180px]"
+            >
+              {product.name}
+            </Link>
           </div>
         );
       },
@@ -131,44 +147,159 @@ export default function ProductsPage() {
     {
       key: "sku",
       header: "SKU",
+      align: "center",
       sortable: true,
-      render: (product) => <span className="font-mono text-xs text-slate-600">{product.sku}</span>,
+      render: (product) => (
+        <span className="font-mono text-xs font-semibold text-slate-700">{product.sku}</span>
+      ),
+    },
+    {
+      key: "barcode",
+      header: "Barcode",
+      align: "center",
+      sortable: true,
+      render: (product) => (
+        product.barcode ? (
+          <span className="font-mono text-xs text-slate-600">{product.barcode}</span>
+        ) : (
+          <span className="text-xs text-slate-300">—</span>
+        )
+      ),
     },
     {
       key: "category",
       header: "Category",
-      render: (product) => <span className="text-gray-600 text-sm">{product.category?.name || "—"}</span>,
+      align: "center",
+      sortable: true,
+      render: (product) => (
+        <span className="text-xs font-medium text-slate-600">{product.category?.name || "—"}</span>
+      ),
+    },
+    {
+      key: "subCategory" as any,
+      header: "Sub Category",
+      align: "center",
+      sortable: true,
+      render: (product: any) => (
+        product.subCategory?.name ? (
+          <span className="inline-flex items-center rounded-md bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-teal-700 border border-teal-200">
+            {product.subCategory.name}
+          </span>
+        ) : (
+          <span className="text-xs text-slate-300">—</span>
+        )
+      ),
+    },
+    {
+      key: "brand",
+      header: "Brand",
+      align: "center",
+      sortable: true,
+      render: (product) => (
+        <span className="text-xs font-medium text-slate-600">{product.brand?.name || "—"}</span>
+      ),
+    },
+    {
+      key: "unit",
+      header: "Unit",
+      align: "center",
+      sortable: true,
+      render: (product) => (
+        <span className="text-xs font-semibold text-slate-700">{product.unit?.name || "—"}</span>
+      ),
     },
     {
       key: "productType",
       header: "Type",
       align: "center",
+      sortable: true,
       render: (product) => (
-        <span className="inline-flex rounded-md bg-teal-50 px-2 py-0.5 text-xs font-semibold text-teal-700 border border-teal-100">
+        <span className="inline-flex items-center rounded-md bg-teal-50 px-2 py-0.5 text-[11px] font-bold text-teal-700 border border-teal-200">
           {product.productType}
         </span>
       ),
     },
     {
+      key: "totalStock",
+      header: "Stock Qty",
+      align: "center",
+      sortable: true,
+      getSortValue: (product) => product.totalStock ?? 0,
+      render: (product: any) => {
+        const stock = product.totalStock ?? 0;
+        const variantCount = product.variants?.length || product._count?.variants || 0;
+        return (
+          <div className="flex flex-col items-center gap-1">
+            <span
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-bold rounded-md border ${
+                stock > 0
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "bg-rose-50 text-rose-600 border-rose-200"
+              }`}
+            >
+              <Warehouse size={12} />
+              <span>{stock} {product.unit?.name ? `(${product.unit.name})` : ""}</span>
+            </span>
+            {variantCount > 0 && (
+              <span className="text-[10px] font-semibold text-teal-600 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">
+                {variantCount} Variants
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
       key: "costPrice",
-      header: "Cost",
-      align: "right",
-      render: (product) => <span className="text-gray-600">৳{Number(product.costPrice).toFixed(0)}</span>,
+      header: "Cost Price",
+      align: "center",
+      sortable: true,
+      render: (product) => (
+        <span className="text-xs text-slate-600 font-medium">৳{Number(product.costPrice || 0).toFixed(2)}</span>
+      ),
     },
     {
       key: "sellingPrice",
       header: "Selling Price",
-      align: "right",
-      render: (product) => <span className="font-bold text-gray-600">৳{Number(product.sellingPrice).toFixed(0)}</span>,
+      align: "center",
+      sortable: true,
+      render: (product) => (
+        <span className="text-xs font-bold text-gray-700">৳{Number(product.sellingPrice || 0).toFixed(2)}</span>
+      ),
+    },
+    {
+      key: "wholesalePrice",
+      header: "Wholesale Price",
+      align: "center",
+      sortable: true,
+      render: (product) => (
+        product.wholesalePrice ? (
+          <span className="text-xs text-slate-600 font-semibold">৳{Number(product.wholesalePrice).toFixed(2)}</span>
+        ) : (
+          <span className="text-xs text-slate-300">—</span>
+        )
+      ),
+    },
+    {
+      key: "supplier" as any,
+      header: "Supplier",
+      align: "center",
+      sortable: true,
+      render: (product: any) => (
+        <span className="text-xs font-medium text-slate-600">{product.supplier?.name || "—"}</span>
+      ),
     },
     {
       key: "status",
       header: "Status",
       align: "center",
+      sortable: true,
       render: (product) => (
         <span
-          className={`inline-flex rounded-md px-2 py-0.5 text-xs font-semibold ${
-            product.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"
+          className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+            product.status === "ACTIVE"
+              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              : "bg-slate-100 text-slate-500 border border-slate-200"
           }`}
         >
           {product.status}
@@ -180,29 +311,38 @@ export default function ProductsPage() {
       header: "Actions",
       align: "center",
       render: (product) => (
-        <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-center gap-1" onClick={(e) => e.stopPropagation()}>
+          <Link
+            href={`/products/create?id=${product.id}`}
+            className="p-1.5 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition"
+            title="Edit Product"
+          >
+            <Edit3 size={15} />
+          </Link>
           <Link
             href={`/products/${product.id}`}
-            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600 transition"
+            className="p-1.5 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition"
             title="View Details"
           >
-            <Eye className="h-4 w-4" />
+            <Eye size={15} />
           </Link>
           <button
             onClick={() => setDeleteId(product.id)}
-            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition cursor-pointer"
             title="Delete Product"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 size={15} />
           </button>
         </div>
       ),
     },
   ];
 
+  const hasActiveFilters = Boolean(search || filterType || filterStatus);
+
   return (
     <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
-      {/* Reusable Custom Breadcrumb Header */}
+      {/* Custom Breadcrumb Header */}
       <CustomBreadcrumb
         title="Products Catalog"
         icon={<Package size={20} />}
@@ -211,7 +351,7 @@ export default function ProductsPage() {
           <Link href="/products/create">
             <CustomButton
               size="sm"
-              leftIcon={<Plus size={14} />}
+              leftIcon={<Plus size={15} />}
               className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
             >
               Add Product
@@ -220,23 +360,24 @@ export default function ProductsPage() {
         }
       />
 
-      {/* Error Display */}
+      {/* Error Notification */}
       {error && (
         <div className="rounded-md border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium">
-          Error loading products: {error}
+          ⚠️ {error}
         </div>
       )}
 
-      {/* Table Container */}
+      {/* Table & Controls Container */}
       <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
-        {/* Search & Filters */}
+        {/* Search & Filter Bar */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
-          <div className="flex items-center gap-2 flex-1 max-w-lg">
-            <div className="relative flex-1">
+          <div className="flex flex-wrap items-center gap-2 flex-1 max-w-3xl">
+            {/* Search Input */}
+            <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Search by name, SKU, or barcode..."
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -245,25 +386,8 @@ export default function ProductsPage() {
                 className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-teal-500 focus:outline-none transition"
               />
             </div>
-            <select
-              value={filterBusinessType}
-              onChange={(e) => {
-                setFilterBusinessType(e.target.value);
-                setPage(1);
-              }}
-              className="rounded-md border border-teal-200 bg-teal-50/60 px-2.5 py-1.5 text-xs font-bold text-teal-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
-            >
-              <option value="">🏢 All 9 Business Verticals</option>
-              <option value="RETAIL">🛒 Retail & Apparel</option>
-              <option value="RESTAURANT">🍽️ Restaurant & Food</option>
-              <option value="PHARMACY">💊 Pharmacy & Medicine</option>
-              <option value="GROCERY">🥦 Grocery & Scale</option>
-              <option value="WHOLESALE">🚚 Wholesale B2B</option>
-              <option value="MANUFACTURING">🏭 Manufacturing</option>
-              <option value="SALON">💅 Salon & Spa</option>
-              <option value="REPAIR">🔧 Repair & Service</option>
-              <option value="FRANCHISE">🏢 Franchise Control</option>
-            </select>
+
+            {/* Product Type Filter */}
             <select
               value={filterType}
               onChange={(e) => {
@@ -272,12 +396,18 @@ export default function ProductsPage() {
               }}
               className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
             >
-              <option value="">All Standard Types</option>
+              <option value="">All Product Types</option>
+              <option value="Standard">Standard Product</option>
               <option value="SIMPLE">Simple Item</option>
-              <option value="VARIABLE">Variable Matrix</option>
-              <option value="SERVICE">Service Labor</option>
-              <option value="BUNDLE">Combo Bundle</option>
+              <option value="Combo">Combo / Kit</option>
+              <option value="Digital">Digital / License</option>
+              <option value="Service">Service</option>
+              <option value="Weighted">Weighted</option>
+              <option value="Batch Controlled">Batch Controlled</option>
+              <option value="Serialized">Serialized</option>
             </select>
+
+            {/* Status Filter */}
             <select
               value={filterStatus}
               onChange={(e) => {
@@ -290,8 +420,23 @@ export default function ProductsPage() {
               <option value="ACTIVE">Active</option>
               <option value="INACTIVE">Inactive</option>
             </select>
+
+            {/* Reset Filters */}
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:text-teal-600 hover:border-teal-300 transition"
+              >
+                <RotateCcw size={12} />
+                <span>Reset</span>
+              </button>
+            )}
           </div>
-          <span className="text-xs font-semibold text-slate-500">Total Products: {total}</span>
+
+          <div className="text-xs font-semibold text-slate-500">
+            Total Items: <strong className="text-gray-700">{total}</strong>
+          </div>
         </div>
 
         {/* Custom Table with Server Pagination */}
@@ -308,7 +453,7 @@ export default function ProductsPage() {
             setLimit(s);
             setPage(1);
           }}
-          emptyMessage="No products found."
+          emptyMessage="No products found in catalog."
         />
       </div>
 
@@ -325,3 +470,4 @@ export default function ProductsPage() {
     </div>
   );
 }
+

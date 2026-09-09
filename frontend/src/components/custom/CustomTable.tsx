@@ -204,7 +204,7 @@ export function CustomTable<T>({
                     key={col.key}
                     onClick={() => handleHeaderClick(col)}
                     className={cn(
-                      "px-4 py-3 text-[13px] font-bold text-gray-600 transition",
+                      "px-4 py-3 text-[13px] font-bold text-gray-600 transition whitespace-nowrap",
                       alignCss,
                       col.sortable && "cursor-pointer hover:bg-slate-100 hover:text-teal-600",
                       col.className
@@ -262,7 +262,7 @@ export function CustomTable<T>({
                     <td
                       key={col.key}
                       className={cn(
-                        "px-4 py-3 font-medium text-gray-600 text-sm",
+                        "px-4 py-3 font-medium text-gray-600 text-sm whitespace-nowrap",
                         alignCss,
                         col.className
                       )}

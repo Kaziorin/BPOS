@@ -75,10 +75,16 @@ async def list_products(
             await db.execute(
                 text(
                     f"SELECT p.id, p.name, p.sku, p.barcode, p.productType, p.costPrice, p.sellingPrice, "
-                    f"p.wholesalePrice, p.status, p.createdAt, p.imageUrl, c.name AS categoryName, c.id AS categoryId, "
-                    f"b.name AS brandName, u.name AS unitName "
+                    f"p.wholesalePrice, p.status, p.createdAt, p.imageUrl, p.manufacturer, p.taxRate, p.warrantyDays, p.description, "
+                    f"c.name AS categoryName, c.id AS categoryId, "
+                    f"subc.id AS subCategoryId, subc.name AS subCategoryName, "
+                    f"b.id AS brandId, b.name AS brandName, u.id AS unitId, u.name AS unitName, "
+                    f"sup.id AS supplierId, sup.name AS supplierName, "
+                    f"COALESCE((SELECT SUM(qtyOnHand - qtyReserved) FROM stock WHERE productId = p.id AND tenantId = p.tenantId), 0) AS totalStock "
                     f"FROM products p LEFT JOIN categories c ON c.id = p.categoryId "
+                    f"LEFT JOIN categories subc ON subc.id = p.subCategoryId "
                     f"LEFT JOIN brands b ON b.id = p.brandId LEFT JOIN units u ON u.id = p.unitId "
+                    f"LEFT JOIN suppliers sup ON sup.id = p.supplierId "
                     f"WHERE {where} ORDER BY p.createdAt DESC LIMIT :lim OFFSET :off"
                 ),
                 {**params, "lim": lim, "off": off},
@@ -86,12 +92,29 @@ async def list_products(
         ).fetchall()
     )
     for r in rows:
-        r["category"] = {"id": r.pop("categoryId"), "name": r.pop("categoryName")} if r.get("categoryId") else None
-        r["brand"] = {"id": None, "name": r.pop("brandName")} if r.get("brandName") else None
-        r["unit"] = {"id": None, "name": r.pop("unitName")} if r.get("unitName") else None
+        cat_id = r.pop("categoryId", None)
+        cat_name = r.pop("categoryName", None)
+        r["category"] = {"id": cat_id, "name": cat_name} if cat_id or cat_name else None
+
+        subcat_id = r.pop("subCategoryId", None)
+        subcat_name = r.pop("subCategoryName", None)
+        r["subCategory"] = {"id": subcat_id, "name": subcat_name} if subcat_id or subcat_name else None
+
+        brand_id = r.pop("brandId", None)
+        brand_name = r.pop("brandName", None)
+        r["brand"] = {"id": brand_id, "name": brand_name} if brand_id or brand_name else None
+
+        unit_id = r.pop("unitId", None)
+        unit_name = r.pop("unitName", None)
+        r["unit"] = {"id": unit_id, "name": unit_name} if unit_id or unit_name else None
+
+        sup_id = r.pop("supplierId", None)
+        sup_name = r.pop("supplierName", None)
+        r["supplier"] = {"id": sup_id, "name": sup_name} if sup_id or sup_name else None
         r["productType"] = r.pop("productType")
         r["costPrice"] = r.pop("costPrice"); r["sellingPrice"] = r.pop("sellingPrice")
         r["wholesalePrice"] = r.pop("wholesalePrice")
+        r["totalStock"] = float(r.get("totalStock") or 0)
         r["createdAt"] = r.pop("createdAt")
         r["imageUrl"] = r.get("imageUrl")
         r["_count"] = {"variants": 0, "stockRows": 0}
@@ -117,12 +140,13 @@ async def create_product(
     ).first()
     if dup:
         return err("Product with this SKU/barcode already exists", 409)
+    import json
     await db.execute(
         text(
             "INSERT INTO products (id, tenantId, categoryId, subCategoryId, brandId, unitId, supplierId, name, sku, barcode, "
             "manufacturer, productType, costPrice, sellingPrice, wholesalePrice, minPrice, maxPrice, taxRate, "
-            "warrantyDays, description, imageUrl, createdBy) "
-            "VALUES (UUID(), :t, :c, :subc, :b, :u, :sup, :n, :sku, :bar, :man, :pt, :cp, :sp, :wp, :minp, :maxp, :tax, :war, :d, :img, :cb)"
+            "warrantyDays, description, imageUrl, attributes, createdBy) "
+            "VALUES (UUID(), :t, :c, :subc, :b, :u, :sup, :n, :sku, :bar, :man, :pt, :cp, :sp, :wp, :minp, :maxp, :tax, :war, :d, :img, :attr, :cb)"
         ),
         {
             "t": tenantId, "c": body.get("categoryId"), "subc": body.get("subCategoryId"), "b": body.get("brandId"), "u": body.get("unitId"),
@@ -131,7 +155,9 @@ async def create_product(
             "cp": body.get("costPrice", 0), "sp": body.get("sellingPrice", 0),
             "wp": body.get("wholesalePrice"), "minp": body.get("minPrice"), "maxp": body.get("maxPrice"),
             "tax": body.get("taxRate"), "war": body.get("warrantyDays"), "d": body.get("description"),
-            "img": body.get("imageUrl"), "cb": user.id,
+            "img": body.get("imageUrl"),
+            "attr": json.dumps(body.get("attributes")) if isinstance(body.get("attributes"), (dict, list)) else body.get("attributes"),
+            "cb": user.id,
         },
     )
     await db.commit()
@@ -483,9 +509,9 @@ async def get_product(
     r = (
         await db.execute(
             text(
-                "SELECT p.*, c.name AS cat_name, b.name AS brandName, u.name AS unitName, sup.name AS supplierName "
-                "FROM products p LEFT JOIN categories c ON c.id=p.categoryId LEFT JOIN brands b ON b.id=p.brandId "
-                "LEFT JOIN units u ON u.id=p.unitId LEFT JOIN suppliers sup ON sup.id=p.supplierId "
+                "SELECT p.*, c.name AS cat_name, subc.name AS subcat_name, b.name AS brandName, u.name AS unitName, sup.name AS supplierName "
+                "FROM products p LEFT JOIN categories c ON c.id=p.categoryId LEFT JOIN categories subc ON subc.id=p.subCategoryId "
+                "LEFT JOIN brands b ON b.id=p.brandId LEFT JOIN units u ON u.id=p.unitId LEFT JOIN suppliers sup ON sup.id=p.supplierId "
                 "WHERE p.id=:id AND p.tenantId=:t"
             ),
             {"id": productId, "t": tenantId},
@@ -498,10 +524,25 @@ async def get_product(
                           ("wholesalePrice", "wholesalePrice"), ("minPrice", "minPrice"), ("maxPrice", "maxPrice"),
                           ("taxRate", "taxRate"), ("warrantyDays", "warrantyDays"), ("createdAt", "createdAt")]:
         d[k_new] = d.pop(k_old, None)
-    d["category"] = {"id": d.pop("categoryId"), "name": d.pop("cat_name")} if d.get("categoryId") else None
-    d["brand"] = {"id": d.pop("brandId"), "name": d.pop("brandName")} if d.get("brandName") else None
-    d["unit"] = {"id": d.pop("unitId"), "name": d.pop("unitName")} if d.get("unitName") else None
-    d["supplier"] = {"id": d.pop("supplierId"), "name": d.pop("supplierName")} if d.get("supplierName") else None
+    cat_id = d.pop("categoryId", None)
+    cat_name = d.pop("cat_name", None)
+    d["category"] = {"id": cat_id, "name": cat_name} if cat_id or cat_name else None
+
+    subcat_id = d.pop("subCategoryId", None)
+    subcat_name = d.pop("subcat_name", None)
+    d["subCategory"] = {"id": subcat_id, "name": subcat_name} if subcat_id or subcat_name else None
+
+    brand_id = d.pop("brandId", None)
+    brand_name = d.pop("brandName", None)
+    d["brand"] = {"id": brand_id, "name": brand_name} if brand_id or brand_name else None
+
+    unit_id = d.pop("unitId", None)
+    unit_name = d.pop("unitName", None)
+    d["unit"] = {"id": unit_id, "name": unit_name} if unit_id or unit_name else None
+
+    sup_id = d.pop("supplierId", None)
+    sup_name = d.pop("supplierName", None)
+    d["supplier"] = {"id": sup_id, "name": sup_name} if sup_id or sup_name else None
     variants = rows_to_dicts(
         (
             await db.execute(
@@ -538,11 +579,15 @@ async def update_product(
     ).first()
     if not exists:
         return err("Product not found", 404)
-    allowed = {"name": "name", "categoryId": "categoryId", "brandId": "brandId", "unitId": "unitId",
+    if "attributes" in body and isinstance(body["attributes"], (dict, list)):
+        import json
+        body["attributes"] = json.dumps(body["attributes"])
+    allowed = {"name": "name", "categoryId": "categoryId", "subCategoryId": "subCategoryId", "brandId": "brandId", "unitId": "unitId",
                "supplierId": "supplierId", "barcode": "barcode", "manufacturer": "manufacturer",
                "productType": "productType", "costPrice": "costPrice", "sellingPrice": "sellingPrice",
                "wholesalePrice": "wholesalePrice", "minPrice": "minPrice", "maxPrice": "maxPrice",
-               "taxRate": "taxRate", "warrantyDays": "warrantyDays", "description": "description", "status": "status"}
+               "taxRate": "taxRate", "warrantyDays": "warrantyDays", "description": "description",
+               "imageUrl": "imageUrl", "status": "status", "attributes": "attributes"}
     sets, params = [], {"id": productId, "t": tenantId, "u": user.id}
     # ── Prompt 27 price approval: big price moves need manager sign-off (§10.26) ──
     price_keys = ["sellingPrice", "wholesalePrice", "costPrice"]

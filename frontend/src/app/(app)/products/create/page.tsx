@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Loader2,
   Plus,
@@ -83,6 +83,10 @@ const BUSINESS_VERTICALS = [
 
 export default function CreateProductPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams?.get("id");
+  const isEditMode = Boolean(editId);
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -208,7 +212,80 @@ export default function CreateProductPage() {
 
   useEffect(() => {
     loadFormData();
-  }, []);
+    if (editId) {
+      loadExistingProduct(editId);
+    }
+  }, [editId]);
+
+  async function loadExistingProduct(idToEdit: string) {
+    try {
+      const res: any = await api.get(`/v1/products/${idToEdit}`);
+      const p = res?.data || res;
+      if (p) {
+        const reverseTypeMap: Record<string, string> = {
+          SIMPLE: "Standard",
+          BUNDLE: "Combo",
+          SERVICE: "Service",
+          WEIGHTED: "Weighted",
+          BATCH_CONTROLLED: "Batch Controlled",
+          SERIALIZED: "Serialized",
+          RECIPE: "Standard",
+        };
+
+        setForm((prev) => ({
+          ...prev,
+          name: p.name || "",
+          sku: p.sku || "",
+          barcode: p.barcode || "",
+          categoryId: p.categoryId || p.category?.id || "",
+          subCategoryId: p.subCategoryId || p.subCategory?.id || "",
+          brandId: p.brandId || p.brand?.id || "",
+          unitId: p.unitId || p.unit?.id || "",
+          supplierId: p.supplierId || p.supplier?.id || "",
+          manufacturer: p.manufacturer || "",
+          costPrice: p.costPrice !== undefined ? String(p.costPrice) : "",
+          sellingPrice: p.sellingPrice !== undefined ? String(p.sellingPrice) : "",
+          wholesalePrice: p.wholesalePrice !== undefined ? String(p.wholesalePrice) : "",
+          taxRate: p.taxRate !== undefined ? String(p.taxRate) : "0",
+          warrantyValue: p.warrantyDays ? String(Math.round(p.warrantyDays / 30)) : "",
+          description: p.description || "",
+          imageUrl: p.imageUrl || "",
+          hasVariants: Array.isArray(p.variants) && p.variants.length > 0,
+        }));
+
+        if (p.productType) {
+          setProductType(reverseTypeMap[p.productType] || p.productType);
+        }
+
+        if (p.attributes) {
+          try {
+            const attrObj = typeof p.attributes === "string" ? JSON.parse(p.attributes) : p.attributes;
+            if (attrObj && typeof attrObj === "object") {
+              setVerticalFormState(attrObj);
+            }
+          } catch (e) {
+            console.warn("Failed to parse product attributes:", e);
+          }
+        }
+
+        if (Array.isArray(p.variants) && p.variants.length > 0) {
+          setVariants(
+            p.variants.map((v: any) => ({
+              name: v.name || "",
+              sku: v.sku || "",
+              barcode: v.barcode || "",
+              costPrice: v.costPrice ? String(v.costPrice) : "",
+              sellingPrice: v.sellingPrice ? String(v.sellingPrice) : "",
+              wholesalePrice: v.wholesalePrice ? String(v.wholesalePrice) : "",
+            }))
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load existing product:", err);
+      toast.error("Failed to load product details for editing");
+    }
+  }
 
   function generateSku() {
     const code = "PRD-" + Math.floor(100000 + Math.random() * 900000);
@@ -343,20 +420,6 @@ export default function CreateProductPage() {
       return;
     }
 
-    setSaving(true);
-    setError(null);
-    setSuccessMsg(null);
-
-    const typeEnumMap: Record<string, string> = {
-      Standard: "SIMPLE",
-      Combo: "BUNDLE",
-      Digital: "SERVICE",
-      Service: "SERVICE",
-      Weighted: "WEIGHTED",
-      "Batch Controlled": "BATCH_CONTROLLED",
-      Serialized: "SERIALIZED",
-    };
-
     try {
       let finalImageUrl = form.imageUrl || undefined;
       if (form.imageUrl && form.imageUrl.startsWith("data:")) {
@@ -384,7 +447,7 @@ export default function CreateProductPage() {
         unitId: form.unitId || undefined,
         supplierId: form.supplierId || undefined,
         manufacturer: form.manufacturer || undefined,
-        productType: typeEnumMap[productType] || "SIMPLE",
+        productType: productType || "Standard",
         costPrice: form.costPrice ? parseFloat(form.costPrice) : 0,
         sellingPrice: form.sellingPrice ? parseFloat(form.sellingPrice) : 0,
         wholesalePrice: form.wholesalePrice ? parseFloat(form.wholesalePrice) : undefined,
@@ -392,6 +455,7 @@ export default function CreateProductPage() {
         warrantyDays: form.warrantyValue ? parseInt(form.warrantyValue) * 30 : undefined,
         description: form.description || undefined,
         imageUrl: finalImageUrl,
+        attributes: verticalFormState,
       };
 
       if (variants.length > 0 && form.hasVariants) {
@@ -407,8 +471,16 @@ export default function CreateProductPage() {
           }));
       }
 
-      await api.post("/v1/products", body);
-      setSuccessMsg("Product created successfully!");
+      if (editId) {
+        await api.put(`/v1/products/${editId}`, body);
+        toast.success("Product updated successfully!");
+        setSuccessMsg("Product updated successfully!");
+        setTimeout(() => router.push("/products"), 1000);
+      } else {
+        await api.post("/v1/products", body);
+        toast.success("Product created successfully!");
+        setSuccessMsg("Product created successfully!");
+      }
 
       if (andInsertAnother) {
         setForm({
@@ -518,21 +590,26 @@ export default function CreateProductPage() {
     <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
       {/* Reusable Custom Breadcrumb Header */}
       <CustomBreadcrumb
-        title="Add New Product"
+        title={isEditMode ? "Edit Product" : "Add New Product"}
         icon={<Package size={20} />}
-        items={[{ label: "Catalog", href: "/products" }, { label: "Create Product" }]}
+        items={[
+          { label: "Catalog", href: "/products" },
+          { label: isEditMode ? "Edit Product" : "Create Product" },
+        ]}
         actions={
           <div className="flex items-center gap-2">
-            <CustomButton
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={(e) => handleSubmit(e, true)}
-              disabled={saving}
-              className="rounded-md text-xs font-semibold"
-            >
-              Save and Insert Another
-            </CustomButton>
+            {!isEditMode && (
+              <CustomButton
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={(e) => handleSubmit(e, true)}
+                disabled={saving}
+                className="rounded-md text-xs font-semibold"
+              >
+                Save and Insert Another
+              </CustomButton>
+            )}
             <CustomButton
               type="button"
               size="sm"
@@ -541,7 +618,7 @@ export default function CreateProductPage() {
               leftIcon={<Check size={14} />}
               className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
             >
-              Add Product
+              {isEditMode ? "Update Product" : "Add Product"}
             </CustomButton>
           </div>
         }
