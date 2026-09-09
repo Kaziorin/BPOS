@@ -38,21 +38,36 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     if not items: return err("Cart is empty", 400)
 
     # Resolve branch/warehouse defaults — prioritized to user's assigned branch & linked warehouse
+    if branchId:
+        b_exist = (await db.execute(text("SELECT id FROM branches WHERE id=:b AND tenantId=:t"), {"b": branchId, "t": tenant})).first()
+        if not b_exist:
+            branchId = None
+
     if not branchId:
         if user and getattr(user, "branchId", None):
-            branchId = user.branchId
-        else:
+            b_user = (await db.execute(text("SELECT id FROM branches WHERE id=:b AND tenantId=:t"), {"b": user.branchId, "t": tenant})).first()
+            if b_user:
+                branchId = user.branchId
+        if not branchId:
             b_row = (await db.execute(text("SELECT id FROM branches WHERE tenantId=:t LIMIT 1"), {"t": tenant})).first()
             if b_row:
                 branchId = b_row[0]
             else:
+                # Fetch companyId for this tenant (required NOT NULL in branches table)
+                co_row = (await db.execute(text("SELECT id FROM companies WHERE tenantId=:t LIMIT 1"), {"t": tenant})).first()
+                co_id = co_row[0] if co_row else tenant  # last resort: use tenantId
                 b_id = _uuid_str()
                 await db.execute(text(
-                    "INSERT INTO branches (id, tenantId, name, code, createdBy, updatedAt) "
-                    "VALUES (:id, :t, 'Main Branch', 'BR-MAIN', :u, NOW())"),
-                    {"id": b_id, "t": tenant, "u": user.id})
+                    "INSERT INTO branches (id, tenantId, companyId, name, code, createdBy, updatedAt) "
+                    "VALUES (:id, :t, :co, 'Main Branch', 'BR-MAIN', :u, NOW())"),
+                    {"id": b_id, "t": tenant, "co": co_id, "u": user.id})
                 await db.commit()
                 branchId = b_id
+
+    if warehouseId:
+        w_exist = (await db.execute(text("SELECT id FROM warehouses WHERE id=:w AND tenantId=:t"), {"w": warehouseId, "t": tenant})).first()
+        if not w_exist:
+            warehouseId = None
 
     if not warehouseId:
         w_row = (await db.execute(text(

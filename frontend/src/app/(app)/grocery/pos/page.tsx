@@ -486,15 +486,9 @@ export default function GroceryPOSPage() {
   const handleCheckout = async () => {
     if (!cart.length) return;
 
-    // Explicitly check for configuration before proceeding
-    const bId = tenantInfo?.branch?.id;
-    const wId = tenantInfo?.warehouse?.id;
-
-    if (!bId || !wId) {
-      setCouponToast("⚠️ System Setup Error: Active Branch or Warehouse not detected. Please verify your profile settings.");
-      setTimeout(() => setCouponToast(""), 5000);
-      return;
-    }
+    // Pass branch/warehouse if available — backend auto-resolves if missing
+    const bId = tenantInfo?.branch?.id || undefined;
+    const wId = tenantInfo?.warehouse?.id || undefined;
 
     setSubmitting(true);
     playSuccessChime();
@@ -587,9 +581,9 @@ export default function GroceryPOSPage() {
       setTimeout(() => setCouponToast(""), 3500);
 
     } catch (err: any) {
-      console.error("POS Sync Error:", err);
-      const errorMsg = err.response?.data?.message || err.message || "Unknown synchronization error.";
-      setCouponToast(`⚠️ Sync Failed: ${errorMsg}`);
+      console.error("POS Checkout Error:", err);
+      const errorMsg = err?.message || err?.response?.data?.error || err?.response?.data?.message || "Checkout failed. Please try again.";
+      setCouponToast(`⚠️ ${errorMsg}`);
       setTimeout(() => setCouponToast(""), 6000);
     } finally {
       setSubmitting(false);
