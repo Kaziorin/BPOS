@@ -248,89 +248,6 @@ function computeActiveShiftsFromClock(slots: any[], overrides: Record<string, an
   });
 }
 
-export default function RestaurantPOSPage() {
-  const [storeName, setStoreName] = useState<string>("BlueOceans POS SYSTEM");
-  const [tables, setTables] = useState<TableOption[]>(DEMO_TABLES);
-  const [selectedTable, setSelectedTable] = useState<TableOption | null>(DEMO_TABLES[0]);
-const DEFAULT_TABLES: TableOption[] = [
-  { id: "1", tableNo: "T-01", capacity: 2, status: "AVAILABLE" },
-  { id: "2", tableNo: "T-02", capacity: 4, status: "AVAILABLE" },
-  { id: "3", tableNo: "T-03", capacity: 4, status: "OCCUPIED", currentBill: 1250, guestCount: 3 },
-  { id: "4", tableNo: "T-04", capacity: 6, status: "AVAILABLE" },
-  { id: "5", tableNo: "T-05", capacity: 8, status: "RESERVED" },
-  { id: "6", tableNo: "T-06", capacity: 2, status: "AVAILABLE" },
-];
-
-const DEFAULT_PRODUCTS: MenuItem[] = [
-  {
-    id: "p1",
-    name: "Classic Cheese Burger",
-    category: "Burgers",
-    sellingPrice: 350,
-    image: "",
-    isPopular: true,
-    isVeg: false,
-    hasAddons: true,
-  },
-  {
-    id: "p2",
-    name: "Smoky BBQ Chicken Burger",
-    category: "Burgers",
-    sellingPrice: 420,
-    image: "",
-    isPopular: true,
-    isVeg: false,
-    hasAddons: true,
-  },
-  {
-    id: "p3",
-    name: "Creamy Alfredo Pasta",
-    category: "Pasta",
-    sellingPrice: 480,
-    image: "",
-    isPopular: true,
-    isVeg: true,
-    hasAddons: true,
-  },
-  {
-    id: "p4",
-    name: "Pepperoni Passion Pizza",
-    category: "Pizza",
-    sellingPrice: 750,
-    image: "",
-    isPopular: true,
-    isVeg: false,
-    hasAddons: true,
-  },
-  {
-    id: "p5",
-    name: "Fresh Caesar Salad",
-    category: "Salad",
-    sellingPrice: 290,
-    image: "",
-    isVeg: true,
-    hasAddons: true,
-  },
-  {
-    id: "p6",
-    name: "Iced Cold Coffee",
-    category: "Beverages",
-    sellingPrice: 180,
-    image: "",
-    isKitchenProduct: false,
-    hasAddons: false,
-  },
-  {
-    id: "p7",
-    name: "Chocolate Lava Cake",
-    category: "Dessert",
-    sellingPrice: 260,
-    image: "",
-    isPopular: true,
-    hasAddons: false,
-  },
-];
-
 interface CategorySidebarItem {
   id: string;
   label: string;
@@ -346,16 +263,21 @@ const DEFAULT_CATEGORIES: CategorySidebarItem[] = [
 const fmt = (amount: number) =>
   `৳${(amount || 0).toLocaleString("en-BD", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 
+const getCategoryName = (cat: any): string => {
+  if (typeof cat === "string") return cat;
+  if (cat && typeof cat === "object") return cat.name || cat.label || "";
+  return String(cat || "");
+};
+
 export default function RestaurantPOSPage() {
   const [storeName, setStoreName] = useState<string>("BlueOceans POS SYSTEM");
-  const [tables, setTables] = useState<TableOption[]>(DEFAULT_TABLES);
-  const [selectedTable, setSelectedTable] = useState<TableOption | null>(null);
+  const [tables, setTables] = useState<TableOption[]>(DEMO_TABLES);
+  const [selectedTable, setSelectedTable] = useState<TableOption | null>(DEMO_TABLES[0]);
   const [guestCount, setGuestCount] = useState(2);
   const [waiterName, setWaiterName] = useState("Staff 1");
   const [orderType, setOrderType] = useState<"DINE_IN" | "TAKEAWAY" | "DELIVERY">("DINE_IN");
 
   const [products, setProducts] = useState<MenuItem[]>(DEMO_RESTAURANT_PRODUCTS);
-  const [products, setProducts] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<CategorySidebarItem[]>(DEFAULT_CATEGORIES);
   const [cart, setCart] = useState<RestaurantCartItem[]>([]);
 
@@ -375,8 +297,6 @@ export default function RestaurantPOSPage() {
   const [customPrice, setCustomPrice] = useState(250);
   const [heldOrders, setHeldOrders] = useState<any[]>([]);
   const [completedBill, setCompletedBill] = useState<any | null>(null);
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [showSelectTableModal, setShowSelectTableModal] = useState(false);
   const [showShiftDetailsModal, setShowShiftDetailsModal] = useState(false);
 
   const [promptModalState, setPromptModalState] = useState<{
@@ -391,6 +311,8 @@ export default function RestaurantPOSPage() {
     isOpen: false,
     title: "",
   });
+
+  const [dbCategories, setDbCategories] = useState<any[]>([]);
 
   // Add-ons Modal State
   const [selectedProductForAddons, setSelectedProductForAddons] = useState<MenuItem | null>(null);
@@ -433,96 +355,25 @@ export default function RestaurantPOSPage() {
 
   // Load tenant/store info & real DB data
   const loadData = useCallback(async () => {
+    setLoading(true);
     try {
-      // 1. Fetch products for this tenant
-      const res: any = await api.get("/products", { params: { limit: 100 } });
-      const rawProducts = (res?.data as any)?.data ?? res?.data ?? res ?? [];
       let loadedProducts: MenuItem[] = [];
 
-      if (Array.isArray(rawProducts) && rawProducts.length > 0) {
-        loadedProducts = rawProducts.map((p: any) => {
-          let catName = "Main";
-          if (typeof p.category === "string" && p.category.trim()) {
-            catName = p.category;
-          } else if (p.category && typeof p.category === "object") {
-            catName = p.category.name || p.category.label || "Main";
-          } else if (p.categoryName) {
-            catName = String(p.categoryName);
-          }
-        }
-      }
-
+      // 1. Fetch products for this tenant
       try {
-        const resCatList = await api.get("/v1/products/categories");
-        const cData = (resCatList as any)?.data ?? resCatList ?? [];
-        if (Array.isArray(cData)) {
-          setDbCategories(cData);
-        }
-      } catch (e) {
-        // quiet fallback
-      }
-
-      // Load Time Slots and Settings
-      try {
-        const [resSlots, resSettings] = await Promise.allSettled([
-          api.get("/v1/restaurant/time-slots"),
-          api.get("/v1/restaurant/time-slots/settings"),
-        ]);
-
-        let isFilterOn = false;
-        if (typeof window !== "undefined") {
-          const cached = localStorage.getItem("bpos_restaurant_time_slot_filter");
-          if (cached !== null) isFilterOn = cached === "true";
-        }
-
-        if (resSettings.status === "fulfilled") {
-          const sData = (resSettings.value as any)?.data ?? resSettings.value ?? {};
-          if (sData?.timeSlotFilterEnabled !== undefined) {
-            isFilterOn = Boolean(sData.timeSlotFilterEnabled);
-          }
-        }
-
-        if (resSlots.status === "fulfilled") {
-          const slData = (resSlots.value as any)?.data ?? resSlots.value ?? {};
-          if (slData?.timeSlotFilterEnabled !== undefined) {
-            isFilterOn = Boolean(slData.timeSlotFilterEnabled);
-          }
-          const slotsList = Array.isArray(slData.slots)
-            ? slData.slots
-            : Array.isArray(slData)
-            ? slData
-            : [];
-          setTimeSlots(slotsList);
-
-          const curActiveSlots = Array.isArray(slData.activeSlots)
-            ? slData.activeSlots
-            : slData.activeSlot
-            ? [slData.activeSlot]
-            : [];
-          setActiveSlots(curActiveSlots);
-          setActiveSlot(slData.activeSlot || curActiveSlots[0] || null);
-
-          const curActiveIds = Array.isArray(slData.activeSlotIds)
-            ? slData.activeSlotIds
-            : curActiveSlots.map((s: any) => s.id);
-          setActiveSlotIds(curActiveIds);
-          setTodayOverrides(slData.todayOverrides || {});
-        }
-
-        setTimeSlotFilterEnabled(isFilterOn);
-        if (typeof window !== "undefined") {
-          localStorage.setItem("bpos_restaurant_time_slot_filter", String(isFilterOn));
-        }
-      } catch (e) {
-        console.error("Failed to load time slots in POS:", e);
-      }
-
-      // Load Products
-      try {
-        const resProd = await api.get("/products", { params: { limit: 150 } });
-        const pData = (resProd as any)?.data ?? resProd ?? [];
+        const resProd: any = await api.get("/products", { params: { limit: 150 } });
+        const pData = (resProd?.data as any)?.data ?? resProd?.data ?? resProd ?? [];
         if (Array.isArray(pData) && pData.length > 0) {
-          const mappedProducts: MenuItem[] = pData.map((p: any) => {
+          loadedProducts = pData.map((p: any) => {
+            let catName = "Main Course";
+            if (typeof p.category === "string" && p.category.trim()) {
+              catName = p.category;
+            } else if (p.category && typeof p.category === "object") {
+              catName = p.category.name || p.category.label || "Main Course";
+            } else if (p.categoryName) {
+              catName = String(p.categoryName);
+            }
+
             let isKitchen = true;
             let timeSlotIds: string[] = [];
             let allTimeSlots = true;
@@ -547,9 +398,9 @@ export default function RestaurantPOSPage() {
             } catch (e) {}
 
             return {
-              id: p.id,
-              name: p.name,
-              category: p.category?.name || p.categoryName || "General",
+              id: String(p.id || p._id),
+              name: p.name || "Untitled Item",
+              category: catName,
               sellingPrice: Number(p.sellingPrice || p.price || 0),
               image: p.imageUrl || p.image || "",
               isPopular: Boolean(p.isPopular),
@@ -557,75 +408,41 @@ export default function RestaurantPOSPage() {
               isKitchenProduct: isKitchen,
               timeSlotIds,
               allTimeSlots,
+              hasAddons:
+                typeof p.hasAddons === "boolean"
+                  ? p.hasAddons
+                  : !["beverages", "drinks", "water"].includes(catName.toLowerCase()),
               description: p.description || "",
             };
           });
-          setProducts(mappedProducts);
+          setProducts(loadedProducts);
         } else {
           setProducts(DEMO_RESTAURANT_PRODUCTS);
+          loadedProducts = DEMO_RESTAURANT_PRODUCTS;
         }
       } catch (errProd) {
         setProducts(DEMO_RESTAURANT_PRODUCTS);
-      }
-
-      // Load Tables
-      try {
-        const resTables = await api.get("/v1/restaurant/tables");
-        const tData = (resTables as any)?.data ?? resTables ?? [];
-        if (Array.isArray(tData) && tData.length > 0) {
-          const mappedTables: TableOption[] = tData.map((t: any) => ({
-            id: t.id,
-            tableNo: t.tableNo || t.name || `Table ${t.id.slice(0, 4)}`,
-            capacity: Number(t.capacity || 4),
-            status: t.status || "AVAILABLE",
-            currentBill: t.currentBill ? Number(t.currentBill) : undefined,
-            guestCount: t.guestCount ? Number(t.guestCount) : undefined,
-          }));
-          setTables(mappedTables);
-          setSelectedTable(mappedTables[0]);
-        } else {
-          setTables(DEMO_TABLES);
-          setSelectedTable(DEMO_TABLES[0]);
-        }
-      } catch (errTables) {
-        setTables(DEMO_TABLES);
-        setSelectedTable(DEMO_TABLES[0]);
-      }
-    } catch (err: any) {
-      console.error("Failed to load POS real data:", err);
-          return {
-            id: String(p.id || p._id),
-            name: p.name || "Untitled Item",
-            category: catName,
-            sellingPrice: Number(p.sellingPrice || p.price || 0),
-            image: p.imageUrl || p.image || "",
-            isPopular: Boolean(p.isPopular),
-            isVeg: Boolean(p.isVeg),
-            isKitchenProduct: p.isKitchenProduct !== false,
-            hasAddons: typeof p.hasAddons === "boolean" ? p.hasAddons : !["beverages", "drinks", "water"].includes(catName.toLowerCase()),
-            description: p.description || "",
-          };
-        });
-        setProducts(loadedProducts);
-      } else {
-        setProducts([]);
+        loadedProducts = DEMO_RESTAURANT_PRODUCTS;
       }
 
       // 2. Fetch created categories for current tenant & business
       const catRes: any = await api.get("/v1/products/categories").catch(() => null);
-      const dbCategories: any[] = (catRes?.data as any)?.data ?? catRes?.data ?? catRes ?? [];
+      const dbCategoriesList: any[] = (catRes?.data as any)?.data ?? catRes?.data ?? catRes ?? [];
+      if (Array.isArray(dbCategoriesList)) {
+        setDbCategories(dbCategoriesList);
+      }
 
       let dynamicCats: CategorySidebarItem[] = [
         { id: "All Items", label: "All Items", icon: Utensils },
         { id: "Popular", label: "Popular", icon: Flame },
       ];
 
-      if (Array.isArray(dbCategories) && dbCategories.length > 0) {
+      if (Array.isArray(dbCategoriesList) && dbCategoriesList.length > 0) {
         const mainCatMap: Record<string, CategorySidebarItem> = {};
         const subCatMap: Record<string, { id: string; label: string }[]> = {};
 
         // First pass: separate main categories & subcategories
-        dbCategories.forEach((cat: any) => {
+        dbCategoriesList.forEach((cat: any) => {
           const name = cat.name || cat.label || cat.title;
           if (!name) return;
 
@@ -648,7 +465,7 @@ export default function RestaurantPOSPage() {
         });
 
         // Attach subcategories to main categories
-        dbCategories.forEach((cat: any) => {
+        dbCategoriesList.forEach((cat: any) => {
           if (!cat.parentId && mainCatMap[String(cat.id)]) {
             mainCatMap[String(cat.id)].subcategories = subCatMap[String(cat.id)] || [];
           }
@@ -681,27 +498,95 @@ export default function RestaurantPOSPage() {
 
       setCategories(dynamicCats);
 
-      // 3. Fetch tables for this restaurant
-      const tableRes: any = await api.get("/v1/restaurant/tables").catch(() => null);
-      const rawTables = tableRes?.data ?? tableRes ?? [];
-      if (Array.isArray(rawTables) && rawTables.length > 0) {
-        setTables(
-          rawTables.map((t: any) => ({
+      // 3. Load Time Slots and Settings
+      try {
+        const [resSlots, resSettings] = await Promise.allSettled([
+          api.get("/v1/restaurant/time-slots"),
+          api.get("/v1/restaurant/time-slots/settings"),
+        ]);
+
+        let isFilterOn = false;
+        if (typeof window !== "undefined") {
+          const cached = localStorage.getItem("bpos_restaurant_time_slot_filter");
+          if (cached !== null) isFilterOn = cached === "true";
+        }
+
+        if (resSettings.status === "fulfilled") {
+          const sData = (resSettings.value as any)?.data ?? resSettings.value ?? {};
+          if (sData?.timeSlotFilterEnabled !== undefined) {
+            isFilterOn = Boolean(sData.timeSlotFilterEnabled);
+          }
+        }
+
+        if (resSlots.status === "fulfilled") {
+          const slData = (resSlots.value as any)?.data ?? resSlots.value ?? {};
+          if (slData?.timeSlotFilterEnabled !== undefined) {
+            isFilterOn = Boolean(slData.timeSlotFilterEnabled);
+          }
+          const slotsList = Array.isArray(slData.slots)
+            ? slData.slots
+            : Array.isArray(slData)
+            ? slData
+            : [];
+          if (slotsList.length > 0) {
+            setTimeSlots(slotsList);
+          }
+
+          const curActiveSlots = Array.isArray(slData.activeSlots)
+            ? slData.activeSlots
+            : slData.activeSlot
+            ? [slData.activeSlot]
+            : [];
+          if (curActiveSlots.length > 0) {
+            setActiveSlots(curActiveSlots);
+            setActiveSlot(slData.activeSlot || curActiveSlots[0] || null);
+          }
+
+          const curActiveIds = Array.isArray(slData.activeSlotIds)
+            ? slData.activeSlotIds
+            : curActiveSlots.map((s: any) => s.id);
+          if (curActiveIds.length > 0) {
+            setActiveSlotIds(curActiveIds);
+          }
+          setTodayOverrides(slData.todayOverrides || {});
+        }
+
+        setTimeSlotFilterEnabled(isFilterOn);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("bpos_restaurant_time_slot_filter", String(isFilterOn));
+        }
+      } catch (e) {
+        console.error("Failed to load time slots in POS:", e);
+      }
+
+      // 4. Load Tables
+      try {
+        const resTables: any = await api.get("/v1/restaurant/tables").catch(() => null);
+        const tData = (resTables?.data as any)?.data ?? resTables?.data ?? resTables ?? [];
+        if (Array.isArray(tData) && tData.length > 0) {
+          const mappedTables: TableOption[] = tData.map((t: any) => ({
             id: String(t.id),
-            tableNo: t.tableNo || `Table ${t.id}`,
-            capacity: t.capacity || 4,
+            tableNo: t.tableNo || t.name || `Table ${String(t.id).slice(0, 4)}`,
+            capacity: Number(t.capacity || 4),
             status: t.status || "AVAILABLE",
-            currentBill: t.currentBill,
-            guestCount: t.guestCount,
-          }))
-        );
-      } else {
-        setTables(DEFAULT_TABLES);
+            currentBill: t.currentBill ? Number(t.currentBill) : undefined,
+            guestCount: t.guestCount ? Number(t.guestCount) : undefined,
+          }));
+          setTables(mappedTables);
+          setSelectedTable((prev) => prev || mappedTables[0]);
+        } else {
+          setTables(DEMO_TABLES);
+          setSelectedTable((prev) => prev || DEMO_TABLES[0]);
+        }
+      } catch (errTables) {
+        setTables(DEMO_TABLES);
+        setSelectedTable((prev) => prev || DEMO_TABLES[0]);
       }
     } catch (err) {
       console.error("Failed to load restaurant POS data:", err);
       setCategories(DEFAULT_CATEGORIES);
-      setTables(DEFAULT_TABLES);
+      setTables(DEMO_TABLES);
+      setProducts(DEMO_RESTAURANT_PRODUCTS);
     } finally {
       setLoading(false);
     }
@@ -2318,6 +2203,8 @@ export default function RestaurantPOSPage() {
             </CustomButton>
           </div>
         </div>
+      </CustomModal>
+
       {/* ══════════════ ADD-ONS & MODIFIERS MODAL (WIDER 3XL WITH IMAGES) ══════════════ */}
       <CustomModal
         open={!!selectedProductForAddons}
