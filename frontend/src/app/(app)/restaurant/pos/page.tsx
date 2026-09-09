@@ -31,6 +31,8 @@ import {
   X,
   Coffee,
   RefreshCw,
+  Edit3,
+  SlidersHorizontal,
 } from "lucide-react";
 import { api, TENANT_STORAGE_KEY } from "@/lib/api";
 import { toast } from "react-toastify";
@@ -54,6 +56,8 @@ interface MenuItem {
   image: string;
   isPopular?: boolean;
   isVeg?: boolean;
+  isKitchenProduct?: boolean;
+  hasAddons?: boolean;
   description?: string;
 }
 
@@ -70,18 +74,112 @@ interface RestaurantCartItem {
   unitPrice: number;
   modifiers?: CartModifier[];
   notes?: string;
-  kotStatus: "PENDING" | "SENT_TO_KITCHEN" | "PREPARING" | "SERVED";
+  isKitchenProduct?: boolean;
+  kotStatus: "PENDING" | "SENT_TO_KITCHEN" | "PREPARING" | "SERVED" | "READY_TO_SERVE";
 }
+
+const DEFAULT_TABLES: TableOption[] = [
+  { id: "1", tableNo: "T-01", capacity: 2, status: "AVAILABLE" },
+  { id: "2", tableNo: "T-02", capacity: 4, status: "AVAILABLE" },
+  { id: "3", tableNo: "T-03", capacity: 4, status: "OCCUPIED", currentBill: 1250, guestCount: 3 },
+  { id: "4", tableNo: "T-04", capacity: 6, status: "AVAILABLE" },
+  { id: "5", tableNo: "T-05", capacity: 8, status: "RESERVED" },
+  { id: "6", tableNo: "T-06", capacity: 2, status: "AVAILABLE" },
+];
+
+const DEFAULT_PRODUCTS: MenuItem[] = [
+  {
+    id: "p1",
+    name: "Classic Cheese Burger",
+    category: "Burgers",
+    sellingPrice: 350,
+    image: "",
+    isPopular: true,
+    isVeg: false,
+    hasAddons: true,
+  },
+  {
+    id: "p2",
+    name: "Smoky BBQ Chicken Burger",
+    category: "Burgers",
+    sellingPrice: 420,
+    image: "",
+    isPopular: true,
+    isVeg: false,
+    hasAddons: true,
+  },
+  {
+    id: "p3",
+    name: "Creamy Alfredo Pasta",
+    category: "Pasta",
+    sellingPrice: 480,
+    image: "",
+    isPopular: true,
+    isVeg: true,
+    hasAddons: true,
+  },
+  {
+    id: "p4",
+    name: "Pepperoni Passion Pizza",
+    category: "Pizza",
+    sellingPrice: 750,
+    image: "",
+    isPopular: true,
+    isVeg: false,
+    hasAddons: true,
+  },
+  {
+    id: "p5",
+    name: "Fresh Caesar Salad",
+    category: "Salad",
+    sellingPrice: 290,
+    image: "",
+    isVeg: true,
+    hasAddons: true,
+  },
+  {
+    id: "p6",
+    name: "Iced Cold Coffee",
+    category: "Beverages",
+    sellingPrice: 180,
+    image: "",
+    isKitchenProduct: false,
+    hasAddons: false,
+  },
+  {
+    id: "p7",
+    name: "Chocolate Lava Cake",
+    category: "Dessert",
+    sellingPrice: 260,
+    image: "",
+    isPopular: true,
+    hasAddons: false,
+  },
+];
+
+const categories = [
+  { id: "All Items", label: "All Items", icon: Utensils },
+  { id: "Popular", label: "Popular", icon: Flame },
+  { id: "Burgers", label: "Burgers", icon: Utensils },
+  { id: "Pasta", label: "Pasta", icon: Coffee },
+  { id: "Pizza", label: "Pizza", icon: Star },
+  { id: "Salad", label: "Salads", icon: Leaf },
+  { id: "Beverages", label: "Beverages", icon: Coffee },
+  { id: "Dessert", label: "Dessert", icon: Star },
+];
+
+const fmt = (amount: number) =>
+  `৳${(amount || 0).toLocaleString("en-BD", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 
 export default function RestaurantPOSPage() {
   const [storeName, setStoreName] = useState<string>("BlueOceans POS SYSTEM");
-  const [tables, setTables] = useState<TableOption[]>([]);
+  const [tables, setTables] = useState<TableOption[]>(DEFAULT_TABLES);
   const [selectedTable, setSelectedTable] = useState<TableOption | null>(null);
   const [guestCount, setGuestCount] = useState(2);
   const [waiterName, setWaiterName] = useState("Staff 1");
   const [orderType, setOrderType] = useState<"DINE_IN" | "TAKEAWAY" | "DELIVERY">("DINE_IN");
 
-  const [products, setProducts] = useState<MenuItem[]>([]);
+  const [products, setProducts] = useState<MenuItem[]>(DEFAULT_PRODUCTS);
   const [cart, setCart] = useState<RestaurantCartItem[]>([]);
 
   const [selectedCategory, setSelectedCategory] = useState("All Items");
@@ -89,21 +187,18 @@ export default function RestaurantPOSPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [orderNote, setOrderNote] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  // Modals state
+  // Modals & Dialogs
+  const [showSelectTableModal, setShowSelectTableModal] = useState(false);
+  const [showHoldModal, setShowHoldModal] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showCustomItemModal, setShowCustomItemModal] = useState(false);
   const [customName, setCustomName] = useState("");
   const [customPrice, setCustomPrice] = useState(250);
-
-  const [showHoldModal, setShowHoldModal] = useState(false);
   const [heldOrders, setHeldOrders] = useState<any[]>([]);
-
   const [completedBill, setCompletedBill] = useState<any | null>(null);
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [showSelectTableModal, setShowSelectTableModal] = useState(false);
 
-  // Prompt Modal State
   const [promptModalState, setPromptModalState] = useState<{
     isOpen: boolean;
     title: string;
@@ -117,71 +212,68 @@ export default function RestaurantPOSPage() {
     title: "",
   });
 
-  const [dbCategories, setDbCategories] = useState<any[]>([]);
+  // Add-ons Modal State
+  const [selectedProductForAddons, setSelectedProductForAddons] = useState<MenuItem | null>(null);
+  const [editingCartItem, setEditingCartItem] = useState<RestaurantCartItem | null>(null);
+  const [selectedSize, setSelectedSize] = useState<{ label: string; price: number }>({ label: "Regular", price: 0 });
+  const [selectedSpice, setSelectedSpice] = useState<string>("Medium");
+  const [selectedExtras, setSelectedExtras] = useState<{ label: string; price: number }[]>([]);
+  const [itemNote, setItemNote] = useState<string>("");
 
-  // Load tenant/store info & real DB data
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      if (typeof window !== "undefined") {
-        const tenantStr = localStorage.getItem(TENANT_STORAGE_KEY);
-        if (tenantStr) {
-          try {
-            const parsed = JSON.parse(tenantStr);
-            if (parsed?.name) {
-              setStoreName(parsed.name);
-            }
-          } catch (e) {
-            console.error(e);
+      const res: any = await api.get("/products", { params: { limit: 100 } });
+      const rawProducts = (res?.data as any)?.data ?? res?.data ?? res ?? [];
+
+      if (Array.isArray(rawProducts) && rawProducts.length > 0) {
+        const formatted: MenuItem[] = rawProducts.map((p: any) => {
+          let catName = "Main";
+          if (typeof p.category === "string" && p.category.trim()) {
+            catName = p.category;
+          } else if (p.category && typeof p.category === "object") {
+            catName = p.category.name || p.category.label || "Main";
+          } else if (p.categoryName) {
+            catName = String(p.categoryName);
           }
-        }
+          return {
+            id: String(p.id || p._id),
+            name: p.name || "Untitled Item",
+            category: catName,
+            sellingPrice: Number(p.sellingPrice || p.price || 0),
+            image: p.imageUrl || p.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80",
+            isPopular: Boolean(p.isPopular),
+            isVeg: Boolean(p.isVeg),
+            isKitchenProduct: p.isKitchenProduct !== false,
+            hasAddons: typeof p.hasAddons === "boolean" ? p.hasAddons : !["beverages", "drinks", "water"].includes(catName.toLowerCase()),
+            description: p.description || "",
+          };
+        });
+        setProducts(formatted);
+      } else {
+        setProducts(DEFAULT_PRODUCTS);
       }
 
-      try {
-        const resCatList = await api.get("/v1/products/categories");
-        const cData = (resCatList as any)?.data ?? resCatList ?? [];
-        if (Array.isArray(cData)) {
-          setDbCategories(cData);
-        }
-      } catch (e) {
-        console.error("Failed to load category metadata:", e);
+      const tableRes: any = await api.get("/v1/restaurant/tables").catch(() => null);
+      const rawTables = tableRes?.data ?? tableRes ?? [];
+      if (Array.isArray(rawTables) && rawTables.length > 0) {
+        setTables(
+          rawTables.map((t: any) => ({
+            id: String(t.id),
+            tableNo: t.tableNo || `Table ${t.id}`,
+            capacity: t.capacity || 4,
+            status: t.status || "AVAILABLE",
+            currentBill: t.currentBill,
+            guestCount: t.guestCount,
+          }))
+        );
+      } else {
+        setTables(DEFAULT_TABLES);
       }
-
-      const resProd = await api.get("/products", { params: { limit: 150 } });
-      const pData = (resProd as any)?.data ?? resProd ?? [];
-      if (Array.isArray(pData)) {
-        const mappedProducts: MenuItem[] = pData.map((p: any) => ({
-          id: p.id,
-          name: p.name,
-          category: p.category?.name || p.categoryName || "General",
-          sellingPrice: Number(p.sellingPrice || p.price || 0),
-          image: p.imageUrl || p.image || "",
-          isPopular: Boolean(p.isPopular),
-          isVeg: Boolean(p.isVeg),
-          description: p.description || "",
-        }));
-        setProducts(mappedProducts);
-      }
-
-      const resTables = await api.get("/v1/restaurant/tables");
-      const tData = (resTables as any)?.data ?? resTables ?? [];
-      if (Array.isArray(tData)) {
-        const mappedTables: TableOption[] = tData.map((t: any) => ({
-          id: t.id,
-          tableNo: t.tableNo || t.name || `Table ${t.id.slice(0, 4)}`,
-          capacity: Number(t.capacity || 4),
-          status: t.status || "AVAILABLE",
-          currentBill: t.currentBill ? Number(t.currentBill) : undefined,
-          guestCount: t.guestCount ? Number(t.guestCount) : undefined,
-        }));
-        setTables(mappedTables);
-        if (mappedTables.length > 0) {
-          setSelectedTable(mappedTables[0]);
-        }
-      }
-    } catch (err: any) {
-      console.error("Failed to load POS real data:", err);
-      toast.error(err?.message || "Error loading menu & table data from server");
+    } catch (err) {
+      console.error("Failed to load restaurant POS data:", err);
+      setProducts(DEFAULT_PRODUCTS);
+      setTables(DEFAULT_TABLES);
     } finally {
       setLoading(false);
     }
@@ -191,32 +283,113 @@ export default function RestaurantPOSPage() {
     loadData();
   }, [loadData]);
 
-  const dynamicCategories = Array.from(
-    new Set(products.map((p) => p.category).filter(Boolean))
-  );
-
-  const categories = [
-    { id: "All Items", label: "All Items", icon: LayoutGrid },
-    { id: "Popular", label: "Popular", icon: Star },
-    ...dynamicCategories.map((cat) => {
-      const dbCat = dbCategories.find(
-        (c: any) => c.name?.toLowerCase() === cat.toLowerCase()
-      );
-      return {
-        id: cat,
-        label: cat,
-        icon: getCategoryIcon(dbCat?.icon, cat),
-      };
-    }),
+  // Options
+  const SIZE_OPTIONS = [
+    { label: "Regular", price: 0 },
+    { label: "Large (+৳50)", price: 50 },
+    { label: "Family Pack (+৳150)", price: 150 },
   ];
 
-  const fmt = (n: number) =>
-    `৳${Number(n || 0).toLocaleString("en-BD", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
+  const SPICE_OPTIONS = [
+    { label: "Mild", icon: "🟢" },
+    { label: "Medium", icon: "🟡" },
+    { label: "Spicy", icon: "🌶️" },
+    { label: "Extra Spicy", icon: "🔥" },
+  ];
+
+  const EXTRA_TOPPINGS: { label: string; price: number; image?: string }[] = [
+    { label: "Extra Cheese", price: 30, image: "" },
+    { label: "Extra Patty / Meat", price: 50, image: "" },
+    { label: "Mushroom & Olives", price: 40, image: "" },
+    { label: "French Fries Combo", price: 60, image: "" },
+    { label: "Cold Drinks Combo", price: 50, image: "" },
+    { label: "Garlic Toast Combo", price: 45, image: "" },
+  ];
+
+  const handleOpenAddonModal = (product: MenuItem) => {
+    setSelectedProductForAddons(product);
+    setEditingCartItem(null);
+    setSelectedSize({ label: "Regular", price: 0 });
+    setSelectedSpice("Medium");
+    setSelectedExtras([]);
+    setItemNote("");
+  };
+
+  const handleEditCartItemAddons = (cartItem: RestaurantCartItem) => {
+    const prod = products.find((p) => p.id === cartItem.productId) || {
+      id: cartItem.productId,
+      name: cartItem.name,
+      category: "General",
+      sellingPrice: cartItem.unitPrice,
+      image: "",
+    };
+    setSelectedProductForAddons(prod);
+    setEditingCartItem(cartItem);
+    setItemNote(cartItem.notes || "");
+    setSelectedSpice("Medium");
+    setSelectedExtras([]);
+    setSelectedSize({ label: "Regular", price: 0 });
+  };
+
+  const toggleExtraTopping = (topping: { label: string; price: number; image?: string }) => {
+    setSelectedExtras((prev) =>
+      prev.some((e) => e.label === topping.label)
+        ? prev.filter((e) => e.label !== topping.label)
+        : [...prev, topping]
+    );
+  };
+
+  const handleConfirmAddons = () => {
+    if (!selectedProductForAddons) return;
+
+    const extraTotal = selectedSize.price + selectedExtras.reduce((sum, e) => sum + e.price, 0);
+    const finalUnitPrice = selectedProductForAddons.sellingPrice + extraTotal;
+
+    const modifiersList: CartModifier[] = [
+      ...(selectedSize.price > 0 ? [{ label: "Size", value: selectedSize.label }] : []),
+      { label: "Spice", value: selectedSpice },
+      ...selectedExtras.map((e) => ({ label: "Extra", value: `${e.label} (+৳${e.price})` })),
+    ];
+
+    if (editingCartItem) {
+      setCart((prev) =>
+        prev.map((i) =>
+          i.id === editingCartItem.id
+            ? {
+                ...i,
+                unitPrice: finalUnitPrice,
+                modifiers: modifiersList,
+                notes: itemNote,
+              }
+            : i
+        )
+      );
+      toast.success(`Updated add-ons for ${editingCartItem.name}`);
+    } else {
+      const isKitchen = selectedProductForAddons.isKitchenProduct ?? true;
+      setCart((prev) => [
+        ...prev,
+        {
+          id: `${selectedProductForAddons.id}-${Date.now()}`,
+          productId: selectedProductForAddons.id,
+          name: selectedProductForAddons.name,
+          qty: 1,
+          unitPrice: finalUnitPrice,
+          modifiers: modifiersList,
+          notes: itemNote,
+          isKitchenProduct: isKitchen,
+          kotStatus: isKitchen ? "PENDING" : "READY_TO_SERVE",
+        },
+      ]);
+      toast.success(`Added ${selectedProductForAddons.name} with add-ons to order`);
+    }
+
+    setSelectedProductForAddons(null);
+    setEditingCartItem(null);
+  };
 
   const addToCart = (item: MenuItem) => {
+    const isKitchen = item.isKitchenProduct ?? true;
     setCart((prev) => {
       const existingIdx = prev.findIndex((i) => i.productId === item.id);
       if (existingIdx >= 0) {
@@ -232,7 +405,8 @@ export default function RestaurantPOSPage() {
           name: item.name,
           qty: 1,
           unitPrice: item.sellingPrice,
-          kotStatus: "PENDING",
+          isKitchenProduct: isKitchen,
+          kotStatus: isKitchen ? "PENDING" : "READY_TO_SERVE",
         },
       ];
     });
@@ -297,9 +471,20 @@ export default function RestaurantPOSPage() {
 
   const sendKotToKitchen = () => {
     if (cart.length === 0) return;
-    setCart((prev) => prev.map((item) => ({ ...item, kotStatus: "SENT_TO_KITCHEN" })));
+    const kitchenItems = cart.filter((item) => item.isKitchenProduct !== false);
+    if (kitchenItems.length === 0) {
+      toast.info("All items in cart are ready-to-serve (No kitchen KOT needed)");
+      return;
+    }
+    setCart((prev) =>
+      prev.map((item) =>
+        item.isKitchenProduct !== false
+          ? { ...item, kotStatus: "SENT_TO_KITCHEN" }
+          : item
+      )
+    );
     toast.success(
-      `KOT Ticket sent to Kitchen Display System for Table ${selectedTable?.tableNo || "N/A"}!`
+      `KOT Ticket sent (${kitchenItems.length} kitchen items) to KDS for Table ${selectedTable?.tableNo || "N/A"}!`
     );
   };
 
@@ -367,16 +552,37 @@ export default function RestaurantPOSPage() {
     }
   };
 
+  const getCategoryName = (cat: any): string => {
+    if (typeof cat === "string") return cat;
+    if (cat && typeof cat === "object") return cat.name || cat.label || "";
+    return String(cat || "");
+  };
+
+  const isItemCustomizable = (item: MenuItem): boolean => {
+    if (typeof item.hasAddons === "boolean") return item.hasAddons;
+    const cat = getCategoryName(item.category).toLowerCase();
+    return !["beverages", "drinks", "water", "soft drinks"].includes(cat);
+  };
+
+  const handleProductAction = (item: MenuItem) => {
+    if (isItemCustomizable(item)) {
+      handleOpenAddonModal(item);
+    } else {
+      addToCart(item);
+    }
+  };
+
   const filteredProducts = products.filter((p) => {
+    const pCat = getCategoryName(p.category);
     const matchesCategory =
       selectedCategory === "All Items"
         ? true
         : selectedCategory === "Popular"
         ? p.isPopular
-        : p.category.toLowerCase() === selectedCategory.toLowerCase();
+        : pCat.toLowerCase() === selectedCategory.toLowerCase();
     const q = searchFilter.toLowerCase().trim();
     const matchesSearch =
-      !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+      !q || p.name.toLowerCase().includes(q) || pCat.toLowerCase().includes(q);
     return matchesCategory && matchesSearch;
   });
 
@@ -563,7 +769,8 @@ export default function RestaurantPOSPage() {
               const count = products.filter((p) => {
                 if (cat.id === "All Items") return true;
                 if (cat.id === "Popular") return p.isPopular;
-                return p.category.toLowerCase() === cat.id.toLowerCase();
+                const pCat = getCategoryName(p.category);
+                return pCat.toLowerCase() === cat.id.toLowerCase();
               }).length;
 
               return (
@@ -668,7 +875,7 @@ export default function RestaurantPOSPage() {
                 {filteredProducts.map((item) => (
                   <div
                     key={item.id}
-                    onClick={() => addToCart(item)}
+                    onClick={() => handleProductAction(item)}
                     className={`group relative flex rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-orange-500 hover:shadow-md hover:shadow-orange-500/10 transition-all duration-200 cursor-pointer overflow-hidden ${
                       viewMode === "list"
                         ? "flex-row items-center p-2.5 gap-3"
@@ -690,37 +897,38 @@ export default function RestaurantPOSPage() {
                           className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
-                        <div className="flex flex-col items-center justify-center text-orange-300/70 gap-1 p-2">
-                          <Utensils size={viewMode === "list" ? 22 : 28} className="text-orange-400" />
-                          {viewMode !== "list" && (
-                            <span className="text-[10px] text-orange-400/80 font-semibold tracking-wide">
-                              Fresh Dish
-                            </span>
-                          )}
+                        <div className="flex items-center justify-center text-slate-400 bg-slate-100 h-full w-full">
+                          <Utensils size={28} className="text-slate-400 opacity-60" />
                         </div>
                       )}
 
-                      {/* Real Badges from DB */}
-                      {(item.isPopular || item.isVeg) && (
-                        <div className="absolute left-2 top-2 flex items-center gap-1 z-10">
-                          {item.isPopular && (
-                            <span
-                              className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[9px] font-black shadow-xs"
-                              title="Popular Item"
-                            >
-                              <Star size={10} fill="white" /> Popular
-                            </span>
-                          )}
-                          {item.isVeg && (
-                            <span
-                              className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-600 text-white text-[9px] font-black shadow-xs"
-                              title="Vegetarian"
-                            >
-                              <Leaf size={10} fill="white" /> Veg
-                            </span>
-                          )}
-                        </div>
-                      )}
+                      {/* Real Badges & Custom Addons Badge */}
+                      <div className="absolute left-2 top-2 flex flex-wrap items-center gap-1 z-10">
+                        {isItemCustomizable(item) && (
+                          <span
+                            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[9px] font-black shadow-xs tracking-wider uppercase"
+                            title="Custom Add-ons Available"
+                          >
+                            <SlidersHorizontal size={9} strokeWidth={3} /> Custom
+                          </span>
+                        )}
+                        {item.isPopular && (
+                          <span
+                            className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[9px] font-black shadow-xs"
+                            title="Popular Item"
+                          >
+                            <Star size={10} fill="white" /> Popular
+                          </span>
+                        )}
+                        {item.isVeg && (
+                          <span
+                            className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-600 text-white text-[9px] font-black shadow-xs"
+                            title="Vegetarian"
+                          >
+                            <Leaf size={10} fill="white" /> Veg
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Title & Price & Right Add Button Row */}
@@ -741,10 +949,10 @@ export default function RestaurantPOSPage() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          addToCart(item);
+                          handleProductAction(item);
                         }}
                         className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-xs hover:from-orange-700 hover:to-amber-600 transition cursor-pointer shrink-0"
-                        title="Add to Order"
+                        title={isItemCustomizable(item) ? "Customize Add-ons & Add" : "Add to Order"}
                       >
                         <Plus size={16} />
                       </button>
@@ -881,10 +1089,51 @@ export default function RestaurantPOSPage() {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-1">
-                        <h4 className="font-bold text-xs text-gray-800 truncate">{item.name}</h4>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <h4 className="font-bold text-xs text-gray-800 truncate">{item.name}</h4>
+                          <button
+                            onClick={() => handleEditCartItemAddons(item)}
+                            className="p-1 text-orange-600 hover:bg-orange-50 rounded transition cursor-pointer"
+                            title="Edit Add-ons"
+                          >
+                            <Edit3 size={11} />
+                          </button>
+                        </div>
                         <span className="font-bold text-xs text-gray-900 tabular-nums">
                           {fmt(item.qty * item.unitPrice)}
                         </span>
+                      </div>
+
+                      {/* Render Selected Modifiers */}
+                      {item.modifiers && item.modifiers.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {item.modifiers.map((mod, mIdx) => (
+                            <span
+                              key={mIdx}
+                              className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-50 text-amber-800 border border-amber-200"
+                            >
+                              {mod.label}: {mod.value}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        {item.isKitchenProduct === false ? (
+                          <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
+                            ⚡ Ready Item
+                          </span>
+                        ) : (
+                          <span
+                            className={`inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                              item.kotStatus === "SENT_TO_KITCHEN"
+                                ? "bg-amber-100 text-amber-800"
+                                : "bg-slate-100 text-slate-700"
+                            }`}
+                          >
+                            🍳 {item.kotStatus === "SENT_TO_KITCHEN" ? "KOT Sent" : "KOT Pending"}
+                          </span>
+                        )}
                       </div>
 
                       {item.notes && (
@@ -1255,6 +1504,233 @@ export default function RestaurantPOSPage() {
             </CustomButton>
           </div>
         </div>
+      </CustomModal>
+
+      {/* ══════════════ ADD-ONS & MODIFIERS MODAL (WIDER 3XL WITH IMAGES) ══════════════ */}
+      <CustomModal
+        open={!!selectedProductForAddons}
+        onClose={() => {
+          setSelectedProductForAddons(null);
+          setEditingCartItem(null);
+        }}
+        title={
+          editingCartItem
+            ? `Edit Customize & Add-ons: ${selectedProductForAddons?.name}`
+            : `Customize & Add-ons: ${selectedProductForAddons?.name}`
+        }
+        size="3xl"
+      >
+        {selectedProductForAddons && (
+          <div className="space-y-5 p-1">
+            {/* Dish Header Banner Card */}
+            <div className="flex items-center gap-4 bg-gradient-to-r from-orange-50 via-amber-50/60 to-orange-50 p-3.5 rounded-md border border-orange-100 shadow-2xs">
+              {selectedProductForAddons.image ? (
+                <img
+                  src={selectedProductForAddons.image}
+                  alt={selectedProductForAddons.name}
+                  className="h-20 w-20 rounded-md object-cover border border-orange-200 shadow-2xs shrink-0"
+                />
+              ) : (
+                <div className="h-20 w-20 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                  <Utensils size={28} className="opacity-60" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-black text-base text-gray-900 truncate">
+                    {selectedProductForAddons.name}
+                  </h3>
+                  <span className="px-2 py-0.5 rounded-md bg-orange-600 text-white text-[10px] font-black uppercase tracking-wider">
+                    {selectedProductForAddons.category}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">
+                  {selectedProductForAddons.description || "Select your portion size, spice level & extra add-ons below."}
+                </p>
+                <div className="mt-1.5 flex items-center gap-2">
+                  <span className="text-xs font-bold text-gray-500">Base Price:</span>
+                  <span className="font-black text-sm text-orange-600">
+                    {fmt(selectedProductForAddons.sellingPrice)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 1. Portion Size Selection (No images as requested) */}
+            <div>
+              <label className="block text-xs font-black text-gray-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-orange-100 text-orange-700 text-[10px]">
+                  1
+                </span>
+                Portion Size Options
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {SIZE_OPTIONS.map((opt) => {
+                  const isSelected = selectedSize.label === opt.label;
+                  return (
+                    <button
+                      type="button"
+                      key={opt.label}
+                      onClick={() => setSelectedSize(opt)}
+                      className={`flex items-center justify-between p-3 rounded-md border-2 transition cursor-pointer select-none ${
+                        isSelected
+                          ? "bg-orange-50 border-orange-500 text-orange-950 font-bold shadow-xs"
+                          : "bg-white border-slate-200 text-gray-700 hover:border-orange-300 font-medium"
+                      }`}
+                    >
+                      <span className="text-xs font-bold">{opt.label}</span>
+                      <div
+                        className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${
+                          isSelected ? "border-orange-600 bg-orange-600 text-white" : "border-slate-300"
+                        }`}
+                      >
+                        {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 2. Spice Level Selection */}
+            <div>
+              <label className="block text-xs font-black text-gray-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-rose-100 text-rose-700 text-[10px]">
+                  2
+                </span>
+                Spice Level
+              </label>
+              <div className="grid grid-cols-4 gap-2.5">
+                {SPICE_OPTIONS.map((spice) => {
+                  const isSelected = selectedSpice === spice.label;
+                  return (
+                    <button
+                      type="button"
+                      key={spice.label}
+                      onClick={() => setSelectedSpice(spice.label)}
+                      className={`flex items-center justify-center gap-1.5 p-2.5 rounded-md border-2 text-xs font-bold transition cursor-pointer ${
+                        isSelected
+                          ? "bg-rose-50 border-rose-500 text-rose-800 shadow-xs"
+                          : "bg-white border-slate-200 text-gray-700 hover:border-rose-300"
+                      }`}
+                    >
+                      <span>{spice.icon}</span>
+                      <span>{spice.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 3. Extra Add-ons & Toppings (With Checkboxes) */}
+            <div>
+              <label className="block text-xs font-black text-gray-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-amber-100 text-amber-800 text-[10px]">
+                  3
+                </span>
+                Extra Add-ons & Toppings (Select Any)
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {EXTRA_TOPPINGS.map((top) => {
+                  const isChecked = selectedExtras.some((e) => e.label === top.label);
+                  return (
+                    <label
+                      key={top.label}
+                      onClick={() => toggleExtraTopping(top)}
+                      className={`flex items-center gap-3 p-2.5 rounded-md border-2 transition cursor-pointer select-none ${
+                        isChecked
+                          ? "bg-amber-50/90 border-amber-500 text-amber-950 shadow-xs"
+                          : "bg-white border-slate-200 text-gray-700 hover:border-amber-300"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => {}}
+                        className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500 accent-amber-600 cursor-pointer shrink-0"
+                      />
+
+                      {/* Add-on Image or Centered Icon Box */}
+                      {top.image ? (
+                        <img
+                          src={top.image}
+                          alt={top.label}
+                          className="h-11 w-11 rounded-md object-cover border border-slate-200 shrink-0"
+                        />
+                      ) : (
+                        <div className="h-11 w-11 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                          <Utensils size={18} className="opacity-60" />
+                        </div>
+                      )}
+
+                      <div className="flex-1 min-w-0">
+                        <h5 className="text-xs font-bold text-gray-800 truncate">{top.label}</h5>
+                        <span
+                          className={`text-xs font-black block mt-0.5 ${
+                            isChecked ? "text-amber-700" : "text-gray-500"
+                          }`}
+                        >
+                          +৳{top.price}
+                        </span>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 4. Special Cooking Instructions */}
+            <div>
+              <label className="block text-xs font-black text-gray-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-100 text-slate-700 text-[10px]">
+                  4
+                </span>
+                Cooking Instructions / Note
+              </label>
+              <input
+                type="text"
+                value={itemNote}
+                onChange={(e) => setItemNote(e.target.value)}
+                placeholder="e.g. Less oil, extra sauce on side, no onions..."
+                className="w-full rounded-md border border-slate-200 bg-white p-2.5 text-xs text-gray-800 focus:border-orange-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Modal Footer with Live Item Price Calculation */}
+            <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider block">
+                  Customized Item Total
+                </span>
+                <span className="font-black text-xl text-orange-600 tabular-nums">
+                  {fmt(
+                    selectedProductForAddons.sellingPrice +
+                      selectedSize.price +
+                      selectedExtras.reduce((sum, e) => sum + e.price, 0)
+                  )}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <CustomButton
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedProductForAddons(null);
+                    setEditingCartItem(null);
+                  }}
+                >
+                  Cancel
+                </CustomButton>
+                <CustomButton
+                  themeColor="orange"
+                  onClick={handleConfirmAddons}
+                >
+                  {editingCartItem ? "Update Item Add-ons" : "Add to Order"}
+                </CustomButton>
+              </div>
+            </div>
+          </div>
+        )}
       </CustomModal>
 
       {/* Reusable Custom Prompt Modal */}

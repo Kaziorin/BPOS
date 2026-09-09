@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Printer,
   X,
@@ -117,9 +117,12 @@ export interface InvoiceData {
   batchBestBefore?: string;
 }
 
-interface UniversalInvoiceModalProps {
-  data: InvoiceData;
+export interface UniversalInvoiceModalProps {
+  data?: InvoiceData;
+  invoice?: InvoiceData;
   initialVertical?: InvoiceVerticalType;
+  verticalType?: InvoiceVerticalType;
+  open?: boolean;
   onClose: () => void;
 }
 
@@ -135,13 +138,20 @@ const VERTICAL_OPTIONS: { id: InvoiceVerticalType; label: string; icon: any; col
 ];
 
 export function UniversalInvoiceModal({
-  data,
+  data: propData,
+  invoice,
   initialVertical,
+  verticalType,
+  open = true,
   onClose,
 }: UniversalInvoiceModalProps) {
+  const data = propData || invoice;
+  const vert = initialVertical || verticalType;
+
   // Auto-detect vertical if not explicitly provided
   const detectedVertical = useMemo<InvoiceVerticalType>(() => {
-    if (initialVertical) return initialVertical;
+    if (vert) return vert;
+    if (!data) return "retail";
     if (data.vertical) return data.vertical;
     if (data.tableNo || data.serverName) return "restaurant";
     if (data.doctorName || data.prescriptionNo) return "pharmacy";
@@ -150,15 +160,27 @@ export function UniversalInvoiceModal({
     if (data.items?.some((i) => i.weightKg || i.pluCode)) return "grocery";
     if (data.items?.some((i) => i.stylistName)) return "salon";
     return "retail";
-  }, [data, initialVertical]);
+  }, [data, vert]);
 
   const [activeVertical, setActiveVertical] = useState<InvoiceVerticalType>(detectedVertical);
   const [printPaperSize, setPrintPaperSize] = useState<"thermal" | "a4">("thermal");
 
+  useEffect(() => {
+    setActiveVertical(detectedVertical);
+  }, [detectedVertical]);
+
+  if (!open || !data) return null;
+
   const fmt = (n: number) =>
     `৳${Number(n || 0).toLocaleString("en-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  const invoiceDate = data.saleDate || data.createdAt ? new Date(data.saleDate || data.createdAt!).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }) : new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+  const invoiceDate =
+    data.saleDate || data.createdAt || data.date
+      ? new Date(data.saleDate || data.createdAt || data.date!).toLocaleString("en-GB", {
+          dateStyle: "medium",
+          timeStyle: "short",
+        })
+      : new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
 
   return (
     <div

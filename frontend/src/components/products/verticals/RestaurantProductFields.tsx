@@ -54,6 +54,7 @@ export interface RestaurantRecipeItem {
 }
 
 export interface RestaurantFormData {
+  isKitchenProduct?: boolean;
   prepTimeMinutes: string;
   kitchenStation: string;
   dineInTaxRate: string;
@@ -303,6 +304,44 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
       {/* TAB 1: Kitchen & Operations */}
       {activeTab === "KITCHEN" && (
         <div className="space-y-4 animate-in fade-in-50 duration-200">
+          {/* Kitchen / KOT Item Checkbox Card */}
+          <div
+            className={`p-3.5 rounded-xl border transition-all ${
+              (formData.isKitchenProduct ?? true)
+                ? "bg-teal-50/60 border-teal-200"
+                : "bg-amber-50/70 border-amber-200"
+            }`}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5">
+                <CustomCheckbox
+                  id="isKitchenProduct"
+                  checked={formData.isKitchenProduct ?? true}
+                  onChange={(e: any) =>
+                    onChange("isKitchenProduct", e?.target ? e.target.checked : e)
+                  }
+                  label="🍳 Is Kitchen / KOT Product (Send to Kitchen)"
+                />
+              </div>
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                  (formData.isKitchenProduct ?? true)
+                    ? "bg-teal-100 text-teal-800"
+                    : "bg-amber-100 text-amber-800"
+                }`}
+              >
+                {(formData.isKitchenProduct ?? true)
+                  ? "✓ Sends to Kitchen (KOT)"
+                  : "⚡ Ready Product (No KOT)"}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-600 mt-2 ml-6 leading-relaxed">
+              {(formData.isKitchenProduct ?? true)
+                ? "When ordered at POS, this item will automatically generate a Kitchen Order Ticket (KOT) on the chef's KDS station for preparation."
+                : "Ready-to-serve item (e.g. canned drinks, packaged chips, bottled water, ice cream). Placing an order will NOT send this item to the kitchen KOT."}
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
             {/* Kitchen Routing Station */}
             <div>
