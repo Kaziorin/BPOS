@@ -163,6 +163,144 @@ const PROMO_SLIDES = [
   },
 ];
 
+function BkashLogo({ selected, onClick }: { selected?: boolean; onClick?: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer select-none",
+        selected
+          ? "bg-[#e2136e] text-white border-[#e2136e] shadow-md scale-105 ring-2 ring-[#e2136e]/30"
+          : "bg-white text-slate-700 border-slate-200 hover:border-[#e2136e]/50 hover:bg-pink-50/30"
+      )}
+    >
+      <div className="w-4 h-4 rounded-full bg-white text-[#e2136e] font-black text-[10px] flex items-center justify-center shrink-0 shadow-2xs">
+        b
+      </div>
+      <span className="text-xs font-black tracking-tight">bKash</span>
+    </div>
+  );
+}
+
+function NagadLogo({ selected, onClick }: { selected?: boolean; onClick?: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer select-none",
+        selected
+          ? "bg-[#f04f23] text-white border-[#f04f23] shadow-md scale-105 ring-2 ring-[#f04f23]/30"
+          : "bg-white text-slate-700 border-slate-200 hover:border-[#f04f23]/50 hover:bg-orange-50/30"
+      )}
+    >
+      <div className="w-2.5 h-2.5 rounded-full bg-amber-300 shrink-0 shadow-2xs" />
+      <span className="text-xs font-black tracking-tight">Nagad</span>
+    </div>
+  );
+}
+
+function RocketLogo({ selected, onClick }: { selected?: boolean; onClick?: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer select-none",
+        selected
+          ? "bg-[#8c3494] text-white border-[#8c3494] shadow-md scale-105 ring-2 ring-[#8c3494]/30"
+          : "bg-white text-slate-700 border-slate-200 hover:border-[#8c3494]/50 hover:bg-purple-50/30"
+      )}
+    >
+      <span className="text-xs">🚀</span>
+      <span className="text-xs font-black tracking-tight">Rocket</span>
+    </div>
+  );
+}
+
+function UpayLogo({ selected, onClick }: { selected?: boolean; onClick?: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer select-none",
+        selected
+          ? "bg-[#1b439b] text-white border-[#1b439b] shadow-md scale-105 ring-2 ring-[#1b439b]/30"
+          : "bg-white text-slate-700 border-slate-200 hover:border-[#1b439b]/50 hover:bg-blue-50/30"
+      )}
+    >
+      <span className="text-xs font-black tracking-tight text-amber-300">u</span>
+      <span className="text-xs font-black tracking-tight">pay</span>
+    </div>
+  );
+}
+
+function VisaLogo({ selected, onClick }: { selected?: boolean; onClick?: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-1 px-3 py-1.5 rounded-xl border transition-all cursor-pointer select-none",
+        selected
+          ? "bg-[#1a1f71] text-white border-[#1a1f71] shadow-md scale-105 ring-2 ring-[#1a1f71]/30"
+          : "bg-white text-slate-700 border-slate-200 hover:border-[#1a1f71]/50"
+      )}
+    >
+      <span className="text-xs font-black italic tracking-wider text-[#f7b600]">VISA</span>
+    </div>
+  );
+}
+
+function MastercardLogo({ selected, onClick }: { selected?: boolean; onClick?: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer select-none",
+        selected
+          ? "bg-slate-900 text-white border-slate-900 shadow-md scale-105 ring-2 ring-slate-900/30"
+          : "bg-white text-slate-700 border-slate-200 hover:border-slate-400"
+      )}
+    >
+      <div className="flex items-center -space-x-1.5 shrink-0">
+        <div className="w-3.5 h-3.5 rounded-full bg-[#eb001b]" />
+        <div className="w-3.5 h-3.5 rounded-full bg-[#f79e1b] opacity-90" />
+      </div>
+      <span className="text-xs font-black tracking-tight">Mastercard</span>
+    </div>
+  );
+}
+
+function AmexLogo({ selected, onClick }: { selected?: boolean; onClick?: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-1 px-3 py-1.5 rounded-xl border transition-all cursor-pointer select-none",
+        selected
+          ? "bg-[#006fcf] text-white border-[#006fcf] shadow-md scale-105 ring-2 ring-[#006fcf]/30"
+          : "bg-white text-slate-700 border-slate-200 hover:border-[#006fcf]/50"
+      )}
+    >
+      <span className="text-[11px] font-black tracking-tighter text-sky-100">AMEX</span>
+    </div>
+  );
+}
+
+function NexusLogo({ selected, onClick }: { selected?: boolean; onClick?: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-1 px-3 py-1.5 rounded-xl border transition-all cursor-pointer select-none",
+        selected
+          ? "bg-[#00875a] text-white border-[#00875a] shadow-md scale-105 ring-2 ring-[#00875a]/30"
+          : "bg-white text-slate-700 border-slate-200 hover:border-[#00875a]/50"
+      )}
+    >
+      <span className="text-[11px] font-black tracking-tight">NEXUS</span>
+    </div>
+  );
+}
+
 export default function CustomerDisplayPage() {
   const [cart, setCart] = useState<DisplayCart>(() => readCart());
   const [online, setOnline] = useState(true);
@@ -170,6 +308,8 @@ export default function CustomerDisplayPage() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activePayMethod, setActivePayMethod] = useState<string>("UPI / QR");
+  const [selectedMobileProvider, setSelectedMobileProvider] = useState<string>("bKash");
+  const [selectedCardType, setSelectedCardType] = useState<string>("VISA");
   const [promoIndex, setPromoIndex] = useState(0);
   const [currentTime, setCurrentTime] = useState<string>("");
   const [currentDate, setCurrentDate] = useState<string>("");
@@ -204,6 +344,9 @@ export default function CustomerDisplayPage() {
   useEffect(() => {
     return subscribeCart((c) => {
       setCart(c);
+      if (c.paymentMethod) {
+        setActivePayMethod(c.paymentMethod);
+      }
       const isPaidNow = c.status === "PAID";
       setShowPaid(isPaidNow);
 
@@ -650,21 +793,104 @@ export default function CustomerDisplayPage() {
                 variant="solid"
               />
 
-              {/* QR Code Container */}
-              <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
-                <div
-                  className="p-2 bg-white rounded-xl shadow-2xs border border-slate-100"
-                  dangerouslySetInnerHTML={{ __html: qrSvg(qrPayload, 160, "#0f172a") }}
-                />
-
-                <div className="text-center space-y-0.5">
-                  <p className="text-xs font-bold text-slate-800 flex items-center justify-center gap-1">
-                    <QrCode size={14} className="text-emerald-600" /> Scan for {activePayMethod} Payment
-                  </p>
-                  <p className="text-[10px] font-semibold text-slate-400">
-                    {empty ? "Scan to pair wallet" : `Amount due: ${fmt(cart.total)}`}
-                  </p>
-                </div>
+              {/* Dynamic Display per Selected Payment Option */}
+              <div className="flex flex-col items-center justify-center p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 min-h-[230px]">
+                {activePayMethod === "UPI / QR" ? (
+                  /* ── MOBILE BANKING (bKash / Nagad / Rocket) QR CODE DISPLAY ── */
+                  <div className="flex flex-col items-center space-y-3 w-full">
+                    <div
+                      className="p-2.5 bg-white rounded-2xl shadow-sm border border-slate-200/90"
+                      dangerouslySetInnerHTML={{ __html: qrSvg(qrPayload, 145, "#0f172a") }}
+                    />
+                    <div className="text-center space-y-2 w-full">
+                      <p className="text-xs font-bold text-slate-900 flex items-center justify-center gap-1.5">
+                        <QrCode size={15} className="text-emerald-600" />
+                        Scan QR with <span className="text-emerald-700 font-extrabold">{selectedMobileProvider}</span> App
+                      </p>
+                      {/* Clickable bKash, Nagad, Rocket, Upay Brand Logos */}
+                      <div className="flex items-center justify-center gap-2 flex-wrap pt-0.5">
+                        <BkashLogo selected={selectedMobileProvider === "bKash"} onClick={() => setSelectedMobileProvider("bKash")} />
+                        <NagadLogo selected={selectedMobileProvider === "Nagad"} onClick={() => setSelectedMobileProvider("Nagad")} />
+                        <RocketLogo selected={selectedMobileProvider === "Rocket"} onClick={() => setSelectedMobileProvider("Rocket")} />
+                        <UpayLogo selected={selectedMobileProvider === "Upay"} onClick={() => setSelectedMobileProvider("Upay")} />
+                      </div>
+                      <p className="text-[10.5px] font-medium text-slate-500">
+                        {empty ? "Scan to pay or link wallet" : `Paying ${selectedMobileProvider}: ${fmt(cart.total)}`}
+                      </p>
+                    </div>
+                  </div>
+                ) : activePayMethod === "Cash" ? (
+                  /* ── CASH PAYMENT INSTRUCTIONS ── */
+                  <div className="flex flex-col items-center justify-center text-center space-y-3 py-2">
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shadow-xs">
+                      <Wallet size={30} strokeWidth={2} />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-black text-slate-900">Cash Payment at Counter</h4>
+                      <p className="text-xs font-semibold text-slate-500 max-w-xs leading-relaxed">
+                        Please hand cash <span className="font-bold font-mono text-emerald-700">{fmt(cart.total)}</span> to the cashier.
+                      </p>
+                    </div>
+                    <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-200 text-[11px] font-bold text-slate-600 shadow-2xs">
+                      💵 Cashier will issue printed receipt & change due
+                    </div>
+                  </div>
+                ) : activePayMethod === "Card" ? (
+                  /* ── CARD TERMINAL INSTRUCTIONS ── */
+                  <div className="flex flex-col items-center justify-center text-center space-y-3 py-2">
+                    <div className="w-14 h-14 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center shadow-xs">
+                      <CreditCard size={30} strokeWidth={2} />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-black text-slate-900">{selectedCardType} Terminal Ready</h4>
+                      <p className="text-xs font-semibold text-slate-500 max-w-xs leading-relaxed">
+                        Insert, tap or swipe your <span className="font-bold text-slate-800">{selectedCardType}</span> card on the terminal.
+                      </p>
+                    </div>
+                    {/* Clickable VISA, Mastercard, AMEX, NEXUS Brand Logos */}
+                    <div className="flex items-center justify-center gap-2 flex-wrap pt-1">
+                      <VisaLogo selected={selectedCardType === "VISA"} onClick={() => setSelectedCardType("VISA")} />
+                      <MastercardLogo selected={selectedCardType === "Mastercard"} onClick={() => setSelectedCardType("Mastercard")} />
+                      <AmexLogo selected={selectedCardType === "AMEX"} onClick={() => setSelectedCardType("AMEX")} />
+                      <NexusLogo selected={selectedCardType === "NEXUS"} onClick={() => setSelectedCardType("NEXUS")} />
+                    </div>
+                  </div>
+                ) : activePayMethod === "Wallet" ? (
+                  /* ── WALLET / STORE CREDIT INSTRUCTIONS ── */
+                  <div className="flex flex-col items-center justify-center text-center space-y-3 py-2">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shadow-xs">
+                      <Award size={30} strokeWidth={2} />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-black text-slate-900">Customer Loyalty Wallet</h4>
+                      <p className="text-xs font-semibold text-slate-500 max-w-xs leading-relaxed">
+                        Member: <span className="font-bold text-slate-900">{cart.customerName || "Walk-in Customer"}</span> ({cart.customerTier || "Member"})
+                      </p>
+                      <p className="text-xs font-extrabold text-amber-700">
+                        Available Balance: {cart.customerPoints || 0} Points
+                      </p>
+                    </div>
+                    <p className="text-[11px] font-bold text-slate-500 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+                      ✨ Deducting total from wallet balance
+                    </p>
+                  </div>
+                ) : (
+                  /* ── SPLIT PAYMENT INSTRUCTIONS ── */
+                  <div className="flex flex-col items-center justify-center text-center space-y-3 py-2">
+                    <div className="w-14 h-14 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center shadow-xs">
+                      <Layers size={30} strokeWidth={2} />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-black text-slate-900">Split Payment in Progress</h4>
+                      <p className="text-xs font-semibold text-slate-500 max-w-xs leading-relaxed">
+                        Cashier is processing multi-tender checkout (Cash + Digital / Card).
+                      </p>
+                    </div>
+                    <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-200 text-[11px] font-bold text-slate-700 shadow-2xs">
+                      Total Payable: <span className="font-mono font-black text-emerald-700">{fmt(cart.total)}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
