@@ -555,23 +555,48 @@ export default function RestaurantPOSPage() {
       {/* ══════════════ 3. MAIN POS WORKSPACE ══════════════ */}
       <div className="flex-1 min-h-0 flex gap-3 p-3 overflow-hidden">
         {/* ── LEFT CATEGORY SIDEBAR ── */}
-        <aside className="w-48 flex-none flex flex-col justify-between rounded-md bg-white border border-slate-200 p-2 shadow-2xs overflow-hidden">
-          <div className="space-y-1 overflow-y-auto pr-0.5">
+        <aside className="w-56 sm:w-64 flex-none flex flex-col justify-between rounded-xl bg-white border border-slate-200 p-2.5 shadow-2xs overflow-hidden">
+          <div className="space-y-1.5 overflow-y-auto pr-1 custom-scrollbar">
             {categories.map((cat) => {
               const Icon = cat.icon;
               const isSelected = selectedCategory === cat.id;
+              const count = products.filter((p) => {
+                if (cat.id === "All Items") return true;
+                if (cat.id === "Popular") return p.isPopular;
+                return p.category.toLowerCase() === cat.id.toLowerCase();
+              }).length;
+
               return (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-bold text-left transition-all cursor-pointer ${
+                  className={`w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-lg text-xs font-bold text-left transition-all duration-150 cursor-pointer ${
                     isSelected
-                      ? "bg-orange-600 text-white shadow-xs"
-                      : "text-gray-600 hover:bg-slate-100 hover:text-gray-900"
+                      ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/20 border border-orange-600"
+                      : "bg-white text-gray-700 border border-slate-100 hover:bg-orange-50/80 hover:text-orange-600 hover:border-orange-200"
                   }`}
                 >
-                  <Icon size={15} className={isSelected ? "text-white" : "text-gray-400"} />
-                  <span className="truncate">{cat.label}</span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div
+                      className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 transition ${
+                        isSelected
+                          ? "bg-white/20 text-white"
+                          : "bg-orange-50 text-orange-600 border border-orange-100"
+                      }`}
+                    >
+                      <Icon size={15} />
+                    </div>
+                    <span className="truncate">{cat.label}</span>
+                  </div>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 ${
+                      isSelected
+                        ? "bg-white/25 text-white"
+                        : "bg-slate-100 text-gray-500"
+                    }`}
+                  >
+                    {count}
+                  </span>
                 </button>
               );
             })}
@@ -580,18 +605,18 @@ export default function RestaurantPOSPage() {
           <div className="pt-2 border-t border-slate-100">
             <button
               onClick={() => setShowCustomItemModal(true)}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-dashed border-orange-300 bg-orange-50 text-orange-600 text-xs font-bold hover:bg-orange-100 transition cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-dashed border-orange-400 bg-orange-50/70 text-orange-700 text-xs font-bold hover:bg-orange-100 transition cursor-pointer"
             >
-              <ChefHat size={15} /> Custom Item
+              <ChefHat size={16} className="text-orange-600" /> Custom Item
             </button>
           </div>
         </aside>
 
         {/* ── CENTER MENU ITEMS GRID ── */}
-        <main className="flex-1 flex flex-col rounded-md bg-white border border-slate-200 shadow-2xs overflow-hidden">
+        <main className="flex-1 flex flex-col rounded-xl bg-white border border-slate-200 shadow-2xs overflow-hidden">
           <div className="flex-none p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <h2 className="text-xs font-bold text-gray-800 tracking-tight flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-orange-500" />
+              <span className="h-2.5 w-2.5 rounded-full bg-orange-500 shadow-xs shadow-orange-500/50" />
               {selectedCategory} ({filteredProducts.length})
             </h2>
             <div className="flex items-center gap-1 bg-slate-200/70 p-0.5 rounded-md">
@@ -636,7 +661,7 @@ export default function RestaurantPOSPage() {
               <div
                 className={
                   viewMode === "grid"
-                    ? "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5"
+                    ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5"
                     : "space-y-2.5"
                 }
               >
@@ -644,7 +669,7 @@ export default function RestaurantPOSPage() {
                   <div
                     key={item.id}
                     onClick={() => addToCart(item)}
-                    className={`group relative flex rounded-md border border-slate-200 bg-white shadow-2xs hover:border-orange-500 hover:shadow-xs transition-all duration-150 cursor-pointer overflow-hidden ${
+                    className={`group relative flex rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-orange-500 hover:shadow-md hover:shadow-orange-500/10 transition-all duration-200 cursor-pointer overflow-hidden ${
                       viewMode === "list"
                         ? "flex-row items-center p-2.5 gap-3"
                         : "flex-col justify-between"
@@ -652,23 +677,25 @@ export default function RestaurantPOSPage() {
                   >
                     {/* Dish Image / Placeholder Container (Flush on top, left, right in Grid View) */}
                     <div
-                      className={`relative overflow-hidden bg-slate-50 flex items-center justify-center shrink-0 ${
+                      className={`relative overflow-hidden bg-gradient-to-br from-amber-50/50 to-orange-50/30 flex items-center justify-center shrink-0 ${
                         viewMode === "list"
-                          ? "h-16 w-16 rounded-md"
-                          : "h-32 w-full border-b border-slate-100"
+                          ? "h-16 w-16 rounded-lg"
+                          : "h-28 sm:h-30 w-full border-b border-slate-100"
                       }`}
                     >
                       {item.image ? (
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-200"
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
-                        <div className="flex flex-col items-center justify-center text-slate-300 gap-1">
-                          <Utensils size={viewMode === "list" ? 20 : 28} />
+                        <div className="flex flex-col items-center justify-center text-orange-300/70 gap-1 p-2">
+                          <Utensils size={viewMode === "list" ? 22 : 28} className="text-orange-400" />
                           {viewMode !== "list" && (
-                            <span className="text-[10px] text-slate-400 font-medium">No Image</span>
+                            <span className="text-[10px] text-orange-400/80 font-semibold tracking-wide">
+                              Fresh Dish
+                            </span>
                           )}
                         </div>
                       )}
@@ -678,18 +705,18 @@ export default function RestaurantPOSPage() {
                         <div className="absolute left-2 top-2 flex items-center gap-1 z-10">
                           {item.isPopular && (
                             <span
-                              className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-white shadow-xs"
+                              className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[9px] font-black shadow-xs"
                               title="Popular Item"
                             >
-                              <Star size={11} fill="white" />
+                              <Star size={10} fill="white" /> Popular
                             </span>
                           )}
                           {item.isVeg && (
                             <span
-                              className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white shadow-xs"
+                              className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-600 text-white text-[9px] font-black shadow-xs"
                               title="Vegetarian"
                             >
-                              <Leaf size={11} fill="white" />
+                              <Leaf size={10} fill="white" /> Veg
                             </span>
                           )}
                         </div>
@@ -703,10 +730,10 @@ export default function RestaurantPOSPage() {
                       }`}
                     >
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-sm text-gray-800 line-clamp-1 group-hover:text-orange-600 transition">
+                        <h3 className="font-bold text-xs sm:text-sm text-gray-800 line-clamp-1 group-hover:text-orange-600 transition">
                           {item.name}
                         </h3>
-                        <span className="font-black text-sm text-orange-600 mt-1 block tabular-nums">
+                        <span className="font-black text-sm sm:text-base text-orange-600 mt-1 block tabular-nums">
                           {fmt(item.sellingPrice)}
                         </span>
                       </div>
@@ -716,7 +743,7 @@ export default function RestaurantPOSPage() {
                           e.stopPropagation();
                           addToCart(item);
                         }}
-                        className="flex h-8 w-8 items-center justify-center rounded-md bg-orange-600 text-white shadow-xs hover:bg-orange-700 transition cursor-pointer shrink-0"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-xs hover:from-orange-700 hover:to-amber-600 transition cursor-pointer shrink-0"
                         title="Add to Order"
                       >
                         <Plus size={16} />
