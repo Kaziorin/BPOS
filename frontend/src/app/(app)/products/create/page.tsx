@@ -103,6 +103,12 @@ export default function CreateProductPage() {
   const editId = searchParams?.get("id");
   const isEditMode = Boolean(editId);
   const { user } = useAuth();
+  const isSuperAdmin = Boolean(
+    user?.isSuperAdmin ||
+    user?.role?.toLowerCase().includes("super") ||
+    user?.roleName?.toLowerCase().includes("super") ||
+    user?.email === "admin@gmail.com"
+  );
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -734,17 +740,44 @@ export default function CreateProductPage() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-slate-100/90 border border-slate-200 rounded-lg px-2.5 py-1 text-xs select-none" title="Locked by Store Business Type">
-              {React.createElement(
-                BUSINESS_VERTICALS.find((v) => v.id === selectedVertical)?.icon || Package,
-                { size: 13, className: "text-teal-600 shrink-0" }
-              )}
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vertical:</span>
-              <span className="font-bold text-slate-700 text-xs">
-                {BUSINESS_VERTICALS.find((v) => v.id === selectedVertical)?.label || selectedVertical}
-              </span>
-              <Lock size={11} className="text-slate-400 shrink-0 ml-0.5" />
-            </div>
+            {isSuperAdmin ? (
+              <div className="flex items-center gap-2 bg-teal-50/90 border border-teal-300 rounded-lg px-2.5 py-1 text-xs shadow-xs">
+                {React.createElement(
+                  BUSINESS_VERTICALS.find((v) => v.id === selectedVertical)?.icon || Package,
+                  { size: 14, className: "text-teal-700 shrink-0" }
+                )}
+                <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wider">Vertical:</span>
+                <select
+                  value={selectedVertical}
+                  onChange={(e) => setSelectedVertical(e.target.value)}
+                  className="bg-transparent font-bold text-teal-900 text-xs outline-none cursor-pointer pr-1"
+                >
+                  {BUSINESS_VERTICALS.map((v) => (
+                    <option key={v.id} value={v.id} className="text-slate-900 bg-white">
+                      {v.label}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-[10px] font-semibold text-teal-700 bg-teal-200/70 px-1.5 py-0.5 rounded ml-0.5">
+                  Super Admin
+                </span>
+              </div>
+            ) : (
+              <div
+                className="flex items-center gap-1.5 bg-slate-100/90 border border-slate-200 rounded-lg px-2.5 py-1 text-xs select-none"
+                title="Locked by Store Business Type"
+              >
+                {React.createElement(
+                  BUSINESS_VERTICALS.find((v) => v.id === selectedVertical)?.icon || Package,
+                  { size: 13, className: "text-teal-600 shrink-0" }
+                )}
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vertical:</span>
+                <span className="font-bold text-slate-700 text-xs">
+                  {BUSINESS_VERTICALS.find((v) => v.id === selectedVertical)?.label || selectedVertical}
+                </span>
+                <Lock size={11} className="text-slate-400 shrink-0 ml-0.5" />
+              </div>
+            )}
 
             {!isEditMode && (
               <CustomButton
