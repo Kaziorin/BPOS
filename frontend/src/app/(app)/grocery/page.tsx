@@ -18,9 +18,23 @@ import {
   Printer,
   ChevronRight,
   PlusCircle,
+  Users,
+  Layers,
+  Zap,
+  LayoutDashboard,
+  History,
+  Activity,
+  Monitor,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { UniversalInvoiceModal } from "@/components/invoices/UniversalInvoiceModal";
+
+function getCustomerTier(pts: number) {
+  if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-100" };
+  if (pts >= 1500) return { name: "Gold", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" };
+  if (pts >= 500) return { name: "Silver", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-100" };
+  return { name: "Bronze", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-100" };
+}
 
 export default function GroceryHubPage() {
   const [loading, setLoading] = useState(true);
@@ -78,208 +92,267 @@ export default function GroceryHubPage() {
   });
 
   return (
-    <div className="w-full space-y-6">
-      {/* Header Banner */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-6 bg-gradient-to-r from-emerald-900/40 via-teal-900/20 to-slate-900 border border-emerald-500/20 rounded-2xl shadow-2xl backdrop-blur-md">
-        <div className="flex items-center gap-4">
-          <div className="p-3.5 bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 rounded-2xl shadow-inner">
-            <Scale size={32} />
+    <div className="relative w-full min-h-screen overflow-hidden p-6 space-y-8" style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}>
+
+      {/* ══ POS-Style Background Waves ══ */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+        <svg className="absolute top-0 left-0 w-full h-[300px] opacity-[0.15]" viewBox="0 0 1200 300" fill="none" preserveAspectRatio="none">
+          <path d="M 0 0 L 1200 0 L 1200 150 C 900 280, 400 100, 0 200 Z" fill="url(#hub-mint-wave)" />
+          <defs>
+            <linearGradient id="hub-mint-wave" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(187, 238, 100, 1)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      {/* Header Banner: Glassmorphic & Curved */}
+      <div className="relative group overflow-hidden rounded-[2.5rem] bg-white/70 backdrop-blur-xl border border-white shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] p-8 flex flex-col md:flex-row items-center justify-between gap-8 transition-all hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.15)]">
+        <div className={`absolute -left-20 -top-20 w-64 h-64 blur-3xl opacity-20 rounded-full bg-[#bbe664] group-hover:scale-125 transition-transform duration-700`} />
+
+        <div className="relative flex items-center gap-6 z-10">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#bbe664] to-[#a3e635] flex items-center justify-center text-white shadow-lg transform rotate-3 group-hover:rotate-6 transition-transform duration-500">
+            <Scale size={40} strokeWidth={2.2} />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-extrabold text-white tracking-tight">Grocery & Supermarket</h1>
-              <span className="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full">
-                Industry Vertical 4
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-black text-slate-900 tracking-tight">Grocery Hub</h1>
+              <span className="px-3 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full shadow-sm">
+                Industry Vertical
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
-              High-speed lane checkout with weighing scale (Kg/g) tare calculation, rapid barcode scanner, express cashier lanes & produce PLU lookup.
+            <p className="text-slate-500 font-medium max-w-xl mt-2 leading-relaxed">
+              Real-time monitoring of your supermarket lanes. Manage weighing scale PLUs, track high-speed lane transactions, and optimize your checkout throughput.
             </p>
           </div>
         </div>
-        <Link
-          href="/grocery/pos"
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-500 transition-all"
-        >
-          <ShoppingCart size={16} /> Open Grocery POS
-        </Link>
+
+        <div className="relative flex flex-col sm:flex-row items-center gap-3 z-10">
+          <Link
+            href="/grocery/pos"
+            className="group/btn flex items-center gap-3 px-6 py-3.5 rounded-2xl text-sm font-black bg-slate-900 text-white shadow-xl shadow-slate-900/20 hover:bg-emerald-600 hover:shadow-emerald-500/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
+          >
+            <Zap size={18} className="text-[#bbe664] group-hover/btn:animate-pulse" />
+            Launch POS Lane
+            <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
+          </Link>
+
+          <Link
+            href="/customer-display"
+            target="_blank"
+            className="group/cd flex items-center gap-3 px-6 py-3.5 rounded-2xl text-sm font-black bg-white text-slate-700 border border-slate-200 shadow-lg shadow-slate-200/20 hover:bg-slate-50 hover:border-emerald-300 hover:text-emerald-700 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
+          >
+            <Monitor size={18} className="text-slate-400 group-hover/cd:text-emerald-500" />
+            Customer Display
+          </Link>
+        </div>
       </div>
 
-      {/* KPI Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Lane Revenue</span>
-            <TrendingUp size={18} className="text-emerald-600" />
+      {/* KPI Stats: Tactile Premium Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: "Lane Revenue", val: fmt(totalGrocerySales), sub: "Total checkout volume", icon: TrendingUp, color: "emerald", iconColor: "text-emerald-600", bg: "bg-emerald-50" },
+          { label: "Transactions", val: sales.length, sub: "Completed receipts", icon: Receipt, color: "blue", iconColor: "text-blue-600", bg: "bg-blue-50" },
+          { label: "Items Scanned", val: totalItemsSold, sub: "Products checked out", icon: Barcode, color: "indigo", iconColor: "text-indigo-600", bg: "bg-indigo-50" },
+          { label: "Active PLUs", val: weightedProducts.length || products.length, sub: "Weight-based items", icon: Scale, color: "amber", iconColor: "text-amber-600", bg: "bg-amber-50" },
+        ].map((stat, i) => (
+          <div key={i} className="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-1">
+            <div className={`absolute -right-4 -bottom-4 w-24 h-24 blur-2xl opacity-[0.05] rounded-full ${stat.bg.replace('bg-', 'bg-')}`} />
+            <div className="flex items-center justify-between mb-4">
+              <div className={`w-12 h-12 rounded-2xl ${stat.bg} flex items-center justify-center ${stat.iconColor} shadow-sm group-hover:scale-110 transition-transform`}>
+                <stat.icon size={24} strokeWidth={2.5} />
+              </div>
+              <div className="px-2 py-1 rounded-lg bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-slate-100">
+                Live
+              </div>
+            </div>
+            <p className="text-3xl font-black text-slate-900 tracking-tighter">{stat.val}</p>
+            <div className="flex flex-col mt-1">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{stat.label}</span>
+              <span className="text-[10px] text-slate-400 font-medium">{stat.sub}</span>
+            </div>
           </div>
-          <p className="mt-2 text-2xl font-black text-slate-900">{fmt(totalGrocerySales)}</p>
-          <span className="text-[11px] text-slate-400">Total checkout volume</span>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Transactions</span>
-            <Receipt size={18} className="text-teal-600" />
-          </div>
-          <p className="mt-2 text-2xl font-black text-slate-900">{sales.length}</p>
-          <span className="text-[11px] text-slate-400">Completed lane receipts</span>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Items Scanned</span>
-            <Barcode size={18} className="text-indigo-600" />
-          </div>
-          <p className="mt-2 text-2xl font-black text-slate-900">{totalItemsSold}</p>
-          <span className="text-[11px] text-slate-400">Products checked out</span>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Scale PLU Items</span>
-            <Scale size={18} className="text-amber-600" />
-          </div>
-          <p className="mt-2 text-2xl font-black text-slate-900">{weightedProducts.length || products.length}</p>
-          <span className="text-[11px] text-slate-400">Produce / Weight-based items</span>
-        </div>
+        ))}
       </div>
 
       {/* Main Content: Lane Transactions & Produce Quick PLU */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
         
         {/* Left 2 Cols: Recent Supermarket Lane Transactions */}
-        <div className="lg:col-span-2 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="lg:col-span-2 rounded-[2.5rem] bg-white border border-slate-100 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
+          <div className="p-8 border-b border-slate-50 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h3 className="text-base font-black text-slate-900">Recent Supermarket Lane Transactions</h3>
-              <p className="text-xs text-slate-500">Real-time receipt history with item breakdowns</p>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <History className="text-emerald-500" size={24} /> Lane Activity
+              </h3>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Real-time Transaction Stream</p>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Search invoice or cashier..."
+                  placeholder="Search invoice, cashier..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="rounded-xl border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-3 text-xs font-semibold focus:border-emerald-500 focus:outline-none focus:bg-white"
+                  className="rounded-2xl border border-slate-200 bg-slate-50/50 py-2.5 pl-11 pr-4 text-xs font-bold focus:border-emerald-500 focus:outline-none focus:bg-white transition-all w-64 shadow-inner"
                 />
               </div>
               <button
                 onClick={loadData}
-                className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-slate-50"
-                title="Refresh"
+                className="rounded-2xl border border-slate-100 p-2.5 text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all shadow-sm active:scale-90"
               >
-                <RefreshCw size={14} />
+                <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
               </button>
             </div>
           </div>
 
-          {loading ? (
-            <div className="py-16 text-center text-xs text-slate-400">Loading lane transactions...</div>
-          ) : filteredSales.length === 0 ? (
-            <div className="py-16 text-center text-slate-400 space-y-2">
-              <Receipt size={36} className="mx-auto text-slate-300" />
-              <p className="text-sm font-semibold text-slate-600">No supermarket transactions found</p>
-              <p className="text-xs">Launch the Supermarket POS Lane to start checking out customer baskets.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    <th className="py-3 px-3">Invoice #</th>
-                    <th className="py-3 px-3">Time / Date</th>
-                    <th className="py-3 px-3">Customer / Lane</th>
-                    <th className="py-3 px-3 text-center">Items</th>
-                    <th className="py-3 px-3 text-right">Total (৳)</th>
-                    <th className="py-3 px-3 text-center">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-medium">
-                  {filteredSales.map((s) => (
-                    <tr key={s.id} className="hover:bg-slate-50/80 transition">
-                      <td className="py-3 px-3 font-mono font-bold text-emerald-700">
-                        {s.invoiceNo || `INV-${s.id.slice(0, 8)}`}
-                      </td>
-                      <td className="py-3 px-3 text-slate-500">
-                        {new Date(s.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                        <span className="block text-[10px] text-slate-400">{new Date(s.createdAt).toLocaleDateString()}</span>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className="font-bold text-slate-800">{s.customer?.name || "Walk-in Customer"}</span>
-                        <span className="block text-[10px] text-slate-400">{s.paymentMethod || "CASH"}</span>
-                      </td>
-                      <td className="py-3 px-3 text-center font-bold text-slate-700">
-                        {(s.items || []).length}
-                      </td>
-                      <td className="py-3 px-3 text-right font-black tabular-nums text-slate-900">
-                        {fmt(Number(s.grandTotal || s.totalAmount || 0))}
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <button
-                          onClick={() => setSelectedSale(s)}
-                          className="rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 px-2.5 py-1 text-xs font-bold text-slate-700 transition"
-                        >
-                          Receipt
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* Right Col: Quick Produce / Scale PLU Price List */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div>
-              <h3 className="text-base font-black text-slate-900 flex items-center gap-1.5">
-                <Scale size={16} className="text-emerald-600" /> Produce & Scale PLU
-              </h3>
-              <p className="text-xs text-slate-500">Current weight-based items rate (৳/kg)</p>
-            </div>
-            <Link
-              href="/products/create"
-              className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
-            >
-              <PlusCircle size={13} /> Add PLU
-            </Link>
-          </div>
-
-          <div className="space-y-2.5 max-h-[480px] overflow-y-auto pr-1">
-            {products.slice(0, 15).map((p) => (
-              <div
-                key={p.id}
-                className="flex items-center justify-between p-3 rounded-2xl bg-slate-50/80 border border-slate-100 hover:border-emerald-200 transition"
-              >
-                <div className="min-w-0 flex-1 pr-2">
-                  <p className="font-bold text-slate-800 truncate text-xs">{p.name}</p>
-                  <p className="text-[10px] text-slate-400 font-mono">
-                    SKU: {p.sku || "N/A"} · Unit: {p.uom || "KG"}
-                  </p>
+          <div className="flex-1 overflow-hidden p-2">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-32 gap-4">
+                <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Syncing with lanes...</p>
+              </div>
+            ) : filteredSales.length === 0 ? (
+              <div className="py-32 text-center space-y-4">
+                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-300">
+                  <Receipt size={40} />
                 </div>
-                <div className="text-right">
-                  <span className="text-xs font-black text-emerald-700">{fmt(Number(p.sellingPrice || 0))}</span>
-                  <span className="block text-[9px] text-slate-400">per {p.uom || "kg"}</span>
+                <div>
+                  <p className="text-lg font-black text-slate-600">No Lane Activity</p>
+                  <p className="text-xs font-bold text-slate-400 max-w-xs mx-auto mt-1 uppercase tracking-wide">Launch a POS lane to start processing baskets</p>
                 </div>
               </div>
-            ))}
+            ) : (
+              <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+                      <th className="py-5 px-6">Invoice</th>
+                      <th className="py-5 px-6">Customer & Tier</th>
+                      <th className="py-5 px-6">Time</th>
+                      <th className="py-5 px-6 text-center">Items</th>
+                      <th className="py-5 px-6 text-right">Total</th>
+                      <th className="py-5 px-6 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {filteredSales.map((s) => {
+                      const points = s.customer?.loyaltyPoints || 0;
+                      const tier = getCustomerTier(points);
+                      return (
+                        <tr key={s.id} className="group hover:bg-emerald-50/40 transition-colors">
+                          <td className="py-5 px-6">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-mono font-black text-[10px] border border-emerald-100">
+                                #
+                              </div>
+                              <span className="font-mono font-black text-xs text-slate-700">{s.invoiceNo || s.id.slice(0, 8).toUpperCase()}</span>
+                            </div>
+                          </td>
+                          <td className="py-5 px-6">
+                            <div className="flex flex-col">
+                              <span className="text-xs font-black text-slate-900 tracking-tight">{s.customer?.name || "Walk-in Customer"}</span>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-widest ${tier.color} ${tier.bg} ${tier.border}`}>
+                                  {tier.name}
+                                </span>
+                                <span className="text-[9px] font-bold text-slate-400">{s.paymentMethod || "CASH"}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-5 px-6">
+                            <div className="flex flex-col">
+                              <span className="text-xs font-black text-slate-700">{new Date(s.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}</span>
+                              <span className="text-[10px] font-bold text-slate-400">{new Date(s.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          </td>
+                          <td className="py-5 px-6 text-center">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-[10px] font-black">
+                              {(s.items || []).length}
+                            </span>
+                          </td>
+                          <td className="py-5 px-6 text-right font-black tabular-nums text-slate-900 text-sm">
+                            {fmt(Number(s.grandTotal || s.totalAmount || 0))}
+                          </td>
+                          <td className="py-5 px-6 text-center">
+                            <button
+                              onClick={() => setSelectedSale(s)}
+                              className="rounded-xl bg-slate-900 text-white hover:bg-emerald-600 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95"
+                            >
+                              Receipt
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Col: Produce & Scale PLU Price List */}
+        <div className="rounded-[2.5rem] bg-white border border-slate-100 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
+          <div className="p-8 border-b border-slate-50 bg-slate-50/30">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <Activity className="text-emerald-500" size={24} /> Scale PLU
+              </h3>
+              <Link
+                href="/products/create"
+                className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center hover:bg-emerald-700 transition shadow-lg shadow-emerald-500/20 active:scale-90"
+              >
+                <PlusCircle size={18} />
+              </Link>
+            </div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Weight-based item rates</p>
           </div>
 
-          <div className="pt-2">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+            {products.slice(0, 15).map((p) => {
+              const isKg = p.uom?.toLowerCase().includes("kg") || p.uom?.toLowerCase().includes("gm");
+              return (
+                <div
+                  key={p.id}
+                  className="group flex items-center justify-between p-4 rounded-3xl bg-white border border-slate-100 hover:border-emerald-200 hover:shadow-md transition-all duration-300"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors shrink-0 font-bold text-sm">
+                      {p.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-black text-slate-800 truncate text-xs tracking-tight">{p.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[9px] font-black text-slate-400 uppercase font-mono">{p.sku || "NO-SKU"}</span>
+                        {isKg && <span className="text-[8px] font-black bg-emerald-100 text-emerald-700 px-1 rounded">SCALE</span>}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-black text-slate-900 tracking-tighter block">{fmt(Number(p.sellingPrice || 0))}</span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">per {p.uom || "kg"}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="p-6 bg-slate-50/50">
             <Link
               href="/grocery/pos"
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 p-2.5 text-xs font-black text-emerald-800 transition"
+              className="group w-full flex items-center justify-center gap-2 rounded-2xl bg-slate-900 p-4 text-xs font-black text-white hover:bg-emerald-600 transition-all shadow-lg shadow-slate-900/10 active:scale-95"
             >
-              Open Scale Register <ArrowRight size={14} />
+              Open Scale Register
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>
       </div>
+
 
       {/* Specialized Grocery Scale Slip Modal */}
       {selectedSale && (

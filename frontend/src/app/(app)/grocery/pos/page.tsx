@@ -478,7 +478,7 @@ export default function GroceryPOSPage() {
 
   return (
     <>
-    <div className="relative flex flex-col h-screen w-screen bg-white select-none overflow-hidden" style={{ fontFamily: "'Inter','Segoe UI',sans-serif" }}>
+    <div className="relative flex flex-col h-screen w-screen bg-white select-none overflow-hidden" style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}>
 
       {/* ══ ORGANIC CURVED WAVE BACKDROP — EXACT RGBA(187, 238, 100) GRADIENT ══ */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
