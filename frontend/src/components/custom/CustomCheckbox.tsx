@@ -68,7 +68,11 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
             type="checkbox"
             checked={isChecked}
             disabled={disabled}
-            onChange={handleChange}
+            onChange={(e) => {
+              if (onChange) {
+                (onChange as any)(e);
+              }
+            }}
             className="peer sr-only"
             {...props}
           />

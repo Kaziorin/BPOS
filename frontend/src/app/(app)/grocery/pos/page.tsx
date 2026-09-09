@@ -44,6 +44,7 @@ interface Product {
   id: string; name: string; sku: string; barcode?: string;
   sellingPrice: number; uom: string;
   category?: { name: string }; stock?: number;
+  imageUrl?: string;
 }
 
 const EMOJI_MAP: [string, string][] = [
@@ -193,7 +194,8 @@ export default function GroceryPOSPage() {
         sellingPrice: Number(p.sellingPrice || 0),
         uom: p.unit?.name || p.uom || "pcs",
         category: p.category ? { name: p.category.name } : { name: "Grocery" },
-        stock: stockMap.get(p.id) ?? 0
+        stock: stockMap.get(p.id) ?? 0,
+        imageUrl: p.imageUrl || p.images?.[0]?.url || undefined,
       }));
       setProducts(formatted);
     } catch (err) {
@@ -820,9 +822,17 @@ export default function GroceryPOSPage() {
                       </div>
                     )}
 
-                    {/* Pure White Square Emoji Showcase */}
+                    {/* Pure White Square Image / Emoji Showcase */}
                     <div className="w-full h-20 sm:h-22 aspect-square flex items-center justify-center rounded-xl text-[38px] leading-none mb-2 select-none group-hover:scale-108 transition-all duration-200 border border-gray-100 bg-white relative overflow-hidden shrink-0 shadow-2xs">
-                      <span className="relative z-10 drop-shadow-xs select-none">{emoji}</span>
+                      {p.imageUrl ? (
+                        <img
+                          src={p.imageUrl}
+                          alt={p.name}
+                          className="w-full h-full object-cover rounded-xl"
+                        />
+                      ) : (
+                        <span className="relative z-10 drop-shadow-xs select-none">{emoji}</span>
+                      )}
                     </div>
 
                     <div className="flex-1 flex flex-col justify-between min-w-0">

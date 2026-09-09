@@ -271,7 +271,7 @@ async def list_sales_orders(
     if not source or source.upper() in ("B2B", "CORPORATE", "ALL"):
         b2b_rows = rows_to_dicts((await db.execute(text(f"""
             SELECT so.id, so.orderNo, 'B2B' AS source, so.status, so.subtotal, so.total,
-                   so.paidTotal, so.dueTotal, so.orderDate, so.createdAt, so.customerId,
+                   0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
                    c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                    b.name AS branchName
             FROM sales_orders so
@@ -289,8 +289,8 @@ async def list_sales_orders(
                 "email": r.pop("customerEmail", None),
             }
             items = rows_to_dicts((await db.execute(text("""
-                SELECT soi.id, soi.productId, p.name, p.sku, soi.qtyOrdered, soi.qtyDelivered,
-                       soi.qtyReserved, soi.qtyBackordered, soi.unitPrice, soi.lineTotal
+                SELECT soi.id, soi.productId, p.name, p.sku, soi.qtyOrdered, 0 AS qtyDelivered,
+                       0 AS qtyReserved, 0 AS qtyBackordered, soi.unitPrice, soi.lineTotal
                 FROM sales_order_items soi
                 LEFT JOIN products p ON p.id = soi.productId
                 WHERE soi.salesOrderId = :id
