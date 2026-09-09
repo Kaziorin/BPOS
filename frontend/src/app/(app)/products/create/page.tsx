@@ -26,6 +26,7 @@ import {
   Factory,
   Wrench,
   Building2,
+  Lock,
 } from "lucide-react";
 import { api, axiosClient } from "@/lib/api";
 import { SearchableSelect, SearchableSelectOption } from "@/components/custom/SearchableSelect";
@@ -719,19 +720,16 @@ export default function CreateProductPage() {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs shadow-2xs">
+            <div className="flex items-center gap-1.5 bg-slate-100/90 border border-slate-200 rounded-lg px-2.5 py-1 text-xs select-none" title="Locked by Store Business Type">
+              {React.createElement(
+                BUSINESS_VERTICALS.find((v) => v.id === selectedVertical)?.icon || Package,
+                { size: 13, className: "text-teal-600 shrink-0" }
+              )}
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vertical:</span>
-              <select
-                value={selectedVertical}
-                onChange={(e) => setSelectedVertical(e.target.value)}
-                className="bg-transparent font-bold text-teal-700 text-xs focus:outline-none cursor-pointer"
-              >
-                {BUSINESS_VERTICALS.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.label}
-                  </option>
-                ))}
-              </select>
+              <span className="font-bold text-slate-700 text-xs">
+                {BUSINESS_VERTICALS.find((v) => v.id === selectedVertical)?.label || selectedVertical}
+              </span>
+              <Lock size={11} className="text-slate-400 shrink-0 ml-0.5" />
             </div>
 
             {!isEditMode && (

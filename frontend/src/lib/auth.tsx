@@ -31,20 +31,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem("modernpos_user");
     const token = localStorage.getItem("modernpos_token");
     if (stored && token) {
-      setUser(JSON.parse(stored));
+      try {
+        setUser(JSON.parse(stored));
+      } catch (e) {}
+
       // Validate session with backend DB
-      api.get<{ user: AuthUser }>("/auth/me")
+      api.get<any>("/auth/me")
         .then((res) => {
-          if (res?.user) {
-            setUser(res.user);
+          const u = res?.data?.user || res?.user;
+          if (u) {
+            setUser(u);
           }
         })
-        .catch(() => {
-          localStorage.removeItem("modernpos_token");
-          localStorage.removeItem("modernpos_user");
-          localStorage.removeItem(TENANT_STORAGE_KEY);
-          setUser(null);
-          router.push("/login");
+        .catch((err: any) => {
+          if (err?.status === 401) {
+            localStorage.removeItem("modernpos_token");
+            localStorage.removeItem("modernpos_user");
+            localStorage.removeItem(TENANT_STORAGE_KEY);
+            setUser(null);
+            router.push("/login");
+          }
         })
         .finally(() => {
           setLoading(false);

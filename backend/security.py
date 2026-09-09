@@ -48,6 +48,7 @@ class AuthUser:
         self.email = payload.get("email", "")
         self.roleId = payload.get("roleId", "")
         self.roleName = payload.get("roleName", "")
+        self.role = payload.get("roleName", "") or payload.get("role", "")
         self.businessType = payload.get("businessType", "")
 
 
