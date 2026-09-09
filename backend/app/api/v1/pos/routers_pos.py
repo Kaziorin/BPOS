@@ -37,24 +37,31 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     items = body.get("items") or []; payments = body.get("payments") or []
     if not items: return err("Cart is empty", 400)
 
-    # Resolve branch/warehouse defaults — guaranteed non-null
+    # Resolve branch/warehouse defaults — prioritized to user's assigned branch & linked warehouse
     if not branchId:
-        b_row = (await db.execute(text("SELECT id FROM branches WHERE tenantId=:t LIMIT 1"), {"t": tenant})).first()
-        if b_row:
-            branchId = b_row[0]
+        if user and getattr(user, "branchId", None):
+            branchId = user.branchId
         else:
-            b_id = _uuid_str()
-            await db.execute(text(
-                "INSERT INTO branches (id, tenantId, name, code, createdBy, updatedAt) "
-                "VALUES (:id, :t, 'Main Branch', 'BR-MAIN', :u, NOW())"),
-                {"id": b_id, "t": tenant, "u": user.id})
-            await db.commit()
-            branchId = b_id
+            b_row = (await db.execute(text("SELECT id FROM branches WHERE tenantId=:t LIMIT 1"), {"t": tenant})).first()
+            if b_row:
+                branchId = b_row[0]
+            else:
+                b_id = _uuid_str()
+                await db.execute(text(
+                    "INSERT INTO branches (id, tenantId, name, code, createdBy, updatedAt) "
+                    "VALUES (:id, :t, 'Main Branch', 'BR-MAIN', :u, NOW())"),
+                    {"id": b_id, "t": tenant, "u": user.id})
+                await db.commit()
+                branchId = b_id
 
     if not warehouseId:
         w_row = (await db.execute(text(
-            "SELECT id FROM warehouses WHERE tenantId=:t LIMIT 1"),
-            {"t": tenant})).first()
+            "SELECT id FROM warehouses WHERE tenantId=:t AND branchId=:b LIMIT 1"),
+            {"t": tenant, "b": branchId})).first()
+        if not w_row:
+            w_row = (await db.execute(text(
+                "SELECT id FROM warehouses WHERE tenantId=:t LIMIT 1"),
+                {"t": tenant})).first()
         if w_row:
             warehouseId = w_row[0]
         else:

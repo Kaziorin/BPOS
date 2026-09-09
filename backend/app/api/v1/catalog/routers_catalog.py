@@ -1105,19 +1105,6 @@ async def delete_supplier(supplierId: str,
 
 # ─────────────────────────── WAREHOUSES ───────────────────────────
 
-@router.get("/api/v1/warehouses")
-async def list_warehouses(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts(
-        (await db.execute(
-            text("SELECT w.*, b.name AS branchName FROM warehouses w LEFT JOIN branches b ON b.id=w.branchId "
-                 "WHERE w.tenantId=:t ORDER BY w.name"),
-            {"t": tenantId})).fetchall()
-    )
-    for r in rows:
-        r["branch"] = {"id": r.pop("branchId"), "name": r.pop("branchName")}
-    return ok(rows)
-
-
 @router.post("/api/v1/warehouses")
 async def create_warehouse(body: dict, user: AuthUser = Depends(require_auth),
                            tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):

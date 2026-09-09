@@ -43,10 +43,12 @@ class AuthUser:
     def __init__(self, payload: dict):
         self.id = payload["id"]
         self.tenantId = payload["tenantId"]
+        self.branchId = payload.get("branchId", "")
         self.name = payload.get("name", "")
         self.email = payload.get("email", "")
         self.roleId = payload.get("roleId", "")
         self.roleName = payload.get("roleName", "")
+        self.businessType = payload.get("businessType", "")
 
 
 async def require_auth(request: Request, db: AsyncSession = Depends(get_db)) -> AuthUser:

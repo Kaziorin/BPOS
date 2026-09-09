@@ -1376,18 +1376,35 @@ async def delete_branch(branchId: str, user: AuthUser = Depends(require_auth),
 
 
 @router.get("/api/v1/warehouses")
-async def list_warehouses(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
-                          db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts((await db.execute(text("""
+async def list_warehouses(
+    branchId: str = "",
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    target_branch = branchId.strip()
+    # If not explicitly specified, staff/cashier roles automatically default to their assigned branch
+    if not target_branch and user and getattr(user, "branchId", None):
+        role_name = (getattr(user, "roleName", "") or "").lower()
+        if role_name not in ("owner", "super administrator", "superadmin", "tenant admin"):
+            target_branch = user.branchId
+
+    where = "b.tenantId = :t"
+    params: dict = {"t": tenantId}
+    if target_branch:
+        where += " AND w.branchId = :b"
+        params["b"] = target_branch
+
+    rows = rows_to_dicts((await db.execute(text(f"""
         SELECT w.*, b.name AS branch_name, b.code AS branch_code,
                (SELECT COUNT(*) FROM stock s WHERE s.warehouseId = w.id AND s.tenantId = :t) AS stock_count,
                (SELECT COUNT(*) FROM terminals pt WHERE pt.branchId = w.branchId AND pt.tenantId = :t) AS terminal_count,
                (SELECT COUNT(*) FROM warehouse_locations wl WHERE wl.warehouseId = w.id AND wl.tenantId = :t) AS bin_count
         FROM warehouses w 
         JOIN branches b ON b.id = w.branchId 
-        WHERE b.tenantId = :t
+        WHERE {where}
         ORDER BY w.createdAt DESC
-    """), {"t": tenantId})).fetchall())
+    """), params)).fetchall())
 
     out = []
     for r in rows:
