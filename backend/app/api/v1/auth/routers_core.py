@@ -172,9 +172,6 @@ async def register(body: dict, db: AsyncSession = Depends(get_db)):
                 VALUES (UUID(), :t, :m, 1, NOW())
             """), {"t": tenant_id, "m": m[0]})
 
-        # 7. Seed tailored business metadata (Categories, Subcategories, Units — 0 dummy products)
-        await seed_tenant_business_metadata(db, tenant_id, business_type)
-
     token = sign_token({
         "id": user_id,
         "tenantId": tenant_id,
@@ -329,10 +326,6 @@ async def update_tenant(
                     updatedAt = NOW()
                 WHERE id = :cid
             """), {"cid": comp.id, "ln": legal_name or None, "addr": address or None, "ph": phone or None, "em": email or None, "vat": vat_reg_no or None})
-
-        # Seed new metadata if businessType was changed
-        if mapped_bt:
-            await seed_tenant_business_metadata(db, tenantId, mapped_bt)
 
     return ok({"message": "Tenant settings updated successfully", "businessType": mapped_bt})
 

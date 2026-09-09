@@ -940,12 +940,10 @@ async def onboarding_business_type(
         text("UPDATE tenants SET businessType = :bt, updatedAt = NOW() WHERE id = :t"),
         {"bt": btype, "t": tenantId},
     )
-    # Automatically seed business-type specific categories, subcategories, and units (NO dummy products)
-    await seed_tenant_business_metadata(db, tenantId, btype)
     await db.commit()
     return ok({
         "businessType": btype,
-        "message": f"Business type '{btype}' configured successfully with tailored categories and units"
+        "message": f"Business type '{btype}' configured successfully"
     })
 
 
