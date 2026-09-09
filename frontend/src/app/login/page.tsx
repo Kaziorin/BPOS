@@ -3,6 +3,7 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
+import Link from "next/link";
 import { useAuth, ApiError } from "@/lib/auth";
 import { Mail, Lock } from "lucide-react";
 import { CustomInput } from "@/components/custom/CustomInput";
@@ -100,6 +101,13 @@ export default function LoginPage() {
             <CustomButton type="submit" loading={formik.isSubmitting} fullWidth size="lg">
               {formik.isSubmitting ? "Authenticating..." : "Sign In to POS"}
             </CustomButton>
+
+            <div className="text-center pt-2">
+              <span className="text-xs text-slate-500">Need a new business account? </span>
+              <Link href="/register" className="text-xs font-bold text-teal-600 hover:underline">
+                Create Store
+              </Link>
+            </div>
           </div>
         </form>
       </div>

@@ -9,6 +9,14 @@ interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
   login: (email: string, password: string, tenantSlug?: string) => Promise<void>;
+  register: (data: {
+    name: string;
+    businessName: string;
+    businessType: string;
+    email: string;
+    password: string;
+    phone?: string;
+  }) => Promise<void>;
   logout: () => void;
 }
 
@@ -64,6 +72,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/dashboard");
   }
 
+  async function register(data: {
+    name: string;
+    businessName: string;
+    businessType: string;
+    email: string;
+    password: string;
+    phone?: string;
+  }) {
+    const res = await api.post<{
+      token: string;
+      user: AuthUser;
+      tenant?: { id: string; slug: string; name: string; businessType?: string };
+    }>("/auth/register", data);
+
+    localStorage.setItem("modernpos_token", res.token);
+    localStorage.setItem("modernpos_user", JSON.stringify({
+      ...res.user,
+      role: res.user.roleName || res.user.role || "Owner",
+    }));
+
+    const tenantInfo = res.tenant || {
+      id: res.user.tenantId,
+      slug: res.user.tenantId,
+      name: data.businessName || "Blue Ocean POS",
+      businessType: data.businessType || "RETAIL",
+    };
+
+    localStorage.setItem(TENANT_STORAGE_KEY, JSON.stringify({
+      id: tenantInfo.id || res.user.tenantId,
+      slug: tenantInfo.slug || tenantInfo.id || res.user.tenantId,
+      name: tenantInfo.name || data.businessName,
+      businessType: tenantInfo.businessType || data.businessType || "RETAIL",
+    }));
+
+    setUser(res.user);
+    router.push("/dashboard");
+  }
+
   function logout() {
     localStorage.removeItem("modernpos_token");
     localStorage.removeItem("modernpos_user");
@@ -73,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

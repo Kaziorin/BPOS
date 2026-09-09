@@ -886,6 +886,7 @@ BUSINESS_TYPE_DEFAULTS = {
 
 
 async def seed_tenant_business_metadata(db: AsyncSession, tenant_id: str, business_type: str):
+    import uuid
     bt = (business_type or "RETAIL").upper()
     cfg = BUSINESS_TYPE_DEFAULTS.get(bt, BUSINESS_TYPE_DEFAULTS["RETAIL"])
 

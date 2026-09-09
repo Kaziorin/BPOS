@@ -200,6 +200,7 @@ async def create_product(
 # ─────────────────────────── CATEGORIES & UNITS ───────────────────────────
 
 @router.get("/api/v1/products/categories")
+@router.get("/api/v1/categories")
 async def list_categories(
     page: int = Query(None),
     limit: int = Query(None),
