@@ -263,7 +263,7 @@ async def list_categories(
 
 
 @router.post("/api/v1/products/categories")
-async def create_category(body: dict, user: AuthUser = Depends(require_permission("products.categories.create")),
+async def create_category(body: dict, user: AuthUser = Depends(require_permission("products.categories.create", "products.create", "products.edit")),
                           tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
     name = body.get("name")
     if not name: return err("Name is required", 400)
