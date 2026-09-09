@@ -35,6 +35,7 @@ import {
 import { api, TENANT_STORAGE_KEY } from "@/lib/api";
 import { toast } from "react-toastify";
 import { ConfirmModal, CustomPromptModal } from "@/components/custom";
+import { getCategoryIcon } from "@/lib/categoryIcons";
 
 interface TableOption {
   id: string;
@@ -116,6 +117,8 @@ export default function RestaurantPOSPage() {
     title: "",
   });
 
+  const [dbCategories, setDbCategories] = useState<any[]>([]);
+
   // Load tenant/store info & real DB data
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -134,17 +137,27 @@ export default function RestaurantPOSPage() {
         }
       }
 
+      try {
+        const resCatList = await api.get("/v1/products/categories");
+        const cData = (resCatList as any)?.data ?? resCatList ?? [];
+        if (Array.isArray(cData)) {
+          setDbCategories(cData);
+        }
+      } catch (e) {
+        console.error("Failed to load category metadata:", e);
+      }
+
       const resProd = await api.get("/products", { params: { limit: 150 } });
       const pData = (resProd as any)?.data ?? resProd ?? [];
       if (Array.isArray(pData)) {
-        const mappedProducts: MenuItem[] = pData.map((p: any, idx: number) => ({
+        const mappedProducts: MenuItem[] = pData.map((p: any) => ({
           id: p.id,
           name: p.name,
-          category: p.category?.name || p.categoryName || "Main Course",
+          category: p.category?.name || p.categoryName || "General",
           sellingPrice: Number(p.sellingPrice || p.price || 0),
-          image: p.imageUrl || p.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80",
-          isPopular: idx % 3 === 0,
-          isVeg: idx % 4 === 0,
+          image: p.imageUrl || p.image || "",
+          isPopular: Boolean(p.isPopular),
+          isVeg: Boolean(p.isVeg),
           description: p.description || "",
         }));
         setProducts(mappedProducts);
@@ -185,11 +198,16 @@ export default function RestaurantPOSPage() {
   const categories = [
     { id: "All Items", label: "All Items", icon: LayoutGrid },
     { id: "Popular", label: "Popular", icon: Star },
-    ...dynamicCategories.map((cat) => ({
-      id: cat,
-      label: cat,
-      icon: cat.toLowerCase().includes("drink") ? Coffee : ChefHat,
-    })),
+    ...dynamicCategories.map((cat) => {
+      const dbCat = dbCategories.find(
+        (c: any) => c.name?.toLowerCase() === cat.toLowerCase()
+      );
+      return {
+        id: cat,
+        label: cat,
+        icon: getCategoryIcon(dbCat?.icon, cat),
+      };
+    }),
   ];
 
   const fmt = (n: number) =>
@@ -588,66 +606,92 @@ export default function RestaurantPOSPage() {
               <div
                 className={
                   viewMode === "grid"
-                    ? "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3"
-                    : "space-y-2"
+                    ? "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5"
+                    : "space-y-2.5"
                 }
               >
                 {filteredProducts.map((item) => (
                   <div
                     key={item.id}
                     onClick={() => addToCart(item)}
-                    className={`group relative flex flex-col justify-between rounded-md border border-slate-200 bg-white p-2.5 shadow-xs hover:border-orange-500 transition-all duration-150 cursor-pointer overflow-hidden ${
-                      viewMode === "list" ? "flex-row items-center" : ""
+                    className={`group relative flex rounded-md border border-slate-200 bg-white shadow-2xs hover:border-orange-500 hover:shadow-xs transition-all duration-150 cursor-pointer overflow-hidden ${
+                      viewMode === "list"
+                        ? "flex-row items-center p-2.5 gap-3"
+                        : "flex-col justify-between"
                     }`}
                   >
+                    {/* Dish Image / Placeholder Container (Flush on top, left, right in Grid View) */}
                     <div
-                      className={`relative overflow-hidden rounded-md bg-slate-100 ${
-                        viewMode === "list" ? "h-12 w-12 shrink-0" : "h-28 w-full mb-2"
+                      className={`relative overflow-hidden bg-slate-50 flex items-center justify-center shrink-0 ${
+                        viewMode === "list"
+                          ? "h-16 w-16 rounded-md"
+                          : "h-32 w-full border-b border-slate-100"
                       }`}
                     >
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-200"
-                      />
-                      <div className="absolute left-1.5 top-1.5 flex items-center gap-1">
-                        {item.isPopular && (
-                          <span
-                            className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-white shadow-xs"
-                            title="Popular Item"
-                          >
-                            <Star size={10} fill="white" />
-                          </span>
-                        )}
-                        {item.isVeg && (
-                          <span
-                            className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white shadow-xs"
-                            title="Vegetarian"
-                          >
-                            <Leaf size={10} fill="white" />
-                          </span>
-                        )}
-                      </div>
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center text-slate-300 gap-1">
+                          <Utensils size={viewMode === "list" ? 20 : 28} />
+                          {viewMode !== "list" && (
+                            <span className="text-[10px] text-slate-400 font-medium">No Image</span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Real Badges from DB */}
+                      {(item.isPopular || item.isVeg) && (
+                        <div className="absolute left-2 top-2 flex items-center gap-1 z-10">
+                          {item.isPopular && (
+                            <span
+                              className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-white shadow-xs"
+                              title="Popular Item"
+                            >
+                              <Star size={11} fill="white" />
+                            </span>
+                          )}
+                          {item.isVeg && (
+                            <span
+                              className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white shadow-xs"
+                              title="Vegetarian"
+                            >
+                              <Leaf size={11} fill="white" />
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
 
-                    <div className="flex-1 min-w-0 pr-2">
-                      <h3 className="font-bold text-xs text-gray-800 line-clamp-1 group-hover:text-orange-600 transition">
-                        {item.name}
-                      </h3>
-                      <span className="font-extrabold text-xs text-gray-900 mt-0.5 block">
-                        {fmt(item.sellingPrice)}
-                      </span>
-                    </div>
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart(item);
-                      }}
-                      className="flex h-6 w-6 items-center justify-center rounded-md bg-orange-600 text-white shadow-xs hover:bg-orange-700 transition cursor-pointer shrink-0"
+                    {/* Title & Price & Right Add Button Row */}
+                    <div
+                      className={`flex items-end justify-between gap-2 ${
+                        viewMode === "list" ? "flex-1 min-w-0" : "p-3 w-full flex-1"
+                      }`}
                     >
-                      <Plus size={14} />
-                    </button>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-sm text-gray-800 line-clamp-1 group-hover:text-orange-600 transition">
+                          {item.name}
+                        </h3>
+                        <span className="font-black text-sm text-orange-600 mt-1 block tabular-nums">
+                          {fmt(item.sellingPrice)}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart(item);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-md bg-orange-600 text-white shadow-xs hover:bg-orange-700 transition cursor-pointer shrink-0"
+                        title="Add to Order"
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
