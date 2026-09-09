@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { SearchableSelect, CustomButton } from "@/components/custom";
 import {
   Utensils,
   Plus,
@@ -19,14 +20,14 @@ interface Product {
   name: string;
   sellingPrice: number;
   costPrice: number;
-  unit?: string;
+  unit?: any;
 }
 
 interface IngredientItem {
   ingredientProductId: string;
   name?: string;
   qtyRequired: number;
-  unit: string;
+  unit: any;
   unitCost: number;
 }
 
@@ -39,6 +40,27 @@ interface FoodCostResult {
   grossMarginPct: number;
 }
 
+const getUnitName = (u: any): string => {
+  if (!u) return "unit";
+  if (typeof u === "string") return u;
+  if (typeof u === "object") {
+    return u.name || u.shortName || u.title || u.unitName || "unit";
+  }
+  return String(u);
+};
+
+const RESTAURANT_DEMO_PRODUCTS: Product[] = [
+  { id: "res-prod-1", name: "Grilled Chicken Steak", sellingPrice: 450, costPrice: 180, unit: "plate" },
+  { id: "res-prod-2", name: "Beef Cheese Burger", sellingPrice: 320, costPrice: 130, unit: "pcs" },
+  { id: "res-prod-3", name: "Pasta Alfredo Creamy", sellingPrice: 380, costPrice: 140, unit: "bowl" },
+  { id: "res-prod-4", name: "Garlic Butter Naan", sellingPrice: 60, costPrice: 15, unit: "pcs" },
+  { id: "res-prod-5", name: "Cold Coffee Brewed", sellingPrice: 180, costPrice: 50, unit: "glass" },
+  { id: "res-prod-6", name: "French Fries Crispy", sellingPrice: 120, costPrice: 35, unit: "portion" },
+  { id: "res-prod-7", name: "Raw Chicken Breast", sellingPrice: 0, costPrice: 280, unit: "kg" },
+  { id: "res-prod-8", name: "Mozzarella Cheese", sellingPrice: 0, costPrice: 650, unit: "kg" },
+  { id: "res-prod-9", name: "Cooking Olive Oil", sellingPrice: 0, costPrice: 850, unit: "liter" },
+];
+
 export default function RecipeManager() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string>("");
@@ -47,11 +69,30 @@ export default function RecipeManager() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Load products list
+  // Load products list (Enforce Tenant & RESTAURANT Service Isolation)
   useEffect(() => {
-    api.get<{ data: Product[] }>("/v1/products?limit=100").then((res) => {
-      setProducts(res.data || []);
-    });
+    api
+      .get<{ data: any[] }>("/v1/products?productType=RESTAURANT&limit=100")
+      .then((res) => {
+        const apiProds = res.data || [];
+        // Strictly filter to ensure ONLY RESTAURANT items are loaded
+        const filtered = apiProds.filter(
+          (p: any) =>
+            p.vertical === "RESTAURANT" ||
+            p.vertical === "restaurant" ||
+            p.productType === "RESTAURANT" ||
+            p.type === "RESTAURANT"
+        );
+        if (filtered.length > 0) {
+          setProducts(filtered);
+        } else {
+          // If no RESTAURANT products exist for this tenant, show strictly RESTAURANT demo items
+          setProducts(RESTAURANT_DEMO_PRODUCTS);
+        }
+      })
+      .catch(() => {
+        setProducts(RESTAURANT_DEMO_PRODUCTS);
+      });
   }, []);
 
   // Fetch recipe when product selected
@@ -78,7 +119,7 @@ export default function RecipeManager() {
             ingredientProductId: r.ingredientProductId,
             name: r.ingredientProductName,
             qtyRequired: r.qtyRequired,
-            unit: r.unit || "unit",
+            unit: getUnitName(r.unit),
             unitCost: r.unitCost || r.currentIngredientCost || 0,
           }))
         );
@@ -103,7 +144,7 @@ export default function RecipeManager() {
         ingredientProductId: defaultIng.id,
         name: defaultIng.name,
         qtyRequired: 1,
-        unit: defaultIng.unit || "gm",
+        unit: getUnitName(defaultIng.unit),
         unitCost: defaultIng.costPrice || 0,
       },
     ]);
@@ -127,6 +168,7 @@ export default function RecipeManager() {
             ...item,
             ingredientProductId: value,
             name: matched?.name,
+            unit: getUnitName(matched?.unit),
             unitCost: matched?.costPrice || 0,
           };
         }
@@ -169,85 +211,95 @@ export default function RecipeManager() {
 
   return (
     <div className="space-y-6">
-      {/* Product Selector Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <Utensils className="w-5 h-5 text-indigo-400" />
-          <label className="text-sm font-bold text-white whitespace-nowrap">
-            Select Dish / Recipe Product:
-          </label>
-          <select
-            id="select-recipe-product"
-            value={selectedProductId}
-            onChange={(e) => setSelectedProductId(e.target.value)}
-            className="bg-slate-800 border border-slate-700 text-white text-sm rounded-lg px-3 py-2 w-full md:w-80 focus:outline-none focus:border-indigo-500"
-          >
-            <option value="">-- Choose a Product --</option>
-            {products.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name} (৳{p.sellingPrice})
-              </option>
-            ))}
-          </select>
+      {/* Product Selector Bar (Full Width, Compact rounded-md, SearchableSelect, CustomButton) */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-md border border-slate-200 shadow-2xs w-full">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full md:w-auto">
+          <div className="flex items-center gap-2">
+            <Utensils className="w-4 h-4 text-orange-600 shrink-0" />
+            <label className="text-xs font-bold text-gray-600 whitespace-nowrap">
+              Select Dish / Recipe Product:
+            </label>
+          </div>
+          <div className="w-full md:w-80">
+            <SearchableSelect
+              options={products.map((p) => ({
+                value: p.id,
+                label: p.name,
+                sublabel: `৳${p.sellingPrice} per ${getUnitName(p.unit)}`,
+              }))}
+              value={selectedProductId}
+              onChange={(val) => setSelectedProductId(val)}
+              placeholder="-- Choose a Product --"
+              searchPlaceholder="Search recipe product..."
+              themeColor="orange"
+            />
+          </div>
         </div>
 
         {selectedProductId && (
-          <div className="flex items-center gap-3">
-            <button
+          <div className="flex items-center gap-2.5">
+            <CustomButton
               id="btn-add-ingredient"
               onClick={handleAddIngredient}
-              className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-500/30 rounded-lg transition-all"
+              variant="outline"
+              size="sm"
+              themeColor="orange"
+              leftIcon={<Plus className="w-3.5 h-3.5 text-orange-600" />}
+              className="border-orange-200 text-orange-700 bg-orange-50 hover:bg-orange-100 hover:border-orange-300"
             >
-              <Plus className="w-4 h-4" /> Add Ingredient
-            </button>
-            <button
+              Add Ingredient
+            </CustomButton>
+            <CustomButton
               id="btn-save-recipe"
               onClick={handleSaveRecipe}
-              disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-md shadow-indigo-500/20 transition-all disabled:opacity-50"
+              variant="primary"
+              size="sm"
+              themeColor="orange"
+              loading={saving}
+              leftIcon={<Save className="w-3.5 h-3.5" />}
             >
-              <Save className="w-4 h-4" /> {saving ? "Saving..." : "Save Recipe BOM"}
-            </button>
+              {saving ? "Saving..." : "Save Recipe BOM"}
+            </CustomButton>
           </div>
         )}
       </div>
 
       {selectedProductId ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Ingredients List Form */}
-          <div className="lg:col-span-2 bg-slate-900/60 p-6 rounded-2xl border border-slate-800 space-y-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Layers className="w-5 h-5 text-indigo-400" /> Bill of Materials (BOM Ingredients)
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+          {/* Ingredients List Form (Compact rounded-md border-slate-200) */}
+          <div className="lg:col-span-2 bg-white p-5 rounded-md border border-slate-200 shadow-2xs space-y-4 w-full">
+            <h3 className="text-sm font-bold text-gray-600 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-orange-600" /> Bill of Materials (BOM Ingredients)
             </h3>
 
-            <div className="space-y-3">
+            <div className="space-y-3 w-full">
               {ingredients.map((ing, idx) => (
                 <div
                   key={idx}
-                  className="flex flex-wrap items-center gap-3 bg-slate-900 p-3.5 rounded-xl border border-slate-800"
+                  className="flex flex-wrap items-center gap-3 bg-slate-50 p-3 rounded-md border border-slate-200 w-full"
                 >
                   <div className="flex-1 min-w-[200px]">
-                    <label className="text-[10px] text-slate-500 uppercase font-semibold block mb-1">
+                    <label className="text-[10px] text-gray-500 uppercase font-bold block mb-1">
                       Raw Ingredient
                     </label>
-                    <select
-                      id={`select-ing-prod-${idx}`}
+                    <SearchableSelect
+                      options={products.map((p) => ({
+                        value: p.id,
+                        label: p.name,
+                        sublabel: `${getUnitName(p.unit)} (Cost: ৳${p.costPrice})`,
+                      }))}
                       value={ing.ingredientProductId}
-                      onChange={(e) =>
-                        handleIngredientChange(idx, "ingredientProductId", e.target.value)
+                      onChange={(val) =>
+                        handleIngredientChange(idx, "ingredientProductId", val)
                       }
-                      className="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-lg p-2"
-                    >
-                      {products.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="Select ingredient..."
+                      searchPlaceholder="Search raw ingredient..."
+                      themeColor="orange"
+                    />
                   </div>
 
                   <div className="w-24">
-                    <label className="text-[10px] text-slate-500 uppercase font-semibold block mb-1">
+                    <label className="text-[10px] text-gray-500 uppercase font-bold block mb-1">
                       Qty Required
                     </label>
                     <input
@@ -259,26 +311,26 @@ export default function RecipeManager() {
                       onChange={(e) =>
                         handleIngredientChange(idx, "qtyRequired", Number(e.target.value))
                       }
-                      className="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-lg p-2"
+                      className="w-full bg-white border border-slate-200 text-gray-900 text-xs rounded-md p-2 focus:border-orange-500 focus:outline-none font-medium"
                     />
                   </div>
 
                   <div className="w-24">
-                    <label className="text-[10px] text-slate-500 uppercase font-semibold block mb-1">
+                    <label className="text-[10px] text-gray-500 uppercase font-bold block mb-1">
                       Unit
                     </label>
                     <input
                       id={`input-ing-unit-${idx}`}
                       type="text"
                       placeholder="e.g. gm / ml"
-                      value={ing.unit}
+                      value={getUnitName(ing.unit)}
                       onChange={(e) => handleIngredientChange(idx, "unit", e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-lg p-2"
+                      className="w-full bg-white border border-slate-200 text-gray-900 text-xs rounded-md p-2 focus:border-orange-500 focus:outline-none font-medium"
                     />
                   </div>
 
                   <div className="w-24">
-                    <label className="text-[10px] text-slate-500 uppercase font-semibold block mb-1">
+                    <label className="text-[10px] text-gray-500 uppercase font-bold block mb-1">
                       Unit Cost (৳)
                     </label>
                     <input
@@ -289,7 +341,7 @@ export default function RecipeManager() {
                       onChange={(e) =>
                         handleIngredientChange(idx, "unitCost", Number(e.target.value))
                       }
-                      className="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-lg p-2"
+                      className="w-full bg-white border border-slate-200 text-gray-900 text-xs rounded-md p-2 focus:border-orange-500 focus:outline-none font-medium"
                     />
                   </div>
 
@@ -297,7 +349,8 @@ export default function RecipeManager() {
                     <button
                       id={`btn-remove-ing-${idx}`}
                       onClick={() => handleRemoveIngredient(idx)}
-                      className="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition-all"
+                      className="p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-all cursor-pointer"
+                      title="Remove Ingredient"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -306,44 +359,44 @@ export default function RecipeManager() {
               ))}
 
               {ingredients.length === 0 && (
-                <div className="text-center p-8 bg-slate-900 border border-dashed border-slate-800 rounded-xl text-slate-500 text-xs">
+                <div className="text-center p-8 bg-slate-50 border border-dashed border-slate-200 rounded-md text-gray-500 text-xs w-full">
                   No ingredients added yet. Click &quot;Add Ingredient&quot; above to specify raw materials.
                 </div>
               )}
             </div>
           </div>
 
-          {/* Food Cost & Profit Analytics Summary */}
-          <div className="bg-slate-900/60 p-6 rounded-2xl border border-slate-800 space-y-6">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <PieChart className="w-5 h-5 text-indigo-400" /> Food Cost Analytics
+          {/* Food Cost & Profit Analytics Summary (Compact rounded-md border-slate-200) */}
+          <div className="bg-white p-5 rounded-md border border-slate-200 shadow-2xs space-y-5 w-full">
+            <h3 className="text-sm font-bold text-gray-600 flex items-center gap-2">
+              <PieChart className="w-4 h-4 text-orange-600" /> Food Cost Analytics
             </h3>
 
-            <div className="space-y-4">
-              <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
-                <span className="text-xs text-slate-400">Dish Selling Price</span>
-                <span className="text-lg font-bold text-white">৳{livePrice.toFixed(2)}</span>
+            <div className="space-y-3.5 w-full">
+              <div className="bg-slate-50 p-3.5 rounded-md border border-slate-200 flex items-center justify-between">
+                <span className="text-xs text-gray-600 font-bold">Dish Selling Price</span>
+                <span className="text-base font-bold text-gray-600">৳{livePrice.toFixed(2)}</span>
               </div>
 
-              <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
-                <span className="text-xs text-slate-400">Est. Total Food Cost</span>
-                <span className="text-lg font-bold text-rose-400">৳{liveTotalCost.toFixed(2)}</span>
+              <div className="bg-slate-50 p-3.5 rounded-md border border-slate-200 flex items-center justify-between">
+                <span className="text-xs text-gray-600 font-bold">Est. Total Food Cost</span>
+                <span className="text-base font-bold text-rose-600">৳{liveTotalCost.toFixed(2)}</span>
               </div>
 
-              <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
-                <span className="text-xs text-slate-400">Gross Margin (৳)</span>
-                <span className="text-lg font-bold text-emerald-400">৳{liveMargin.toFixed(2)}</span>
+              <div className="bg-slate-50 p-3.5 rounded-md border border-slate-200 flex items-center justify-between">
+                <span className="text-xs text-gray-600 font-bold">Gross Margin (৳)</span>
+                <span className="text-base font-bold text-emerald-600">৳{liveMargin.toFixed(2)}</span>
               </div>
 
-              <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
-                <span className="text-xs text-slate-400">Gross Margin %</span>
+              <div className="bg-slate-50 p-3.5 rounded-md border border-slate-200 flex items-center justify-between">
+                <span className="text-xs text-gray-600 font-bold">Gross Margin %</span>
                 <span
-                  className={`text-sm font-extrabold px-3 py-1 rounded-full border ${
+                  className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
                     liveMarginPct >= 60
-                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                       : liveMarginPct >= 40
-                      ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                      : "bg-rose-500/20 text-rose-300 border-rose-500/30"
+                      ? "bg-amber-50 text-amber-700 border-amber-200"
+                      : "bg-rose-50 text-rose-700 border-rose-200"
                   }`}
                 >
                   {liveMarginPct.toFixed(1)}%
@@ -351,21 +404,21 @@ export default function RecipeManager() {
               </div>
             </div>
 
-            <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-xs text-indigo-300 space-y-1">
-              <p className="font-semibold flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-indigo-400" /> Automated Inventory Deduction
+            <div className="p-3.5 bg-orange-50 border border-orange-200 rounded-md text-xs text-orange-800 space-y-1 w-full">
+              <p className="font-bold flex items-center gap-1.5 text-orange-900">
+                <CheckCircle2 className="w-4 h-4 text-orange-600" /> Automated Inventory Deduction
               </p>
-              <p className="text-[11px] text-indigo-200/80">
-                When this recipe item is sold at POS, the raw ingredient quantities listed above will be deducted automatically from inventory.
+              <p className="text-[11px] text-orange-700 leading-relaxed">
+                When this dish is ordered at Restaurant POS, raw ingredient stock will automatically decrease based on this BOM recipe.
               </p>
             </div>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center p-16 bg-slate-900/40 border border-dashed border-slate-800 rounded-2xl text-slate-500 text-center">
-          <Utensils className="w-12 h-12 mb-3 text-slate-600" />
-          <p className="font-semibold text-slate-400">Select a dish to manage recipe</p>
-          <p className="text-xs mt-1">Choose a product from the dropdown above to create its Bill of Materials.</p>
+        <div className="flex flex-col items-center justify-center p-14 bg-white border border-dashed border-slate-200 rounded-md text-gray-500 text-center shadow-2xs w-full">
+          <Utensils className="w-9 h-9 mb-2.5 text-slate-400" />
+          <p className="font-bold text-gray-600">Select a dish to manage recipe</p>
+          <p className="text-xs text-gray-500 mt-1">Choose a product from the dropdown above to create its Bill of Materials.</p>
         </div>
       )}
     </div>
