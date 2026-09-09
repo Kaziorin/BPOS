@@ -32,9 +32,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = localStorage.getItem("modernpos_token");
     if (stored && token) {
       setUser(JSON.parse(stored));
+      // Validate session with backend DB
+      api.get<{ user: AuthUser }>("/auth/me")
+        .then((res) => {
+          if (res?.user) {
+            setUser(res.user);
+          }
+        })
+        .catch(() => {
+          localStorage.removeItem("modernpos_token");
+          localStorage.removeItem("modernpos_user");
+          localStorage.removeItem(TENANT_STORAGE_KEY);
+          setUser(null);
+          router.push("/login");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  }, [router]);
 
   async function login(email: string, password: string, tenantSlug?: string) {
     const res = await api.post<{

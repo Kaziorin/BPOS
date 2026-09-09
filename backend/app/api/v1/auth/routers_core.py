@@ -72,6 +72,23 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
     )
 
 
+@router.get("/api/auth/me")
+@router.get("/api/v1/auth/me")
+async def get_me(user: AuthUser = Depends(require_auth)):
+    return ok({
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "tenantId": user.tenantId,
+            "branchId": user.branchId,
+            "role": user.role,
+            "roleName": user.role,
+            "businessType": user.businessType,
+        }
+    })
+
+
 @router.post("/api/auth/register")
 @router.post("/api/v1/auth/register")
 async def register(body: dict, db: AsyncSession = Depends(get_db)):

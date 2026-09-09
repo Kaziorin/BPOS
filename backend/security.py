@@ -60,6 +60,14 @@ async def require_auth(request: Request, db: AsyncSession = Depends(get_db)) -> 
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
     except Exception:
         raise HTTPException(401, "Invalid or expired token")
+    
+    # Verify that the user still exists and is active in DB
+    user_id = payload.get("id")
+    if user_id:
+        user_row = (await db.execute(text("SELECT id, status FROM users WHERE id = :id"), {"id": user_id})).first()
+        if not user_row or user_row[1] != "ACTIVE":
+            raise HTTPException(401, "User account not found or deactivated")
+
     request.state.user = AuthUser(payload)
     return request.state.user
 
@@ -140,6 +148,14 @@ def require_permission(*codes: str):
             payload = jwt.decode(authorization[7:], JWT_SECRET, algorithms=["HS256"])
         except Exception:
             raise HTTPException(401, "Invalid or expired token")
+        
+        # Verify that the user still exists and is active in DB
+        user_id = payload.get("id")
+        if user_id:
+            user_row = (await db.execute(text("SELECT id, status FROM users WHERE id = :id"), {"id": user_id})).first()
+            if not user_row or user_row[1] != "ACTIVE":
+                raise HTTPException(401, "User account not found or deactivated")
+
         user = AuthUser(payload)
         request.state.user = user
 
