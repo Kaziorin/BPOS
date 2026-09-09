@@ -8,7 +8,7 @@ import {
   CreditCard, ArrowRight, ShoppingBag, Clock, Users, History,
   Settings, Tag, RotateCcw, ScanLine, Gift, Package, Star,
   Apple, Coffee, Home, Wallet, FileText, X,
-  Layers, Grid, AlignLeft, Camera,
+  Layers, Grid, AlignLeft, Camera, Info, AlertCircle,
   Utensils, Snowflake, Fish, Sparkles, Heart, ShieldCheck, ChevronDown,
 } from "lucide-react";
 import { api } from "@/lib/api";
@@ -47,6 +47,13 @@ function getEmoji(name: string) {
 }
 function getEmojiColor(_emoji: string) {
   return "#ffffff";
+}
+
+function getCustomerTier(pts: number) {
+  if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-100" };
+  if (pts >= 1500) return { name: "Gold", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" };
+  if (pts >= 500) return { name: "Silver", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-100" };
+  return { name: "Bronze", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-100" };
 }
 
 const DEMO_PRODUCTS: Product[] = [
@@ -133,7 +140,21 @@ export default function GroceryPOSPage() {
 
   // Additional Modal States
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState({ name: "Walk-in Customer", type: "Default Customer", points: 120, phone: "01700000000" });
+  const [selectedCustomer, setSelectedCustomer] = useState({ name: "Walk-in Customer", type: "Default Customer", points: 120, phone: "01700000000", email: "", address: "" });
+  const [customerList, setCustomerList] = useState([
+    { name: "Walk-in Customer", type: "Default Customer", points: 120, phone: "N/A", email: "", address: "" },
+    { name: "Rahim Ahmed", type: "VIP Member", points: 450, phone: "01812345678", email: "rahim@example.com", address: "Dhaka" },
+    { name: "Sharmin Sultana", type: "Premium Member", points: 890, phone: "01987654321", email: "sharmin@example.com", address: "Chittagong" },
+    { name: "Tanvir Hossain", type: "Regular Customer", points: 210, phone: "01611223344", email: "tanvir@example.com", address: "Sylhet" },
+  ]);
+  const [isAddingCustomer, setIsAddingCustomer] = useState(false);
+  const [newCustName, setNewCustName] = useState("");
+  const [newCustPhone, setNewCustPhone] = useState("");
+  const [newCustEmail, setNewCustEmail] = useState("");
+  const [newCustAddress, setNewCustAddress] = useState("");
+  const [newCustType, setNewCustType] = useState("Regular Customer");
+  const [newCustPoints, setNewCustPoints] = useState("100");
+  const [customerSearchQuery, setCustomerSearchQuery] = useState("");
   const [priceCheckOpen, setPriceCheckOpen] = useState(false);
   const [priceCheckQuery, setPriceCheckQuery] = useState("");
   const [recentSalesOpen, setRecentSalesOpen] = useState(false);
@@ -141,6 +162,9 @@ export default function GroceryPOSPage() {
   const [offersOpen, setOffersOpen] = useState(false);
   const [heldCartsOpen, setHeldCartsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [loyaltyModalOpen, setLoyaltyModalOpen] = useState(false);
+  const [liveInvoiceModalOpen, setLiveInvoiceModalOpen] = useState(false);
+  const [isLoyaltyApplied, setIsLoyaltyApplied] = useState(false);
   const [drawerToast, setDrawerToast] = useState(false);
   const [couponToast, setCouponToast] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -176,7 +200,86 @@ export default function GroceryPOSPage() {
       if (arr.length > 0) setProducts(arr);
     } catch { }
   }, []);
-  useEffect(() => { loadProducts(); scanRef.current?.focus(); }, [loadProducts]);
+
+  const loadCustomers = useCallback(async () => {
+    try {
+      const res: any = await api.get("/customers");
+      const d = res?.data?.data ?? res?.data ?? res ?? [];
+      if (Array.isArray(d) && d.length > 0) {
+        const formatted = d.map((c: any) => ({
+          name: c.name || "Unknown Customer",
+          phone: c.phone || "N/A",
+          type: c.type || c.customerGroup?.name || "Regular Customer",
+          points: c.loyaltyPoints || 100,
+        }));
+        setCustomerList(formatted);
+      }
+    } catch { }
+  }, []);
+
+  useEffect(() => { loadProducts(); loadCustomers(); scanRef.current?.focus(); }, [loadProducts, loadCustomers]);
+
+  const handleSaveNewCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCustName.trim()) return;
+    const createdCust = {
+      name: newCustName.trim(),
+      phone: newCustPhone.trim() || "N/A",
+      email: newCustEmail.trim(),
+      address: newCustAddress.trim(),
+      type: "Regular Customer",
+      points: 0,
+    };
+    try {
+      await api.post("/customers", {
+        name: createdCust.name,
+        phone: createdCust.phone,
+        email: createdCust.email,
+        address: createdCust.address,
+        status: "ACTIVE",
+      });
+    } catch { }
+
+    setCustomerList(prev => [createdCust, ...prev]);
+    setSelectedCustomer(createdCust);
+    setNewCustName("");
+    setNewCustPhone("");
+    setNewCustEmail("");
+    setNewCustAddress("");
+    setNewCustPoints("100");
+    setIsAddingCustomer(false);
+    setCustomerModalOpen(false);
+    setCouponToast(`New customer '${createdCust.name}' created & selected!`);
+    setTimeout(() => setCouponToast(""), 3000);
+  };
+
+  const handleLoyaltyClick = () => {
+    const pts = selectedCustomer.points || 0;
+    
+    // Toggle off if already applied
+    if (isLoyaltyApplied) {
+      setIsLoyaltyApplied(false);
+      setDiscountPct("0.00");
+      setCouponToast("Loyalty Cashback removed from cart.");
+      setTimeout(() => setCouponToast(""), 3000);
+      return;
+    }
+
+    // Minimum 500 points requirement check
+    if (pts < 500) {
+      const needed = 500 - pts;
+      setCouponToast(`⚠️ Cashback alert: Minimum 500 points required! You need ${needed} more points.`);
+      setTimeout(() => setCouponToast(""), 3500);
+      return;
+    }
+
+    // Toggle on (Apply cashback)
+    const cbPct = pts >= 4000 ? 10 : pts >= 1500 ? 7.5 : 5;
+    setIsLoyaltyApplied(true);
+    setDiscountPct(cbPct.toFixed(2));
+    setCouponToast(`${cbPct}% Loyalty Cashback Applied to Cart! Click again to remove.`);
+    setTimeout(() => setCouponToast(""), 3500);
+  };
 
   const fmt = (n: number) => `৳${Number(n || 0).toLocaleString("en-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -345,7 +448,7 @@ export default function GroceryPOSPage() {
       else if (e.key === "F7") { e.preventDefault(); if (cart.length) holdCart(); else setHeldCartsOpen(true); }
       else if (e.key === "F8") { e.preventDefault(); setRecentSalesOpen(true); }
       else if (e.key === "F9") { e.preventDefault(); triggerCashDrawer(); }
-      else if (e.key === "F10") { e.preventDefault(); setCustomerModalOpen(true); }
+      else if (e.key === "F10") { e.preventDefault(); setIsAddingCustomer(true); setCustomerModalOpen(true); }
       else if (e.key === "F11") { e.preventDefault(); clearCart(); }
       else if (e.key === "F12") { e.preventDefault(); window.print(); }
     };
@@ -374,6 +477,7 @@ export default function GroceryPOSPage() {
   const filteredProducts = products.filter(p => { const matchCat = selectedCat === "All Items" || (p.category?.name || "Grocery") === selectedCat; const q = searchFilter.toLowerCase().trim(); return matchCat && (!q || p.name.toLowerCase().includes(q) || p.sku?.toLowerCase().includes(q) || p.barcode?.includes(q)); });
 
   return (
+    <>
     <div className="relative flex flex-col h-screen w-screen bg-white select-none overflow-hidden" style={{ fontFamily: "'Inter','Segoe UI',sans-serif" }}>
 
       {/* ══ ORGANIC CURVED WAVE BACKDROP — EXACT RGBA(187, 238, 100) GRADIENT ══ */}
@@ -494,9 +598,9 @@ export default function GroceryPOSPage() {
         {/* Header Info Cards */}
         <div className="relative z-10 flex items-center gap-2">
           {[
-            { icon: <Users size={14} strokeWidth={2.5} />, bg: "bg-emerald-100 text-emerald-900 border-emerald-300", label: selectedCustomer.name, sub: selectedCustomer.type, onClick: () => setCustomerModalOpen(true) },
-            { icon: <span className="text-xs font-bold">★</span>, bg: "bg-emerald-700 text-white shadow-xs animate-pulse", label: "Loyalty Points", sub: `${selectedCustomer.points} Pts`, onClick: () => setCustomerModalOpen(true) },
-            { icon: <FileText size={14} strokeWidth={2.2} />, bg: "bg-emerald-100 text-emerald-900 border-emerald-300", label: "Invoice", sub: "INV-250520-0012", onClick: () => setRecentSalesOpen(true) },
+            { icon: <Users size={14} strokeWidth={2.5} />, bg: "bg-emerald-100 text-emerald-900 border-emerald-300", label: selectedCustomer.name, sub: getCustomerTier(selectedCustomer.points).name + " Member", onClick: () => setCustomerModalOpen(true) },
+            { icon: <span className="text-xs font-bold">★</span>, bg: "bg-emerald-700 text-white shadow-xs animate-pulse", label: "Loyalty Points", sub: `${selectedCustomer.points} Pts`, onClick: handleLoyaltyClick },
+            { icon: <FileText size={14} strokeWidth={2.2} />, bg: "bg-emerald-100 text-emerald-900 border-emerald-300", label: "Invoice", sub: "INV-250520-0012", onClick: () => setLiveInvoiceModalOpen(true) },
             { icon: <Clock size={14} strokeWidth={2.2} />, bg: "bg-emerald-100 text-emerald-900 border-emerald-300", label: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), sub: now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) },
           ].map((c, i) => (
             <div key={i} onClick={c.onClick} className="flex items-center gap-2 bg-white/90 hover:bg-white rounded-xl px-3 py-1.5 border border-emerald-300/80 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
@@ -694,7 +798,7 @@ export default function GroceryPOSPage() {
               {[
                 { label: "Sales History", key: "F8", icon: <History size={16} />, onClick: () => setRecentSalesOpen(true) },
                 { label: "Open Drawer", key: "F9", icon: <Printer size={16} />, onClick: triggerCashDrawer },
-                { label: "Add Customer", key: "F10", icon: <Users size={16} />, onClick: () => setCustomerModalOpen(true) },
+                { label: "Add Customer", key: "F10", icon: <Users size={16} />, onClick: () => { setIsAddingCustomer(true); setCustomerModalOpen(true); } },
                 { label: "Clear Cart", key: "F11", icon: <Trash2 size={16} />, isDanger: true, onClick: clearCart },
                 { label: "Save & Print", key: "F12", icon: <Printer size={16} />, onClick: () => window.print() },
               ].map((a) => (
@@ -871,23 +975,23 @@ export default function GroceryPOSPage() {
                   <span className="text-lg font-extrabold text-emerald-600">৳ {grandTotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center text-[11px] pt-0.5">
-                  <span className="text-slate-600 font-semibold">Cash Given (জমা):</span>
+                  <span className="text-slate-600 font-semibold">Cash Given:</span>
                   <span className="text-slate-900 font-mono font-bold">৳ {paidAmount.toFixed(2)}</span>
                 </div>
               </div>
               {changeDue > 0 ? (
                 <div className="mt-1 bg-emerald-600 text-white py-1 px-2.5 rounded-lg font-extrabold text-xs shadow-xs animate-in zoom-in-95 flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-wide opacity-90">Change (ফেরত):</span>
+                  <span className="text-[10px] uppercase tracking-wide opacity-90">Change:</span>
                   <span className="font-mono text-sm font-black">৳ {changeDue.toFixed(2)}</span>
                 </div>
               ) : remainingDue > 0 ? (
                 <div className="mt-1 bg-amber-500 text-white py-1 px-2.5 rounded-lg font-extrabold text-xs shadow-xs flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-wide opacity-90">Due (বাকি):</span>
+                  <span className="text-[10px] uppercase tracking-wide opacity-90">Due:</span>
                   <span className="font-mono text-sm font-black">৳ {remainingDue.toFixed(2)}</span>
                 </div>
               ) : (
                 <div className="mt-1 bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-center py-0.5 px-2 rounded-lg font-bold text-[11px]">
-                  Change (ফেরত): ৳ 0.00
+                  Change: ৳ 0.00
                 </div>
               )}
             </div>
@@ -1000,49 +1104,254 @@ export default function GroceryPOSPage() {
         </div>
       </div>
 
-      {/* ══ CUSTOMER SELECTION MODAL ══ */}
+      {/* ══ CUSTOMER SELECTION & ADD CUSTOMER MODAL (F10) ══ */}
       {customerModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
-          <div className="w-[420px] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100">
+          <div className="w-[460px] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100">
+            
+            {/* Modal Header */}
             <div className="px-6 py-4 text-white flex items-center justify-between" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
               <div className="flex items-center gap-2.5">
                 <Users size={22} />
                 <div>
-                  <h3 className="font-extrabold text-base">Select Customer</h3>
-                  <p className="text-xs opacity-80">Link sale to customer for loyalty points</p>
+                  <h3 className="font-extrabold text-base">{isAddingCustomer ? "Add New Customer" : "Select Customer (F10)"}</h3>
+                  <p className="text-xs opacity-80">{isAddingCustomer ? "Register a new customer for loyalty & invoices" : "Link sale to customer for loyalty points"}</p>
                 </div>
               </div>
-              <button onClick={() => setCustomerModalOpen(false)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition">
+              <button onClick={() => { setCustomerModalOpen(false); setIsAddingCustomer(false); }} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition cursor-pointer">
                 <X size={18} />
               </button>
             </div>
-            <div className="p-5 space-y-4">
-              <div className="space-y-2">
-                {[
-                  { name: "Walk-in Customer", type: "Default Customer", points: 120, phone: "N/A" },
-                  { name: "Rahim Ahmed", type: "VIP Member", points: 450, phone: "01812345678" },
-                  { name: "Sharmin Sultana", type: "Premium Member", points: 890, phone: "01987654321" },
-                  { name: "Tanvir Hossain", type: "Regular Customer", points: 210, phone: "01611223344" },
-                ].map(c => (
-                  <button key={c.name} onClick={() => { setSelectedCustomer(c); setCustomerModalOpen(false); setCouponToast(`Customer set to ${c.name}`); setTimeout(() => setCouponToast(""), 2500); }}
-                    className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all ${selectedCustomer.name === c.name ? "border-emerald-500 bg-emerald-50/80 shadow-xs ring-2 ring-emerald-500/20" : "border-gray-200/80 bg-white hover:bg-gray-50"
-                      }`}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-black flex items-center justify-center text-sm">
-                        {c.name.slice(0, 2).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="text-xs font-black text-gray-900">{c.name}</p>
-                        <p className="text-[10px] font-semibold text-gray-400">{c.phone} • {c.type}</p>
-                      </div>
-                    </div>
-                    <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-xl">
-                      ★ {c.points} Pts
-                    </span>
-                  </button>
-                ))}
-              </div>
+
+            {/* Sub-header Navigation Tabs */}
+            <div className="flex items-center border-b border-gray-100 bg-gray-50 px-4 py-2 gap-2">
+              <button onClick={() => setIsAddingCustomer(false)}
+                className={`flex-1 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${!isAddingCustomer ? "bg-white text-emerald-700 shadow-2xs border border-gray-200" : "text-gray-500 hover:text-gray-800"}`}>
+                Select Customer ({customerList.length})
+              </button>
+              <button onClick={() => setIsAddingCustomer(true)}
+                className={`flex-1 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${isAddingCustomer ? "bg-emerald-600 text-white shadow-xs" : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"}`}>
+                ＋ Add New Customer
+              </button>
             </div>
+
+            {/* Modal Body */}
+            <div className="p-5 space-y-4">
+              {isAddingCustomer ? (
+                /* ── ADD NEW CUSTOMER FORM ── */
+                <form onSubmit={handleSaveNewCustomer} className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Full Name <span className="text-red-500">*</span></label>
+                      <input type="text" required autoFocus value={newCustName} onChange={e => setNewCustName(e.target.value)} placeholder="John Doe"
+                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Phone Number</label>
+                      <input type="tel" value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} placeholder="01711XXXXXX"
+                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Email Address</label>
+                      <input type="email" value={newCustEmail} onChange={e => setNewCustEmail(e.target.value)} placeholder="customer@example.com"
+                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Customer Group</label>
+                      <input type="text" readOnly value="Regular Customer"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-500 focus:outline-none" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Residential Address</label>
+                    <textarea rows={2} value={newCustAddress} onChange={e => setNewCustAddress(e.target.value)} placeholder="House #, Road #, Area, City"
+                      className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" />
+                  </div>
+
+                  <div className="pt-2 flex items-center gap-2.5">
+                    <button type="button" onClick={() => setIsAddingCustomer(false)}
+                      className="flex-1 py-2.5 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs font-bold text-slate-600 transition cursor-pointer">
+                      Cancel
+                    </button>
+                    <button type="submit"
+                      className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer">
+                      <Plus size={15} strokeWidth={2.5} /> Save &amp; Select
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                /* ── SELECT CUSTOMER LIST ── */
+                <div className="space-y-3">
+                  {/* Customer Search Bar */}
+                  <div className="relative">
+                    <Search size={16} className="absolute left-3.5 top-2.5 text-gray-400" />
+                    <input type="text" autoFocus value={customerSearchQuery} onChange={e => setCustomerSearchQuery(e.target.value)}
+                      placeholder="Search by name or phone number..."
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white" />
+                  </div>
+
+                  <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+                    {customerList
+                      .filter(c =>
+                        !customerSearchQuery ||
+                        c.name.toLowerCase().includes(customerSearchQuery.toLowerCase()) ||
+                        c.phone.includes(customerSearchQuery)
+                      )
+                      .map((c, idx) => {
+                        const tier = getCustomerTier(c.points);
+                        return (
+                          <button key={idx} onClick={() => { setSelectedCustomer(c); setCustomerModalOpen(false); setCouponToast(`Customer set to ${c.name}`); setTimeout(() => setCouponToast(""), 2500); }}
+                            className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${selectedCustomer.name === c.name ? "border-emerald-500 bg-emerald-50/80 shadow-xs ring-2 ring-emerald-500/20" : "border-gray-200/80 bg-white hover:bg-gray-50"
+                              }`}>
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-black flex items-center justify-center text-sm">
+                                {c.name.slice(0, 2).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="text-xs font-black text-gray-900">{c.name}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <p className="text-[10px] font-semibold text-gray-400">{c.phone}</p>
+                                  <span className={`text-[9px] font-black px-1.5 py-0.2 rounded border uppercase tracking-tighter ${tier.color} ${tier.bg} ${tier.border}`}>
+                                    {tier.name}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-xl">
+                              ★ {c.points} Pts
+                            </span>
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
+      {/* ══ CURRENT CART LIVE INVOICE PREVIEW MODAL ══ */}
+      {liveInvoiceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md animate-in fade-in p-4">
+          <div className="w-[480px] max-h-[90vh] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100 flex flex-col animate-in zoom-in-95">
+            
+            {/* Header Banner */}
+            <div className="px-6 py-4 text-white flex items-center justify-between shrink-0" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-white backdrop-blur-xs shadow-inner">
+                  <FileText size={22} strokeWidth={2.2} />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base leading-tight">Current Cart Invoice</h3>
+                  <p className="text-xs text-emerald-100 mt-0.5">Live Invoice Preview • INV-250520-0012</p>
+                </div>
+              </div>
+              <button onClick={() => setLiveInvoiceModalOpen(false)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition cursor-pointer">
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Content area */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50">
+              {cart.length === 0 ? (
+                <div className="py-12 text-center text-slate-400 bg-white rounded-2xl border border-gray-200 p-6">
+                  <ShoppingCart size={40} className="mx-auto mb-3 text-slate-300" />
+                  <p className="text-sm font-extrabold text-slate-700">Cart is currently empty</p>
+                  <p className="text-xs text-slate-400 mt-1">Add items to the cart to preview active cart invoice.</p>
+                </div>
+              ) : (
+                <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm font-mono text-xs text-slate-800 space-y-3">
+                  
+                  {/* Shop Header */}
+                  <div className="text-center border-b border-dashed border-gray-300 pb-3 space-y-1">
+                    <p className="text-base font-extrabold text-slate-950 tracking-tight uppercase">Blue Oceans Superstore</p>
+                    <p className="text-[11px] text-slate-500">Dhaka Main Outlet • POS Terminal-01</p>
+                    <p className="text-[10px] text-slate-400">BIN: 002938194-0101 • Draft Cart Invoice</p>
+                  </div>
+
+                  {/* Metadata */}
+                  <div className="space-y-1 text-[11px] text-slate-600 border-b border-dashed border-gray-300 pb-2">
+                    <div className="flex justify-between">
+                      <span>Invoice No:</span>
+                      <span className="font-bold text-slate-900">INV-250520-0012</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Date &amp; Time:</span>
+                      <span>{now.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Customer:</span>
+                      <span className="font-bold text-slate-900">{selectedCustomer.name}</span>
+                    </div>
+                  </div>
+
+                  {/* Itemized List - Only what is in cart */}
+                  <div className="space-y-1.5 text-xs py-1 border-b border-dashed border-gray-300">
+                    <div className="flex justify-between font-bold text-[10px] uppercase text-slate-400 pb-1">
+                      <span>Item</span>
+                      <span>Qty x Price</span>
+                      <span>Total</span>
+                    </div>
+                    {cart.map((item, idx) => (
+                      <div key={idx} className="flex justify-between text-[11px] py-0.5 border-b border-gray-50 last:border-0">
+                        <div className="min-w-0 max-w-[170px]">
+                          <p className="font-bold text-slate-800 truncate">{item.name}</p>
+                        </div>
+                        <div className="text-slate-500 font-mono text-[10px]">
+                          {item.qty} {item.uom || "pcs"} x ৳{item.unitPrice.toFixed(2)}
+                        </div>
+                        <div className="font-bold text-slate-900 font-mono">
+                          ৳{item.lineTotal.toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Financial Summary */}
+                  <div className="space-y-1 text-xs pt-1">
+                    <div className="flex justify-between text-slate-600">
+                      <span>Subtotal:</span>
+                      <span>৳{subTotal.toFixed(2)}</span>
+                    </div>
+                    {discAmt > 0 && (
+                      <div className="flex justify-between text-emerald-600 font-semibold">
+                        <span>Discount Saved:</span>
+                        <span>- ৳{discAmt.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between font-extrabold text-sm text-slate-900 border-t border-b border-gray-200 py-1 my-1">
+                      <span>Net Cart Total:</span>
+                      <span className="text-emerald-700">৳{grandTotal.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* Barcode & Footer */}
+                  <div className="text-center border-t border-dashed border-gray-300 pt-3 space-y-1">
+                    <p className="text-[10px] text-slate-400">Cart Preview Invoice</p>
+                    <p className="text-[9px] text-slate-400">Powered by Blue Oceans POS</p>
+                  </div>
+
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="p-4 bg-white border-t border-gray-100 flex gap-2.5 shrink-0">
+              <button onClick={() => window.print()} disabled={!cart.length} className="flex-1 py-3 rounded-2xl border border-gray-300 bg-white hover:bg-gray-50 text-slate-800 font-extrabold text-xs flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer active:scale-95 disabled:opacity-40">
+                <Printer size={16} /> Print Current Cart Draft
+              </button>
+              <button onClick={() => setLiveInvoiceModalOpen(false)} className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-600/30 transition cursor-pointer active:scale-95">
+                Close
+              </button>
+            </div>
+
           </div>
         </div>
       )}
@@ -1335,47 +1644,83 @@ export default function GroceryPOSPage() {
 
       {/* ══ CASH DRAWER TOAST ══ */}
       {drawerToast && (
-        <div className="fixed top-5 right-5 z-50 bg-emerald-800 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-3 border border-emerald-600">
-          <span className="text-2xl">💵</span>
-          <div>
-            <p className="text-xs font-black">Cash Drawer Opened</p>
-            <p className="text-[10px] text-emerald-200">RJ11 pulse signal sent to printer port</p>
+        <div className="fixed top-6 right-6 z-[100] max-w-[360px] w-full animate-in slide-in-from-top-4 duration-300">
+          <div className="relative overflow-hidden rounded-3xl bg-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.2)] border border-emerald-100 flex p-4 gap-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-2xl shadow-sm">
+              <Wallet size={24} strokeWidth={2.5} />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-emerald-700 uppercase tracking-widest mb-0.5">Hardware Event</p>
+              <p className="text-xs font-extrabold text-slate-900">Cash Drawer Opened</p>
+              <p className="text-[10px] font-bold text-slate-400 mt-0.5">RJ11 pulse signal sent to port</p>
+            </div>
           </div>
         </div>
       )}
 
-      {/* ══ COUPON TOAST ══ */}
+      {/* ══ NOTIFICATION / COUPON TOAST ══ */}
       {couponToast && (
-        <div className="fixed top-5 right-5 z-50 bg-emerald-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-3 border border-emerald-500">
-          <span className="text-xl">✨</span>
-          <p className="text-xs font-black">{couponToast}</p>
+        <div className="fixed top-6 right-6 z-[100] max-w-[400px] w-full animate-in slide-in-from-top-4 duration-300">
+          <div className="relative group overflow-hidden rounded-3xl bg-white/95 backdrop-blur-xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.2)] border border-white/40 flex p-4.5 gap-4 ring-1 ring-black/5">
+
+            {/* Status-based Glow Effect */}
+            <div className={`absolute -left-10 -top-10 w-32 h-32 blur-3xl opacity-20 rounded-full ${
+              couponToast.includes("⚠️") ? "bg-amber-500" :
+              couponToast.includes("Loyalty") ? "bg-indigo-500" :
+              "bg-emerald-500"
+            }`} />
+
+            {/* Icon Container */}
+            <div className={`relative flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transform group-hover:scale-110 transition-transform duration-300 ${
+              couponToast.includes("⚠️") ? "bg-amber-100 text-amber-600 border border-amber-200" :
+              couponToast.includes("Loyalty") ? "bg-indigo-100 text-indigo-600 border border-indigo-200" :
+              "bg-emerald-100 text-emerald-600 border border-emerald-200"
+            }`}>
+              {couponToast.includes("⚠️") ? <AlertCircle size={24} strokeWidth={2.5} /> :
+               couponToast.includes("Loyalty") ? <Gift size={24} strokeWidth={2.5} /> :
+               couponToast.includes("🚀") ? <Sparkles size={24} strokeWidth={2.5} /> :
+               couponToast.includes("📌") ? <PauseCircle size={24} strokeWidth={2.5} /> :
+               couponToast.includes("💾") ? <Settings size={24} strokeWidth={2.5} /> :
+               <CheckCircle2 size={24} strokeWidth={2.5} />}
+            </div>
+
+            {/* Text Content */}
+            <div className="relative flex-1 min-w-0 py-0.5">
+              <div className="flex items-center justify-between mb-1">
+                <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${
+                  couponToast.includes("⚠️") ? "text-amber-700" :
+                  couponToast.includes("Loyalty") ? "text-indigo-700" :
+                  couponToast.includes("🚀") ? "text-blue-700" :
+                  "text-emerald-700"
+                }`}>
+                  {couponToast.includes("⚠️") ? "Attention" :
+                   couponToast.includes("Loyalty") ? "Loyalty Reward" :
+                   couponToast.includes("🚀") ? "Special Offer" :
+                   couponToast.includes("📌") ? "Bill Status" :
+                   couponToast.includes("💾") ? "Settings" :
+                   "Success"}
+                </span>
+                <button onClick={() => setCouponToast("")} className="text-slate-300 hover:text-slate-600 transition-colors p-1 -mr-1">
+                  <X size={14} strokeWidth={3} />
+                </button>
+              </div>
+              <p className="text-xs font-extrabold text-slate-800 leading-snug">
+                {couponToast.replace(/^[⚠️🎉✨💾🚀📌ℹ️]\s*/, "")}
+              </p>
+            </div>
+
+            {/* Interactive Progress Bar */}
+            <div className="absolute bottom-0 left-0 h-1 bg-slate-100 w-full overflow-hidden">
+              <div className={`h-full animate-[shrink-width_3.5s_linear_forwards] ${
+                couponToast.includes("⚠️") ? "bg-amber-500" :
+                couponToast.includes("Loyalty") ? "bg-indigo-500" :
+                "bg-emerald-600"
+              }`} />
+            </div>
+          </div>
         </div>
       )}
 
-      {/* ══ PRINT STYLING FOR 80MM RECEIPT ══ */}
-      <style jsx global>{`
-        @media print {
-          body * {
-            visibility: hidden !important;
-          }
-          #printable-thermal-receipt, #printable-thermal-receipt * {
-            visibility: visible !important;
-          }
-          #printable-thermal-receipt {
-            position: fixed !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 80mm !important;
-            margin: 0 !important;
-            padding: 12px !important;
-            background: white !important;
-            color: black !important;
-            box-shadow: none !important;
-            border: none !important;
-            font-size: 11px !important;
-          }
-        }
-      `}</style>
 
       {/* ══ SALE COMPLETED & THERMAL RECEIPT MODAL ══ */}
       {completedInv && (
@@ -1411,12 +1756,12 @@ export default function GroceryPOSPage() {
                   </div>
                   <div className="h-7 w-px bg-gray-200" />
                   <div>
-                    <p className="text-[10px] text-slate-400 font-bold">Cash Received (জমা)</p>
+                    <p className="text-[10px] text-slate-400 font-bold">Cash Received</p>
                     <p className="text-base font-extrabold text-slate-800">৳ {(completedInv.paidAmount || completedInv.grandTotal).toFixed(2)}</p>
                   </div>
                   <div className="h-7 w-px bg-gray-200" />
                   <div>
-                    <p className="text-[10px] text-emerald-600 font-bold">Change Return (ফেরত)</p>
+                    <p className="text-[10px] text-emerald-600 font-bold">Change Return</p>
                     <p className="text-lg font-black text-emerald-600">৳ {(completedInv.changeReturn || 0).toFixed(2)}</p>
                   </div>
                 </div>
@@ -1487,11 +1832,11 @@ export default function GroceryPOSPage() {
                     <span className="text-slate-900">৳{completedInv.grandTotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-slate-700 font-semibold text-[11px]">
-                    <span>Cash Received (জমা):</span>
+                    <span>Cash Received:</span>
                     <span>৳{(completedInv.paidAmount || completedInv.grandTotal).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-emerald-700 font-black text-sm pt-0.5">
-                    <span>Change Returned (ফেরত):</span>
+                    <span>Change Returned:</span>
                     <span>৳{(completedInv.changeReturn || 0).toFixed(2)}</span>
                   </div>
                 </div>
@@ -1532,5 +1877,33 @@ export default function GroceryPOSPage() {
         </div>
       )}
     </div>
+    <style jsx global>{`
+      @keyframes shrink-width {
+        from { width: 100%; }
+        to { width: 0%; }
+      }
+      @media print {
+        body * {
+          visibility: hidden !important;
+        }
+        #printable-thermal-receipt, #printable-thermal-receipt * {
+          visibility: visible !important;
+        }
+        #printable-thermal-receipt {
+          position: fixed !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 80mm !important;
+          margin: 0 !important;
+          padding: 12px !important;
+          background: white !important;
+          color: black !important;
+          box-shadow: none !important;
+          border: none !important;
+          font-size: 11px !important;
+        }
+      }
+    `}</style>
+    </>
   );
 }
