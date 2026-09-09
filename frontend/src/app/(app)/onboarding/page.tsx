@@ -137,12 +137,40 @@ export default function OnboardingPage() {
           throw new Error("Please select a business type to continue.");
         }
         await api.post("/api/v1/onboarding/business-type", { businessType: selectedBusinessType });
+        if (typeof window !== "undefined") {
+          try {
+            const curTenant = localStorage.getItem("blueoceans_tenant");
+            const parsed = curTenant ? JSON.parse(curTenant) : {};
+            localStorage.setItem("blueoceans_tenant", JSON.stringify({
+              ...parsed,
+              businessType: selectedBusinessType,
+            }));
+            const curUser = localStorage.getItem("modernpos_user");
+            if (curUser) {
+              const parsedUser = JSON.parse(curUser);
+              localStorage.setItem("modernpos_user", JSON.stringify({
+                ...parsedUser,
+                businessType: selectedBusinessType,
+              }));
+            }
+          } catch (e) {}
+        }
         setCompletedSteps((prev) => new Set([...prev, "business-type"]));
       } else if (currentStep === "company") {
         if (!companyForm.name.trim()) {
           throw new Error("Company name is required.");
         }
         await api.post("/api/v1/onboarding/company", companyForm);
+        if (typeof window !== "undefined") {
+          try {
+            const curTenant = localStorage.getItem("blueoceans_tenant");
+            const parsed = curTenant ? JSON.parse(curTenant) : {};
+            localStorage.setItem("blueoceans_tenant", JSON.stringify({
+              ...parsed,
+              name: companyForm.name,
+            }));
+          } catch (e) {}
+        }
         setCompletedSteps((prev) => new Set([...prev, "company"]));
       } else if (currentStep === "branch") {
         if (!branchForm.name.trim() || !branchForm.code.trim()) {
@@ -193,6 +221,25 @@ export default function OnboardingPage() {
       await api.post("/api/v1/onboarding/complete");
       setCompletedSteps((prev) => new Set([...prev, "complete"]));
       setSuccessMessage("Onboarding complete! Redirecting to Dashboard...");
+      if (typeof window !== "undefined") {
+        try {
+          const curTenant = localStorage.getItem("blueoceans_tenant");
+          const parsed = curTenant ? JSON.parse(curTenant) : {};
+          localStorage.setItem("blueoceans_tenant", JSON.stringify({
+            ...parsed,
+            name: companyForm.name || parsed.name,
+            businessType: selectedBusinessType,
+          }));
+          const curUser = localStorage.getItem("modernpos_user");
+          if (curUser) {
+            const parsedUser = JSON.parse(curUser);
+            localStorage.setItem("modernpos_user", JSON.stringify({
+              ...parsedUser,
+              businessType: selectedBusinessType,
+            }));
+          }
+        } catch (e) {}
+      }
       setTimeout(() => {
         window.location.href = "/dashboard";
       }, 800);

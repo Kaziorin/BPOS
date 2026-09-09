@@ -71,6 +71,20 @@ interface VariantForm {
   wholesalePrice: string;
 }
 
+function normalizeVertical(bt?: string): string {
+  const upper = (bt || "").toUpperCase().trim();
+  if (upper.includes("GROCERY") || upper.includes("SUPERMARKET")) return "GROCERY";
+  if (upper.includes("RESTAURANT") || upper.includes("FOOD") || upper.includes("CAFE")) return "RESTAURANT";
+  if (upper.includes("PHARMACY") || upper.includes("MEDICINE") || upper.includes("HEALTHCARE")) return "PHARMACY";
+  if (upper.includes("WHOLESALE") || upper.includes("DISTRIBUTION")) return "WHOLESALE";
+  if (upper.includes("MANUFACTURING") || upper.includes("BAKERY")) return "MANUFACTURING";
+  if (upper.includes("SALON") || upper.includes("SPA")) return "SALON";
+  if (upper.includes("REPAIR") || upper.includes("SERVICE")) return "REPAIR";
+  if (upper.includes("FRANCHISE")) return "FRANCHISE";
+  if (upper.includes("RETAIL") || upper.includes("APPAREL")) return "RETAIL";
+  return "RETAIL";
+}
+
 const BUSINESS_VERTICALS = [
   { id: "RESTAURANT", label: "Restaurant & Food", icon: Utensils },
   { id: "RETAIL", label: "Retail & Apparel", icon: ShoppingBag },
@@ -106,16 +120,16 @@ export default function CreateProductPage() {
         const tenantStr = localStorage.getItem("blueoceans_tenant");
         if (tenantStr) {
           const parsed = JSON.parse(tenantStr);
-          if (parsed?.businessType) return parsed.businessType.toUpperCase();
+          if (parsed?.businessType) return normalizeVertical(parsed.businessType);
         }
         const userStr = localStorage.getItem("modernpos_user");
         if (userStr) {
           const parsed = JSON.parse(userStr);
-          if (parsed?.businessType) return parsed.businessType.toUpperCase();
+          if (parsed?.businessType) return normalizeVertical(parsed.businessType);
         }
       } catch (e) {}
     }
-    return "RETAIL";
+    return "GROCERY";
   });
   const [verticalFormState, setVerticalFormState] = useState<VerticalFormState>(initialVerticalFormState);
 
@@ -126,15 +140,15 @@ export default function CreateProductPage() {
         const tData = res?.data || res?.tenant || res;
         const bt = tData?.tenant?.businessType || tData?.businessType;
         if (bt) {
-          const upper = bt.toUpperCase();
-          setSelectedVertical(upper);
+          const norm = normalizeVertical(bt);
+          setSelectedVertical(norm);
           if (typeof window !== "undefined") {
             try {
               const current = localStorage.getItem("blueoceans_tenant");
               const parsed = current ? JSON.parse(current) : {};
               localStorage.setItem(
                 "blueoceans_tenant",
-                JSON.stringify({ ...parsed, businessType: upper })
+                JSON.stringify({ ...parsed, businessType: norm })
               );
             } catch (e) {}
           }
@@ -157,7 +171,7 @@ export default function CreateProductPage() {
         } catch (e) {}
       }
       if (fallbackBt) {
-        setSelectedVertical(fallbackBt.toUpperCase());
+        setSelectedVertical(normalizeVertical(fallbackBt));
       }
     }
 

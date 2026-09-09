@@ -71,6 +71,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       tenantSlug,
     });
 
+    // Clear any previous tenant/user cache completely to prevent cross-account contamination
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {}
+    }
+
     localStorage.setItem("modernpos_token", res.token);
     localStorage.setItem("modernpos_user", JSON.stringify({
       ...res.user,
@@ -93,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }));
 
     setUser(res.user);
-    router.push("/dashboard");
+    window.location.href = "/dashboard";
   }
 
   async function register(data: {
@@ -109,6 +117,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: AuthUser;
       tenant?: { id: string; slug: string; name: string; businessType?: string };
     }>("/auth/register", data);
+
+    // Clear any previous tenant/user cache completely
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {}
+    }
 
     localStorage.setItem("modernpos_token", res.token);
     localStorage.setItem("modernpos_user", JSON.stringify({
@@ -131,15 +147,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }));
 
     setUser(res.user);
-    router.push("/dashboard");
+    window.location.href = "/dashboard";
   }
 
   function logout() {
-    localStorage.removeItem("modernpos_token");
-    localStorage.removeItem("modernpos_user");
-    localStorage.removeItem(TENANT_STORAGE_KEY);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {}
+    }
     setUser(null);
-    router.push("/login");
+    window.location.href = "/login";
   }
 
   return (
