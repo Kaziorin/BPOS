@@ -46,8 +46,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // POS screens are dedicated full-screen applications without sidebar/header layout chrome
-  const isPosPage = pathname?.endsWith("/pos") || pathname?.includes("/pos/");
+  // POS & Customer Display screens are dedicated full-screen applications without sidebar/header layout chrome
+  const isPosPage = pathname?.endsWith("/pos") || pathname?.includes("/pos/") || pathname?.includes("/customer-display");
 
   if (isPosPage) {
     return (

@@ -25,6 +25,7 @@ export interface RegisterProduct {
   unit: string;
   status: string;
   stockQty?: number;
+  imageUrl?: string | null;
 }
 
 export interface ApiProductRow {
@@ -40,6 +41,7 @@ export interface ApiProductRow {
   unitId?: string | null;
   category?: { id?: string; name?: string } | null;
   brand?: { id?: string; name?: string } | null;
+  imageUrl?: string | null;
   _count?: { variants?: number; stockRows?: number } | null;
 }
 
@@ -60,6 +62,7 @@ export function toRegisterProduct(row: ApiProductRow): RegisterProduct {
     unit,
     status: row.status ?? "ACTIVE",
     stockQty: stockRows > 0 ? stockRows : undefined,
+    imageUrl: row.imageUrl || (row as any).image || null,
   };
 }
 
@@ -69,12 +72,12 @@ export async function fetchAllProducts(): Promise<RegisterProduct[]> {
   const rows: ApiProductRow[] = [];
   let page = 1;
   for (;;) {
-    const res = await api.get<{ data: ApiProductRow[]; pagination: { total: number; totalPages: number } }>(
+    const res: any = await api.get(
       `/products?limit=500&page=${page}`,
     );
-    const batch = res.data ?? [];
+    const batch = Array.isArray(res?.data?.data) ? res.data.data : Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
     rows.push(...batch);
-    const totalPages = res.pagination?.totalPages ?? 1;
+    const totalPages = res?.data?.pagination?.totalPages ?? res?.pagination?.totalPages ?? 1;
     if (page >= totalPages || batch.length === 0) break;
     page += 1;
   }

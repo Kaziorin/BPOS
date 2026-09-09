@@ -17,6 +17,7 @@ import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomSelect } from "@/components/custom/CustomSelect";
+import { publishCart } from "@/lib/customer-display";
 
 interface TenantInfo {
   branch: { id: string; name: string } | null;
@@ -98,7 +99,15 @@ const NUM_KEYS = ["7", "8", "9", "⌫", "4", "5", "6", "+", "1", "2", "3", "−"
 export default function GroceryPOSPage() {
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem("bpos_grocery_cart");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [scanInput, setScanInput] = useState("");
   const [searchFilter, setSearchFilter] = useState("");
   const [selectedCat, setSelectedCat] = useState("All Items");
@@ -175,9 +184,8 @@ export default function GroceryPOSPage() {
 
   const loadProducts = useCallback(async () => {
     try {
-      // Use the standard products list to get category info
       const res: any = await api.get("/products", { params: { limit: 500 } });
-      const rawProducts = res?.data ?? res ?? [];
+      const rawProducts = Array.isArray(res?.data?.data) ? res.data.data : Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
 
       // Also fetch batches for real stock
       const batches = await fetchBatches();
@@ -230,8 +238,8 @@ export default function GroceryPOSPage() {
         const formatted = data.map((s: any) => ({
           id: s.id,
           invoiceNo: s.invoiceNo,
-          grandTotal: Number(s.total || 0),
-          customer: s.customerName || "Walk-in Customer",
+          grandTotal: Number(s.grandTotal ?? s.totalAmount ?? s.total ?? 0),
+          customer: s.customer?.name || s.customerName || "Walk-in Customer",
           date: new Date(s.createdAt).toLocaleString(),
           paymentMethod: s.paymentMethod || "CASH",
           status: s.status
@@ -375,14 +383,33 @@ export default function GroceryPOSPage() {
       const idx = prev.findIndex(i => i.productId === prod.id && !i.isWeighed && !isWeighed);
       if (idx >= 0 && !isWeighed) { const copy = [...prev]; const nq = copy[idx].qty + qty; copy[idx] = { ...copy[idx], qty: nq, lineTotal: nq * copy[idx].unitPrice }; return copy; }
       const aq = isWeighed ? (weightKg || 1) : qty; const up = Number(prod.sellingPrice || 0);
-      return [{ id: `${prod.id}-${Date.now()}`, productId: prod.id, name: prod.name, sku: prod.sku, barcode: prod.barcode, unitPrice: up, qty: aq, isWeighed, weightKg: isWeighed ? weightKg : undefined, lineTotal: aq * up, discountPct: 0, uom: prod.uom }, ...prev];
+      return [{ id: `${prod.id}-${Date.now()}`, productId: prod.id, name: prod.name, sku: prod.sku, barcode: prod.barcode, unitPrice: up, qty: aq, isWeighed, weightKg: isWeighed ? weightKg : undefined, lineTotal: aq * up, discountPct: 0, uom: prod.uom, image: (prod as any).image || (prod as any).imageUrl }, ...prev];
     });
     setScanInput(""); scanRef.current?.focus();
   };
 
   const updateQty = (id: string, delta: number) => setCart(prev => prev.map(i => { if (i.id !== id) return i; const nq = Math.max(i.isWeighed ? 0.05 : 1, Number((i.qty + delta).toFixed(3))); return { ...i, qty: nq, lineTotal: nq * i.unitPrice }; }).filter(i => i.qty > 0));
   const removeItem = (id: string) => setCart(prev => prev.filter(i => i.id !== id));
-  const clearCart = () => { setCart([]); setDiscountPct("0.00"); setCouponCode(""); setSalesNote(""); setTenderedInput(""); setNumBuf(""); setNumTarget(null); };
+  const clearCart = () => {
+    setCart([]);
+    try { localStorage.removeItem("bpos_grocery_cart"); } catch {}
+    setDiscountPct("0.00");
+    setCouponCode("");
+    setSalesNote("");
+    setTenderedInput("");
+    setNumBuf("");
+    setNumTarget(null);
+  };
+
+  useEffect(() => {
+    try {
+      if (cart.length > 0) {
+        localStorage.setItem("bpos_grocery_cart", JSON.stringify(cart));
+      } else {
+        localStorage.removeItem("bpos_grocery_cart");
+      }
+    } catch {}
+  }, [cart]);
 
   const holdCart = () => { if (!cart.length) return; setHeldCarts(prev => [...prev, { id: `HOLD-${Date.now().toString().slice(-4)}`, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), items: cart }]); clearCart(); setCouponToast("📌 Bill Held Successfully"); setTimeout(() => setCouponToast(""), 2500); };
   const recallCart = (h: { id: string; items: CartItem[] }) => { setCart(h.items); setHeldCarts(prev => prev.filter(x => x.id !== h.id)); setHeldCartsOpen(false); };
@@ -399,6 +426,29 @@ export default function GroceryPOSPage() {
   const paidAmount = parseFloat(tenderedInput) > 0 ? parseFloat(tenderedInput) : grandTotal;
   const changeDue = Math.max(0, paidAmount - grandTotal);
   const remainingDue = Math.max(0, grandTotal - paidAmount);
+
+  useEffect(() => {
+    publishCart({
+      updatedAt: Date.now(),
+      lines: cart.map(i => ({
+        name: i.name,
+        qty: i.qty,
+        unitPrice: i.unitPrice,
+        discountAmount: i.discountPct ? (i.unitPrice * i.qty * i.discountPct / 100) : 0,
+        uom: i.uom || "Pcs",
+        image: (i as any).image || (i as any).imageUrl,
+      })),
+      subtotal: subTotal,
+      discountTotal: discAmt,
+      taxTotal: 0,
+      total: grandTotal,
+      status: cart.length > 0 ? "ACTIVE" : "IDLE",
+      customerName: selectedCustomer?.name !== "Walk-in Customer" ? selectedCustomer?.name : undefined,
+      customerPoints: selectedCustomer?.points,
+      customerTier: getCustomerTier(selectedCustomer?.points || 0).name,
+      laneNo: "Lane 01",
+    });
+  }, [cart, subTotal, discAmt, grandTotal, selectedCustomer]);
 
   const numPress = (key: string) => {
     if (key === "⌫") {
@@ -501,6 +551,30 @@ export default function GroceryPOSPage() {
 
       setCompletedInv(completedRecord);
       setSalesHistory(prev => [completedRecord, ...prev]);
+
+      publishCart({
+        updatedAt: Date.now(),
+        invoiceNo: invNo,
+        lines: cart.map(i => ({
+          name: i.name,
+          qty: i.qty,
+          unitPrice: i.unitPrice,
+          discountAmount: i.discountPct ? (i.unitPrice * i.qty * i.discountPct / 100) : 0,
+          image: (i as any).image || (i as any).imageUrl,
+        })),
+        subtotal: subTotal,
+        discountTotal: discAmt,
+        taxTotal: 0,
+        total: grandTotal,
+        paidTotal: finalPaid,
+        changeTotal: finalChange,
+        paymentMethod: payMethod,
+        status: "PAID",
+        customerName: selectedCustomer?.name !== "Walk-in Customer" ? selectedCustomer?.name : undefined,
+        customerPoints: selectedCustomer?.points,
+        customerTier: getCustomerTier(selectedCustomer?.points || 0).name,
+        pointsEarned: Math.floor(grandTotal / 100),
+      });
 
       // Reset POS state
       clearCart();

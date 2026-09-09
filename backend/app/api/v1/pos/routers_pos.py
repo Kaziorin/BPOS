@@ -429,11 +429,53 @@ async def pos_sales(page: int = Query(1), limit: int = Query(20), tenantId: str 
                     db: AsyncSession = Depends(get_db), user: AuthUser = Depends(require_auth)):
     off, lim = paginate_params(page, limit)
     rows = rows_to_dicts((await db.execute(text(
-        "SELECT s.id, s.invoiceNo, s.total, s.paidTotal, s.dueTotal, s.status, s.createdAt, c.name AS customerName "
+        "SELECT s.id, s.invoiceNo, s.subtotal, s.discountTotal, s.taxTotal, s.serviceCharge, s.total, s.paidTotal, s.dueTotal, s.status, s.createdAt, "
+        "c.id AS customerId, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail, c.loyaltyPoints AS customerPoints, "
+        "(SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod "
         "FROM sales s LEFT JOIN customers c ON c.id=s.customerId WHERE s.tenantId=:t ORDER BY s.createdAt DESC LIMIT :lim OFFSET :off"),
         {"t": tenantId, "lim": lim, "off": off})).fetchall())
     total = (await db.execute(text("SELECT COUNT(*) FROM sales WHERE tenantId=:t"), {"t": tenantId})).first()[0]
+
+    if rows:
+        sale_ids = [r["id"] for r in rows]
+        if len(sale_ids) == 1:
+            all_items = rows_to_dicts((await db.execute(text(
+                "SELECT si.id, si.saleId, si.productId, si.name AS productName, si.name, si.qty, si.unitPrice, si.discountAmount, si.lineTotal "
+                "FROM sale_items si WHERE si.saleId = :sid"),
+                {"sid": sale_ids[0]})).fetchall())
+        else:
+            all_items = rows_to_dicts((await db.execute(text(
+                "SELECT si.id, si.saleId, si.productId, si.name AS productName, si.name, si.qty, si.unitPrice, si.discountAmount, si.lineTotal "
+                "FROM sale_items si WHERE si.saleId IN :sids"),
+                {"sids": tuple(sale_ids)})).fetchall())
+
+        items_by_sale = {}
+        for it in all_items:
+            it["qty"] = float(it.get("qty", 0) or 0)
+            it["unitPrice"] = float(it.get("unitPrice", 0) or 0)
+            it["lineTotal"] = float(it.get("lineTotal", 0) or 0)
+            sid = it["saleId"]
+            if sid not in items_by_sale:
+                items_by_sale[sid] = []
+            items_by_sale[sid].append(it)
+
+        for r in rows:
+            r["grandTotal"] = float(r.get("total", 0) or 0)
+            r["totalAmount"] = float(r.get("total", 0) or 0)
+            r["total"] = float(r.get("total", 0) or 0)
+            cust_name = r.get("customerName")
+            r["customer"] = {
+                "id": r.get("customerId"),
+                "name": cust_name if cust_name else "Walk-in Customer",
+                "phone": r.get("customerPhone"),
+                "email": r.get("customerEmail"),
+                "loyaltyPoints": r.get("customerPoints") or 0,
+            }
+            r["items"] = items_by_sale.get(r["id"], [])
+            r["itemsCount"] = len(r["items"])
+
     return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": (total + lim - 1) // lim}})
+
 
 
 @router.post("/api/v1/pos/holds")

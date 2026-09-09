@@ -67,8 +67,8 @@ export default function GroceryHubPage() {
 
   const fmt = (n: number) => `৳${Number(n || 0).toLocaleString("en-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  const totalGrocerySales = sales.reduce((acc, s) => acc + Number(s.grandTotal || s.totalAmount || 0), 0);
-  const totalItemsSold = sales.reduce((acc, s) => acc + (s.items || []).length, 0);
+  const totalGrocerySales = sales.reduce((acc, s) => acc + Number(s.grandTotal ?? s.totalAmount ?? s.total ?? 0), 0);
+  const totalItemsSold = sales.reduce((acc, s) => acc + (s.items || []).reduce((sum: number, it: any) => sum + Number(it.qty || 1), 0), 0);
   const weightedProducts = products.filter(
     (p) =>
       p.uom?.toLowerCase().includes("kg") ||
@@ -84,12 +84,14 @@ export default function GroceryHubPage() {
   const filteredSales = sales.filter((s) => {
     const q = searchTerm.toLowerCase().trim();
     if (!q) return true;
+    const custName = s.customer?.name || s.customerName || "";
     return (
       (s.invoiceNo && s.invoiceNo.toLowerCase().includes(q)) ||
-      (s.customer?.name && s.customer.name.toLowerCase().includes(q)) ||
+      (custName && custName.toLowerCase().includes(q)) ||
       (s.cashier?.name && s.cashier.name.toLowerCase().includes(q))
     );
   });
+
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden p-6 space-y-8" style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}>
@@ -242,6 +244,9 @@ export default function GroceryHubPage() {
                     {filteredSales.map((s) => {
                       const points = s.customer?.loyaltyPoints || 0;
                       const tier = getCustomerTier(points);
+                      const custName = s.customer?.name || s.customerName || "Walk-in Customer";
+                      const itemCount = Array.isArray(s.items) && s.items.length > 0 ? s.items.length : (s.itemsCount || 0);
+                      const totalAmt = Number(s.grandTotal ?? s.totalAmount ?? s.total ?? 0);
                       return (
                         <tr key={s.id} className="group hover:bg-emerald-50/40 transition-colors">
                           <td className="py-5 px-6">
@@ -254,7 +259,7 @@ export default function GroceryHubPage() {
                           </td>
                           <td className="py-5 px-6">
                             <div className="flex flex-col">
-                              <span className="text-xs font-black text-slate-900 tracking-tight">{s.customer?.name || "Walk-in Customer"}</span>
+                              <span className="text-xs font-black text-slate-900 tracking-tight">{custName}</span>
                               <div className="flex items-center gap-2 mt-1">
                                 <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-widest ${tier.color} ${tier.bg} ${tier.border}`}>
                                   {tier.name}
@@ -271,11 +276,11 @@ export default function GroceryHubPage() {
                           </td>
                           <td className="py-5 px-6 text-center">
                             <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-[10px] font-black">
-                              {(s.items || []).length}
+                              {itemCount}
                             </span>
                           </td>
                           <td className="py-5 px-6 text-right font-black tabular-nums text-slate-900 text-sm">
-                            {fmt(Number(s.grandTotal || s.totalAmount || 0))}
+                            {fmt(totalAmt)}
                           </td>
                           <td className="py-5 px-6 text-center">
                             <button
@@ -362,20 +367,20 @@ export default function GroceryHubPage() {
             invoiceNo: selectedSale.invoiceNo || `GRO-${selectedSale.id.slice(0, 8)}`,
             saleDate: selectedSale.createdAt,
             vertical: "grocery",
-            customer: selectedSale.customer,
+            customer: selectedSale.customer || { name: selectedSale.customerName || "Walk-in Customer" },
             items: (selectedSale.items || []).map((it: any) => ({
-              name: it.productName || it.product?.name || "Produce Item",
-              productName: it.productName || it.product?.name || "Produce Item",
+              name: it.productName || it.name || it.product?.name || "Produce Item",
+              productName: it.productName || it.name || it.product?.name || "Produce Item",
               qty: Number(it.qty || 1),
               unitPrice: Number(it.unitPrice || 0),
               weightKg: Number(it.qty || 1),
               pluCode: it.pluCode || "4011",
               uom: it.uom || "kg",
             })),
-            subTotal: Number(selectedSale.subTotal || selectedSale.grandTotal || selectedSale.totalAmount || 0),
-            grandTotal: Number(selectedSale.grandTotal || selectedSale.totalAmount || 0),
-            paidTotal: Number(selectedSale.paidTotal || selectedSale.grandTotal || selectedSale.totalAmount || 0),
-            dueTotal: 0,
+            subTotal: Number(selectedSale.subTotal || selectedSale.subtotal || selectedSale.total || selectedSale.grandTotal || 0),
+            grandTotal: Number(selectedSale.grandTotal ?? selectedSale.totalAmount ?? selectedSale.total ?? 0),
+            paidTotal: Number(selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0),
+            dueTotal: Number(selectedSale.dueTotal || 0),
             paymentMethod: selectedSale.paymentMethod || "CASH",
           }}
           initialVertical="grocery"
