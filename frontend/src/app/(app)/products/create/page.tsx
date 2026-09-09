@@ -248,6 +248,7 @@ export default function CreateProductPage() {
           wholesalePrice: p.wholesalePrice !== undefined ? String(p.wholesalePrice) : "",
           taxRate: p.taxRate !== undefined ? String(p.taxRate) : "0",
           warrantyValue: p.warrantyDays ? String(Math.round(p.warrantyDays / 30)) : "",
+          alertQuantity: p.reorderPoint !== undefined && p.reorderPoint !== null ? String(p.reorderPoint) : "10",
           description: p.description || "",
           imageUrl: p.imageUrl || "",
           hasVariants: Array.isArray(p.variants) && p.variants.length > 0,
@@ -262,6 +263,23 @@ export default function CreateProductPage() {
             const attrObj = typeof p.attributes === "string" ? JSON.parse(p.attributes) : p.attributes;
             if (attrObj && typeof attrObj === "object") {
               setVerticalFormState(attrObj);
+              if (attrObj.barcodeSymbology) setBarcodeSymbology(attrObj.barcodeSymbology);
+
+              setForm((prev) => ({
+                ...prev,
+                taxMethod: attrObj.taxMethod || prev.taxMethod,
+                saleUnitId: attrObj.saleUnitId || prev.saleUnitId,
+                purchaseUnitId: attrObj.purchaseUnitId || prev.purchaseUnitId,
+                guaranteeValue: attrObj.guaranteeValue || prev.guaranteeValue,
+                guaranteeUnit: attrObj.guaranteeUnit || prev.guaranteeUnit,
+                dailySaleObjective: attrObj.dailySaleObjective || prev.dailySaleObjective,
+                alertQuantity: attrObj.alertQuantity || prev.alertQuantity,
+                isFeatured: attrObj.isFeatured ?? prev.isFeatured,
+                isEmbeddedBarcode: attrObj.isEmbeddedBarcode ?? prev.isEmbeddedBarcode,
+                hasPromoPrice: attrObj.hasPromoPrice ?? prev.hasPromoPrice,
+                hasBatchExpiry: attrObj.hasBatchExpiry ?? prev.hasBatchExpiry,
+                hasSerial: attrObj.hasSerial ?? prev.hasSerial,
+              }));
             }
           } catch (e) {
             console.warn("Failed to parse product attributes:", e);
@@ -453,9 +471,30 @@ export default function CreateProductPage() {
         wholesalePrice: form.wholesalePrice ? parseFloat(form.wholesalePrice) : undefined,
         taxRate: form.taxRate ? parseFloat(form.taxRate) : undefined,
         warrantyDays: form.warrantyValue ? parseInt(form.warrantyValue) * 30 : undefined,
+        reorderPoint: form.alertQuantity ? parseFloat(form.alertQuantity) : undefined,
         description: form.description || undefined,
         imageUrl: finalImageUrl,
-        attributes: verticalFormState,
+        attributes: {
+          ...verticalFormState,
+          barcodeSymbology,
+          taxMethod: form.taxMethod,
+          saleUnitId: form.saleUnitId,
+          saleUnitName: units.find((u) => u.id === form.saleUnitId)?.name || "",
+          purchaseUnitId: form.purchaseUnitId,
+          purchaseUnitName: units.find((u) => u.id === form.purchaseUnitId)?.name || "",
+          guaranteeValue: form.guaranteeValue,
+          guaranteeUnit: form.guaranteeUnit,
+          dailySaleObjective: form.dailySaleObjective,
+          alertQuantity: form.alertQuantity,
+          isFeatured: form.isFeatured,
+          isEmbeddedBarcode: form.isEmbeddedBarcode,
+          hasPromoPrice: form.hasPromoPrice,
+          hasVariants: form.hasVariants,
+          hasInitialStock: form.hasInitialStock,
+          hasDiffPriceWarehouse: form.hasDiffPriceWarehouse,
+          hasBatchExpiry: form.hasBatchExpiry,
+          hasSerial: form.hasSerial,
+        },
       };
 
       if (variants.length > 0 && form.hasVariants) {

@@ -325,6 +325,84 @@ export default function ProductsPage() {
       ),
     },
     {
+      key: "symbology" as any,
+      header: "Symbology",
+      align: "center",
+      sortable: true,
+      render: (product: any) => (
+        product.attributes?.barcodeSymbology ? (
+          <span className="font-mono text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+            {product.attributes.barcodeSymbology}
+          </span>
+        ) : (
+          <span className="text-xs text-slate-300">—</span>
+        )
+      ),
+    },
+    {
+      key: "saleUnit" as any,
+      header: "Sale Unit",
+      align: "center",
+      sortable: true,
+      render: (product: any) => (
+        <span className="text-xs font-medium text-slate-600">{product.attributes?.saleUnitName || "—"}</span>
+      ),
+    },
+    {
+      key: "purchaseUnit" as any,
+      header: "Purchase Unit",
+      align: "center",
+      sortable: true,
+      render: (product: any) => (
+        <span className="text-xs font-medium text-slate-600">{product.attributes?.purchaseUnitName || "—"}</span>
+      ),
+    },
+    {
+      key: "taxMethod" as any,
+      header: "Tax & Method",
+      align: "center",
+      sortable: true,
+      render: (product: any) => (
+        product.taxRate ? (
+          <span className="text-xs font-semibold text-slate-700">
+            {product.taxRate}% {product.attributes?.taxMethod ? `(${product.attributes.taxMethod})` : ""}
+          </span>
+        ) : (
+          <span className="text-xs text-slate-300">—</span>
+        )
+      ),
+    },
+    {
+      key: "guarantee" as any,
+      header: "Guarantee",
+      align: "center",
+      sortable: true,
+      render: (product: any) => (
+        product.attributes?.guaranteeValue ? (
+          <span className="text-xs font-semibold text-slate-700">
+            {product.attributes.guaranteeValue} {product.attributes.guaranteeUnit || "Months"}
+          </span>
+        ) : (
+          <span className="text-xs text-slate-300">—</span>
+        )
+      ),
+    },
+    {
+      key: "dailyTarget" as any,
+      header: "Daily Target",
+      align: "center",
+      sortable: true,
+      render: (product: any) => (
+        product.attributes?.dailySaleObjective ? (
+          <span className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+            {product.attributes.dailySaleObjective} Qty
+          </span>
+        ) : (
+          <span className="text-xs text-slate-300">—</span>
+        )
+      ),
+    },
+    {
       key: "reorderPoint" as any,
       header: "Reorder Alert",
       align: "center",

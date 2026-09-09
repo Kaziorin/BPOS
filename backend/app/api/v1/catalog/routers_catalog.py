@@ -156,16 +156,17 @@ async def create_product(
         text(
             "INSERT INTO products (id, tenantId, categoryId, subCategoryId, brandId, unitId, supplierId, name, sku, barcode, "
             "manufacturer, productType, costPrice, sellingPrice, wholesalePrice, minPrice, maxPrice, taxRate, "
-            "warrantyDays, description, imageUrl, attributes, createdBy) "
-            "VALUES (UUID(), :t, :c, :subc, :b, :u, :sup, :n, :sku, :bar, :man, :pt, :cp, :sp, :wp, :minp, :maxp, :tax, :war, :d, :img, :attr, :cb)"
+            "warrantyDays, description, reorderPoint, imageUrl, attributes, createdBy) "
+            "VALUES (UUID(), :t, :c, :subc, :b, :u, :sup, :n, :sku, :bar, :man, :pt, :cp, :sp, :wp, :minp, :maxp, :tax, :war, :d, :rp, :img, :attr, :cb)"
         ),
         {
             "t": tenantId, "c": body.get("categoryId"), "subc": body.get("subCategoryId"), "b": body.get("brandId"), "u": body.get("unitId"),
             "sup": body.get("supplierId"), "n": name, "sku": sku, "bar": body.get("barcode"),
-            "man": body.get("manufacturer"), "pt": body.get("productType", "SIMPLE"),
+            "man": body.get("manufacturer"), "pt": body.get("productType", "Standard"),
             "cp": body.get("costPrice", 0), "sp": body.get("sellingPrice", 0),
             "wp": body.get("wholesalePrice"), "minp": body.get("minPrice"), "maxp": body.get("maxPrice"),
             "tax": body.get("taxRate"), "war": body.get("warrantyDays"), "d": body.get("description"),
+            "rp": body.get("reorderPoint"),
             "img": body.get("imageUrl"),
             "attr": json.dumps(body.get("attributes")) if isinstance(body.get("attributes"), (dict, list)) else body.get("attributes"),
             "cb": user.id,
