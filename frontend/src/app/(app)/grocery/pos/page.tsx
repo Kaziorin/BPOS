@@ -99,7 +99,15 @@ const NUM_KEYS = ["7", "8", "9", "⌫", "4", "5", "6", "+", "1", "2", "3", "−"
 export default function GroceryPOSPage() {
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem("bpos_grocery_cart");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [scanInput, setScanInput] = useState("");
   const [searchFilter, setSearchFilter] = useState("");
   const [selectedCat, setSelectedCat] = useState("All Items");
@@ -176,9 +184,8 @@ export default function GroceryPOSPage() {
 
   const loadProducts = useCallback(async () => {
     try {
-      // Use the standard products list to get category info
       const res: any = await api.get("/products", { params: { limit: 500 } });
-      const rawProducts = res?.data ?? res ?? [];
+      const rawProducts = Array.isArray(res?.data?.data) ? res.data.data : Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
 
       // Also fetch batches for real stock
       const batches = await fetchBatches();
@@ -383,7 +390,26 @@ export default function GroceryPOSPage() {
 
   const updateQty = (id: string, delta: number) => setCart(prev => prev.map(i => { if (i.id !== id) return i; const nq = Math.max(i.isWeighed ? 0.05 : 1, Number((i.qty + delta).toFixed(3))); return { ...i, qty: nq, lineTotal: nq * i.unitPrice }; }).filter(i => i.qty > 0));
   const removeItem = (id: string) => setCart(prev => prev.filter(i => i.id !== id));
-  const clearCart = () => { setCart([]); setDiscountPct("0.00"); setCouponCode(""); setSalesNote(""); setTenderedInput(""); setNumBuf(""); setNumTarget(null); };
+  const clearCart = () => {
+    setCart([]);
+    try { localStorage.removeItem("bpos_grocery_cart"); } catch {}
+    setDiscountPct("0.00");
+    setCouponCode("");
+    setSalesNote("");
+    setTenderedInput("");
+    setNumBuf("");
+    setNumTarget(null);
+  };
+
+  useEffect(() => {
+    try {
+      if (cart.length > 0) {
+        localStorage.setItem("bpos_grocery_cart", JSON.stringify(cart));
+      } else {
+        localStorage.removeItem("bpos_grocery_cart");
+      }
+    } catch {}
+  }, [cart]);
 
   const holdCart = () => { if (!cart.length) return; setHeldCarts(prev => [...prev, { id: `HOLD-${Date.now().toString().slice(-4)}`, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), items: cart }]); clearCart(); setCouponToast("📌 Bill Held Successfully"); setTimeout(() => setCouponToast(""), 2500); };
   const recallCart = (h: { id: string; items: CartItem[] }) => { setCart(h.items); setHeldCarts(prev => prev.filter(x => x.id !== h.id)); setHeldCartsOpen(false); };
@@ -410,7 +436,7 @@ export default function GroceryPOSPage() {
         unitPrice: i.unitPrice,
         discountAmount: i.discountPct ? (i.unitPrice * i.qty * i.discountPct / 100) : 0,
         uom: i.uom || "Pcs",
-        image: (i as any).image,
+        image: (i as any).image || (i as any).imageUrl,
       })),
       subtotal: subTotal,
       discountTotal: discAmt,
@@ -534,6 +560,7 @@ export default function GroceryPOSPage() {
           qty: i.qty,
           unitPrice: i.unitPrice,
           discountAmount: i.discountPct ? (i.unitPrice * i.qty * i.discountPct / 100) : 0,
+          image: (i as any).image || (i as any).imageUrl,
         })),
         subtotal: subTotal,
         discountTotal: discAmt,

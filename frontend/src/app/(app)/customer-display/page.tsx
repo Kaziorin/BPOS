@@ -249,27 +249,41 @@ export default function CustomerDisplayPage() {
       className="relative flex flex-col justify-between h-screen w-screen bg-white text-slate-900 select-none overflow-hidden p-4 md:p-6"
       style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
     >
-      {/* ══ EXACT POS ORGANIC CURVED WAVE BACKDROP ══ */}
+      {/* ══ EXACT RGBA(230, 247, 199) WAVE BACKDROP ══ */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <svg className="absolute top-0 left-0 w-full h-[150px] opacity-100" viewBox="0 0 1200 150" fill="none" preserveAspectRatio="none">
-          <path d="M 0 0 L 1200 0 L 1200 65 C 920 145, 580 35, 280 125 C 140 145, 40 75, 0 90 Z" fill="url(#top-cd-mint-wave)" />
+        {/* Top Upper Soft Wave */}
+        <svg className="absolute top-0 left-0 w-full h-[140px] opacity-100" viewBox="0 0 1200 140" fill="none" preserveAspectRatio="none">
+          <path d="M 0 0 L 1200 0 L 1200 65 C 920 135, 580 30, 280 115 C 140 135, 40 70, 0 85 Z" fill="url(#cd-top-mint-wave-rgba)" />
           <defs>
-            <linearGradient id="top-cd-mint-wave" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(187, 238, 100, 0.95)" />
-              <stop offset="50%" stopColor="rgba(187, 238, 100, 0.7)" />
-              <stop offset="85%" stopColor="rgba(220, 252, 231, 0.4)" />
+            <linearGradient id="cd-top-mint-wave-rgba" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(230, 247, 199, 0.95)" />
+              <stop offset="50%" stopColor="rgba(230, 247, 199, 0.6)" />
+              <stop offset="85%" stopColor="rgba(240, 253, 225, 0.25)" />
               <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
             </linearGradient>
           </defs>
         </svg>
 
-        <svg className="absolute top-0 left-0 w-[78%] h-[120px] opacity-100 drop-shadow-xs" viewBox="0 0 1000 120" fill="none" preserveAspectRatio="none">
-          <path d="M 0 0 L 1000 0 L 1000 35 C 760 115, 480 25, 220 100 C 100 115, 30 50, 0 65 Z" fill="url(#top-cd-lime-vivid)" />
+        {/* Top Main Front Wave */}
+        <svg className="absolute top-0 left-0 w-[78%] h-[115px] opacity-100" viewBox="0 0 1000 115" fill="none" preserveAspectRatio="none">
+          <path d="M 0 0 L 1000 0 L 1000 35 C 760 110, 480 20, 220 95 C 100 110, 30 45, 0 60 Z" fill="url(#cd-top-lime-vivid-rgba)" />
           <defs>
-            <linearGradient id="top-cd-lime-vivid" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(187, 238, 100, 1)" />
-              <stop offset="40%" stopColor="rgba(163, 230, 53, 0.85)" />
-              <stop offset="75%" stopColor="rgba(187, 238, 100, 0.5)" />
+            <linearGradient id="cd-top-lime-vivid-rgba" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(230, 247, 199, 1)" />
+              <stop offset="40%" stopColor="rgba(230, 247, 199, 0.75)" />
+              <stop offset="75%" stopColor="rgba(240, 253, 225, 0.3)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Top-Left Soft Glow Wave */}
+        <svg className="absolute top-0 left-0 w-[52%] h-[85px] opacity-95" viewBox="0 0 700 85" fill="none" preserveAspectRatio="none">
+          <path d="M 0 0 L 700 0 L 700 25 C 500 80, 300 15, 120 70 C 50 80, 10 30, 0 40 Z" fill="url(#cd-top-lime-glow-rgba)" />
+          <defs>
+            <linearGradient id="cd-top-lime-glow-rgba" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(230, 247, 199, 0.9)" />
+              <stop offset="45%" stopColor="rgba(230, 247, 199, 0.5)" />
               <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
             </linearGradient>
           </defs>
@@ -277,23 +291,24 @@ export default function CustomerDisplayPage() {
       </div>
 
       {/* ════ TOP HEADER & STATUS BAR ════ */}
-      <header className="relative z-10 rounded-[2rem] bg-white/80 backdrop-blur-xl border border-white shadow-[0_20px_50px_-20px_rgba(0,0,0,0.08)] p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 transition-all">
-        {/* Brand & Lane Info */}
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#bbe664] to-[#a3e635] flex items-center justify-center text-slate-900 shadow-md shrink-0">
-            <Scale size={24} strokeWidth={2.2} />
+      <header className="relative z-10 rounded-[2rem] bg-white/75 backdrop-blur-md border border-emerald-300/50 shadow-2xs p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 transition-all">
+        {/* Brand Logo & Lane Info */}
+        <div className="flex items-center gap-3.5">
+          <div className="relative w-11 h-11 rounded-xl bg-white border border-emerald-400 text-emerald-700 flex items-center justify-center shadow-xs shrink-0">
+            <ShoppingBag size={22} strokeWidth={2.2} />
+            <div className="absolute -top-1 -right-1 text-xs">🌿</div>
           </div>
           <div>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <h1 className="text-xl font-black text-slate-900 tracking-tight">{cart.merchantName || "BPOS Superstore"}</h1>
-              <CustomBadge tone="green">
-                {cart.laneNo || "Lane 01"}
-              </CustomBadge>
+              <span className="bg-emerald-700 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider shadow-2xs">
+                {cart.laneNo || "LANE 01"}
+              </span>
             </div>
-            <p className="text-xs font-semibold text-slate-500 flex items-center gap-2 mt-0.5">
-              <span>Customer Display Terminal</span>
+            <p className="text-[10.5px] font-bold tracking-wider text-emerald-800 uppercase flex items-center gap-2 mt-0.5">
+              <span>CUSTOMER DISPLAY TERMINAL</span>
               <span>•</span>
-              <span className={cn("inline-flex items-center gap-1 text-[11px] font-bold", online ? "text-emerald-700" : "text-amber-700")}>
+              <span className={cn("inline-flex items-center gap-1 text-[11px] font-extrabold normal-case tracking-normal", online ? "text-emerald-700" : "text-amber-700")}>
                 {online ? <Wifi size={12} /> : <WifiOff size={12} />}
                 {online ? "POS Live Synced" : "Offline Register"}
               </span>
@@ -301,34 +316,41 @@ export default function CustomerDisplayPage() {
           </div>
         </div>
 
-        {/* Center Clock & Date */}
-        <div className="hidden lg:flex flex-col items-center justify-center px-8 border-x border-slate-100">
-          <span className="text-xl font-black font-mono tracking-widest text-slate-900">{currentTime}</span>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-0.5">{currentDate}</span>
+        {/* Center Clock & Date Pill - Dead Centered in Header */}
+        <div className="hidden lg:flex items-center gap-3 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 border border-emerald-300/80 shadow-2xs absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
+          <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-900 flex items-center justify-center shrink-0">
+            <Scale size={16} strokeWidth={2.2} />
+          </div>
+          <div className="leading-tight text-center">
+            <p className="text-sm font-black font-mono tracking-wider text-slate-900">{currentTime}</p>
+            <p className="text-[9.5px] font-bold uppercase tracking-wider text-emerald-800">{currentDate}</p>
+          </div>
         </div>
 
-        {/* Top Control Bar - Only Sound & Fullscreen */}
+        {/* Top Control Bar - Volume & Fullscreen Pills */}
         <div className="flex items-center gap-2">
-          <CustomButton
-            size="sm"
-            variant="outline"
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            title={soundEnabled ? "Mute scan sound" : "Enable scan sound"}
-            className="w-10 h-10 p-0 rounded-xl"
-          >
-            {soundEnabled ? <Volume2 size={18} className="text-emerald-600" /> : <VolumeX size={18} className="text-slate-400" />}
-          </CustomButton>
+          <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-xl p-1 border border-emerald-300/80 shadow-2xs">
+            <CustomButton
+              size="sm"
+              variant="outline"
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              title={soundEnabled ? "Mute scan sound" : "Enable scan sound"}
+              className="w-9 h-9 p-0 rounded-lg border-none hover:bg-emerald-50"
+            >
+              {soundEnabled ? <Volume2 size={18} className="text-emerald-700" /> : <VolumeX size={18} className="text-slate-400" />}
+            </CustomButton>
 
-          <CustomButton
-            size="sm"
-            variant="primary"
-            themeColor="emerald"
-            onClick={toggleFullscreen}
-            className="w-10 h-10 p-0 rounded-xl"
-            title="Toggle Fullscreen"
-          >
-            {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
-          </CustomButton>
+            <CustomButton
+              size="sm"
+              variant="primary"
+              themeColor="emerald"
+              onClick={toggleFullscreen}
+              className="w-9 h-9 p-0 rounded-lg"
+              title="Toggle Fullscreen"
+            >
+              {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+            </CustomButton>
+          </div>
         </div>
       </header>
 
@@ -471,19 +493,30 @@ export default function CustomerDisplayPage() {
               lines.map((item, idx) => {
                 const linePrice = item.qty * item.unitPrice - (item.discountAmount || 0);
                 const emoji = getEmoji(item.name);
+                const rawImg = item.image || (item as any).imageUrl;
+                const formattedSrc = rawImg ? (rawImg.startsWith("/") ? `http://localhost:4000${rawImg}` : rawImg) : null;
                 return (
                   <div
                     key={idx}
                     className="flex items-center justify-between p-4 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:border-slate-300 transition"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
-                      {item.image ? (
+                      {formattedSrc ? (
                         <img
-                          src={item.image}
+                          src={formattedSrc}
                           alt={item.name}
-                          className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-50 shadow-2xs"
+                          className="w-12 h-12 rounded-xl object-cover border border-emerald-200/80 shrink-0 bg-slate-50 shadow-2xs"
                           onError={(e) => {
-                            (e.target as HTMLElement).style.display = "none";
+                            const target = e.currentTarget;
+                            target.onerror = null;
+                            target.style.display = "none";
+                            const parent = target.parentElement;
+                            if (parent && !parent.querySelector(".fallback-emoji")) {
+                              const fallback = document.createElement("div");
+                              fallback.className = "fallback-emoji w-12 h-12 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] text-[#15803d] font-bold text-xl flex items-center justify-center shrink-0 shadow-2xs";
+                              fallback.innerText = emoji;
+                              parent.appendChild(fallback);
+                            }
                           }}
                         />
                       ) : (

@@ -78,7 +78,15 @@ export default function PosPage() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   // Cart
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem("bpos_general_cart");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [customerId, setCustomerId] = useState("");
   const [customers, setCustomers] = useState<CachedCustomer[]>([]);
   const [discountTotal, setDiscountTotal] = useState(0);
@@ -199,8 +207,11 @@ export default function PosPage() {
     if (isOnline()) {
       const t = setTimeout(() => {
         api
-          .get<{ data: ApiProductRow[] }>(`/products?search=${encodeURIComponent(search)}&limit=100`)
-          .then((res) => setProducts((res.data ?? []).map((r) => toRegisterProduct(r)) as unknown as CachedProduct[]))
+          .get(`/products?search=${encodeURIComponent(search)}&limit=100`)
+          .then((res: any) => {
+            const arr = Array.isArray(res?.data?.data) ? res.data.data : Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+            setProducts(arr.map((r: any) => toRegisterProduct(r)) as unknown as CachedProduct[]);
+          })
           .catch(() => {});
       }, 250);
       return () => clearTimeout(t);
@@ -220,6 +231,7 @@ export default function PosPage() {
       updatedAt: Date.now(),
       lines: cart.map((i) => ({
         name: i.name, qty: i.qty, unitPrice: i.unitPrice, discountAmount: i.discountAmount,
+        image: (i as any).image || (i as any).imageUrl,
       })),
       subtotal,
       discountTotal,
@@ -227,6 +239,14 @@ export default function PosPage() {
       total,
       status: cart.length > 0 ? "ACTIVE" : "IDLE",
     });
+
+    try {
+      if (cart.length > 0) {
+        localStorage.setItem("bpos_general_cart", JSON.stringify(cart));
+      } else {
+        localStorage.removeItem("bpos_general_cart");
+      }
+    } catch {}
   }, [cart, subtotal, discountTotal, taxTotal, total]);
 
   // Keep first payment amount in sync with total when only one payment line
@@ -321,6 +341,7 @@ export default function PosPage() {
           invoiceNo: res.invoiceNo,
           lines: cart.map((i) => ({
             name: i.name, qty: i.qty, unitPrice: i.unitPrice, discountAmount: i.discountAmount,
+            image: (i as any).image || (i as any).imageUrl,
           })),
           subtotal, discountTotal, taxTotal, total,
           status: "PAID",
@@ -361,6 +382,7 @@ export default function PosPage() {
 
   function resetSale() {
     setCart([]);
+    try { localStorage.removeItem("bpos_general_cart"); } catch {}
     setCustomerId("");
     setDiscountTotal(0);
     setServiceCharge(0);
