@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Loader2,
@@ -34,6 +34,7 @@ import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomCheckbox } from "@/components/custom/CustomCheckbox";
 import { toast } from "react-toastify";
+import { useAuth } from "@/lib/auth";
 import {
   renderVerticalProductFields,
   initialVerticalFormState,
@@ -70,8 +71,8 @@ interface VariantForm {
 }
 
 const BUSINESS_VERTICALS = [
-  { id: "RETAIL", label: "Retail & Apparel", icon: ShoppingBag },
   { id: "RESTAURANT", label: "Restaurant & Food", icon: Utensils },
+  { id: "RETAIL", label: "Retail & Apparel", icon: ShoppingBag },
   { id: "PHARMACY", label: "Pharmacy & Medicine", icon: Pill },
   { id: "GROCERY", label: "Grocery & Scale", icon: ShoppingCart },
   { id: "WHOLESALE", label: "Wholesale B2B", icon: Truck },
@@ -86,6 +87,7 @@ export default function CreateProductPage() {
   const searchParams = useSearchParams();
   const editId = searchParams?.get("id");
   const isEditMode = Boolean(editId);
+  const { user } = useAuth();
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,9 +98,50 @@ export default function CreateProductPage() {
   const [units, setUnits] = useState<Unit[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
-  // Vertical Business Type Selector state
-  const [selectedVertical, setSelectedVertical] = useState<string>("RETAIL");
+  // Vertical Business Type state - auto-detected purely from tenant / user
+  const [selectedVertical, setSelectedVertical] = useState<string>("RESTAURANT");
   const [verticalFormState, setVerticalFormState] = useState<VerticalFormState>(initialVerticalFormState);
+
+  useEffect(() => {
+    async function resolveTenantBusinessType() {
+      let activeBt = "";
+      if (typeof window !== "undefined") {
+        try {
+          const tenantStr = localStorage.getItem("blueoceans_tenant");
+          if (tenantStr) {
+            activeBt = JSON.parse(tenantStr)?.businessType || "";
+          }
+          if (!activeBt) {
+            const userStr = localStorage.getItem("modernpos_user");
+            if (userStr) {
+              activeBt = JSON.parse(userStr)?.businessType || "";
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (!activeBt && user?.businessType) {
+        activeBt = user.businessType;
+      }
+
+      // If still not resolved, query /v1/tenant directly from backend
+      if (!activeBt) {
+        try {
+          const res: any = await api.get("/v1/tenant");
+          const tData = res?.data || res?.tenant || res;
+          if (tData?.businessType || tData?.tenant?.businessType) {
+            activeBt = tData?.businessType || tData?.tenant?.businessType;
+          }
+        } catch (e) {}
+      }
+
+      if (activeBt) {
+        setSelectedVertical(activeBt.toUpperCase());
+      }
+    }
+
+    resolveTenantBusinessType();
+  }, [user]);
 
   const handleUpdateVertical = (module: keyof VerticalFormState, field: string, val: any) => {
     setVerticalFormState((prev) => ({
@@ -616,6 +659,25 @@ export default function CreateProductPage() {
     label: `${u.name} ${u.code ? `(${u.code})` : ""}`,
   }));
 
+  const isRestaurant = selectedVertical === "RESTAURANT" || selectedVertical === "FOOD";
+  const isPharmacy = selectedVertical === "PHARMACY" || selectedVertical === "MEDICINE";
+  const isSalon = selectedVertical === "SALON" || selectedVertical === "SPA";
+  const isRepair = selectedVertical === "REPAIR" || selectedVertical === "SERVICE";
+  const isGrocery = selectedVertical === "GROCERY" || selectedVertical === "SUPERMARKET";
+  const isWholesale = selectedVertical === "WHOLESALE" || selectedVertical === "DISTRIBUTION";
+  const isManufacturing = selectedVertical === "MANUFACTURING" || selectedVertical === "BAKERY";
+  const isRetail = selectedVertical === "RETAIL" || selectedVertical === "APPAREL";
+  const isFranchise = selectedVertical === "FRANCHISE";
+
+  // Sidebar & Field Visibility rules per Business Type
+  const showBrand = !isRestaurant && !isSalon && !isPharmacy;
+  const showSupplier = !isRestaurant && !isSalon;
+  const showWarranty = isRetail || isRepair || isWholesale || isManufacturing || isFranchise;
+  const showEmbeddedBarcode = isGrocery || isRetail;
+  const showSerialTracking = isRepair || isRetail || isWholesale;
+  const showBatchExpiry = isPharmacy || isGrocery || isRestaurant;
+  const isServiceOnly = isSalon || (isRepair && verticalFormState.service.laborChargeOnly);
+
   const supplierOptions: SearchableSelectOption[] = suppliers.map((s) => ({
     value: s.id,
     label: `${s.name} ${s.company ? `(${s.company})` : ""}`,
@@ -680,8 +742,6 @@ export default function CreateProductPage() {
         {/* LEFT COLUMN */}
         <div className="lg:col-span-8 space-y-4">
 
-
-
           {/* DYNAMIC BUSINESS VERTICAL FORM FIELDS */}
           <div>
             {renderVerticalProductFields(selectedVertical, verticalFormState, handleUpdateVertical)}
@@ -692,7 +752,7 @@ export default function CreateProductPage() {
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <Package className="h-4 w-4 text-teal-600" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
-                Basic Information
+                {isRestaurant ? "Dish / Food Information" : isPharmacy ? "Medicine Information" : "Basic Information"}
               </h2>
             </div>
 
@@ -711,21 +771,29 @@ export default function CreateProductPage() {
             <div className="grid gap-3.5 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label className={labelClass}>
-                  Product Name <span className="text-red-500">*</span>
+                  {isRestaurant ? "Dish / Item Name" : isPharmacy ? "Brand / Medicine Trade Name" : isSalon ? "Service / Package Name" : "Product Name"} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={form.name}
                   onChange={(e) => updateForm("name", e.target.value)}
                   className={inputClass}
-                  placeholder="e.g. Wireless Ergonomic Mouse"
+                  placeholder={
+                    isRestaurant
+                      ? "e.g. Grilled Chicken Burger / Cappuccino / Pasta Alfredo"
+                      : isPharmacy
+                      ? "e.g. Napa Extra / Ace Plus / Seclo 20"
+                      : isSalon
+                      ? "e.g. Hair Cut & Beard Styling / Facial Glow Package"
+                      : "e.g. Wireless Ergonomic Mouse"
+                  }
                   required
                 />
               </div>
 
               <div>
                 <label className={labelClass}>
-                  Product Code (SKU) <span className="text-red-500">*</span>
+                  {isRestaurant ? "Menu Code / SKU" : "Product Code (SKU)"} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative flex items-center">
                   <input
@@ -779,13 +847,19 @@ export default function CreateProductPage() {
               </div>
 
               <div className="sm:col-span-2">
-                <label className={labelClass}>Product Details / Description</label>
+                <label className={labelClass}>
+                  {isRestaurant ? "Menu Description / Taste Notes" : "Product Details / Description"}
+                </label>
                 <textarea
                   value={form.description}
                   onChange={(e) => updateForm("description", e.target.value)}
                   className={`${inputClass} min-h-[90px]`}
                   rows={3}
-                  placeholder="Enter detailed description of the product..."
+                  placeholder={
+                    isRestaurant
+                      ? "Describe flavor profile, ingredients, and allergen info..."
+                      : "Enter detailed description of the product..."
+                  }
                 />
               </div>
             </div>
@@ -796,14 +870,14 @@ export default function CreateProductPage() {
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <ImageIcon className="h-4 w-4 text-teal-600" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
-                Product Media & Image
+                {isRestaurant ? "Dish Photo & POS Thumbnail" : "Product Media & Image"}
               </h2>
             </div>
 
             <ImageUploader
               value={form.imageUrl}
               onChange={(url) => updateForm("imageUrl", url)}
-              label="Upload Product Feature Image"
+              label={isRestaurant ? "Upload Dish / Food Presentation Image" : "Upload Product Feature Image"}
             />
           </div>
 
@@ -812,14 +886,16 @@ export default function CreateProductPage() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
               <div className="flex items-center gap-2 text-gray-600">
                 <DollarSign className="h-4 w-4 text-teal-600" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Pricing</h2>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                  {isRestaurant ? "Menu Pricing & Cost" : "Pricing"}
+                </h2>
               </div>
             </div>
 
             <div className="grid gap-3.5 sm:grid-cols-3">
               <div>
                 <label className={labelClass}>
-                  Product Cost (৳) <span className="text-red-500">*</span>
+                  {isRestaurant ? "Recipe / Base Cost (৳)" : "Product Cost (৳)"} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -878,7 +954,7 @@ export default function CreateProductPage() {
 
               <div>
                 <label className={labelClass}>
-                  Selling Price (৳) <span className="text-red-500">*</span>
+                  {isRestaurant ? "Menu Price (৳)" : "Selling Price (৳)"} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -891,27 +967,29 @@ export default function CreateProductPage() {
                 />
               </div>
 
-              <div>
-                <label className={labelClass}>Wholesale Price (৳)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={form.wholesalePrice}
-                  onChange={(e) => updateForm("wholesalePrice", e.target.value)}
-                  className={inputClass}
-                  placeholder="0.00"
-                />
-              </div>
+              {!isRestaurant && (
+                <div>
+                  <label className={labelClass}>Wholesale Price (৳)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={form.wholesalePrice}
+                    onChange={(e) => updateForm("wholesalePrice", e.target.value)}
+                    className={inputClass}
+                    placeholder="0.00"
+                  />
+                </div>
+              )}
 
               <div>
-                <label className={labelClass}>Product Tax (%)</label>
+                <label className={labelClass}>VAT / Tax (%)</label>
                 <input
                   type="number"
                   step="0.01"
                   value={form.taxRate}
                   onChange={(e) => updateForm("taxRate", e.target.value)}
                   className={inputClass}
-                  placeholder="e.g. 15"
+                  placeholder="e.g. 5"
                 />
               </div>
 
@@ -927,7 +1005,7 @@ export default function CreateProductPage() {
 
               <div className="sm:col-span-2 flex items-center mt-3">
                 <CustomCheckbox
-                  label="Add Promotional Price"
+                  label="Add Promotional / Special Discount Price"
                   checked={form.hasPromoPrice}
                   onChange={(e) => updateForm("hasPromoPrice", e.target.checked)}
                 />
@@ -939,175 +1017,189 @@ export default function CreateProductPage() {
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <Layers className="h-4 w-4 text-teal-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Units</h2>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                {isRestaurant ? "Serving Unit" : "Units & Measurement"}
+              </h2>
             </div>
 
             <div className="grid gap-3.5 sm:grid-cols-3">
               <div>
                 <SearchableSelect
-                  label="Product Unit"
+                  label={isRestaurant ? "Serving Unit (e.g. Portion / Plate / Cup)" : "Product Unit"}
                   required
                   options={unitOptions}
                   value={form.unitId}
                   onChange={(val) => updateForm("unitId", val)}
-                  placeholder="Select Product Unit..."
+                  placeholder="Select Unit..."
                   onAddClick={() => setActiveModal("UNIT")}
                 />
               </div>
 
-              <div>
-                <SearchableSelect
-                  label="Sale Unit"
-                  options={unitOptions}
-                  value={form.saleUnitId}
-                  onChange={(val) => updateForm("saleUnitId", val)}
-                  placeholder="Nothing selected"
-                />
-              </div>
-
-              <div>
-                <SearchableSelect
-                  label="Purchase Unit"
-                  options={unitOptions}
-                  value={form.purchaseUnitId}
-                  onChange={(val) => updateForm("purchaseUnitId", val)}
-                  placeholder="Nothing selected"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* BOX 5: Variants */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-              <div className="flex items-center gap-2 text-gray-600">
-                <Tag className="h-4 w-4 text-teal-600" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Variants</h2>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <CustomCheckbox
-                label="This product has variants (e.g. Size, Color)"
-                checked={form.hasVariants}
-                onChange={(e) => updateForm("hasVariants", e.target.checked)}
-              />
-
-              {form.hasVariants && (
-                <div className="pt-2 space-y-3">
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={addVariant}
-                      className="flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-700 bg-teal-50 px-2.5 py-1.5 rounded-md border border-teal-200 cursor-pointer"
-                    >
-                      <Plus className="h-3.5 w-3.5" /> Add Variant Item
-                    </button>
+              {!isRestaurant && (
+                <>
+                  <div>
+                    <SearchableSelect
+                      label="Sale Unit"
+                      options={unitOptions}
+                      value={form.saleUnitId}
+                      onChange={(val) => updateForm("saleUnitId", val)}
+                      placeholder="Nothing selected"
+                    />
                   </div>
 
-                  {variants.map((variant, idx) => (
-                    <div key={idx} className="rounded-md border border-slate-200 bg-slate-50/60 p-3 relative space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-gray-600">Variant #{idx + 1}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeVariant(idx)}
-                          className="text-red-500 hover:text-red-700 cursor-pointer"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                      <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
-                        <input
-                          type="text"
-                          value={variant.name}
-                          onChange={(e) => updateVariant(idx, "name", e.target.value)}
-                          className={inputClass}
-                          placeholder="Name (Red / XL)"
-                        />
-                        <input
-                          type="text"
-                          value={variant.sku}
-                          onChange={(e) => updateVariant(idx, "sku", e.target.value)}
-                          className={inputClass}
-                          placeholder="SKU"
-                        />
-                        <input
-                          type="text"
-                          value={variant.barcode}
-                          onChange={(e) => updateVariant(idx, "barcode", e.target.value)}
-                          className={inputClass}
-                          placeholder="Barcode"
-                        />
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={variant.costPrice}
-                          onChange={(e) => updateVariant(idx, "costPrice", e.target.value)}
-                          className={inputClass}
-                          placeholder="Cost"
-                        />
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={variant.sellingPrice}
-                          onChange={(e) => updateVariant(idx, "sellingPrice", e.target.value)}
-                          className={inputClass}
-                          placeholder="Selling"
-                        />
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={variant.wholesalePrice}
-                          onChange={(e) => updateVariant(idx, "wholesalePrice", e.target.value)}
-                          className={inputClass}
-                          placeholder="Wholesale"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                  <div>
+                    <SearchableSelect
+                      label="Purchase Unit"
+                      options={unitOptions}
+                      value={form.purchaseUnitId}
+                      onChange={(val) => updateForm("purchaseUnitId", val)}
+                      placeholder="Nothing selected"
+                    />
+                  </div>
+                </>
               )}
             </div>
           </div>
 
+          {/* BOX 5: Variants (For Retail, Apparel, Wholesale) */}
+          {!isRestaurant && (
+            <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Tag className="h-4 w-4 text-teal-600" />
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Variants (Size, Color, Model)</h2>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <CustomCheckbox
+                  label="This product has variants (e.g. Size, Color)"
+                  checked={form.hasVariants}
+                  onChange={(e) => updateForm("hasVariants", e.target.checked)}
+                />
+
+                {form.hasVariants && (
+                  <div className="pt-2 space-y-3">
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={addVariant}
+                        className="flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-700 bg-teal-50 px-2.5 py-1.5 rounded-md border border-teal-200 cursor-pointer"
+                      >
+                        <Plus className="h-3.5 w-3.5" /> Add Variant Item
+                      </button>
+                    </div>
+
+                    {variants.map((variant, idx) => (
+                      <div key={idx} className="rounded-md border border-slate-200 bg-slate-50/60 p-3 relative space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-gray-600">Variant #{idx + 1}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeVariant(idx)}
+                            className="text-red-500 hover:text-red-700 cursor-pointer"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                        <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+                          <input
+                            type="text"
+                            value={variant.name}
+                            onChange={(e) => updateVariant(idx, "name", e.target.value)}
+                            className={inputClass}
+                            placeholder="Name (Red / XL)"
+                          />
+                          <input
+                            type="text"
+                            value={variant.sku}
+                            onChange={(e) => updateVariant(idx, "sku", e.target.value)}
+                            className={inputClass}
+                            placeholder="SKU"
+                          />
+                          <input
+                            type="text"
+                            value={variant.barcode}
+                            onChange={(e) => updateVariant(idx, "barcode", e.target.value)}
+                            className={inputClass}
+                            placeholder="Barcode"
+                          />
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={variant.costPrice}
+                            onChange={(e) => updateVariant(idx, "costPrice", e.target.value)}
+                            className={inputClass}
+                            placeholder="Cost"
+                          />
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={variant.sellingPrice}
+                            onChange={(e) => updateVariant(idx, "sellingPrice", e.target.value)}
+                            className={inputClass}
+                            placeholder="Selling"
+                          />
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={variant.wholesalePrice}
+                            onChange={(e) => updateVariant(idx, "wholesalePrice", e.target.value)}
+                            className={inputClass}
+                            placeholder="Wholesale"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* BOX 6: Inventory Controls */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-              <Package className="h-4 w-4 text-teal-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Inventory Controls</h2>
+          {!isServiceOnly && (
+            <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+                <Package className="h-4 w-4 text-teal-600" />
+                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Inventory Controls</h2>
+              </div>
+
+              <div className="space-y-3">
+                <CustomCheckbox
+                  label="Initial Stock"
+                  description="Initial stock addition is available for single non-variant products"
+                  checked={form.hasInitialStock}
+                  onChange={(e) => updateForm("hasInitialStock", e.target.checked)}
+                />
+
+                <CustomCheckbox
+                  label="Warehouse / Branch Specific Pricing"
+                  description="Set custom prices for different warehouse or outlet locations"
+                  checked={form.hasDiffPriceWarehouse}
+                  onChange={(e) => updateForm("hasDiffPriceWarehouse", e.target.checked)}
+                />
+
+                {showBatchExpiry && (
+                  <CustomCheckbox
+                    label="Batch & Expiry Date Tracking"
+                    description="Track lot numbers, manufacturing and expiry dates"
+                    checked={form.hasBatchExpiry}
+                    onChange={(e) => updateForm("hasBatchExpiry", e.target.checked)}
+                  />
+                )}
+
+                {showSerialTracking && (
+                  <CustomCheckbox
+                    label="IMEI / Serial Number Tracking"
+                    description="Track unique serial or IMEI numbers per item"
+                    checked={form.hasSerial}
+                    onChange={(e) => updateForm("hasSerial", e.target.checked)}
+                  />
+                )}
+              </div>
             </div>
-
-            <div className="space-y-3">
-              <CustomCheckbox
-                label="Initial Stock"
-                description="Initial stock addition is available for single non-variant products"
-                checked={form.hasInitialStock}
-                onChange={(e) => updateForm("hasInitialStock", e.target.checked)}
-              />
-
-              <CustomCheckbox
-                label="Warehouse Specific Pricing"
-                description="Set custom prices for different warehouse locations"
-                checked={form.hasDiffPriceWarehouse}
-                onChange={(e) => updateForm("hasDiffPriceWarehouse", e.target.checked)}
-              />
-
-              <CustomCheckbox
-                label="Batch & Expiry Date Tracking"
-                description="Track lot numbers, manufacturing and expiry dates"
-                checked={form.hasBatchExpiry}
-                onChange={(e) => updateForm("hasBatchExpiry", e.target.checked)}
-              />
-
-              <CustomCheckbox
-                label="IMEI / Serial Number Tracking"
-                description="Track unique serial or IMEI numbers per item"
-                checked={form.hasSerial}
-                onChange={(e) => updateForm("hasSerial", e.target.checked)}
-              />
-            </div>
-          </div>
+          )}
         </div>
 
         {/* RIGHT COLUMN SIDEBAR (30%) */}
@@ -1116,24 +1208,28 @@ export default function CreateProductPage() {
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <Layers className="h-4 w-4 text-teal-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Organization</h2>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                {isRestaurant ? "Menu Category" : "Organization"}
+              </h2>
             </div>
 
             <div className="space-y-3.5">
-              <div>
-                <SearchableSelect
-                  label="Brand"
-                  options={brandOptions}
-                  value={form.brandId}
-                  onChange={(val) => updateForm("brandId", val)}
-                  placeholder="Select Brand..."
-                  onAddClick={() => setActiveModal("BRAND")}
-                />
-              </div>
+              {showBrand && (
+                <div>
+                  <SearchableSelect
+                    label="Brand"
+                    options={brandOptions}
+                    value={form.brandId}
+                    onChange={(val) => updateForm("brandId", val)}
+                    placeholder="Select Brand..."
+                    onAddClick={() => setActiveModal("BRAND")}
+                  />
+                </div>
+              )}
 
               <div>
                 <SearchableSelect
-                  label="Category"
+                  label={isRestaurant ? "Menu Category" : "Category"}
                   required
                   options={categoryOptions}
                   value={form.categoryId}
@@ -1145,7 +1241,7 @@ export default function CreateProductPage() {
 
               <div>
                 <SearchableSelect
-                  label="Sub Category"
+                  label={isRestaurant ? "Menu Sub-Category" : "Sub Category"}
                   options={subCategoryOptions}
                   value={form.subCategoryId}
                   onChange={(val) => updateForm("subCategoryId", val)}
@@ -1162,16 +1258,18 @@ export default function CreateProductPage() {
                 />
               </div>
 
-              <div>
-                <SearchableSelect
-                  label="Supplier"
-                  options={supplierOptions}
-                  value={form.supplierId}
-                  onChange={(val) => updateForm("supplierId", val)}
-                  placeholder="Select Supplier..."
-                  onAddClick={() => setActiveModal("SUPPLIER")}
-                />
-              </div>
+              {showSupplier && (
+                <div>
+                  <SearchableSelect
+                    label="Supplier"
+                    options={supplierOptions}
+                    value={form.supplierId}
+                    onChange={(val) => updateForm("supplierId", val)}
+                    placeholder="Select Supplier..."
+                    onAddClick={() => setActiveModal("SUPPLIER")}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -1203,75 +1301,79 @@ export default function CreateProductPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                <div>
-                  <div className="text-xs font-semibold text-gray-600">Embedded Barcode</div>
-                  <div className="text-[10px] text-slate-400">Check for weight scale barcode scanning</div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => updateForm("isEmbeddedBarcode", !form.isEmbeddedBarcode)}
-                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    form.isEmbeddedBarcode ? "bg-teal-600" : "bg-slate-200"
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
-                      form.isEmbeddedBarcode ? "translate-x-4" : "translate-x-0"
+              {showEmbeddedBarcode && (
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                  <div>
+                    <div className="text-xs font-semibold text-gray-600">Embedded Barcode</div>
+                    <div className="text-[10px] text-slate-400">Check for weight scale barcode scanning</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => updateForm("isEmbeddedBarcode", !form.isEmbeddedBarcode)}
+                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      form.isEmbeddedBarcode ? "bg-teal-600" : "bg-slate-200"
                     }`}
-                  />
-                </button>
-              </div>
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
+                        form.isEmbeddedBarcode ? "translate-x-4" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* SIDEBAR 3: Warranty & Guarantee */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-              <ShieldCheck className="h-4 w-4 text-teal-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
-                Warranty & Guarantee
-              </h2>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className={labelClass}>Warranty</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="number"
-                    value={form.warrantyValue}
-                    onChange={(e) => updateForm("warrantyValue", e.target.value)}
-                    className={inputClass}
-                    placeholder="eg. 1"
-                  />
-                  <SearchableSelect
-                    options={periodUnitOptions}
-                    value={form.warrantyUnit}
-                    onChange={(val) => updateForm("warrantyUnit", val)}
-                  />
-                </div>
+          {/* SIDEBAR 3: Warranty & Guarantee (Only for Retail, Repair, Wholesale, Mfg) */}
+          {showWarranty && (
+            <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
+                <ShieldCheck className="h-4 w-4 text-teal-600" />
+                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                  Warranty & Guarantee
+                </h2>
               </div>
 
-              <div>
-                <label className={labelClass}>Guarantee</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="number"
-                    value={form.guaranteeValue}
-                    onChange={(e) => updateForm("guaranteeValue", e.target.value)}
-                    className={inputClass}
-                    placeholder="eg. 1"
-                  />
-                  <SearchableSelect
-                    options={periodUnitOptions}
-                    value={form.guaranteeUnit}
-                    onChange={(val) => updateForm("guaranteeUnit", val)}
-                  />
+              <div className="space-y-3">
+                <div>
+                  <label className={labelClass}>Warranty</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      value={form.warrantyValue}
+                      onChange={(e) => updateForm("warrantyValue", e.target.value)}
+                      className={inputClass}
+                      placeholder="eg. 1"
+                    />
+                    <SearchableSelect
+                      options={periodUnitOptions}
+                      value={form.warrantyUnit}
+                      onChange={(val) => updateForm("warrantyUnit", val)}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className={labelClass}>Guarantee</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      value={form.guaranteeValue}
+                      onChange={(e) => updateForm("guaranteeValue", e.target.value)}
+                      className={inputClass}
+                      placeholder="eg. 1"
+                    />
+                    <SearchableSelect
+                      options={periodUnitOptions}
+                      value={form.guaranteeUnit}
+                      onChange={(val) => updateForm("guaranteeUnit", val)}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* SIDEBAR 4: Inventory Settings */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
