@@ -45,6 +45,8 @@ export const initialVerticalFormState: VerticalFormState = {
   },
   restaurant: {
     isKitchenProduct: true,
+    timeSlotIds: [],
+    allTimeSlots: true,
     prepTimeMinutes: "15",
     kitchenStation: "Main Kitchen KDS",
     dineInTaxRate: "5",
