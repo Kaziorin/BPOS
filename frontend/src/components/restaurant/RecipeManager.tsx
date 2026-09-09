@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { SearchableSelect, CustomButton } from "@/components/custom";
+import { toast } from "react-toastify";
 import {
   Utensils,
   Plus,
@@ -108,9 +109,21 @@ export default function RecipeManager() {
   const loadRecipeData = async (pid: string) => {
     setLoading(true);
     try {
+      if (pid.startsWith("res-prod-")) {
+        // Handle demo/fallback product without hitting DB endpoint which returns 404
+        setIngredients([
+          { ingredientProductId: "res-prod-7", name: "Raw Chicken Breast", qtyRequired: 0.25, unit: "kg", unitCost: 280 },
+          { ingredientProductId: "res-prod-8", name: "Mozzarella Cheese", qtyRequired: 0.05, unit: "kg", unitCost: 650 },
+          { ingredientProductId: "res-prod-9", name: "Cooking Olive Oil", qtyRequired: 0.02, unit: "liter", unitCost: 850 },
+        ]);
+        setFoodCostData(null);
+        setLoading(false);
+        return;
+      }
+
       const [resRecipe, resCost] = await Promise.all([
-        api.get<{ data: any[] }>(`/v1/restaurant/recipes?recipeProductId=${pid}`),
-        api.get<{ data: FoodCostResult }>(`/v1/restaurant/recipes/${pid}/food-cost`),
+        api.get<{ data: any[] }>(`/v1/restaurant/recipes?recipeProductId=${pid}`).catch(() => ({ data: [] })),
+        api.get<{ data: FoodCostResult }>(`/v1/restaurant/recipes/${pid}/food-cost`).catch(() => ({ data: null })),
       ]);
 
       if (resRecipe.data && resRecipe.data.length > 0) {
@@ -130,6 +143,8 @@ export default function RecipeManager() {
       setFoodCostData(resCost.data || null);
     } catch (err) {
       console.error("Recipe load error:", err);
+      setIngredients([]);
+      setFoodCostData(null);
     } finally {
       setLoading(false);
     }
@@ -179,6 +194,10 @@ export default function RecipeManager() {
 
   const handleSaveRecipe = async () => {
     if (!selectedProductId) return;
+    if (selectedProductId.startsWith("res-prod-")) {
+      toast.info("Recipe BOM configuration preview updated! (To save permanently to database, please create a product under Product Catalog).");
+      return;
+    }
     setSaving(true);
     try {
       await api.post("/v1/restaurant/recipes", {
@@ -190,10 +209,10 @@ export default function RecipeManager() {
           unitCost: Number(i.unitCost),
         })),
       });
-      alert("Recipe BOM saved successfully!");
+      toast.success("Recipe BOM saved successfully!");
       loadRecipeData(selectedProductId);
     } catch (err: any) {
-      alert("Save failed: " + err.message);
+      toast.error("Save failed: " + (err.response?.data?.detail || err.message));
     } finally {
       setSaving(false);
     }

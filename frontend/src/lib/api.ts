@@ -21,7 +21,8 @@ function getApiUrl(): string {
     return process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/?$/, "");
   }
   if (typeof window !== "undefined") {
-    return `http://${window.location.hostname || "localhost"}:4000`;
+    const host = window.location.hostname || "localhost";
+    return `${window.location.protocol}//${host}:4000`;
   }
   return "http://localhost:4000";
 }
@@ -73,9 +74,10 @@ axiosClient.interceptors.request.use((config) => {
 
 axiosClient.interceptors.response.use(
   (res) => res,
-  (error: AxiosError<{ error?: string }>) => {
-    let message = error.response?.data?.error ?? error.message ?? "Something went wrong";
-    if (error.code === "ERR_NETWORK" || message === "Network Error" || !error.response) {
+  (error: AxiosError<{ error?: string; detail?: string }>) => {
+    const serverData = error.response?.data;
+    let message = serverData?.detail || serverData?.error || error.message || "Something went wrong";
+    if (error.code === "ERR_NETWORK" || (!error.response && message === "Network Error")) {
       const target = `${API_URL}${error.config?.url ? error.config.url : ""}`;
       message = `Network Error: Failed to connect to API backend at ${target}. Please verify the backend service is running on port 4000.`;
     }

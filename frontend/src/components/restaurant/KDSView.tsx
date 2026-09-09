@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { CustomTabs, CustomCheckbox, CustomButton } from "@/components/custom";
+import { toast } from "react-toastify";
 import {
   Flame,
   CheckCircle,
@@ -90,7 +91,7 @@ export default function KDSView() {
       await api.patch(`/v1/restaurant/kot/${kotId}/status`, { status: nextStatus });
       fetchKDS();
     } catch (err: any) {
-      alert("KDS action failed: " + err.message);
+      toast.error("KDS action failed: " + (err.response?.data?.detail || err.message));
     }
   };
 
