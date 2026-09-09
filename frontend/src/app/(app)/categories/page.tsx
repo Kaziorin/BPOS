@@ -265,7 +265,6 @@ export default function CategoriesPage() {
         await api.put(`/v1/products/categories/${editingCategory.id}`, {
           name: formName,
           parentId: modalMode === "EDIT_SUB" ? formParentId : null,
-          businessTypes: selectedBusinessTypes,
           icon: formIcon,
         });
         toast.success("Category updated successfully!");
@@ -273,7 +272,6 @@ export default function CategoriesPage() {
         await api.post("/v1/products/categories", {
           name: formName,
           parentId: modalMode === "ADD_SUB" ? formParentId : undefined,
-          businessTypes: selectedBusinessTypes,
           icon: formIcon,
         });
         toast.success(
@@ -440,34 +438,6 @@ export default function CategoriesPage() {
           <span className="inline-flex items-center rounded-md bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-700 border border-teal-100">
             {parentObj?.name || "Parent"}
           </span>
-        );
-      },
-    },
-    {
-      key: "businessTypes",
-      header: "Business Verticals",
-      render: (cat) => {
-        const bts = cat.businessTypes ? cat.businessTypes.split(",").filter(Boolean) : [];
-        if (bts.length === 0) {
-          return (
-            <span className="inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
-              🏢 All Verticals
-            </span>
-          );
-        }
-        return (
-          <div className="flex flex-wrap gap-1">
-              {bts.map((bt) => {
-                const vObj = BUSINESS_VERTICALS.find((v) => v.id === bt);
-                const VIcon = vObj?.icon || Tags;
-                return (
-                  <span key={bt} className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">
-                    <VIcon size={11} className="text-teal-600" />
-                    <span>{vObj?.label || bt}</span>
-                  </span>
-                );
-              })}
-          </div>
         );
       },
     },
@@ -689,29 +659,29 @@ export default function CategoriesPage() {
         open={modalMode === "ADD_MAIN" || modalMode === "EDIT_MAIN"}
         onClose={() => setModalMode(null)}
         title={modalMode === "EDIT_MAIN" ? "Edit Main Category" : "Create New Main Category"}
-        size="md"
+        size="3xl"
       >
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="block text-[14px] font-semibold text-gray-600 mb-1.5 capitalize">
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5 capitalize">
               Category Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
-              placeholder="e.g. Beverages, Electronics, Clothing"
-              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-teal-500 focus:outline-none"
+              placeholder="e.g. Beverages, Fast Food, Snacks"
+              className="w-full rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-gray-700 focus:border-teal-500 focus:outline-none transition"
               required
               autoFocus
             />
           </div>
 
           <div>
-            <label className="block text-[14px] font-semibold text-gray-600 mb-1.5 capitalize">
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5 capitalize">
               Select Category Icon
             </label>
-            <div className="grid grid-cols-7 gap-1.5 p-2 bg-slate-50 border border-slate-200 rounded-md max-h-36 overflow-y-auto">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-md max-h-72 overflow-y-auto overflow-x-hidden custom-scrollbar w-full">
               {CATEGORY_ICONS_LIST.map((item) => {
                 const ItemIcon = item.icon;
                 const isSelected = formIcon === item.name;
@@ -721,29 +691,35 @@ export default function CategoriesPage() {
                     type="button"
                     onClick={() => setFormIcon(item.name)}
                     title={item.label}
-                    className={`flex flex-col items-center justify-center p-2 rounded-md transition ${
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-md transition-all cursor-pointer text-left min-w-0 ${
                       isSelected
-                        ? "bg-teal-600 text-white shadow-xs font-bold"
-                        : "bg-white text-slate-600 border border-slate-200 hover:bg-teal-50 hover:text-teal-600"
+                        ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-xs font-bold ring-2 ring-orange-500/30 border border-orange-600"
+                        : "bg-white text-slate-700 border border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
                     }`}
                   >
-                    <ItemIcon size={18} />
-                    <span className="text-[9px] mt-0.5 truncate max-w-full">{item.name}</span>
+                    <div
+                      className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 ${
+                        isSelected ? "bg-white/20 text-white" : "bg-orange-50 text-orange-600"
+                      }`}
+                    >
+                      <ItemIcon size={15} />
+                    </div>
+                    <span className="text-xs font-semibold whitespace-nowrap truncate flex-1">
+                      {item.label}
+                    </span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-
-
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <CustomButton
               type="button"
               variant="outline"
               size="sm"
               onClick={() => setModalMode(null)}
-              className="rounded-md text-xs"
+              className="rounded-md text-xs font-medium"
             >
               Cancel
             </CustomButton>
@@ -752,7 +728,7 @@ export default function CategoriesPage() {
               size="sm"
               loading={saving}
               leftIcon={<Check size={14} />}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs"
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
             >
               {modalMode === "EDIT_MAIN" ? "Update Category" : "Save Category"}
             </CustomButton>
@@ -765,7 +741,7 @@ export default function CategoriesPage() {
         open={modalMode === "ADD_SUB" || modalMode === "EDIT_SUB"}
         onClose={() => setModalMode(null)}
         title={modalMode === "EDIT_SUB" ? "Edit Subcategory" : "Create New Subcategory"}
-        size="md"
+        size="3xl"
       >
         <form onSubmit={handleSave} className="space-y-4">
           <div>
@@ -780,25 +756,25 @@ export default function CategoriesPage() {
           </div>
 
           <div>
-            <label className="block text-[14px] font-semibold text-gray-600 mb-1.5 capitalize">
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5 capitalize">
               Subcategory Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
-              placeholder="e.g. Soft Drinks, Laptops, Men Shirts"
-              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-teal-500 focus:outline-none"
+              placeholder="e.g. Soft Drinks, Burgers, Sides"
+              className="w-full rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-gray-700 focus:border-teal-500 focus:outline-none transition"
               required
               autoFocus
             />
           </div>
 
           <div>
-            <label className="block text-[14px] font-semibold text-gray-600 mb-1.5 capitalize">
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5 capitalize">
               Select Subcategory Icon
             </label>
-            <div className="grid grid-cols-7 gap-1.5 p-2 bg-slate-50 border border-slate-200 rounded-md max-h-36 overflow-y-auto">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-md max-h-72 overflow-y-auto overflow-x-hidden custom-scrollbar w-full">
               {CATEGORY_ICONS_LIST.map((item) => {
                 const ItemIcon = item.icon;
                 const isSelected = formIcon === item.name;
@@ -808,29 +784,35 @@ export default function CategoriesPage() {
                     type="button"
                     onClick={() => setFormIcon(item.name)}
                     title={item.label}
-                    className={`flex flex-col items-center justify-center p-2 rounded-md transition ${
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-md transition-all cursor-pointer text-left min-w-0 ${
                       isSelected
-                        ? "bg-teal-600 text-white shadow-xs font-bold"
-                        : "bg-white text-slate-600 border border-slate-200 hover:bg-teal-50 hover:text-teal-600"
+                        ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-xs font-bold ring-2 ring-orange-500/30 border border-orange-600"
+                        : "bg-white text-slate-700 border border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
                     }`}
                   >
-                    <ItemIcon size={18} />
-                    <span className="text-[9px] mt-0.5 truncate max-w-full">{item.name}</span>
+                    <div
+                      className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 ${
+                        isSelected ? "bg-white/20 text-white" : "bg-orange-50 text-orange-600"
+                      }`}
+                    >
+                      <ItemIcon size={15} />
+                    </div>
+                    <span className="text-xs font-semibold whitespace-nowrap truncate flex-1">
+                      {item.label}
+                    </span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-
-
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <CustomButton
               type="button"
               variant="outline"
               size="sm"
               onClick={() => setModalMode(null)}
-              className="rounded-md text-xs"
+              className="rounded-md text-xs font-medium"
             >
               Cancel
             </CustomButton>
@@ -839,7 +821,7 @@ export default function CategoriesPage() {
               size="sm"
               loading={saving}
               leftIcon={<Check size={14} />}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs"
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
             >
               {modalMode === "EDIT_SUB" ? "Update Subcategory" : "Save Subcategory"}
             </CustomButton>
