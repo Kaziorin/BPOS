@@ -47,17 +47,17 @@ async def upload_image_media(file: UploadFile = File(...)):
 
 @router.get("/api/v1/products")
 async def list_products(
-    search: str = "", productType: str = "", status: str = "", businessType: str = "",
+    search: str = "", productType: str = "", status: str = "", businessType: str = "", warehouseId: str = "",
     page: int = Query(1), limit: int = Query(20),
     tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
 ):
     # Prompt 39: product catalog list is cached (30s TTL, per tenant + filters).
-    cache_key = f"products:{tenantId}:list:{search}|{productType}|{status}|{businessType}|{page}|{limit}"
+    cache_key = f"products:{tenantId}:list:{search}|{productType}|{status}|{businessType}|{warehouseId}|{page}|{limit}"
     hit = cache_mod.get(cache_key)
     if hit is not None:
         return ApiJSONResponse(hit)
     where = "p.tenantId = :t"
-    params: dict = {"t": tenantId}
+    params: dict = {"t": tenantId, "wh": warehouseId}
     if search:
         where += " AND (p.name LIKE :s OR p.sku LIKE :s OR p.barcode LIKE :s)"
         params["s"] = f"%{search}%"
@@ -69,6 +69,9 @@ async def list_products(
         params["bt_s"] = f"%{businessType.lower()}%"
     if status:
         where += " AND p.status = :st"; params["st"] = status
+    if warehouseId:
+        where += " AND EXISTS (SELECT 1 FROM stock st WHERE st.productId = p.id AND st.tenantId = p.tenantId AND st.warehouseId = :wh)"
+
     off, lim = paginate_params(page, limit)
     rows = rows_to_dicts(
         (
@@ -80,7 +83,7 @@ async def list_products(
                     f"subc.id AS subCategoryId, subc.name AS subCategoryName, "
                     f"b.id AS brandId, b.name AS brandName, u.id AS unitId, u.name AS unitName, "
                     f"sup.id AS supplierId, sup.name AS supplierName, "
-                    f"COALESCE((SELECT SUM(qtyOnHand - qtyReserved) FROM stock WHERE productId = p.id AND tenantId = p.tenantId), 0) AS totalStock "
+                    f"COALESCE((SELECT SUM(qtyOnHand - qtyReserved) FROM stock WHERE productId = p.id AND tenantId = p.tenantId AND (:wh = '' OR warehouseId = :wh)), 0) AS totalStock "
                     f"FROM products p LEFT JOIN categories c ON c.id = p.categoryId "
                     f"LEFT JOIN categories subc ON subc.id = p.subCategoryId "
                     f"LEFT JOIN brands b ON b.id = p.brandId LEFT JOIN units u ON u.id = p.unitId "
@@ -172,11 +175,25 @@ async def create_product(
             "cb": user.id,
         },
     )
-    await db.commit()
-    cache_mod.invalidate_namespace("products", tenantId)
     row = (
         await db.execute(text("SELECT id, name, sku FROM products WHERE tenantId=:t AND sku=:s"), {"t": tenantId, "s": sku})
     ).first()
+
+    # If opening stock is specified, seed stock table for default/selected warehouse
+    opening_stock = float(body.get("openingStock") or body.get("stock") or body.get("stockQty") or 0)
+    wh_id = body.get("warehouseId")
+    if not wh_id:
+        wh_row = (await db.execute(text("SELECT id FROM warehouses WHERE tenantId = :t ORDER BY createdAt ASC LIMIT 1"), {"t": tenantId})).first()
+        wh_id = wh_row[0] if wh_row else None
+    
+    if opening_stock > 0 and wh_id:
+        await db.execute(text(
+            "INSERT INTO stock (id, tenantId, warehouseId, productId, qtyOnHand, qtyReserved, status, createdAt, updatedAt) "
+            "VALUES (UUID(), :t, :w, :p, :q, 0, 'ACTIVE', NOW(), NOW())"
+        ), {"t": tenantId, "w": wh_id, "p": row.id, "q": opening_stock})
+
+    await db.commit()
+    cache_mod.invalidate_namespace("products", tenantId)
     return ok({"id": row.id, "name": row.name, "sku": row.sku}, 201)
 
 

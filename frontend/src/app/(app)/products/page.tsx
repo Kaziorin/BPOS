@@ -40,6 +40,8 @@ export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [filterWarehouse, setFilterWarehouse] = useState("");
+  const [warehouses, setWarehouses] = useState<Array<{ id: string; name: string; code: string }>>([]);
   
   // Pagination
   const [page, setPage] = useState(1);
@@ -49,7 +51,16 @@ export default function ProductsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const loadProducts = useCallback(async (p: number, l: number, type: string, status: string, q: string) => {
+  useEffect(() => {
+    api.get<any>("/api/v1/warehouses")
+      .then((res) => {
+        const list = Array.isArray(res) ? res : res?.data || [];
+        setWarehouses(list);
+      })
+      .catch((err) => console.error("Failed to load warehouses for filter:", err));
+  }, []);
+
+  const loadProducts = useCallback(async (p: number, l: number, type: string, status: string, wh: string, q: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -60,6 +71,7 @@ export default function ProductsPage() {
       if (q) params.set("search", q);
       if (type) params.set("productType", type);
       if (status) params.set("status", status);
+      if (wh) params.set("warehouseId", wh);
 
       const result = await api.get<any>(`/v1/products?${params}`);
       const rows = Array.isArray(result?.data?.data)
@@ -89,13 +101,14 @@ export default function ProductsPage() {
   }, []);
 
   useEffect(() => {
-    loadProducts(page, limit, filterType, filterStatus, search);
-  }, [page, limit, filterType, filterStatus, search, loadProducts]);
+    loadProducts(page, limit, filterType, filterStatus, filterWarehouse, search);
+  }, [page, limit, filterType, filterStatus, filterWarehouse, search, loadProducts]);
 
   function handleResetFilters() {
     setSearch("");
     setFilterType("");
     setFilterStatus("");
+    setFilterWarehouse("");
     setPage(1);
   }
 
@@ -549,8 +562,25 @@ export default function ProductsPage() {
               <option value="INACTIVE">Inactive</option>
             </select>
 
+            {/* Warehouse Filter */}
+            <select
+              value={filterWarehouse}
+              onChange={(e) => {
+                setFilterWarehouse(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+            >
+              <option value="">All Warehouses</option>
+              {warehouses.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name} ({w.code})
+                </option>
+              ))}
+            </select>
+
             {/* Reset Filters */}
-            {hasActiveFilters && (
+            {(Boolean(search || filterType || filterStatus || filterWarehouse)) && (
               <button
                 type="button"
                 onClick={handleResetFilters}

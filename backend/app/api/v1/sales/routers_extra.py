@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import math
 import accounting as acc
 import workflow as wf
 from db import get_db, txn
@@ -251,11 +252,117 @@ async def reschedule_installment(installmentId: str, body: dict, user: AuthUser 
 # ═════════════════════════ SALES ORDERS / QUOTATIONS (§10.10-10.11) ═════════════════════════
 
 @router.get("/api/v1/sales/orders")
-async def list_sales_orders(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
-                            db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts((await db.execute(text(
-        "SELECT * FROM sales_orders WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 50"), {"t": tenantId})).fetchall())
-    return ok(rows)
+async def list_sales_orders(
+    search: str = "", source: str = "", status: str = "",
+    page: int = Query(1), limit: int = Query(15),
+    user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    b2b_where = "so.tenantId = :t"
+    params: dict = {"t": tenantId}
+    if search:
+        b2b_where += " AND (so.orderNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s)"
+        params["s"] = f"%{search}%"
+    if status:
+        b2b_where += " AND so.status = :st"
+        params["st"] = status
+
+    b2b_rows = []
+    if not source or source.upper() in ("B2B", "CORPORATE", "ALL"):
+        b2b_rows = rows_to_dicts((await db.execute(text(f"""
+            SELECT so.id, so.orderNo, 'B2B' AS source, so.status, so.subtotal, so.total,
+                   so.paidTotal, so.dueTotal, so.orderDate, so.createdAt, so.customerId,
+                   c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
+                   b.name AS branchName
+            FROM sales_orders so
+            LEFT JOIN customers c ON c.id = so.customerId
+            LEFT JOIN branches b ON b.id = so.branchId
+            WHERE {b2b_where}
+            ORDER BY so.createdAt DESC LIMIT 200
+        """), params)).fetchall())
+
+        for r in b2b_rows:
+            r["customer"] = {
+                "id": r.get("customerId"),
+                "name": r.pop("customerName", None) or "Corporate Client",
+                "phone": r.pop("customerPhone", None),
+                "email": r.pop("customerEmail", None),
+            }
+            items = rows_to_dicts((await db.execute(text("""
+                SELECT soi.id, soi.productId, p.name, p.sku, soi.qtyOrdered, soi.qtyDelivered,
+                       soi.qtyReserved, soi.qtyBackordered, soi.unitPrice, soi.lineTotal
+                FROM sales_order_items soi
+                LEFT JOIN products p ON p.id = soi.productId
+                WHERE soi.salesOrderId = :id
+            """), {"id": r["id"]})).fetchall())
+            for it in items:
+                it["name"] = it.pop("name", None) or it.get("productName") or "Item"
+                it["qtyOrdered"] = float(it.get("qtyOrdered", 0) or 0)
+                it["qtyDelivered"] = float(it.get("qtyDelivered", 0) or 0)
+                it["qtyReserved"] = float(it.get("qtyReserved", 0) or 0)
+                it["qtyBackordered"] = float(it.get("qtyBackordered", 0) or 0)
+                it["unitPrice"] = float(it.get("unitPrice", 0) or 0)
+                it["lineTotal"] = float(it.get("lineTotal", 0) or 0)
+            r["items"] = items
+
+    pos_where = "s.tenantId = :t"
+    if search:
+        pos_where += " AND (s.invoiceNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s)"
+    if status:
+        pos_where += " AND s.status = :st"
+
+    pos_rows = []
+    if not source or source.upper() in ("POS", "RETAIL", "ALL"):
+        pos_rows = rows_to_dicts((await db.execute(text(f"""
+            SELECT s.id, s.invoiceNo AS orderNo, 'POS' AS source, s.status, s.subtotal, s.total,
+                   s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
+                   s.paymentStatus, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
+                   b.name AS branchName
+            FROM sales s
+            LEFT JOIN customers c ON c.id = s.customerId
+            LEFT JOIN branches b ON b.id = s.branchId
+            WHERE {pos_where}
+            ORDER BY s.createdAt DESC LIMIT 200
+        """), params)).fetchall())
+
+        for r in pos_rows:
+            r["customer"] = {
+                "id": r.get("customerId"),
+                "name": r.pop("customerName", None) or "Walk-in Retail Customer",
+                "phone": r.pop("customerPhone", None),
+                "email": r.pop("customerEmail", None),
+            }
+            items = rows_to_dicts((await db.execute(text("""
+                SELECT si.id, si.productId, si.name, p.sku, si.qty AS qtyOrdered, si.qty AS qtyDelivered,
+                       0 AS qtyReserved, 0 AS qtyBackordered, si.unitPrice, si.lineTotal
+                FROM sale_items si
+                LEFT JOIN products p ON p.id = si.productId
+                WHERE si.saleId = :id
+            """), {"id": r["id"]})).fetchall())
+            for it in items:
+                it["qtyOrdered"] = float(it.get("qtyOrdered", 0) or 0)
+                it["qtyDelivered"] = float(it.get("qtyDelivered", 0) or 0)
+                it["qtyReserved"] = 0
+                it["qtyBackordered"] = 0
+                it["unitPrice"] = float(it.get("unitPrice", 0) or 0)
+                it["lineTotal"] = float(it.get("lineTotal", 0) or 0)
+            r["items"] = items
+
+    combined = b2b_rows + pos_rows
+    combined.sort(key=lambda x: str(x.get("createdAt", "")), reverse=True)
+
+    total = len(combined)
+    offset = (page - 1) * limit
+    paged = combined[offset: offset + limit]
+
+    return ok(paged, extra={
+        "pagination": {
+            "page": page,
+            "limit": limit,
+            "total": total,
+            "totalPages": max(1, math.ceil(total / limit)) if limit else 1
+        }
+    })
 
 
 @router.get("/api/v1/sales/quotations")
