@@ -24,7 +24,7 @@ import {
   Wrench,
   Building2,
 } from "lucide-react";
-import { api } from "@/lib/api";
+import { api, TENANT_STORAGE_KEY } from "@/lib/api";
 import { SearchableSelect } from "@/components/custom/SearchableSelect";
 import { ConfirmModal } from "@/components/custom/ConfirmModal";
 import { CustomTable, CustomTableColumn } from "@/components/custom/CustomTable";
@@ -59,6 +59,28 @@ type ModalMode = "ADD_MAIN" | "EDIT_MAIN" | "ADD_SUB" | "EDIT_SUB" | null;
 
 export default function CategoriesPage() {
   const [msg, setMsg] = useState<string | null>(null);
+  const [isRestaurantTenant, setIsRestaurantTenant] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const tenantStr = localStorage.getItem(TENANT_STORAGE_KEY);
+      const userStr = localStorage.getItem("modernpos_user");
+      let bType = "";
+      if (tenantStr) {
+        try {
+          const parsed = JSON.parse(tenantStr);
+          bType = parsed?.businessType || "";
+        } catch (e) {}
+      }
+      if (!bType && userStr) {
+        try {
+          const parsedUser = JSON.parse(userStr);
+          bType = parsedUser?.businessType || "";
+        } catch (e) {}
+      }
+      setIsRestaurantTenant(bType?.toUpperCase() === "RESTAURANT");
+    }
+  }, []);
 
   // Main Categories State (Server Paginated)
   const [mainCategories, setMainCategories] = useState<Category[]>([]);
@@ -258,6 +280,8 @@ export default function CategoriesPage() {
       return;
     }
 
+    const finalIcon = isRestaurantTenant ? formIcon : null;
+
     setSaving(true);
     try {
       if (modalMode === "EDIT_MAIN" || modalMode === "EDIT_SUB") {
@@ -265,14 +289,14 @@ export default function CategoriesPage() {
         await api.put(`/v1/products/categories/${editingCategory.id}`, {
           name: formName,
           parentId: modalMode === "EDIT_SUB" ? formParentId : null,
-          icon: formIcon,
+          icon: finalIcon,
         });
         toast.success("Category updated successfully!");
       } else {
         await api.post("/v1/products/categories", {
           name: formName,
           parentId: modalMode === "ADD_SUB" ? formParentId : undefined,
-          icon: formIcon,
+          icon: finalIcon,
         });
         toast.success(
           modalMode === "ADD_SUB"
@@ -335,7 +359,7 @@ export default function CategoriesPage() {
       header: "Category",
       sortable: true,
       render: (cat) => {
-        const IconComponent = getCategoryIcon(cat.icon, cat.name);
+        const IconComponent = isRestaurantTenant && cat.icon ? getCategoryIcon(cat.icon, cat.name) : Tags;
         return (
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-teal-50 text-teal-600 shrink-0 border border-teal-100">
@@ -415,7 +439,7 @@ export default function CategoriesPage() {
       sortable: true,
       getSortValue: (row) => row.name,
       render: (cat) => {
-        const IconComponent = getCategoryIcon(cat.icon, cat.name);
+        const IconComponent = isRestaurantTenant && cat.icon ? getCategoryIcon(cat.icon, cat.name) : CornerDownRight;
         return (
           <div className="flex items-center gap-2 font-bold text-gray-600 text-sm">
             <div className="flex h-6 w-6 items-center justify-center rounded bg-teal-50 text-teal-600 shrink-0 border border-teal-100">
@@ -659,7 +683,7 @@ export default function CategoriesPage() {
         open={modalMode === "ADD_MAIN" || modalMode === "EDIT_MAIN"}
         onClose={() => setModalMode(null)}
         title={modalMode === "EDIT_MAIN" ? "Edit Main Category" : "Create New Main Category"}
-        size="3xl"
+        size={isRestaurantTenant ? "3xl" : "md"}
       >
         <form onSubmit={handleSave} className="space-y-4">
           <div>
@@ -677,41 +701,43 @@ export default function CategoriesPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5 capitalize">
-              Select Category Icon
-            </label>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-md max-h-72 overflow-y-auto overflow-x-hidden custom-scrollbar w-full">
-              {CATEGORY_ICONS_LIST.map((item) => {
-                const ItemIcon = item.icon;
-                const isSelected = formIcon === item.name;
-                return (
-                  <button
-                    key={item.name}
-                    type="button"
-                    onClick={() => setFormIcon(item.name)}
-                    title={item.label}
-                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-md transition-all cursor-pointer text-left min-w-0 ${
-                      isSelected
-                        ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-xs font-bold ring-2 ring-orange-500/30 border border-orange-600"
-                        : "bg-white text-slate-700 border border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
-                    }`}
-                  >
-                    <div
-                      className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 ${
-                        isSelected ? "bg-white/20 text-white" : "bg-orange-50 text-orange-600"
+          {isRestaurantTenant && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 capitalize">
+                Select Restaurant Category Icon
+              </label>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-md max-h-72 overflow-y-auto overflow-x-hidden custom-scrollbar w-full">
+                {CATEGORY_ICONS_LIST.map((item) => {
+                  const ItemIcon = item.icon;
+                  const isSelected = formIcon === item.name;
+                  return (
+                    <button
+                      key={item.name}
+                      type="button"
+                      onClick={() => setFormIcon(item.name)}
+                      title={item.label}
+                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-md transition-all cursor-pointer text-left min-w-0 ${
+                        isSelected
+                          ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-xs font-bold ring-2 ring-orange-500/30 border border-orange-600"
+                          : "bg-white text-slate-700 border border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
                       }`}
                     >
-                      <ItemIcon size={15} />
-                    </div>
-                    <span className="text-xs font-semibold whitespace-nowrap truncate flex-1">
-                      {item.label}
-                    </span>
-                  </button>
-                );
-              })}
+                      <div
+                        className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 ${
+                          isSelected ? "bg-white/20 text-white" : "bg-orange-50 text-orange-600"
+                        }`}
+                      >
+                        <ItemIcon size={15} />
+                      </div>
+                      <span className="text-xs font-semibold whitespace-nowrap truncate flex-1">
+                        {item.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <CustomButton
@@ -741,7 +767,7 @@ export default function CategoriesPage() {
         open={modalMode === "ADD_SUB" || modalMode === "EDIT_SUB"}
         onClose={() => setModalMode(null)}
         title={modalMode === "EDIT_SUB" ? "Edit Subcategory" : "Create New Subcategory"}
-        size="3xl"
+        size={isRestaurantTenant ? "3xl" : "md"}
       >
         <form onSubmit={handleSave} className="space-y-4">
           <div>
@@ -770,41 +796,43 @@ export default function CategoriesPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5 capitalize">
-              Select Subcategory Icon
-            </label>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-md max-h-72 overflow-y-auto overflow-x-hidden custom-scrollbar w-full">
-              {CATEGORY_ICONS_LIST.map((item) => {
-                const ItemIcon = item.icon;
-                const isSelected = formIcon === item.name;
-                return (
-                  <button
-                    key={item.name}
-                    type="button"
-                    onClick={() => setFormIcon(item.name)}
-                    title={item.label}
-                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-md transition-all cursor-pointer text-left min-w-0 ${
-                      isSelected
-                        ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-xs font-bold ring-2 ring-orange-500/30 border border-orange-600"
-                        : "bg-white text-slate-700 border border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
-                    }`}
-                  >
-                    <div
-                      className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 ${
-                        isSelected ? "bg-white/20 text-white" : "bg-orange-50 text-orange-600"
+          {isRestaurantTenant && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 capitalize">
+                Select Restaurant Subcategory Icon
+              </label>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-md max-h-72 overflow-y-auto overflow-x-hidden custom-scrollbar w-full">
+                {CATEGORY_ICONS_LIST.map((item) => {
+                  const ItemIcon = item.icon;
+                  const isSelected = formIcon === item.name;
+                  return (
+                    <button
+                      key={item.name}
+                      type="button"
+                      onClick={() => setFormIcon(item.name)}
+                      title={item.label}
+                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-md transition-all cursor-pointer text-left min-w-0 ${
+                        isSelected
+                          ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-xs font-bold ring-2 ring-orange-500/30 border border-orange-600"
+                          : "bg-white text-slate-700 border border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
                       }`}
                     >
-                      <ItemIcon size={15} />
-                    </div>
-                    <span className="text-xs font-semibold whitespace-nowrap truncate flex-1">
-                      {item.label}
-                    </span>
-                  </button>
-                );
-              })}
+                      <div
+                        className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 ${
+                          isSelected ? "bg-white/20 text-white" : "bg-orange-50 text-orange-600"
+                        }`}
+                      >
+                        <ItemIcon size={15} />
+                      </div>
+                      <span className="text-xs font-semibold whitespace-nowrap truncate flex-1">
+                        {item.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
             <CustomButton
