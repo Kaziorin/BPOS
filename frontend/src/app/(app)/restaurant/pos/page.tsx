@@ -31,6 +31,11 @@ import {
   X,
   Coffee,
   RefreshCw,
+  Clock,
+  Sparkles,
+  Info,
+  Play,
+  Square,
 } from "lucide-react";
 import { api, TENANT_STORAGE_KEY } from "@/lib/api";
 import { toast } from "react-toastify";
@@ -55,6 +60,8 @@ interface MenuItem {
   isPopular?: boolean;
   isVeg?: boolean;
   isKitchenProduct?: boolean;
+  timeSlotIds?: string[];
+  allTimeSlots?: boolean;
   description?: string;
 }
 
@@ -75,15 +82,178 @@ interface RestaurantCartItem {
   kotStatus: "PENDING" | "SENT_TO_KITCHEN" | "PREPARING" | "SERVED" | "READY_TO_SERVE";
 }
 
+const DEMO_RESTAURANT_PRODUCTS: MenuItem[] = [
+  {
+    id: "demo-prod-1",
+    name: "Grilled BBQ Chicken Platter",
+    category: "Main Course",
+    sellingPrice: 580,
+    image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=500&q=80",
+    isPopular: true,
+    isVeg: false,
+    isKitchenProduct: true,
+    allTimeSlots: true,
+    description: "Flame-grilled tender chicken breast with peri-peri marinade & seasoned wedges",
+  },
+  {
+    id: "demo-prod-2",
+    name: "Special Mutton Dum Biryani",
+    category: "Main Course",
+    sellingPrice: 650,
+    image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&q=80",
+    isPopular: true,
+    isVeg: false,
+    isKitchenProduct: true,
+    allTimeSlots: true,
+    description: "Aromatic basmati rice cooked with succulent bone-in mutton & saffron spices",
+  },
+  {
+    id: "demo-prod-3",
+    name: "Classic Italian Margherita Pizza",
+    category: "Pizza & Pasta",
+    sellingPrice: 750,
+    image: "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?w=500&q=80",
+    isPopular: true,
+    isVeg: true,
+    isKitchenProduct: true,
+    allTimeSlots: true,
+    description: "Wood-fired crust with San Marzano tomato sauce, fresh mozzarella & sweet basil",
+  },
+  {
+    id: "demo-prod-4",
+    name: "Creamy Alfredo Fettuccine Pasta",
+    category: "Pizza & Pasta",
+    sellingPrice: 520,
+    image: "https://images.unsplash.com/photo-1645112411341-6c4fd023714a?w=500&q=80",
+    isPopular: false,
+    isVeg: false,
+    isKitchenProduct: true,
+    allTimeSlots: true,
+    description: "Al dente pasta tossed in rich parmesan garlic cream sauce with grilled mushroom",
+  },
+  {
+    id: "demo-prod-5",
+    name: "Smoky Double Beef Cheese Burger",
+    category: "Burgers & Fast Food",
+    sellingPrice: 420,
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80",
+    isPopular: true,
+    isVeg: false,
+    isKitchenProduct: true,
+    allTimeSlots: true,
+    description: "Two 100% prime beef patties, melted cheddar, caramelized onions & secret sauce",
+  },
+  {
+    id: "demo-prod-6",
+    name: "Crispy Golden French Fries",
+    category: "Appetizers",
+    sellingPrice: 180,
+    image: "https://images.unsplash.com/photo-1576107232684-1279f3908594?w=500&q=80",
+    isPopular: false,
+    isVeg: true,
+    isKitchenProduct: true,
+    allTimeSlots: true,
+    description: "Hand-cut crispy Idaho potatoes dusted with smoked paprika sea salt",
+  },
+  {
+    id: "demo-prod-7",
+    name: "Paneer Butter Masala & Naan",
+    category: "Main Course",
+    sellingPrice: 460,
+    image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500&q=80",
+    isPopular: false,
+    isVeg: true,
+    isKitchenProduct: true,
+    allTimeSlots: true,
+    description: "Cottage cheese simmered in silky tomato butter gravy with warm garlic butter naan",
+  },
+  {
+    id: "demo-prod-8",
+    name: "Artisan Caramel Macchiato",
+    category: "Beverages",
+    sellingPrice: 280,
+    image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=500&q=80",
+    isPopular: false,
+    isVeg: true,
+    isKitchenProduct: false,
+    allTimeSlots: true,
+    description: "Freshly pulled espresso with steamed velvet milk and vanilla caramel drizzle",
+  },
+  {
+    id: "demo-prod-9",
+    name: "Fresh Mint Lemonade Cooler",
+    category: "Beverages",
+    sellingPrice: 160,
+    image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500&q=80",
+    isPopular: true,
+    isVeg: true,
+    isKitchenProduct: false,
+    allTimeSlots: true,
+    description: "Crushed wild mint, freshly squeezed Meyer lemons, soda and crushed ice",
+  },
+  {
+    id: "demo-prod-10",
+    name: "Warm Molten Lava Chocolate Cake",
+    category: "Desserts",
+    sellingPrice: 320,
+    image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&q=80",
+    isPopular: true,
+    isVeg: true,
+    isKitchenProduct: true,
+    allTimeSlots: true,
+    description: "Gooey molten Belgian chocolate center served with vanilla bean ice cream scoop",
+  },
+];
+
+const DEMO_TABLES: TableOption[] = [
+  { id: "tbl-01", tableNo: "Table 01", capacity: 4, status: "AVAILABLE" },
+  { id: "tbl-02", tableNo: "Table 02", capacity: 2, status: "AVAILABLE" },
+  { id: "tbl-03", tableNo: "Table 03", capacity: 4, status: "OCCUPIED", currentBill: 1250, guestCount: 3 },
+  { id: "tbl-04", tableNo: "Table 04", capacity: 6, status: "AVAILABLE" },
+  { id: "tbl-05", tableNo: "VIP Booth 01", capacity: 8, status: "RESERVED" },
+  { id: "tbl-06", tableNo: "Terrace T-1", capacity: 4, status: "AVAILABLE" },
+];
+
+const DEFAULT_PRESET_SLOTS = [
+  { id: "shift-breakfast", name: "Breakfast / Morning", startTime: "07:00", endTime: "11:30", color: "#f59e0b", description: "Morning breakfast, tea & coffee", isActive: true },
+  { id: "shift-lunch", name: "Lunch Shift", startTime: "12:00", endTime: "16:00", color: "#0d9488", description: "Lunch meals, biryani, thali & combos", isActive: true },
+  { id: "shift-snacks", name: "Evening Snacks", startTime: "16:00", endTime: "19:00", color: "#6366f1", description: "Tea, street snacks, quick bites & fries", isActive: true },
+  { id: "shift-dinner", name: "Dinner Shift", startTime: "19:00", endTime: "23:30", color: "#ec4899", description: "Dinner menu, steaks, grills & platters", isActive: true },
+  { id: "shift-latenight", name: "Late Night Express", startTime: "23:30", endTime: "04:00", color: "#8b5cf6", description: "Late night cravings & takeaway", isActive: true },
+];
+
+function computeActiveShiftsFromClock(slots: any[], overrides: Record<string, any> = {}) {
+  const now = new Date();
+  const nowStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+  return slots.filter((s) => {
+    const ov = overrides[s.id];
+    if (ov) {
+      if (ov.action === "FORCE_ACTIVE") return true;
+      if (ov.action === "FORCE_INACTIVE") return false;
+      if (ov.untilTime) {
+        const st = s.startTime;
+        const et = ov.untilTime;
+        if (st <= et) return nowStr >= st && nowStr <= et;
+        return nowStr >= st || nowStr <= et;
+      }
+    }
+    const st = s.startTime || "00:00";
+    const et = s.endTime || "23:59";
+    if (st <= et) return nowStr >= st && nowStr <= et;
+    return nowStr >= st || nowStr <= et;
+  });
+}
+
 export default function RestaurantPOSPage() {
   const [storeName, setStoreName] = useState<string>("BlueOceans POS SYSTEM");
-  const [tables, setTables] = useState<TableOption[]>([]);
-  const [selectedTable, setSelectedTable] = useState<TableOption | null>(null);
+  const [tables, setTables] = useState<TableOption[]>(DEMO_TABLES);
+  const [selectedTable, setSelectedTable] = useState<TableOption | null>(DEMO_TABLES[0]);
   const [guestCount, setGuestCount] = useState(2);
   const [waiterName, setWaiterName] = useState("Staff 1");
   const [orderType, setOrderType] = useState<"DINE_IN" | "TAKEAWAY" | "DELIVERY">("DINE_IN");
 
-  const [products, setProducts] = useState<MenuItem[]>([]);
+  const [products, setProducts] = useState<MenuItem[]>(DEMO_RESTAURANT_PRODUCTS);
   const [cart, setCart] = useState<RestaurantCartItem[]>([]);
 
   const [selectedCategory, setSelectedCategory] = useState("All Items");
@@ -91,7 +261,7 @@ export default function RestaurantPOSPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [orderNote, setOrderNote] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Modals state
   const [showCustomItemModal, setShowCustomItemModal] = useState(false);
@@ -104,6 +274,7 @@ export default function RestaurantPOSPage() {
   const [completedBill, setCompletedBill] = useState<any | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showSelectTableModal, setShowSelectTableModal] = useState(false);
+  const [showShiftDetailsModal, setShowShiftDetailsModal] = useState(false);
 
   // Prompt Modal State
   const [promptModalState, setPromptModalState] = useState<{
@@ -121,9 +292,39 @@ export default function RestaurantPOSPage() {
 
   const [dbCategories, setDbCategories] = useState<any[]>([]);
 
+  // Time Slots / Meal Shifts State (Always active with automatic live clock matching)
+  const [timeSlotFilterEnabled, setTimeSlotFilterEnabled] = useState<boolean>(true);
+  const [timeSlots, setTimeSlots] = useState<any[]>(DEFAULT_PRESET_SLOTS);
+  const [todayOverrides, setTodayOverrides] = useState<Record<string, any>>({});
+  const initialActive = computeActiveShiftsFromClock(DEFAULT_PRESET_SLOTS);
+  const [activeSlots, setActiveSlots] = useState<any[]>(initialActive.length > 0 ? initialActive : [DEFAULT_PRESET_SLOTS[1]]);
+  const [activeSlot, setActiveSlot] = useState<any | null>(initialActive[0] || DEFAULT_PRESET_SLOTS[1]);
+  const [activeSlotIds, setActiveSlotIds] = useState<string[]>(
+    initialActive.length > 0 ? initialActive.map((s) => s.id) : [DEFAULT_PRESET_SLOTS[1].id]
+  );
+  const [overrideLoading, setOverrideLoading] = useState(false);
+
+  // Dynamic Shift Override Handler for Today's Demand
+  const handleShiftOverride = async (slotId: string, action: string) => {
+    setOverrideLoading(true);
+    try {
+      await api.post("/v1/restaurant/time-slots/override", { slotId, action });
+      await loadData();
+      if (action === "START_NOW") toast.success("Shift started & active for today's menu!");
+      else if (action === "END_EARLY") toast.info("Shift ended early for today.");
+      else if (action === "EXTEND_1H") toast.success("Shift extended by +1 Hour today!");
+      else if (action === "EXTEND_30M") toast.success("Shift extended by +30 Mins today!");
+      else if (action === "RESET" || action === "RESET_ALL") toast.info("Reverted to standard scheduled hours.");
+    } catch (err: any) {
+      console.error("Shift override error:", err);
+      toast.error(err?.response?.data?.message || err?.message || "Failed to update shift for today.");
+    } finally {
+      setOverrideLoading(false);
+    }
+  };
+
   // Load tenant/store info & real DB data
   const loadData = useCallback(async () => {
-    setLoading(true);
     try {
       if (typeof window !== "undefined") {
         const tenantStr = localStorage.getItem(TENANT_STORAGE_KEY);
@@ -146,63 +347,156 @@ export default function RestaurantPOSPage() {
           setDbCategories(cData);
         }
       } catch (e) {
-        console.error("Failed to load category metadata:", e);
+        // quiet fallback
       }
 
-      const resProd = await api.get("/products", { params: { limit: 150 } });
-      const pData = (resProd as any)?.data ?? resProd ?? [];
-      if (Array.isArray(pData)) {
-        const mappedProducts: MenuItem[] = pData.map((p: any) => {
-          let isKitchen = true;
-          try {
-            const rawAttrs = typeof p.attributes === "string" ? JSON.parse(p.attributes) : (p.attributes || {});
-            const restAttrs = rawAttrs.restaurant || rawAttrs;
-            if (restAttrs?.isKitchenProduct !== undefined) {
-              isKitchen = Boolean(restAttrs.isKitchenProduct);
-            }
-          } catch (e) {}
+      // Load Time Slots and Settings
+      try {
+        const [resSlots, resSettings] = await Promise.allSettled([
+          api.get("/v1/restaurant/time-slots"),
+          api.get("/v1/restaurant/time-slots/settings"),
+        ]);
 
-          return {
-            id: p.id,
-            name: p.name,
-            category: p.category?.name || p.categoryName || "General",
-            sellingPrice: Number(p.sellingPrice || p.price || 0),
-            image: p.imageUrl || p.image || "",
-            isPopular: Boolean(p.isPopular),
-            isVeg: Boolean(p.isVeg),
-            isKitchenProduct: isKitchen,
-            description: p.description || "",
-          };
-        });
-        setProducts(mappedProducts);
-      }
-
-      const resTables = await api.get("/v1/restaurant/tables");
-      const tData = (resTables as any)?.data ?? resTables ?? [];
-      if (Array.isArray(tData)) {
-        const mappedTables: TableOption[] = tData.map((t: any) => ({
-          id: t.id,
-          tableNo: t.tableNo || t.name || `Table ${t.id.slice(0, 4)}`,
-          capacity: Number(t.capacity || 4),
-          status: t.status || "AVAILABLE",
-          currentBill: t.currentBill ? Number(t.currentBill) : undefined,
-          guestCount: t.guestCount ? Number(t.guestCount) : undefined,
-        }));
-        setTables(mappedTables);
-        if (mappedTables.length > 0) {
-          setSelectedTable(mappedTables[0]);
+        let isFilterOn = false;
+        if (typeof window !== "undefined") {
+          const cached = localStorage.getItem("bpos_restaurant_time_slot_filter");
+          if (cached !== null) isFilterOn = cached === "true";
         }
+
+        if (resSettings.status === "fulfilled") {
+          const sData = (resSettings.value as any)?.data ?? resSettings.value ?? {};
+          if (sData?.timeSlotFilterEnabled !== undefined) {
+            isFilterOn = Boolean(sData.timeSlotFilterEnabled);
+          }
+        }
+
+        if (resSlots.status === "fulfilled") {
+          const slData = (resSlots.value as any)?.data ?? resSlots.value ?? {};
+          if (slData?.timeSlotFilterEnabled !== undefined) {
+            isFilterOn = Boolean(slData.timeSlotFilterEnabled);
+          }
+          const slotsList = Array.isArray(slData.slots)
+            ? slData.slots
+            : Array.isArray(slData)
+            ? slData
+            : [];
+          setTimeSlots(slotsList);
+
+          const curActiveSlots = Array.isArray(slData.activeSlots)
+            ? slData.activeSlots
+            : slData.activeSlot
+            ? [slData.activeSlot]
+            : [];
+          setActiveSlots(curActiveSlots);
+          setActiveSlot(slData.activeSlot || curActiveSlots[0] || null);
+
+          const curActiveIds = Array.isArray(slData.activeSlotIds)
+            ? slData.activeSlotIds
+            : curActiveSlots.map((s: any) => s.id);
+          setActiveSlotIds(curActiveIds);
+          setTodayOverrides(slData.todayOverrides || {});
+        }
+
+        setTimeSlotFilterEnabled(isFilterOn);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("bpos_restaurant_time_slot_filter", String(isFilterOn));
+        }
+      } catch (e) {
+        console.error("Failed to load time slots in POS:", e);
+      }
+
+      // Load Products
+      try {
+        const resProd = await api.get("/products", { params: { limit: 150 } });
+        const pData = (resProd as any)?.data ?? resProd ?? [];
+        if (Array.isArray(pData) && pData.length > 0) {
+          const mappedProducts: MenuItem[] = pData.map((p: any) => {
+            let isKitchen = true;
+            let timeSlotIds: string[] = [];
+            let allTimeSlots = true;
+
+            try {
+              const rawAttrs =
+                typeof p.attributes === "string"
+                  ? JSON.parse(p.attributes)
+                  : p.attributes || {};
+              const restAttrs = rawAttrs.restaurant || rawAttrs;
+              if (restAttrs?.isKitchenProduct !== undefined) {
+                isKitchen = Boolean(restAttrs.isKitchenProduct);
+              }
+              if (Array.isArray(restAttrs?.timeSlotIds)) {
+                timeSlotIds = restAttrs.timeSlotIds;
+              }
+              if (restAttrs?.allTimeSlots !== undefined) {
+                allTimeSlots = Boolean(restAttrs.allTimeSlots);
+              } else if (timeSlotIds.length > 0) {
+                allTimeSlots = false;
+              }
+            } catch (e) {}
+
+            return {
+              id: p.id,
+              name: p.name,
+              category: p.category?.name || p.categoryName || "General",
+              sellingPrice: Number(p.sellingPrice || p.price || 0),
+              image: p.imageUrl || p.image || "",
+              isPopular: Boolean(p.isPopular),
+              isVeg: Boolean(p.isVeg),
+              isKitchenProduct: isKitchen,
+              timeSlotIds,
+              allTimeSlots,
+              description: p.description || "",
+            };
+          });
+          setProducts(mappedProducts);
+        } else {
+          setProducts(DEMO_RESTAURANT_PRODUCTS);
+        }
+      } catch (errProd) {
+        setProducts(DEMO_RESTAURANT_PRODUCTS);
+      }
+
+      // Load Tables
+      try {
+        const resTables = await api.get("/v1/restaurant/tables");
+        const tData = (resTables as any)?.data ?? resTables ?? [];
+        if (Array.isArray(tData) && tData.length > 0) {
+          const mappedTables: TableOption[] = tData.map((t: any) => ({
+            id: t.id,
+            tableNo: t.tableNo || t.name || `Table ${t.id.slice(0, 4)}`,
+            capacity: Number(t.capacity || 4),
+            status: t.status || "AVAILABLE",
+            currentBill: t.currentBill ? Number(t.currentBill) : undefined,
+            guestCount: t.guestCount ? Number(t.guestCount) : undefined,
+          }));
+          setTables(mappedTables);
+          setSelectedTable(mappedTables[0]);
+        } else {
+          setTables(DEMO_TABLES);
+          setSelectedTable(DEMO_TABLES[0]);
+        }
+      } catch (errTables) {
+        setTables(DEMO_TABLES);
+        setSelectedTable(DEMO_TABLES[0]);
       }
     } catch (err: any) {
       console.error("Failed to load POS real data:", err);
-      toast.error(err?.message || "Error loading menu & table data from server");
-    } finally {
-      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     loadData();
+
+    const handleStorageChange = () => {
+      if (typeof window !== "undefined") {
+        const cached = localStorage.getItem("bpos_restaurant_time_slot_filter");
+        if (cached !== null) {
+          setTimeSlotFilterEnabled(cached === "true");
+        }
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, [loadData]);
 
   const dynamicCategories = Array.from(
@@ -229,6 +523,19 @@ export default function RestaurantPOSPage() {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
+
+  const formatDaysOfWeek = (days: any) => {
+    if (!days || days === "ALL") return "Everyday";
+    if (Array.isArray(days)) return days.join(", ");
+    if (typeof days === "string") {
+      try {
+        const parsed = JSON.parse(days);
+        if (Array.isArray(parsed)) return parsed.join(", ");
+      } catch (e) {}
+      return days;
+    }
+    return String(days);
+  };
 
   const addToCart = (item: MenuItem) => {
     const isKitchen = item.isKitchenProduct ?? true;
@@ -395,6 +702,15 @@ export default function RestaurantPOSPage() {
   };
 
   const filteredProducts = products.filter((p) => {
+    // 1. Shift filtering if enabled (supports single or multi-shift concurrent active shifts!)
+    if (timeSlotFilterEnabled && activeSlotIds.length > 0) {
+      const inAnyActiveShift =
+        p.allTimeSlots ||
+        (Array.isArray(p.timeSlotIds) &&
+          p.timeSlotIds.some((id) => activeSlotIds.includes(id)));
+      if (!inAnyActiveShift) return false;
+    }
+
     const matchesCategory =
       selectedCategory === "All Items"
         ? true
@@ -541,6 +857,45 @@ export default function RestaurantPOSPage() {
               <option value="Manager">Manager</option>
             </select>
           </div>
+
+          {/* ── MEAL SHIFT BADGE / DIALOG TRIGGER (ALWAYS DISPLAYED NEXT TO WAITER) ── */}
+          <button
+            type="button"
+            onClick={() => setShowShiftDetailsModal(true)}
+            className="flex items-center gap-2 bg-gradient-to-r from-amber-50/95 to-orange-50/85 hover:from-amber-100 hover:to-orange-100/90 border border-amber-300 hover:border-amber-400 rounded-md px-3 py-1.5 shadow-2xs transition-all duration-150 cursor-pointer text-left"
+            title="Click to view & manage today's Meal Shifts / Demand Overlaps"
+          >
+            <Clock size={15} className="text-amber-600 shrink-0" />
+            <span className="text-xs font-bold text-amber-900 shrink-0">Shift:</span>
+            <span className="text-xs font-black text-amber-950 flex items-center gap-1.5 min-w-0">
+              {activeSlots.length === 0 ? (
+                <span className="text-slate-600 font-bold flex items-center gap-1">
+                  <span>General / All-Day Menu</span>
+                </span>
+              ) : activeSlots.length === 1 ? (
+                <span className="flex items-center gap-1.5">
+                  <span className="font-black text-slate-900">{activeSlots[0].name}</span>
+                  <span className="text-[11px] font-extrabold text-amber-800 font-mono">
+                    ({activeSlots[0].startTime} – {activeSlots[0].endTime})
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    LIVE
+                  </span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5 text-orange-900 font-black">
+                  <span>🔥 {activeSlots.map((s) => s.name).join(" + ")}</span>
+                  <span className="text-[10px] bg-orange-100 border border-orange-300 px-1.5 py-0.2 rounded-full font-extrabold text-orange-800">
+                    {activeSlots.length} Active
+                  </span>
+                </span>
+              )}
+            </span>
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-amber-200/80 text-amber-900 text-[10px] ml-1 shrink-0 font-bold">
+              <Info size={11} />
+            </span>
+          </button>
         </div>
 
         <div className="flex items-center gap-2">
@@ -641,6 +996,57 @@ export default function RestaurantPOSPage() {
 
         {/* ── CENTER MENU ITEMS GRID ── */}
         <main className="flex-1 flex flex-col rounded-xl bg-white border border-slate-200 shadow-2xs overflow-hidden">
+          {/* ── ACTIVE SHIFT BANNER (DISPLAYED WHEN SHIFT FILTER IS ON) ── */}
+          {timeSlotFilterEnabled && (
+            <div className="flex-none p-2.5 px-3 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 border-b border-amber-300/80 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500 text-white shadow-xs shrink-0">
+                  <Clock size={15} />
+                </div>
+                <div className="flex items-center gap-2 flex-wrap min-w-0">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-amber-900 shrink-0">
+                    POS Shift:
+                  </span>
+                  {activeSlots.length === 0 ? (
+                    <span className="text-xs text-gray-700 font-bold flex items-center gap-1.5">
+                      <span>No shift active for current hour (Showing full menu)</span>
+                    </span>
+                  ) : activeSlots.length === 1 ? (
+                    <span className="flex items-center gap-1.5 text-xs">
+                      <span className="font-extrabold text-slate-900">{activeSlots[0].name}</span>
+                      <span className="text-[11px] font-bold text-amber-800 font-mono">
+                        ({activeSlots[0].startTime} – {activeSlots[0].endTime})
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        ACTIVE
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5 text-xs text-orange-900 font-black">
+                      <span>🔥 {activeSlots.map((s) => s.name).join(" + ")}</span>
+                      <span className="text-[10px] bg-orange-100 border border-orange-300 px-1.5 py-0.2 rounded-full font-extrabold text-orange-800">
+                        {activeSlots.length} Active Concurrently
+                      </span>
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowShiftDetailsModal(true)}
+                  className="px-2.5 py-1 rounded-md bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 text-xs font-bold transition shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                  title="Click to view & manage shifts or start early/extend demand"
+                >
+                  <Clock size={13} className="text-amber-600" />
+                  <span>Shift Schedule &amp; Demand</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="flex-none p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <h2 className="text-xs font-bold text-gray-800 tracking-tight flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-orange-500 shadow-xs shadow-orange-500/50" />
@@ -1297,6 +1703,264 @@ export default function RestaurantPOSPage() {
               onClick={() => setShowSelectTableModal(false)}
             >
               Cancel
+            </CustomButton>
+          </div>
+        </div>
+      </CustomModal>
+
+      {/* ══════════════ MEAL SHIFT DETAILS MODAL ══════════════ */}
+      <CustomModal
+        open={showShiftDetailsModal}
+        onClose={() => setShowShiftDetailsModal(false)}
+        title="Restaurant Meal Shifts Schedule"
+        size="5xl"
+      >
+        <div className="space-y-5">
+          {/* Active Shifts Overview Banner */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-300/80 shadow-2xs">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-orange-500/20">
+                <Clock size={24} />
+              </div>
+              <div>
+                <div className="text-[11px] font-extrabold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles size={13} className="text-amber-600" />
+                  <span>Today's Real-time Active Shifts &amp; Demand Overlaps</span>
+                </div>
+                <div className="text-base sm:text-lg font-black text-gray-900 flex items-center gap-2.5 flex-wrap mt-0.5">
+                  {activeSlots.length === 0 ? (
+                    <span className="text-gray-600">No Shifts Active (Full Menu Catalog Available)</span>
+                  ) : activeSlots.length === 1 ? (
+                    <>
+                      <span>{activeSlots[0].name}</span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        ACTIVE NOW ({activeSlots[0].startTime} – {activeSlots[0].endTime})
+                      </span>
+                    </>
+                  ) : (
+                    <span className="flex items-center gap-2 text-orange-800 font-black flex-wrap">
+                      <span>🔥 {activeSlots.map((s) => s.name).join(" + ")}</span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-orange-100 text-orange-900 border border-orange-300 shadow-2xs">
+                        <span className="h-2 w-2 rounded-full bg-orange-500 animate-ping" />
+                        {activeSlots.length} Shifts Running Simultaneously
+                      </span>
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 text-xs flex-wrap self-end sm:self-center">
+              {Object.keys(todayOverrides).length > 0 && (
+                <button
+                  type="button"
+                  disabled={overrideLoading}
+                  onClick={() => handleShiftOverride("all", "RESET_ALL")}
+                  className="px-3 py-1.5 rounded-xl border border-amber-300 bg-white text-amber-900 text-xs font-bold hover:bg-amber-100/70 transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                  <RotateCcw size={13} className={overrideLoading ? "animate-spin text-amber-600" : "text-amber-600"} />
+                  <span>Reset All to Schedule</span>
+                </button>
+              )}
+              <div className="bg-white/90 border border-amber-200/90 rounded-xl px-3.5 py-1.5 text-center">
+                <div className="text-gray-500 text-[10px] font-medium">POS Filtering</div>
+                <div className="font-black text-emerald-700 text-xs">
+                  {timeSlotFilterEnabled ? "● Auto-Filter ON" : "○ Filter OFF"}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Shifts 3-Column Grid Design */}
+          <div className="max-h-[490px] overflow-y-auto pr-1 custom-scrollbar">
+            {timeSlots.length === 0 ? (
+              <div className="py-16 text-center text-gray-400 space-y-3">
+                <Clock size={40} className="mx-auto text-gray-300" />
+                <p className="text-sm font-bold text-gray-600">No meal shifts configured yet</p>
+                <p className="text-xs text-gray-400 max-w-sm mx-auto">
+                  Configure your restaurant meal shifts in the Restaurant Dashboard settings tab.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {timeSlots.map((slot) => {
+                  const isCurActive = Boolean(slot.isCurrentlyActive ?? activeSlotIds.includes(slot.id));
+                  const override = todayOverrides[slot.id];
+                  const slotColor = slot.color || "#f59e0b";
+
+                  return (
+                    <div
+                      key={slot.id}
+                      className={`relative flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 ${
+                        isCurActive
+                          ? "bg-gradient-to-b from-amber-50/95 via-orange-50/40 to-white border-amber-400 shadow-md shadow-amber-500/10 ring-2 ring-amber-400/80"
+                          : "bg-white border-slate-200 hover:border-slate-300 hover:shadow-2xs"
+                      }`}
+                    >
+                      {/* Top Header: Shift Name + Live Status */}
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span
+                              className="h-3.5 w-3.5 rounded-full shrink-0 shadow-2xs ring-2 ring-white"
+                              style={{ backgroundColor: slotColor }}
+                            />
+                            <h3 className="text-sm font-black text-gray-900 truncate">
+                              {slot.name}
+                            </h3>
+                          </div>
+
+                          {override?.action === "FORCE_ACTIVE" ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-orange-100 text-orange-900 border border-orange-300 shrink-0 flex items-center gap-1">
+                              <span className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-ping" />
+                              Started Early Today
+                            </span>
+                          ) : override?.action === "EXTEND_1H" || override?.action === "EXTEND_30M" ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-900 border border-blue-300 shrink-0 flex items-center gap-1">
+                              <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                              Extended Today
+                            </span>
+                          ) : override?.action === "FORCE_INACTIVE" ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600 shrink-0">
+                              Ended Early Today
+                            </span>
+                          ) : isCurActive ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0 flex items-center gap-1">
+                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                              Active (Scheduled)
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 shrink-0">
+                              Scheduled
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Scheduled Master Time */}
+                        <div className="my-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Clock size={15} className="text-amber-600" />
+                            <span className="text-xs font-black text-gray-800 font-mono tracking-tight">
+                              {slot.startTime} – {slot.endTime}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-bold text-gray-500 bg-white px-2 py-0.5 rounded border border-slate-200">
+                            Master Schedule
+                          </span>
+                        </div>
+
+                        {/* Days / Description / Override details */}
+                        <div className="space-y-1 mt-1 text-[11px] text-gray-600">
+                          <div className="flex items-center gap-1.5">
+                            <span>📅</span>
+                            <span className="truncate font-medium">{formatDaysOfWeek(slot.daysOfWeek)}</span>
+                          </div>
+                          {override?.untilTime && (
+                            <div className="text-blue-700 font-bold bg-blue-50/80 px-2 py-0.5 rounded border border-blue-200 text-[10px]">
+                              ⏳ Active Until {override.untilTime} ({override.extendedBy})
+                            </div>
+                          )}
+                          {slot.description && !override && (
+                            <p className="text-gray-500 line-clamp-1 italic text-[11px]">
+                              {slot.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Demand Management Actions Bar */}
+                      <div className="mt-3 pt-2.5 border-t border-slate-100 space-y-2">
+                        <div className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400">
+                          Today's Demand Controls
+                        </div>
+
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {isCurActive ? (
+                            <>
+                              {/* Active actions: End Early, Extend +1h, Extend +30m */}
+                              <button
+                                type="button"
+                                disabled={overrideLoading}
+                                onClick={() => handleShiftOverride(slot.id, "END_EARLY")}
+                                className="px-2 py-1 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition flex items-center gap-1 cursor-pointer"
+                                title="End this shift right now for today"
+                              >
+                                <Square size={10} className="fill-rose-700" /> End Early
+                              </button>
+
+                              <button
+                                type="button"
+                                disabled={overrideLoading}
+                                onClick={() => handleShiftOverride(slot.id, "EXTEND_1H")}
+                                className="px-2 py-1 rounded-lg text-[10px] font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition flex items-center gap-1 cursor-pointer"
+                                title="Extend shift closing time by 1 hour"
+                              >
+                                ⏳ +1h Late
+                              </button>
+
+                              <button
+                                type="button"
+                                disabled={overrideLoading}
+                                onClick={() => handleShiftOverride(slot.id, "EXTEND_30M")}
+                                className="px-2 py-1 rounded-lg text-[10px] font-bold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition flex items-center gap-1 cursor-pointer"
+                                title="Extend shift closing time by 30 mins"
+                              >
+                                ⏳ +30m
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              {/* Inactive actions: Start / Collate Now */}
+                              <button
+                                type="button"
+                                disabled={overrideLoading}
+                                onClick={() => handleShiftOverride(slot.id, "START_NOW")}
+                                className="w-full px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                                title="Start this shift early or collate alongside other active shifts"
+                              >
+                                <Play size={11} className="fill-white" /> Start / Collate Shift Now
+                              </button>
+                            </>
+                          )}
+
+                          {override && (
+                            <button
+                              type="button"
+                              disabled={overrideLoading}
+                              onClick={() => handleShiftOverride(slot.id, "RESET")}
+                              className="px-2 py-1 rounded-lg text-[10px] font-bold text-gray-500 hover:text-gray-800 hover:bg-slate-100 transition flex items-center gap-1 cursor-pointer ml-auto"
+                              title="Revert back to standard schedule"
+                            >
+                              <RotateCcw size={10} /> Revert
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100">
+            <Link
+              href="/restaurant"
+              className="text-xs font-bold text-orange-600 hover:text-orange-700 underline flex items-center gap-1"
+              onClick={() => setShowShiftDetailsModal(false)}
+            >
+              <span>Configure Master Meal Shifts &amp; Rules in Restaurant Dashboard</span>
+              <span>&rarr;</span>
+            </Link>
+
+            <CustomButton
+              themeColor="orange"
+              size="md"
+              onClick={() => setShowShiftDetailsModal(false)}
+            >
+              Done
             </CustomButton>
           </div>
         </div>

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   UtensilsCrossed,
   LayoutGrid,
@@ -16,13 +17,50 @@ import {
 import FloorPlanView from "@/components/restaurant/FloorPlanView";
 import KDSView from "@/components/restaurant/KDSView";
 import RecipeManager from "@/components/restaurant/RecipeManager";
+import TimeSlotsManager from "@/components/restaurant/TimeSlotsManager";
 import { CustomBreadcrumb, CustomTabs } from "@/components/custom";
 import { api } from "@/lib/api";
 
-type TabType = "floors" | "kds" | "recipes";
+type TabType = "floors" | "kds" | "recipes" | "shifts";
 
-export default function RestaurantPage() {
-  const [activeTab, setActiveTab] = useState<TabType>("floors");
+function RestaurantPageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const tabParam = searchParams.get("tab");
+  const initialTab: TabType =
+    tabParam === "shifts" || tabParam === "slots" || tabParam === "pos-shifts"
+      ? "shifts"
+      : tabParam === "kds"
+      ? "kds"
+      : tabParam === "recipes"
+      ? "recipes"
+      : "floors";
+
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
+
+  useEffect(() => {
+    if (tabParam) {
+      if (tabParam === "shifts" || tabParam === "slots" || tabParam === "pos-shifts") {
+        setActiveTab("shifts");
+      } else if (tabParam === "kds") {
+        setActiveTab("kds");
+      } else if (tabParam === "recipes") {
+        setActiveTab("recipes");
+      } else if (tabParam === "floors") {
+        setActiveTab("floors");
+      }
+    }
+  }, [tabParam]);
+
+  const handleTabChange = (id: string) => {
+    const nextTab = id as TabType;
+    setActiveTab(nextTab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", nextTab);
+    router.replace(`/restaurant?${params.toString()}`, { scroll: false });
+  };
+
   const [stats, setStats] = useState({
     totalTables: 0,
     occupiedTables: 0,
@@ -74,7 +112,7 @@ export default function RestaurantPage() {
       {/* Reusable Custom Breadcrumb Header */}
       <CustomBreadcrumb
         title="Restaurant & Culinary Engine"
-        description="Floor plan management, KOT & KDS station routing, table transfer/merge, and automated Recipe BOM ingredient costing."
+        description="Floor plan management, KOT & KDS station routing, table transfer/merge, meal shift time-slots, and automated Recipe BOM ingredient costing."
         icon={<UtensilsCrossed size={16} className="text-orange-600" />}
         iconClassName="flex h-7 w-7 items-center justify-center rounded-md bg-orange-50 text-orange-600 border border-orange-200 shrink-0"
         items={[{ label: "Restaurant", href: "/restaurant" }]}
@@ -114,7 +152,7 @@ export default function RestaurantPage() {
                 </span>
               </div>
               <p className="text-xs text-gray-500 mt-1 w-full leading-relaxed">
-                Full-width floor plan table grid, real-time KOT & KDS station routing, table transfers, and automated Recipe BOM ingredient costing.
+                Full-width floor plan table grid, real-time KOT & KDS station routing, meal shifts & time-slots, and automated Recipe BOM ingredient costing.
               </p>
             </div>
           </div>
@@ -212,9 +250,10 @@ export default function RestaurantPage() {
           { id: "floors", label: "Floor Plan & Table Grid", icon: <LayoutGrid className="w-4 h-4 text-orange-600" /> },
           { id: "kds", label: "Kitchen Display (KDS Routing)", icon: <Flame className="w-4 h-4 text-red-600" /> },
           { id: "recipes", label: "Recipe BOM & Food Costing", icon: <PieChart className="w-4 h-4 text-orange-600" /> },
+          { id: "shifts", label: "POS Shifts & Time Slots", icon: <Clock className="w-4 h-4 text-teal-600" /> },
         ]}
         activeTab={activeTab}
-        onChange={(id) => setActiveTab(id as TabType)}
+        onChange={handleTabChange}
         themeColor="orange"
       />
 
@@ -223,7 +262,16 @@ export default function RestaurantPage() {
         {activeTab === "floors" && <FloorPlanView />}
         {activeTab === "kds" && <KDSView />}
         {activeTab === "recipes" && <RecipeManager />}
+        {activeTab === "shifts" && <TimeSlotsManager />}
       </div>
     </div>
+  );
+}
+
+export default function RestaurantPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm text-gray-500">Loading Restaurant Module...</div>}>
+      <RestaurantPageContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Utensils,
   Clock,
@@ -19,8 +19,13 @@ import {
   ChefHat,
   ShieldCheck,
   Tag,
+  Calendar,
+  Sun,
+  Moon,
+  Coffee,
 } from "lucide-react";
 import { CustomCheckbox } from "@/components/custom/CustomCheckbox";
+import { api } from "@/lib/api";
 
 export interface RestaurantAddon {
   id: string;
@@ -55,6 +60,8 @@ export interface RestaurantRecipeItem {
 
 export interface RestaurantFormData {
   isKitchenProduct?: boolean;
+  timeSlotIds?: string[];
+  allTimeSlots?: boolean;
   prepTimeMinutes: string;
   kitchenStation: string;
   dineInTaxRate: string;
@@ -98,6 +105,22 @@ const SPICE_LEVELS = [
 
 export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange }) => {
   const [activeTab, setActiveTab] = useState<"KITCHEN" | "ADDONS" | "RELATED" | "RECIPE">("KITCHEN");
+  const [timeSlots, setTimeSlots] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchSlots() {
+      try {
+        const res: any = await api.get("/v1/restaurant/time-slots");
+        const sData = res?.data?.slots || res?.slots || res?.data || [];
+        if (Array.isArray(sData)) {
+          setTimeSlots(sData);
+        }
+      } catch (e) {
+        console.warn("Failed to fetch time slots:", e);
+      }
+    }
+    fetchSlots();
+  }, []);
 
   // New Add-on State
   const [newAddonName, setNewAddonName] = useState("");
@@ -396,6 +419,86 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* Meal Shifts & Time Slots Availability */}
+          <div className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-md space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="text-xs font-bold text-gray-700 flex items-center gap-1.5 uppercase tracking-wide">
+                <Clock size={13} className="text-teal-600" />
+                Meal Shifts &amp; Time Slots (Menu Availability)
+              </div>
+              <div className="flex items-center gap-2">
+                <CustomCheckbox
+                  id="allTimeSlots"
+                  checked={formData.allTimeSlots ?? ((formData.timeSlotIds || []).length === 0)}
+                  onChange={(e: any) => {
+                    const isAll = e?.target ? e.target.checked : e;
+                    onChange("allTimeSlots", isAll);
+                    if (isAll) {
+                      onChange("timeSlotIds", []);
+                    }
+                  }}
+                  label="Available in All Shifts (24/7)"
+                />
+              </div>
+            </div>
+
+            {!(formData.allTimeSlots ?? ((formData.timeSlotIds || []).length === 0)) && (
+              <div className="space-y-2 pt-1 border-t border-slate-200 animate-fadeIn">
+                <p className="text-[11px] text-slate-500">
+                  Select which specific meal shifts this food item will be visible and orderable at the POS counter:
+                </p>
+                {timeSlots.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                    {timeSlots.map((slot) => {
+                      const selectedIds: string[] = formData.timeSlotIds || [];
+                      const isSelected = selectedIds.includes(slot.id);
+
+                      const toggleSlot = () => {
+                        if (isSelected) {
+                          const next = selectedIds.filter((id) => id !== slot.id);
+                          onChange("timeSlotIds", next);
+                        } else {
+                          onChange("timeSlotIds", [...selectedIds, slot.id]);
+                        }
+                      };
+
+                      return (
+                        <div
+                          key={slot.id}
+                          onClick={toggleSlot}
+                          className={`p-2.5 rounded-lg border text-left cursor-pointer transition flex items-center justify-between gap-2 ${
+                            isSelected
+                              ? "bg-teal-50 border-teal-300 shadow-2xs"
+                              : "bg-white border-slate-200 hover:border-slate-300"
+                          }`}
+                        >
+                          <div className="min-w-0">
+                            <span className="font-bold text-xs text-slate-800 block truncate">
+                              {slot.name}
+                            </span>
+                            <span className="text-[10px] text-slate-500 font-mono font-medium">
+                              🕒 {slot.startTime} – {slot.endTime}
+                            </span>
+                          </div>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={toggleSlot}
+                            className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 pointer-events-none"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-3 bg-white rounded-lg border border-slate-200 text-xs text-slate-500 flex items-center justify-between">
+                    <span>No custom shifts created yet. Create shifts from the Restaurant Hub.</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Dining Channels & Order Availability */}
