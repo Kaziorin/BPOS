@@ -185,11 +185,15 @@ export default function CreateProductPage() {
   }, [user]);
 
   const handleUpdateVertical = (module: keyof VerticalFormState, field: string, val: any) => {
+    const safeVal =
+      val && typeof val === "object" && ("target" in val || "nativeEvent" in val)
+        ? Boolean((val as any).target?.checked)
+        : val;
     setVerticalFormState((prev) => ({
       ...prev,
       [module]: {
         ...prev[module],
-        [field]: val,
+        [field]: safeVal,
       },
     }));
   };
@@ -594,13 +598,22 @@ export default function CreateProductPage() {
           }));
       }
 
+      const cleanPayload = JSON.parse(
+        JSON.stringify(body, (key, value) => {
+          if (value && typeof value === "object" && ("nodeType" in value || "target" in value || "nativeEvent" in value || key.startsWith("__react"))) {
+            return Boolean(value.target?.checked);
+          }
+          return value;
+        })
+      );
+
       if (editId) {
-        await api.put(`/v1/products/${editId}`, body);
+        await api.put(`/v1/products/${editId}`, cleanPayload);
         toast.success("Product updated successfully!");
         setSuccessMsg("Product updated successfully!");
         setTimeout(() => router.push("/products"), 1000);
       } else {
-        await api.post("/v1/products", body);
+        await api.post("/v1/products", cleanPayload);
         toast.success("Product created successfully!");
         setSuccessMsg("Product created successfully!");
       }

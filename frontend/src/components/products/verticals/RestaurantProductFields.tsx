@@ -370,7 +370,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="dineInAvailable"
                   checked={formData.dineInAvailable ?? true}
-                  onChange={(checked) => onChange("dineInAvailable", checked)}
+                  onChange={(val) => onChange("dineInAvailable", typeof val === "boolean" ? val : Boolean((val as any)?.target?.checked))}
                   label="Available for Dine-in"
                 />
               </div>
@@ -378,7 +378,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="takeawayAvailable"
                   checked={formData.takeawayAvailable ?? true}
-                  onChange={(checked) => onChange("takeawayAvailable", checked)}
+                  onChange={(val) => onChange("takeawayAvailable", typeof val === "boolean" ? val : Boolean((val as any)?.target?.checked))}
                   label="Available for Takeaway / Parcel"
                 />
               </div>
@@ -386,7 +386,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="deliveryAvailable"
                   checked={formData.deliveryAvailable ?? true}
-                  onChange={(checked) => onChange("deliveryAvailable", checked)}
+                  onChange={(val) => onChange("deliveryAvailable", typeof val === "boolean" ? val : Boolean((val as any)?.target?.checked))}
                   label="Available for Online Delivery"
                 />
               </div>
@@ -404,7 +404,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="isVegetarian"
                   checked={formData.isVegetarian}
-                  onChange={(checked) => onChange("isVegetarian", checked)}
+                  onChange={(val) => onChange("isVegetarian", typeof val === "boolean" ? val : Boolean((val as any)?.target?.checked))}
                   label="🌱 100% Vegetarian (Veg)"
                 />
               </div>
@@ -412,7 +412,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="isHalal"
                   checked={formData.isHalal ?? true}
-                  onChange={(checked) => onChange("isHalal", checked)}
+                  onChange={(val) => onChange("isHalal", typeof val === "boolean" ? val : Boolean((val as any)?.target?.checked))}
                   label="✨ 100% Halal Certified"
                 />
               </div>
@@ -420,7 +420,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="isChefSpecial"
                   checked={formData.isChefSpecial}
-                  onChange={(checked) => onChange("isChefSpecial", checked)}
+                  onChange={(val) => onChange("isChefSpecial", typeof val === "boolean" ? val : Boolean((val as any)?.target?.checked))}
                   label="👨‍🍳 Chef's Special / Signature"
                 />
               </div>
@@ -428,7 +428,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <CustomCheckbox
                   id="isGlutenFree"
                   checked={formData.isGlutenFree}
-                  onChange={(checked) => onChange("isGlutenFree", checked)}
+                  onChange={(val) => onChange("isGlutenFree", typeof val === "boolean" ? val : Boolean((val as any)?.target?.checked))}
                   label="🌾 Gluten-Free Dish"
                 />
               </div>
@@ -709,7 +709,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
               <CustomCheckbox
                 id="hasRecipeBom"
                 checked={formData.hasRecipeBom}
-                onChange={(checked) => onChange("hasRecipeBom", checked)}
+                onChange={(val) => onChange("hasRecipeBom", typeof val === "boolean" ? val : Boolean((val as any)?.target?.checked))}
                 label="Enable Automatic Raw Material Stock Deduction on POS Sale"
               />
             </div>

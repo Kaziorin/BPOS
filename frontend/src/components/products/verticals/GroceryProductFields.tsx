@@ -120,7 +120,7 @@ export const GroceryProductFields: React.FC<Props> = ({ formData, onChange }) =>
           <CustomCheckbox
             id="isWeightedScaleItem"
             checked={formData.isWeightedScaleItem}
-            onChange={(checked) => onChange("isWeightedScaleItem", checked)}
+            onChange={(val) => onChange("isWeightedScaleItem", typeof val === "boolean" ? val : Boolean((val as any)?.target?.checked))}
             label="Weighing Scale Integration (Auto-detect quantity from weight scanner)"
           />
         </div>
@@ -129,7 +129,7 @@ export const GroceryProductFields: React.FC<Props> = ({ formData, onChange }) =>
           <CustomCheckbox
             id="isLooseItem"
             checked={formData.isLooseItem}
-            onChange={(checked) => onChange("isLooseItem", checked)}
+            onChange={(val) => onChange("isLooseItem", typeof val === "boolean" ? val : Boolean((val as any)?.target?.checked))}
             label="Loose / Bulk Item (Allows partial decimal quantities, e.g. 1.250 Kg)"
           />
         </div>
