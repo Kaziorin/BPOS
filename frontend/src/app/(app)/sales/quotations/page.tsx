@@ -85,10 +85,10 @@ export default function QuotationsPage() {
       if (action === "send") await api.post(`/v1/sales/quotations/${id}/send`);
       else if (action === "accept") await api.post(`/v1/sales/quotations/${id}/accept`);
       else if (action === "reject") {
-        const reason = prompt("Rejection reason (optional):");
+        const reason = "Rejected";
         await api.post(`/v1/sales/quotations/${id}/reject`, { reason });
       } else if (action === "convert") {
-        const warehouseId = prompt("Warehouse ID for stock reservation (optional):");
+        const warehouseId = undefined;
         await api.post(`/v1/sales/quotations/${id}/convert`, { warehouseId });
       }
       await load();

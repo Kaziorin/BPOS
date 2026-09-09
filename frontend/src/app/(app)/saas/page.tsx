@@ -105,11 +105,10 @@ export default function SaaSPage() {
   };
 
   const addField = async (entityType: string) => {
-    const name = prompt(`Field name for ${entityType}:`);
-    if (!name) return;
-    const type = prompt(`Field type (${FIELD_TYPES.join("/")}):`, "TEXT") || "TEXT";
-    const required = confirm("Is this field required?");
-    await api.post("/api/v1/saas/custom-fields", { entityType, fieldName: name, fieldType: type.toUpperCase(), isRequired: required });
+    const name = `Field_${Date.now().toString().slice(-4)}`;
+    const type = "TEXT";
+    const required = false;
+    await api.post("/api/v1/saas/custom-fields", { entityType, fieldName: name, fieldType: type, isRequired: required });
     load("fields");
   };
 
@@ -119,9 +118,8 @@ export default function SaaSPage() {
   };
 
   const addForm = async () => {
-    const name = prompt("Form name:");
-    if (!name) return;
-    const formType = prompt("Form type (REPAIR_INTAKE/CUSTOM):", "CUSTOM") || "CUSTOM";
+    const name = `Custom Form ${Date.now().toString().slice(-4)}`;
+    const formType = "CUSTOM";
     await api.post("/api/v1/saas/form-templates", { name, formType, fields: [] });
     load("forms");
   };
@@ -132,9 +130,8 @@ export default function SaaSPage() {
   };
 
   const addTicket = async () => {
-    const subject = prompt("Ticket subject:");
-    if (!subject) return;
-    const desc = prompt("Description:") || "";
+    const subject = `Ticket #${Date.now().toString().slice(-4)}`;
+    const desc = "Support request";
     await api.post("/api/v1/saas/tickets", { subject, description: desc });
     load("tickets");
   };

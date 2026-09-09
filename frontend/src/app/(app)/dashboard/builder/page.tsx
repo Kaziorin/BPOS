@@ -172,9 +172,10 @@ export default function DashboardBuilderPage() {
   }, [activeDashboard, loadWidgets]);
 
   const createDashboard = async () => {
-    const name = prompt("Dashboard name:");
-    if (!name) return;
-    const r = await api.post<any>("/api/v1/dashboards", { name });
+    if (!newDashboardName) return;
+    const r = await api.post<any>("/api/v1/dashboards", { name: newDashboardName });
+    setShowCreateModal(false);
+    setNewDashboardName("");
     await loadDashboards();
     const newId = r?.data?.id || r?.id;
     if (newId) {
