@@ -313,7 +313,31 @@ export default function RestaurantPOSPage() {
   const handlePlaceOrder = async () => {
     if (cart.length === 0) return;
     try {
-      const invNo = `REST-${Math.floor(100000 + Math.random() * 900000)}`;
+      // Build payload for the backend POS confirm endpoint
+      const payload = {
+        items: cart.map((i) => ({
+          productId: i.productId,
+          variantId: null,
+          name: i.name,
+          qty: i.qty,
+          unitPrice: i.unitPrice,
+          discountAmount: 0,
+          lineTotal: i.qty * i.unitPrice,
+        })),
+        payments: [{ method: "CASH", amount: grandTotal }],
+        subTotal: subTotal,
+        grandTotal: grandTotal,
+        discountTotal: discountAmount,
+        taxTotal: taxAmount,
+        serviceCharge: serviceCharge,
+        note: `Restaurant | Table: ${selectedTable?.tableNo || "N/A"} | ${orderType} | Waiter: ${waiterName}`,
+      };
+
+      // Call backend to save the sale and deduct inventory
+      const res: any = await api.post("/api/v1/pos/confirm", payload);
+      const saleResult = res?.data ?? res ?? {};
+      const invNo = saleResult.invoiceNo || `REST-${Math.floor(100000 + Math.random() * 900000)}`;
+
       const billData = {
         invoiceNo: invNo,
         table: selectedTable,
@@ -329,11 +353,17 @@ export default function RestaurantPOSPage() {
         grandTotal,
         date: new Date().toISOString(),
       };
+
       setCompletedBill(billData);
       setCart([]);
-      toast.success("Order Placed Successfully!");
-    } catch (err) {
-      toast.error("Failed to place order");
+      setDiscountPercent(0);
+      toast.success(`Order #${invNo} placed & synced to system!`);
+
+      // Reload product list to reflect updated stock
+      loadData();
+    } catch (err: any) {
+      console.error("Restaurant POS order error:", err);
+      toast.error(err?.response?.data?.message || err?.message || "Failed to place order. Please try again.");
     }
   };
 
