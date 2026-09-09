@@ -200,6 +200,7 @@ async def create_product(
 # ─────────────────────────── CATEGORIES & UNITS ───────────────────────────
 
 @router.get("/api/v1/products/categories")
+@router.get("/api/v1/categories")
 async def list_categories(
     page: int = Query(None),
     limit: int = Query(None),
@@ -212,6 +213,11 @@ async def list_categories(
 ):
     try:
         await db.execute(text("ALTER TABLE categories ADD COLUMN businessTypes TEXT"))
+        await db.commit()
+    except Exception:
+        pass
+    try:
+        await db.execute(text("ALTER TABLE categories ADD COLUMN icon VARCHAR(100)"))
         await db.commit()
     except Exception:
         pass
@@ -241,14 +247,14 @@ async def list_categories(
         params["l"] = l
         params["o"] = offset
         rows = rows_to_dicts(
-            (await db.execute(text(f"SELECT id, name, parentId, status, businessTypes FROM categories {where} ORDER BY name LIMIT :l OFFSET :o"), params)).fetchall()
+            (await db.execute(text(f"SELECT id, name, parentId, status, businessTypes, icon FROM categories {where} ORDER BY name LIMIT :l OFFSET :o"), params)).fetchall()
         )
         return ok({"data": rows, "total": total, "page": p, "limit": l, "totalPages": math.ceil(total / l) if l > 0 else 1})
 
     rows = rows_to_dicts(
         (
             await db.execute(
-                text(f"SELECT id, name, parentId, status, businessTypes FROM categories {where} ORDER BY name"),
+                text(f"SELECT id, name, parentId, status, businessTypes, icon FROM categories {where} ORDER BY name"),
                 params,
             )
         ).fetchall()
@@ -270,18 +276,25 @@ async def create_category(body: dict, user: AuthUser = Depends(require_permissio
     else:
         b_types_str = str(b_types) if b_types else None
 
+    icon = body.get("icon")
+
     try:
         await db.execute(text("ALTER TABLE categories ADD COLUMN businessTypes TEXT"))
         await db.commit()
     except Exception:
         pass
+    try:
+        await db.execute(text("ALTER TABLE categories ADD COLUMN icon VARCHAR(100)"))
+        await db.commit()
+    except Exception:
+        pass
 
-    await db.execute(text("INSERT INTO categories (id, tenantId, name, parentId, businessTypes, createdBy) VALUES (UUID(), :t, :n, :p, :bt, :u)"),
-                     {"t": tenantId, "n": name, "p": body.get("parentId"), "bt": b_types_str, "u": user.id})
+    await db.execute(text("INSERT INTO categories (id, tenantId, name, parentId, businessTypes, icon, createdBy) VALUES (UUID(), :t, :n, :p, :bt, :ic, :u)"),
+                     {"t": tenantId, "n": name, "p": body.get("parentId"), "bt": b_types_str, "ic": icon, "u": user.id})
     await db.commit()
-    row = (await db.execute(text("SELECT id, name, parentId, businessTypes FROM categories WHERE tenantId=:t AND name=:n ORDER BY createdAt DESC LIMIT 1"),
+    row = (await db.execute(text("SELECT id, name, parentId, businessTypes, icon FROM categories WHERE tenantId=:t AND name=:n ORDER BY createdAt DESC LIMIT 1"),
                      {"t": tenantId, "n": name})).first()
-    return ok({"id": row[0] if row else None, "name": name, "businessTypes": b_types_str, "created": True}, 201)
+    return ok({"id": row[0] if row else None, "name": name, "businessTypes": b_types_str, "icon": icon, "created": True}, 201)
 
 
 @router.put("/api/v1/products/categories/{categoryId}")
@@ -297,11 +310,16 @@ async def update_category(categoryId: str, body: dict,
         await db.commit()
     except Exception:
         pass
+    try:
+        await db.execute(text("ALTER TABLE categories ADD COLUMN icon VARCHAR(100)"))
+        await db.commit()
+    except Exception:
+        pass
 
     if "businessTypes" in body and isinstance(body["businessTypes"], list):
         body["businessTypes"] = ",".join(body["businessTypes"])
 
-    allowed = {"name": "name", "parentId": "parentId", "status": "status", "description": "description", "businessTypes": "businessTypes"}
+    allowed = {"name": "name", "parentId": "parentId", "status": "status", "description": "description", "businessTypes": "businessTypes", "icon": "icon"}
     sets, params = [], {"id": categoryId, "t": tenantId, "u": user.id}
     for jk, ck in allowed.items():
         if jk in body:
@@ -1104,19 +1122,6 @@ async def delete_supplier(supplierId: str,
 
 
 # ─────────────────────────── WAREHOUSES ───────────────────────────
-
-@router.get("/api/v1/warehouses")
-async def list_warehouses(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts(
-        (await db.execute(
-            text("SELECT w.*, b.name AS branchName FROM warehouses w LEFT JOIN branches b ON b.id=w.branchId "
-                 "WHERE w.tenantId=:t ORDER BY w.name"),
-            {"t": tenantId})).fetchall()
-    )
-    for r in rows:
-        r["branch"] = {"id": r.pop("branchId"), "name": r.pop("branchName")}
-    return ok(rows)
-
 
 @router.post("/api/v1/warehouses")
 async def create_warehouse(body: dict, user: AuthUser = Depends(require_auth),

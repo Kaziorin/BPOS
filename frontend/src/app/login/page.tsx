@@ -3,8 +3,9 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
+import Link from "next/link";
 import { useAuth, ApiError } from "@/lib/auth";
-import { Mail, Lock, ShieldCheck, ShoppingCart, UserCheck, Sparkles } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { siteConfig } from "@/config/site";
@@ -12,7 +13,6 @@ import { siteConfig } from "@/config/site";
 const loginSchema = Yup.object({
   email: Yup.string().email("Enter a valid email").required("Email is required"),
   password: Yup.string().required("Password is required"),
-  tenantSlug: Yup.string().optional(),
 });
 
 export default function LoginPage() {
@@ -20,12 +20,12 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   const formik = useFormik({
-    initialValues: { email: "admin@gmail.com", password: "12345678", tenantSlug: "demo-shop" },
+    initialValues: { email: "", password: "" },
     validationSchema: loginSchema,
     onSubmit: async (values, { setSubmitting }) => {
       setError(null);
       try {
-        await login(values.email, values.password, values.tenantSlug);
+        await login(values.email, values.password);
       } catch (err) {
         setError(err instanceof ApiError ? err.message : "Login failed. Please check credentials or backend connection.");
       } finally {
@@ -33,13 +33,6 @@ export default function LoginPage() {
       }
     },
   });
-
-  function fillDemo(email: string, pass: string, slug = "demo-shop") {
-    formik.setFieldValue("email", email);
-    formik.setFieldValue("password", pass);
-    formik.setFieldValue("tenantSlug", slug);
-  }
-
 
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-radial from-slate-900 via-ink-950 to-black px-4 py-12">
@@ -73,7 +66,7 @@ export default function LoginPage() {
           <div className="space-y-4">
             <div>
               <h2 className="text-base font-bold text-gray-900">Sign in to Terminal</h2>
-              <p className="text-xs text-gray-500">Enter your credentials or use a 1-click demo profile</p>
+              <p className="text-xs text-gray-500">Enter your email and password to access your account</p>
             </div>
 
             <CustomInput
@@ -84,7 +77,7 @@ export default function LoginPage() {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.email ? formik.errors.email : undefined}
-              placeholder="admin@blueoceanspos.com"
+              placeholder="user@example.com"
               leftIcon={<Mail size={15} />}
             />
             <CustomInput
@@ -98,16 +91,6 @@ export default function LoginPage() {
               placeholder="••••••••"
               leftIcon={<Lock size={15} />}
             />
-            <CustomInput
-              label="Tenant / Store Slug"
-              name="tenantSlug"
-              type="text"
-              value={formik.values.tenantSlug}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              error={formik.touched.tenantSlug ? formik.errors.tenantSlug : undefined}
-              placeholder="demo-shop"
-            />
 
             {error && (
               <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-600">
@@ -118,48 +101,15 @@ export default function LoginPage() {
             <CustomButton type="submit" loading={formik.isSubmitting} fullWidth size="lg">
               {formik.isSubmitting ? "Authenticating..." : "Sign In to POS"}
             </CustomButton>
+
+            <div className="text-center pt-2">
+              <span className="text-xs text-slate-500">Need a new business account? </span>
+              <Link href="/register" className="text-xs font-bold text-teal-600 hover:underline">
+                Create Store
+              </Link>
+            </div>
           </div>
         </form>
-
-        {/* Quick 1-Click Demo Profiles */}
-        <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-4 text-white">
-          <div className="flex items-center justify-between mb-2.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-primary-300 flex items-center gap-1">
-              <Sparkles size={12} /> 1-Click Demo Credentials
-            </span>
-            <span className="text-[10px] text-ink-400">Click to fill</span>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => fillDemo("admin@gmail.com", "12345678")}
-              className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/10 hover:bg-white/20 transition border border-white/5 text-center group"
-            >
-              <ShieldCheck size={16} className="text-cyan-400 mb-1 group-hover:scale-110 transition" />
-              <span className="text-xs font-semibold">Super Admin</span>
-              <span className="text-[10px] text-ink-300">Full ERP</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => fillDemo("manager@blueoceanspos.com", "Admin@123")}
-              className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/10 hover:bg-white/20 transition border border-white/5 text-center group"
-            >
-              <UserCheck size={16} className="text-emerald-400 mb-1 group-hover:scale-110 transition" />
-              <span className="text-xs font-semibold">Manager</span>
-              <span className="text-[10px] text-ink-300">Branch Ops</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => fillDemo("cashier@blueoceanspos.com", "Admin@123")}
-              className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/10 hover:bg-white/20 transition border border-white/5 text-center group"
-            >
-              <ShoppingCart size={16} className="text-amber-400 mb-1 group-hover:scale-110 transition" />
-              <span className="text-xs font-semibold">Cashier</span>
-              <span className="text-[10px] text-ink-300">Fast POS</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -24,7 +24,8 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
 
     sql = textwrap.dedent(
         """
-        SELECT ua.id, ua.name, ua.email, ua.passwordHash, ua.tenantId, ua.roleId, r.name AS roleName, t.slug AS tenantSlug
+        SELECT ua.id, ua.name, ua.email, ua.passwordHash, ua.tenantId, ua.branchId, ua.roleId,
+               r.name AS roleName, t.slug AS tenantSlug, t.name AS tenantName, t.businessType
         FROM users ua
         LEFT JOIN roles r ON r.id = ua.roleId
         LEFT JOIN tenants t ON t.id = ua.tenantId
@@ -39,10 +40,12 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
         {
             "id": row.id,
             "tenantId": row.tenantId,
+            "branchId": row.branchId or "",
             "name": row.name,
             "email": row.email,
             "roleId": row.roleId or "",
             "roleName": row.roleName or "",
+            "businessType": row.businessType or "",
         }
     )
     return ApiJSONResponse(
@@ -53,13 +56,139 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
                 "name": row.name,
                 "email": row.email,
                 "tenantId": row.tenantId,
+                "branchId": row.branchId or None,
                 "roleId": row.roleId,
                 "role": row.roleName or "",
                 "roleName": row.roleName or "",
+                "businessType": row.businessType or "RETAIL",
             },
-            "tenant": {"id": row.tenantId, "slug": row.tenantSlug},
+            "tenant": {
+                "id": row.tenantId,
+                "slug": row.tenantSlug or "default",
+                "name": row.tenantName or "Default Store",
+                "businessType": row.businessType or "RETAIL",
+            },
         }
     )
+
+
+@router.post("/api/auth/register")
+@router.post("/api/v1/auth/register")
+async def register(body: dict, db: AsyncSession = Depends(get_db)):
+    email = (body.get("email") or "").strip().lower()
+    password = body.get("password") or ""
+    name = (body.get("name") or body.get("ownerName") or "").strip()
+    business_name = (body.get("businessName") or body.get("storeName") or name or "My Store").strip()
+    business_type = (body.get("businessType") or "RETAIL").strip().upper()
+    phone = (body.get("phone") or "").strip()
+
+    if not email or not password:
+        return err("Email and password are required", 400)
+    if len(password) < 6:
+        return err("Password must be at least 6 characters", 400)
+
+    # Check duplicate email
+    dup = (await db.execute(text("SELECT id FROM users WHERE email = :e"), {"e": email})).first()
+    if dup:
+        return err("An account with this email already exists. Please sign in instead.", 409)
+
+    import uuid, re
+    from db import txn
+    from security import hash_password
+    from app.api.v1.saas.routers_saas import seed_tenant_business_metadata
+
+    tenant_id = str(uuid.uuid4())
+    slug_base = re.sub(r'[^a-z0-9]+', '-', business_name.lower()).strip('-') or "store"
+    slug = f"{slug_base}-{tenant_id[:6]}"
+
+    async with txn(db):
+        # 1. Create Tenant
+        await db.execute(text("""
+            INSERT INTO tenants (id, name, slug, businessType, status, currency, timezone, createdAt, updatedAt)
+            VALUES (:id, :n, :s, :bt, 'ACTIVE', 'BDT', 'Asia/Dhaka', NOW(), NOW())
+        """), {"id": tenant_id, "n": business_name, "s": slug, "bt": business_type})
+
+        # 2. Create Company
+        company_id = str(uuid.uuid4())
+        await db.execute(text("""
+            INSERT INTO companies (id, tenantId, name, legalName, phone, email, createdAt, updatedAt)
+            VALUES (:id, :t, :n, :n, :p, :e, NOW(), NOW())
+        """), {"id": company_id, "t": tenant_id, "n": business_name, "p": phone, "e": email})
+
+        # 3. Create Default Owner Role & Cashier Role
+        owner_role_id = str(uuid.uuid4())
+        cashier_role_id = str(uuid.uuid4())
+        await db.execute(text("""
+            INSERT INTO roles (id, tenantId, name, isSystem, status, createdAt, updatedAt)
+            VALUES (:id, :t, 'Owner', 1, 'ACTIVE', NOW(), NOW()),
+                   (:cid, :t, 'Cashier', 1, 'ACTIVE', NOW(), NOW())
+        """), {"id": owner_role_id, "cid": cashier_role_id, "t": tenant_id})
+
+        # 4. Create Primary Branch & Warehouse
+        branch_id = str(uuid.uuid4())
+        wh_id = str(uuid.uuid4())
+        await db.execute(text("""
+            INSERT INTO branches (id, tenantId, companyId, code, name, phone, email, status, createdAt, updatedAt)
+            VALUES (:id, :t, :c, 'MAIN', 'Main Branch', :p, :e, 'ACTIVE', NOW(), NOW())
+        """), {"id": branch_id, "t": tenant_id, "c": company_id, "p": phone, "e": email})
+
+        await db.execute(text("""
+            INSERT INTO warehouses (id, tenantId, branchId, code, name, status, createdAt, updatedAt)
+            VALUES (:id, :t, :b, 'WH-MAIN', 'Main Warehouse', 'ACTIVE', NOW(), NOW())
+        """), {"id": wh_id, "t": tenant_id, "b": branch_id})
+
+        # 5. Create Owner User
+        user_id = str(uuid.uuid4())
+        await db.execute(text("""
+            INSERT INTO users (id, tenantId, branchId, name, email, phone, passwordHash, roleId, status, createdAt, updatedAt)
+            VALUES (:id, :t, :b, :n, :e, :p, :ph, :r, 'ACTIVE', NOW(), NOW())
+        """), {
+            "id": user_id, "t": tenant_id, "b": branch_id, "n": name or business_name,
+            "e": email, "p": phone, "ph": hash_password(password), "r": owner_role_id
+        })
+
+        # 6. Enable all modules for tenant
+        mods = (await db.execute(text("SELECT id FROM modules"))).fetchall()
+        for m in mods:
+            await db.execute(text("""
+                INSERT INTO tenant_modules (id, tenantId, moduleId, isEnabled, createdAt)
+                VALUES (UUID(), :t, :m, 1, NOW())
+            """), {"t": tenant_id, "m": m[0]})
+
+        # 7. Seed tailored business metadata (Categories, Subcategories, Units — 0 dummy products)
+        await seed_tenant_business_metadata(db, tenant_id, business_type)
+
+    token = sign_token({
+        "id": user_id,
+        "tenantId": tenant_id,
+        "branchId": branch_id,
+        "name": name or business_name,
+        "email": email,
+        "roleId": owner_role_id,
+        "roleName": "Owner",
+        "businessType": business_type,
+    })
+
+    return ok({
+        "token": token,
+        "user": {
+            "id": user_id,
+            "name": name or business_name,
+            "email": email,
+            "tenantId": tenant_id,
+            "branchId": branch_id,
+            "roleId": owner_role_id,
+            "role": "Owner",
+            "roleName": "Owner",
+            "businessType": business_type,
+        },
+        "tenant": {
+            "id": tenant_id,
+            "slug": slug,
+            "name": business_name,
+            "businessType": business_type,
+        }
+    }, 201)
 
 
 @router.get("/api/v1/tenant")

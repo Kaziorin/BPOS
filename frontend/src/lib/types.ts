@@ -9,6 +9,7 @@ export interface AuthUser {
   roleName: string;
   role: string;
   branchId: string | null;
+  businessType?: string;
 }
 
 export interface Category {
