@@ -129,58 +129,35 @@ export default function PosPage() {
     };
   }, []);
 
-  // ── Load data: try server first, fall back to IndexedDB cache & curated demo items ──
+  // ── Load data: try server first, fall back to IndexedDB cache ──
   const loadData = useCallback(async () => {
-    const DEFAULT_DEMO_PRODUCTS: CachedProduct[] = [
-      { id: "demo-p1", name: "Aarong Pure Dairy Milk 1L", sku: "MILK-001", barcode: "89411001", sellingPrice: 95, costPrice: 80, stockQty: 48, category: "Dairy", isActive: true },
-      { id: "demo-p2", name: "Teer Fortified Soybean Oil 5L", sku: "OIL-005", barcode: "89411002", sellingPrice: 890, costPrice: 820, stockQty: 24, category: "Grocery", isActive: true },
-      { id: "demo-p3", name: "Miniket Premium Polished Rice 25kg", sku: "RICE-025", barcode: "89411003", sellingPrice: 1850, costPrice: 1680, stockQty: 18, category: "Grains", isActive: true },
-      { id: "demo-p4", name: "Pran Premium Toast Biscuit 350g", sku: "BSCT-004", barcode: "89411004", sellingPrice: 65, costPrice: 48, stockQty: 120, category: "Snacks", isActive: true },
-      { id: "demo-p5", name: "Nescafe Classic Instant Coffee 50g", sku: "BEV-005", barcode: "89411005", sellingPrice: 320, costPrice: 270, stockQty: 35, category: "Beverages", isActive: true },
-      { id: "demo-p6", name: "Ispahani Mirzapore Tea Bag 50s", sku: "TEA-006", barcode: "89411006", sellingPrice: 240, costPrice: 195, stockQty: 60, category: "Beverages", isActive: true },
-      { id: "demo-p7", name: "Dettol Original Germ Protection Soap 125g", sku: "SOAP-007", barcode: "89411007", sellingPrice: 75, costPrice: 58, stockQty: 85, category: "Personal Care", isActive: true },
-      { id: "demo-p8", name: "Radhuni Turmeric Powder 200g", sku: "SPICE-008", barcode: "89411008", sellingPrice: 110, costPrice: 90, stockQty: 40, category: "Spices", isActive: true },
-    ];
-
     const onlineNow = isOnline();
 
     if (onlineNow) {
       try {
         const raw = await api.get<{ data: RawTenantInfo }>("/api/v1/tenant");
         const info = pickTenantInfo(raw.data ?? (raw as unknown as RawTenantInfo));
-        setTenantInfo(info.branch && info.warehouse ? info : {
-          branch: { id: "branch-main", name: "Dhaka Main Branch" },
-          warehouse: { id: "wh-main", name: "Central Warehouse" },
-        });
+        setTenantInfo(info.branch && info.warehouse ? info : null);
       } catch {
-        setTenantInfo({
-          branch: { id: "branch-main", name: "Dhaka Main Branch" },
-          warehouse: { id: "wh-main", name: "Central Warehouse" },
-        });
+        setTenantInfo(null);
       }
 
       try {
         // Normalized full catalog + real stock from the batches ledger
         const [prods, batches] = await Promise.all([fetchAllProducts(), fetchBatches()]);
         const loaded = applyBatchStock(prods, batches) as unknown as CachedProduct[];
-        setProducts(loaded.length > 0 ? loaded : DEFAULT_DEMO_PRODUCTS);
-      } catch {
-        setProducts(DEFAULT_DEMO_PRODUCTS);
+        setProducts(Array.isArray(loaded) ? loaded : []);
+      } catch (err) {
+        console.warn("Could not load products:", err);
+        setProducts([]);
       }
 
       try {
-        const res = await api.get<{ data: CachedCustomer[] }>("/customers");
-        const list = (res.data ?? res) as CachedCustomer[];
-        setCustomers(Array.isArray(list) && list.length > 0 ? list : [
-          { id: "cust-1", name: "Walk-in Retail Customer", phone: "01700-000000" },
-          { id: "cust-2", name: "Rahim Chowdhury (VIP)", phone: "01811-223344" },
-          { id: "cust-3", name: "Tania Akter", phone: "01999-887766" },
-        ]);
+        const res = await api.get<any>("/customers");
+        const list = Array.isArray(res) ? res : res?.data || [];
+        setCustomers(Array.isArray(list) ? list : []);
       } catch {
-        setCustomers([
-          { id: "cust-1", name: "Walk-in Retail Customer", phone: "01700-000000" },
-          { id: "cust-2", name: "Rahim Chowdhury (VIP)", phone: "01811-223344" },
-        ]);
+        setCustomers([]);
       }
 
       // Pull and cache for offline use
@@ -190,19 +167,16 @@ export default function PosPage() {
     } else {
       // Offline — load from IndexedDB cache
       const cache = await getOfflineCache();
-      if (cache && cache.products && cache.products.length > 0) {
-        setProducts(cache.products);
+      if (cache && cache.products) {
+        setProducts(cache.products || []);
         setCustomers(cache.customers || []);
         if (cache.openShifts?.length) {
           setOpenShift(cache.openShifts[0]);
         }
       } else {
-        setProducts(DEFAULT_DEMO_PRODUCTS);
+        setProducts([]);
+        setCustomers([]);
       }
-      setTenantInfo({
-        branch: { id: "branch-main", name: "Dhaka Main Branch" },
-        warehouse: { id: "wh-main", name: "Central Warehouse" },
-      });
     }
   }, []);
 
