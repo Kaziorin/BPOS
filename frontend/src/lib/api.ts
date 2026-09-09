@@ -75,13 +75,28 @@ axiosClient.interceptors.request.use((config) => {
 axiosClient.interceptors.response.use(
   (res) => res,
   (error: AxiosError<{ error?: string; detail?: string }>) => {
+    const status = error.response?.status ?? 0;
     const serverData = error.response?.data;
     let message = serverData?.detail || serverData?.error || error.message || "Something went wrong";
+
+    if (status === 401 && typeof window !== "undefined") {
+      const isLoginOrRegister =
+        error.config?.url?.includes("/auth/login") || error.config?.url?.includes("/auth/register");
+      if (!isLoginOrRegister) {
+        localStorage.removeItem("modernpos_token");
+        localStorage.removeItem("modernpos_user");
+        localStorage.removeItem(TENANT_STORAGE_KEY);
+        if (!window.location.pathname.includes("/login") && !window.location.pathname.includes("/register")) {
+          window.location.href = "/login";
+        }
+      }
+    }
+
     if (error.code === "ERR_NETWORK" || (!error.response && message === "Network Error")) {
       const target = `${API_URL}${error.config?.url ? error.config.url : ""}`;
       message = `Network Error: Failed to connect to API backend at ${target}. Please verify the backend service is running on port 4000.`;
     }
-    return Promise.reject(new ApiError(message, error.response?.status ?? 0));
+    return Promise.reject(new ApiError(message, status));
   }
 );
 
