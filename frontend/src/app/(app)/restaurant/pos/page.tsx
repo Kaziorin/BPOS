@@ -54,6 +54,7 @@ interface MenuItem {
   image: string;
   isPopular?: boolean;
   isVeg?: boolean;
+  isKitchenProduct?: boolean;
   description?: string;
 }
 
@@ -70,7 +71,8 @@ interface RestaurantCartItem {
   unitPrice: number;
   modifiers?: CartModifier[];
   notes?: string;
-  kotStatus: "PENDING" | "SENT_TO_KITCHEN" | "PREPARING" | "SERVED";
+  isKitchenProduct?: boolean;
+  kotStatus: "PENDING" | "SENT_TO_KITCHEN" | "PREPARING" | "SERVED" | "READY_TO_SERVE";
 }
 
 export default function RestaurantPOSPage() {
@@ -150,16 +152,28 @@ export default function RestaurantPOSPage() {
       const resProd = await api.get("/products", { params: { limit: 150 } });
       const pData = (resProd as any)?.data ?? resProd ?? [];
       if (Array.isArray(pData)) {
-        const mappedProducts: MenuItem[] = pData.map((p: any) => ({
-          id: p.id,
-          name: p.name,
-          category: p.category?.name || p.categoryName || "General",
-          sellingPrice: Number(p.sellingPrice || p.price || 0),
-          image: p.imageUrl || p.image || "",
-          isPopular: Boolean(p.isPopular),
-          isVeg: Boolean(p.isVeg),
-          description: p.description || "",
-        }));
+        const mappedProducts: MenuItem[] = pData.map((p: any) => {
+          let isKitchen = true;
+          try {
+            const rawAttrs = typeof p.attributes === "string" ? JSON.parse(p.attributes) : (p.attributes || {});
+            const restAttrs = rawAttrs.restaurant || rawAttrs;
+            if (restAttrs?.isKitchenProduct !== undefined) {
+              isKitchen = Boolean(restAttrs.isKitchenProduct);
+            }
+          } catch (e) {}
+
+          return {
+            id: p.id,
+            name: p.name,
+            category: p.category?.name || p.categoryName || "General",
+            sellingPrice: Number(p.sellingPrice || p.price || 0),
+            image: p.imageUrl || p.image || "",
+            isPopular: Boolean(p.isPopular),
+            isVeg: Boolean(p.isVeg),
+            isKitchenProduct: isKitchen,
+            description: p.description || "",
+          };
+        });
         setProducts(mappedProducts);
       }
 
@@ -217,6 +231,7 @@ export default function RestaurantPOSPage() {
     })}`;
 
   const addToCart = (item: MenuItem) => {
+    const isKitchen = item.isKitchenProduct ?? true;
     setCart((prev) => {
       const existingIdx = prev.findIndex((i) => i.productId === item.id);
       if (existingIdx >= 0) {
@@ -232,7 +247,8 @@ export default function RestaurantPOSPage() {
           name: item.name,
           qty: 1,
           unitPrice: item.sellingPrice,
-          kotStatus: "PENDING",
+          isKitchenProduct: isKitchen,
+          kotStatus: isKitchen ? "PENDING" : "READY_TO_SERVE",
         },
       ];
     });
@@ -297,9 +313,20 @@ export default function RestaurantPOSPage() {
 
   const sendKotToKitchen = () => {
     if (cart.length === 0) return;
-    setCart((prev) => prev.map((item) => ({ ...item, kotStatus: "SENT_TO_KITCHEN" })));
+    const kitchenItems = cart.filter((item) => item.isKitchenProduct !== false);
+    if (kitchenItems.length === 0) {
+      toast.info("All items in cart are ready-to-serve (No kitchen KOT needed)");
+      return;
+    }
+    setCart((prev) =>
+      prev.map((item) =>
+        item.isKitchenProduct !== false
+          ? { ...item, kotStatus: "SENT_TO_KITCHEN" }
+          : item
+      )
+    );
     toast.success(
-      `KOT Ticket sent to Kitchen Display System for Table ${selectedTable?.tableNo || "N/A"}!`
+      `KOT Ticket sent (${kitchenItems.length} kitchen items) to KDS for Table ${selectedTable?.tableNo || "N/A"}!`
     );
   };
 
@@ -885,6 +912,24 @@ export default function RestaurantPOSPage() {
                         <span className="font-bold text-xs text-gray-900 tabular-nums">
                           {fmt(item.qty * item.unitPrice)}
                         </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        {item.isKitchenProduct === false ? (
+                          <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
+                            ⚡ Ready Item
+                          </span>
+                        ) : (
+                          <span
+                            className={`inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                              item.kotStatus === "SENT_TO_KITCHEN"
+                                ? "bg-amber-100 text-amber-800"
+                                : "bg-slate-100 text-slate-700"
+                            }`}
+                          >
+                            🍳 {item.kotStatus === "SENT_TO_KITCHEN" ? "KOT Sent" : "KOT Pending"}
+                          </span>
+                        )}
                       </div>
 
                       {item.notes && (
