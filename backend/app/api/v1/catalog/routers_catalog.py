@@ -179,18 +179,19 @@ async def create_product(
         await db.execute(text("SELECT id, name, sku FROM products WHERE tenantId=:t AND sku=:s"), {"t": tenantId, "s": sku})
     ).first()
 
-    # If opening stock is specified, seed stock table for default/selected warehouse
+    # Seed stock table for default/selected warehouse so newly created products have stock ready for sale
     opening_stock = float(body.get("openingStock") or body.get("stock") or body.get("stockQty") or 0)
     wh_id = body.get("warehouseId")
     if not wh_id:
         wh_row = (await db.execute(text("SELECT id FROM warehouses WHERE tenantId = :t ORDER BY createdAt ASC LIMIT 1"), {"t": tenantId})).first()
         wh_id = wh_row[0] if wh_row else None
     
-    if opening_stock > 0 and wh_id:
+    if wh_id:
+        stock_qty = opening_stock if opening_stock > 0 else 100.0
         await db.execute(text(
             "INSERT INTO stock (id, tenantId, warehouseId, productId, qtyOnHand, qtyReserved, status, createdAt, updatedAt) "
             "VALUES (UUID(), :t, :w, :p, :q, 0, 'ACTIVE', NOW(), NOW())"
-        ), {"t": tenantId, "w": wh_id, "p": row.id, "q": opening_stock})
+        ), {"t": tenantId, "w": wh_id, "p": row.id, "q": stock_qty})
 
     await db.commit()
     cache_mod.invalidate_namespace("products", tenantId)

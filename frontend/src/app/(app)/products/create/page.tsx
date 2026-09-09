@@ -407,14 +407,12 @@ export default function CreateProductPage() {
   }
 
   function updateForm(field: string, value: any) {
+    const safeVal =
+      value && typeof value === "object" && ("target" in value || "nativeEvent" in value)
+        ? Boolean((value as any).target?.checked)
+        : value;
     setForm((prev) => {
-      const realValue =
-        value && typeof value === "object" && "target" in value
-          ? (value.target as HTMLInputElement).type === "checkbox"
-            ? (value.target as HTMLInputElement).checked
-            : (value.target as HTMLInputElement).value
-          : value;
-      const next = { ...prev, [field]: realValue };
+      const next = { ...prev, [field]: safeVal };
       if (field === "categoryId") {
         next.subCategoryId = "";
       }

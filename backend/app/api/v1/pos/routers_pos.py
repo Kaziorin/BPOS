@@ -98,7 +98,7 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
 
     # stock check
     cfg = (await db.execute(text("SELECT allowNegativeStock FROM tenant_inventory_configs WHERE tenantId=:t"), {"t": tenant})).first()
-    allow_negative = bool(cfg[0]) if cfg else False
+    allow_negative = bool(cfg[0]) if cfg else True
     if not allow_negative:
         for it in items:
             s = (await db.execute(text(
