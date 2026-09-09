@@ -13,6 +13,10 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { fetchAllProducts, fetchBatches, applyBatchStock, fetchRegisterContext } from "@/lib/catalog";
+import { CustomModal } from "@/components/custom/CustomModal";
+import { CustomInput } from "@/components/custom/CustomInput";
+import { CustomButton } from "@/components/custom/CustomButton";
+import { CustomSelect } from "@/components/custom/CustomSelect";
 
 interface TenantInfo {
   branch: { id: string; name: string } | null;
@@ -128,6 +132,7 @@ export default function GroceryPOSPage() {
   const [priceCheckOpen, setPriceCheckOpen] = useState(false);
   const [priceCheckQuery, setPriceCheckQuery] = useState("");
   const [recentSalesOpen, setRecentSalesOpen] = useState(false);
+  const [salesSearchQuery, setSalesSearchQuery] = useState("");
   const [stockCheckOpen, setStockCheckOpen] = useState(false);
   const [offersOpen, setOffersOpen] = useState(false);
   const [heldCartsOpen, setHeldCartsOpen] = useState(false);
@@ -1186,542 +1191,530 @@ export default function GroceryPOSPage() {
       </div>
 
       {/* ══ CUSTOMER SELECTION & ADD CUSTOMER MODAL (F10) ══ */}
-      {customerModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
-          <div className="w-[460px] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100">
-            
-            {/* Modal Header */}
-            <div className="px-6 py-4 text-white flex items-center justify-between" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
-              <div className="flex items-center gap-2.5">
-                <Users size={22} />
+      <CustomModal
+        open={customerModalOpen}
+        onClose={() => { setCustomerModalOpen(false); setIsAddingCustomer(false); }}
+        title={isAddingCustomer ? "Add New Customer" : "Select Customer (F10)"}
+        size="lg"
+      >
+        {/* Sub-header Navigation Tabs */}
+        <div className="flex items-center border-b border-gray-100 bg-gray-50 px-4 py-2 gap-2 mb-4 -mx-6 -mt-5">
+          <button onClick={() => setIsAddingCustomer(false)}
+            className={`flex-1 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${!isAddingCustomer ? "bg-white text-emerald-700 shadow-2xs border border-gray-200" : "text-gray-500 hover:text-gray-800"}`}>
+            Select Customer ({customerList.length})
+          </button>
+          <button onClick={() => setIsAddingCustomer(true)}
+            className={`flex-1 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${isAddingCustomer ? "bg-emerald-600 text-white shadow-xs" : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"}`}>
+            ＋ Add New Customer
+          </button>
+        </div>
+
+        <div>
+          {isAddingCustomer ? (
+            /* ── ADD NEW CUSTOMER FORM ── */
+            <form onSubmit={handleSaveNewCustomer} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <CustomInput
+                  label="Full Name"
+                  required
+                  autoFocus
+                  value={newCustName}
+                  onChange={e => setNewCustName(e.target.value)}
+                  placeholder="John Doe"
+                />
+                <CustomInput
+                  label="Phone Number"
+                  type="tel"
+                  value={newCustPhone}
+                  onChange={e => setNewCustPhone(e.target.value)}
+                  placeholder="01711XXXXXX"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <CustomInput
+                  label="Email Address"
+                  type="email"
+                  value={newCustEmail}
+                  onChange={e => setNewCustEmail(e.target.value)}
+                  placeholder="customer@example.com"
+                />
                 <div>
-                  <h3 className="font-extrabold text-base">{isAddingCustomer ? "Add New Customer" : "Select Customer (F10)"}</h3>
-                  <p className="text-xs opacity-80">{isAddingCustomer ? "Register a new customer for loyalty & invoices" : "Link sale to customer for loyalty points"}</p>
+                  <label className="mb-1.5 block text-[15px] font-semibold text-gray-600 capitalize">Customer Group</label>
+                  <input type="text" readOnly value="Regular Customer"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 outline-none" />
                 </div>
               </div>
-              <button onClick={() => { setCustomerModalOpen(false); setIsAddingCustomer(false); }} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition cursor-pointer">
-                <X size={18} />
-              </button>
-            </div>
 
-            {/* Sub-header Navigation Tabs */}
-            <div className="flex items-center border-b border-gray-100 bg-gray-50 px-4 py-2 gap-2">
-              <button onClick={() => setIsAddingCustomer(false)}
-                className={`flex-1 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${!isAddingCustomer ? "bg-white text-emerald-700 shadow-2xs border border-gray-200" : "text-gray-500 hover:text-gray-800"}`}>
-                Select Customer ({customerList.length})
-              </button>
-              <button onClick={() => setIsAddingCustomer(true)}
-                className={`flex-1 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${isAddingCustomer ? "bg-emerald-600 text-white shadow-xs" : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"}`}>
-                ＋ Add New Customer
-              </button>
-            </div>
+              <CustomInput
+                label="Residential Address"
+                value={newCustAddress}
+                onChange={e => setNewCustAddress(e.target.value)}
+                placeholder="House #, Road #, Area, City"
+              />
 
-            {/* Modal Body */}
-            <div className="p-5 space-y-4">
-              {isAddingCustomer ? (
-                /* ── ADD NEW CUSTOMER FORM ── */
-                <form onSubmit={handleSaveNewCustomer} className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Full Name <span className="text-red-500">*</span></label>
-                      <input type="text" required autoFocus value={newCustName} onChange={e => setNewCustName(e.target.value)} placeholder="John Doe"
-                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Phone Number</label>
-                      <input type="tel" value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} placeholder="01711XXXXXX"
-                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-                    </div>
-                  </div>
+              <div className="pt-2 flex items-center gap-2.5">
+                <CustomButton
+                  type="button"
+                  variant="outline"
+                  fullWidth
+                  onClick={() => setIsAddingCustomer(false)}
+                >
+                  Cancel
+                </CustomButton>
+                <CustomButton
+                  type="submit"
+                  themeColor="emerald"
+                  fullWidth
+                  leftIcon={<Plus size={15} strokeWidth={2.5} />}
+                >
+                  Save & Select
+                </CustomButton>
+              </div>
+            </form>
+          ) : (
+            /* ── SELECT CUSTOMER LIST ── */
+            <div className="space-y-4">
+              <CustomInput
+                autoFocus
+                placeholder="Search by name or phone number..."
+                value={customerSearchQuery}
+                onChange={e => setCustomerSearchQuery(e.target.value)}
+                leftIcon={<Search size={16} />}
+              />
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Email Address</label>
-                      <input type="email" value={newCustEmail} onChange={e => setNewCustEmail(e.target.value)} placeholder="customer@example.com"
-                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Customer Group</label>
-                      <input type="text" readOnly value="Regular Customer"
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-500 focus:outline-none" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Residential Address</label>
-                    <textarea rows={2} value={newCustAddress} onChange={e => setNewCustAddress(e.target.value)} placeholder="House #, Road #, Area, City"
-                      className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" />
-                  </div>
-
-                  <div className="pt-2 flex items-center gap-2.5">
-                    <button type="button" onClick={() => setIsAddingCustomer(false)}
-                      className="flex-1 py-2.5 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs font-bold text-slate-600 transition cursor-pointer">
-                      Cancel
-                    </button>
-                    <button type="submit"
-                      className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer">
-                      <Plus size={15} strokeWidth={2.5} /> Save &amp; Select
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                /* ── SELECT CUSTOMER LIST ── */
-                <div className="space-y-3">
-                  {/* Customer Search Bar */}
-                  <div className="relative">
-                    <Search size={16} className="absolute left-3.5 top-2.5 text-gray-400" />
-                    <input type="text" autoFocus value={customerSearchQuery} onChange={e => setCustomerSearchQuery(e.target.value)}
-                      placeholder="Search by name or phone number..."
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white" />
-                  </div>
-
-                  <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
-                    {customerList
-                      .filter(c =>
-                        !customerSearchQuery ||
-                        c.name.toLowerCase().includes(customerSearchQuery.toLowerCase()) ||
-                        c.phone.includes(customerSearchQuery)
-                      )
-                      .map((c, idx) => {
-                        const tier = getCustomerTier(c.points);
-                        return (
-                          <button key={idx} onClick={() => { setSelectedCustomer(c); setCustomerModalOpen(false); setCouponToast(`Customer set to ${c.name}`); setTimeout(() => setCouponToast(""), 2500); }}
-                            className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${selectedCustomer.name === c.name ? "border-emerald-500 bg-emerald-50/80 shadow-xs ring-2 ring-emerald-500/20" : "border-gray-200/80 bg-white hover:bg-gray-50"
-                              }`}>
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-black flex items-center justify-center text-sm">
-                                {c.name.slice(0, 2).toUpperCase()}
-                              </div>
-                              <div>
-                                <p className="text-xs font-black text-gray-900">{c.name}</p>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                  <p className="text-[10px] font-semibold text-gray-400">{c.phone}</p>
-                                  <span className={`text-[9px] font-black px-1.5 py-0.2 rounded border uppercase tracking-tighter ${tier.color} ${tier.bg} ${tier.border}`}>
-                                    {tier.name}
-                                  </span>
-                                </div>
-                              </div>
+              <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
+                {customerList
+                  .filter(c =>
+                    !customerSearchQuery ||
+                    c.name.toLowerCase().includes(customerSearchQuery.toLowerCase()) ||
+                    c.phone.includes(customerSearchQuery)
+                  )
+                  .map((c, idx) => {
+                    const tier = getCustomerTier(c.points);
+                    return (
+                      <button key={idx} onClick={() => { setSelectedCustomer(c); setCustomerModalOpen(false); setCouponToast(`Customer set to ${c.name}`); setTimeout(() => setCouponToast(""), 2500); }}
+                        className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${selectedCustomer.name === c.name ? "border-emerald-500 bg-emerald-50/80 shadow-xs ring-2 ring-emerald-500/20" : "border-gray-200/80 bg-white hover:bg-gray-50"
+                          }`}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-black flex items-center justify-center text-sm">
+                            {c.name.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="text-xs font-black text-gray-900">{c.name}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <p className="text-[10px] font-semibold text-gray-400">{c.phone}</p>
+                              <span className={`text-[9px] font-black px-1.5 py-0.2 rounded border uppercase tracking-tighter ${tier.color} ${tier.bg} ${tier.border}`}>
+                                {tier.name}
+                              </span>
                             </div>
-                            <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-xl">
-                              ★ {c.points} Pts
-                            </span>
-                          </button>
-                        );
-                      })}
-                  </div>
-                </div>
-              )}
+                          </div>
+                        </div>
+                        <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-xl">
+                          ★ {c.points} Pts
+                        </span>
+                      </button>
+                    );
+                  })}
+              </div>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </CustomModal>
 
 
 
       {/* ══ CURRENT CART LIVE INVOICE PREVIEW MODAL ══ */}
-      {liveInvoiceModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md animate-in fade-in p-4">
-          <div className="w-[480px] max-h-[90vh] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100 flex flex-col animate-in zoom-in-95">
-            
-            {/* Header Banner */}
-            <div className="px-6 py-4 text-white flex items-center justify-between shrink-0" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-white backdrop-blur-xs shadow-inner">
-                  <FileText size={22} strokeWidth={2.2} />
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-base leading-tight">Current Cart Invoice</h3>
-                  <p className="text-xs text-emerald-100 mt-0.5">Live Invoice Preview • INV-250520-0012</p>
-                </div>
+      <CustomModal
+        open={liveInvoiceModalOpen}
+        onClose={() => setLiveInvoiceModalOpen(false)}
+        title="Current Cart Invoice"
+        size="lg"
+      >
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-3 bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shadow-inner">
+              <FileText size={22} strokeWidth={2.2} />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-sm text-emerald-900 leading-tight">Invoice Preview</h3>
+              <p className="text-[10px] text-emerald-600 mt-0.5 uppercase font-bold tracking-wider">Live Draft • INV-250520-0012</p>
+            </div>
+          </div>
+
+          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm font-mono text-xs text-slate-800 space-y-3">
+            {cart.length === 0 ? (
+              <div className="py-12 text-center text-slate-400">
+                <ShoppingCart size={40} className="mx-auto mb-3 text-slate-300" />
+                <p className="text-sm font-extrabold text-slate-700">Cart is currently empty</p>
+                <p className="text-xs text-slate-400 mt-1 uppercase">Add items to the cart to preview active cart invoice.</p>
               </div>
-              <button onClick={() => setLiveInvoiceModalOpen(false)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition cursor-pointer">
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Content area */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50">
-              {cart.length === 0 ? (
-                <div className="py-12 text-center text-slate-400 bg-white rounded-2xl border border-gray-200 p-6">
-                  <ShoppingCart size={40} className="mx-auto mb-3 text-slate-300" />
-                  <p className="text-sm font-extrabold text-slate-700">Cart is currently empty</p>
-                  <p className="text-xs text-slate-400 mt-1">Add items to the cart to preview active cart invoice.</p>
+            ) : (
+              <>
+                {/* Shop Header */}
+                <div className="text-center border-b border-dashed border-gray-300 pb-3 space-y-1">
+                  <p className="text-base font-extrabold text-slate-950 tracking-tight uppercase">Blue Oceans Superstore</p>
+                  <p className="text-[11px] text-slate-500">Dhaka Main Outlet • POS Terminal-01</p>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Draft Cart Invoice</p>
                 </div>
-              ) : (
-                <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm font-mono text-xs text-slate-800 space-y-3">
-                  
-                  {/* Shop Header */}
-                  <div className="text-center border-b border-dashed border-gray-300 pb-3 space-y-1">
-                    <p className="text-base font-extrabold text-slate-950 tracking-tight uppercase">Blue Oceans Superstore</p>
-                    <p className="text-[11px] text-slate-500">Dhaka Main Outlet • POS Terminal-01</p>
-                    <p className="text-[10px] text-slate-400">BIN: 002938194-0101 • Draft Cart Invoice</p>
-                  </div>
 
-                  {/* Metadata */}
-                  <div className="space-y-1 text-[11px] text-slate-600 border-b border-dashed border-gray-300 pb-2">
-                    <div className="flex justify-between">
-                      <span>Invoice No:</span>
-                      <span className="font-bold text-slate-900">INV-250520-0012</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Date &amp; Time:</span>
-                      <span>{now.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Customer:</span>
-                      <span className="font-bold text-slate-900">{selectedCustomer.name}</span>
-                    </div>
+                {/* Metadata */}
+                <div className="space-y-1 text-[11px] text-slate-600 border-b border-dashed border-gray-300 pb-2">
+                  <div className="flex justify-between">
+                    <span>Invoice No:</span>
+                    <span className="font-bold text-slate-900">INV-250520-0012</span>
                   </div>
-
-                  {/* Itemized List - Only what is in cart */}
-                  <div className="space-y-1.5 text-xs py-1 border-b border-dashed border-gray-300">
-                    <div className="flex justify-between font-bold text-[10px] uppercase text-slate-400 pb-1">
-                      <span>Item</span>
-                      <span>Qty x Price</span>
-                      <span>Total</span>
-                    </div>
-                    {cart.map((item, idx) => (
-                      <div key={idx} className="flex justify-between text-[11px] py-0.5 border-b border-gray-50 last:border-0">
-                        <div className="min-w-0 max-w-[170px]">
-                          <p className="font-bold text-slate-800 truncate">{item.name}</p>
-                        </div>
-                        <div className="text-slate-500 font-mono text-[10px]">
-                          {item.qty} {item.uom || "pcs"} x ৳{item.unitPrice.toFixed(2)}
-                        </div>
-                        <div className="font-bold text-slate-900 font-mono">
-                          ৳{item.lineTotal.toFixed(2)}
-                        </div>
-                      </div>
-                    ))}
+                  <div className="flex justify-between">
+                    <span>Date & Time:</span>
+                    <span>{now.toLocaleString()}</span>
                   </div>
-
-                  {/* Financial Summary */}
-                  <div className="space-y-1 text-xs pt-1">
-                    <div className="flex justify-between text-slate-600">
-                      <span>Subtotal:</span>
-                      <span>৳{subTotal.toFixed(2)}</span>
-                    </div>
-                    {discAmt > 0 && (
-                      <div className="flex justify-between text-emerald-600 font-semibold">
-                        <span>Discount Saved:</span>
-                        <span>- ৳{discAmt.toFixed(2)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between font-extrabold text-sm text-slate-900 border-t border-b border-gray-200 py-1 my-1">
-                      <span>Net Cart Total:</span>
-                      <span className="text-emerald-700">৳{grandTotal.toFixed(2)}</span>
-                    </div>
+                  <div className="flex justify-between">
+                    <span>Customer:</span>
+                    <span className="font-bold text-slate-900">{selectedCustomer.name}</span>
                   </div>
-
-                  {/* Barcode & Footer */}
-                  <div className="text-center border-t border-dashed border-gray-300 pt-3 space-y-1">
-                    <p className="text-[10px] text-slate-400">Cart Preview Invoice</p>
-                    <p className="text-[9px] text-slate-400">Powered by Blue Oceans POS</p>
-                  </div>
-
                 </div>
-              )}
-            </div>
 
-            {/* Actions */}
-            <div className="p-4 bg-white border-t border-gray-100 flex gap-2.5 shrink-0">
-              <button onClick={() => window.print()} disabled={!cart.length} className="flex-1 py-3 rounded-2xl border border-gray-300 bg-white hover:bg-gray-50 text-slate-800 font-extrabold text-xs flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer active:scale-95 disabled:opacity-40">
-                <Printer size={16} /> Print Current Cart Draft
-              </button>
-              <button onClick={() => setLiveInvoiceModalOpen(false)} className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-600/30 transition cursor-pointer active:scale-95">
-                Close
-              </button>
-            </div>
+                {/* Itemized List */}
+                <div className="space-y-1.5 text-xs py-1 border-b border-dashed border-gray-300">
+                  <div className="flex justify-between font-bold text-[10px] uppercase text-slate-400 pb-1">
+                    <span>Item</span>
+                    <span>Qty x Price</span>
+                    <span>Total</span>
+                  </div>
+                  {cart.map((item, idx) => (
+                    <div key={idx} className="flex justify-between text-[11px] py-0.5 border-b border-gray-50 last:border-0">
+                      <div className="min-w-0 max-w-[170px]">
+                        <p className="font-bold text-slate-800 truncate">{item.name}</p>
+                      </div>
+                      <div className="text-slate-500 font-mono text-[10px]">
+                        {item.qty} {item.uom || "pcs"} x ৳{item.unitPrice.toFixed(2)}
+                      </div>
+                      <div className="font-bold text-slate-900 font-mono">
+                        ৳{item.lineTotal.toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
+                {/* Financial Summary */}
+                <div className="space-y-1 text-xs pt-1">
+                  <div className="flex justify-between text-slate-600">
+                    <span>Subtotal:</span>
+                    <span>৳{subTotal.toFixed(2)}</span>
+                  </div>
+                  {discAmt > 0 && (
+                    <div className="flex justify-between text-emerald-600 font-semibold">
+                      <span>Discount Saved:</span>
+                      <span>- ৳{discAmt.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-extrabold text-sm text-slate-900 border-t border-b border-gray-200 py-1 my-1">
+                    <span>Net Cart Total:</span>
+                    <span className="text-emerald-700 font-black">৳{grandTotal.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {/* Barcode & Footer */}
+                <div className="text-center border-t border-dashed border-gray-300 pt-3 space-y-1">
+                  <p className="text-[10px] text-slate-400">Cart Preview Invoice</p>
+                  <p className="text-[9px] text-slate-400 uppercase tracking-widest font-black">Blue Oceans POS</p>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="flex gap-3">
+            <CustomButton
+              fullWidth
+              variant="outline"
+              disabled={!cart.length}
+              onClick={() => window.print()}
+              leftIcon={<Printer size={16} />}
+            >
+              Print Draft
+            </CustomButton>
+            <CustomButton
+              fullWidth
+              themeColor="emerald"
+              onClick={() => setLiveInvoiceModalOpen(false)}
+            >
+              Close Preview
+            </CustomButton>
           </div>
         </div>
-      )}
+      </CustomModal>
 
       {/* ══ PRICE CHECK MODAL ══ */}
-      {priceCheckOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
-          <div className="w-[460px] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100">
-            <div className="px-6 py-4 text-white flex items-center justify-between" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
-              <div className="flex items-center gap-2.5">
-                <Search size={22} />
-                <div>
-                  <h3 className="font-extrabold text-base">Price &amp; Stock Check (F3)</h3>
-                  <p className="text-xs opacity-80">Scan barcode or type item name</p>
+      <CustomModal
+        open={priceCheckOpen}
+        onClose={() => setPriceCheckOpen(false)}
+        title="Price & Stock Check (F3)"
+        size="lg"
+      >
+        <div className="space-y-4">
+          <CustomInput
+            autoFocus
+            leftIcon={<Search size={18} />}
+            value={priceCheckQuery}
+            onChange={e => setPriceCheckQuery(e.target.value)}
+            placeholder="Search product by name or SKU..."
+          />
+          <div className="max-h-[350px] overflow-y-auto space-y-2 custom-scrollbar pr-1">
+            {products.filter(p => !priceCheckQuery || p.name.toLowerCase().includes(priceCheckQuery.toLowerCase()) || p.sku.toLowerCase().includes(priceCheckQuery.toLowerCase())).slice(0, 8).map(p => (
+              <div key={p.id} className="p-3.5 rounded-2xl border border-gray-100 bg-slate-50/50 flex items-center justify-between group hover:bg-white hover:border-emerald-200 transition-all">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl group-hover:scale-110 transition-transform">{getEmoji(p.name)}</span>
+                  <div>
+                    <p className="text-xs font-black text-gray-900 leading-tight">{p.name}</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-0.5">SKU: {p.sku} • {p.category?.name}</p>
+                  </div>
+                </div>
+                <div className="text-right flex items-center gap-4">
+                  <div className="leading-tight">
+                    <p className="text-sm font-black text-emerald-700">৳ {p.sellingPrice.toFixed(2)}</p>
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Per {p.uom}</p>
+                  </div>
+                  <CustomButton
+                    size="sm"
+                    themeColor="emerald"
+                    onClick={() => { addToCart(p); setPriceCheckOpen(false); }}
+                  >
+                    Add
+                  </CustomButton>
                 </div>
               </div>
-              <button onClick={() => setPriceCheckOpen(false)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition">
-                <X size={18} />
-              </button>
-            </div>
-            <div className="p-5 space-y-4">
-              <div className="relative">
-                <Search size={18} className="absolute left-3.5 top-3 text-gray-400" />
-                <input type="text" autoFocus value={priceCheckQuery} onChange={e => setPriceCheckQuery(e.target.value)}
-                  placeholder="Search product..."
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:border-emerald-500 focus:bg-white" />
-              </div>
-              <div className="max-h-64 overflow-y-auto space-y-2">
-                {products.filter(p => !priceCheckQuery || p.name.toLowerCase().includes(priceCheckQuery.toLowerCase()) || p.sku.toLowerCase().includes(priceCheckQuery.toLowerCase())).slice(0, 6).map(p => (
-                  <div key={p.id} className="p-3 rounded-2xl border border-gray-100 bg-gray-50/50 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{getEmoji(p.name)}</span>
-                      <div>
-                        <p className="text-xs font-black text-gray-900">{p.name}</p>
-                        <p className="text-[10px] font-semibold text-gray-400">SKU: {p.sku} • {p.category?.name}</p>
-                      </div>
-                    </div>
-                    <div className="text-right flex items-center gap-3">
-                      <div>
-                        <p className="text-sm font-black text-emerald-700">৳ {p.sellingPrice.toFixed(2)}</p>
-                        <p className="text-[10px] font-bold text-gray-400">Per {p.uom}</p>
-                      </div>
-                      <button onClick={() => { addToCart(p); setPriceCheckOpen(false); }} className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
-                        + Add
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
-      )}
+      </CustomModal>
 
       {/* ══ STOCK CHECK MODAL ══ */}
-      {stockCheckOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
-          <div className="w-[500px] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100">
-            <div className="px-6 py-4 text-white flex items-center justify-between" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
-              <div className="flex items-center gap-2.5">
-                <Package size={22} />
+      <CustomModal
+        open={stockCheckOpen}
+        onClose={() => setStockCheckOpen(false)}
+        title="Inventory Stock Check (F5)"
+        size="lg"
+      >
+        <div className="space-y-3 max-h-[450px] overflow-y-auto pr-1 custom-scrollbar">
+          {products.slice(0, 15).map((p) => (
+            <div key={p.id} className="p-3.5 rounded-2xl border border-gray-100 bg-white flex items-center justify-between shadow-xs hover:border-emerald-200 transition-all">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-xl">
+                  {getEmoji(p.name)}
+                </div>
                 <div>
-                  <h3 className="font-extrabold text-base">Inventory Stock Check (F5)</h3>
-                  <p className="text-xs opacity-80">Real-time store stock availability</p>
+                  <p className="text-xs font-black text-gray-900 leading-tight">{p.name}</p>
+                  <p className="text-[10px] font-bold text-gray-400 mt-0.5">Rate: ৳{p.sellingPrice.toFixed(2)} / {p.uom}</p>
                 </div>
               </div>
-              <button onClick={() => setStockCheckOpen(false)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition">
-                <X size={18} />
-              </button>
+              <span className={`text-[10px] font-black px-3 py-1 rounded-xl border uppercase tracking-wider ${
+                (p.stock ?? 0) > 10
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                  : "bg-amber-50 text-amber-700 border-amber-100"
+              }`}>
+                Stock: {p.stock ?? 0} {p.uom}
+              </span>
             </div>
-            <div className="p-5 max-h-[380px] overflow-y-auto space-y-2">
-              {products.slice(0, 10).map((p, i) => {
-                const stockQty = (i * 7 + 12) % 45 + 5;
-                return (
-                  <div key={p.id} className="p-3 rounded-2xl border border-gray-100 bg-white flex items-center justify-between shadow-2xs">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{getEmoji(p.name)}</span>
-                      <div>
-                        <p className="text-xs font-black text-gray-900">{p.name}</p>
-                        <p className="text-[10px] font-semibold text-gray-400">Rate: ৳{p.sellingPrice.toFixed(2)} / {p.uom}</p>
-                      </div>
-                    </div>
-                    <span className={`text-xs font-black px-3 py-1 rounded-xl ${stockQty > 10 ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
-                      Stock: {stockQty} {p.uom}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          ))}
         </div>
-      )}
+      </CustomModal>
 
       {/* ══ RECENT SALES / REFUND MODAL ══ */}
-      {recentSalesOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
-          <div className="w-[520px] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100">
-            <div className="px-6 py-4 text-white flex items-center justify-between" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
-              <div className="flex items-center gap-2.5">
-                <History size={22} />
-                <div>
-                  <h3 className="font-extrabold text-base">Recent Sales &amp; Refunds (F8)</h3>
-                  <p className="text-xs opacity-80">View past invoices or trigger reprint</p>
-                </div>
-              </div>
-              <button onClick={() => setRecentSalesOpen(false)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition">
-                <X size={18} />
-              </button>
-            </div>
-            <div className="p-5 max-h-[380px] overflow-y-auto space-y-2.5">
-              {salesHistory.map((s, idx) => (
-                <div key={idx} className="p-3.5 rounded-2xl border border-gray-200/80 bg-white flex items-center justify-between shadow-2xs">
+      <CustomModal
+        open={recentSalesOpen}
+        onClose={() => setRecentSalesOpen(false)}
+        title="Recent Sales & Refunds (F8)"
+        size="lg"
+      >
+        <div className="space-y-4">
+          <CustomInput
+            autoFocus
+            leftIcon={<Search size={18} />}
+            value={salesSearchQuery}
+            onChange={e => setSalesSearchQuery(e.target.value)}
+            placeholder="Search past sales by Invoice No, Customer, Payment..."
+          />
+
+          <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
+            {salesHistory
+              .filter(s => {
+                if (!salesSearchQuery.trim()) return true;
+                const q = salesSearchQuery.toLowerCase().trim();
+                return (
+                  s.invoiceNo?.toLowerCase().includes(q) ||
+                  s.customer?.toLowerCase().includes(q) ||
+                  s.paymentMethod?.toLowerCase().includes(q) ||
+                  s.date?.toLowerCase().includes(q) ||
+                  s.grandTotal?.toString().includes(q)
+                );
+              })
+              .map((s, idx) => (
+                <div key={idx} className="p-4 rounded-2xl border border-gray-100 bg-white flex items-center justify-between shadow-xs hover:border-emerald-200 transition-all">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-black text-gray-900">{s.invoiceNo}</span>
-                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700">{s.paymentMethod}</span>
+                      <span className="text-[11px] font-black text-slate-900 uppercase font-mono tracking-tighter">#{s.invoiceNo}</span>
+                      <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase tracking-widest">{s.paymentMethod}</span>
                     </div>
-                    <p className="text-[10px] font-semibold text-gray-400 mt-1">{s.customer || "Walk-in Customer"} • {s.date}</p>
+                    <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tight">{s.customer} • {s.date}</p>
                   </div>
-                  <div className="text-right flex items-center gap-2">
-                    <div>
+                  <div className="text-right flex items-center gap-4">
+                    <div className="leading-tight">
                       <p className="text-sm font-black text-emerald-700">৳ {s.grandTotal.toFixed(2)}</p>
-                      <p className="text-[10px] font-bold text-gray-400">{s.itemsCount || s.items?.length || 1} Items</p>
+                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Sale Confirmed</p>
                     </div>
-                    <button onClick={() => { window.print(); }} className="p-2 rounded-xl border border-gray-200 bg-gray-50 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 transition">
-                      <Printer size={15} />
+                    <button onClick={() => { window.print(); }} className="p-2.5 rounded-xl border border-gray-100 bg-slate-50 hover:bg-emerald-50 text-slate-500 hover:text-emerald-600 transition-all active:scale-90">
+                      <Printer size={16} />
                     </button>
                   </div>
                 </div>
               ))}
-            </div>
+            {salesHistory.filter(s => {
+              if (!salesSearchQuery.trim()) return true;
+              const q = salesSearchQuery.toLowerCase().trim();
+              return (
+                s.invoiceNo?.toLowerCase().includes(q) ||
+                s.customer?.toLowerCase().includes(q) ||
+                s.paymentMethod?.toLowerCase().includes(q) ||
+                s.date?.toLowerCase().includes(q) ||
+                s.grandTotal?.toString().includes(q)
+              );
+            }).length === 0 && (
+              <div className="py-12 text-center text-slate-400">
+                <History size={36} className="mx-auto mb-2 opacity-30" />
+                <p className="text-xs font-bold uppercase tracking-widest">
+                  {salesSearchQuery ? `No sales match "${salesSearchQuery}"` : "No recent sales found"}
+                </p>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </CustomModal>
 
       {/* ══ OFFERS & COUPONS MODAL ══ */}
-      {offersOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
-          <div className="w-[440px] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100">
-            <div className="px-6 py-4 text-white flex items-center justify-between" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
-              <div className="flex items-center gap-2.5">
-                <Tag size={22} />
-                <div>
-                  <h3 className="font-extrabold text-base">Active Offers &amp; Promo Codes (F6)</h3>
-                  <p className="text-xs opacity-80">Click to apply discount coupon to cart</p>
+      <CustomModal
+        open={offersOpen}
+        onClose={() => setOffersOpen(false)}
+        title="Active Offers & Promo Codes (F6)"
+        size="md"
+      >
+        <div className="space-y-3">
+          {[
+            { code: "SAVE10", title: "10% Off Grocery Special", desc: "Valid on all grocery items", disc: "10% OFF" },
+            { code: "FLAT50", title: "15% Off Family Shopping", desc: "Special weekend promo discount", disc: "15% OFF" },
+            { code: "SUPER20", title: "20% Super Store Sale", desc: "Applicable on orders over ৳1,000", disc: "20% OFF" },
+          ].map(o => (
+            <div key={o.code} className="p-4 rounded-2xl border border-emerald-100 bg-emerald-50/50 flex items-center justify-between group hover:bg-white transition-all">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-black text-emerald-800 font-mono bg-white px-2 py-0.5 rounded border border-emerald-200">{o.code}</span>
+                  <span className="text-xs font-black text-slate-900">{o.title}</span>
                 </div>
+                <p className="text-[10px] font-bold text-emerald-600 mt-1 uppercase tracking-tight">{o.desc}</p>
               </div>
-              <button onClick={() => setOffersOpen(false)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition">
-                <X size={18} />
-              </button>
+              <CustomButton
+                size="sm"
+                themeColor="emerald"
+                onClick={() => { applyCouponCode(o.code); setOffersOpen(false); }}
+              >
+                Apply
+              </CustomButton>
             </div>
-            <div className="p-5 space-y-3">
-              {[
-                { code: "SAVE10", title: "10% Off Grocery Special", desc: "Valid on all grocery items", disc: "10% OFF" },
-                { code: "FLAT50", title: "15% Off Family Shopping", desc: "Special weekend promo discount", disc: "15% OFF" },
-                { code: "SUPER20", title: "20% Super Store Sale", desc: "Applicable on orders over ৳1,000", disc: "20% OFF" },
-              ].map(o => (
-                <div key={o.code} className="p-3.5 rounded-2xl border border-emerald-100 bg-emerald-50/50 flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-black text-emerald-800 font-mono bg-white px-2 py-0.5 rounded border border-emerald-200">{o.code}</span>
-                      <span className="text-xs font-black text-emerald-900">{o.title}</span>
-                    </div>
-                    <p className="text-[10px] font-semibold text-emerald-700 mt-1">{o.desc}</p>
-                  </div>
-                  <button onClick={() => { applyCouponCode(o.code); setOffersOpen(false); }} className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-xs transition">
-                    Apply
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
-      )}
+      </CustomModal>
 
       {/* ══ HELD BILLS DRAWER ══ */}
-      {heldCartsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
-          <div className="w-[450px] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100">
-            <div className="px-6 py-4 text-white flex items-center justify-between" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
-              <div className="flex items-center gap-2.5">
-                <PauseCircle size={22} />
-                <div>
-                  <h3 className="font-extrabold text-base">Held Bills (F7)</h3>
-                  <p className="text-xs opacity-80">Recall suspended customer carts</p>
+      <CustomModal
+        open={heldCartsOpen}
+        onClose={() => setHeldCartsOpen(false)}
+        title="Held Bills (F7)"
+        size="md"
+      >
+        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
+          {heldCarts.length === 0 ? (
+            <div className="py-12 text-center text-gray-400">
+              <PauseCircle size={48} className="mx-auto mb-3 opacity-20" />
+              <p className="text-sm font-bold uppercase tracking-widest">No held bills found</p>
+            </div>
+          ) : heldCarts.map(h => (
+            <div key={h.id} className="p-4 rounded-2xl border border-amber-100 bg-amber-50/30 flex items-center justify-between group hover:bg-white hover:border-amber-300 transition-all">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-black text-amber-900 uppercase font-mono tracking-tighter">#{h.id}</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{h.time}</span>
                 </div>
+                <p className="text-[10px] font-bold text-amber-700 mt-1 uppercase tracking-tight">
+                  {h.items.length} Items • Total: ৳{h.items.reduce((a, i) => a + i.lineTotal, 0).toFixed(2)}
+                </p>
               </div>
-              <button onClick={() => setHeldCartsOpen(false)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition">
-                <X size={18} />
-              </button>
+              <CustomButton
+                size="sm"
+                themeColor="amber"
+                onClick={() => recallCart(h)}
+              >
+                Recall
+              </CustomButton>
             </div>
-            <div className="p-5 max-h-[350px] overflow-y-auto space-y-2.5">
-              {heldCarts.length === 0 ? (
-                <div className="py-8 text-center text-gray-400">
-                  <PauseCircle size={36} className="mx-auto mb-2 opacity-40" />
-                  <p className="text-sm font-semibold">No held bills found</p>
-                </div>
-              ) : heldCarts.map(h => (
-                <div key={h.id} className="p-3.5 rounded-2xl border border-amber-200 bg-amber-50/50 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-black text-amber-900">{h.id} • {h.time}</p>
-                    <p className="text-[10px] font-bold text-amber-700 mt-0.5">{h.items.length} Items (Total: ৳{h.items.reduce((a, i) => a + i.lineTotal, 0).toFixed(2)})</p>
-                  </div>
-                  <button onClick={() => recallCart(h)} className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black shadow-xs transition">
-                    Recall
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
-      )}
+      </CustomModal>
 
       {/* ══ HARDWARE SETTINGS MODAL ══ */}
-      {settingsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
-          <div className="w-[480px] rounded-3xl bg-white shadow-2xl overflow-hidden border border-emerald-100 p-6 space-y-4">
-
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-[#dcfce7] text-[#16a34a] flex items-center justify-center shadow-2xs">
-                  <Settings size={22} strokeWidth={2.2} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-extrabold text-gray-900 tracking-tight">Hardware Settings</h3>
-                </div>
-              </div>
-              <button onClick={() => setSettingsOpen(false)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition">
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* List of Hardware Controls */}
-            <div className="divide-y divide-emerald-50 bg-white rounded-2xl p-2 border border-emerald-100/80">
-              {[
-                { key: "receiptPrinter", emoji: "🖨️", label: "Thermal Receipt Printer", desc: hardwareSettings.receiptPrinter ? "Enabled" : "Disabled" },
-                { key: "cashDrawer", emoji: "💵", label: "Cash Drawer", desc: hardwareSettings.cashDrawer ? "Enabled" : "Disabled" },
-                { key: "barcodeScanner", emoji: "🔍", label: "Barcode Scanner", desc: hardwareSettings.barcodeScanner ? "Enabled" : "Disabled" },
-                { key: "scannerBeep", emoji: "🔊", label: "Scanner Audio Beep", desc: hardwareSettings.scannerBeep ? "Audio feedback enabled" : "Audio feedback muted" },
-                { key: "cardTerminal", emoji: "💳", label: "Card Terminal", desc: hardwareSettings.cardTerminal ? "Enabled" : "Disabled" },
-                { key: "customerDisplay", emoji: "📺", label: "Customer Display", desc: hardwareSettings.customerDisplay ? "Enabled" : "Disabled" },
-              ].map(item => {
-                const isON = (hardwareSettings as any)[item.key];
-                return (
-                  <div key={item.key} className="flex items-center justify-between p-2.5 transition hover:bg-white/80 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-white border border-emerald-100 flex items-center justify-center text-lg shadow-2xs">
-                        {item.emoji}
-                      </div>
-                      <div>
-                        <p className="text-xs font-black text-gray-900">{item.label}</p>
-                        <p className="text-[10px] font-bold text-gray-400">{item.desc}</p>
-                      </div>
+      <CustomModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        title="Hardware Settings"
+        size="md"
+      >
+        <div className="space-y-5">
+          <div className="divide-y divide-gray-100 bg-slate-50 rounded-2xl p-2 border border-gray-100">
+            {[
+              { key: "receiptPrinter", emoji: "🖨️", label: "Thermal Receipt Printer", desc: hardwareSettings.receiptPrinter ? "Enabled" : "Disabled" },
+              { key: "cashDrawer", emoji: "💵", label: "Cash Drawer", desc: hardwareSettings.cashDrawer ? "Enabled" : "Disabled" },
+              { key: "barcodeScanner", emoji: "🔍", label: "Barcode Scanner", desc: hardwareSettings.barcodeScanner ? "Enabled" : "Disabled" },
+              { key: "scannerBeep", emoji: "🔊", label: "Scanner Audio Beep", desc: hardwareSettings.scannerBeep ? "Audio feedback enabled" : "Audio feedback muted" },
+              { key: "cardTerminal", emoji: "💳", label: "Card Terminal", desc: hardwareSettings.cardTerminal ? "Enabled" : "Disabled" },
+              { key: "customerDisplay", emoji: "📺", label: "Customer Display", desc: hardwareSettings.customerDisplay ? "Enabled" : "Disabled" },
+            ].map(item => {
+              const isON = (hardwareSettings as any)[item.key];
+              return (
+                <div key={item.key} className="flex items-center justify-between p-3.5 transition hover:bg-white rounded-xl group">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-xl shadow-xs group-hover:border-emerald-200 transition-colors">
+                      {item.emoji}
                     </div>
-                    {/* Smooth iOS Toggle Switch */}
-                    <button onClick={() => setHardwareSettings(prev => ({ ...prev, [item.key]: !(prev as any)[item.key] }))}
-                      className={`w-11 h-6 flex items-center rounded-full p-0.5 transition-colors duration-300 ${isON ? "bg-[#16a34a]" : "bg-gray-300"
-                        }`}>
-                      <div className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 ${isON ? "translate-x-5" : "translate-x-0"
-                        }`} />
-                    </button>
+                    <div>
+                      <p className="text-xs font-black text-slate-800 leading-tight">{item.label}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mt-0.5">{item.desc}</p>
+                    </div>
                   </div>
-                );
-              })}
-            </div>
+                  {/* iOS Style Toggle */}
+                  <button onClick={() => setHardwareSettings(prev => ({ ...prev, [item.key]: !(prev as any)[item.key] }))}
+                    className={`w-11 h-6 flex items-center rounded-full p-0.5 transition-colors duration-300 ${isON ? "bg-emerald-500" : "bg-gray-300"}`}>
+                    <div className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 ${isON ? "translate-x-5" : "translate-x-0"}`} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
 
-            {/* Info Box */}
-            <div className="rounded-2xl bg-[#e0f2fe]/80 border border-[#bae6fd] p-3 flex items-start gap-2.5 text-xs text-[#0369a1]">
-              <div className="w-4 h-4 rounded-full bg-[#0284c7] text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">i</div>
-              <p className="leading-relaxed font-semibold text-[11px]">
-                Full hardware activation requires SDK/driver integration. UI is ready — connect ESC/POS, Bluetooth or USB packages in the backend to activate.
-              </p>
-            </div>
+          <div className="rounded-2xl bg-blue-50/50 border border-blue-100 p-4 flex items-start gap-3">
+            <div className="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5 italic">i</div>
+            <p className="text-[11px] font-bold text-blue-700 leading-relaxed uppercase tracking-tight">
+              Full hardware activation requires SDK/driver integration. UI is ready — connect ESC/POS or USB packages to activate.
+            </p>
+          </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center justify-end gap-3 pt-1">
-              <button onClick={() => setSettingsOpen(false)} className="px-4 py-2 rounded-xl text-xs font-extrabold text-[#15803d] hover:bg-emerald-50 transition">
-                Close
-              </button>
-              <button onClick={() => { setSettingsOpen(false); setCouponToast("💾 Hardware Settings Saved!"); setTimeout(() => setCouponToast(""), 2500); }}
-                className="px-5 py-2.5 rounded-xl text-xs font-black text-white shadow-md shadow-emerald-600/30 hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all duration-200 bg-gradient-to-r from-[#16a34a] via-[#22c55e] to-[#65a30d] flex items-center gap-1.5">
-                <span>💾</span> Save Settings
-              </button>
-            </div>
-
+          <div className="flex items-center justify-end gap-3 pt-1">
+            <CustomButton variant="outline" onClick={() => setSettingsOpen(false)}>
+              Close
+            </CustomButton>
+            <CustomButton themeColor="emerald" onClick={() => { setSettingsOpen(false); setCouponToast("💾 Hardware Settings Saved!"); setTimeout(() => setCouponToast(""), 2500); }}>
+              Save Settings
+            </CustomButton>
           </div>
         </div>
-      )}
+      </CustomModal>
 
       {/* ══ CASH DRAWER TOAST ══ */}
       {drawerToast && (

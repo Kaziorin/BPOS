@@ -16,6 +16,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { ConfirmModal } from "@/components/custom/ConfirmModal";
+import { CustomModal, CustomInput, CustomButton, CustomSelect } from "@/components/custom";
 import { toast } from "react-toastify";
 
 interface Floor {
@@ -497,231 +498,198 @@ export default function FloorPlanView() {
       </div>
 
       {/* Add Table Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <form
-            onSubmit={handleCreateTable}
-            className="bg-white border border-slate-200 p-6 rounded-md max-w-lg w-full space-y-4 shadow-xl"
-          >
-            <h3 className="text-base font-bold text-gray-600 flex items-center gap-2">
-              <Plus className="w-5 h-5 text-orange-600" /> Add New Table
-            </h3>
-            <div className="w-full">
-              <label className="text-xs text-gray-600 font-bold mb-1 block">Table Number</label>
-              <input
-                id="input-table-no"
-                type="text"
-                required
-                placeholder="e.g. T-12"
-                value={newTableNo}
-                onChange={(e) => setNewTableNo(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 text-gray-600 rounded-md p-2.5 text-sm focus:border-orange-500 focus:outline-none"
-              />
-            </div>
-            <div className="w-full">
-              <label className="text-xs text-gray-600 font-bold mb-1 block">Table Display Name</label>
-              <input
-                id="input-table-name"
-                type="text"
-                placeholder="e.g. VIP Window Table 12"
-                value={newTableName}
-                onChange={(e) => setNewTableName(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 text-gray-600 rounded-md p-2.5 text-sm focus:border-orange-500 focus:outline-none"
-              />
-            </div>
-            <div className="w-full">
-              <label className="text-xs text-gray-600 font-bold mb-1 block">Assign Floor</label>
-              <select
-                id="select-table-floor"
-                value={addTableFloorId || selectedFloorId || (floors[0]?.id || "")}
-                onChange={(e) => setAddTableFloorId(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 text-gray-600 rounded-md p-2.5 text-sm focus:border-orange-500 focus:outline-none"
-              >
-                {floors.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="w-full">
-              <label className="text-xs text-gray-600 font-bold mb-1 block">Seating Capacity</label>
-              <input
-                id="input-table-capacity"
-                type="number"
-                min="1"
-                max="30"
-                value={newCapacity}
-                onChange={(e) => setNewCapacity(Number(e.target.value))}
-                className="w-full bg-slate-50 border border-slate-200 text-gray-600 rounded-md p-2.5 text-sm focus:border-orange-500 focus:outline-none"
-              />
-            </div>
-            <div className="flex justify-end gap-3 pt-3 w-full">
-              <button
-                type="button"
-                onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 text-xs font-bold text-gray-600 bg-slate-100 rounded-md hover:bg-slate-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-md shadow-2xs"
-              >
-                Create Table
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      <CustomModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="Add New Table"
+        size="md"
+      >
+        <form onSubmit={handleCreateTable} className="space-y-4">
+          <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-xl border border-orange-100 mb-2">
+            <Plus className="text-orange-600" size={20} />
+            <p className="text-xs font-bold text-orange-800 uppercase tracking-wider">New Table Configuration</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <CustomInput
+              label="Table Number"
+              required
+              placeholder="e.g. T-12"
+              value={newTableNo}
+              onChange={(e) => setNewTableNo(e.target.value)}
+            />
+            <CustomInput
+              label="Display Name"
+              placeholder="e.g. VIP Window Table"
+              value={newTableName}
+              onChange={(e) => setNewTableName(e.target.value)}
+            />
+          </div>
+
+          <CustomSelect
+            label="Assign Floor"
+            value={addTableFloorId || selectedFloorId || (floors[0]?.id || "")}
+            onChange={(e) => setAddTableFloorId(e.target.value)}
+            options={floors.map(f => ({ label: f.name, value: f.id }))}
+          />
+
+          <CustomInput
+            label="Seating Capacity"
+            type="number"
+            min="1"
+            max="30"
+            value={newCapacity}
+            onChange={(e) => setNewCapacity(Number(e.target.value))}
+          />
+
+          <div className="flex justify-end gap-3 pt-3">
+            <CustomButton
+              type="button"
+              variant="outline"
+              onClick={() => setShowAddModal(false)}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              type="submit"
+              themeColor="orange"
+            >
+              Create Table
+            </CustomButton>
+          </div>
+        </form>
+      </CustomModal>
 
       {/* Add Floor Modal */}
-      {showFloorModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <form
-            onSubmit={handleCreateFloor}
-            className="bg-white border border-slate-200 p-6 rounded-md max-w-lg w-full space-y-4 shadow-xl"
-          >
-            <h3 className="text-base font-bold text-gray-600 flex items-center gap-2">
-              <Layers className="w-5 h-5 text-orange-600" /> Add New Floor
-            </h3>
-            <div className="w-full">
-              <label className="text-xs text-gray-600 font-bold mb-1 block">Floor Name</label>
-              <input
-                id="input-floor-name"
-                type="text"
-                required
-                placeholder="e.g. Rooftop Terrace / Ground Floor"
-                value={newFloorName}
-                onChange={(e) => setNewFloorName(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 text-gray-600 rounded-md p-2.5 text-sm focus:border-orange-500 focus:outline-none"
-              />
-            </div>
-            <div className="flex justify-end gap-3 pt-3 w-full">
-              <button
-                type="button"
-                onClick={() => setShowFloorModal(false)}
-                className="px-4 py-2 text-xs font-bold text-gray-600 bg-slate-100 rounded-md hover:bg-slate-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-md shadow-2xs"
-              >
-                Create Floor
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      <CustomModal
+        open={showFloorModal}
+        onClose={() => setShowFloorModal(false)}
+        title="Add New Floor"
+        size="sm"
+      >
+        <form onSubmit={handleCreateFloor} className="space-y-4">
+          <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-xl border border-orange-100 mb-2">
+            <Layers className="text-orange-600" size={20} />
+            <p className="text-xs font-bold text-orange-800 uppercase tracking-wider">Dining Area Management</p>
+          </div>
+
+          <CustomInput
+            label="Floor Name"
+            required
+            placeholder="e.g. Rooftop Terrace"
+            value={newFloorName}
+            onChange={(e) => setNewFloorName(e.target.value)}
+          />
+
+          <div className="flex justify-end gap-3 pt-3">
+            <CustomButton
+              type="button"
+              variant="outline"
+              onClick={() => setShowFloorModal(false)}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              type="submit"
+              themeColor="orange"
+            >
+              Create Floor
+            </CustomButton>
+          </div>
+        </form>
+      </CustomModal>
 
       {/* Transfer Table Modal */}
-      {showTransferModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <form
-            onSubmit={handleTransferTable}
-            className="bg-white border border-slate-200 p-6 rounded-md max-w-lg w-full space-y-4 shadow-xl"
-          >
-            <h3 className="text-base font-bold text-gray-600 flex items-center gap-2">
-              <ArrowRightLeft className="w-5 h-5 text-amber-600" /> Transfer / Merge Table
-            </h3>
-            <div className="w-full">
-              <label className="text-xs text-gray-600 font-bold mb-1 block">Source Table (Current Order)</label>
-              <select
-                id="select-from-table"
-                value={fromTableId}
-                onChange={(e) => setFromTableId(e.target.value)}
-                required
-                className="w-full bg-slate-50 border border-slate-200 text-gray-600 rounded-md p-2.5 text-sm focus:border-orange-500 focus:outline-none"
-              >
-                <option value="">Select source table...</option>
-                {tables
-                  .filter((t) => t.status !== "AVAILABLE")
-                  .map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name} ({t.status})
-                    </option>
-                  ))}
-              </select>
-            </div>
-            <div className="w-full">
-              <label className="text-xs text-gray-600 font-bold mb-1 block">Destination Table</label>
-              <select
-                id="select-to-table"
-                value={toTableId}
-                onChange={(e) => setToTableId(e.target.value)}
-                required
-                className="w-full bg-slate-50 border border-slate-200 text-gray-600 rounded-md p-2.5 text-sm focus:border-orange-500 focus:outline-none"
-              >
-                <option value="">Select destination table...</option>
-                {tables
-                  .filter((t) => t.id !== fromTableId)
-                  .map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name} ({t.status})
-                    </option>
-                  ))}
-              </select>
-            </div>
-            <div className="flex justify-end gap-3 pt-3 w-full">
-              <button
-                type="button"
-                onClick={() => setShowTransferModal(false)}
-                className="px-4 py-2 text-xs font-bold text-gray-600 bg-slate-100 rounded-md hover:bg-slate-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-md shadow-2xs"
-              >
-                Transfer Order
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      <CustomModal
+        open={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+        title="Transfer / Merge Table"
+        size="md"
+      >
+        <form onSubmit={handleTransferTable} className="space-y-4">
+          <div className="flex items-center gap-3 bg-amber-50 p-4 rounded-xl border border-amber-100 mb-2">
+            <ArrowRightLeft className="text-amber-600" size={20} />
+            <p className="text-xs font-bold text-amber-800 uppercase tracking-wider">Order Redistribution</p>
+          </div>
+
+          <CustomSelect
+            label="Source Table (Current Order)"
+            required
+            value={fromTableId}
+            onChange={(e) => setFromTableId(e.target.value)}
+            placeholder="Select source table..."
+            options={tables
+              .filter((t) => t.status !== "AVAILABLE")
+              .map((t) => ({ label: `${t.name} (${t.status})`, value: t.id }))}
+          />
+
+          <CustomSelect
+            label="Destination Table"
+            required
+            value={toTableId}
+            onChange={(e) => setToTableId(e.target.value)}
+            placeholder="Select destination table..."
+            options={tables
+              .filter((t) => t.id !== fromTableId)
+              .map((t) => ({ label: `${t.name} (${t.status})`, value: t.id }))}
+          />
+
+          <div className="flex justify-end gap-3 pt-3">
+            <CustomButton
+              type="button"
+              variant="outline"
+              onClick={() => setShowTransferModal(false)}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              type="submit"
+              themeColor="amber"
+            >
+              Transfer Order
+            </CustomButton>
+          </div>
+        </form>
+      </CustomModal>
 
       {/* Edit Floor Modal */}
-      {showEditFloorModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in-50">
-          <form
-            onSubmit={handleUpdateFloor}
-            className="bg-white border border-slate-200 p-6 rounded-md max-w-sm w-full space-y-4 shadow-xl"
-          >
-            <h3 className="text-base font-bold text-gray-600 flex items-center gap-2">
-              <Pencil className="w-5 h-5 text-orange-600" /> Edit Floor Name
-            </h3>
-            <div className="w-full">
-              <label className="text-xs text-gray-600 font-bold mb-1 block">Floor Name</label>
-              <input
-                type="text"
-                value={editFloorName}
-                onChange={(e) => setEditFloorName(e.target.value)}
-                required
-                placeholder="e.g. Main Dining / Rooftop"
-                className="w-full bg-slate-50 border border-slate-200 text-gray-900 rounded-md p-2.5 text-sm focus:border-orange-500 focus:outline-none"
-              />
-            </div>
-            <div className="flex justify-end gap-3 pt-3 w-full">
-              <button
-                type="button"
-                onClick={() => setShowEditFloorModal(false)}
-                className="px-4 py-2 text-xs font-bold text-gray-600 bg-slate-100 rounded-md hover:bg-slate-200 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-md shadow-2xs cursor-pointer"
-              >
-                Update Floor
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      <CustomModal
+        open={showEditFloorModal}
+        onClose={() => setShowEditFloorModal(false)}
+        title="Edit Floor Name"
+        size="sm"
+      >
+        <form onSubmit={handleUpdateFloor} className="space-y-4">
+          <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-xl border border-orange-100 mb-2">
+            <Pencil className="text-orange-600" size={20} />
+            <p className="text-xs font-bold text-orange-800 uppercase tracking-wider">Rename Dining Area</p>
+          </div>
+
+          <CustomInput
+            label="Floor Name"
+            required
+            value={editFloorName}
+            onChange={(e) => setEditFloorName(e.target.value)}
+            placeholder="e.g. Main Dining / Rooftop"
+          />
+
+          <div className="flex justify-end gap-3 pt-3">
+            <CustomButton
+              type="button"
+              variant="outline"
+              onClick={() => setShowEditFloorModal(false)}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              type="submit"
+              themeColor="orange"
+            >
+              Update Floor
+            </CustomButton>
+          </div>
+        </form>
+      </CustomModal>
 
       {/* Delete Floor Confirm Modal */}
       <ConfirmModal
