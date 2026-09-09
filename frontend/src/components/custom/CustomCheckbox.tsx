@@ -8,12 +8,42 @@ export interface CustomCheckboxProps extends Omit<InputHTMLAttributes<HTMLInputE
   label?: string;
   description?: string;
   containerClassName?: string;
+  themeColor?: "teal" | "orange" | "indigo" | "emerald" | "amber" | "rose" | "purple";
 }
 
+const CHECKBOX_THEME_MAP: Record<string, { hover: string; focus: string; checked: string }> = {
+  teal: {
+    hover: "group-hover:border-teal-500",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-teal-500/30 peer-focus-visible:border-teal-500",
+    checked: "peer-checked:bg-teal-600 peer-checked:border-teal-600",
+  },
+  orange: {
+    hover: "group-hover:border-orange-500",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-orange-500/30 peer-focus-visible:border-orange-500",
+    checked: "peer-checked:bg-orange-600 peer-checked:border-orange-600",
+  },
+  emerald: {
+    hover: "group-hover:border-emerald-500",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500/30 peer-focus-visible:border-emerald-500",
+    checked: "peer-checked:bg-emerald-600 peer-checked:border-emerald-600",
+  },
+  indigo: {
+    hover: "group-hover:border-indigo-500",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-500/30 peer-focus-visible:border-indigo-500",
+    checked: "peer-checked:bg-indigo-600 peer-checked:border-indigo-600",
+  },
+  amber: {
+    hover: "group-hover:border-amber-500",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-amber-500/30 peer-focus-visible:border-amber-500",
+    checked: "peer-checked:bg-amber-600 peer-checked:border-amber-600",
+  },
+};
+
 export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
-  ({ label, description, checked, disabled, className, containerClassName, onChange, id, ...props }, ref) => {
+  ({ label, description, checked, disabled, className, containerClassName, themeColor = "teal", onChange, id, ...props }, ref) => {
     const autoId = useId();
     const checkboxId = id ?? autoId;
+    const themeStyles = CHECKBOX_THEME_MAP[themeColor] || CHECKBOX_THEME_MAP.teal;
 
     return (
       <label
@@ -35,13 +65,13 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
             className="peer sr-only"
             {...props}
           />
-          {/* Custom Checkbox Box with Teal Accent */}
+          {/* Custom Checkbox Box */}
           <div
             className={cn(
-              "h-4 w-4 rounded-xs border border-slate-300 bg-white transition-all shadow-2xs flex items-center justify-center",
-              "group-hover:border-teal-500",
-              "peer-focus-visible:ring-2 peer-focus-visible:ring-teal-500/30 peer-focus-visible:border-teal-500",
-              "peer-checked:bg-teal-600 peer-checked:border-teal-600 peer-checked:text-white peer-checked:[&>svg]:opacity-100"
+              "h-4 w-4 rounded border border-slate-300 bg-white transition-all shadow-2xs flex items-center justify-center peer-checked:text-white peer-checked:[&>svg]:opacity-100",
+              themeStyles.hover,
+              themeStyles.focus,
+              themeStyles.checked
             )}
           >
             <Check

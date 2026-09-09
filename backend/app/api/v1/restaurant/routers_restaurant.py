@@ -105,6 +105,67 @@ async def create_floor(
     return ok({"id": floor_id, "name": name}, 201)
 
 
+@router.put("/api/v1/restaurant/floors/{floorId}")
+async def update_floor(
+    floorId: str,
+    body: dict,
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        await _check_restaurant_enabled(db, tenantId)
+    except Exception as e:
+        return err(str(e), 403)
+
+    name = body.get("name")
+    if not name:
+        return err("name is required", 400)
+
+    sort_order = body.get("sortOrder")
+    if sort_order is not None:
+        res = await db.execute(
+            text("UPDATE restaurant_floors SET name = :n, sortOrder = :so, updatedAt = NOW() WHERE id = :id AND tenantId = :t"),
+            {"n": name, "so": sort_order, "id": floorId, "t": tenantId},
+        )
+    else:
+        res = await db.execute(
+            text("UPDATE restaurant_floors SET name = :n, updatedAt = NOW() WHERE id = :id AND tenantId = :t"),
+            {"n": name, "id": floorId, "t": tenantId},
+        )
+    if res.rowcount == 0:
+        return err("Floor not found", 404)
+    await db.commit()
+    return ok({"id": floorId, "name": name})
+
+
+@router.delete("/api/v1/restaurant/floors/{floorId}")
+async def delete_floor(
+    floorId: str,
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        await _check_restaurant_enabled(db, tenantId)
+    except Exception as e:
+        return err(str(e), 403)
+
+    async with txn(db):
+        await db.execute(
+            text("UPDATE restaurant_tables SET floorId = NULL WHERE floorId = :f AND tenantId = :t"),
+            {"f": floorId, "t": tenantId},
+        )
+        res = await db.execute(
+            text("DELETE FROM restaurant_floors WHERE id = :id AND tenantId = :t"),
+            {"id": floorId, "t": tenantId},
+        )
+        if res.rowcount == 0:
+            return err("Floor not found", 404)
+
+    return ok({"deleted": True, "floorId": floorId})
+
+
 @router.get("/api/v1/restaurant/tables")
 async def list_tables(
     branchId: str = "",
@@ -234,6 +295,44 @@ async def update_table_status(
     )
     await db.commit()
     return ok({"tableId": tableId, "status": status})
+
+
+@router.put("/api/v1/restaurant/tables/{tableId}")
+async def update_table(
+    tableId: str,
+    body: dict,
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        await _check_restaurant_enabled(db, tenantId)
+    except Exception as e:
+        return err(str(e), 403)
+
+    params: dict = {"id": tableId, "t": tenantId}
+    set_clauses = ["updatedAt = NOW()"]
+
+    if "name" in body:
+        params["n"] = body["name"]
+        set_clauses.append("name = :n")
+    if "tableNo" in body:
+        params["no"] = body["tableNo"]
+        set_clauses.append("tableNo = :no")
+    if "capacity" in body:
+        params["c"] = body["capacity"]
+        set_clauses.append("capacity = :c")
+    if "floorId" in body:
+        params["f"] = body["floorId"]
+        set_clauses.append("floorId = :f")
+
+    sql = f"UPDATE restaurant_tables SET {', '.join(set_clauses)} WHERE id = :id AND tenantId = :t"
+    res = await db.execute(text(sql), params)
+    if res.rowcount == 0:
+        return err("Table not found", 404)
+
+    await db.commit()
+    return ok({"tableId": tableId, "updated": True})
 
 
 @router.post("/api/v1/restaurant/tables/transfer")

@@ -6,30 +6,42 @@ import { cn } from "@/lib/cn";
 
 export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
+export type ThemeColor = "teal" | "orange" | "indigo" | "emerald" | "amber" | "rose" | "purple";
 
 export interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  themeColor?: ThemeColor;
   loading?: boolean;
   fullWidth?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
 }
 
+const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
+  teal: "bg-teal-600 text-white shadow-2xs hover:bg-teal-700 focus-visible:ring-teal-300",
+  orange: "bg-orange-600 text-white shadow-2xs hover:bg-orange-700 focus-visible:ring-orange-300",
+  emerald: "bg-emerald-600 text-white shadow-2xs hover:bg-emerald-700 focus-visible:ring-emerald-300",
+  indigo: "bg-indigo-600 text-white shadow-2xs hover:bg-indigo-700 focus-visible:ring-indigo-300",
+  amber: "bg-amber-600 text-white shadow-2xs hover:bg-amber-700 focus-visible:ring-amber-300",
+  rose: "bg-rose-600 text-white shadow-2xs hover:bg-rose-700 focus-visible:ring-rose-300",
+  purple: "bg-purple-600 text-white shadow-2xs hover:bg-purple-700 focus-visible:ring-purple-300",
+};
+
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary-500 text-white shadow-sm hover:bg-primary-600 focus-visible:ring-primary-300",
-  secondary: "bg-gray-100 text-gray-800 hover:bg-gray-200 focus-visible:ring-gray-300",
+    "bg-teal-600 text-white shadow-2xs hover:bg-teal-700 focus-visible:ring-teal-300",
+  secondary: "bg-slate-100 text-gray-700 hover:bg-slate-200 focus-visible:ring-slate-300",
   outline:
-    "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-300",
-  ghost: "text-gray-600 hover:bg-gray-100 focus-visible:ring-gray-300",
-  danger: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-300",
+    "border border-slate-200 bg-white text-gray-700 hover:bg-slate-50 focus-visible:ring-slate-300",
+  ghost: "text-gray-600 hover:bg-slate-100 focus-visible:ring-slate-300",
+  danger: "bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-300 shadow-2xs",
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
   sm: "h-8 px-3 text-xs gap-1.5",
-  md: "h-10 px-4 text-sm gap-2",
-  lg: "h-12 px-5 text-base gap-2",
+  md: "h-9 px-4 text-xs font-semibold gap-2",
+  lg: "h-11 px-5 text-sm font-semibold gap-2",
 };
 
 export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
@@ -37,6 +49,7 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
     {
       variant = "primary",
       size = "md",
+      themeColor,
       loading = false,
       fullWidth = false,
       leftIcon,
@@ -48,15 +61,20 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
     },
     ref
   ) => {
+    const variantClass =
+      variant === "primary" && themeColor
+        ? THEME_PRIMARY_CLASSES[themeColor]
+        : VARIANT_CLASSES[variant];
+
     return (
       <button
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          "inline-flex items-center justify-center rounded-lg font-medium transition-colors cursor-pointer",
+          "inline-flex items-center justify-center rounded-md font-medium transition-colors cursor-pointer select-none",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          VARIANT_CLASSES[variant],
+          variantClass,
           SIZE_CLASSES[size],
           fullWidth && "w-full",
           className

@@ -3,28 +3,125 @@
 :root {
   --background: #f4f8fa;
   --foreground: #0f1f2b;
+
+  /* Default Global Theme Variables (Ocean Teal) */
+  --theme-primary-50: #ecfeff;
+  --theme-primary-100: #cffafe;
+  --theme-primary-200: #a5f3fc;
+  --theme-primary-300: #67e8f9;
+  --theme-primary-400: #22d3ee;
+  --theme-primary-500: #06b6d4;
+  --theme-primary-600: #0891b2;
+  --theme-primary-700: #0e7490;
+  --theme-primary-800: #155e75;
+  --theme-primary-900: #164e63;
+  --theme-accent: #f59e0b;
+  --theme-glow: rgba(8, 145, 178, 0.25);
+  --theme-gradient: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #0e7490 100%);
+}
+
+/* ========================================================================= */
+/* MULTI-VERTICAL & TENANT THEME SYSTEM                                      */
+/* Allows dynamic theme switching from Settings, Tenant Config, or Page Scope */
+/* ========================================================================= */
+
+/* 1. RESTAURANT & CULINARY (Warm Vibrant Orange & Flame Palette) */
+[data-theme="restaurant"],
+.theme-restaurant {
+  --theme-primary-50: #fff7ed;
+  --theme-primary-100: #ffedd5;
+  --theme-primary-200: #fed7aa;
+  --theme-primary-300: #fdba74;
+  --theme-primary-400: #fb923c;
+  --theme-primary-500: #f97316; /* Vibrant Culinary Orange */
+  --theme-primary-600: #ea580c; /* Flame Orange */
+  --theme-primary-700: #c2410c; /* Deep Amber Orange */
+  --theme-primary-800: #9a3412;
+  --theme-primary-900: #7c2d12;
+  --theme-accent: #f59e0b;
+  --theme-glow: rgba(249, 115, 22, 0.35);
+  --theme-gradient: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #d97706 100%);
+}
+
+/* 2. GROCERY & SUPERMARKET (Fresh Emerald Green) */
+[data-theme="grocery"], .theme-grocery {
+  --theme-primary-50: #ecfdf5; --theme-primary-100: #d1fae5; --theme-primary-200: #a7f3d0;
+  --theme-primary-500: #10b981; --theme-primary-600: #059669; --theme-primary-700: #047857;
+  --theme-glow: rgba(16, 185, 129, 0.35);
+  --theme-gradient: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%);
+}
+
+/* 3. PHARMACY & HEALTH (Clinical Cyan/Teal) */
+[data-theme="pharmacy"], .theme-pharmacy {
+  --theme-primary-50: #ecfeff; --theme-primary-100: #cffafe; --theme-primary-200: #a5f3fc;
+  --theme-primary-500: #06b6d4; --theme-primary-600: #0891b2; --theme-primary-700: #0e7490;
+  --theme-glow: rgba(6, 182, 212, 0.35);
+  --theme-gradient: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #0e7490 100%);
+}
+
+/* 4. RETAIL & FASHION (Royal Blue) */
+[data-theme="retail"], .theme-retail {
+  --theme-primary-50: #eff6ff; --theme-primary-100: #dbeafe; --theme-primary-200: #bfdbfe;
+  --theme-primary-500: #3b82f6; --theme-primary-600: #2563eb; --theme-primary-700: #1d4ed8;
+  --theme-glow: rgba(59, 130, 246, 0.35);
+  --theme-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #1d4ed8 100%);
+}
+
+/* 5. WHOLESALE & DISTRIBUTION (Deep Indigo) */
+[data-theme="wholesale"], .theme-wholesale {
+  --theme-primary-50: #eef2ff; --theme-primary-100: #e0e7ff; --theme-primary-200: #c7d2fe;
+  --theme-primary-500: #6366f1; --theme-primary-600: #4f46e5; --theme-primary-700: #4338ca;
+  --theme-glow: rgba(99, 102, 241, 0.35);
+  --theme-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #4338ca 100%);
+}
+
+/* 6. SALON & BEAUTY (Glamour Rose/Pink) */
+[data-theme="salon"], .theme-salon {
+  --theme-primary-50: #fff1f2; --theme-primary-100: #ffe4e6; --theme-primary-200: #fecdd3;
+  --theme-primary-500: #f43f5e; --theme-primary-600: #e11d48; --theme-primary-700: #be123c;
+  --theme-glow: rgba(244, 63, 94, 0.35);
+  --theme-gradient: linear-gradient(135deg, #e11d48 0%, #f43f5e 50%, #be123c 100%);
+}
+
+/* 7. MANUFACTURING & BAKERY (Warm Amber/Gold) */
+[data-theme="manufacturing"], .theme-manufacturing {
+  --theme-primary-50: #fffbeb; --theme-primary-100: #fef3c7; --theme-primary-200: #fde68a;
+  --theme-primary-500: #f59e0b; --theme-primary-600: #d97706; --theme-primary-700: #b45309;
+  --theme-glow: rgba(245, 158, 11, 0.35);
+  --theme-gradient: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #b45309 100%);
+}
+
+/* 8. REPAIR & SERVICE (Electric Violet) */
+[data-theme="repair"], .theme-repair {
+  --theme-primary-50: #f5f3ff; --theme-primary-100: #ede9fe; --theme-primary-200: #ddd6fe;
+  --theme-primary-500: #8b5cf6; --theme-primary-600: #7c3aed; --theme-primary-700: #6d28d9;
+  --theme-glow: rgba(139, 92, 246, 0.35);
+  --theme-gradient: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #6d28d9 100%);
+}
+
+/* 9. FRANCHISE & ENTERPRISE (Corporate Slate/Navy) */
+[data-theme="franchise"], .theme-franchise {
+  --theme-primary-50: #f8fafc; --theme-primary-100: #f1f5f9; --theme-primary-200: #e2e8f0;
+  --theme-primary-500: #64748b; --theme-primary-600: #475569; --theme-primary-700: #334155;
+  --theme-glow: rgba(100, 116, 139, 0.35);
+  --theme-gradient: linear-gradient(135deg, #475569 0%, #64748b 50%, #334155 100%);
 }
 
 /*
   Global color system for Blue Oceans POS.
-  "primary" (ocean cyan/teal) is the sole brand hue, paired with "ink"
-  (a deep navy used for dark surfaces like the dashboard hero card)
-  and Tailwind's built-in blue/violet/red/emerald for functional accents.
-  Every component should reference these tokens (bg-primary-600,
-  text-ink-400, ...) instead of hard-coded hex values, so the whole theme
-  can be re-colored from here.
+  Every component should reference these tokens or CSS variables.
 */
 @theme {
-  --color-primary-50: #ecfeff;
-  --color-primary-100: #cffafe;
-  --color-primary-200: #a5f3fc;
-  --color-primary-300: #67e8f9;
-  --color-primary-400: #22d3ee;
-  --color-primary-500: #06b6d4;
-  --color-primary-600: #0891b2;
-  --color-primary-700: #0e7490;
-  --color-primary-800: #155e75;
-  --color-primary-900: #164e63;
+  --color-primary-50: var(--theme-primary-50);
+  --color-primary-100: var(--theme-primary-100);
+  --color-primary-200: var(--theme-primary-200);
+  --color-primary-300: var(--theme-primary-300);
+  --color-primary-400: var(--theme-primary-400);
+  --color-primary-500: var(--theme-primary-500);
+  --color-primary-600: var(--theme-primary-600);
+  --color-primary-700: var(--theme-primary-700);
+  --color-primary-800: var(--theme-primary-800);
+  --color-primary-900: var(--theme-primary-900);
 
   --color-ink-50: #eef6fb;
   --color-ink-100: #d9ebf5;

@@ -814,6 +814,97 @@ async def list_purchase_invoices(user: AuthUser = Depends(require_auth), tenantI
     return ok(rows)
 
 
+@router.get("/api/v1/purchasing/invoices/{invoice_id}")
+async def get_purchase_invoice(invoice_id: str, user: AuthUser = Depends(require_auth),
+                               tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    inv = (await db.execute(text(
+        "SELECT pi.*, s.name AS supplierName FROM purchase_invoices pi "
+        "LEFT JOIN suppliers s ON s.id=pi.supplierId WHERE pi.id=:id AND pi.tenantId=:t"),
+        {"id": invoice_id, "t": tenantId})).first()
+    if not inv:
+        return err("Purchase invoice not found", 404)
+    r = dict(inv._mapping)
+    r["supplier"] = {"id": r.get("supplierId"), "name": r.pop("supplierName", None)}
+    items = rows_to_dicts((await db.execute(text(
+        "SELECT pii.*, p.name AS productName FROM purchase_invoice_items pii "
+        "JOIN products p ON p.id=pii.productId WHERE pii.purchaseInvoiceId=:id"),
+        {"id": invoice_id})).fetchall())
+    r["items"] = items
+    return ok(r)
+
+
+@router.get("/api/v1/purchasing/invoices/{invoice_id}/payments")
+async def list_invoice_payments(invoice_id: str, user: AuthUser = Depends(require_auth),
+                                tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    rows = rows_to_dicts((await db.execute(text(
+        "SELECT sp.*, spa.amount AS allocatedAmount FROM supplier_payment_allocations spa "
+        "JOIN supplier_payments sp ON sp.id=spa.supplierPaymentId "
+        "WHERE spa.purchaseInvoiceId=:inv AND spa.tenantId=:t ORDER BY sp.createdAt DESC"),
+        {"inv": invoice_id, "t": tenantId})).fetchall())
+    return ok(rows)
+
+
+@router.post("/api/v1/purchasing/invoices/{invoice_id}/payments")
+async def pay_purchase_invoice(invoice_id: str, body: dict, user: AuthUser = Depends(require_auth),
+                                tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    amount = float(body.get("amount", 0) or 0)
+    if amount <= 0:
+        return err("Amount must be greater than 0", 400)
+    
+    inv = (await db.execute(text(
+        "SELECT id, tenantId, branchId, supplierId, total, paidTotal, status FROM purchase_invoices WHERE id=:id AND tenantId=:t FOR UPDATE"),
+        {"id": invoice_id, "t": tenantId})).first()
+    if not inv:
+        return err("Purchase invoice not found", 404)
+    
+    inv_id, _, branchId, supplierId, total, paidTotal, status = inv
+    if status == "PAID":
+        return err("Invoice is already fully paid", 400)
+    
+    method = body.get("paymentMethod") or body.get("method") or "CASH"
+    reference = body.get("reference")
+    note = body.get("note")
+    
+    pay_no = gen_no("SPAY")
+    async with txn(db):
+        await db.execute(text(
+            "INSERT INTO supplier_payments (id, tenantId, branchId, supplierId, paymentNo, paymentDate, amount, method, reference, note, createdBy, updatedAt) "
+            "VALUES (UUID(), :t, :b, :s, :p, NOW(), :a, :m, :r, :n, :u, NOW())"),
+            {"t": tenantId, "b": branchId, "s": supplierId, "p": pay_no, "a": amount,
+             "m": method, "r": reference, "n": note, "u": user.id})
+        
+        pay_id = (await db.execute(text("SELECT id FROM supplier_payments WHERE tenantId=:t AND paymentNo=:p"),
+                                   {"t": tenantId, "p": pay_no})).first()[0]
+        
+        await db.execute(text(
+            "INSERT INTO supplier_payment_allocations (id, tenantId, supplierPaymentId, purchaseInvoiceId, amount) "
+            "VALUES (UUID(), :t, :pay, :inv, :a)"),
+            {"t": tenantId, "pay": pay_id, "inv": invoice_id, "a": amount})
+        
+        new_paid = float(paidTotal) + amount
+        new_due = float(total) - new_paid
+        new_status = "PAID" if new_due <= 0.01 else "PARTIALLY_PAID"
+        
+        await db.execute(text(
+            "UPDATE purchase_invoices SET paidTotal=:p, status=:s WHERE id=:id"),
+            {"p": new_paid, "s": new_status, "id": invoice_id})
+        
+        if supplierId:
+            await db.execute(text("UPDATE suppliers SET currentDue = GREATEST(currentDue - :a, 0) WHERE id=:s"),
+                             {"a": amount, "s": supplierId})
+        
+        # Accounting (§10.20): SUPPLIER_PAYMENT journal — Debit AP, Credit cash/bank
+        await acc.post_journal(db, tenantId, refType="SUPPLIER_PAYMENT", refId=pay_id,
+                               narration=f"Supplier payment {pay_no} for Invoice", lines=[
+                                   ("2000", amount, 0.0, f"AP reduction {pay_no}"),
+                                   (acc.METHOD_ACCOUNT.get(method, "1000"),
+                                    0.0, amount, f"Paid via {method}"),
+                               ], userId=user.id)
+        
+    return ok({"paymentNo": pay_no, "amount": amount, "invoiceId": invoice_id, "status": new_status}, 201)
+
+
+
 @router.post("/api/v1/purchasing/payments")
 async def pay_supplier(body: dict, user: AuthUser = Depends(require_auth),
                        tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):

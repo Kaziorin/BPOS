@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { CustomTabs, CustomCheckbox, CustomButton } from "@/components/custom";
+import { toast } from "react-toastify";
 import {
   Flame,
   CheckCircle,
@@ -38,18 +40,18 @@ interface KOTTicket {
 }
 
 const STATION_ICONS: Record<string, React.ReactNode> = {
-  KITCHEN: <ChefHat className="w-4 h-4 text-orange-400" />,
-  GRILL: <Flame className="w-4 h-4 text-red-400" />,
-  BAR: <Wine className="w-4 h-4 text-purple-400" />,
-  DESSERT: <IceCream className="w-4 h-4 text-pink-400" />,
+  KITCHEN: <ChefHat className="w-4 h-4 text-orange-600" />,
+  GRILL: <Flame className="w-4 h-4 text-red-600" />,
+  BAR: <Wine className="w-4 h-4 text-purple-600" />,
+  DESSERT: <IceCream className="w-4 h-4 text-pink-600" />,
 };
 
 const KDS_STATUS_COLORS: Record<KOTTicket["status"], { bg: string; border: string; text: string }> = {
-  NEW: { bg: "bg-amber-500/10", border: "border-amber-500/40", text: "text-amber-400" },
-  ACCEPTED: { bg: "bg-indigo-500/10", border: "border-indigo-500/40", text: "text-indigo-400" },
-  PREPARING: { bg: "bg-blue-500/10", border: "border-blue-500/40", text: "text-blue-400" },
-  READY: { bg: "bg-emerald-500/10", border: "border-emerald-500/40", text: "text-emerald-400" },
-  SERVED: { bg: "bg-slate-500/10", border: "border-slate-500/40", text: "text-slate-400" },
+  NEW: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700" },
+  ACCEPTED: { bg: "bg-orange-50", border: "border-orange-200", text: "text-orange-700" },
+  PREPARING: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700" },
+  READY: { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700" },
+  SERVED: { bg: "bg-slate-100", border: "border-slate-200", text: "text-slate-700" },
 };
 
 export default function KDSView() {
@@ -89,7 +91,7 @@ export default function KDSView() {
       await api.patch(`/v1/restaurant/kot/${kotId}/status`, { status: nextStatus });
       fetchKDS();
     } catch (err: any) {
-      alert("KDS action failed: " + err.message);
+      toast.error("KDS action failed: " + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -99,49 +101,45 @@ export default function KDSView() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Station Filters & Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
-        <div className="flex items-center gap-2">
-          {["ALL", "KITCHEN", "GRILL", "BAR", "DESSERT"].map((st) => (
-            <button
-              key={st}
-              id={`kds-filter-${st}`}
-              onClick={() => setStationFilter(st)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                stationFilter === st
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
-                  : "bg-slate-800 text-slate-400 hover:text-white"
-              }`}
-            >
-              {STATION_ICONS[st]}
-              {st}
-            </button>
-          ))}
+    <div className="space-y-6 w-full">
+      {/* Station Filters & Controls (Full Width Card) */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-md border border-slate-200 shadow-2xs w-full">
+        <div className="flex-1 min-w-[280px]">
+          <CustomTabs
+            tabs={[
+              { id: "ALL", label: "ALL" },
+              { id: "KITCHEN", label: "KITCHEN", icon: <ChefHat className="w-4 h-4 text-orange-600" /> },
+              { id: "GRILL", label: "GRILL", icon: <Flame className="w-4 h-4 text-red-600" /> },
+              { id: "BAR", label: "BAR", icon: <Wine className="w-4 h-4 text-purple-600" /> },
+              { id: "DESSERT", label: "DESSERT", icon: <IceCream className="w-4 h-4 text-pink-600" /> },
+            ]}
+            activeTab={stationFilter}
+            onChange={(stId) => setStationFilter(stId)}
+            themeColor="orange"
+            className="border-none shadow-none p-0 bg-transparent"
+          />
         </div>
 
         <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-xs font-semibold text-slate-400 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={autoRefresh}
-              onChange={(e) => setAutoRefresh(e.target.checked)}
-              className="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-0"
-            />
-            Auto-refresh (10s)
-          </label>
+          <CustomCheckbox
+            label="Auto-refresh (10s)"
+            checked={autoRefresh}
+            onChange={(e) => setAutoRefresh(e.target.checked)}
+            themeColor="orange"
+          />
           <button
             id="btn-refresh-kds"
             onClick={fetchKDS}
-            className="p-2 text-slate-400 hover:text-white bg-slate-800 rounded-lg transition-all"
+            className="p-2 text-gray-600 hover:text-gray-900 bg-slate-100 hover:bg-slate-200 rounded-md transition-all cursor-pointer"
+            title="Refresh KDS Tickets"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-orange-600" : ""}`} />
           </button>
         </div>
       </div>
 
-      {/* KDS Ticket Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      {/* KDS Ticket Cards Grid (Full Width Cards) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
         {tickets.map((t) => {
           const mins = getElapsedTime(t.createdAt);
           const isUrgent = mins > 15;
@@ -152,51 +150,51 @@ export default function KDSView() {
             <div
               key={t.id}
               id={`kds-card-${t.kotNo}`}
-              className={`flex flex-col justify-between p-5 rounded-2xl border ${statusStyle.bg} ${statusStyle.border} shadow-xl transition-all hover:border-slate-600`}
+              className={`flex flex-col justify-between p-5 rounded-md border ${statusStyle.bg} ${statusStyle.border} shadow-2xs bg-white transition-all duration-200 hover:shadow-md hover:border-orange-300 w-full`}
             >
-              <div>
+              <div className="w-full">
                 {/* Card Header */}
-                <div className="flex items-start justify-between border-b border-slate-800 pb-3 mb-3">
+                <div className="flex items-start justify-between border-b border-slate-100 pb-3 mb-3 w-full">
                   <div>
-                    <span className="text-xs font-bold text-indigo-400 tracking-wide uppercase">
+                    <span className="text-xs font-bold text-orange-600 tracking-wide uppercase">
                       {t.kotNo}
                     </span>
-                    <h4 className="text-lg font-extrabold text-white flex items-center gap-2 mt-0.5">
+                    <h4 className="text-base font-bold text-gray-600 flex items-center gap-2 mt-0.5">
                       {t.tableNo ? `Table ${t.tableNo}` : t.orderType}
                     </h4>
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <span
-                      className={`flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md ${
+                      className={`flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full ${
                         isUrgent
-                          ? "bg-rose-500 text-white animate-pulse"
+                          ? "bg-rose-600 text-white shadow-2xs"
                           : isWarning
-                          ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                          : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                          ? "bg-amber-100 text-amber-800 border border-amber-300"
+                          : "bg-emerald-100 text-emerald-800 border border-emerald-300"
                       }`}
                     >
                       <Clock className="w-3 h-3" />
                       {mins}m ago
                     </span>
-                    <span className="text-[10px] text-slate-500 uppercase tracking-wider">
+                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
                       {t.station}
                     </span>
                   </div>
                 </div>
 
-                {/* Items List */}
-                <div className="space-y-2.5 my-3">
+                {/* Items List (Full Width Inside Card) */}
+                <div className="space-y-2 my-3 w-full">
                   {t.items.map((it) => (
-                    <div key={it.id} className="flex items-start justify-between text-xs bg-slate-900/60 p-2.5 rounded-lg border border-slate-800/80">
-                      <div className="flex items-start gap-2">
-                        <span className="w-5 h-5 flex items-center justify-center font-bold text-white bg-indigo-600 rounded text-[11px]">
+                    <div key={it.id} className="flex items-start justify-between text-xs bg-slate-50 p-2.5 rounded-md border border-slate-100 w-full">
+                      <div className="flex items-start gap-2.5 w-full">
+                        <span className="w-5 h-5 flex items-center justify-center font-bold text-white bg-orange-600 rounded text-[11px] shrink-0">
                           {it.qty}
                         </span>
-                        <div>
-                          <p className="font-semibold text-slate-200">{it.name}</p>
+                        <div className="w-full">
+                          <p className="font-bold text-gray-600">{it.name}</p>
                           {it.notes && (
-                            <p className="text-[10px] text-amber-400 mt-0.5 flex items-center gap-1">
-                              <AlertTriangle className="w-2.5 h-2.5" /> {it.notes}
+                            <p className="text-[10px] text-amber-700 mt-0.5 flex items-center gap-1 font-semibold">
+                              <AlertTriangle className="w-2.5 h-2.5 flex-shrink-0 text-amber-600" /> {it.notes}
                             </p>
                           )}
                         </div>
@@ -206,19 +204,19 @@ export default function KDSView() {
                 </div>
 
                 {t.notes && (
-                  <div className="text-[11px] text-amber-300/80 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20 mb-3">
+                  <div className="text-[11px] font-semibold text-amber-800 bg-amber-50 p-2.5 rounded-md border border-amber-200 mb-3 w-full">
                     <strong>Order Note:</strong> {t.notes}
                   </div>
                 )}
               </div>
 
-              {/* Action Buttons */}
-              <div className="pt-3 border-t border-slate-800">
+              {/* Action Buttons (Full Width) */}
+              <div className="pt-3 border-t border-slate-100 w-full">
                 {t.status === "NEW" && (
                   <button
                     id={`btn-kds-accept-${t.id}`}
                     onClick={() => handleUpdateStatus(t.id, "ACCEPTED")}
-                    className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-slate-900 bg-amber-400 hover:bg-amber-300 rounded-lg shadow-md transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-amber-950 bg-amber-400 hover:bg-amber-500 rounded-md shadow-2xs transition-all"
                   >
                     <Play className="w-3.5 h-3.5" /> Accept Order
                   </button>
@@ -227,7 +225,7 @@ export default function KDSView() {
                   <button
                     id={`btn-kds-prep-${t.id}`}
                     onClick={() => handleUpdateStatus(t.id, "PREPARING")}
-                    className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-md transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-md shadow-2xs transition-all"
                   >
                     <Flame className="w-3.5 h-3.5" /> Start Cooking
                   </button>
@@ -236,7 +234,7 @@ export default function KDSView() {
                   <button
                     id={`btn-kds-ready-${t.id}`}
                     onClick={() => handleUpdateStatus(t.id, "READY")}
-                    className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg shadow-md transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md shadow-2xs transition-all"
                   >
                     <CheckCircle className="w-3.5 h-3.5" /> Mark Ready
                   </button>
@@ -245,7 +243,7 @@ export default function KDSView() {
                   <button
                     id={`btn-kds-served-${t.id}`}
                     onClick={() => handleUpdateStatus(t.id, "SERVED")}
-                    className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-gray-600 bg-slate-100 hover:bg-slate-200 rounded-md transition-all"
                   >
                     <CheckCheck className="w-3.5 h-3.5" /> Serve & Complete
                   </button>
@@ -256,10 +254,10 @@ export default function KDSView() {
         })}
 
         {tickets.length === 0 && !loading && (
-          <div className="col-span-full flex flex-col items-center justify-center p-12 bg-slate-900/40 border border-dashed border-slate-800 rounded-2xl text-slate-500 text-center">
-            <UtensilsCrossed className="w-12 h-12 mb-3 text-slate-600" />
-            <p className="font-semibold text-slate-400">No active kitchen orders</p>
-            <p className="text-xs mt-1">Orders sent to KOT will appear here in real-time.</p>
+          <div className="col-span-full flex flex-col items-center justify-center p-12 bg-white border border-dashed border-slate-200 rounded-md text-gray-500 text-center shadow-2xs w-full">
+            <UtensilsCrossed className="w-10 h-10 mb-3 text-gray-400" />
+            <p className="font-bold text-gray-600">No active kitchen orders</p>
+            <p className="text-xs text-gray-500 mt-1">Orders sent to KOT from Dining POS will appear here in real-time.</p>
           </div>
         )}
       </div>

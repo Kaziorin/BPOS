@@ -9,4 +9,5 @@ export * from "./CustomModal";
 export * from "./CustomStatCard";
 export * from "./SearchableSelect";
 export * from "./CustomCheckbox";
-
+export * from "./CustomBreadcrumb";
+export * from "./CustomTabs";

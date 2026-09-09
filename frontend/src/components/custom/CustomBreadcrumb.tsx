@@ -15,6 +15,7 @@ export interface CustomBreadcrumbProps {
   description?: string;
   items?: BreadcrumbItem[];
   icon?: ReactNode;
+  iconClassName?: string;
   actions?: ReactNode;
 }
 
@@ -23,6 +24,7 @@ export function CustomBreadcrumb({
   description,
   items = [],
   icon,
+  iconClassName,
   actions,
 }: CustomBreadcrumbProps) {
   const router = useRouter();
@@ -33,7 +35,7 @@ export function CustomBreadcrumb({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           {icon && (
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-teal-50 text-teal-600 shrink-0">
+            <div className={iconClassName || "flex h-7 w-7 items-center justify-center rounded-md bg-teal-50 text-teal-600 shrink-0"}>
               {icon}
             </div>
           )}
