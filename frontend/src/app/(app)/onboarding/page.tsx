@@ -35,8 +35,8 @@ const STEPS = [
   { id: "warehouse", title: "Warehouse Setup", icon: Warehouse },
   { id: "tax", title: "Tax Setup", icon: DollarSign },
   { id: "payment", title: "Payment Setup", icon: CreditCard },
-  { id: "users", title: "Create Users", icon: Users },
-  { id: "complete", title: "Complete", icon: CheckCircle },
+  { id: "users", title: "Owner Setup", icon: Users },
+  { id: "complete", title: "Launch Store", icon: CheckCircle },
 ] as const;
 
 type StepId = (typeof STEPS)[number]["id"];
@@ -56,13 +56,13 @@ const BUSINESS_TYPES = [
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState<StepId>("business-type");
   const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Set<StepId>>(new Set());
+  const [provisionResult, setProvisionResult] = useState<any>(null);
 
-  // Form states
-  const [selectedBusinessType, setSelectedBusinessType] = useState<string>("RETAIL");
+  // Form states (Clean client-side state)
+  const [selectedBusinessType, setSelectedBusinessType] = useState<string>("GROCERY");
   const [companyForm, setCompanyForm] = useState({
     name: "",
     legalName: "",
@@ -72,15 +72,15 @@ export default function OnboardingPage() {
     vatRegNo: "",
   });
   const [branchForm, setBranchForm] = useState({
-    code: "",
-    name: "",
+    code: "MAIN",
+    name: "Main Branch",
     phone: "",
     email: "",
     address: "",
   });
   const [warehouseForm, setWarehouseForm] = useState({
-    code: "",
-    name: "",
+    code: "WH-MAIN",
+    name: "Main Warehouse",
     type: "CENTRAL",
   });
   const [taxForm, setTaxForm] = useState({
@@ -96,38 +96,13 @@ export default function OnboardingPage() {
     name: "",
     email: "",
     password: "",
-    roleId: "",
+    phone: "",
+    roleId: "Owner",
   });
-  const [rolesList, setRolesList] = useState<Array<{ id: string; name: string; description?: string }>>([]);
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
 
-  // Load existing onboarding state on mount
-  useEffect(() => {
-    async function loadState() {
-      try {
-        const res = await api.get<{ data: any }>("/api/v1/onboarding/state");
-        const state = (res as any)?.data || (res as any);
-        if (state) {
-          if (state.businessType) setSelectedBusinessType(state.businessType);
-          if (state.roles && Array.isArray(state.roles)) {
-            setRolesList(state.roles);
-            if (state.roles.length > 0 && !userForm.roleId) {
-              setUserForm((u) => ({ ...u, roleId: state.roles[0].id }));
-            }
-          }
-        }
-      } catch (err) {
-        console.warn("Could not pre-load onboarding state, using defaults:", err);
-      } finally {
-        setInitialLoading(false);
-      }
-    }
-    loadState();
-  }, []);
-
-  const handleNext = async () => {
-    setLoading(true);
+  const handleNext = () => {
     setErrorMessage(null);
     setSuccessMessage(null);
 
@@ -136,63 +111,35 @@ export default function OnboardingPage() {
         if (!selectedBusinessType) {
           throw new Error("Please select a business type to continue.");
         }
-        await api.post("/api/v1/onboarding/business-type", { businessType: selectedBusinessType });
-        if (typeof window !== "undefined") {
-          try {
-            const curTenant = localStorage.getItem("blueoceans_tenant");
-            const parsed = curTenant ? JSON.parse(curTenant) : {};
-            localStorage.setItem("blueoceans_tenant", JSON.stringify({
-              ...parsed,
-              businessType: selectedBusinessType,
-            }));
-            const curUser = localStorage.getItem("modernpos_user");
-            if (curUser) {
-              const parsedUser = JSON.parse(curUser);
-              localStorage.setItem("modernpos_user", JSON.stringify({
-                ...parsedUser,
-                businessType: selectedBusinessType,
-              }));
-            }
-          } catch (e) {}
-        }
         setCompletedSteps((prev) => new Set([...prev, "business-type"]));
       } else if (currentStep === "company") {
         if (!companyForm.name.trim()) {
-          throw new Error("Company name is required.");
-        }
-        await api.post("/api/v1/onboarding/company", companyForm);
-        if (typeof window !== "undefined") {
-          try {
-            const curTenant = localStorage.getItem("blueoceans_tenant");
-            const parsed = curTenant ? JSON.parse(curTenant) : {};
-            localStorage.setItem("blueoceans_tenant", JSON.stringify({
-              ...parsed,
-              name: companyForm.name,
-            }));
-          } catch (e) {}
+          throw new Error("Store / Business name is required.");
         }
         setCompletedSteps((prev) => new Set([...prev, "company"]));
       } else if (currentStep === "branch") {
         if (!branchForm.name.trim() || !branchForm.code.trim()) {
           throw new Error("Branch name and branch code are required.");
         }
-        await api.post("/api/v1/onboarding/branch", branchForm);
         setCompletedSteps((prev) => new Set([...prev, "branch"]));
       } else if (currentStep === "warehouse") {
         if (!warehouseForm.name.trim() || !warehouseForm.code.trim()) {
           throw new Error("Warehouse name and warehouse code are required.");
         }
-        await api.post("/api/v1/onboarding/warehouse", warehouseForm);
         setCompletedSteps((prev) => new Set([...prev, "warehouse"]));
       } else if (currentStep === "tax") {
-        await api.post("/api/v1/onboarding/tax", taxForm);
         setCompletedSteps((prev) => new Set([...prev, "tax"]));
       } else if (currentStep === "payment") {
-        await api.post("/api/v1/onboarding/payment", paymentForm);
         setCompletedSteps((prev) => new Set([...prev, "payment"]));
       } else if (currentStep === "users") {
-        if (userForm.name.trim() && userForm.email.trim()) {
-          await api.post("/api/v1/onboarding/users", userForm);
+        if (!userForm.name.trim()) {
+          throw new Error("Owner name is required.");
+        }
+        if (!userForm.email.trim()) {
+          throw new Error("Owner login email is required.");
+        }
+        if (!userForm.password || userForm.password.length < 6) {
+          throw new Error("Password must be at least 6 characters.");
         }
         setCompletedSteps((prev) => new Set([...prev, "users"]));
       }
@@ -200,11 +147,7 @@ export default function OnboardingPage() {
       const nextIndex = Math.min(currentStepIndex + 1, STEPS.length - 1);
       setCurrentStep(STEPS[nextIndex].id);
     } catch (error: any) {
-      const msg = error.message || error.error || "Failed to save step configuration. Please try again.";
-      setErrorMessage(msg);
-      console.error("Step submission error:", error);
-    } finally {
-      setLoading(false);
+      setErrorMessage(error.message || "Please complete all required fields.");
     }
   };
 
@@ -214,62 +157,87 @@ export default function OnboardingPage() {
     setCurrentStep(STEPS[prevIndex].id);
   };
 
-  const handleComplete = async () => {
+  const handleProvisionTenant = async () => {
     setLoading(true);
     setErrorMessage(null);
     try {
-      await api.post("/api/v1/onboarding/complete");
+      const payload = {
+        businessType: selectedBusinessType,
+        company: companyForm,
+        branch: branchForm,
+        warehouse: warehouseForm,
+        tax: taxForm,
+        payment: paymentForm,
+        user: userForm,
+      };
+
+      const res: any = await api.post("/onboarding/provision", payload);
+      const data = res?.data || res;
+      setProvisionResult(data);
       setCompletedSteps((prev) => new Set([...prev, "complete"]));
-      setSuccessMessage("Onboarding complete! Redirecting to Dashboard...");
-      if (typeof window !== "undefined") {
-        try {
-          const curTenant = localStorage.getItem("blueoceans_tenant");
-          const parsed = curTenant ? JSON.parse(curTenant) : {};
-          localStorage.setItem("blueoceans_tenant", JSON.stringify({
-            ...parsed,
-            name: companyForm.name || parsed.name,
-            businessType: selectedBusinessType,
-          }));
-          const curUser = localStorage.getItem("modernpos_user");
-          if (curUser) {
-            const parsedUser = JSON.parse(curUser);
-            localStorage.setItem("modernpos_user", JSON.stringify({
-              ...parsedUser,
-              businessType: selectedBusinessType,
-            }));
-          }
-        } catch (e) {}
-      }
-      setTimeout(() => {
-        window.location.href = "/dashboard";
-      }, 800);
+      setSuccessMessage("🎉 New Isolated Tenant Store Successfully Provisioned!");
     } catch (error: any) {
-      const msg = error.message || error.error || "Failed to complete onboarding. Please try again.";
+      const msg = error.message || error.error || "Failed to provision tenant store. Please verify email and input.";
       setErrorMessage(msg);
-      console.error("Completion error:", error);
+      console.error("Provisioning error:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleResetWizard = () => {
+    setSelectedBusinessType("GROCERY");
+    setCompanyForm({ name: "", legalName: "", phone: "", email: "", address: "", vatRegNo: "" });
+    setBranchForm({ code: "MAIN", name: "Main Branch", phone: "", email: "", address: "" });
+    setWarehouseForm({ code: "WH-MAIN", name: "Main Warehouse", type: "CENTRAL" });
+    setTaxForm({ taxEnabled: true, vatRate: 15, taxRegistrationNumber: "" });
+    setUserForm({ name: "", email: "", password: "", phone: "", roleId: "Owner" });
+    setCompletedSteps(new Set());
+    setProvisionResult(null);
+    setSuccessMessage(null);
+    setErrorMessage(null);
+    setCurrentStep("business-type");
+  };
+
+  const handleSwitchToNewTenant = (token: string, tenant: any, owner: any) => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+        localStorage.setItem("modernpos_token", token);
+        localStorage.setItem("modernpos_user", JSON.stringify({
+          ...owner,
+          role: "Owner",
+          roleName: "Owner",
+          businessType: tenant.businessType,
+        }));
+        localStorage.setItem("blueoceans_tenant", JSON.stringify({
+          id: tenant.id,
+          slug: tenant.slug,
+          name: tenant.name,
+          businessType: tenant.businessType,
+        }));
+      } catch (e) {}
+    }
+    window.location.href = "/dashboard";
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
-        {/* Header Title */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-100 text-primary-800 text-xs font-semibold mb-2">
-            <span>🚀 Quick Setup Wizard</span>
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-700 text-xs font-bold uppercase tracking-wider mb-2">
+            ✨ Client Provisioning Wizard
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight sm:text-4xl">
-            Welcome to Blue Ocean POS
-          </h1>
-          <p className="mt-2 text-sm text-slate-600 max-w-xl mx-auto">
-            Complete the guided setup below to configure your store, tax rules, payment channels, and team.
+          <h1 className="text-3xl font-extrabold text-slate-900">Single Tenant Onboarding</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Provision a brand new isolated business client with its own dedicated store, branch, warehouse, and owner credentials.
           </p>
         </div>
 
-        {/* Progress Stepper Bar */}
-        <div className="mb-8 rounded-2xl bg-white p-4 shadow-xs border border-slate-200">
+        {/* Stepper Navigation */}
+        <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
           <div className="flex items-center justify-between overflow-x-auto pb-2 scrollbar-none">
             {STEPS.map((step, index) => {
               const isCompleted = completedSteps.has(step.id);
@@ -389,66 +357,54 @@ export default function OnboardingPage() {
           )}
 
           {currentStep === "users" && (
-            <UsersSetupStep
+            <OwnerSetupStep
               form={userForm}
-              roles={rolesList}
               onChange={(k, v) => setUserForm((prev) => ({ ...prev, [k]: v }))}
             />
           )}
 
-          {currentStep === "complete" && <CompleteStep />}
+          {currentStep === "complete" && (
+            <CompleteStep
+              provisionResult={provisionResult}
+              businessType={selectedBusinessType}
+              company={companyForm}
+              branch={branchForm}
+              warehouse={warehouseForm}
+              tax={taxForm}
+              user={userForm}
+              onProvision={handleProvisionTenant}
+              onReset={handleResetWizard}
+              onSwitch={handleSwitchToNewTenant}
+              loading={loading}
+            />
+          )}
 
           {/* Navigation Controls */}
-          <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
-            {currentStepIndex > 0 && currentStep !== "complete" ? (
-              <CustomButton
-                variant="outline"
-                onClick={handleBack}
-                disabled={loading}
-              >
-                <ArrowLeft size={16} className="mr-2" />
-                Back
-              </CustomButton>
-            ) : (
-              <div />
-            )}
-
-            <div className="flex items-center gap-3">
-              {currentStep === "users" && (
+          {currentStep !== "complete" && (
+            <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
+              {currentStepIndex > 0 ? (
                 <CustomButton
-                  variant="ghost"
-                  onClick={() => {
-                    const nextIndex = Math.min(currentStepIndex + 1, STEPS.length - 1);
-                    setCurrentStep(STEPS[nextIndex].id);
-                  }}
+                  variant="outline"
+                  onClick={handleBack}
                   disabled={loading}
                 >
-                  Skip for now
-                </CustomButton>
-              )}
-
-              {currentStep === "complete" ? (
-                <CustomButton
-                  onClick={handleComplete}
-                  loading={loading}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 shadow-md"
-                >
-                  <Play size={16} className="mr-2" />
-                  Launch Dashboard
+                  <ArrowLeft size={16} className="mr-2" />
+                  Back
                 </CustomButton>
               ) : (
-                <CustomButton
-                  onClick={handleNext}
-                  loading={loading}
-                  disabled={loading || (currentStep === "business-type" && !selectedBusinessType)}
-                  className="px-6 py-2.5 font-semibold shadow-xs"
-                >
-                  {loading ? "Saving..." : currentStepIndex === STEPS.length - 2 ? "Finalize Setup" : "Save & Continue"}
-                  <ArrowRight size={16} className="ml-2" />
-                </CustomButton>
+                <div />
               )}
+
+              <CustomButton
+                onClick={handleNext}
+                disabled={loading || (currentStep === "business-type" && !selectedBusinessType)}
+                className="px-6 py-2.5 font-semibold shadow-xs bg-teal-600 hover:bg-teal-700 text-white"
+              >
+                {currentStepIndex === STEPS.length - 2 ? "Review & Finalize" : "Save & Continue"}
+                <ArrowRight size={16} className="ml-2" />
+              </CustomButton>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
@@ -841,94 +797,249 @@ function PaymentSetupStep({
 // ─────────────────────────────────────────────────────────────────────────────
 // 7. Users Setup Step
 // ─────────────────────────────────────────────────────────────────────────────
-function UsersSetupStep({
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. Owner Setup Step
+// ─────────────────────────────────────────────────────────────────────────────
+function OwnerSetupStep({
   form,
-  roles,
   onChange,
 }: {
   form: any;
-  roles: Array<{ id: string; name: string }>;
   onChange: (key: string, val: any) => void;
 }) {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Add an initial staff member (optional)</h2>
+        <h2 className="text-xl font-bold text-slate-900">Client Owner & Administrator Credentials</h2>
         <p className="text-sm text-slate-500 mt-1">
-          Create an account for a store manager or cashier. You can also add more users later from the Settings menu.
+          Create the primary Owner account for this business client. They will have full administrative access to their dedicated tenant store.
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <CustomInput
-          label="Full Name"
-          placeholder="e.g., Store Cashier"
+          label="Owner Full Name *"
+          placeholder="e.g., Jane Doe"
           value={form.name}
           onChange={(e) => onChange("name", e.target.value)}
         />
         <CustomInput
-          label="Work Email Address"
+          label="Owner Login Email *"
           type="email"
-          placeholder="e.g., staff@blueocean.com"
+          placeholder="e.g., owner@clientstore.com"
           value={form.email}
           onChange={(e) => onChange("email", e.target.value)}
+          hint="This email will be used to log into their dedicated store."
         />
         <CustomInput
-          label="Initial Password"
+          label="Initial Password *"
           type="password"
-          placeholder="e.g., Password@123"
+          placeholder="Min 6 characters"
           value={form.password}
           onChange={(e) => onChange("password", e.target.value)}
         />
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">Assigned Role</label>
-          <select
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-            value={form.roleId}
-            onChange={(e) => onChange("roleId", e.target.value)}
-          >
-            {roles.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <CustomInput
+          label="Contact Phone"
+          placeholder="e.g., +8801700000000"
+          value={form.phone}
+          onChange={(e) => onChange("phone", e.target.value)}
+        />
+      </div>
+
+      <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 text-xs text-blue-900 leading-relaxed">
+        <strong>Single Tenant Isolation:</strong> This owner account will be strictly linked only to this new tenant. No data (products, sales, customers) will be shared with other stores.
       </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 8. Complete Step
+// 8. Complete Step (Review & Launch Tenant)
 // ─────────────────────────────────────────────────────────────────────────────
-function CompleteStep() {
-  return (
-    <div className="text-center py-6">
-      <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 ring-8 ring-emerald-50">
-        <CheckCircle size={44} />
-      </div>
-      <h2 className="text-2xl font-bold text-slate-900">Configuration Complete!</h2>
-      <p className="mt-2 text-sm text-slate-600 max-w-md mx-auto">
-        Your business environment, branches, inventory ledger, tax rules, and POS channels have been provisioned successfully.
-      </p>
+function CompleteStep({
+  provisionResult,
+  businessType,
+  company,
+  branch,
+  warehouse,
+  tax,
+  user,
+  onProvision,
+  onReset,
+  onSwitch,
+  loading,
+}: {
+  provisionResult: any;
+  businessType: string;
+  company: any;
+  branch: any;
+  warehouse: any;
+  tax: any;
+  user: any;
+  onProvision: () => void;
+  onReset: () => void;
+  onSwitch: (token: string, tenant: any, owner: any) => void;
+  loading: boolean;
+}) {
+  const [copied, setCopied] = useState(false);
 
-      <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50/80 p-5 text-left max-w-lg mx-auto">
-        <h3 className="font-semibold text-slate-900 text-sm mb-3">Recommended Next Steps:</h3>
-        <ul className="space-y-2.5 text-xs text-slate-600">
-          <li className="flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-100 text-primary-700 text-[10px] font-bold">1</span>
-            <span>Import or add items to your <strong>Products Catalog</strong></span>
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-100 text-primary-700 text-[10px] font-bold">2</span>
-            <span>Receive opening stock via <strong>Purchasing &amp; GRN</strong></span>
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-100 text-primary-700 text-[10px] font-bold">3</span>
-            <span>Open register and start checkout from <strong>POS Counter</strong></span>
-          </li>
-        </ul>
+  const handleCopyCredentials = () => {
+    if (!provisionResult) return;
+    const text = `=== Blue Oceans POS Client Tenant Credentials ===
+Store Name: ${provisionResult.tenant?.name}
+Business Type: ${provisionResult.tenant?.businessType}
+Tenant ID: ${provisionResult.tenant?.id}
+Store Slug: ${provisionResult.tenant?.slug}
+Owner Name: ${provisionResult.owner?.name}
+Login Email: ${provisionResult.owner?.email}
+Initial Password: ${user.password}
+Login URL: ${window.location.origin}/login
+=================================================`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
+  if (provisionResult) {
+    return (
+      <div className="py-2 text-center animate-fadeIn">
+        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 ring-8 ring-emerald-50">
+          <CheckCircle size={44} />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900">Tenant Store Ready!</h2>
+        <p className="mt-1 text-sm text-slate-600 max-w-lg mx-auto">
+          A dedicated, isolated single-tenant business has been created with clean inventory & zero seed bleed.
+        </p>
+
+        {/* Credentials Card */}
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/90 p-5 text-left max-w-xl mx-auto space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Business Client</span>
+              <h3 className="text-lg font-bold text-slate-900">{provisionResult.tenant?.name}</h3>
+            </div>
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 uppercase">
+              {provisionResult.tenant?.businessType}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <span className="text-slate-500 font-medium">Tenant Slug:</span>
+              <p className="font-mono text-slate-800 font-semibold">{provisionResult.tenant?.slug}</p>
+            </div>
+            <div>
+              <span className="text-slate-500 font-medium">Tenant ID:</span>
+              <p className="font-mono text-slate-700 truncate">{provisionResult.tenant?.id}</p>
+            </div>
+            <div>
+              <span className="text-slate-500 font-medium">Owner Name:</span>
+              <p className="text-slate-800 font-semibold">{provisionResult.owner?.name}</p>
+            </div>
+            <div>
+              <span className="text-slate-500 font-medium">Login Email:</span>
+              <p className="font-mono text-teal-700 font-semibold">{provisionResult.owner?.email}</p>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-slate-200 flex items-center justify-between gap-3">
+            <CustomButton
+              variant="outline"
+              size="sm"
+              onClick={handleCopyCredentials}
+              className="text-xs py-1.5"
+            >
+              {copied ? "✓ Copied to Clipboard" : "📋 Copy Client Credentials"}
+            </CustomButton>
+
+            <CustomButton
+              size="sm"
+              onClick={() => onSwitch(provisionResult.token, provisionResult.tenant, provisionResult.owner)}
+              className="bg-teal-600 hover:bg-teal-700 text-white text-xs py-1.5"
+            >
+              ⚡ Log In as Store Owner
+            </CustomButton>
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-center gap-3">
+          <CustomButton
+            variant="outline"
+            onClick={onReset}
+            className="text-sm font-semibold text-slate-700"
+          >
+            ➕ Onboard Another Business Client
+          </CustomButton>
+        </div>
+      </div>
+    );
+  }
+
+  // Pre-provision Review Screen
+  return (
+    <div className="py-2 space-y-6 animate-fadeIn">
+      <div>
+        <h2 className="text-xl font-bold text-slate-900">Review &amp; Provision Client Store</h2>
+        <p className="text-sm text-slate-500 mt-1">
+          Verify configuration before provisioning the dedicated database tenant and owner account.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Business & Company Info */}
+        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Business &amp; Vertical</span>
+          <div className="text-sm font-semibold text-slate-900">{company.name || "Untitled Business"}</div>
+          <div className="text-xs text-slate-600">Type: <span className="font-semibold text-teal-700">{businessType}</span></div>
+          {company.legalName && <div className="text-xs text-slate-600">Legal: {company.legalName}</div>}
+          <div className="text-xs text-slate-600">Contact: {company.phone || "—"} | {company.email || "—"}</div>
+        </div>
+
+        {/* Branch & Warehouse */}
+        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Branch &amp; Stock Ledger</span>
+          <div className="text-sm font-semibold text-slate-900">Branch: {branch.name} ({branch.code})</div>
+          <div className="text-xs text-slate-600">Warehouse: <span className="font-semibold">{warehouse.name} ({warehouse.code})</span></div>
+          <div className="text-xs text-slate-600">Tax / VAT: {tax.taxEnabled ? `${tax.vatRate}% Standard VAT` : "Disabled"}</div>
+        </div>
+
+        {/* Owner Credentials */}
+        <div className="sm:col-span-2 p-4 rounded-xl border border-teal-200 bg-teal-50/50 space-y-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700">Dedicated Owner Account</span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div>
+              <span className="text-slate-500 block">Owner Name:</span>
+              <span className="font-semibold text-slate-900">{user.name || "—"}</span>
+            </div>
+            <div>
+              <span className="text-slate-500 block">Login Email:</span>
+              <span className="font-semibold font-mono text-teal-800">{user.email || "—"}</span>
+            </div>
+            <div>
+              <span className="text-slate-500 block">Initial Password:</span>
+              <span className="font-mono text-slate-700">••••••••</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+        <CustomButton
+          onClick={onProvision}
+          disabled={loading}
+          className="px-8 py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md"
+        >
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+              Provisioning Isolated Tenant...
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              🚀 Provision &amp; Launch Client Store
+            </span>
+          )}
+        </CustomButton>
       </div>
     </div>
   );

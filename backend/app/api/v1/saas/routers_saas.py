@@ -929,6 +929,149 @@ async def seed_tenant_business_metadata(db: AsyncSession, tenant_id: str, busine
                 ), {"t": tenant_id, "n": sub_name, "p": cat_id})
 
 
+@router.post("/api/v1/onboarding/provision")
+@router.post("/api/v1/saas/provision-tenant")
+async def provision_new_tenant(
+    body: dict,
+    db: AsyncSession = Depends(get_db),
+):
+    """Provisions a brand new isolated tenant/store from the onboarding wizard."""
+    business_type = (body.get("businessType") or "RETAIL").strip().upper()
+    company = body.get("company") or {}
+    branch = body.get("branch") or {}
+    warehouse = body.get("warehouse") or {}
+    tax = body.get("tax") or {}
+    user = body.get("user") or {}
+
+    store_name = (company.get("name") or body.get("businessName") or "New Store").strip()
+    legal_name = (company.get("legalName") or store_name).strip()
+    support_email = (company.get("email") or user.get("email") or "").strip().lower()
+    phone = (company.get("phone") or user.get("phone") or "").strip()
+    address = (company.get("address") or "").strip()
+    vat_reg_no = (company.get("vatRegNo") or "").strip()
+
+    owner_name = (user.get("name") or "Store Owner").strip()
+    owner_email = (user.get("email") or support_email).strip().lower()
+    owner_password = user.get("password") or "123456"
+
+    if not owner_email:
+        return err("Owner email address is required", 400)
+    if len(owner_password) < 6:
+        return err("Password must be at least 6 characters", 400)
+
+    # Check duplicate email
+    dup = (await db.execute(text("SELECT id FROM users WHERE email = :e"), {"e": owner_email})).first()
+    if dup:
+        return err(f"An account with email '{owner_email}' already exists. Please use a different email.", 409)
+
+    import uuid, re
+    from db import txn
+    from security import hash_password, sign_token
+
+    tenant_id = str(uuid.uuid4())
+    slug_base = re.sub(r'[^a-z0-9]+', '-', store_name.lower()).strip('-') or "store"
+    slug = f"{slug_base}-{tenant_id[:6]}"
+
+    async with txn(db):
+        # 1. Create Brand New Isolated Tenant
+        await db.execute(text("""
+            INSERT INTO tenants (id, name, slug, businessType, status, currency, timezone, createdAt, updatedAt)
+            VALUES (:id, :n, :s, :bt, 'ACTIVE', 'BDT', 'Asia/Dhaka', NOW(), NOW())
+        """), {"id": tenant_id, "n": store_name, "s": slug, "bt": business_type})
+
+        # 2. Create Company
+        company_id = str(uuid.uuid4())
+        await db.execute(text("""
+            INSERT INTO companies (id, tenantId, name, legalName, phone, email, address, vatRegNo, createdAt, updatedAt)
+            VALUES (:id, :t, :n, :ln, :p, :e, :a, :v, NOW(), NOW())
+        """), {"id": company_id, "t": tenant_id, "n": store_name, "ln": legal_name, "p": phone, "e": support_email, "a": address, "v": vat_reg_no})
+
+        # 3. Create Default Owner & Cashier Roles
+        owner_role_id = str(uuid.uuid4())
+        cashier_role_id = str(uuid.uuid4())
+        await db.execute(text("""
+            INSERT INTO roles (id, tenantId, name, isSystem, status, createdAt, updatedAt)
+            VALUES (:id, :t, 'Owner', 1, 'ACTIVE', NOW(), NOW()),
+                   (:cid, :t, 'Cashier', 1, 'ACTIVE', NOW(), NOW())
+        """), {"id": owner_role_id, "cid": cashier_role_id, "t": tenant_id})
+
+        # 4. Create Branch
+        branch_id = str(uuid.uuid4())
+        br_name = (branch.get("name") or "Main Branch").strip()
+        br_code = (branch.get("code") or "MAIN").strip()
+        br_phone = (branch.get("phone") or phone).strip()
+        br_email = (branch.get("email") or support_email).strip()
+        br_addr = (branch.get("address") or address).strip()
+        await db.execute(text("""
+            INSERT INTO branches (id, tenantId, companyId, code, name, phone, email, address, status, createdAt, updatedAt)
+            VALUES (:id, :t, :c, :cd, :n, :p, :e, :a, 'ACTIVE', NOW(), NOW())
+        """), {"id": branch_id, "t": tenant_id, "c": company_id, "cd": br_code, "n": br_name, "p": br_phone, "e": br_email, "a": br_addr})
+
+        # 5. Create Warehouse
+        wh_id = str(uuid.uuid4())
+        wh_name = (warehouse.get("name") or "Main Warehouse").strip()
+        wh_code = (warehouse.get("code") or "WH-01").strip()
+        wh_type = (warehouse.get("type") or "CENTRAL").strip()
+        await db.execute(text("""
+            INSERT INTO warehouses (id, tenantId, branchId, code, name, type, status, createdAt, updatedAt)
+            VALUES (:id, :t, :b, :c, :n, :ty, 'ACTIVE', NOW(), NOW())
+        """), {"id": wh_id, "t": tenant_id, "b": branch_id, "c": wh_code, "n": wh_name, "ty": wh_type})
+
+        # 6. Create Tax Rate
+        vat_rate = float(tax.get("vatRate") or 15)
+        if tax.get("taxEnabled", True):
+            await db.execute(text("""
+                INSERT INTO tax_rates (id, tenantId, code, name, rate, isDefault, isActive, status, createdAt, updatedAt)
+                VALUES (UUID(), :t, 'VAT', 'Standard VAT', :r, 1, 1, 'ACTIVE', NOW(), NOW())
+            """), {"t": tenant_id, "r": vat_rate})
+
+        # 7. Create Owner User
+        user_id = str(uuid.uuid4())
+        await db.execute(text("""
+            INSERT INTO users (id, tenantId, branchId, name, email, phone, passwordHash, roleId, status, createdAt, updatedAt)
+            VALUES (:id, :t, :b, :n, :e, :p, :ph, :r, 'ACTIVE', NOW(), NOW())
+        """), {
+            "id": user_id, "t": tenant_id, "b": branch_id, "n": owner_name,
+            "e": owner_email, "p": phone, "ph": hash_password(owner_password), "r": owner_role_id
+        })
+
+        # 8. Enable SaaS Modules
+        mods = (await db.execute(text("SELECT id FROM modules"))).fetchall()
+        for m in mods:
+            await db.execute(text("""
+                INSERT INTO tenant_modules (id, tenantId, moduleId, isEnabled, createdAt)
+                VALUES (UUID(), :t, :m, 1, NOW())
+            """), {"t": tenant_id, "m": m[0]})
+
+    token = sign_token({
+        "id": user_id,
+        "tenantId": tenant_id,
+        "branchId": branch_id,
+        "name": owner_name,
+        "email": owner_email,
+        "roleId": owner_role_id,
+        "roleName": "Owner",
+        "businessType": business_type,
+    })
+
+    return ok({
+        "message": f"Tenant store '{store_name}' successfully provisioned as {business_type}",
+        "tenant": {
+            "id": tenant_id,
+            "name": store_name,
+            "slug": slug,
+            "businessType": business_type,
+        },
+        "owner": {
+            "id": user_id,
+            "name": owner_name,
+            "email": owner_email,
+            "role": "Owner",
+        },
+        "token": token,
+    }, 201)
+
+
 @router.post("/api/v1/onboarding/business-type")
 async def onboarding_business_type(
     body: dict,
