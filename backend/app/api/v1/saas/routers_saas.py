@@ -725,19 +725,227 @@ async def onboarding_state(
     })
 
 
+BUSINESS_TYPE_DEFAULTS = {
+    "RETAIL": {
+        "units": [
+            ("Piece", "Pcs"),
+            ("Box", "Box"),
+            ("Pack", "Pack"),
+            ("Set", "Set"),
+            ("Dozen", "Dzn"),
+        ],
+        "categories": [
+            ("Men's Apparel", ["Shirts", "T-Shirts", "Pants", "Denim"]),
+            ("Women's Fashion", ["Dresses", "Tops", "Traditional Wear", "Sarees"]),
+            ("Footwear", ["Casual Shoes", "Formal Shoes", "Sports & Sneakers"]),
+            ("Bags & Accessories", ["Wallets", "Belts", "Handbags", "Watches"]),
+            ("Electronics & Gadgets", ["Mobile Accessories", "Cables & Chargers", "Audio & Headphones"]),
+        ],
+    },
+    "RESTAURANT": {
+        "units": [
+            ("Plate", "Plate"),
+            ("Portion", "Portion"),
+            ("Bowl", "Bowl"),
+            ("Glass", "Glass"),
+            ("Cup", "Cup"),
+            ("Piece", "Pcs"),
+            ("Kilogram", "Kg"),
+            ("Liter", "Ltr"),
+        ],
+        "categories": [
+            ("Appetizers & Starters", ["Soups", "Salads", "Finger Foods", "Dips"]),
+            ("Main Course", ["Rice Dishes", "Biryani & Kacchi", "Curries", "Platters & Steaks"]),
+            ("Fast Food & Snacks", ["Burgers", "Pizza", "Sandwiches", "Fries & Wings"]),
+            ("Beverages & Drinks", ["Hot Coffee", "Tea", "Fresh Juice", "Mocktails", "Soft Drinks"]),
+            ("Desserts", ["Cakes & Pastries", "Ice Cream", "Traditional Sweets"]),
+        ],
+    },
+    "PHARMACY": {
+        "units": [
+            ("Piece", "Pcs"),
+            ("Strip", "Strip"),
+            ("Box", "Box"),
+            ("Bottle", "Bottle"),
+            ("Tube", "Tube"),
+            ("Vial", "Vial"),
+            ("Sachet", "Sachet"),
+        ],
+        "categories": [
+            ("Antibiotics & Antivirals", ["Oral Antibiotics", "Injectables", "Topical Antibacterials"]),
+            ("Pain Relief & Fever", ["Paracetamol", "NSAIDs", "Analgesics"]),
+            ("Gastric & Digestion", ["Antacids", "Proton Pump Inhibitors (PPI)", "Laxatives"]),
+            ("Respiratory & Allergy", ["Antihistamines", "Cough Syrups", "Inhalers"]),
+            ("Vitamins & Supplements", ["Multivitamins", "Calcium & D3", "Nutritional Syrups"]),
+            ("First Aid & Surgical", ["Bandages & Dressings", "Antiseptics", "Cotton & Gauze"]),
+            ("Baby & Mother Care", ["Baby Formula & Food", "Diapers & Wipes", "Maternal Care"]),
+        ],
+    },
+    "GROCERY": {
+        "units": [
+            ("Kilogram", "Kg"),
+            ("Gram", "Gm"),
+            ("Liter", "Ltr"),
+            ("Milliliter", "Ml"),
+            ("Piece", "Pcs"),
+            ("Packet", "Pkt"),
+            ("Bag", "Bag"),
+            ("Dozen", "Dzn"),
+        ],
+        "categories": [
+            ("Fresh Produce", ["Vegetables", "Fresh Fruits", "Herbs & Greens"]),
+            ("Dairy, Eggs & Bakery", ["Liquid Milk", "Butter & Cheese", "Farm Eggs", "Bread & Buns"]),
+            ("Rice, Dal & Staples", ["Aromatic Rice", "Miniket & Nazir", "Lentils & Dal", "Flour (Atta/Maida)"]),
+            ("Cooking Oil & Ghee", ["Soybean Oil", "Mustard Oil", "Pure Ghee", "Olive Oil"]),
+            ("Spices & Seasonings", ["Whole Spices", "Powder Spices", "Cooking Pastes & Sauces"]),
+            ("Packaged Foods & Snacks", ["Biscuits & Cookies", "Instant Noodles", "Chips & Crisps", "Breakfast Cereals"]),
+            ("Household & Cleaning", ["Laundry Detergent", "Dishwash & Cleaners", "Toiletries & Soaps"]),
+        ],
+    },
+    "WHOLESALE": {
+        "units": [
+            ("Carton", "Ctn"),
+            ("Bale", "Bale"),
+            ("Bag (50kg)", "Bag"),
+            ("Drum", "Drum"),
+            ("Case", "Case"),
+            ("Dozen", "Dzn"),
+            ("Kilogram", "Kg"),
+        ],
+        "categories": [
+            ("Bulk Commodities", ["Bulk Grains", "Refined Sugar", "Edible Oils in Drums"]),
+            ("Packaged Goods Wholesale", ["Beverages in Cases", "Snacks in Cartons", "Canned Goods"]),
+            ("Industrial & Packaging", ["Corrugated Boxes", "Poly Bags & Straps", "Raw Industrial Goods"]),
+            ("Commercial Goods", ["Commercial Hardware", "Textile Rolls", "General Merchandise"]),
+        ],
+    },
+    "MANUFACTURING": {
+        "units": [
+            ("Kilogram", "Kg"),
+            ("Gram", "Gm"),
+            ("Liter", "Ltr"),
+            ("Ton", "Ton"),
+            ("Meter", "Mtr"),
+            ("Roll", "Roll"),
+            ("Piece", "Pcs"),
+            ("Batch", "Batch"),
+        ],
+        "categories": [
+            ("Raw Materials", ["Food Ingredients", "Chemicals & Additives", "Grains & Sweeteners"]),
+            ("Packaging Materials", ["Printed Pouches", "Outer Cartons", "Barcode Labels"]),
+            ("Work in Progress (WIP)", ["Semi-Finished Batches", "Unpackaged Goods"]),
+            ("Finished Goods", ["Packaged Finished Products", "Bakery Finished Goods"]),
+        ],
+    },
+    "SALON": {
+        "units": [
+            ("Session", "Session"),
+            ("Service", "Service"),
+            ("Hour", "Hr"),
+            ("Piece", "Pcs"),
+            ("Pack", "Pack"),
+        ],
+        "categories": [
+            ("Hair Care & Styling", ["Hair Cut & Styling", "Hair Color & Highlights", "Hair Spa & Treatment", "Rebonding"]),
+            ("Skin Care & Facial", ["Brightening Facial", "Anti-Acne Facial", "Detox & Cleanup"]),
+            ("Spa & Body Wellness", ["Aromatherapy Massage", "Head & Shoulder Spa", "Body Scrub"]),
+            ("Nail Care & Grooming", ["Manicure", "Pedicure", "Nail Art & Extensions"]),
+            ("Bridal & Makeover", ["Bridal Package", "Party Makeover", "Pre-Bridal Treatment"]),
+        ],
+    },
+    "REPAIR": {
+        "units": [
+            ("Job", "Job"),
+            ("Service", "Service"),
+            ("Piece", "Pcs"),
+            ("Hour", "Hr"),
+            ("Unit", "Unit"),
+        ],
+        "categories": [
+            ("Hardware Repair", ["Screen Replacement", "Battery Replacement", "Motherboard & Chipset"]),
+            ("Software & Diagnostics", ["OS Installation", "Virus Removal & Tuning", "Firmware & Unlocking"]),
+            ("Spare Parts & Components", ["Display Panels", "Charging Ports", "Internal Cables & ICs"]),
+            ("Maintenance & Servicing", ["Cleaning & Thermal Paste", "Preventive Maintenance"]),
+        ],
+    },
+    "FRANCHISE": {
+        "units": [
+            ("Piece", "Pcs"),
+            ("Box", "Box"),
+            ("Carton", "Ctn"),
+            ("Set", "Set"),
+            ("Unit", "Unit"),
+        ],
+        "categories": [
+            ("Franchise Master Catalog", ["Core Menu / Retail Items", "Seasonal Specials"]),
+            ("Branded Consumables", ["Branded Packaging & Cups", "Staff Uniforms & Aprons", "POS Consumables"]),
+            ("Marketing & Branding", ["Promo Banners & Posters", "Digital Menu Assets", "Flyers & Kits"]),
+        ],
+    },
+}
+
+
+async def seed_tenant_business_metadata(db: AsyncSession, tenant_id: str, business_type: str):
+    bt = (business_type or "RETAIL").upper()
+    cfg = BUSINESS_TYPE_DEFAULTS.get(bt, BUSINESS_TYPE_DEFAULTS["RETAIL"])
+
+    # 1. Seed Units for this tenant
+    for name, code in cfg["units"]:
+        existing = (await db.execute(
+            text("SELECT id FROM units WHERE tenantId = :t AND (name = :n OR code = :c) LIMIT 1"),
+            {"t": tenant_id, "n": name, "c": code}
+        )).first()
+        if not existing:
+            await db.execute(text(
+                "INSERT INTO units (id, tenantId, name, code, status, createdAt, updatedAt) "
+                "VALUES (UUID(), :t, :n, :c, 'ACTIVE', NOW(), NOW())"
+            ), {"t": tenant_id, "n": name, "c": code})
+
+    # 2. Seed Categories & Sub-categories for this tenant (NO products seeded)
+    for cat_name, subcategories in cfg["categories"]:
+        cat_row = (await db.execute(
+            text("SELECT id FROM categories WHERE tenantId = :t AND name = :n AND parentId IS NULL LIMIT 1"),
+            {"t": tenant_id, "n": cat_name}
+        )).first()
+        if not cat_row:
+            cat_id = str(uuid.uuid4())
+            await db.execute(text(
+                "INSERT INTO categories (id, tenantId, name, parentId, status, createdAt, updatedAt) "
+                "VALUES (:id, :t, :n, NULL, 'ACTIVE', NOW(), NOW())"
+            ), {"id": cat_id, "t": tenant_id, "n": cat_name})
+        else:
+            cat_id = cat_row[0]
+
+        for sub_name in subcategories:
+            sub_row = (await db.execute(
+                text("SELECT id FROM categories WHERE tenantId = :t AND name = :n AND parentId = :p LIMIT 1"),
+                {"t": tenant_id, "n": sub_name, "p": cat_id}
+            )).first()
+            if not sub_row:
+                await db.execute(text(
+                    "INSERT INTO categories (id, tenantId, name, parentId, status, createdAt, updatedAt) "
+                    "VALUES (UUID(), :t, :n, :p, 'ACTIVE', NOW(), NOW())"
+                ), {"t": tenant_id, "n": sub_name, "p": cat_id})
+
+
 @router.post("/api/v1/onboarding/business-type")
 async def onboarding_business_type(
     body: dict,
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
-    btype = body.get("businessType", "RETAIL")
+    btype = (body.get("businessType") or "RETAIL").upper()
     await db.execute(
         text("UPDATE tenants SET businessType = :bt, updatedAt = NOW() WHERE id = :t"),
         {"bt": btype, "t": tenantId},
     )
+    # Automatically seed business-type specific categories, subcategories, and units (NO dummy products)
+    await seed_tenant_business_metadata(db, tenantId, btype)
     await db.commit()
-    return ok({"businessType": btype, "message": "Business type configured successfully"})
+    return ok({
+        "businessType": btype,
+        "message": f"Business type '{btype}' configured successfully with tailored categories and units"
+    })
 
 
 @router.post("/api/v1/onboarding/company")

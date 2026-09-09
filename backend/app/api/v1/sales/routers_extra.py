@@ -1171,9 +1171,24 @@ async def settle_consignment(con_id: str, user: AuthUser = Depends(require_auth)
 @router.get("/api/v1/branches")
 async def list_branches(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
                         db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts((await db.execute(text(
-        "SELECT * FROM branches WHERE tenantId=:t ORDER BY name"), {"t": tenantId})).fetchall())
+    rows = rows_to_dicts((await db.execute(text("""
+        SELECT b.*, c.name AS company_name,
+               (SELECT COUNT(*) FROM warehouses w WHERE w.branchId = b.id) AS warehouse_count,
+               (SELECT COUNT(*) FROM users u WHERE u.branchId = b.id) AS user_count,
+               (SELECT COUNT(*) FROM terminals t WHERE t.branchId = b.id) AS device_count
+        FROM branches b
+        LEFT JOIN companies c ON c.id = b.companyId
+        WHERE b.tenantId = :t
+        ORDER BY b.name
+    """), {"t": tenantId})).fetchall())
     for r in rows:
+        company_name = r.pop("company_name", None)
+        r["company"] = {"id": r.get("companyId"), "name": company_name or "Main Company"}
+        r["_count"] = {
+            "warehouses": int(r.pop("warehouse_count", 0) or 0),
+            "userAccounts": int(r.pop("user_count", 0) or 0),
+            "devices": int(r.pop("device_count", 0) or 0),
+        }
         r["warehouses"] = rows_to_dicts((await db.execute(text(
             "SELECT * FROM warehouses WHERE branchId=:b"), {"b": r["id"]})).fetchall())
     return ok(rows)
@@ -1196,6 +1211,61 @@ async def create_branch(body: dict, user: AuthUser = Depends(require_auth),
          "n": name, "p": body.get("phone"), "e": body.get("email"), "a": body.get("address"), "u": user.id})
     await db.commit()
     return ok({"id": branch_id, "name": name, "created": True}, 201)
+
+
+@router.put("/api/v1/branches/{branchId}")
+@router.patch("/api/v1/branches/{branchId}")
+async def update_branch(branchId: str, body: dict, user: AuthUser = Depends(require_auth),
+                        tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    existing = (await db.execute(text("SELECT id FROM branches WHERE id = :id AND tenantId = :t"),
+                                {"id": branchId, "t": tenantId})).first()
+    if not existing:
+        return err("Branch not found", 404)
+    
+    name = body.get("name")
+    code = body.get("code")
+    phone = body.get("phone")
+    email = body.get("email")
+    address = body.get("address")
+    status = body.get("status")
+
+    await db.execute(text("""
+        UPDATE branches 
+        SET name = COALESCE(:n, name),
+            code = COALESCE(:c, code),
+            phone = :p,
+            email = :e,
+            address = :a,
+            status = COALESCE(:st, status),
+            updatedAt = NOW()
+        WHERE id = :id AND tenantId = :t
+    """), {
+        "id": branchId, "t": tenantId,
+        "n": name, "c": code, "p": phone, "e": email, "a": address, "st": status
+    })
+    await db.commit()
+    return ok({"id": branchId, "updated": True, "message": "Branch updated successfully"})
+
+
+@router.delete("/api/v1/branches/{branchId}")
+async def delete_branch(branchId: str, user: AuthUser = Depends(require_auth),
+                        tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    existing = (await db.execute(text("SELECT id FROM branches WHERE id = :id AND tenantId = :t"),
+                                {"id": branchId, "t": tenantId})).first()
+    if not existing:
+        return err("Branch not found", 404)
+    
+    wh_count = (await db.execute(text("SELECT COUNT(*) FROM warehouses WHERE branchId = :id"), {"id": branchId})).first()[0]
+    sales_count = (await db.execute(text("SELECT COUNT(*) FROM sales WHERE branchId = :id"), {"id": branchId})).first()[0]
+    if wh_count > 0 or sales_count > 0:
+        await db.execute(text("UPDATE branches SET status = 'INACTIVE', updatedAt = NOW() WHERE id = :id AND tenantId = :t"),
+                        {"id": branchId, "t": tenantId})
+        await db.commit()
+        return ok({"id": branchId, "deleted": False, "status": "INACTIVE", "message": "Branch marked inactive due to linked transactions"})
+    
+    await db.execute(text("DELETE FROM branches WHERE id = :id AND tenantId = :t"), {"id": branchId, "t": tenantId})
+    await db.commit()
+    return ok({"id": branchId, "deleted": True, "message": "Branch deleted successfully"})
 
 
 @router.get("/api/v1/warehouses")
