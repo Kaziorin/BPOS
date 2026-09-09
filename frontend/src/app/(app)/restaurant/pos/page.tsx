@@ -157,15 +157,16 @@ const DEFAULT_PRODUCTS: MenuItem[] = [
   },
 ];
 
-const categories = [
+interface CategorySidebarItem {
+  id: string;
+  label: string;
+  icon?: any;
+  subcategories?: { id: string; label: string }[];
+}
+
+const DEFAULT_CATEGORIES: CategorySidebarItem[] = [
   { id: "All Items", label: "All Items", icon: Utensils },
   { id: "Popular", label: "Popular", icon: Flame },
-  { id: "Burgers", label: "Burgers", icon: Utensils },
-  { id: "Pasta", label: "Pasta", icon: Coffee },
-  { id: "Pizza", label: "Pizza", icon: Star },
-  { id: "Salad", label: "Salads", icon: Leaf },
-  { id: "Beverages", label: "Beverages", icon: Coffee },
-  { id: "Dessert", label: "Dessert", icon: Star },
 ];
 
 const fmt = (amount: number) =>
@@ -179,7 +180,8 @@ export default function RestaurantPOSPage() {
   const [waiterName, setWaiterName] = useState("Staff 1");
   const [orderType, setOrderType] = useState<"DINE_IN" | "TAKEAWAY" | "DELIVERY">("DINE_IN");
 
-  const [products, setProducts] = useState<MenuItem[]>(DEFAULT_PRODUCTS);
+  const [products, setProducts] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<CategorySidebarItem[]>(DEFAULT_CATEGORIES);
   const [cart, setCart] = useState<RestaurantCartItem[]>([]);
 
   const [selectedCategory, setSelectedCategory] = useState("All Items");
@@ -223,11 +225,13 @@ export default function RestaurantPOSPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
+      // 1. Fetch products for this tenant
       const res: any = await api.get("/products", { params: { limit: 100 } });
       const rawProducts = (res?.data as any)?.data ?? res?.data ?? res ?? [];
+      let loadedProducts: MenuItem[] = [];
 
       if (Array.isArray(rawProducts) && rawProducts.length > 0) {
-        const formatted: MenuItem[] = rawProducts.map((p: any) => {
+        loadedProducts = rawProducts.map((p: any) => {
           let catName = "Main";
           if (typeof p.category === "string" && p.category.trim()) {
             catName = p.category;
@@ -241,7 +245,7 @@ export default function RestaurantPOSPage() {
             name: p.name || "Untitled Item",
             category: catName,
             sellingPrice: Number(p.sellingPrice || p.price || 0),
-            image: p.imageUrl || p.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80",
+            image: p.imageUrl || p.image || "",
             isPopular: Boolean(p.isPopular),
             isVeg: Boolean(p.isVeg),
             isKitchenProduct: p.isKitchenProduct !== false,
@@ -249,11 +253,82 @@ export default function RestaurantPOSPage() {
             description: p.description || "",
           };
         });
-        setProducts(formatted);
+        setProducts(loadedProducts);
       } else {
-        setProducts(DEFAULT_PRODUCTS);
+        setProducts([]);
       }
 
+      // 2. Fetch created categories for current tenant & business
+      const catRes: any = await api.get("/v1/products/categories").catch(() => null);
+      const dbCategories: any[] = (catRes?.data as any)?.data ?? catRes?.data ?? catRes ?? [];
+
+      let dynamicCats: CategorySidebarItem[] = [
+        { id: "All Items", label: "All Items", icon: Utensils },
+        { id: "Popular", label: "Popular", icon: Flame },
+      ];
+
+      if (Array.isArray(dbCategories) && dbCategories.length > 0) {
+        const mainCatMap: Record<string, CategorySidebarItem> = {};
+        const subCatMap: Record<string, { id: string; label: string }[]> = {};
+
+        // First pass: separate main categories & subcategories
+        dbCategories.forEach((cat: any) => {
+          const name = cat.name || cat.label || cat.title;
+          if (!name) return;
+
+          if (cat.parentId) {
+            const pId = String(cat.parentId);
+            if (!subCatMap[pId]) subCatMap[pId] = [];
+            if (!subCatMap[pId].some((s) => s.id.toLowerCase() === name.toLowerCase())) {
+              subCatMap[pId].push({ id: name, label: name });
+            }
+          } else {
+            if (!mainCatMap[String(cat.id)]) {
+              mainCatMap[String(cat.id)] = {
+                id: name,
+                label: name,
+                icon: getCategoryIcon(cat.icon, name),
+                subcategories: [],
+              };
+            }
+          }
+        });
+
+        // Attach subcategories to main categories
+        dbCategories.forEach((cat: any) => {
+          if (!cat.parentId && mainCatMap[String(cat.id)]) {
+            mainCatMap[String(cat.id)].subcategories = subCatMap[String(cat.id)] || [];
+          }
+        });
+
+        Object.values(mainCatMap).forEach((mCat) => {
+          if (!dynamicCats.some((c) => c.id.toLowerCase() === mCat.id.toLowerCase())) {
+            dynamicCats.push(mCat);
+          }
+        });
+      }
+
+      // Collect categories present in actual tenant products
+      loadedProducts.forEach((p) => {
+        const pCatName = getCategoryName(p.category);
+        if (
+          pCatName &&
+          pCatName !== "All Items" &&
+          pCatName !== "Popular" &&
+          !dynamicCats.some((c) => c.id.toLowerCase() === pCatName.toLowerCase())
+        ) {
+          dynamicCats.push({
+            id: pCatName,
+            label: pCatName,
+            icon: getCategoryIcon(null, pCatName),
+            subcategories: [],
+          });
+        }
+      });
+
+      setCategories(dynamicCats);
+
+      // 3. Fetch tables for this restaurant
       const tableRes: any = await api.get("/v1/restaurant/tables").catch(() => null);
       const rawTables = tableRes?.data ?? tableRes ?? [];
       if (Array.isArray(rawTables) && rawTables.length > 0) {
@@ -272,7 +347,7 @@ export default function RestaurantPOSPage() {
       }
     } catch (err) {
       console.error("Failed to load restaurant POS data:", err);
-      setProducts(DEFAULT_PRODUCTS);
+      setCategories(DEFAULT_CATEGORIES);
       setTables(DEFAULT_TABLES);
     } finally {
       setLoading(false);
@@ -766,6 +841,7 @@ export default function RestaurantPOSPage() {
             {categories.map((cat) => {
               const Icon = cat.icon;
               const isSelected = selectedCategory === cat.id;
+              const hasSubcats = cat.subcategories && cat.subcategories.length > 0;
               const count = products.filter((p) => {
                 if (cat.id === "All Items") return true;
                 if (cat.id === "Popular") return p.isPopular;
@@ -774,37 +850,41 @@ export default function RestaurantPOSPage() {
               }).length;
 
               return (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-lg text-xs font-bold text-left transition-all duration-150 cursor-pointer ${
-                    isSelected
-                      ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/20 border border-orange-600"
-                      : "bg-white text-gray-700 border border-slate-100 hover:bg-orange-50/80 hover:text-orange-600 hover:border-orange-200"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div
-                      className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 transition ${
-                        isSelected
-                          ? "bg-white/20 text-white"
-                          : "bg-orange-50 text-orange-600 border border-orange-100"
-                      }`}
-                    >
-                      <Icon size={15} />
-                    </div>
-                    <span className="truncate">{cat.label}</span>
-                  </div>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 ${
+                <div key={cat.id} className="space-y-1">
+                  {/* Main Category Button */}
+                  <button
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-lg text-xs font-bold text-left transition-all duration-150 cursor-pointer ${
                       isSelected
-                        ? "bg-white/25 text-white"
-                        : "bg-slate-100 text-gray-500"
+                        ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/20 border border-orange-600"
+                        : "bg-white text-gray-700 border border-slate-100 hover:bg-orange-50/80 hover:text-orange-600 hover:border-orange-200"
                     }`}
                   >
-                    {count}
-                  </span>
-                </button>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {Icon && (
+                        <div
+                          className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 transition ${
+                            isSelected
+                              ? "bg-white/20 text-white"
+                              : "bg-orange-50 text-orange-600 border border-orange-100"
+                          }`}
+                        >
+                          <Icon size={15} />
+                        </div>
+                      )}
+                      <span className="truncate">{cat.label}</span>
+                    </div>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 ${
+                        isSelected
+                          ? "bg-white/25 text-white"
+                          : "bg-slate-100 text-gray-500"
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                </div>
               );
             })}
           </div>
