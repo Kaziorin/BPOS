@@ -17,6 +17,7 @@ import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomSelect } from "@/components/custom/CustomSelect";
+import { publishCart } from "@/lib/customer-display";
 
 interface TenantInfo {
   branch: { id: string; name: string } | null;
@@ -230,8 +231,8 @@ export default function GroceryPOSPage() {
         const formatted = data.map((s: any) => ({
           id: s.id,
           invoiceNo: s.invoiceNo,
-          grandTotal: Number(s.total || 0),
-          customer: s.customerName || "Walk-in Customer",
+          grandTotal: Number(s.grandTotal ?? s.totalAmount ?? s.total ?? 0),
+          customer: s.customer?.name || s.customerName || "Walk-in Customer",
           date: new Date(s.createdAt).toLocaleString(),
           paymentMethod: s.paymentMethod || "CASH",
           status: s.status
@@ -375,7 +376,7 @@ export default function GroceryPOSPage() {
       const idx = prev.findIndex(i => i.productId === prod.id && !i.isWeighed && !isWeighed);
       if (idx >= 0 && !isWeighed) { const copy = [...prev]; const nq = copy[idx].qty + qty; copy[idx] = { ...copy[idx], qty: nq, lineTotal: nq * copy[idx].unitPrice }; return copy; }
       const aq = isWeighed ? (weightKg || 1) : qty; const up = Number(prod.sellingPrice || 0);
-      return [{ id: `${prod.id}-${Date.now()}`, productId: prod.id, name: prod.name, sku: prod.sku, barcode: prod.barcode, unitPrice: up, qty: aq, isWeighed, weightKg: isWeighed ? weightKg : undefined, lineTotal: aq * up, discountPct: 0, uom: prod.uom }, ...prev];
+      return [{ id: `${prod.id}-${Date.now()}`, productId: prod.id, name: prod.name, sku: prod.sku, barcode: prod.barcode, unitPrice: up, qty: aq, isWeighed, weightKg: isWeighed ? weightKg : undefined, lineTotal: aq * up, discountPct: 0, uom: prod.uom, image: (prod as any).image || (prod as any).imageUrl }, ...prev];
     });
     setScanInput(""); scanRef.current?.focus();
   };
@@ -399,6 +400,29 @@ export default function GroceryPOSPage() {
   const paidAmount = parseFloat(tenderedInput) > 0 ? parseFloat(tenderedInput) : grandTotal;
   const changeDue = Math.max(0, paidAmount - grandTotal);
   const remainingDue = Math.max(0, grandTotal - paidAmount);
+
+  useEffect(() => {
+    publishCart({
+      updatedAt: Date.now(),
+      lines: cart.map(i => ({
+        name: i.name,
+        qty: i.qty,
+        unitPrice: i.unitPrice,
+        discountAmount: i.discountPct ? (i.unitPrice * i.qty * i.discountPct / 100) : 0,
+        uom: i.uom || "Pcs",
+        image: (i as any).image,
+      })),
+      subtotal: subTotal,
+      discountTotal: discAmt,
+      taxTotal: 0,
+      total: grandTotal,
+      status: cart.length > 0 ? "ACTIVE" : "IDLE",
+      customerName: selectedCustomer?.name !== "Walk-in Customer" ? selectedCustomer?.name : undefined,
+      customerPoints: selectedCustomer?.points,
+      customerTier: getCustomerTier(selectedCustomer?.points || 0).name,
+      laneNo: "Lane 01",
+    });
+  }, [cart, subTotal, discAmt, grandTotal, selectedCustomer]);
 
   const numPress = (key: string) => {
     if (key === "⌫") {
@@ -501,6 +525,29 @@ export default function GroceryPOSPage() {
 
       setCompletedInv(completedRecord);
       setSalesHistory(prev => [completedRecord, ...prev]);
+
+      publishCart({
+        updatedAt: Date.now(),
+        invoiceNo: invNo,
+        lines: cart.map(i => ({
+          name: i.name,
+          qty: i.qty,
+          unitPrice: i.unitPrice,
+          discountAmount: i.discountPct ? (i.unitPrice * i.qty * i.discountPct / 100) : 0,
+        })),
+        subtotal: subTotal,
+        discountTotal: discAmt,
+        taxTotal: 0,
+        total: grandTotal,
+        paidTotal: finalPaid,
+        changeTotal: finalChange,
+        paymentMethod: payMethod,
+        status: "PAID",
+        customerName: selectedCustomer?.name !== "Walk-in Customer" ? selectedCustomer?.name : undefined,
+        customerPoints: selectedCustomer?.points,
+        customerTier: getCustomerTier(selectedCustomer?.points || 0).name,
+        pointsEarned: Math.floor(grandTotal / 100),
+      });
 
       // Reset POS state
       clearCart();

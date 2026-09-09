@@ -14,6 +14,10 @@ export interface DisplayLine {
   qty: number;
   unitPrice: number;
   discountAmount: number;
+  uom?: string;
+  sku?: string;
+  category?: string;
+  image?: string;
 }
 
 export interface DisplayCart {
@@ -23,8 +27,19 @@ export interface DisplayCart {
   subtotal: number;
   discountTotal: number;
   taxTotal: number;
+  serviceCharge?: number;
   total: number;
+  paidTotal?: number;
+  changeTotal?: number;
+  paymentMethod?: string;
   status: "IDLE" | "ACTIVE" | "PAID";
+  customerName?: string;
+  customerTier?: string;
+  customerPoints?: number;
+  pointsEarned?: number;
+  merchantName?: string;
+  cashierName?: string;
+  laneNo?: string;
 }
 
 const KEY = "omni_pos_display_cart";
