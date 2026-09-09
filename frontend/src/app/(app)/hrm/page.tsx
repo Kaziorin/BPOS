@@ -585,8 +585,7 @@ function LeaveTab() {
   };
 
   const handleReject = async (id: string) => {
-    const reason = prompt("Rejection reason:");
-    if (reason === null) return;
+    const reason = "Rejected by HR";
     try { await api.post(`/v1/hrm/leaves/${id}/reject`, { reason }); load(); } catch (err: any) { alert(err.message); }
   };
 

@@ -83,15 +83,12 @@ export default function SalesOrdersPage() {
       if (action === "confirm") {
         await api.post(`/v1/sales/orders/${order.id}/confirm`);
       } else if (action === "reserve") {
-        const warehouseId = prompt("Warehouse ID for stock reservation:");
-        if (!warehouseId) return;
+        const warehouseId = "default";
         await api.post(`/v1/sales/orders/${order.id}/reserve-stock`, { warehouseId });
       } else if (action === "pick") {
         await api.post(`/v1/sales/orders/${order.id}/start-picking`);
       } else if (action === "deliver") {
-        const warehouseId = prompt("Warehouse ID:");
-        if (!warehouseId) return;
-        // Build delivery items — deliver all remaining for each item
+        const warehouseId = "default";
         const items = order.items
           .filter((i) => Number(i.qtyOrdered) - Number(i.qtyDelivered) > 0)
           .map((i) => ({
@@ -99,16 +96,14 @@ export default function SalesOrdersPage() {
             productId: i.productId,
             qtyDelivered: Number(i.qtyOrdered) - Number(i.qtyDelivered),
           }));
-        if (items.length === 0) { alert("All items already delivered"); return; }
+        if (items.length === 0) return;
         await api.post(`/v1/sales/orders/${order.id}/deliver`, { warehouseId, items });
       } else if (action === "invoice") {
-        const branchId = prompt("Branch ID for invoice:");
-        if (!branchId) return;
+        const branchId = "default";
         await api.post(`/v1/sales/orders/${order.id}/invoice`, { branchId });
       } else if (action === "cancel") {
-        const warehouseId = prompt("Warehouse ID (to release reservations):");
-        if (!warehouseId) return;
-        const reason = prompt("Cancellation reason (optional):");
+        const warehouseId = "default";
+        const reason = "Order Cancelled";
         await api.post(`/v1/sales/orders/${order.id}/cancel`, { warehouseId, reason });
       }
       await load();
