@@ -99,44 +99,64 @@ export default function CreateProductPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
   // Vertical Business Type state - auto-detected purely from tenant / user
-  const [selectedVertical, setSelectedVertical] = useState<string>("RESTAURANT");
+  const [selectedVertical, setSelectedVertical] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const tenantStr = localStorage.getItem("blueoceans_tenant");
+        if (tenantStr) {
+          const parsed = JSON.parse(tenantStr);
+          if (parsed?.businessType) return parsed.businessType.toUpperCase();
+        }
+        const userStr = localStorage.getItem("modernpos_user");
+        if (userStr) {
+          const parsed = JSON.parse(userStr);
+          if (parsed?.businessType) return parsed.businessType.toUpperCase();
+        }
+      } catch (e) {}
+    }
+    return "RETAIL";
+  });
   const [verticalFormState, setVerticalFormState] = useState<VerticalFormState>(initialVerticalFormState);
 
   useEffect(() => {
     async function resolveTenantBusinessType() {
-      let activeBt = "";
-      if (typeof window !== "undefined") {
+      try {
+        const res: any = await api.get("/v1/tenant");
+        const tData = res?.data || res?.tenant || res;
+        const bt = tData?.tenant?.businessType || tData?.businessType;
+        if (bt) {
+          const upper = bt.toUpperCase();
+          setSelectedVertical(upper);
+          if (typeof window !== "undefined") {
+            try {
+              const current = localStorage.getItem("blueoceans_tenant");
+              const parsed = current ? JSON.parse(current) : {};
+              localStorage.setItem(
+                "blueoceans_tenant",
+                JSON.stringify({ ...parsed, businessType: upper })
+              );
+            } catch (e) {}
+          }
+          return;
+        }
+      } catch (e) {
+        console.warn("Failed to fetch fresh tenant info:", e);
+      }
+
+      // Fallback to user or local storage
+      let fallbackBt = user?.businessType || "";
+      if (!fallbackBt && typeof window !== "undefined") {
         try {
           const tenantStr = localStorage.getItem("blueoceans_tenant");
-          if (tenantStr) {
-            activeBt = JSON.parse(tenantStr)?.businessType || "";
-          }
-          if (!activeBt) {
+          if (tenantStr) fallbackBt = JSON.parse(tenantStr)?.businessType || "";
+          if (!fallbackBt) {
             const userStr = localStorage.getItem("modernpos_user");
-            if (userStr) {
-              activeBt = JSON.parse(userStr)?.businessType || "";
-            }
+            if (userStr) fallbackBt = JSON.parse(userStr)?.businessType || "";
           }
         } catch (e) {}
       }
-
-      if (!activeBt && user?.businessType) {
-        activeBt = user.businessType;
-      }
-
-      // If still not resolved, query /v1/tenant directly from backend
-      if (!activeBt) {
-        try {
-          const res: any = await api.get("/v1/tenant");
-          const tData = res?.data || res?.tenant || res;
-          if (tData?.businessType || tData?.tenant?.businessType) {
-            activeBt = tData?.businessType || tData?.tenant?.businessType;
-          }
-        } catch (e) {}
-      }
-
-      if (activeBt) {
-        setSelectedVertical(activeBt.toUpperCase());
+      if (fallbackBt) {
+        setSelectedVertical(fallbackBt.toUpperCase());
       }
     }
 
