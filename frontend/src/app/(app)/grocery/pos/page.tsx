@@ -12,6 +12,23 @@ import {
   Utensils, Snowflake, Fish, Sparkles, Heart, ShieldCheck, ChevronDown,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { fetchAllProducts, fetchBatches, applyBatchStock, fetchRegisterContext } from "@/lib/catalog";
+
+interface TenantInfo {
+  branch: { id: string; name: string } | null;
+  warehouse: { id: string; name: string } | null;
+}
+interface RawTenantInfo {
+  tenant?: { id: string; slug: string; name: string; businessType: string; currency: string };
+  branches?: { id: string; name: string }[];
+  warehouses?: { id: string; name: string }[];
+}
+function pickTenantInfo(raw: RawTenantInfo): TenantInfo {
+  return {
+    branch: raw.branches?.[0] ? { id: raw.branches[0].id, name: raw.branches[0].name } : null,
+    warehouse: raw.warehouses?.[0] ? { id: raw.warehouses[0].id, name: raw.warehouses[0].name } : null,
+  };
+}
 
 interface CartItem {
   id: string; productId: string; name: string; sku: string;
@@ -56,49 +73,6 @@ function getCustomerTier(pts: number) {
   return { name: "Bronze", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-100" };
 }
 
-const DEMO_PRODUCTS: Product[] = [
-  { id: "d1", name: "Banana", sku: "BAN-1KG", sellingPrice: 60, uom: "kg", category: { name: "Fruits & Veg" } },
-  { id: "d2", name: "Red Apple", sku: "APL-1KG", sellingPrice: 180, uom: "kg", category: { name: "Fruits & Veg" } },
-  { id: "d3", name: "Potato", sku: "POT-1KG", sellingPrice: 30, uom: "kg", category: { name: "Fruits & Veg" } },
-  { id: "d4", name: "Onion", sku: "ONI-1KG", sellingPrice: 28, uom: "kg", category: { name: "Fruits & Veg" } },
-  { id: "d5", name: "Tomato", sku: "TOM-1KG", sellingPrice: 40, uom: "kg", category: { name: "Fruits & Veg" } },
-  { id: "d6", name: "Cucumber", sku: "CUC-1KG", sellingPrice: 25, uom: "kg", category: { name: "Fruits & Veg" } },
-  { id: "d7", name: "Basmati Rice", sku: "RIC-1KG", sellingPrice: 120, uom: "kg", category: { name: "Grocery" } },
-  { id: "d8", name: "Sunflower Oil", sku: "OIL-1L", sellingPrice: 160, uom: "pcs", category: { name: "Grocery" } },
-  { id: "d9", name: "Milk", sku: "MLK-1L", sellingPrice: 70, uom: "pcs", category: { name: "Dairy" } },
-  { id: "d10", name: "Eggs (Dozen)", sku: "EGG-DOZ", sellingPrice: 130, uom: "dozen", category: { name: "Dairy" } },
-  { id: "d11", name: "Sugar", sku: "SUG-1KG", sellingPrice: 70, uom: "kg", category: { name: "Grocery" } },
-  { id: "d12", name: "Atta", sku: "ATT-1KG", sellingPrice: 50, uom: "kg", category: { name: "Grocery" } },
-  { id: "d13", name: "Lays Classic", sku: "LAY-52G", sellingPrice: 35, uom: "pcs", category: { name: "Snacks" } },
-  { id: "d14", name: "Coca-Cola", sku: "COC-1L5", sellingPrice: 110, uom: "pcs", category: { name: "Beverages" } },
-  { id: "d15", name: "Nescafe", sku: "NES-50G", sellingPrice: 115, uom: "pcs", category: { name: "Beverages" } },
-  { id: "d16", name: "Surf Excel", sku: "SUR-1KG", sellingPrice: 190, uom: "kg", category: { name: "Household" } },
-  { id: "d17", name: "Toilet Tissue", sku: "TIS-4P", sellingPrice: 60, uom: "pcs", category: { name: "Household" } },
-  { id: "d18", name: "Detergent", sku: "DET-1KG", sellingPrice: 120, uom: "kg", category: { name: "Household" } },
-  { id: "d19", name: "White Bread", sku: "BRD-400G", sellingPrice: 45, uom: "pcs", category: { name: "Bakery" } },
-  { id: "d20", name: "Butter Croissant", sku: "CRO-2P", sellingPrice: 85, uom: "pcs", category: { name: "Bakery" } },
-  { id: "d21", name: "Chocolate Cake", sku: "CAK-500G", sellingPrice: 350, uom: "pcs", category: { name: "Bakery" } },
-  { id: "d22", name: "Frozen Pizza", sku: "PIZ-350G", sellingPrice: 290, uom: "pcs", category: { name: "Frozen Foods" } },
-  { id: "d23", name: "Ice Cream", sku: "ICE-1L", sellingPrice: 220, uom: "pcs", category: { name: "Frozen Foods" } },
-  { id: "d24", name: "Chicken Nuggets", sku: "NUG-500G", sellingPrice: 260, uom: "pcs", category: { name: "Frozen Foods" } },
-  { id: "d25", name: "Fresh Salmon", sku: "SAL-1KG", sellingPrice: 850, uom: "kg", category: { name: "Meat & Fish" } },
-  { id: "d26", name: "Beef Steak", sku: "STE-1KG", sellingPrice: 750, uom: "kg", category: { name: "Meat & Fish" } },
-  { id: "d27", name: "Body Wash", sku: "WAS-500M", sellingPrice: 240, uom: "pcs", category: { name: "Personal Care" } },
-  { id: "d28", name: "Shampoo", sku: "SHA-350M", sellingPrice: 280, uom: "pcs", category: { name: "Personal Care" } },
-  { id: "d29", name: "Baby Powder", sku: "BAB-200G", sellingPrice: 310, uom: "pcs", category: { name: "Baby Care" } },
-  { id: "d30", name: "Cat Food", sku: "CAT-1KG", sellingPrice: 420, uom: "pcs", category: { name: "Pet Supplies" } },
-];
-
-const DEMO_CART: CartItem[] = [
-  { id: "c1", productId: "d7", name: "Basmati Rice (1kg)", sku: "RIC-1KG", unitPrice: 120, qty: 1, lineTotal: 120, discountPct: 0, uom: "kg" },
-  { id: "c2", productId: "d8", name: "Sunflower Oil (1L)", sku: "OIL-1L", unitPrice: 160, qty: 1, lineTotal: 160, discountPct: 5, uom: "pcs" },
-  { id: "c3", productId: "d11", name: "Sugar (1kg)", sku: "SUG-1KG", unitPrice: 70, qty: 1, lineTotal: 70, discountPct: 2, uom: "kg" },
-  { id: "c4", productId: "d1", name: "Banana (1kg)", sku: "BAN-1KG", unitPrice: 60, qty: 2, lineTotal: 120, discountPct: 0, uom: "kg" },
-  { id: "c5", productId: "d10", name: "Eggs (Dozen)", sku: "EGG-DOZ", unitPrice: 130, qty: 1, lineTotal: 130, discountPct: 0, uom: "dozen" },
-  { id: "c6", productId: "d14", name: "Coca-Cola (1.5L)", sku: "COC-1L5", unitPrice: 110, qty: 1, lineTotal: 110, discountPct: 0, uom: "pcs" },
-  { id: "c7", productId: "d13", name: "Lays Classic (52g)", sku: "LAY-52G", unitPrice: 35, qty: 1, lineTotal: 35, discountPct: 10, uom: "pcs" },
-];
-
 const PAY_CFG = [
   { id: "Cash", label: "Cash", Icon: Camera, bg: "bg-[#f0fdf4]", border: "border-[#dcfce7]", text: "text-[#15803d]", activeBorder: "border-[#16a34a]", activeRing: "ring-2 ring-[#16a34a]/30" },
   { id: "Card", label: "Card", Icon: CreditCard, bg: "bg-[#eff6ff]", border: "border-[#dbeafe]", text: "text-[#1d4ed8]", activeBorder: "border-[#2563eb]", activeRing: "ring-2 ring-[#2563eb]/30" },
@@ -117,8 +91,9 @@ const FN_KEYS = [
 const NUM_KEYS = ["7", "8", "9", "⌫", "4", "5", "6", "+", "1", "2", "3", "−", "0", "00", ".", "="] as const;
 
 export default function GroceryPOSPage() {
-  const [products, setProducts] = useState<Product[]>(DEMO_PRODUCTS);
-  const [cart, setCart] = useState<CartItem[]>(DEMO_CART);
+  const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [scanInput, setScanInput] = useState("");
   const [searchFilter, setSearchFilter] = useState("");
   const [selectedCat, setSelectedCat] = useState("All Items");
@@ -140,13 +115,8 @@ export default function GroceryPOSPage() {
 
   // Additional Modal States
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState({ name: "Walk-in Customer", type: "Default Customer", points: 120, phone: "01700000000", email: "", address: "" });
-  const [customerList, setCustomerList] = useState([
-    { name: "Walk-in Customer", type: "Default Customer", points: 120, phone: "N/A", email: "", address: "" },
-    { name: "Rahim Ahmed", type: "VIP Member", points: 450, phone: "01812345678", email: "rahim@example.com", address: "Dhaka" },
-    { name: "Sharmin Sultana", type: "Premium Member", points: 890, phone: "01987654321", email: "sharmin@example.com", address: "Chittagong" },
-    { name: "Tanvir Hossain", type: "Regular Customer", points: 210, phone: "01611223344", email: "tanvir@example.com", address: "Sylhet" },
-  ]);
+  const [selectedCustomer, setSelectedCustomer] = useState<any>({ name: "Walk-in Customer", type: "Default Customer", points: 0, phone: "N/A", email: "", address: "" });
+  const [customerList, setCustomerList] = useState<any[]>([]);
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
   const [newCustName, setNewCustName] = useState("");
   const [newCustPhone, setNewCustPhone] = useState("");
@@ -179,45 +149,92 @@ export default function GroceryPOSPage() {
     customerDisplay: false,
   });
 
-  const [salesHistory, setSalesHistory] = useState<any[]>([
-    { invoiceNo: "GRO-889102", date: "Today, 04:32 PM", grandTotal: 450, itemsCount: 3, paymentMethod: "Cash", customer: "Walk-in Customer", items: DEMO_CART.slice(0, 3) },
-    { invoiceNo: "GRO-889098", date: "Today, 03:15 PM", grandTotal: 1250, itemsCount: 6, paymentMethod: "Card", customer: "Rahim Ahmed", items: DEMO_CART.slice(2, 7) },
-    { invoiceNo: "GRO-889075", date: "Today, 01:40 PM", grandTotal: 320, itemsCount: 2, paymentMethod: "UPI / QR", customer: "Sharmin Sultana", items: DEMO_CART.slice(0, 2) },
-  ]);
+  const [salesHistory, setSalesHistory] = useState<any[]>([]);
 
   const scanRef = useRef<HTMLInputElement>(null);
   const discountInputRef = useRef<HTMLInputElement>(null);
   const couponInputRef = useRef<HTMLInputElement>(null);
   const noteInputRef = useRef<HTMLInputElement>(null);
 
+  const loadTenantInfo = useCallback(async () => {
+    try {
+      const ctx = await fetchRegisterContext();
+      setTenantInfo(ctx as any);
+    } catch {
+      setTenantInfo(null);
+    }
+  }, []);
+
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(t); }, []);
 
   const loadProducts = useCallback(async () => {
     try {
-      const res: any = await api.get("/products", { params: { limit: 300 } });
-      const d = res?.data?.data ?? res?.data ?? res ?? [];
-      const arr: Product[] = Array.isArray(d) ? d : [];
-      if (arr.length > 0) setProducts(arr);
-    } catch { }
+      // Use the standard products list to get category info
+      const res: any = await api.get("/products", { params: { limit: 500 } });
+      const rawProducts = res?.data ?? res ?? [];
+
+      // Also fetch batches for real stock
+      const batches = await fetchBatches();
+      const stockMap = new Map<string, number>();
+      batches.forEach(b => {
+        stockMap.set(b.product.id, (stockMap.get(b.product.id) ?? 0) + Number(b.qty || 0));
+      });
+
+      const formatted: Product[] = (Array.isArray(rawProducts) ? rawProducts : []).map(p => ({
+        id: p.id,
+        name: p.name,
+        sku: p.sku,
+        barcode: p.barcode || undefined,
+        sellingPrice: Number(p.sellingPrice || 0),
+        uom: p.unit?.name || p.uom || "pcs",
+        category: p.category ? { name: p.category.name } : { name: "Grocery" },
+        stock: stockMap.get(p.id) ?? 0
+      }));
+      setProducts(formatted);
+    } catch (err) {
+      console.error("Load Products Error:", err);
+    }
   }, []);
 
   const loadCustomers = useCallback(async () => {
     try {
       const res: any = await api.get("/customers");
       const d = res?.data?.data ?? res?.data ?? res ?? [];
-      if (Array.isArray(d) && d.length > 0) {
+      if (Array.isArray(d)) {
         const formatted = d.map((c: any) => ({
+          id: c.id,
           name: c.name || "Unknown Customer",
           phone: c.phone || "N/A",
+          email: c.email || "",
+          address: c.address || "",
           type: c.type || c.customerGroup?.name || "Regular Customer",
-          points: c.loyaltyPoints || 100,
+          points: c.loyaltyPoints || 0,
         }));
         setCustomerList(formatted);
       }
     } catch { }
   }, []);
 
-  useEffect(() => { loadProducts(); loadCustomers(); scanRef.current?.focus(); }, [loadProducts, loadCustomers]);
+  const loadSalesHistory = useCallback(async () => {
+    try {
+      const res: any = await api.get("/pos/sales", { params: { limit: 50 } });
+      const data = res?.data ?? res ?? [];
+      if (Array.isArray(data)) {
+        const formatted = data.map((s: any) => ({
+          id: s.id,
+          invoiceNo: s.invoiceNo,
+          grandTotal: Number(s.total || 0),
+          customer: s.customerName || "Walk-in Customer",
+          date: new Date(s.createdAt).toLocaleString(),
+          paymentMethod: s.paymentMethod || "CASH",
+          status: s.status
+        }));
+        setSalesHistory(formatted);
+      }
+    } catch { }
+  }, []);
+
+  useEffect(() => { loadTenantInfo(); loadProducts(); loadCustomers(); loadSalesHistory(); scanRef.current?.focus(); }, [loadTenantInfo, loadProducts, loadCustomers, loadSalesHistory]);
 
   const handleSaveNewCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -411,24 +428,88 @@ export default function GroceryPOSPage() {
 
   const handleCheckout = async () => {
     if (!cart.length) return;
+
+    // Explicitly check for configuration before proceeding
+    const bId = tenantInfo?.branch?.id;
+    const wId = tenantInfo?.warehouse?.id;
+
+    if (!bId || !wId) {
+      setCouponToast("⚠️ System Setup Error: Active Branch or Warehouse not detected. Please verify your profile settings.");
+      setTimeout(() => setCouponToast(""), 5000);
+      return;
+    }
+
     setSubmitting(true);
     playSuccessChime();
+
     const finalPaid = paidAmount;
     const finalChange = changeDue;
+
     try {
-      const res: any = await api.post("/pos/sales", { paymentMethod: payMethod, items: cart.map(i => ({ productId: i.productId, qty: i.qty, unitPrice: i.unitPrice, lineTotal: i.lineTotal })), subTotal, grandTotal, notes: salesNote || `Grocery POS · ${payMethod}` });
-      const inv = res?.data?.data ?? res?.data ?? res ?? {};
-      const invNo = inv.invoiceNo || `GRO-${Date.now().toString().slice(-6)}`;
-      const completedRecord = { invoiceNo: invNo, items: [...cart], grandTotal, subTotal, discAmt, paymentMethod: payMethod, customer: selectedCustomer.name, date: new Date().toLocaleString(), paidAmount: finalPaid, changeReturn: finalChange };
+      const payload = {
+        branchId: bId,
+        warehouseId: wId,
+        customerId: selectedCustomer?.id || null,
+        items: cart.map(i => ({
+          productId: i.productId,
+          variantId: null,
+          name: i.name,
+          qty: i.qty,
+          unitPrice: i.unitPrice,
+          discountAmount: i.discountPct ? (i.unitPrice * i.qty * i.discountPct / 100) : 0,
+          lineTotal: i.lineTotal
+        })),
+        payments: [{
+          method: payMethod.toUpperCase().includes("CASH") ? "CASH" :
+                  payMethod.toUpperCase().includes("CARD") ? "CARD" :
+                  payMethod.toUpperCase().includes("WALLET") ? "WALLET" : "UPI",
+          amount: grandTotal
+        }],
+        subTotal,
+        grandTotal,
+        discountTotal: discAmt,
+        taxTotal: 0,
+        serviceCharge: 0,
+        note: salesNote || `Grocery POS · ${payMethod}`
+      };
+
+      const res: any = await api.post("/api/v1/pos/confirm", payload);
+
+      // The backend returns the full sale result
+      const saleResult = res?.data ?? res ?? {};
+      const invNo = saleResult.invoiceNo || `GRO-${Date.now().toString().slice(-6)}`;
+
+      const completedRecord = {
+        invoiceNo: invNo,
+        items: [...cart],
+        grandTotal,
+        subTotal,
+        discAmt,
+        paymentMethod: payMethod,
+        customer: selectedCustomer.name,
+        date: new Date().toLocaleString(),
+        paidAmount: finalPaid,
+        changeReturn: finalChange
+      };
+
       setCompletedInv(completedRecord);
       setSalesHistory(prev => [completedRecord, ...prev]);
+
+      // Reset POS state
       clearCart();
-    } catch {
-      const invNo = `GRO-${Date.now().toString().slice(-6)}`;
-      const completedRecord = { invoiceNo: invNo, items: [...cart], grandTotal, subTotal, discAmt, paymentMethod: payMethod, customer: selectedCustomer.name, date: new Date().toLocaleString(), paidAmount: finalPaid, changeReturn: finalChange };
-      setCompletedInv(completedRecord);
-      setSalesHistory(prev => [completedRecord, ...prev]);
-      clearCart();
+      setSelectedCustomer({ name: "Walk-in Customer", type: "Default Customer", points: 0, phone: "N/A", email: "", address: "" });
+
+      // VITAL: Reload system products to show updated stock levels immediately
+      await loadProducts();
+
+      setCouponToast("🎉 Sale processed and synced with system successfully!");
+      setTimeout(() => setCouponToast(""), 3500);
+
+    } catch (err: any) {
+      console.error("POS Sync Error:", err);
+      const errorMsg = err.response?.data?.message || err.message || "Unknown synchronization error.";
+      setCouponToast(`⚠️ Sync Failed: ${errorMsg}`);
+      setTimeout(() => setCouponToast(""), 6000);
     } finally {
       setSubmitting(false);
     }
@@ -717,7 +798,7 @@ export default function GroceryPOSPage() {
               {filteredProducts.map(p => {
                 const isKg = p.uom?.toLowerCase().includes("kg") || p.uom?.toLowerCase().includes("gm");
                 const emoji = getEmoji(p.name); const bg = getEmojiColor(emoji);
-                const cartItem = cart.find(c => c.id === p.id);
+                const cartItem = cart.find(c => c.productId === p.id);
                 const inCartQty = cartItem ? cartItem.qty : 0;
 
                 return (
