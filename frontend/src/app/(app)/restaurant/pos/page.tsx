@@ -313,7 +313,31 @@ export default function RestaurantPOSPage() {
   const handlePlaceOrder = async () => {
     if (cart.length === 0) return;
     try {
-      const invNo = `REST-${Math.floor(100000 + Math.random() * 900000)}`;
+      // Build payload for the backend POS confirm endpoint
+      const payload = {
+        items: cart.map((i) => ({
+          productId: i.productId,
+          variantId: null,
+          name: i.name,
+          qty: i.qty,
+          unitPrice: i.unitPrice,
+          discountAmount: 0,
+          lineTotal: i.qty * i.unitPrice,
+        })),
+        payments: [{ method: "CASH", amount: grandTotal }],
+        subTotal: subTotal,
+        grandTotal: grandTotal,
+        discountTotal: discountAmount,
+        taxTotal: taxAmount,
+        serviceCharge: serviceCharge,
+        note: `Restaurant | Table: ${selectedTable?.tableNo || "N/A"} | ${orderType} | Waiter: ${waiterName}`,
+      };
+
+      // Call backend to save the sale and deduct inventory
+      const res: any = await api.post("/api/v1/pos/confirm", payload);
+      const saleResult = res?.data ?? res ?? {};
+      const invNo = saleResult.invoiceNo || `REST-${Math.floor(100000 + Math.random() * 900000)}`;
+
       const billData = {
         invoiceNo: invNo,
         table: selectedTable,
@@ -329,11 +353,17 @@ export default function RestaurantPOSPage() {
         grandTotal,
         date: new Date().toISOString(),
       };
+
       setCompletedBill(billData);
       setCart([]);
-      toast.success("Order Placed Successfully!");
-    } catch (err) {
-      toast.error("Failed to place order");
+      setDiscountPercent(0);
+      toast.success(`Order #${invNo} placed & synced to system!`);
+
+      // Reload product list to reflect updated stock
+      loadData();
+    } catch (err: any) {
+      console.error("Restaurant POS order error:", err);
+      toast.error(err?.response?.data?.message || err?.message || "Failed to place order. Please try again.");
     }
   };
 
@@ -941,190 +971,170 @@ export default function RestaurantPOSPage() {
         </aside>
       </div>
 
-      {/* Custom Modals */}
-      {showCustomItemModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <form
-            onSubmit={handleAddCustomItem}
-            className="w-full max-w-sm rounded-md bg-white p-5 shadow-xl space-y-3.5 border border-slate-200 text-gray-600"
-          >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-              <h3 className="text-xs font-bold text-gray-800 flex items-center gap-2">
-                <ChefHat className="text-orange-600" size={16} /> Add Custom Item
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowCustomItemModal(false)}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded-md"
-              >
-                <X size={15} />
-              </button>
-            </div>
-
-            <div className="space-y-2.5 text-xs">
-              <div>
-                <label className="font-bold text-gray-700 block mb-1">Item Name</label>
-                <input
-                  type="text"
-                  required
-                  value={customName}
-                  onChange={(e) => setCustomName(e.target.value)}
-                  placeholder="e.g. Special Chef Salad"
-                  className="w-full rounded-md border border-slate-200 p-2 text-xs font-semibold focus:border-orange-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold text-gray-700 block mb-1">Price (৳)</label>
-                <input
-                  type="number"
-                  required
-                  min="1"
-                  value={customPrice}
-                  onChange={(e) => setCustomPrice(Number(e.target.value))}
-                  className="w-full rounded-md border border-slate-200 p-2 text-xs font-semibold focus:border-orange-500 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowCustomItemModal(false)}
-                className="px-3 py-1.5 rounded-md text-xs font-bold bg-slate-100 text-gray-600 hover:bg-slate-200 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-1.5 rounded-md text-xs font-bold bg-orange-600 text-white hover:bg-orange-700 cursor-pointer"
-              >
-                Add Item
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {showHoldModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-md bg-white p-5 shadow-xl space-y-3.5 border border-slate-200 text-gray-600">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-              <h3 className="text-xs font-bold text-gray-800 flex items-center gap-2">
-                <RotateCcw className="text-indigo-600" size={16} /> Recall Held Orders
-              </h3>
-              <button
-                onClick={() => setShowHoldModal(false)}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded-md"
-              >
-                <X size={15} />
-              </button>
-            </div>
-
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {heldOrders.length === 0 ? (
-                <p className="text-xs text-gray-400 text-center py-6">No held orders found.</p>
-              ) : (
-                heldOrders.map((h) => (
-                  <div
-                    key={h.id}
-                    className="p-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-between"
-                  >
-                    <div>
-                      <span className="font-bold text-xs text-gray-800">
-                        {h.id} · Table {h.table?.tableNo || "N/A"}
-                      </span>
-                      <p className="text-[10px] text-gray-500">
-                        {h.cart.length} items · Waiter: {h.waiterName} · {h.time}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handleRecallOrder(h)}
-                      className="px-3 py-1 rounded-md bg-orange-600 text-white text-xs font-bold hover:bg-orange-700 cursor-pointer"
-                    >
-                      Recall
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
+      {/* Custom Item Modal */}
+      <CustomModal
+        open={showCustomItemModal}
+        onClose={() => setShowCustomItemModal(false)}
+        title="Add Custom Item"
+        size="sm"
+      >
+        <form onSubmit={handleAddCustomItem} className="space-y-4">
+          <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-xl border border-orange-100 mb-2">
+            <ChefHat className="text-orange-600" size={20} />
+            <p className="text-xs font-bold text-orange-800 uppercase tracking-wider">Quick Menu Entry</p>
           </div>
-        </div>
-      )}
 
-      {completedBill && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="w-full max-w-sm rounded-md bg-white p-5 shadow-2xl text-gray-800 space-y-3.5 border border-slate-200">
-            <div className="text-center border-b border-dashed border-slate-300 pb-2.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-orange-700 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-md">
-                {storeName}
-              </span>
-              <h3 className="text-base font-bold uppercase mt-1 text-gray-800">
-                Dine-In Guest Receipt
-              </h3>
-              <p className="text-xs font-mono text-gray-600">
-                Table: {completedBill.table?.tableNo || "N/A"} · Invoice: {completedBill.invoiceNo}
-              </p>
-              <p className="text-[10px] text-gray-400">
-                {new Date(completedBill.date).toLocaleString()}
-              </p>
+          <CustomInput
+            label="Item Name"
+            required
+            value={customName}
+            onChange={(e) => setCustomName(e.target.value)}
+            placeholder="e.g. Special Chef Salad"
+          />
+
+          <CustomInput
+            label="Price (৳)"
+            type="number"
+            required
+            min="1"
+            value={customPrice}
+            onChange={(e) => setCustomPrice(Number(e.target.value))}
+          />
+
+          <div className="flex justify-end gap-2 pt-2">
+            <CustomButton
+              type="button"
+              variant="outline"
+              onClick={() => setShowCustomItemModal(false)}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              type="submit"
+              themeColor="orange"
+            >
+              Add Item
+            </CustomButton>
+          </div>
+        </form>
+      </CustomModal>
+
+      <CustomModal
+        open={showHoldModal}
+        onClose={() => setShowHoldModal(false)}
+        title="Recall Held Orders"
+        size="md"
+      >
+        <div className="space-y-3 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
+          {heldOrders.length === 0 ? (
+            <div className="py-12 text-center text-gray-400">
+              <RotateCcw size={48} className="mx-auto mb-3 opacity-20" />
+              <p className="text-sm font-bold uppercase tracking-widest">No held orders found</p>
             </div>
-
-            <div className="space-y-1.5 max-h-48 overflow-y-auto text-xs">
-              {(completedBill.items || []).map((item: any, idx: number) => (
-                <div key={idx} className="border-b border-slate-50 pb-1">
-                  <div className="flex justify-between font-bold text-gray-800">
-                    <span>
-                      {idx + 1}. {item.name}
-                    </span>
-                    <span>{fmt(item.qty * item.unitPrice)}</span>
+          ) : (
+            heldOrders.map((h) => (
+              <div
+                key={h.id}
+                className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between group hover:bg-white hover:border-orange-200 transition-all"
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-black text-slate-900 uppercase font-mono tracking-tighter">#{h.id}</span>
+                    <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 border border-orange-100 uppercase tracking-widest">Table {h.table?.tableNo || "N/A"}</span>
                   </div>
-                  <div className="text-[10px] text-gray-400 pl-3">
-                    {item.qty} × {fmt(item.unitPrice)}
-                    {item.notes && (
-                      <span className="block italic text-orange-600">&quot;{item.notes}&quot;</span>
-                    )}
-                  </div>
+                  <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tight">
+                    {h.cart.length} items • Waiter: {h.waiterName} • {h.time}
+                  </p>
                 </div>
-              ))}
-            </div>
+                <CustomButton
+                  size="sm"
+                  themeColor="orange"
+                  onClick={() => handleRecallOrder(h)}
+                >
+                  Recall
+                </CustomButton>
+              </div>
+            ))
+          )}
+        </div>
+      </CustomModal>
 
-            <div className="border-t border-dashed border-slate-300 pt-2 text-xs space-y-1">
-              <div className="flex justify-between text-gray-500">
-                <span>Subtotal:</span>
-                <span>{fmt(completedBill.subTotal)}</span>
-              </div>
-              <div className="flex justify-between text-gray-500">
-                <span>Tax (8%):</span>
-                <span>{fmt(completedBill.taxAmount)}</span>
-              </div>
-              <div className="flex justify-between text-gray-500">
-                <span>Service Charge (4%):</span>
-                <span>{fmt(completedBill.serviceCharge)}</span>
-              </div>
-              <div className="flex justify-between font-black text-sm text-orange-600 pt-1.5 border-t border-slate-200">
-                <span>Total Payable:</span>
-                <span>{fmt(completedBill.grandTotal)}</span>
-              </div>
-            </div>
+      <CustomModal
+        open={!!completedBill}
+        onClose={() => setCompletedBill(null)}
+        title="Dine-In Guest Receipt"
+        size="sm"
+      >
+        <div className="space-y-5">
+          <div className="text-center border-b border-dashed border-slate-300 pb-4 space-y-1">
+            <span className="text-[10px] font-black uppercase tracking-widest text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-0.5 rounded-full">
+              {storeName}
+            </span>
+            <p className="text-xs font-mono text-slate-500 mt-2 uppercase tracking-tighter font-bold">
+              Table: {completedBill?.table?.tableNo || "N/A"} • INV: {completedBill?.invoiceNo}
+            </p>
+            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">
+              {completedBill && new Date(completedBill.date).toLocaleString()}
+            </p>
+          </div>
 
-            <div className="flex gap-2 pt-1">
-              <button
-                onClick={() => window.print()}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-md bg-gray-800 py-2 text-xs font-bold text-white hover:bg-gray-900 transition cursor-pointer"
-              >
-                <Printer size={14} /> Print Receipt
-              </button>
-              <button
-                onClick={() => setCompletedBill(null)}
-                className="rounded-md bg-orange-600 px-4 py-2 text-xs font-bold text-white hover:bg-orange-700 transition cursor-pointer"
-              >
-                Next Table
-              </button>
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar text-xs">
+            {(completedBill?.items || []).map((item: any, idx: number) => (
+              <div key={idx} className="border-b border-slate-50 pb-1.5 last:border-0">
+                <div className="flex justify-between font-bold text-slate-800">
+                  <span className="uppercase tracking-tight">
+                    {idx + 1}. {item.name}
+                  </span>
+                  <span className="font-black">৳{fmt(item.qty * item.unitPrice).replace('৳','')}</span>
+                </div>
+                <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight pl-4 mt-0.5">
+                  {item.qty} × {fmt(item.unitPrice)}
+                  {item.notes && (
+                    <span className="block italic text-orange-600 font-medium mt-0.5">&quot;{item.notes}&quot;</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-dashed border-slate-300 pt-3 text-xs space-y-1.5 bg-slate-50/50 p-4 rounded-2xl">
+            <div className="flex justify-between text-slate-500 font-bold uppercase tracking-tighter">
+              <span>Subtotal:</span>
+              <span>{fmt(completedBill?.subTotal || 0)}</span>
+            </div>
+            <div className="flex justify-between text-slate-500 font-bold uppercase tracking-tighter">
+              <span>Tax (8%):</span>
+              <span>{fmt(completedBill?.taxAmount || 0)}</span>
+            </div>
+            <div className="flex justify-between text-slate-500 font-bold uppercase tracking-tighter">
+              <span>Service Charge (4%):</span>
+              <span>{fmt(completedBill?.serviceCharge || 0)}</span>
+            </div>
+            <div className="flex justify-between font-black text-sm text-orange-600 pt-2 border-t border-orange-100">
+              <span className="uppercase tracking-tight">Total Payable:</span>
+              <span>{fmt(completedBill?.grandTotal || 0)}</span>
             </div>
           </div>
+
+          <div className="flex gap-3 pt-1">
+            <CustomButton
+              fullWidth
+              variant="outline"
+              onClick={() => window.print()}
+              leftIcon={<Printer size={16} />}
+            >
+              Print
+            </CustomButton>
+            <CustomButton
+              fullWidth
+              themeColor="orange"
+              onClick={() => setCompletedBill(null)}
+            >
+              Next Table
+            </CustomButton>
+          </div>
         </div>
-      )}
+      </CustomModal>
 
       {/* Confirm Clear Modal */}
       <ConfirmModal
@@ -1143,92 +1153,82 @@ export default function RestaurantPOSPage() {
       />
 
       {/* ══════════════ SELECT TABLE MODAL ══════════════ */}
-      {showSelectTableModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-lg rounded-2xl bg-[#FFF5F1] p-6 shadow-2xl space-y-4 border border-orange-100 text-gray-800">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-orange-100/70 pb-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-orange-600 shadow-xs">
-                  <LayoutGrid size={22} />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 tracking-tight">Select Table</h3>
-              </div>
-
-              {/* Legend */}
-              <div className="flex items-center gap-3 text-xs font-semibold text-gray-600">
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                  <span>Available</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
-                  <span>Occupied</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
-                  <span>Selected</span>
-                </div>
-              </div>
+      <CustomModal
+        open={showSelectTableModal}
+        onClose={() => setShowSelectTableModal(false)}
+        title="Select Dining Table"
+        size="lg"
+      >
+        <div className="space-y-5">
+          {/* Legend */}
+          <div className="flex items-center justify-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 py-3 rounded-2xl border border-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+              <span>Available</span>
             </div>
-
-            {/* Grid of Real Tables */}
-            <div className="max-h-96 overflow-y-auto p-1">
-              {tables.length === 0 ? (
-                <div className="py-12 text-center text-gray-400 space-y-2">
-                  <LayoutGrid size={36} className="mx-auto text-gray-300" />
-                  <p className="text-sm font-bold text-gray-600">No tables created in database yet</p>
-                  <p className="text-xs text-gray-400 max-w-xs mx-auto">
-                    Please go to Restaurant Floor Management page to add tables.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {tables.map((t) => {
-                    const isSelected = selectedTable?.id === t.id;
-                    const isOccupied = t.status === "OCCUPIED" || t.status === "BILLING";
-
-                    return (
-                      <button
-                        key={t.id}
-                        onClick={() => {
-                          setSelectedTable(t);
-                          setShowSelectTableModal(false);
-                          toast.info(`Selected Table ${t.tableNo}`);
-                        }}
-                        className={`flex flex-col items-center justify-center p-3.5 rounded-xl border-2 transition-all cursor-pointer select-none ${
-                          isSelected
-                            ? "bg-orange-500 text-white border-orange-500 shadow-md shadow-orange-500/20"
-                            : isOccupied
-                            ? "bg-amber-50 text-amber-900 border-amber-300 hover:border-amber-500"
-                            : "bg-emerald-50 text-emerald-950 border-emerald-300 hover:border-emerald-500"
-                        }`}
-                      >
-                        <span className={`font-extrabold text-sm ${isSelected ? "text-white" : isOccupied ? "text-amber-900" : "text-emerald-950"}`}>
-                          {t.tableNo}
-                        </span>
-                        <span className={`text-[11px] font-medium flex items-center gap-1 mt-1 ${isSelected ? "text-white/90" : isOccupied ? "text-amber-700" : "text-emerald-700"}`}>
-                          <Users size={11} /> {t.capacity} seats
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]" />
+              <span>Occupied</span>
             </div>
-
-            {/* Footer Close */}
-            <div className="flex justify-end pt-2 border-t border-orange-100/70">
-              <button
-                onClick={() => setShowSelectTableModal(false)}
-                className="text-orange-600 font-bold text-sm hover:text-orange-700 transition cursor-pointer"
-              >
-                Close
-              </button>
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
+              <span>Selected</span>
             </div>
           </div>
+
+          <div className="max-h-96 overflow-y-auto pr-1 custom-scrollbar">
+            {tables.length === 0 ? (
+              <div className="py-20 text-center text-slate-300 space-y-3">
+                <LayoutGrid size={48} className="mx-auto opacity-20" />
+                <p className="text-xs font-bold uppercase tracking-widest">No tables found</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {tables.map((t) => {
+                  const isSelected = selectedTable?.id === t.id;
+                  const isOccupied = t.status === "OCCUPIED" || t.status === "BILLING";
+
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        setSelectedTable(t);
+                        setShowSelectTableModal(false);
+                        toast.info(`Selected Table ${t.tableNo}`);
+                      }}
+                      className={`flex flex-col items-center justify-center p-5 rounded-[2rem] border-2 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer select-none group ${
+                        isSelected
+                          ? "bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-500/30"
+                          : isOccupied
+                          ? "bg-amber-50 text-amber-900 border-amber-200 hover:border-amber-400"
+                          : "bg-emerald-50 text-emerald-950 border-emerald-100 hover:border-emerald-300"
+                      }`}
+                    >
+                      <span className={`text-lg font-black tracking-tighter ${isSelected ? "text-white" : "text-slate-800"}`}>
+                        {t.tableNo}
+                      </span>
+                      <div className={`flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                        isSelected ? "bg-white/20 text-white" : "bg-white/60 text-slate-400"
+                      }`}>
+                        <Users size={10} strokeWidth={3} /> {t.capacity}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <CustomButton
+              variant="outline"
+              onClick={() => setShowSelectTableModal(false)}
+            >
+              Cancel
+            </CustomButton>
+          </div>
         </div>
-      )}
+      </CustomModal>
 
       {/* Reusable Custom Prompt Modal */}
       <CustomPromptModal
