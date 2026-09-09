@@ -8,7 +8,7 @@ import {
   CreditCard, ArrowRight, ShoppingBag, Clock, Users, History,
   Settings, Tag, RotateCcw, ScanLine, Gift, Package, Star,
   Apple, Coffee, Home, Wallet, FileText, X,
-  Layers, Grid, AlignLeft, Camera,
+  Layers, Grid, AlignLeft, Camera, Info, AlertCircle,
   Utensils, Snowflake, Fish, Sparkles, Heart, ShieldCheck, ChevronDown,
 } from "lucide-react";
 import { api } from "@/lib/api";
@@ -47,6 +47,13 @@ function getEmoji(name: string) {
 }
 function getEmojiColor(_emoji: string) {
   return "#ffffff";
+}
+
+function getCustomerTier(pts: number) {
+  if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-100" };
+  if (pts >= 1500) return { name: "Gold", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" };
+  if (pts >= 500) return { name: "Silver", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-100" };
+  return { name: "Bronze", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-100" };
 }
 
 const DEMO_PRODUCTS: Product[] = [
@@ -125,6 +132,7 @@ export default function GroceryPOSPage() {
   const [salesNote, setSalesNote] = useState("");
   const [numBuf, setNumBuf] = useState("");
   const [numTarget, setNumTarget] = useState<string | null>(null);
+  const [tenderedInput, setTenderedInput] = useState<string>("");
   const [now, setNow] = useState(new Date());
   const [scaleOpen, setScaleOpen] = useState(false);
   const [scaleProd, setScaleProd] = useState<Product | null>(null);
@@ -132,7 +140,21 @@ export default function GroceryPOSPage() {
 
   // Additional Modal States
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState({ name: "Walk-in Customer", type: "Default Customer", points: 120, phone: "01700000000" });
+  const [selectedCustomer, setSelectedCustomer] = useState({ name: "Walk-in Customer", type: "Default Customer", points: 120, phone: "01700000000", email: "", address: "" });
+  const [customerList, setCustomerList] = useState([
+    { name: "Walk-in Customer", type: "Default Customer", points: 120, phone: "N/A", email: "", address: "" },
+    { name: "Rahim Ahmed", type: "VIP Member", points: 450, phone: "01812345678", email: "rahim@example.com", address: "Dhaka" },
+    { name: "Sharmin Sultana", type: "Premium Member", points: 890, phone: "01987654321", email: "sharmin@example.com", address: "Chittagong" },
+    { name: "Tanvir Hossain", type: "Regular Customer", points: 210, phone: "01611223344", email: "tanvir@example.com", address: "Sylhet" },
+  ]);
+  const [isAddingCustomer, setIsAddingCustomer] = useState(false);
+  const [newCustName, setNewCustName] = useState("");
+  const [newCustPhone, setNewCustPhone] = useState("");
+  const [newCustEmail, setNewCustEmail] = useState("");
+  const [newCustAddress, setNewCustAddress] = useState("");
+  const [newCustType, setNewCustType] = useState("Regular Customer");
+  const [newCustPoints, setNewCustPoints] = useState("100");
+  const [customerSearchQuery, setCustomerSearchQuery] = useState("");
   const [priceCheckOpen, setPriceCheckOpen] = useState(false);
   const [priceCheckQuery, setPriceCheckQuery] = useState("");
   const [recentSalesOpen, setRecentSalesOpen] = useState(false);
@@ -140,6 +162,9 @@ export default function GroceryPOSPage() {
   const [offersOpen, setOffersOpen] = useState(false);
   const [heldCartsOpen, setHeldCartsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [loyaltyModalOpen, setLoyaltyModalOpen] = useState(false);
+  const [liveInvoiceModalOpen, setLiveInvoiceModalOpen] = useState(false);
+  const [isLoyaltyApplied, setIsLoyaltyApplied] = useState(false);
   const [drawerToast, setDrawerToast] = useState(false);
   const [couponToast, setCouponToast] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -175,7 +200,86 @@ export default function GroceryPOSPage() {
       if (arr.length > 0) setProducts(arr);
     } catch { }
   }, []);
-  useEffect(() => { loadProducts(); scanRef.current?.focus(); }, [loadProducts]);
+
+  const loadCustomers = useCallback(async () => {
+    try {
+      const res: any = await api.get("/customers");
+      const d = res?.data?.data ?? res?.data ?? res ?? [];
+      if (Array.isArray(d) && d.length > 0) {
+        const formatted = d.map((c: any) => ({
+          name: c.name || "Unknown Customer",
+          phone: c.phone || "N/A",
+          type: c.type || c.customerGroup?.name || "Regular Customer",
+          points: c.loyaltyPoints || 100,
+        }));
+        setCustomerList(formatted);
+      }
+    } catch { }
+  }, []);
+
+  useEffect(() => { loadProducts(); loadCustomers(); scanRef.current?.focus(); }, [loadProducts, loadCustomers]);
+
+  const handleSaveNewCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCustName.trim()) return;
+    const createdCust = {
+      name: newCustName.trim(),
+      phone: newCustPhone.trim() || "N/A",
+      email: newCustEmail.trim(),
+      address: newCustAddress.trim(),
+      type: "Regular Customer",
+      points: 0,
+    };
+    try {
+      await api.post("/customers", {
+        name: createdCust.name,
+        phone: createdCust.phone,
+        email: createdCust.email,
+        address: createdCust.address,
+        status: "ACTIVE",
+      });
+    } catch { }
+
+    setCustomerList(prev => [createdCust, ...prev]);
+    setSelectedCustomer(createdCust);
+    setNewCustName("");
+    setNewCustPhone("");
+    setNewCustEmail("");
+    setNewCustAddress("");
+    setNewCustPoints("100");
+    setIsAddingCustomer(false);
+    setCustomerModalOpen(false);
+    setCouponToast(`New customer '${createdCust.name}' created & selected!`);
+    setTimeout(() => setCouponToast(""), 3000);
+  };
+
+  const handleLoyaltyClick = () => {
+    const pts = selectedCustomer.points || 0;
+    
+    // Toggle off if already applied
+    if (isLoyaltyApplied) {
+      setIsLoyaltyApplied(false);
+      setDiscountPct("0.00");
+      setCouponToast("Loyalty Cashback removed from cart.");
+      setTimeout(() => setCouponToast(""), 3000);
+      return;
+    }
+
+    // Minimum 500 points requirement check
+    if (pts < 500) {
+      const needed = 500 - pts;
+      setCouponToast(`⚠️ Cashback alert: Minimum 500 points required! You need ${needed} more points.`);
+      setTimeout(() => setCouponToast(""), 3500);
+      return;
+    }
+
+    // Toggle on (Apply cashback)
+    const cbPct = pts >= 4000 ? 10 : pts >= 1500 ? 7.5 : 5;
+    setIsLoyaltyApplied(true);
+    setDiscountPct(cbPct.toFixed(2));
+    setCouponToast(`${cbPct}% Loyalty Cashback Applied to Cart! Click again to remove.`);
+    setTimeout(() => setCouponToast(""), 3500);
+  };
 
   const fmt = (n: number) => `৳${Number(n || 0).toLocaleString("en-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -189,6 +293,28 @@ export default function GroceryPOSPage() {
       g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.07);
       o.connect(g); g.connect(ctx.destination);
       o.start(); o.stop(ctx.currentTime + 0.07);
+    } catch { }
+  };
+
+  const playSuccessChime = () => {
+    if (!soundEnabled) return;
+    try {
+      const ctx = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
+      const o1 = ctx.createOscillator(), g1 = ctx.createGain();
+      o1.type = "sine"; o1.frequency.setValueAtTime(800, ctx.currentTime);
+      g1.gain.setValueAtTime(0.1, ctx.currentTime);
+      g1.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.12);
+      o1.connect(g1); g1.connect(ctx.destination);
+      o1.start(); o1.stop(ctx.currentTime + 0.12);
+
+      setTimeout(() => {
+        const o2 = ctx.createOscillator(), g2 = ctx.createGain();
+        o2.type = "sine"; o2.frequency.setValueAtTime(1200, ctx.currentTime);
+        g2.gain.setValueAtTime(0.1, ctx.currentTime);
+        g2.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.2);
+        o2.connect(g2); g2.connect(ctx.destination);
+        o2.start(); o2.stop(ctx.currentTime + 0.2);
+      }, 100);
     } catch { }
   };
 
@@ -232,7 +358,7 @@ export default function GroceryPOSPage() {
 
   const updateQty = (id: string, delta: number) => setCart(prev => prev.map(i => { if (i.id !== id) return i; const nq = Math.max(i.isWeighed ? 0.05 : 1, Number((i.qty + delta).toFixed(3))); return { ...i, qty: nq, lineTotal: nq * i.unitPrice }; }).filter(i => i.qty > 0));
   const removeItem = (id: string) => setCart(prev => prev.filter(i => i.id !== id));
-  const clearCart = () => { setCart([]); setDiscountPct("0.00"); setCouponCode(""); setSalesNote(""); };
+  const clearCart = () => { setCart([]); setDiscountPct("0.00"); setCouponCode(""); setSalesNote(""); setTenderedInput(""); setNumBuf(""); setNumTarget(null); };
 
   const holdCart = () => { if (!cart.length) return; setHeldCarts(prev => [...prev, { id: `HOLD-${Date.now().toString().slice(-4)}`, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), items: cart }]); clearCart(); setCouponToast("📌 Bill Held Successfully"); setTimeout(() => setCouponToast(""), 2500); };
   const recallCart = (h: { id: string; items: CartItem[] }) => { setCart(h.items); setHeldCarts(prev => prev.filter(x => x.id !== h.id)); setHeldCartsOpen(false); };
@@ -241,33 +367,65 @@ export default function GroceryPOSPage() {
 
   const handleScanKey = (e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key !== "Enter") return; e.preventDefault(); const code = scanInput.trim().toLowerCase(); if (!code) return; const found = products.find(p => (p.barcode?.toLowerCase() === code) || (p.sku?.toLowerCase() === code) || p.name.toLowerCase() === code); if (found) { const isKg = found.uom?.toLowerCase().includes("kg") || found.uom?.toLowerCase().includes("gm"); if (isKg) openScale(found); else addToCart(found); } else alert(`Barcode "${scanInput}" not found.`); setScanInput(""); };
 
-  const numPress = (key: string) => {
-    if (key === "⌫") { setNumBuf(p => p.slice(0, -1)); return; }
-    if (key === "=") { if (numTarget) { const v = parseFloat(numBuf); if (!isNaN(v) && v > 0) setCart(prev => prev.map(i => i.id === numTarget ? { ...i, qty: v, lineTotal: v * i.unitPrice } : i)); } setNumTarget(null); setNumBuf(""); return; }
-    if (key === "C") { setNumBuf(""); setNumTarget(null); return; }
-    setNumBuf(p => p + key);
-  };
-
   const subTotal = cart.reduce((a, i) => a + i.lineTotal, 0);
   const discAmt = subTotal * (parseFloat(discountPct) / 100 || 0);
   const totalItems = cart.length;
   const totalQty = cart.reduce((a, i) => a + i.qty, 0);
   const grandTotal = Math.max(0, subTotal - discAmt);
+  const paidAmount = parseFloat(tenderedInput) > 0 ? parseFloat(tenderedInput) : grandTotal;
+  const changeDue = Math.max(0, paidAmount - grandTotal);
+  const remainingDue = Math.max(0, grandTotal - paidAmount);
+
+  const numPress = (key: string) => {
+    if (key === "⌫") {
+      setNumBuf(p => {
+        const next = p.slice(0, -1);
+        if (!numTarget) setTenderedInput(next);
+        return next;
+      });
+      return;
+    }
+    if (key === "=") {
+      if (numTarget) {
+        const v = parseFloat(numBuf);
+        if (!isNaN(v) && v > 0) setCart(prev => prev.map(i => i.id === numTarget ? { ...i, qty: v, lineTotal: v * i.unitPrice } : i));
+        setNumTarget(null);
+        setNumBuf("");
+      } else {
+        handleCheckout();
+      }
+      return;
+    }
+    if (key === "C") {
+      setNumBuf("");
+      setNumTarget(null);
+      setTenderedInput("");
+      return;
+    }
+    setNumBuf(p => {
+      const next = p + key;
+      if (!numTarget) setTenderedInput(next);
+      return next;
+    });
+  };
 
   const handleCheckout = async () => {
     if (!cart.length) return;
     setSubmitting(true);
+    playSuccessChime();
+    const finalPaid = paidAmount;
+    const finalChange = changeDue;
     try {
       const res: any = await api.post("/pos/sales", { paymentMethod: payMethod, items: cart.map(i => ({ productId: i.productId, qty: i.qty, unitPrice: i.unitPrice, lineTotal: i.lineTotal })), subTotal, grandTotal, notes: salesNote || `Grocery POS · ${payMethod}` });
       const inv = res?.data?.data ?? res?.data ?? res ?? {};
       const invNo = inv.invoiceNo || `GRO-${Date.now().toString().slice(-6)}`;
-      const completedRecord = { invoiceNo: invNo, items: [...cart], grandTotal, subTotal, discAmt, paymentMethod: payMethod, customer: selectedCustomer.name, date: new Date().toLocaleString() };
+      const completedRecord = { invoiceNo: invNo, items: [...cart], grandTotal, subTotal, discAmt, paymentMethod: payMethod, customer: selectedCustomer.name, date: new Date().toLocaleString(), paidAmount: finalPaid, changeReturn: finalChange };
       setCompletedInv(completedRecord);
       setSalesHistory(prev => [completedRecord, ...prev]);
       clearCart();
     } catch {
       const invNo = `GRO-${Date.now().toString().slice(-6)}`;
-      const completedRecord = { invoiceNo: invNo, items: [...cart], grandTotal, subTotal, discAmt, paymentMethod: payMethod, customer: selectedCustomer.name, date: new Date().toLocaleString() };
+      const completedRecord = { invoiceNo: invNo, items: [...cart], grandTotal, subTotal, discAmt, paymentMethod: payMethod, customer: selectedCustomer.name, date: new Date().toLocaleString(), paidAmount: finalPaid, changeReturn: finalChange };
       setCompletedInv(completedRecord);
       setSalesHistory(prev => [completedRecord, ...prev]);
       clearCart();
@@ -290,7 +448,7 @@ export default function GroceryPOSPage() {
       else if (e.key === "F7") { e.preventDefault(); if (cart.length) holdCart(); else setHeldCartsOpen(true); }
       else if (e.key === "F8") { e.preventDefault(); setRecentSalesOpen(true); }
       else if (e.key === "F9") { e.preventDefault(); triggerCashDrawer(); }
-      else if (e.key === "F10") { e.preventDefault(); setCustomerModalOpen(true); }
+      else if (e.key === "F10") { e.preventDefault(); setIsAddingCustomer(true); setCustomerModalOpen(true); }
       else if (e.key === "F11") { e.preventDefault(); clearCart(); }
       else if (e.key === "F12") { e.preventDefault(); window.print(); }
     };
@@ -319,31 +477,73 @@ export default function GroceryPOSPage() {
   const filteredProducts = products.filter(p => { const matchCat = selectedCat === "All Items" || (p.category?.name || "Grocery") === selectedCat; const q = searchFilter.toLowerCase().trim(); return matchCat && (!q || p.name.toLowerCase().includes(q) || p.sku?.toLowerCase().includes(q) || p.barcode?.includes(q)); });
 
   return (
+    <>
     <div className="relative flex flex-col h-screen w-screen bg-white select-none overflow-hidden" style={{ fontFamily: "'Inter','Segoe UI',sans-serif" }}>
 
-      {/* ══ VIVID ORGANIC CURVED WAVE BACKDROP (Matching User Image Footer) ══ */}
+      {/* ══ ORGANIC CURVED WAVE BACKDROP — EXACT RGBA(187, 238, 100) GRADIENT ══ */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Upper Soft Mint Wave — Rises under Status Bar */}
-        <svg className="absolute bottom-0 left-0 w-[70%] h-[280px] opacity-95" viewBox="0 0 1000 280" fill="none" preserveAspectRatio="none">
-          <path d="M 0 110 C 180 200, 380 20, 680 160 C 830 220, 940 70, 1000 110 L 1000 280 L 0 280 Z" fill="url(#mint-wave-top)" />
+        
+        {/* ── TOP HEADER ORGANIC CURVED WAVES (rgba(187, 238, 100) Gradient Theme) ── */}
+        {/* Top Upper Soft Mint-Lime Wave */}
+        <svg className="absolute top-0 left-0 w-full h-[140px] opacity-100" viewBox="0 0 1200 140" fill="none" preserveAspectRatio="none">
+          <path d="M 0 0 L 1200 0 L 1200 65 C 920 135, 580 30, 280 115 C 140 135, 40 70, 0 85 Z" fill="url(#top-mint-wave-rgba)" />
           <defs>
-            <linearGradient id="mint-wave-top" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#eefce3" stopOpacity="0.95" />
-              <stop offset="45%" stopColor="#dcfce7" stopOpacity="0.7" />
-              <stop offset="85%" stopColor="#ffffff" stopOpacity="0.1" />
+            <linearGradient id="top-mint-wave-rgba" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(187, 238, 100, 0.95)" />
+              <stop offset="50%" stopColor="rgba(187, 238, 100, 0.75)" />
+              <stop offset="85%" stopColor="rgba(220, 252, 231, 0.5)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
             </linearGradient>
           </defs>
         </svg>
 
-        {/* Main Vivid Lime-Green Front Wave — Matches Image 2 bottom-left wave! */}
+        {/* Top Main Vivid Front Wave — Clear Organic Curved Line Sweeping Across Header */}
+        <svg className="absolute top-0 left-0 w-[78%] h-[115px] opacity-100 drop-shadow-xs" viewBox="0 0 1000 115" fill="none" preserveAspectRatio="none">
+          <path d="M 0 0 L 1000 0 L 1000 35 C 760 110, 480 20, 220 95 C 100 110, 30 45, 0 60 Z" fill="url(#top-lime-vivid-rgba)" />
+          <defs>
+            <linearGradient id="top-lime-vivid-rgba" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(187, 238, 100, 1)" />
+              <stop offset="40%" stopColor="rgba(163, 230, 53, 0.85)" />
+              <stop offset="75%" stopColor="rgba(187, 238, 100, 0.5)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Top-Left Deep Yellow-Green Glow Wave */}
+        <svg className="absolute top-0 left-0 w-[52%] h-[85px] opacity-95" viewBox="0 0 700 85" fill="none" preserveAspectRatio="none">
+          <path d="M 0 0 L 700 0 L 700 25 C 500 80, 300 15, 120 70 C 50 80, 10 30, 0 40 Z" fill="url(#top-lime-glow-rgba)" />
+          <defs>
+            <linearGradient id="top-lime-glow-rgba" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(163, 230, 53, 0.95)" />
+              <stop offset="45%" stopColor="rgba(187, 238, 100, 0.7)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* ── BOTTOM FOOTER ORGANIC CURVED WAVES (rgba(187, 238, 100) Theme) ── */}
+        {/* Upper Soft Mint Wave */}
+        <svg className="absolute bottom-0 left-0 w-[70%] h-[280px] opacity-95" viewBox="0 0 1000 280" fill="none" preserveAspectRatio="none">
+          <path d="M 0 110 C 180 200, 380 20, 680 160 C 830 220, 940 70, 1000 110 L 1000 280 L 0 280 Z" fill="url(#mint-wave-top)" />
+          <defs>
+            <linearGradient id="mint-wave-top" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(238, 252, 227, 0.95)" />
+              <stop offset="45%" stopColor="rgba(187, 238, 100, 0.6)" />
+              <stop offset="85%" stopColor="rgba(255, 255, 255, 0.1)" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Main Vivid Lime-Green Front Wave */}
         <svg className="absolute bottom-0 left-0 w-[62%] h-[210px] opacity-100" viewBox="0 0 1000 210" fill="none" preserveAspectRatio="none">
           <path d="M 0 45 C 160 165, 360 15, 630 140 C 790 195, 910 85, 1000 125 L 1000 210 L 0 210 Z" fill="url(#lime-wave-vivid)" />
           <defs>
             <linearGradient id="lime-wave-vivid" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#d9f99d" stopOpacity="1" />
-              <stop offset="30%" stopColor="#bef264" stopOpacity="0.9" />
-              <stop offset="65%" stopColor="#dcfce7" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+              <stop offset="0%" stopColor="rgba(187, 238, 100, 1)" />
+              <stop offset="30%" stopColor="rgba(190, 242, 100, 0.9)" />
+              <stop offset="65%" stopColor="rgba(220, 252, 231, 0.6)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
             </linearGradient>
           </defs>
         </svg>
@@ -353,47 +553,61 @@ export default function GroceryPOSPage() {
           <path d="M 0 25 C 130 125, 290 5, 520 105 C 670 155, 760 65, 800 95 L 800 150 L 0 150 Z" fill="url(#lime-wave-glow)" />
           <defs>
             <linearGradient id="lime-wave-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#a3e635" stopOpacity="0.95" />
-              <stop offset="40%" stopColor="#d9f99d" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+              <stop offset="0%" stopColor="rgba(163, 230, 53, 0.95)" />
+              <stop offset="40%" stopColor="rgba(187, 238, 100, 0.6)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
             </linearGradient>
           </defs>
         </svg>
       </div>
 
-      {/* ══ HEADER — Pure White Background ══ */}
-      <header className="relative z-10 flex-none flex items-center justify-between gap-4 px-6 py-3 border-b border-gray-200 bg-white shadow-xs" style={{ minHeight: 64 }}>
-        <div className="flex items-center gap-3">
-          <Link href="/grocery" className="flex items-center text-slate-700 hover:text-slate-900 transition mr-1"><ChevronLeft size={18} /></Link>
+      {/* ══ HEADER — Glassmorphic Elegant rgba(187, 238, 100) Curved Theme Header ══ */}
+      <header className="relative z-20 flex-none flex items-center justify-between gap-4 px-6 py-2.5 bg-white/70 backdrop-blur-xs border-b border-emerald-300/60 shadow-2xs relative overflow-hidden" style={{ minHeight: 64 }}>
+
+        {/* Brand Logo: BPOS */}
+        <div className="relative z-10 flex items-center gap-3">
+          <Link href="/grocery" className="flex items-center text-slate-700 hover:text-slate-900 transition mr-1 bg-white/90 hover:bg-white p-1.5 rounded-xl border border-emerald-300/80 shadow-2xs">
+            <ChevronLeft size={18} />
+          </Link>
           <div className="flex items-center gap-2.5">
-            <div className="relative text-emerald-600"><ShoppingCart size={30} strokeWidth={2.2} /><div className="absolute -top-1 -right-1 text-emerald-700 font-bold text-xs">🌿</div></div>
+            <div className="relative w-10 h-10 rounded-xl bg-white border border-emerald-400 text-emerald-700 flex items-center justify-center shadow-xs">
+              <ShoppingCart size={22} strokeWidth={2.2} />
+              <div className="absolute -top-1 -right-1 text-xs">🌿</div>
+            </div>
             <div className="leading-tight">
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">FreshMart</h1>
-              <p className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">POS SYSTEM</p>
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-xl font-black text-slate-900 tracking-tight">BPOS</h1>
+                <span className="bg-emerald-700 text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider shadow-2xs">GROCERY</span>
+              </div>
+              <p className="text-[9.5px] font-bold tracking-wider text-emerald-800 uppercase">POS SYSTEM</p>
             </div>
           </div>
         </div>
-        <div className="flex-1 max-w-xl">
-          <div className="flex items-center bg-gray-50 rounded-full border border-gray-200 shadow-inner px-4 py-2">
-            <Search size={18} className="text-slate-400 shrink-0 mr-3" />
+
+        {/* Search Bar */}
+        <div className="relative z-10 flex-1 max-w-xl">
+          <div className="flex items-center bg-white/95 backdrop-blur-sm rounded-full border border-emerald-400 shadow-sm px-4 py-1.5 text-slate-800 transition focus-within:ring-2 focus-within:ring-emerald-500">
+            <Search size={17} className="text-slate-400 shrink-0 mr-2.5" />
             <input ref={scanRef} type="text" value={scanInput} onChange={e => { setScanInput(e.target.value); setSearchFilter(e.target.value); }} onKeyDown={handleScanKey}
               placeholder="Search product by name, barcode or scan..."
-              className="w-full bg-transparent text-sm font-semibold text-gray-800 placeholder:text-gray-400 placeholder:font-normal focus:outline-none" />
-            <ScanLine size={18} className="text-emerald-600 shrink-0 ml-2" />
+              className="w-full bg-transparent text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none" />
+            <ScanLine size={17} className="text-emerald-700 shrink-0 ml-2" />
           </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Header Info Cards */}
+        <div className="relative z-10 flex items-center gap-2">
           {[
-            { icon: <Users size={15} strokeWidth={2.5} />, bg: "bg-slate-100 text-slate-700", label: selectedCustomer.name, sub: selectedCustomer.type, onClick: () => setCustomerModalOpen(true) },
-            { icon: <span className="text-xs font-bold">★</span>, bg: "bg-emerald-600 text-white shadow-xs animate-pulse", label: "Loyalty Points", sub: `${selectedCustomer.points} Pts`, onClick: () => setCustomerModalOpen(true) },
-            { icon: <FileText size={15} strokeWidth={2.2} />, bg: "bg-slate-100 text-slate-700", label: "Invoice", sub: "INV-250520-0012", onClick: () => setRecentSalesOpen(true) },
-            { icon: <Clock size={15} strokeWidth={2.2} />, bg: "bg-slate-100 text-slate-700 relative", label: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), sub: now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) },
+            { icon: <Users size={14} strokeWidth={2.5} />, bg: "bg-emerald-100 text-emerald-900 border-emerald-300", label: selectedCustomer.name, sub: getCustomerTier(selectedCustomer.points).name + " Member", onClick: () => setCustomerModalOpen(true) },
+            { icon: <span className="text-xs font-bold">★</span>, bg: "bg-emerald-700 text-white shadow-xs animate-pulse", label: "Loyalty Points", sub: `${selectedCustomer.points} Pts`, onClick: handleLoyaltyClick },
+            { icon: <FileText size={14} strokeWidth={2.2} />, bg: "bg-emerald-100 text-emerald-900 border-emerald-300", label: "Invoice", sub: "INV-250520-0012", onClick: () => setLiveInvoiceModalOpen(true) },
+            { icon: <Clock size={14} strokeWidth={2.2} />, bg: "bg-emerald-100 text-emerald-900 border-emerald-300", label: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), sub: now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) },
           ].map((c, i) => (
-            <div key={i} onClick={c.onClick} className="flex items-center gap-2.5 bg-white rounded-2xl px-3.5 py-2 border border-gray-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
-              <div className={`w-7 h-7 rounded-xl flex items-center justify-center ${c.bg}`}>{c.icon}</div>
+            <div key={i} onClick={c.onClick} className="flex items-center gap-2 bg-white/90 hover:bg-white rounded-xl px-3 py-1.5 border border-emerald-300/80 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
+              <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${c.bg}`}>{c.icon}</div>
               <div className="leading-tight">
-                <p className="text-xs font-extrabold text-slate-800 whitespace-nowrap">{c.label}</p>
-                <p className="text-[10px] font-semibold text-slate-500">{c.sub}</p>
+                <p className="text-[11px] font-extrabold text-slate-800 whitespace-nowrap">{c.label}</p>
+                <p className="text-[9px] font-bold text-slate-500 whitespace-nowrap">{c.sub}</p>
               </div>
             </div>
           ))}
@@ -584,7 +798,7 @@ export default function GroceryPOSPage() {
               {[
                 { label: "Sales History", key: "F8", icon: <History size={16} />, onClick: () => setRecentSalesOpen(true) },
                 { label: "Open Drawer", key: "F9", icon: <Printer size={16} />, onClick: triggerCashDrawer },
-                { label: "Add Customer", key: "F10", icon: <Users size={16} />, onClick: () => setCustomerModalOpen(true) },
+                { label: "Add Customer", key: "F10", icon: <Users size={16} />, onClick: () => { setIsAddingCustomer(true); setCustomerModalOpen(true); } },
                 { label: "Clear Cart", key: "F11", icon: <Trash2 size={16} />, isDanger: true, onClick: clearCart },
                 { label: "Save & Print", key: "F12", icon: <Printer size={16} />, onClick: () => window.print() },
               ].map((a) => (
@@ -746,77 +960,100 @@ export default function GroceryPOSPage() {
             </div>
 
             {/* Financial Summary */}
-            <div className="bg-gradient-to-b from-white via-emerald-50/30 to-emerald-100/40 rounded-xl px-3 py-2.5 border-t border-x border-emerald-200/90 border-b-[2.5px] border-b-emerald-300 shadow-2xs flex flex-col justify-between">
+            <div className="bg-gradient-to-b from-white via-emerald-50/30 to-emerald-100/40 rounded-xl px-3 py-2 border-t border-x border-emerald-200/90 border-b-[2.5px] border-b-emerald-300 shadow-2xs flex flex-col justify-between">
               <div className="space-y-1 text-xs">
                 <div className="flex justify-between items-center text-slate-500 font-semibold">
                   <span>Subtotal</span><span className="text-slate-800 font-bold">৳ {subTotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center text-slate-500 font-semibold">
-                  <span>Discount</span><span className="text-emerald-700 font-bold">- ৳ {discAmt.toFixed(2)}</span>
+                {discAmt > 0 && (
+                  <div className="flex justify-between items-center text-slate-500 font-semibold">
+                    <span>Discount</span><span className="text-emerald-700 font-bold">- ৳ {discAmt.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="pt-1 border-t border-dashed border-emerald-200 flex justify-between items-baseline">
+                  <span className="text-xs font-bold text-slate-900 uppercase">Net Total</span>
+                  <span className="text-lg font-extrabold text-emerald-600">৳ {grandTotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center text-slate-500 font-semibold">
-                  <span>VAT (0%)</span><span className="text-slate-800 font-bold">৳ 0.00</span>
-                </div>
-                <div className="pt-1.5 border-t border-dashed border-emerald-200 flex justify-between items-baseline">
-                  <span className="text-base font-bold text-slate-900">Total</span>
-                  <span className="text-xl font-extrabold text-emerald-600">৳ {grandTotal.toFixed(2)}</span>
+                <div className="flex justify-between items-center text-[11px] pt-0.5">
+                  <span className="text-slate-600 font-semibold">Cash Given:</span>
+                  <span className="text-slate-900 font-mono font-bold">৳ {paidAmount.toFixed(2)}</span>
                 </div>
               </div>
-              <div className="mt-1.5 bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-center py-1 px-2 rounded-lg font-bold text-xs">
-                You Save ৳ {discAmt.toFixed(2)}
-              </div>
+              {changeDue > 0 ? (
+                <div className="mt-1 bg-emerald-600 text-white py-1 px-2.5 rounded-lg font-extrabold text-xs shadow-xs animate-in zoom-in-95 flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-wide opacity-90">Change:</span>
+                  <span className="font-mono text-sm font-black">৳ {changeDue.toFixed(2)}</span>
+                </div>
+              ) : remainingDue > 0 ? (
+                <div className="mt-1 bg-amber-500 text-white py-1 px-2.5 rounded-lg font-extrabold text-xs shadow-xs flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-wide opacity-90">Due:</span>
+                  <span className="font-mono text-sm font-black">৳ {remainingDue.toFixed(2)}</span>
+                </div>
+              ) : (
+                <div className="mt-1 bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-center py-0.5 px-2 rounded-lg font-bold text-[11px]">
+                  Change: ৳ 0.00
+                </div>
+              )}
             </div>
           </div>
 
-          {/* ── 3. BOTTOM — Numpad | Payment + Pay CTA ── shrink-0 */}
-          <div className="shrink-0 bg-white rounded-2xl border border-gray-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden" style={{ height: 210 }}>
+          {/* ── 3. BOTTOM — Numpad with Live Digital Readout Display | Payment + Pay CTA ── shrink-0 */}
+          <div className="shrink-0 bg-white rounded-2xl border border-gray-200 shadow-md overflow-hidden" style={{ height: 235 }}>
             <div className="grid grid-cols-12 divide-x divide-gray-100 h-full">
 
-              {/* LEFT: Function Keys + Numpad (5 columns) */}
-              <div className="col-span-5 flex gap-1.5 p-2 overflow-hidden">
-                <div className="flex flex-col gap-1 shrink-0 w-[100px]">
-                  {[
-                    { label: "Price Check", key: "F3", Icon: Search, onClick: () => setPriceCheckOpen(true) },
-                    { label: "Barcode Lookup", key: "F4", Icon: ScanLine, onClick: () => scanRef.current?.focus() },
-                    { label: "Recent Sales", key: "F5", Icon: History, onClick: () => setRecentSalesOpen(true) },
-                    { label: "Return/Refund", key: "F6", Icon: RotateCcw, onClick: () => setRecentSalesOpen(true) },
-                  ].map(({ label, key, Icon, onClick }) => (
-                    <button key={key} onClick={onClick} className="flex items-center gap-1.5 px-2 rounded-xl bg-white border border-gray-200 border-b-[2.5px] border-b-gray-300 hover:border-gray-400 hover:shadow-xs hover:-translate-y-0.5 active:translate-y-0.5 active:scale-95 transition-all duration-150 flex-1 overflow-hidden text-left shadow-2xs group cursor-pointer">
-                      <Icon size={13} className="text-emerald-600 group-hover:scale-110 transition-transform shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-[10px] font-black text-slate-800 truncate leading-tight group-hover:text-slate-900">{label}</p>
-                        <span className="text-[8px] font-bold font-mono bg-emerald-700 text-white px-1 py-0.2 rounded inline-block mt-0.5">{key}</span>
-                      </div>
-                    </button>
-                  ))}
+              {/* LEFT: Function Keys + Numpad (6 columns) */}
+              <div className="col-span-6 flex flex-col p-2.5 overflow-hidden h-full">
+                
+                {/* Grid for Function Keys + Numpad */}
+                <div className="flex-1 flex gap-1.5 overflow-hidden">
+                  <div className="flex flex-col gap-1 shrink-0 w-[110px]">
+                    {[
+                      { label: "Price Check", key: "F3", Icon: Search, onClick: () => setPriceCheckOpen(true) },
+                      { label: "Barcode Scan", key: "F4", Icon: ScanLine, onClick: () => scanRef.current?.focus() },
+                      { label: "Recent Sales", key: "F5", Icon: History, onClick: () => setRecentSalesOpen(true) },
+                      { label: "Returns", key: "F6", Icon: RotateCcw, onClick: () => setRecentSalesOpen(true) },
+                    ].map(({ label, key, Icon, onClick }) => (
+                      <button key={key} onClick={onClick} className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl bg-white border border-gray-200 hover:border-emerald-500 hover:shadow-xs active:scale-95 transition-all duration-150 flex-1 overflow-hidden text-left shadow-2xs group cursor-pointer">
+                        <Icon size={14} className="text-emerald-600 group-hover:scale-110 transition-transform shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[11px] font-bold text-slate-800 truncate leading-tight group-hover:text-emerald-700">{label}</p>
+                          <span className="text-[8px] font-bold font-mono bg-slate-100 text-slate-700 border border-slate-200 px-1 py-0.1 rounded inline-block mt-0.5">{key}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex-1 grid grid-cols-4 gap-1 min-w-0">
+                    {NUM_KEYS.map(k => (
+                      <button key={k} onClick={() => numPress(k)}
+                        className={`rounded-xl font-extrabold text-sm flex items-center justify-center transition-all duration-150 transform hover:-translate-y-0.5 active:translate-y-0.5 active:scale-90 cursor-pointer ${
+                          k === "=" ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm font-bold text-base"
+                          : k === "⌫" ? "bg-rose-50 text-red-600 border border-red-200 hover:bg-red-100 font-bold"
+                          : "bg-gray-50 border border-gray-200 text-slate-800 hover:bg-white hover:border-gray-300 shadow-2xs"
+                        }`}>
+                        {k}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex-1 grid grid-cols-4 gap-1 min-w-0">
-                  {NUM_KEYS.map(k => (
-                    <button key={k} onClick={() => numPress(k)}
-                      className={`rounded-xl font-black text-sm flex items-center justify-center transition-all duration-150 transform hover:-translate-y-0.5 active:translate-y-0.5 active:scale-90 cursor-pointer ${k === "=" ? "bg-gradient-to-b from-[#22c55e] via-[#16a34a] to-[#15803d] border-t border-x border-emerald-400 border-b-[3px] border-b-emerald-800 text-white shadow-md shadow-green-600/30 hover:brightness-110"
-                          : k === "⌫" ? "bg-gradient-to-b from-white via-rose-50 to-red-100 text-red-600 border-t border-x border-red-200 border-b-[2.5px] border-b-red-300 hover:bg-red-100 hover:text-red-700 shadow-2xs"
-                            : "bg-gradient-to-b from-white via-gray-50/50 to-gray-100/80 border-t border-x border-gray-200/90 border-b-[2.5px] border-b-gray-300 text-gray-800 hover:bg-gray-100 hover:border-gray-400 shadow-2xs"}`}>
-                      {k}
-                    </button>
-                  ))}
-                </div>
+
               </div>
 
-              {/* RIGHT: Payment Pills (Vertical Column) + Pay CTA & Save & Print (7 columns) */}
-              <div className="col-span-7 flex gap-2.5 p-2.5 overflow-hidden h-full">
+              {/* RIGHT: Payment Pills (Vertical Column) + Pay CTA & Save & Print (6 columns) */}
+              <div className="col-span-6 flex gap-2 p-2.5 overflow-hidden h-full">
 
                 {/* 1. Left: 5 Vertical Payment Method Pills */}
-                <div className="flex flex-col gap-1.5 shrink-0 w-[115px] h-full">
+                <div className="flex flex-col gap-1 shrink-0 w-[125px] h-full">
                   {PAY_CFG.map(pm => {
                     const on = payMethod === pm.id;
                     return (
                       <button key={pm.id} onClick={() => setPayMethod(pm.id as any)}
-                        className={`flex-1 flex items-center gap-2 px-2.5 rounded-xl border-t border-x border-b-[2.5px] text-xs font-black transition-all duration-150 transform hover:-translate-y-0.5 active:translate-y-0.5 active:scale-95 text-left min-w-0 cursor-pointer ${on
-                            ? "bg-emerald-600 text-white border-emerald-700 border-b-emerald-800 shadow-sm scale-[1.02]"
-                            : "bg-white border-gray-200 border-b-gray-300 text-gray-700 hover:border-gray-400"
-                          }`}>
-                        <pm.Icon size={15} className={`shrink-0 ${on ? "text-white" : "text-gray-500"}`} />
-                        <span className="truncate leading-none">{pm.label}</span>
+                        className={`flex-1 flex items-center gap-2 px-2.5 rounded-xl border text-xs font-bold transition-all duration-150 transform hover:-translate-y-0.5 active:scale-95 text-left min-w-0 cursor-pointer ${
+                          on 
+                            ? "bg-emerald-600 text-white border-emerald-700 shadow-sm font-extrabold" 
+                            : "bg-white border-gray-200 text-slate-700 hover:border-gray-300"
+                        }`}>
+                        <pm.Icon size={14} className={`shrink-0 ${on ? "text-white" : "text-slate-500"}`} />
+                        <span className="truncate leading-none text-[11px]">{pm.label}</span>
                       </button>
                     );
                   })}
@@ -827,33 +1064,33 @@ export default function GroceryPOSPage() {
 
                   {/* Top: Hero Pay CTA Card */}
                   <button onClick={handleCheckout} disabled={!cart.length || submitting}
-                    className="flex-1 w-full rounded-2xl text-white flex items-center justify-between px-3.5 sm:px-4 py-2.5 shadow-[0_8px_20px_rgba(22,163,74,0.35)] hover:shadow-[0_12px_28px_rgba(22,163,74,0.5)] hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[0.98] transition-all duration-300 disabled:opacity-40 bg-gradient-to-b from-[#22c55e] via-[#16a34a] to-[#15803d] border-t border-x border-emerald-400 border-b-[4px] border-b-emerald-900 relative overflow-hidden group min-w-0 cursor-pointer">
-                    <div className="text-left flex flex-col justify-center relative z-10 min-w-0 flex-1 mr-1.5">
-                      <p className="text-xs sm:text-sm font-extrabold text-white/95 leading-none tracking-wide">Pay</p>
+                    className="flex-1 w-full rounded-2xl text-white flex items-center justify-between px-3.5 py-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 bg-emerald-600 hover:bg-emerald-500 border border-emerald-700 relative overflow-hidden group min-w-0 cursor-pointer">
+                    <div className="text-left flex flex-col justify-center relative z-10 min-w-0 flex-1 mr-1">
+                      <p className="text-xs font-bold text-white/90 leading-none">Pay</p>
                       {(() => {
                         const str = grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                         const len = str.length;
-                        const sizeClass = len > 13 ? 'text-base sm:text-lg' : len > 10 ? 'text-lg sm:text-xl' : len > 7 ? 'text-xl sm:text-[24px]' : 'text-[24px] sm:text-[27px]';
+                        const sizeClass = len > 12 ? 'text-sm' : len > 9 ? 'text-base' : 'text-xl sm:text-2xl';
                         return (
-                          <p className={`${sizeClass} font-black text-white leading-tight tracking-tight mt-0.5 whitespace-nowrap`}>
+                          <p className={`${sizeClass} font-extrabold text-white leading-tight mt-0.5 whitespace-nowrap`}>
                             ৳ {str}
                           </p>
                         );
                       })()}
                     </div>
-                    <div className="relative z-10 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/25 backdrop-blur-md border border-white/40 text-white flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 group-hover:bg-white/35 transition-all duration-300">
+                    <div className="relative z-10 w-9 h-9 rounded-full bg-white/20 border border-white/30 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-all">
                       {submitting ? (
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       ) : (
-                        <ArrowRight size={21} strokeWidth={2.5} className="group-hover:translate-x-0.5 transition-transform" />
+                        <ArrowRight size={19} strokeWidth={2.5} className="group-hover:translate-x-0.5 transition-transform" />
                       )}
                     </div>
                   </button>
 
                   {/* Bottom: Save & Print Bill */}
                   <button onClick={() => window.print()} disabled={!cart.length}
-                    className="w-full py-2.5 rounded-xl border border-gray-200 border-b-[3px] border-b-gray-300 text-xs font-black flex items-center justify-center gap-2 transition-all duration-150 transform hover:-translate-y-0.5 active:translate-y-0.5 active:scale-95 disabled:opacity-40 bg-white hover:bg-gray-50 text-slate-800 shadow-2xs shrink-0 cursor-pointer group">
-                    <Printer size={15} className="shrink-0 group-hover:scale-110 transition-transform" />
+                    className="w-full py-2 rounded-xl border border-gray-200 text-xs font-bold flex items-center justify-center gap-2 transition-all duration-150 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-40 bg-white hover:bg-gray-50 text-slate-800 shadow-2xs shrink-0 cursor-pointer group">
+                    <Printer size={14} className="shrink-0 text-slate-600 group-hover:scale-110 transition-transform" />
                     <span className="truncate">Save &amp; Print Bill</span>
                   </button>
 
@@ -867,49 +1104,254 @@ export default function GroceryPOSPage() {
         </div>
       </div>
 
-      {/* ══ CUSTOMER SELECTION MODAL ══ */}
+      {/* ══ CUSTOMER SELECTION & ADD CUSTOMER MODAL (F10) ══ */}
       {customerModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
-          <div className="w-[420px] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100">
+          <div className="w-[460px] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100">
+            
+            {/* Modal Header */}
             <div className="px-6 py-4 text-white flex items-center justify-between" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
               <div className="flex items-center gap-2.5">
                 <Users size={22} />
                 <div>
-                  <h3 className="font-extrabold text-base">Select Customer</h3>
-                  <p className="text-xs opacity-80">Link sale to customer for loyalty points</p>
+                  <h3 className="font-extrabold text-base">{isAddingCustomer ? "Add New Customer" : "Select Customer (F10)"}</h3>
+                  <p className="text-xs opacity-80">{isAddingCustomer ? "Register a new customer for loyalty & invoices" : "Link sale to customer for loyalty points"}</p>
                 </div>
               </div>
-              <button onClick={() => setCustomerModalOpen(false)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition">
+              <button onClick={() => { setCustomerModalOpen(false); setIsAddingCustomer(false); }} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition cursor-pointer">
                 <X size={18} />
               </button>
             </div>
-            <div className="p-5 space-y-4">
-              <div className="space-y-2">
-                {[
-                  { name: "Walk-in Customer", type: "Default Customer", points: 120, phone: "N/A" },
-                  { name: "Rahim Ahmed", type: "VIP Member", points: 450, phone: "01812345678" },
-                  { name: "Sharmin Sultana", type: "Premium Member", points: 890, phone: "01987654321" },
-                  { name: "Tanvir Hossain", type: "Regular Customer", points: 210, phone: "01611223344" },
-                ].map(c => (
-                  <button key={c.name} onClick={() => { setSelectedCustomer(c); setCustomerModalOpen(false); setCouponToast(`Customer set to ${c.name}`); setTimeout(() => setCouponToast(""), 2500); }}
-                    className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all ${selectedCustomer.name === c.name ? "border-emerald-500 bg-emerald-50/80 shadow-xs ring-2 ring-emerald-500/20" : "border-gray-200/80 bg-white hover:bg-gray-50"
-                      }`}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-black flex items-center justify-center text-sm">
-                        {c.name.slice(0, 2).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="text-xs font-black text-gray-900">{c.name}</p>
-                        <p className="text-[10px] font-semibold text-gray-400">{c.phone} • {c.type}</p>
-                      </div>
-                    </div>
-                    <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-xl">
-                      ★ {c.points} Pts
-                    </span>
-                  </button>
-                ))}
-              </div>
+
+            {/* Sub-header Navigation Tabs */}
+            <div className="flex items-center border-b border-gray-100 bg-gray-50 px-4 py-2 gap-2">
+              <button onClick={() => setIsAddingCustomer(false)}
+                className={`flex-1 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${!isAddingCustomer ? "bg-white text-emerald-700 shadow-2xs border border-gray-200" : "text-gray-500 hover:text-gray-800"}`}>
+                Select Customer ({customerList.length})
+              </button>
+              <button onClick={() => setIsAddingCustomer(true)}
+                className={`flex-1 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${isAddingCustomer ? "bg-emerald-600 text-white shadow-xs" : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"}`}>
+                ＋ Add New Customer
+              </button>
             </div>
+
+            {/* Modal Body */}
+            <div className="p-5 space-y-4">
+              {isAddingCustomer ? (
+                /* ── ADD NEW CUSTOMER FORM ── */
+                <form onSubmit={handleSaveNewCustomer} className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Full Name <span className="text-red-500">*</span></label>
+                      <input type="text" required autoFocus value={newCustName} onChange={e => setNewCustName(e.target.value)} placeholder="John Doe"
+                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Phone Number</label>
+                      <input type="tel" value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} placeholder="01711XXXXXX"
+                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Email Address</label>
+                      <input type="email" value={newCustEmail} onChange={e => setNewCustEmail(e.target.value)} placeholder="customer@example.com"
+                        className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Customer Group</label>
+                      <input type="text" readOnly value="Regular Customer"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-500 focus:outline-none" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Residential Address</label>
+                    <textarea rows={2} value={newCustAddress} onChange={e => setNewCustAddress(e.target.value)} placeholder="House #, Road #, Area, City"
+                      className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" />
+                  </div>
+
+                  <div className="pt-2 flex items-center gap-2.5">
+                    <button type="button" onClick={() => setIsAddingCustomer(false)}
+                      className="flex-1 py-2.5 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs font-bold text-slate-600 transition cursor-pointer">
+                      Cancel
+                    </button>
+                    <button type="submit"
+                      className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer">
+                      <Plus size={15} strokeWidth={2.5} /> Save &amp; Select
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                /* ── SELECT CUSTOMER LIST ── */
+                <div className="space-y-3">
+                  {/* Customer Search Bar */}
+                  <div className="relative">
+                    <Search size={16} className="absolute left-3.5 top-2.5 text-gray-400" />
+                    <input type="text" autoFocus value={customerSearchQuery} onChange={e => setCustomerSearchQuery(e.target.value)}
+                      placeholder="Search by name or phone number..."
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-2 text-xs font-bold text-slate-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white" />
+                  </div>
+
+                  <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+                    {customerList
+                      .filter(c =>
+                        !customerSearchQuery ||
+                        c.name.toLowerCase().includes(customerSearchQuery.toLowerCase()) ||
+                        c.phone.includes(customerSearchQuery)
+                      )
+                      .map((c, idx) => {
+                        const tier = getCustomerTier(c.points);
+                        return (
+                          <button key={idx} onClick={() => { setSelectedCustomer(c); setCustomerModalOpen(false); setCouponToast(`Customer set to ${c.name}`); setTimeout(() => setCouponToast(""), 2500); }}
+                            className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${selectedCustomer.name === c.name ? "border-emerald-500 bg-emerald-50/80 shadow-xs ring-2 ring-emerald-500/20" : "border-gray-200/80 bg-white hover:bg-gray-50"
+                              }`}>
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-black flex items-center justify-center text-sm">
+                                {c.name.slice(0, 2).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="text-xs font-black text-gray-900">{c.name}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <p className="text-[10px] font-semibold text-gray-400">{c.phone}</p>
+                                  <span className={`text-[9px] font-black px-1.5 py-0.2 rounded border uppercase tracking-tighter ${tier.color} ${tier.bg} ${tier.border}`}>
+                                    {tier.name}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-xl">
+                              ★ {c.points} Pts
+                            </span>
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
+      {/* ══ CURRENT CART LIVE INVOICE PREVIEW MODAL ══ */}
+      {liveInvoiceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md animate-in fade-in p-4">
+          <div className="w-[480px] max-h-[90vh] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100 flex flex-col animate-in zoom-in-95">
+            
+            {/* Header Banner */}
+            <div className="px-6 py-4 text-white flex items-center justify-between shrink-0" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-white backdrop-blur-xs shadow-inner">
+                  <FileText size={22} strokeWidth={2.2} />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base leading-tight">Current Cart Invoice</h3>
+                  <p className="text-xs text-emerald-100 mt-0.5">Live Invoice Preview • INV-250520-0012</p>
+                </div>
+              </div>
+              <button onClick={() => setLiveInvoiceModalOpen(false)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition cursor-pointer">
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Content area */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50">
+              {cart.length === 0 ? (
+                <div className="py-12 text-center text-slate-400 bg-white rounded-2xl border border-gray-200 p-6">
+                  <ShoppingCart size={40} className="mx-auto mb-3 text-slate-300" />
+                  <p className="text-sm font-extrabold text-slate-700">Cart is currently empty</p>
+                  <p className="text-xs text-slate-400 mt-1">Add items to the cart to preview active cart invoice.</p>
+                </div>
+              ) : (
+                <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm font-mono text-xs text-slate-800 space-y-3">
+                  
+                  {/* Shop Header */}
+                  <div className="text-center border-b border-dashed border-gray-300 pb-3 space-y-1">
+                    <p className="text-base font-extrabold text-slate-950 tracking-tight uppercase">Blue Oceans Superstore</p>
+                    <p className="text-[11px] text-slate-500">Dhaka Main Outlet • POS Terminal-01</p>
+                    <p className="text-[10px] text-slate-400">BIN: 002938194-0101 • Draft Cart Invoice</p>
+                  </div>
+
+                  {/* Metadata */}
+                  <div className="space-y-1 text-[11px] text-slate-600 border-b border-dashed border-gray-300 pb-2">
+                    <div className="flex justify-between">
+                      <span>Invoice No:</span>
+                      <span className="font-bold text-slate-900">INV-250520-0012</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Date &amp; Time:</span>
+                      <span>{now.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Customer:</span>
+                      <span className="font-bold text-slate-900">{selectedCustomer.name}</span>
+                    </div>
+                  </div>
+
+                  {/* Itemized List - Only what is in cart */}
+                  <div className="space-y-1.5 text-xs py-1 border-b border-dashed border-gray-300">
+                    <div className="flex justify-between font-bold text-[10px] uppercase text-slate-400 pb-1">
+                      <span>Item</span>
+                      <span>Qty x Price</span>
+                      <span>Total</span>
+                    </div>
+                    {cart.map((item, idx) => (
+                      <div key={idx} className="flex justify-between text-[11px] py-0.5 border-b border-gray-50 last:border-0">
+                        <div className="min-w-0 max-w-[170px]">
+                          <p className="font-bold text-slate-800 truncate">{item.name}</p>
+                        </div>
+                        <div className="text-slate-500 font-mono text-[10px]">
+                          {item.qty} {item.uom || "pcs"} x ৳{item.unitPrice.toFixed(2)}
+                        </div>
+                        <div className="font-bold text-slate-900 font-mono">
+                          ৳{item.lineTotal.toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Financial Summary */}
+                  <div className="space-y-1 text-xs pt-1">
+                    <div className="flex justify-between text-slate-600">
+                      <span>Subtotal:</span>
+                      <span>৳{subTotal.toFixed(2)}</span>
+                    </div>
+                    {discAmt > 0 && (
+                      <div className="flex justify-between text-emerald-600 font-semibold">
+                        <span>Discount Saved:</span>
+                        <span>- ৳{discAmt.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between font-extrabold text-sm text-slate-900 border-t border-b border-gray-200 py-1 my-1">
+                      <span>Net Cart Total:</span>
+                      <span className="text-emerald-700">৳{grandTotal.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* Barcode & Footer */}
+                  <div className="text-center border-t border-dashed border-gray-300 pt-3 space-y-1">
+                    <p className="text-[10px] text-slate-400">Cart Preview Invoice</p>
+                    <p className="text-[9px] text-slate-400">Powered by Blue Oceans POS</p>
+                  </div>
+
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="p-4 bg-white border-t border-gray-100 flex gap-2.5 shrink-0">
+              <button onClick={() => window.print()} disabled={!cart.length} className="flex-1 py-3 rounded-2xl border border-gray-300 bg-white hover:bg-gray-50 text-slate-800 font-extrabold text-xs flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer active:scale-95 disabled:opacity-40">
+                <Printer size={16} /> Print Current Cart Draft
+              </button>
+              <button onClick={() => setLiveInvoiceModalOpen(false)} className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-600/30 transition cursor-pointer active:scale-95">
+                Close
+              </button>
+            </div>
+
           </div>
         </div>
       )}
@@ -1202,22 +1644,266 @@ export default function GroceryPOSPage() {
 
       {/* ══ CASH DRAWER TOAST ══ */}
       {drawerToast && (
-        <div className="fixed top-5 right-5 z-50 bg-emerald-800 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-3 border border-emerald-600">
-          <span className="text-2xl">💵</span>
-          <div>
-            <p className="text-xs font-black">Cash Drawer Opened</p>
-            <p className="text-[10px] text-emerald-200">RJ11 pulse signal sent to printer port</p>
+        <div className="fixed top-6 right-6 z-[100] max-w-[360px] w-full animate-in slide-in-from-top-4 duration-300">
+          <div className="relative overflow-hidden rounded-3xl bg-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.2)] border border-emerald-100 flex p-4 gap-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-2xl shadow-sm">
+              <Wallet size={24} strokeWidth={2.5} />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-emerald-700 uppercase tracking-widest mb-0.5">Hardware Event</p>
+              <p className="text-xs font-extrabold text-slate-900">Cash Drawer Opened</p>
+              <p className="text-[10px] font-bold text-slate-400 mt-0.5">RJ11 pulse signal sent to port</p>
+            </div>
           </div>
         </div>
       )}
 
-      {/* ══ COUPON TOAST ══ */}
+      {/* ══ NOTIFICATION / COUPON TOAST ══ */}
       {couponToast && (
-        <div className="fixed top-5 right-5 z-50 bg-emerald-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-3 border border-emerald-500">
-          <span className="text-xl">✨</span>
-          <p className="text-xs font-black">{couponToast}</p>
+        <div className="fixed top-6 right-6 z-[100] max-w-[400px] w-full animate-in slide-in-from-top-4 duration-300">
+          <div className="relative group overflow-hidden rounded-3xl bg-white/95 backdrop-blur-xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.2)] border border-white/40 flex p-4.5 gap-4 ring-1 ring-black/5">
+
+            {/* Status-based Glow Effect */}
+            <div className={`absolute -left-10 -top-10 w-32 h-32 blur-3xl opacity-20 rounded-full ${
+              couponToast.includes("⚠️") ? "bg-amber-500" :
+              couponToast.includes("Loyalty") ? "bg-indigo-500" :
+              "bg-emerald-500"
+            }`} />
+
+            {/* Icon Container */}
+            <div className={`relative flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transform group-hover:scale-110 transition-transform duration-300 ${
+              couponToast.includes("⚠️") ? "bg-amber-100 text-amber-600 border border-amber-200" :
+              couponToast.includes("Loyalty") ? "bg-indigo-100 text-indigo-600 border border-indigo-200" :
+              "bg-emerald-100 text-emerald-600 border border-emerald-200"
+            }`}>
+              {couponToast.includes("⚠️") ? <AlertCircle size={24} strokeWidth={2.5} /> :
+               couponToast.includes("Loyalty") ? <Gift size={24} strokeWidth={2.5} /> :
+               couponToast.includes("🚀") ? <Sparkles size={24} strokeWidth={2.5} /> :
+               couponToast.includes("📌") ? <PauseCircle size={24} strokeWidth={2.5} /> :
+               couponToast.includes("💾") ? <Settings size={24} strokeWidth={2.5} /> :
+               <CheckCircle2 size={24} strokeWidth={2.5} />}
+            </div>
+
+            {/* Text Content */}
+            <div className="relative flex-1 min-w-0 py-0.5">
+              <div className="flex items-center justify-between mb-1">
+                <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${
+                  couponToast.includes("⚠️") ? "text-amber-700" :
+                  couponToast.includes("Loyalty") ? "text-indigo-700" :
+                  couponToast.includes("🚀") ? "text-blue-700" :
+                  "text-emerald-700"
+                }`}>
+                  {couponToast.includes("⚠️") ? "Attention" :
+                   couponToast.includes("Loyalty") ? "Loyalty Reward" :
+                   couponToast.includes("🚀") ? "Special Offer" :
+                   couponToast.includes("📌") ? "Bill Status" :
+                   couponToast.includes("💾") ? "Settings" :
+                   "Success"}
+                </span>
+                <button onClick={() => setCouponToast("")} className="text-slate-300 hover:text-slate-600 transition-colors p-1 -mr-1">
+                  <X size={14} strokeWidth={3} />
+                </button>
+              </div>
+              <p className="text-xs font-extrabold text-slate-800 leading-snug">
+                {couponToast.replace(/^[⚠️🎉✨💾🚀📌ℹ️]\s*/, "")}
+              </p>
+            </div>
+
+            {/* Interactive Progress Bar */}
+            <div className="absolute bottom-0 left-0 h-1 bg-slate-100 w-full overflow-hidden">
+              <div className={`h-full animate-[shrink-width_3.5s_linear_forwards] ${
+                couponToast.includes("⚠️") ? "bg-amber-500" :
+                couponToast.includes("Loyalty") ? "bg-indigo-500" :
+                "bg-emerald-600"
+              }`} />
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {/* ══ SALE COMPLETED & THERMAL RECEIPT MODAL ══ */}
+      {completedInv && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md animate-in fade-in p-4">
+          <div className="w-[450px] max-h-[90vh] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100 flex flex-col animate-in zoom-in-95">
+            
+            {/* Header Banner */}
+            <div className="px-6 py-4 text-white flex items-center justify-between shrink-0" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-white backdrop-blur-xs shadow-inner">
+                  <CheckCircle2 size={24} strokeWidth={2.5} className="animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base leading-tight">Payment Received!</h3>
+                  <p className="text-xs text-emerald-100 mt-0.5">Invoice #{completedInv.invoiceNo}</p>
+                </div>
+              </div>
+              <button onClick={() => setCompletedInv(null)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition cursor-pointer">
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Content area */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50">
+              
+              {/* Payment Summary Box */}
+              <div className="bg-white rounded-2xl p-4 border border-emerald-200 shadow-2xs text-center space-y-2">
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Transaction Completed</p>
+                <div className="flex items-center justify-center gap-3 text-center">
+                  <div>
+                    <p className="text-[10px] text-slate-400 font-bold">Bill Total</p>
+                    <p className="text-base font-extrabold text-slate-800">৳ {completedInv.grandTotal.toFixed(2)}</p>
+                  </div>
+                  <div className="h-7 w-px bg-gray-200" />
+                  <div>
+                    <p className="text-[10px] text-slate-400 font-bold">Cash Received</p>
+                    <p className="text-base font-extrabold text-slate-800">৳ {(completedInv.paidAmount || completedInv.grandTotal).toFixed(2)}</p>
+                  </div>
+                  <div className="h-7 w-px bg-gray-200" />
+                  <div>
+                    <p className="text-[10px] text-emerald-600 font-bold">Change Return</p>
+                    <p className="text-lg font-black text-emerald-600">৳ {(completedInv.changeReturn || 0).toFixed(2)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Printable 80mm Receipt Slip Container */}
+              <div id="printable-thermal-receipt" className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm font-mono text-xs text-slate-800 space-y-3">
+                
+                {/* Shop Header */}
+                <div className="text-center border-b border-dashed border-gray-300 pb-3 space-y-1">
+                  <p className="text-base font-extrabold text-slate-950 tracking-tight uppercase">Blue Oceans Superstore</p>
+                  <p className="text-[11px] text-slate-500">Dhaka Main Outlet • POS Terminal-01</p>
+                  <p className="text-[10px] text-slate-400">BIN: 002938194-0101 • Mushak-6.3 Tax Invoice</p>
+                </div>
+
+                {/* Metadata */}
+                <div className="space-y-1 text-[11px] text-slate-600 border-b border-dashed border-gray-300 pb-2">
+                  <div className="flex justify-between">
+                    <span>Invoice:</span>
+                    <span className="font-bold text-slate-900">{completedInv.invoiceNo}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Date &amp; Time:</span>
+                    <span>{completedInv.date}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Customer:</span>
+                    <span className="font-bold text-slate-900">{completedInv.customer}</span>
+                  </div>
+                </div>
+
+                {/* Itemized List */}
+                <div className="space-y-1.5 text-xs py-1 border-b border-dashed border-gray-300">
+                  <div className="flex justify-between font-bold text-[10px] uppercase text-slate-400 pb-1">
+                    <span>Item</span>
+                    <span>Qty x Price</span>
+                    <span>Total</span>
+                  </div>
+                  {(completedInv.items || []).map((item: any, idx: number) => (
+                    <div key={idx} className="flex justify-between text-[11px] py-0.5 border-b border-gray-50 last:border-0">
+                      <div className="min-w-0 max-w-[170px]">
+                        <p className="font-bold text-slate-800 truncate">{item.name}</p>
+                      </div>
+                      <div className="text-slate-500 font-mono text-[10px]">
+                        {item.qty} {item.uom || "pcs"} x ৳{item.unitPrice.toFixed(2)}
+                      </div>
+                      <div className="font-bold text-slate-900 font-mono">
+                        ৳{item.lineTotal.toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Financial Summary */}
+                <div className="space-y-1 text-xs pt-1">
+                  <div className="flex justify-between text-slate-600">
+                    <span>Subtotal:</span>
+                    <span>৳{completedInv.subTotal.toFixed(2)}</span>
+                  </div>
+                  {completedInv.discAmt > 0 && (
+                    <div className="flex justify-between text-emerald-600 font-semibold">
+                      <span>Discount Saved:</span>
+                      <span>- ৳{completedInv.discAmt.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-extrabold text-sm text-slate-900 border-t border-b border-gray-200 py-1 my-1">
+                    <span>Net Bill Total:</span>
+                    <span className="text-slate-900">৳{completedInv.grandTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-700 font-semibold text-[11px]">
+                    <span>Cash Received:</span>
+                    <span>৳{(completedInv.paidAmount || completedInv.grandTotal).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-emerald-700 font-black text-sm pt-0.5">
+                    <span>Change Returned:</span>
+                    <span>৳{(completedInv.changeReturn || 0).toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {/* Barcode & Footer */}
+                <div className="text-center border-t border-dashed border-gray-300 pt-3 space-y-1">
+                  <div className="flex justify-center py-1">
+                    <div className="flex items-center gap-0.5 h-6 px-2 bg-gray-100 rounded">
+                      <div className="w-0.5 h-5 bg-black" />
+                      <div className="w-1 h-5 bg-black" />
+                      <div className="w-0.5 h-5 bg-black" />
+                      <div className="w-1.5 h-5 bg-black" />
+                      <div className="w-0.5 h-5 bg-black" />
+                      <div className="w-1 h-5 bg-black" />
+                      <div className="w-0.5 h-5 bg-black" />
+                      <div className="w-1.5 h-5 bg-black" />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-400">Thank you for your business!</p>
+                  <p className="text-[9px] text-slate-400">Powered by Blue Oceans POS</p>
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* Actions */}
+            <div className="p-4 bg-white border-t border-gray-100 flex gap-2.5 shrink-0">
+              <button onClick={() => window.print()} className="flex-1 py-3 rounded-2xl border border-gray-300 bg-white hover:bg-gray-50 text-slate-800 font-extrabold text-xs flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer active:scale-95">
+                <Printer size={16} /> Print Receipt (80mm)
+              </button>
+              <button onClick={() => setCompletedInv(null)} className="flex-1 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-600/30 transition cursor-pointer active:scale-95">
+                <RotateCcw size={16} /> New Sale (F1)
+              </button>
+            </div>
+
+          </div>
         </div>
       )}
     </div>
+    <style jsx global>{`
+      @keyframes shrink-width {
+        from { width: 100%; }
+        to { width: 0%; }
+      }
+      @media print {
+        body * {
+          visibility: hidden !important;
+        }
+        #printable-thermal-receipt, #printable-thermal-receipt * {
+          visibility: visible !important;
+        }
+        #printable-thermal-receipt {
+          position: fixed !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 80mm !important;
+          margin: 0 !important;
+          padding: 12px !important;
+          background: white !important;
+          color: black !important;
+          box-shadow: none !important;
+          border: none !important;
+          font-size: 11px !important;
+        }
+      }
+    `}</style>
+    </>
   );
 }

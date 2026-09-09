@@ -498,6 +498,12 @@ def main() -> None:
     finally:
         conn.close()
 
+    try:
+        from seed_grocery import seed_grocery
+        seed_grocery()
+    except Exception as e:
+        print(f"Grocery seeding notice: {e}")
+
 
 if __name__ == "__main__":
     main()
