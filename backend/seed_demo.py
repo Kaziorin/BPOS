@@ -318,7 +318,7 @@ def main() -> None:
                 "VALUES (:id, :t, :b, 'Tenant Admin', 'admin@blueoceanspos.com', :ph, :r, 'ACTIVE', NOW(3), NOW(3))"
             ), {"id": _uuid(), "t": tenant_id, "b": branch_id, "ph": hash_password("Admin@123"), "r": owner_id})
 
-        # ── Catalog: unit / category / brand / products ──
+        # ── Catalog: unit / category / brand (Metadata only — zero dummy products) ──
         unit = conn.execute(text("SELECT id FROM units WHERE tenantId = :t AND code = 'pcs'"), {"t": tenant_id}).first()
         unit_id = unit[0] if unit else _uuid()
         if not unit:
@@ -328,94 +328,22 @@ def main() -> None:
             ), {"id": unit_id, "t": tenant_id})
 
         cat = conn.execute(text(
-            "SELECT id FROM categories WHERE tenantId = :t AND parentId IS NULL AND name = 'Beverages'"),
+            "SELECT id FROM categories WHERE tenantId = :t AND parentId IS NULL AND name = 'General'"),
             {"t": tenant_id}).first()
         cat_id = cat[0] if cat else _uuid()
         if not cat:
             conn.execute(text(
                 "INSERT INTO categories (id, tenantId, name, status, createdAt, updatedAt) "
-                "VALUES (:id, :t, 'Beverages', 'ACTIVE', NOW(3), NOW(3))"
+                "VALUES (:id, :t, 'General', 'ACTIVE', NOW(3), NOW(3))"
             ), {"id": cat_id, "t": tenant_id})
 
-        brand = conn.execute(text("SELECT id FROM brands WHERE tenantId = :t AND name = 'Local'"), {"t": tenant_id}).first()
+        brand = conn.execute(text("SELECT id FROM brands WHERE tenantId = :t AND name = 'General'"), {"t": tenant_id}).first()
         brand_id = brand[0] if brand else _uuid()
         if not brand:
             conn.execute(text(
                 "INSERT INTO brands (id, tenantId, name, status, createdAt, updatedAt) "
-                "VALUES (:id, :t, 'Local', 'ACTIVE', NOW(3), NOW(3))"
+                "VALUES (:id, :t, 'General', 'ACTIVE', NOW(3), NOW(3))"
             ), {"id": brand_id, "t": tenant_id})
-
-        products = [
-            ("Cold Coffee", "BEV-001", 60.0, 120.0),
-            ("Hot Tea", "BEV-002", 15.0, 30.0),
-            ("Orange Juice", "BEV-003", 80.0, 150.0),
-        ]
-        for name, sku, cost, price in products:
-            row = conn.execute(text("SELECT id FROM products WHERE tenantId = :t AND sku = :s"),
-                               {"t": tenant_id, "s": sku}).first()
-            if not row:
-                prod_id = _uuid()
-                conn.execute(text(
-                    "INSERT INTO products (id, tenantId, categoryId, brandId, unitId, name, sku, productType, "
-                    "costPrice, sellingPrice, status, createdAt, updatedAt) "
-                    "VALUES (:id, :t, :c, :b, :u, :n, :s, 'SIMPLE', :cost, :price, 'ACTIVE', NOW(3), NOW(3))"
-                ), {"id": prod_id, "t": tenant_id, "c": cat_id, "b": brand_id, "u": unit_id,
-                    "n": name, "s": sku, "cost": cost, "price": price})
-                # Baseline stock for the demo warehouse so POS/e2e suites have sellable qty
-                conn.execute(text(
-                    "INSERT INTO stock (id, tenantId, warehouseId, productId, qtyOnHand, qtyReserved, status, createdAt, updatedAt) "
-                    "VALUES (:id, :t, :w, :p, 500, 0, 'ACTIVE', NOW(3), NOW(3))"
-                ), {"id": _uuid(), "t": tenant_id, "w": wh_id, "p": prod_id})
-
-        # ── Pharmacy medicines (batch-controlled, §10.17 / Prompt 42 UI) ──
-        # Each medicine gets its own batches at different expiry dates so the
-        # pharmacy register can demo batch selection, FEFO and expiry badges.
-        import datetime as _dt
-        meds = [
-            ("Napa Extra 500mg", "MED-001", 40.0, 70.0, (120, 45, 200)),
-            ("Ace Plus Paracetamol", "MED-002", 55.0, 100.0, (90, 25, 150)),
-            ("Fexo 120mg Antihistamine", "MED-003", 130.0, 220.0, (300, 60, 180)),
-            ("Omidon 10mg", "MED-004", 80.0, 140.0, (200, 15, 160)),
-            ("Seclo 20mg", "MED-005", 90.0, 160.0, (75, 35, 140)),
-        ]
-        for name, sku, cost, price, days_tuple in meds:
-            row = conn.execute(text("SELECT id FROM products WHERE tenantId = :t AND sku = :s"),
-                               {"t": tenant_id, "s": sku}).first()
-            if not row:
-                prod_id = _uuid()
-                conn.execute(text(
-                    "INSERT INTO products (id, tenantId, categoryId, brandId, unitId, name, sku, productType, "
-                    "costPrice, sellingPrice, status, createdAt, updatedAt) "
-                    "VALUES (:id, :t, :c, :b, :u, :n, :s, 'BATCH_CONTROLLED', :cost, :price, 'ACTIVE', NOW(3), NOW(3))"
-                ), {"id": prod_id, "t": tenant_id, "c": cat_id, "b": brand_id, "u": unit_id,
-                    "n": name, "s": sku, "cost": cost, "price": price})
-                conn.execute(text(
-                    "INSERT INTO stock (id, tenantId, warehouseId, productId, qtyOnHand, qtyReserved, status, createdAt, updatedAt) "
-                    "VALUES (:id, :t, :w, :p, 0, 0, 'ACTIVE', NOW(3), NOW(3))"
-                ), {"id": _uuid(), "t": tenant_id, "w": wh_id, "p": prod_id})
-            else:
-                prod_id = row[0]
-                # Idempotent reset — e2e suites sell & restore demo meds, so each
-                # seed re-baselines batch quantities to the defaults below.
-                conn.execute(text("DELETE FROM batches WHERE tenantId = :t AND productId = :p"),
-                             {"t": tenant_id, "p": prod_id})
-                conn.execute(text("DELETE FROM stock_batches WHERE tenantId = :t AND productId = :p"),
-                             {"t": tenant_id, "p": prod_id})
-            total_qty = 0
-            for bi, days in enumerate(days_tuple):
-                bqty = float(days)
-                total_qty += bqty
-                exp = (_dt.date.today() + _dt.timedelta(days=days)).isoformat()
-                bno = f"{sku.replace('-', '')}-{chr(65 + bi)}-{_dt.date.today().strftime('%y%m')}"
-                for tbl in ("batches", "stock_batches"):
-                    conn.execute(text(
-                        f"INSERT INTO {tbl} (id, tenantId, productId, warehouseId, batchNo, qty, costPrice, expiryDate, createdAt, updatedAt) "
-                        "VALUES (:id, :t, :p, :w, :b, :q, :c, :e, NOW(3), NOW(3))"
-                    ), {"id": _uuid(), "t": tenant_id, "p": prod_id, "w": wh_id,
-                        "b": bno, "q": bqty, "c": cost, "e": exp})
-            conn.execute(text(
-                "UPDATE stock SET qtyOnHand = :q WHERE tenantId = :t AND productId = :p AND warehouseId = :w"),
-                {"q": total_qty, "t": tenant_id, "p": prod_id, "w": wh_id})
 
         # ── Customers / groups / suppliers ──
         grp = conn.execute(text("SELECT id FROM customer_groups WHERE tenantId = :t AND name = 'General'"),

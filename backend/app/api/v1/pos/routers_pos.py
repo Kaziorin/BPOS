@@ -13,6 +13,7 @@ import accounting as acc
 import tax as tax_engine
 import returns as ret_engine
 import workflow as wf
+import cache as cache_mod
 from db import get_db, txn
 from security import require_auth, require_permission, resolve_tenant, AuthUser
 from util import ok, err, rows_to_dicts, paginate_params, gen_no
@@ -36,24 +37,31 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     items = body.get("items") or []; payments = body.get("payments") or []
     if not items: return err("Cart is empty", 400)
 
-    # Resolve branch/warehouse defaults — guaranteed non-null
+    # Resolve branch/warehouse defaults — prioritized to user's assigned branch & linked warehouse
     if not branchId:
-        b_row = (await db.execute(text("SELECT id FROM branches WHERE tenantId=:t LIMIT 1"), {"t": tenant})).first()
-        if b_row:
-            branchId = b_row[0]
+        if user and getattr(user, "branchId", None):
+            branchId = user.branchId
         else:
-            b_id = _uuid_str()
-            await db.execute(text(
-                "INSERT INTO branches (id, tenantId, name, code, createdBy, updatedAt) "
-                "VALUES (:id, :t, 'Main Branch', 'BR-MAIN', :u, NOW())"),
-                {"id": b_id, "t": tenant, "u": user.id})
-            await db.commit()
-            branchId = b_id
+            b_row = (await db.execute(text("SELECT id FROM branches WHERE tenantId=:t LIMIT 1"), {"t": tenant})).first()
+            if b_row:
+                branchId = b_row[0]
+            else:
+                b_id = _uuid_str()
+                await db.execute(text(
+                    "INSERT INTO branches (id, tenantId, name, code, createdBy, updatedAt) "
+                    "VALUES (:id, :t, 'Main Branch', 'BR-MAIN', :u, NOW())"),
+                    {"id": b_id, "t": tenant, "u": user.id})
+                await db.commit()
+                branchId = b_id
 
     if not warehouseId:
         w_row = (await db.execute(text(
-            "SELECT id FROM warehouses WHERE tenantId=:t LIMIT 1"),
-            {"t": tenant})).first()
+            "SELECT id FROM warehouses WHERE tenantId=:t AND branchId=:b LIMIT 1"),
+            {"t": tenant, "b": branchId})).first()
+        if not w_row:
+            w_row = (await db.execute(text(
+                "SELECT id FROM warehouses WHERE tenantId=:t LIMIT 1"),
+                {"t": tenant})).first()
         if w_row:
             warehouseId = w_row[0]
         else:
@@ -174,7 +182,13 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
             qty = float(it["qty"])
             if st:
                 before = float(st[1]); after = before - qty
-                await db.execute(text("UPDATE stock SET qtyOnHand=:a WHERE id=:id"), {"a": after, "id": st[0]})
+                await db.execute(text("UPDATE stock SET qtyOnHand=:a, updatedAt=NOW() WHERE id=:id"), {"a": after, "id": st[0]})
+            else:
+                before = 0.0; after = -qty
+                await db.execute(text(
+                    "INSERT INTO stock (id, tenantId, warehouseId, productId, variantId, qtyOnHand, qtyReserved, status, createdAt, updatedAt) "
+                    "VALUES (UUID(), :t, :w, :p, :v, :q, 0, 'ACTIVE', NOW(), NOW())"
+                ), {"t": tenant, "w": warehouseId, "p": it["productId"], "v": it.get("variantId"), "q": after})
             # Pharmacy (§10.17): batch-controlled items deduct their batch ledger.
             # A specific batch may be chosen at the register (batchNo); otherwise
             # stock leaves FEFO — soonest-expiry batch first — and both the
@@ -348,6 +362,7 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                 await db.commit()
         except Exception:
             pass  # receipts never break a confirmed sale
+    cache_mod.invalidate_namespace("products", tenant)
     return ok({"saleId": saleId, "invoiceNo": invoiceNo, "invoiceId": invoiceId,
                "total": total, "paidTotal": paid, "dueTotal": due, "paymentIds": payment_ids,
                **override_extra})

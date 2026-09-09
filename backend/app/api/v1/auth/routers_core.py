@@ -24,7 +24,8 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
 
     sql = textwrap.dedent(
         """
-        SELECT ua.id, ua.name, ua.email, ua.passwordHash, ua.tenantId, ua.roleId, r.name AS roleName, t.slug AS tenantSlug
+        SELECT ua.id, ua.name, ua.email, ua.passwordHash, ua.tenantId, ua.branchId, ua.roleId,
+               r.name AS roleName, t.slug AS tenantSlug, t.name AS tenantName, t.businessType
         FROM users ua
         LEFT JOIN roles r ON r.id = ua.roleId
         LEFT JOIN tenants t ON t.id = ua.tenantId
@@ -39,10 +40,12 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
         {
             "id": row.id,
             "tenantId": row.tenantId,
+            "branchId": row.branchId or "",
             "name": row.name,
             "email": row.email,
             "roleId": row.roleId or "",
             "roleName": row.roleName or "",
+            "businessType": row.businessType or "",
         }
     )
     return ApiJSONResponse(
@@ -53,11 +56,18 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
                 "name": row.name,
                 "email": row.email,
                 "tenantId": row.tenantId,
+                "branchId": row.branchId or None,
                 "roleId": row.roleId,
                 "role": row.roleName or "",
                 "roleName": row.roleName or "",
+                "businessType": row.businessType or "RETAIL",
             },
-            "tenant": {"id": row.tenantId, "slug": row.tenantSlug},
+            "tenant": {
+                "id": row.tenantId,
+                "slug": row.tenantSlug or "default",
+                "name": row.tenantName or "Default Store",
+                "businessType": row.businessType or "RETAIL",
+            },
         }
     )
 
