@@ -134,7 +134,7 @@ export default function PharmacyHubPage() {
           </Link>
 
           <Link
-            href="/customer-display"
+            href="/pharmacy/patient-display"
             target="_blank"
             className="group/cd flex items-center gap-3 px-6 py-3.5 rounded-2xl text-sm font-black bg-white text-slate-700 border border-slate-200 shadow-lg shadow-slate-200/20 hover:bg-slate-50 hover:border-cyan-300 hover:text-cyan-700 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
           >

@@ -358,6 +358,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: Pill,
         children: [
           { label: "FEFO Batch & Expiry POS", href: "/pharmacy/pos", icon: Pill },
+          { label: "Patient Display Screen", href: "/pharmacy/patient-display", icon: Monitor },
           { label: "Pharmacy Operations", href: "/pharmacy", icon: FlaskConical },
         ],
       },

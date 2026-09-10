@@ -130,6 +130,17 @@ export function PharmacyPOSFooter({
           </button>
         )}
 
+        <a
+          href="/pharmacy/patient-display"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-50 border border-cyan-200 px-2.5 py-1 text-[10.5px] text-cyan-700 font-bold hover:bg-cyan-100 transition shadow-2xs"
+          title="Open Patient-Facing Customer Display in new tab/window"
+        >
+          <Monitor size={12} className="text-cyan-600" />
+          <span>Patient Display</span>
+        </a>
+
 
       </div>
     </footer>

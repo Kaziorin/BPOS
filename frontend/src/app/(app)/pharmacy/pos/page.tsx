@@ -8,6 +8,7 @@ import { UniversalInvoiceModal } from "@/components/invoices/UniversalInvoiceMod
 import type { PaymentLine, SaleResult } from "../../pos/pos-types";
 import { isOnline } from "@/lib/offline/db";
 import { syncManager } from "@/lib/offline/sync";
+import { publishCart } from "@/lib/customer-display";
 import {
   fetchAllProducts,
   fetchBatches,
@@ -421,6 +422,33 @@ export default function PharmacyPOSPage() {
     const method = PAY_METHODS.find((m) => m.id === payMethod)?.id ?? "CASH";
     setPayments([{ method, amount: total }]);
   }, [total, payMethod]);
+
+  // ─── Publish live cart to Patient Display bridge ────────────────────────────
+  useEffect(() => {
+    const selectedCust = customers.find((c) => c.id === customerId);
+    publishCart({
+      updatedAt: Date.now(),
+      lines: cart.map((i) => ({
+        name: i.name,
+        qty: i.qty,
+        unitPrice: i.unitPrice,
+        discountAmount: i.discountAmount,
+        category: i.unitLabel || "Medicine",
+        uom: i.batchNo ? `Batch: ${i.batchNo}` : undefined,
+        sku: i.sku,
+      })),
+      subtotal,
+      discountTotal: totalDiscount,
+      taxTotal: vatAmount,
+      total,
+      status: result ? "PAID" : cart.length > 0 ? "ACTIVE" : "IDLE",
+      customerName: selectedCust?.name || "Walk-in Patient",
+      merchantName: ctx.branch?.name || "MediCare Central Pharmacy",
+      cashierName: user?.name || user?.email || "Pharmacist",
+      laneNo: "Rx Counter 01",
+      invoiceNo: result?.saleId ? `INV-${result.saleId.slice(0, 8).toUpperCase()}` : undefined,
+    });
+  }, [cart, subtotal, totalDiscount, vatAmount, total, customerId, customers, result, ctx.branch?.name, user?.name, user?.email]);
 
   // ─── Keyboard shortcuts ────────────────────────────────────────────────────
   useEffect(() => {
