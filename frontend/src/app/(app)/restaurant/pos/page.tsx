@@ -38,11 +38,16 @@ import {
   Square,
   Edit3,
   SlidersHorizontal,
+  Building2,
+  Armchair,
+  CheckCircle2,
+  ArrowLeft,
 } from "lucide-react";
 import { api, TENANT_STORAGE_KEY } from "@/lib/api";
 import { toast } from "react-toastify";
 import { ConfirmModal, CustomModal, CustomPromptModal, CustomInput, CustomButton } from "@/components/custom";
 import { getCategoryIcon } from "@/lib/categoryIcons";
+import { DEFAULT_FLOORS } from "@/components/restaurant/FloorPlanView";
 
 interface TableOption {
   id: string;
@@ -51,6 +56,14 @@ interface TableOption {
   status: "AVAILABLE" | "OCCUPIED" | "RESERVED" | "BILLING";
   currentBill?: number;
   guestCount?: number;
+  floorId?: string;
+  floorName?: string;
+}
+
+interface FloorOption {
+  id: string;
+  name: string;
+  sortOrder?: number;
 }
 
 export interface PortionSizeOption {
@@ -89,134 +102,14 @@ interface RestaurantCartItem {
   name: string;
   qty: number;
   unitPrice: number;
+  image?: string;
   modifiers?: CartModifier[];
+  extras?: { label: string; price: number }[];
   notes?: string;
   isKitchenProduct?: boolean;
   kotStatus: "PENDING" | "SENT_TO_KITCHEN" | "PREPARING" | "SERVED" | "READY_TO_SERVE";
 }
 
-const DEMO_RESTAURANT_PRODUCTS: MenuItem[] = [
-  {
-    id: "demo-prod-1",
-    name: "Grilled BBQ Chicken Platter",
-    category: "Main Course",
-    sellingPrice: 580,
-    image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=500&q=80",
-    isPopular: true,
-    isVeg: false,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Flame-grilled tender chicken breast with peri-peri marinade & seasoned wedges",
-  },
-  {
-    id: "demo-prod-2",
-    name: "Special Mutton Dum Biryani",
-    category: "Main Course",
-    sellingPrice: 650,
-    image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&q=80",
-    isPopular: true,
-    isVeg: false,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Aromatic basmati rice cooked with succulent bone-in mutton & saffron spices",
-  },
-  {
-    id: "demo-prod-3",
-    name: "Classic Italian Margherita Pizza",
-    category: "Pizza & Pasta",
-    sellingPrice: 750,
-    image: "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?w=500&q=80",
-    isPopular: true,
-    isVeg: true,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Wood-fired crust with San Marzano tomato sauce, fresh mozzarella & sweet basil",
-  },
-  {
-    id: "demo-prod-4",
-    name: "Creamy Alfredo Fettuccine Pasta",
-    category: "Pizza & Pasta",
-    sellingPrice: 520,
-    image: "https://images.unsplash.com/photo-1645112411341-6c4fd023714a?w=500&q=80",
-    isPopular: false,
-    isVeg: false,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Al dente pasta tossed in rich parmesan garlic cream sauce with grilled mushroom",
-  },
-  {
-    id: "demo-prod-5",
-    name: "Smoky Double Beef Cheese Burger",
-    category: "Burgers & Fast Food",
-    sellingPrice: 420,
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80",
-    isPopular: true,
-    isVeg: false,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Two 100% prime beef patties, melted cheddar, caramelized onions & secret sauce",
-  },
-  {
-    id: "demo-prod-6",
-    name: "Crispy Golden French Fries",
-    category: "Appetizers",
-    sellingPrice: 180,
-    image: "https://images.unsplash.com/photo-1576107232684-1279f3908594?w=500&q=80",
-    isPopular: false,
-    isVeg: true,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Hand-cut crispy Idaho potatoes dusted with smoked paprika sea salt",
-  },
-  {
-    id: "demo-prod-7",
-    name: "Paneer Butter Masala & Naan",
-    category: "Main Course",
-    sellingPrice: 460,
-    image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500&q=80",
-    isPopular: false,
-    isVeg: true,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Cottage cheese simmered in silky tomato butter gravy with warm garlic butter naan",
-  },
-  {
-    id: "demo-prod-8",
-    name: "Artisan Caramel Macchiato",
-    category: "Beverages",
-    sellingPrice: 280,
-    image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=500&q=80",
-    isPopular: false,
-    isVeg: true,
-    isKitchenProduct: false,
-    allTimeSlots: true,
-    description: "Freshly pulled espresso with steamed velvet milk and vanilla caramel drizzle",
-  },
-  {
-    id: "demo-prod-9",
-    name: "Fresh Mint Lemonade Cooler",
-    category: "Beverages",
-    sellingPrice: 160,
-    image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500&q=80",
-    isPopular: true,
-    isVeg: true,
-    isKitchenProduct: false,
-    allTimeSlots: true,
-    description: "Crushed wild mint, freshly squeezed Meyer lemons, soda and crushed ice",
-  },
-  {
-    id: "demo-prod-10",
-    name: "Warm Molten Lava Chocolate Cake",
-    category: "Desserts",
-    sellingPrice: 320,
-    image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&q=80",
-    isPopular: true,
-    isVeg: true,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Gooey molten Belgian chocolate center served with vanilla bean ice cream scoop",
-  },
-];
 
 const DEMO_TABLES: TableOption[] = [
   { id: "tbl-01", tableNo: "Table 01", capacity: 4, status: "AVAILABLE" },
@@ -226,6 +119,80 @@ const DEMO_TABLES: TableOption[] = [
   { id: "tbl-05", tableNo: "VIP Booth 01", capacity: 8, status: "RESERVED" },
   { id: "tbl-06", tableNo: "Terrace T-1", capacity: 4, status: "AVAILABLE" },
 ];
+
+function mapApiProductToMenuItem(p: any): MenuItem {
+  let catName = "Main Course";
+  if (typeof p.category === "string" && p.category.trim()) {
+    catName = p.category;
+  } else if (p.category && typeof p.category === "object") {
+    catName = p.category.name || p.category.label || "Main Course";
+  } else if (p.categoryName) {
+    catName = String(p.categoryName);
+  }
+
+  let isKitchen = true;
+  let timeSlotIds: string[] = [];
+  let allTimeSlots = true;
+  let portionSizes: PortionSizeOption[] = [];
+  let addons: { name: string; price: number }[] = [];
+
+  try {
+    const rawAttrs =
+      typeof p.attributes === "string"
+        ? JSON.parse(p.attributes)
+        : p.attributes || {};
+    const restAttrs = rawAttrs.restaurant || rawAttrs;
+    if (restAttrs?.isKitchenProduct !== undefined) {
+      isKitchen = Boolean(restAttrs.isKitchenProduct);
+    }
+    if (Array.isArray(restAttrs?.timeSlotIds)) {
+      timeSlotIds = restAttrs.timeSlotIds;
+    }
+    if (restAttrs?.allTimeSlots !== undefined) {
+      allTimeSlots = Boolean(restAttrs.allTimeSlots);
+    } else if (timeSlotIds.length > 0) {
+      allTimeSlots = false;
+    }
+    if (Array.isArray(restAttrs?.portionSizes)) {
+      portionSizes = restAttrs.portionSizes
+        .filter((s: any) => s.isEnabled !== false && s.price !== undefined && s.price !== "")
+        .map((s: any) => ({
+          id: String(s.id || s.name),
+          name: String(s.name),
+          price: Number(s.price || 0),
+          isDefault: Boolean(s.isDefault),
+          isEnabled: true,
+        }));
+    }
+
+    if (Array.isArray(restAttrs?.addons)) {
+      addons = restAttrs.addons.map((a: any) => ({
+        name: String(a.name),
+        price: Number(a.price || 0),
+      }));
+    }
+  } catch (e) {}
+
+  return {
+    id: String(p.id || p._id),
+    name: p.name || "Untitled Item",
+    category: catName,
+    sellingPrice: Number(p.sellingPrice || p.price || 0),
+    image: p.imageUrl || p.image || "",
+    isPopular: Boolean(p.isPopular),
+    isVeg: Boolean(p.isVeg),
+    isKitchenProduct: isKitchen,
+    timeSlotIds,
+    allTimeSlots,
+    hasAddons:
+      typeof p.hasAddons === "boolean"
+        ? p.hasAddons
+        : portionSizes.length > 0 || addons.length > 0 || !["beverages", "drinks", "water"].includes(catName.toLowerCase()),
+    portionSizes,
+    addons,
+    description: p.description || "",
+  };
+}
 
 const DEFAULT_PRESET_SLOTS = [
   { id: "shift-breakfast", name: "Breakfast / Morning", startTime: "07:00", endTime: "11:30", color: "#f59e0b", description: "Morning breakfast, tea & coffee", isActive: true },
@@ -282,17 +249,53 @@ const getCategoryName = (cat: any): string => {
 export default function RestaurantPOSPage() {
   const [storeName, setStoreName] = useState<string>("BlueOceans POS SYSTEM");
   const [tables, setTables] = useState<TableOption[]>(DEMO_TABLES);
-  const [selectedTable, setSelectedTable] = useState<TableOption | null>(DEMO_TABLES[0]);
-  const [guestCount, setGuestCount] = useState(2);
+  const [floors, setFloors] = useState<FloorOption[]>([]);
+  const [selectedTable, setSelectedTable] = useState<TableOption | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const savedId = localStorage.getItem("bpos_restaurant_selected_table_id");
+        if (savedId) {
+          const match = DEMO_TABLES.find((t) => t.id === savedId);
+          if (match) return match;
+        }
+      } catch (_) {}
+    }
+    return DEMO_TABLES[0];
+  });
+  const [guestCount, setGuestCount] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const c = localStorage.getItem("bpos_restaurant_guest_count");
+        if (c !== null) {
+          const n = parseInt(c, 10);
+          if (n >= 1 && n <= 20) return n;
+        }
+      } catch (_) {}
+    }
+    return 2;
+  });
   const [waiterName, setWaiterName] = useState("Staff 1");
   const [orderType, setOrderType] = useState<"DINE_IN" | "TAKEAWAY" | "DELIVERY">("DINE_IN");
 
-  const [products, setProducts] = useState<MenuItem[]>(DEMO_RESTAURANT_PRODUCTS);
+  const [products, setProducts] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<CategorySidebarItem[]>(DEFAULT_CATEGORIES);
-  const [cart, setCart] = useState<RestaurantCartItem[]>([]);
+  const [cart, setCart] = useState<RestaurantCartItem[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("bpos_restaurant_cart");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed)) return parsed as RestaurantCartItem[];
+        }
+      } catch (_) {}
+    }
+    return [];
+  });
 
   const [selectedCategory, setSelectedCategory] = useState("All Items");
   const [searchFilter, setSearchFilter] = useState("");
+  const [searchResults, setSearchResults] = useState<MenuItem[] | null>(null);
+  const [searching, setSearching] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [orderNote, setOrderNote] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
@@ -300,6 +303,7 @@ export default function RestaurantPOSPage() {
 
   // Modals & Dialogs
   const [showSelectTableModal, setShowSelectTableModal] = useState(false);
+  const [tableModalFloorId, setTableModalFloorId] = useState<string>("");
   const [showHoldModal, setShowHoldModal] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showCustomItemModal, setShowCustomItemModal] = useState(false);
@@ -374,87 +378,15 @@ export default function RestaurantPOSPage() {
         const resProd: any = await api.get("/products", { params: { limit: 150 } });
         const pData = (resProd?.data as any)?.data ?? resProd?.data ?? resProd ?? [];
         if (Array.isArray(pData) && pData.length > 0) {
-          loadedProducts = pData.map((p: any) => {
-            let catName = "Main Course";
-            if (typeof p.category === "string" && p.category.trim()) {
-              catName = p.category;
-            } else if (p.category && typeof p.category === "object") {
-              catName = p.category.name || p.category.label || "Main Course";
-            } else if (p.categoryName) {
-              catName = String(p.categoryName);
-            }
-
-            let isKitchen = true;
-            let timeSlotIds: string[] = [];
-            let allTimeSlots = true;
-            let portionSizes: PortionSizeOption[] = [];
-            let addons: { name: string; price: number }[] = [];
-
-            try {
-              const rawAttrs =
-                typeof p.attributes === "string"
-                  ? JSON.parse(p.attributes)
-                  : p.attributes || {};
-              const restAttrs = rawAttrs.restaurant || rawAttrs;
-              if (restAttrs?.isKitchenProduct !== undefined) {
-                isKitchen = Boolean(restAttrs.isKitchenProduct);
-              }
-              if (Array.isArray(restAttrs?.timeSlotIds)) {
-                timeSlotIds = restAttrs.timeSlotIds;
-              }
-              if (restAttrs?.allTimeSlots !== undefined) {
-                allTimeSlots = Boolean(restAttrs.allTimeSlots);
-              } else if (timeSlotIds.length > 0) {
-                allTimeSlots = false;
-              }
-              if (Array.isArray(restAttrs?.portionSizes)) {
-                portionSizes = restAttrs.portionSizes
-                  .filter((s: any) => s.isEnabled !== false && s.price !== undefined && s.price !== "")
-                  .map((s: any) => ({
-                    id: String(s.id || s.name),
-                    name: String(s.name),
-                    price: Number(s.price || 0),
-                    isDefault: Boolean(s.isDefault),
-                    isEnabled: true,
-                  }));
-              }
-
-              if (Array.isArray(restAttrs?.addons)) {
-                addons = restAttrs.addons.map((a: any) => ({
-                  name: String(a.name),
-                  price: Number(a.price || 0),
-                }));
-              }
-            } catch (e) {}
-
-            return {
-              id: String(p.id || p._id),
-              name: p.name || "Untitled Item",
-              category: catName,
-              sellingPrice: Number(p.sellingPrice || p.price || 0),
-              image: p.imageUrl || p.image || "",
-              isPopular: Boolean(p.isPopular),
-              isVeg: Boolean(p.isVeg),
-              isKitchenProduct: isKitchen,
-              timeSlotIds,
-              allTimeSlots,
-              hasAddons:
-                typeof p.hasAddons === "boolean"
-                  ? p.hasAddons
-                  : portionSizes.length > 0 || addons.length > 0 || !["beverages", "drinks", "water"].includes(catName.toLowerCase()),
-              portionSizes,
-              addons,
-              description: p.description || "",
-            };
-          });
+          loadedProducts = pData.map((p: any) => mapApiProductToMenuItem(p));
           setProducts(loadedProducts);
         } else {
-          setProducts(DEMO_RESTAURANT_PRODUCTS);
-          loadedProducts = DEMO_RESTAURANT_PRODUCTS;
+          setProducts([]);
+          loadedProducts = [];
         }
       } catch (errProd) {
-        setProducts(DEMO_RESTAURANT_PRODUCTS);
-        loadedProducts = DEMO_RESTAURANT_PRODUCTS;
+        setProducts([]);
+        loadedProducts = [];
       }
 
       // 2. Fetch created categories for current tenant & business
@@ -591,10 +523,28 @@ export default function RestaurantPOSPage() {
         console.error("Failed to load time slots in POS:", e);
       }
 
-      // 4. Load Tables
+      // 4. Load Sections \Load Floors & Tables (floors power the Floor → Table picker Tables (sections power the Section → Table picker in the Select Table modal)
+      let loadedFloors: FloorOption[] = [];
       try {
-        const resTables: any = await api.get("/v1/restaurant/tables").catch(() => null);
-        const tData = (resTables?.data as any)?.data ?? resTables?.data ?? resTables ?? [];
+        const [resFloors, resTables]: any[] = await Promise.all([
+          api.get("/v1/restaurant/floors").catch(() => null),
+          api.get("/v1/restaurant/tables").catch(() => null),
+        ]);
+
+        // Sections — when the API has none yet, fall back to the same defaults the
+        // Sections page shows, so the modal can always ask "pick a section" first.
+        const fData = resFloors?.data?.data ?? resFloors?.data ?? resFloors ?? [];
+        loadedFloors =
+          Array.isArray(fData) && fData.length > 0
+            ? fData.map((f: any, i: number) => ({
+                id: String(f.id),
+                name: f.name || `Section ${i + 1}`,
+                sortOrder: f.sortOrder !== undefined && f.sortOrder !== null ? Number(f.sortOrder) : i,
+              }))
+            : DEFAULT_FLOORS.map((f) => ({ id: f.id, name: f.name, sortOrder: f.sortOrder }));
+        setFloors(loadedFloors);
+
+        const tData = resTables?.data?.data ?? resTables?.data ?? resTables ?? [];
         if (Array.isArray(tData) && tData.length > 0) {
           const mappedTables: TableOption[] = tData.map((t: any) => ({
             id: String(t.id),
@@ -603,22 +553,77 @@ export default function RestaurantPOSPage() {
             status: t.status || "AVAILABLE",
             currentBill: t.currentBill ? Number(t.currentBill) : undefined,
             guestCount: t.guestCount ? Number(t.guestCount) : undefined,
+            floorId: t.floorId ? String(t.floorId) : undefined,
+            floorName: t.floorName || undefined,
           }));
-          setTables(mappedTables);
-          setSelectedTable((prev) => prev || mappedTables[0]);
+          // Display-only fallback: if none of the tables is assigned to a section yet,
+          // spread them across floors (round-robin) so every floor shows tables.
+          const anyAssigned = mappedTables.some((t) => t.floorId);
+          const withFloors: TableOption[] = anyAssigned
+            ? mappedTables
+            : mappedTables.map((t, i) => ({
+                ...t,
+                floorId: loadedFloors[i % loadedFloors.length].id,
+                floorName: loadedFloors[i % loadedFloors.length].name,
+              }));
+          setTables(withFloors);
+          setSelectedTable(() => {
+            try {
+              const savedId = typeof window !== "undefined" ? localStorage.getItem("bpos_restaurant_selected_table_id") : null;
+              if (savedId) {
+                const match = withFloors.find((t) => t.id === savedId);
+                if (match) return match;
+              }
+            } catch (_) {}
+            return withFloors[0];
+          });
         } else {
-          setTables(DEMO_TABLES);
-          setSelectedTable((prev) => prev || DEMO_TABLES[0]);
+          // Demo fallback: spread demo tables across sections (round-robin) so the
+          // Section → Table picker stays fully usable without seeded tables.
+          const demoTables: TableOption[] = DEMO_TABLES.map((t, i) => ({
+            ...t,
+            floorId: loadedFloors[i % loadedFloors.length].id,
+            floorName: loadedFloors[i % loadedFloors.length].name,
+          }));
+          setTables(demoTables);
+          setSelectedTable(() => {
+            try {
+              const savedId = typeof window !== "undefined" ? localStorage.getItem("bpos_restaurant_selected_table_id") : null;
+              if (savedId) {
+                const match = demoTables.find((t) => t.id === savedId);
+                if (match) return match;
+              }
+            } catch (_) {}
+            return demoTables[0];
+          });
         }
       } catch (errTables) {
-        setTables(DEMO_TABLES);
-        setSelectedTable((prev) => prev || DEMO_TABLES[0]);
+        if (loadedFloors.length === 0) {
+          loadedFloors = DEFAULT_FLOORS.map((f) => ({ id: f.id, name: f.name, sortOrder: f.sortOrder }));
+        }
+        setFloors(loadedFloors);
+        const demoTables: TableOption[] = DEMO_TABLES.map((t, i) => ({
+          ...t,
+          floorId: loadedFloors[i % loadedFloors.length].id,
+          floorName: loadedFloors[i % loadedFloors.length].name,
+        }));
+        setTables(demoTables);
+        setSelectedTable(() => {
+          try {
+            const savedId = typeof window !== "undefined" ? localStorage.getItem("bpos_restaurant_selected_table_id") : null;
+            if (savedId) {
+              const match = demoTables.find((t) => t.id === savedId);
+              if (match) return match;
+            }
+          } catch (_) {}
+          return demoTables[0];
+        });
       }
     } catch (err) {
       console.error("Failed to load restaurant POS data:", err);
       setCategories(DEFAULT_CATEGORIES);
       setTables(DEMO_TABLES);
-      setProducts(DEMO_RESTAURANT_PRODUCTS);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -638,6 +643,59 @@ export default function RestaurantPOSPage() {
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [loadData]);
+
+  // ── Persist the live order across page reloads ──
+  // (cart, selected table & guest count survive refresh so a half-built
+  //  order is never lost; completing/clearing the order clears the save too)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem("bpos_restaurant_cart", JSON.stringify(cart));
+    } catch (_) {}
+  }, [cart]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      if (selectedTable) {
+        localStorage.setItem("bpos_restaurant_selected_table_id", selectedTable.id);
+      } else {
+        localStorage.removeItem("bpos_restaurant_selected_table_id");
+      }
+      localStorage.setItem("bpos_restaurant_guest_count", String(guestCount));
+    } catch (_) {}
+  }, [selectedTable, guestCount]);
+
+  // ── Header search: query the API so the search works across ALL restaurant products ──
+  useEffect(() => {
+    const q = searchFilter.trim();
+    if (q.length < 2) {
+      setSearchResults(null);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res: any = await api.get("/products", { params: { search: q, limit: 60 } });
+        const pData = (res?.data as any)?.data ?? res?.data ?? res ?? [];
+        setSearchResults(Array.isArray(pData) ? pData.map((p: any) => mapApiProductToMenuItem(p)) : []);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchFilter]);
+
+  // ── Select-Table modal helpers ──
+  // The modal ALWAYS asks to pick a section first and then
+  // shows ONLY that section's tables in the grid below.
+  const showFloorStep = floors.length > 0;
+  const tableModalTables = tableModalFloorId
+    ? tables.filter((t) => t.floorId === tableModalFloorId)
+    : tables;
 
 
 
@@ -678,7 +736,7 @@ export default function RestaurantPOSPage() {
       name: cartItem.name,
       category: "General",
       sellingPrice: cartItem.unitPrice,
-      image: "",
+      image: cartItem.image || "",
     };
     setSelectedProductForAddons(prod);
     setEditingCartItem(cartItem);
@@ -738,6 +796,7 @@ export default function RestaurantPOSPage() {
           id: `${selectedProductForAddons.id}-${Date.now()}`,
           productId: selectedProductForAddons.id,
           name: selectedProductForAddons.name,
+          image: selectedProductForAddons.image || "",
           qty: 1,
           unitPrice: finalUnitPrice,
           modifiers: modifiersList,
@@ -746,6 +805,7 @@ export default function RestaurantPOSPage() {
           kotStatus: isKitchen ? "PENDING" : "READY_TO_SERVE",
         },
       ]);
+      reserveSelectedTable();
       toast.success(`Added ${selectedProductForAddons.name} with add-ons to order`);
     }
 
@@ -766,6 +826,22 @@ export default function RestaurantPOSPage() {
     return String(days);
   };
 
+  // ── Booking flow: adding the first item hard-locks the table server-side ──
+  // so another POS terminal cannot take this table until the bill is paid
+  // or the order is cleared. (Idempotent: only pushes a PATCH while AVAILABLE.)
+  const reserveSelectedTable = () => {
+    if (!selectedTable) return;
+    const cur = tables.find((t) => t.id === selectedTable.id);
+    if (cur && (cur.status === "AVAILABLE" || !cur.status)) {
+      setTables((prev) =>
+        prev.map((t) => (t.id === selectedTable.id ? { ...t, status: "RESERVED" as const } : t))
+      );
+      api
+        .patch(`/v1/restaurant/tables/${selectedTable.id}/status`, { status: "RESERVED" })
+        .catch(() => {});
+    }
+  };
+
   const addToCart = (item: MenuItem) => {
     const isKitchen = item.isKitchenProduct ?? true;
     setCart((prev) => {
@@ -781,6 +857,7 @@ export default function RestaurantPOSPage() {
           id: `${item.id}-${Date.now()}`,
           productId: item.id,
           name: item.name,
+          image: item.image || "",
           qty: 1,
           unitPrice: item.sellingPrice,
           isKitchenProduct: isKitchen,
@@ -788,6 +865,7 @@ export default function RestaurantPOSPage() {
         },
       ];
     });
+    reserveSelectedTable();
     toast.success(`Added ${item.name} to order`);
   };
 
@@ -922,6 +1000,17 @@ export default function RestaurantPOSPage() {
       setDiscountPercent(0);
       toast.success(`Order #${invNo} placed & synced to system!`);
 
+      // ── Booking flow: the table becomes free again once the bill is paid ──
+      if (selectedTable) {
+        const finishedTableId = selectedTable.id;
+        setTables((prev) =>
+          prev.map((x) => (x.id === finishedTableId ? { ...x, status: "AVAILABLE" as const } : x))
+        );
+        try {
+          await api.patch(`/v1/restaurant/tables/${finishedTableId}/status`, { status: "AVAILABLE" });
+        } catch {}
+      }
+
       // Reload product list to reflect updated stock
       loadData();
     } catch (err: any) {
@@ -950,9 +1039,16 @@ export default function RestaurantPOSPage() {
     }
   };
 
-  const filteredProducts = products.filter((p) => {
+  const searchQ = searchFilter.toLowerCase().trim();
+  const isSearching = searchQ.length > 0;
+  // While searching, use the API-backed results (all restaurant products);
+  // otherwise browse the base catalog with the sidebar category selection.
+  const sourceProducts = isSearching && searchResults !== null ? searchResults : products;
+
+  const filteredProducts = sourceProducts.filter((p) => {
     // 1. Shift filtering if enabled (supports single or multi-shift concurrent active shifts!)
-    if (timeSlotFilterEnabled && activeSlotIds.length > 0) {
+    //    Skipped during an explicit search so any restaurant product can be found.
+    if (!isSearching && timeSlotFilterEnabled && activeSlotIds.length > 0) {
       const inAnyActiveShift =
         p.allTimeSlots ||
         (Array.isArray(p.timeSlotIds) &&
@@ -961,15 +1057,16 @@ export default function RestaurantPOSPage() {
     }
 
     const pCat = getCategoryName(p.category);
-    const matchesCategory =
-      selectedCategory === "All Items"
-        ? true
-        : selectedCategory === "Popular"
-        ? p.isPopular
-        : pCat.toLowerCase() === selectedCategory.toLowerCase();
-    const q = searchFilter.toLowerCase().trim();
+    // 2. Search runs across ALL categories; the sidebar filter applies only while browsing.
+    const matchesCategory = isSearching
+      ? true
+      : selectedCategory === "All Items"
+      ? true
+      : selectedCategory === "Popular"
+      ? p.isPopular
+      : pCat.toLowerCase() === selectedCategory.toLowerCase();
     const matchesSearch =
-      !q || p.name.toLowerCase().includes(q) || pCat.toLowerCase().includes(q);
+      !searchQ || p.name.toLowerCase().includes(searchQ) || pCat.toLowerCase().includes(searchQ);
     return matchesCategory && matchesSearch;
   });
 
@@ -1043,9 +1140,15 @@ export default function RestaurantPOSPage() {
               type="text"
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
-              placeholder="Search items..."
-              className="w-full rounded-md bg-white/15 border border-white/20 py-1.5 pl-8 pr-3 text-xs font-medium text-white placeholder-orange-100/70 focus:bg-white focus:text-gray-600 focus:placeholder-gray-400 focus:outline-none transition"
+              placeholder="Search food & drinks..."
+              className="w-full rounded-md bg-white/15 border border-white/20 py-1.5 pl-8 pr-8 text-xs font-medium text-white placeholder-orange-100/70 focus:bg-white focus:text-gray-600 focus:placeholder-gray-400 focus:outline-none transition"
             />
+            {searching && (
+              <RefreshCw
+                size={13}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white animate-spin"
+              />
+            )}
           </div>
           <button
             onClick={loadData}
@@ -1070,7 +1173,10 @@ export default function RestaurantPOSPage() {
       <div className="flex-none flex flex-wrap items-center justify-between gap-2 px-4 py-2 bg-white border-b border-slate-200 shadow-2xs z-10">
         <div className="flex flex-wrap items-center gap-3 text-gray-600">
           <button
-            onClick={() => setShowSelectTableModal(true)}
+            onClick={() => {
+              setTableModalFloorId("");
+              setShowSelectTableModal(true);
+            }}
             className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5 hover:bg-slate-100 transition cursor-pointer"
           >
             <LayoutGrid size={15} className="text-orange-600" />
@@ -1083,6 +1189,17 @@ export default function RestaurantPOSPage() {
           <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
             <Users size={15} className="text-gray-500" />
             <span className="text-xs font-medium text-gray-500">Guests:</span>
+            <button
+              onClick={() => setGuestCount((g) => Math.max(1, g - 1))}
+              disabled={guestCount <= 1}
+              className={`flex h-5 w-5 items-center justify-center rounded-md border font-bold ${
+                guestCount <= 1
+                  ? "bg-slate-100 border-slate-200 text-slate-300 cursor-not-allowed"
+                  : "bg-white border-slate-200 text-gray-700 hover:bg-slate-100 cursor-pointer"
+              }`}
+            >
+              <Minus size={11} />
+            </button>
             <span className="text-xs font-bold text-gray-600 min-w-4 text-center">
               {guestCount}
             </span>
@@ -1534,121 +1651,174 @@ export default function RestaurantPOSPage() {
         </main>
 
         {/* ── RIGHT ORDER SUMMARY PANEL ── */}
-        <aside className="w-80 sm:w-96 flex-none flex flex-col rounded-md bg-white border border-slate-200 shadow-sm overflow-hidden">
-          <div className="flex-none p-3 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xs font-bold text-gray-600">Order Summary</h2>
-              <span className="rounded-md bg-orange-100 text-orange-700 border border-orange-200 px-2 py-0.5 text-[10px] font-bold">
-                {cart.length} Items
-              </span>
+        <aside className="w-80 sm:w-96 flex-none flex flex-col rounded-xl bg-white border border-slate-200 shadow-md overflow-hidden">
+          {/* ── HEADER ── */}
+          <div className="flex-none px-4 py-3.5 border-b border-orange-100 bg-gradient-to-br from-orange-500 via-amber-500 to-orange-400">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm text-white shadow-inner">
+                  <FileText size={15} />
+                </span>
+                <div className="min-w-0">
+                  <h2 className="text-xs font-black uppercase tracking-widest text-white/90 leading-tight">Order Summary</h2>
+                  <p className="text-[10px] font-semibold text-orange-100 truncate leading-tight mt-0.5">
+                    {selectedTable ? `${selectedTable.tableNo} · ${guestCount} Guest${guestCount === 1 ? "" : "s"}` : "No table selected"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="rounded-full bg-white text-orange-600 px-2.5 py-0.5 text-[10px] font-black shadow-sm">
+                  {cart.length} {cart.length === 1 ? "Item" : "Items"}
+                </span>
+                {cart.length > 0 && (
+                  <button
+                    onClick={() => setShowClearConfirm(true)}
+                    title="Clear all items"
+                    className="p-1.5 rounded-md text-white/80 hover:bg-white/20 hover:text-white transition cursor-pointer"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                )}
+              </div>
             </div>
-            {cart.length > 0 && (
-              <button
-                onClick={() => setShowClearConfirm(true)}
-                className="text-xs font-bold text-rose-500 hover:text-rose-700 flex items-center gap-1 cursor-pointer"
-              >
-                <Trash2 size={12} /> Clear All
-              </button>
-            )}
           </div>
 
-          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2.5 divide-y divide-slate-100">
+          {/* ── Cart Items ── */}
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2.5 bg-gradient-to-b from-slate-50/80 to-white custom-scrollbar">
             {cart.length === 0 ? (
-              <div className="py-20 text-center text-gray-400 space-y-2">
-                <ShoppingBag size={40} className="mx-auto text-gray-300" />
-                <p className="text-xs font-bold text-gray-600">Cart is empty</p>
-                <p className="text-[11px] text-gray-400 max-w-xs mx-auto">
-                  Click on food items to add them to this table order.
+              <div className="rounded-xl border border-dashed border-orange-200 bg-orange-50/30 py-16 text-center text-gray-400 space-y-3">
+                <div className="mx-auto h-14 w-14 rounded-full bg-orange-100 flex items-center justify-center">
+                  <ShoppingBag size={26} className="text-orange-300" />
+                </div>
+                <p className="text-sm font-bold text-gray-500">Cart is empty</p>
+                <p className="text-[11px] text-gray-400 max-w-[230px] mx-auto leading-relaxed">
+                  Pick a section table, then tap food items to build this order.
                 </p>
               </div>
-            ) : (
-              cart.map((item, idx) => (
-                <div key={item.id} className="pt-2.5 first:pt-0">
-                  <div className="flex items-start gap-2">
-                    <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-md bg-orange-100 text-[10px] font-bold text-orange-700">
-                      {idx + 1}
-                    </span>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-1">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <h4 className="font-bold text-xs text-gray-600 truncate">{item.name}</h4>
-                          <button
-                            onClick={() => handleEditCartItemAddons(item)}
-                            className="p-1 text-orange-600 hover:bg-orange-50 rounded transition cursor-pointer"
-                            title="Edit Add-ons"
-                          >
-                            <Edit3 size={11} />
-                          </button>
-                        </div>
-                        <span className="font-bold text-xs text-gray-600 tabular-nums">
-                          {fmt(item.qty * item.unitPrice)}
-                        </span>
-                      </div>
-
-                      {/* Render Selected Modifiers */}
-                      {item.modifiers && item.modifiers.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {item.modifiers.map((mod, mIdx) => (
-                            <span
-                              key={mIdx}
-                              className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-50 text-amber-800 border border-amber-200"
-                            >
-                              {mod.label}: {mod.value}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        {item.isKitchenProduct === false ? (
-                          <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
-                            ⚡ Ready Item
-                          </span>
+) : (
+              cart.map((item) => (
+                <div key={item.id} className="rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all duration-150 overflow-hidden">
+                  <div className="p-3.5">
+                    <div className="flex items-center gap-3">
+                      {/* Product Image / Placeholder */}
+                      <div className="relative shrink-0">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            loading="lazy"
+                            className="h-12 w-12 rounded-xl border border-orange-200 object-cover"
+                          />
                         ) : (
-                          <span
-                            className={`inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold ${
-                              item.kotStatus === "SENT_TO_KITCHEN"
-                                ? "bg-amber-100 text-amber-800"
-                                : "bg-slate-100 text-gray-600"
-                            }`}
-                          >
-                            🍳 {item.kotStatus === "SENT_TO_KITCHEN" ? "KOT Sent" : "KOT Pending"}
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-orange-200 bg-gradient-to-br from-orange-100 to-amber-100">
+                            <ChefHat size={22} className="text-orange-500" />
+                          </div>
+                        )}
+                        {item.isKitchenProduct === false && (
+                          <span className="absolute -bottom-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-emerald-500 text-white" title="Ready-to-serve item">
+                            <span className="text-[7px] font-black leading-none">✓</span>
                           </span>
                         )}
                       </div>
 
-                      {item.notes && (
-                        <p className="mt-0.5 text-[10px] text-orange-600 italic">
-                          &quot;{item.notes}&quot;
-                        </p>
-                      )}
-
-                      <div className="mt-1.5 flex items-center justify-between">
-                        <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-md border border-slate-200">
-                          <button
-                            onClick={() => updateQty(item.id, -1)}
-                            className="flex h-4.5 w-4.5 items-center justify-center rounded bg-white text-gray-700 font-bold hover:bg-slate-200 cursor-pointer"
-                          >
-                            <Minus size={9} />
-                          </button>
-                          <span className="w-4 text-center font-bold text-xs text-gray-600">
-                            {item.qty}
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1.5">
+                          <h4 className="text-sm font-bold text-gray-800 truncate min-w-0 flex-1">{item.name}</h4>
+                          <span className="text-sm font-black text-gray-900 whitespace-nowrap tabular-nums shrink-0">
+                            {fmt((item.qty * item.unitPrice) + (item.extras?.reduce((s, e) => s + e.price, 0) || 0))}
                           </span>
+                        </div>
+
+                        {/* Size / Spice / Options */}
+                        {item.modifiers && item.modifiers.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {item.modifiers.map((mod, mIdx) => (
+                              <span
+                                key={mIdx}
+                                className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${
+                                  mod.label === "Size"
+                                    ? "bg-orange-100 border border-orange-300 text-orange-800"
+                                    : mod.label === "Spice"
+                                      ? "bg-rose-50 border border-rose-200 text-rose-600"
+                                      : "bg-amber-50 border border-amber-200 text-amber-700"
+                                }`}
+                              >
+                                <span className="font-black">{mod.label}:</span> {mod.value.replace(/ \(.*?\)$/, "")}
+                              </span>
+                            ))}
+                          </div>
+                        )}{/* Extras/Add-ons */}
+                        {item.extras && item.extras.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {item.extras.map((ext, eIdx) => (
+                              <span
+                                key={eIdx}
+                                className="inline-flex items-center gap-1 rounded-lg bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-semibold text-amber-700 whitespace-nowrap"
+                              >
+                                +{ext.label} <span className="font-black">{fmt(ext.price)}</span>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* KOT status / notes */}
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                          {item.isKitchenProduct === false ? (
+                            <span className="inline-flex items-center gap-0.5 rounded-md bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 whitespace-nowrap">
+                              ⚡ Ready Item
+                            </span>
+                          ) : (
+                            <span
+                              className={`inline-flex items-center gap-0.5 rounded-md px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${
+                                item.kotStatus === "SENT_TO_KITCHEN"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : "bg-slate-100 text-gray-600"
+                              }`}
+                            >
+                              🍳 {item.kotStatus === "SENT_TO_KITCHEN" ? "KOT Sent" : "KOT Pending"}
+                            </span>
+                          )}
                           <button
-                            onClick={() => updateQty(item.id, 1)}
-                            className="flex h-4.5 w-4.5 items-center justify-center rounded bg-white text-gray-700 font-bold hover:bg-slate-200 cursor-pointer"
+                            onClick={() => handleEditCartItemAddons(item)}
+                            className="inline-flex items-center gap-0.5 text-[10px] font-bold text-orange-500 hover:text-orange-600 transition cursor-pointer whitespace-nowrap"
                           >
-                            <Plus size={9} />
+                            <Edit3 size={10} /> Edit
                           </button>
                         </div>
 
-                        <button
-                          onClick={() => removeCartItem(item.id)}
-                          className="p-1 text-gray-400 hover:text-rose-500 transition cursor-pointer"
-                        >
-                          <Trash2 size={12} />
-                        </button>
+                        {item.notes && (
+                          <p className="mt-1 text-[10px] text-orange-600 italic truncate">
+                            &quot;{item.notes}&quot;
+                          </p>
+                        )}
+
+                        {/* qty stepper + remove */}
+                        <div className="mt-2 flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => updateQty(item.id, -1)}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-gray-600 font-bold hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition cursor-pointer"
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <span className="w-7 text-center text-sm font-black text-gray-800 tabular-nums">
+                              {item.qty}
+                            </span>
+                            <button
+                              onClick={() => updateQty(item.id, 1)}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 text-white font-bold shadow-sm hover:from-orange-600 hover:to-amber-600 transition cursor-pointer"
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => removeCartItem(item.id)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2 py-1.5 text-[10px] font-bold text-rose-500 hover:bg-rose-100 hover:text-rose-600 transition cursor-pointer"
+                          >
+                            <Trash2 size={12} /> Remove
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1657,58 +1827,58 @@ export default function RestaurantPOSPage() {
             )}
           </div>
 
-          <div className="px-3 py-2 border-t border-slate-100 bg-slate-50/50">
+          {/* ── Order Note ── */}
+          <div className="px-3 py-2.5 border-t border-slate-100 bg-slate-50/50">
             <div className="relative">
               <input
                 type="text"
                 value={orderNote}
                 onChange={(e) => setOrderNote(e.target.value)}
                 placeholder="Add Order Note..."
-                className="w-full rounded-md border border-slate-200 bg-white py-1 pl-2.5 pr-7 text-xs font-medium text-gray-700 focus:border-orange-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-gray-700 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition"
               />
               <FileText size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
-          </div>
-
-          <div className="flex-none p-3.5 bg-slate-50 border-t border-slate-200 space-y-2.5">
-            <div className="space-y-1 text-xs text-gray-600">
+          </div>{/* ── Summary + Actions ── */}
+          <div className="flex-none p-4 bg-gradient-to-b from-slate-50 to-slate-100 border-t border-slate-200 space-y-3">
+            <div className="space-y-1.5 text-xs text-gray-600">
               <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span className="font-bold text-gray-600">{fmt(subTotal)}</span>
+                <span className="text-gray-500">Subtotal</span>
+                <span className="font-bold text-gray-700">{fmt(subTotal)}</span>
               </div>
 
               {discountPercent > 0 && (
                 <div className="flex justify-between text-emerald-600">
                   <span>Discount ({discountPercent}%)</span>
-                  <span>−{fmt(discountAmount)}</span>
+                  <span className="font-bold">−{fmt(discountAmount)}</span>
                 </div>
               )}
 
               <div className="flex justify-between text-gray-500">
                 <span>Tax (8%)</span>
-                <span>{fmt(taxAmount)}</span>
+                <span className="font-medium">{fmt(taxAmount)}</span>
               </div>
 
               <div className="flex justify-between text-gray-500">
                 <span>Service Charge (4%)</span>
-                <span>{fmt(serviceCharge)}</span>
+                <span className="font-medium">{fmt(serviceCharge)}</span>
               </div>
 
-              <div className="flex justify-between items-baseline pt-1.5 border-t border-slate-200">
-                <span className="text-xs capitalize font-bold text-orange-600 tracking-wider">
+              <div className="flex justify-between items-baseline pt-2 mt-1 border-t border-dashed border-slate-300">
+                <span className="text-xs uppercase font-black text-gray-500 tracking-wider">
                   Total Payable
                 </span>
-                <span className="text-xl font-black text-orange-600 tabular-nums">
+                <span className="text-2xl font-black text-orange-600 tabular-nums tracking-tight">
                   {fmt(grandTotal)}
                 </span>
               </div>
             </div>
 
-            <div className="space-y-1.5 pt-1">
+            <div className="space-y-2 pt-1">
               <button
                 onClick={sendKotToKitchen}
                 disabled={cart.length === 0}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-amber-300 bg-amber-50 text-amber-800 font-bold text-xs hover:bg-amber-100 transition cursor-pointer disabled:opacity-40"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border-2 border-amber-300 bg-amber-50 text-amber-800 font-bold text-xs hover:bg-amber-100 hover:border-amber-400 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Flame size={14} className="text-amber-600" /> KOT to Kitchen
               </button>
@@ -1716,12 +1886,14 @@ export default function RestaurantPOSPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={cart.length === 0}
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-md bg-orange-600 text-white font-bold text-xs hover:bg-orange-700 transition cursor-pointer shadow-xs disabled:opacity-40"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white font-bold text-xs hover:from-orange-600 hover:via-amber-600 hover:to-orange-600 transition cursor-pointer shadow-md shadow-orange-500/25 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <span>Place Order</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="tabular-nums">{fmt(grandTotal)}</span>
-                  <ChevronLeft size={16} className="rotate-180" />
+                <span className="flex items-center gap-2">
+                  <ShoppingBag size={15} /> Place Order
+                </span>
+                <div className="flex items-center gap-1.5 bg-white/20 rounded-md px-2 py-0.5">
+                  <span className="tabular-nums font-black">{fmt(grandTotal)}</span>
+                  <ChevronLeft size={14} className="rotate-180" />
                 </div>
               </button>
             </div>
@@ -1900,6 +2072,14 @@ export default function RestaurantPOSPage() {
         onClose={() => setShowClearConfirm(false)}
         onConfirm={() => {
           setCart([]);
+          // ── Booking flow: clearing the order frees the table too ──
+          if (selectedTable) {
+            const clearedTableId = selectedTable.id;
+            setTables((prev) =>
+              prev.map((x) => (x.id === clearedTableId ? { ...x, status: "AVAILABLE" as const } : x))
+            );
+            api.patch(`/v1/restaurant/tables/${clearedTableId}/status`, { status: "AVAILABLE" }).catch(() => {});
+          }
           setShowClearConfirm(false);
           toast.info("Cart cleared successfully");
         }}
@@ -1910,82 +2090,214 @@ export default function RestaurantPOSPage() {
         cancelText="Cancel"
       />
 
-      {/* ══════════════ SELECT TABLE MODAL ══════════════ */}
+      {/* ══════════════ SELECT TABLE MODAL (Section → Table) ══════════════ */}
       <CustomModal
         open={showSelectTableModal}
         onClose={() => setShowSelectTableModal(false)}
         title="Select Dining Table"
-        size="lg"
+        size="2xl"
       >
-        <div className="space-y-5">
-          {/* Legend */}
-          <div className="flex items-center justify-center gap-6 text-[10px] font-black capitalize tracking-widest text-slate-400 bg-slate-50 py-3 rounded-2xl border border-slate-100">
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
-              <span>Available</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]" />
-              <span>Occupied</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
-              <span>Selected</span>
-            </div>
-          </div>
-
-          <div className="max-h-96 overflow-y-auto pr-1 custom-scrollbar">
-            {tables.length === 0 ? (
-              <div className="py-20 text-center text-slate-300 space-y-3">
-                <LayoutGrid size={48} className="mx-auto opacity-20" />
-                <p className="text-xs font-bold capitalize tracking-widest">No tables found</p>
+        <div className="space-y-4">
+          {/* ─── STEP 1 · CHOOSE SECTION (skipped automatically when no sections exist) ─── */}
+          {showFloorStep && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-orange-500 text-[10px] font-black text-white shadow-sm">1</span>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Choose Section</span>
+                </div>
+                {tableModalFloorId && (
+                  <button
+                    type="button"
+                    onClick={() => setTableModalFloorId("")}
+                    className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-[10px] font-black uppercase tracking-wider text-orange-600 transition-colors hover:bg-orange-50"
+                  >
+                    <ArrowLeft size={11} strokeWidth={3} /> Change Section
+                  </button>
+                )}
               </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {tables.map((t) => {
-                  const isSelected = selectedTable?.id === t.id;
-                  const isOccupied = t.status === "OCCUPIED" || t.status === "BILLING";
+
+              <div className="flex flex-wrap gap-2">
+                {floors.map((f) => {
+                  const floorTables = tables.filter((t) => t.floorId === f.id);
+                  const isFloorActive = tableModalFloorId === f.id;
 
                   return (
                     <button
-                      key={t.id}
-                      onClick={() => {
-                        setSelectedTable(t);
-                        setShowSelectTableModal(false);
-                        toast.info(`Selected Table ${t.tableNo}`);
-                      }}
-                      className={`flex flex-col items-center justify-center p-5 rounded-[2rem] border-2 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer select-none group ${
-                        isSelected
-                          ? "bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-500/30"
-                          : isOccupied
-                          ? "bg-amber-50 text-amber-900 border-amber-200 hover:border-amber-400"
-                          : "bg-emerald-50 text-emerald-950 border-emerald-100 hover:border-emerald-300"
+                      key={f.id}
+                      type="button"
+                      onClick={() => setTableModalFloorId(f.id)}
+                      className={`flex cursor-pointer select-none items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-bold transition-colors duration-150 ${
+                        isFloorActive
+                          ? "border-orange-500 bg-orange-500 text-white shadow-sm shadow-orange-500/20"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-orange-400 hover:bg-orange-50/50"
                       }`}
                     >
-                      <span className={`text-lg font-black tracking-tighter ${isSelected ? "text-white" : "text-gray-600"}`}>
-                        {t.tableNo}
+                      <Building2 size={14} className={isFloorActive ? "text-white" : "text-orange-500"} />
+                      {f.name}
+                      <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-black ${isFloorActive ? "bg-white/25 text-white" : "bg-slate-100 text-slate-500"}`}>
+                        {floorTables.length}
                       </span>
-                      <div className={`flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-full text-[9px] font-black capitalize tracking-wider ${
-                        isSelected ? "bg-white/20 text-white" : "bg-white/60 text-slate-400"
-                      }`}>
-                        <Users size={10} strokeWidth={3} /> {t.capacity}
-                      </div>
                     </button>
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* ─── STEP 2 · PICK A TABLE ─── */}
+          <div className="space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              {showFloorStep && !tableModalFloorId ? (
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-200 text-[10px] font-black text-slate-500">2</span>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">Pick a Table</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-orange-500 text-[10px] font-black text-white shadow-sm">
+                    {showFloorStep ? "2" : "•"}
+                  </span>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                    {showFloorStep ? `${floors.find((f) => f.id === tableModalFloorId)?.name || "Section"} · Tables` : "All Tables"}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Free</span>
+                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-amber-500" /> Busy</span>
+                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-purple-500" /> Reserved</span>
+                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-orange-500" /> Selected</span>
+              </div>
+            </div>
+
+            {showFloorStep && !tableModalFloorId ? (
+              <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 py-10 text-center">
+                <LayoutGrid size={32} className="mx-auto text-slate-300" />
+                <p className="mt-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
+                  Select a section above to view its tables
+                </p>
+              </div>
+            ) : (
+              <div className="custom-scrollbar max-h-[46vh] overflow-y-auto pr-1">
+                {tableModalTables.length === 0 ? (
+                  <div className="py-10 text-center">
+                    <Armchair size={36} className="mx-auto text-slate-200" />
+                    <p className="mt-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
+                      No tables {showFloorStep ? "in this section" : "found"}
+                    </p>
+                    {showFloorStep && (
+                      <p className="mt-1 text-[10px] font-medium text-slate-300">
+                        Try another section or add tables from the Sections page.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+                    {tableModalTables.map((t) => {
+                      const isSelected = selectedTable?.id === t.id;
+                      const isReserved = t.status === "RESERVED";
+                      const isBusy = t.status === "OCCUPIED" || t.status === "BILLING";
+                      const isAvailable = t.status === "AVAILABLE";
+
+                      return (
+                        <button
+                          key={t.id}
+                          disabled={!isAvailable}
+                          title={isReserved ? "Already reserved" : isBusy ? "Currently occupied" : undefined}
+                          onClick={() => {
+                            if (!isAvailable) return;
+                            // ── BOOKING: free the previous table, then reserve this one ──
+                            const previous = selectedTable;
+                            if (previous && previous.id !== t.id) {
+                              setTables((prev) =>
+                                prev.map((x) => (x.id === previous.id ? { ...x, status: "AVAILABLE" as const } : x))
+                              );
+                              api.patch(`/v1/restaurant/tables/${previous.id}/status`, { status: "AVAILABLE" }).catch(() => {});
+                            }
+                            setTables((prev) =>
+                              prev.map((x) => (x.id === t.id ? { ...x, status: "RESERVED" as const } : x))
+                            );
+                            api.patch(`/v1/restaurant/tables/${t.id}/status`, { status: "RESERVED" }).catch(() => {});
+                            setSelectedTable(t);
+                            setShowSelectTableModal(false);
+                            toast.success(`Table ${t.tableNo} reserved for this order`);
+                          }}
+                          className={`rounded-xl border p-3 text-left transition-colors duration-150 ${
+                            isSelected
+                              ? "border-orange-500 bg-orange-500 ring-2 ring-orange-200"
+                              : !isAvailable
+                              ? isReserved
+                                ? "border-purple-200 bg-purple-50 opacity-80 cursor-not-allowed"
+                                : "border-amber-200 bg-amber-50 opacity-80 cursor-not-allowed"
+                              : "border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50/60 cursor-pointer"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className={`truncate text-sm font-black tracking-tight ${isSelected ? "text-white" : "text-gray-700"}`}>
+                              {t.tableNo}
+                            </span>
+                            {isSelected ? (
+                              <CheckCircle2 size={15} className="shrink-0 text-white" />
+                            ) : (
+                              <span className={`h-2 w-2 shrink-0 rounded-full ${isReserved ? "bg-purple-500" : isBusy ? "bg-amber-500" : "bg-emerald-500"}`} />
+                            )}
+                          </div>
+
+                          <div className="mt-2 flex items-center justify-between gap-2">
+                            <span className={`flex items-center gap-1 text-[10px] font-bold ${isSelected ? "text-orange-50" : "text-slate-400"}`}>
+                              <Users size={10} strokeWidth={2.5} /> {t.capacity} Seats
+                            </span>
+                            <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider ${
+                              isSelected
+                                ? "bg-white/20 text-white"
+                                : isReserved
+                                ? "bg-purple-100 text-purple-600"
+                                : isBusy
+                                ? "bg-amber-100 text-amber-600"
+                                : "bg-emerald-100 text-emerald-600"
+                            }`}>
+                              {isReserved ? "Reserved" : isBusy ? "Busy" : "Free"}
+                            </span>
+                          </div>
+
+                          {isBusy && t.currentBill ? (
+                            <div className={`mt-2 rounded-md px-2 py-1 text-[9px] font-bold ${isSelected ? "bg-white/15 text-orange-50" : "bg-amber-100/70 text-amber-700"}`}>
+                              Bill ৳{t.currentBill}{t.guestCount ? ` · ${t.guestCount} guests` : ""}
+                            </div>
+                          ) : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
-          <div className="flex justify-end pt-2">
-            <CustomButton
-              variant="outline"
-              onClick={() => setShowSelectTableModal(false)}
-            >
-              Cancel
-            </CustomButton>
+            <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+              <div className="flex min-w-0 items-center gap-2">
+                {selectedTable ? (
+                  <>
+                    <CheckCircle2 size={14} className="shrink-0 text-emerald-500" />
+                    <span className="truncate text-[11px] font-bold text-slate-500">
+                      Selected: <span className="font-black text-gray-700">{selectedTable.tableNo}</span>
+                      <span className="text-slate-400"> · {selectedTable.capacity} Seats</span>
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-[11px] font-bold text-slate-400">No table selected yet</span>
+                )}
+              </div>
+              <CustomButton
+                variant="outline"
+                onClick={() => setShowSelectTableModal(false)}
+              >
+                Close
+              </CustomButton>
+            </div>
           </div>
-        </div>
       </CustomModal>
 
       {/* ══════════════ MEAL SHIFT DETAILS MODAL ══════════════ */}
