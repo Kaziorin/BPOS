@@ -102,7 +102,9 @@ interface RestaurantCartItem {
   name: string;
   qty: number;
   unitPrice: number;
+  image?: string;
   modifiers?: CartModifier[];
+  extras?: { label: string; price: number }[];
   notes?: string;
   isKitchenProduct?: boolean;
   kotStatus: "PENDING" | "SENT_TO_KITCHEN" | "PREPARING" | "SERVED" | "READY_TO_SERVE";
@@ -248,14 +250,47 @@ export default function RestaurantPOSPage() {
   const [storeName, setStoreName] = useState<string>("BlueOceans POS SYSTEM");
   const [tables, setTables] = useState<TableOption[]>(DEMO_TABLES);
   const [floors, setFloors] = useState<FloorOption[]>([]);
-  const [selectedTable, setSelectedTable] = useState<TableOption | null>(DEMO_TABLES[0]);
-  const [guestCount, setGuestCount] = useState(2);
+  const [selectedTable, setSelectedTable] = useState<TableOption | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const savedId = localStorage.getItem("bpos_restaurant_selected_table_id");
+        if (savedId) {
+          const match = DEMO_TABLES.find((t) => t.id === savedId);
+          if (match) return match;
+        }
+      } catch (_) {}
+    }
+    return DEMO_TABLES[0];
+  });
+  const [guestCount, setGuestCount] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const c = localStorage.getItem("bpos_restaurant_guest_count");
+        if (c !== null) {
+          const n = parseInt(c, 10);
+          if (n >= 1 && n <= 20) return n;
+        }
+      } catch (_) {}
+    }
+    return 2;
+  });
   const [waiterName, setWaiterName] = useState("Staff 1");
   const [orderType, setOrderType] = useState<"DINE_IN" | "TAKEAWAY" | "DELIVERY">("DINE_IN");
 
   const [products, setProducts] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<CategorySidebarItem[]>(DEFAULT_CATEGORIES);
-  const [cart, setCart] = useState<RestaurantCartItem[]>([]);
+  const [cart, setCart] = useState<RestaurantCartItem[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("bpos_restaurant_cart");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed)) return parsed as RestaurantCartItem[];
+        }
+      } catch (_) {}
+    }
+    return [];
+  });
 
   const [selectedCategory, setSelectedCategory] = useState("All Items");
   const [searchFilter, setSearchFilter] = useState("");
@@ -532,7 +567,16 @@ export default function RestaurantPOSPage() {
                 floorName: loadedFloors[i % loadedFloors.length].name,
               }));
           setTables(withFloors);
-          setSelectedTable((prev) => prev || withFloors[0]);
+          setSelectedTable(() => {
+            try {
+              const savedId = typeof window !== "undefined" ? localStorage.getItem("bpos_restaurant_selected_table_id") : null;
+              if (savedId) {
+                const match = withFloors.find((t) => t.id === savedId);
+                if (match) return match;
+              }
+            } catch (_) {}
+            return withFloors[0];
+          });
         } else {
           // Demo fallback: spread demo tables across sections (round-robin) so the
           // Section → Table picker stays fully usable without seeded tables.
@@ -542,7 +586,16 @@ export default function RestaurantPOSPage() {
             floorName: loadedFloors[i % loadedFloors.length].name,
           }));
           setTables(demoTables);
-          setSelectedTable((prev) => prev || demoTables[0]);
+          setSelectedTable(() => {
+            try {
+              const savedId = typeof window !== "undefined" ? localStorage.getItem("bpos_restaurant_selected_table_id") : null;
+              if (savedId) {
+                const match = demoTables.find((t) => t.id === savedId);
+                if (match) return match;
+              }
+            } catch (_) {}
+            return demoTables[0];
+          });
         }
       } catch (errTables) {
         if (loadedFloors.length === 0) {
@@ -555,7 +608,16 @@ export default function RestaurantPOSPage() {
           floorName: loadedFloors[i % loadedFloors.length].name,
         }));
         setTables(demoTables);
-        setSelectedTable((prev) => prev || demoTables[0]);
+        setSelectedTable(() => {
+          try {
+            const savedId = typeof window !== "undefined" ? localStorage.getItem("bpos_restaurant_selected_table_id") : null;
+            if (savedId) {
+              const match = demoTables.find((t) => t.id === savedId);
+              if (match) return match;
+            }
+          } catch (_) {}
+          return demoTables[0];
+        });
       }
     } catch (err) {
       console.error("Failed to load restaurant POS data:", err);
@@ -581,6 +643,28 @@ export default function RestaurantPOSPage() {
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [loadData]);
+
+  // ── Persist the live order across page reloads ──
+  // (cart, selected table & guest count survive refresh so a half-built
+  //  order is never lost; completing/clearing the order clears the save too)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem("bpos_restaurant_cart", JSON.stringify(cart));
+    } catch (_) {}
+  }, [cart]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      if (selectedTable) {
+        localStorage.setItem("bpos_restaurant_selected_table_id", selectedTable.id);
+      } else {
+        localStorage.removeItem("bpos_restaurant_selected_table_id");
+      }
+      localStorage.setItem("bpos_restaurant_guest_count", String(guestCount));
+    } catch (_) {}
+  }, [selectedTable, guestCount]);
 
   // ── Header search: query the API so the search works across ALL restaurant products ──
   useEffect(() => {
@@ -652,7 +736,7 @@ export default function RestaurantPOSPage() {
       name: cartItem.name,
       category: "General",
       sellingPrice: cartItem.unitPrice,
-      image: "",
+      image: cartItem.image || "",
     };
     setSelectedProductForAddons(prod);
     setEditingCartItem(cartItem);
@@ -712,6 +796,7 @@ export default function RestaurantPOSPage() {
           id: `${selectedProductForAddons.id}-${Date.now()}`,
           productId: selectedProductForAddons.id,
           name: selectedProductForAddons.name,
+          image: selectedProductForAddons.image || "",
           qty: 1,
           unitPrice: finalUnitPrice,
           modifiers: modifiersList,
@@ -720,6 +805,7 @@ export default function RestaurantPOSPage() {
           kotStatus: isKitchen ? "PENDING" : "READY_TO_SERVE",
         },
       ]);
+      reserveSelectedTable();
       toast.success(`Added ${selectedProductForAddons.name} with add-ons to order`);
     }
 
@@ -740,6 +826,22 @@ export default function RestaurantPOSPage() {
     return String(days);
   };
 
+  // ── Booking flow: adding the first item hard-locks the table server-side ──
+  // so another POS terminal cannot take this table until the bill is paid
+  // or the order is cleared. (Idempotent: only pushes a PATCH while AVAILABLE.)
+  const reserveSelectedTable = () => {
+    if (!selectedTable) return;
+    const cur = tables.find((t) => t.id === selectedTable.id);
+    if (cur && (cur.status === "AVAILABLE" || !cur.status)) {
+      setTables((prev) =>
+        prev.map((t) => (t.id === selectedTable.id ? { ...t, status: "RESERVED" as const } : t))
+      );
+      api
+        .patch(`/v1/restaurant/tables/${selectedTable.id}/status`, { status: "RESERVED" })
+        .catch(() => {});
+    }
+  };
+
   const addToCart = (item: MenuItem) => {
     const isKitchen = item.isKitchenProduct ?? true;
     setCart((prev) => {
@@ -755,6 +857,7 @@ export default function RestaurantPOSPage() {
           id: `${item.id}-${Date.now()}`,
           productId: item.id,
           name: item.name,
+          image: item.image || "",
           qty: 1,
           unitPrice: item.sellingPrice,
           isKitchenProduct: isKitchen,
@@ -762,6 +865,7 @@ export default function RestaurantPOSPage() {
         },
       ];
     });
+    reserveSelectedTable();
     toast.success(`Added ${item.name} to order`);
   };
 
@@ -1547,121 +1651,174 @@ export default function RestaurantPOSPage() {
         </main>
 
         {/* ── RIGHT ORDER SUMMARY PANEL ── */}
-        <aside className="w-80 sm:w-96 flex-none flex flex-col rounded-md bg-white border border-slate-200 shadow-sm overflow-hidden">
-          <div className="flex-none p-3 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xs font-bold text-gray-600">Order Summary</h2>
-              <span className="rounded-md bg-orange-100 text-orange-700 border border-orange-200 px-2 py-0.5 text-[10px] font-bold">
-                {cart.length} Items
-              </span>
+        <aside className="w-80 sm:w-96 flex-none flex flex-col rounded-xl bg-white border border-slate-200 shadow-md overflow-hidden">
+          {/* ── HEADER ── */}
+          <div className="flex-none px-4 py-3.5 border-b border-orange-100 bg-gradient-to-br from-orange-500 via-amber-500 to-orange-400">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm text-white shadow-inner">
+                  <FileText size={15} />
+                </span>
+                <div className="min-w-0">
+                  <h2 className="text-xs font-black uppercase tracking-widest text-white/90 leading-tight">Order Summary</h2>
+                  <p className="text-[10px] font-semibold text-orange-100 truncate leading-tight mt-0.5">
+                    {selectedTable ? `${selectedTable.tableNo} · ${guestCount} Guest${guestCount === 1 ? "" : "s"}` : "No table selected"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="rounded-full bg-white text-orange-600 px-2.5 py-0.5 text-[10px] font-black shadow-sm">
+                  {cart.length} {cart.length === 1 ? "Item" : "Items"}
+                </span>
+                {cart.length > 0 && (
+                  <button
+                    onClick={() => setShowClearConfirm(true)}
+                    title="Clear all items"
+                    className="p-1.5 rounded-md text-white/80 hover:bg-white/20 hover:text-white transition cursor-pointer"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                )}
+              </div>
             </div>
-            {cart.length > 0 && (
-              <button
-                onClick={() => setShowClearConfirm(true)}
-                className="text-xs font-bold text-rose-500 hover:text-rose-700 flex items-center gap-1 cursor-pointer"
-              >
-                <Trash2 size={12} /> Clear All
-              </button>
-            )}
           </div>
 
-          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2.5 divide-y divide-slate-100">
+          {/* ── Cart Items ── */}
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2.5 bg-gradient-to-b from-slate-50/80 to-white custom-scrollbar">
             {cart.length === 0 ? (
-              <div className="py-20 text-center text-gray-400 space-y-2">
-                <ShoppingBag size={40} className="mx-auto text-gray-300" />
-                <p className="text-xs font-bold text-gray-600">Cart is empty</p>
-                <p className="text-[11px] text-gray-400 max-w-xs mx-auto">
-                  Click on food items to add them to this table order.
+              <div className="rounded-xl border border-dashed border-orange-200 bg-orange-50/30 py-16 text-center text-gray-400 space-y-3">
+                <div className="mx-auto h-14 w-14 rounded-full bg-orange-100 flex items-center justify-center">
+                  <ShoppingBag size={26} className="text-orange-300" />
+                </div>
+                <p className="text-sm font-bold text-gray-500">Cart is empty</p>
+                <p className="text-[11px] text-gray-400 max-w-[230px] mx-auto leading-relaxed">
+                  Pick a section table, then tap food items to build this order.
                 </p>
               </div>
-            ) : (
-              cart.map((item, idx) => (
-                <div key={item.id} className="pt-2.5 first:pt-0">
-                  <div className="flex items-start gap-2">
-                    <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-md bg-orange-100 text-[10px] font-bold text-orange-700">
-                      {idx + 1}
-                    </span>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-1">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <h4 className="font-bold text-xs text-gray-600 truncate">{item.name}</h4>
-                          <button
-                            onClick={() => handleEditCartItemAddons(item)}
-                            className="p-1 text-orange-600 hover:bg-orange-50 rounded transition cursor-pointer"
-                            title="Edit Add-ons"
-                          >
-                            <Edit3 size={11} />
-                          </button>
-                        </div>
-                        <span className="font-bold text-xs text-gray-600 tabular-nums">
-                          {fmt(item.qty * item.unitPrice)}
-                        </span>
-                      </div>
-
-                      {/* Render Selected Modifiers */}
-                      {item.modifiers && item.modifiers.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {item.modifiers.map((mod, mIdx) => (
-                            <span
-                              key={mIdx}
-                              className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-50 text-amber-800 border border-amber-200"
-                            >
-                              {mod.label}: {mod.value}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        {item.isKitchenProduct === false ? (
-                          <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
-                            ⚡ Ready Item
-                          </span>
+) : (
+              cart.map((item) => (
+                <div key={item.id} className="rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all duration-150 overflow-hidden">
+                  <div className="p-3.5">
+                    <div className="flex items-center gap-3">
+                      {/* Product Image / Placeholder */}
+                      <div className="relative shrink-0">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            loading="lazy"
+                            className="h-12 w-12 rounded-xl border border-orange-200 object-cover"
+                          />
                         ) : (
-                          <span
-                            className={`inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold ${
-                              item.kotStatus === "SENT_TO_KITCHEN"
-                                ? "bg-amber-100 text-amber-800"
-                                : "bg-slate-100 text-gray-600"
-                            }`}
-                          >
-                            🍳 {item.kotStatus === "SENT_TO_KITCHEN" ? "KOT Sent" : "KOT Pending"}
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-orange-200 bg-gradient-to-br from-orange-100 to-amber-100">
+                            <ChefHat size={22} className="text-orange-500" />
+                          </div>
+                        )}
+                        {item.isKitchenProduct === false && (
+                          <span className="absolute -bottom-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-emerald-500 text-white" title="Ready-to-serve item">
+                            <span className="text-[7px] font-black leading-none">✓</span>
                           </span>
                         )}
                       </div>
 
-                      {item.notes && (
-                        <p className="mt-0.5 text-[10px] text-orange-600 italic">
-                          &quot;{item.notes}&quot;
-                        </p>
-                      )}
-
-                      <div className="mt-1.5 flex items-center justify-between">
-                        <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-md border border-slate-200">
-                          <button
-                            onClick={() => updateQty(item.id, -1)}
-                            className="flex h-4.5 w-4.5 items-center justify-center rounded bg-white text-gray-700 font-bold hover:bg-slate-200 cursor-pointer"
-                          >
-                            <Minus size={9} />
-                          </button>
-                          <span className="w-4 text-center font-bold text-xs text-gray-600">
-                            {item.qty}
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1.5">
+                          <h4 className="text-sm font-bold text-gray-800 truncate min-w-0 flex-1">{item.name}</h4>
+                          <span className="text-sm font-black text-gray-900 whitespace-nowrap tabular-nums shrink-0">
+                            {fmt((item.qty * item.unitPrice) + (item.extras?.reduce((s, e) => s + e.price, 0) || 0))}
                           </span>
+                        </div>
+
+                        {/* Size / Spice / Options */}
+                        {item.modifiers && item.modifiers.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {item.modifiers.map((mod, mIdx) => (
+                              <span
+                                key={mIdx}
+                                className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${
+                                  mod.label === "Size"
+                                    ? "bg-orange-100 border border-orange-300 text-orange-800"
+                                    : mod.label === "Spice"
+                                      ? "bg-rose-50 border border-rose-200 text-rose-600"
+                                      : "bg-amber-50 border border-amber-200 text-amber-700"
+                                }`}
+                              >
+                                <span className="font-black">{mod.label}:</span> {mod.value.replace(/ \(.*?\)$/, "")}
+                              </span>
+                            ))}
+                          </div>
+                        )}{/* Extras/Add-ons */}
+                        {item.extras && item.extras.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {item.extras.map((ext, eIdx) => (
+                              <span
+                                key={eIdx}
+                                className="inline-flex items-center gap-1 rounded-lg bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-semibold text-amber-700 whitespace-nowrap"
+                              >
+                                +{ext.label} <span className="font-black">{fmt(ext.price)}</span>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* KOT status / notes */}
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                          {item.isKitchenProduct === false ? (
+                            <span className="inline-flex items-center gap-0.5 rounded-md bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 whitespace-nowrap">
+                              ⚡ Ready Item
+                            </span>
+                          ) : (
+                            <span
+                              className={`inline-flex items-center gap-0.5 rounded-md px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${
+                                item.kotStatus === "SENT_TO_KITCHEN"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : "bg-slate-100 text-gray-600"
+                              }`}
+                            >
+                              🍳 {item.kotStatus === "SENT_TO_KITCHEN" ? "KOT Sent" : "KOT Pending"}
+                            </span>
+                          )}
                           <button
-                            onClick={() => updateQty(item.id, 1)}
-                            className="flex h-4.5 w-4.5 items-center justify-center rounded bg-white text-gray-700 font-bold hover:bg-slate-200 cursor-pointer"
+                            onClick={() => handleEditCartItemAddons(item)}
+                            className="inline-flex items-center gap-0.5 text-[10px] font-bold text-orange-500 hover:text-orange-600 transition cursor-pointer whitespace-nowrap"
                           >
-                            <Plus size={9} />
+                            <Edit3 size={10} /> Edit
                           </button>
                         </div>
 
-                        <button
-                          onClick={() => removeCartItem(item.id)}
-                          className="p-1 text-gray-400 hover:text-rose-500 transition cursor-pointer"
-                        >
-                          <Trash2 size={12} />
-                        </button>
+                        {item.notes && (
+                          <p className="mt-1 text-[10px] text-orange-600 italic truncate">
+                            &quot;{item.notes}&quot;
+                          </p>
+                        )}
+
+                        {/* qty stepper + remove */}
+                        <div className="mt-2 flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => updateQty(item.id, -1)}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-gray-600 font-bold hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition cursor-pointer"
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <span className="w-7 text-center text-sm font-black text-gray-800 tabular-nums">
+                              {item.qty}
+                            </span>
+                            <button
+                              onClick={() => updateQty(item.id, 1)}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 text-white font-bold shadow-sm hover:from-orange-600 hover:to-amber-600 transition cursor-pointer"
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => removeCartItem(item.id)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2 py-1.5 text-[10px] font-bold text-rose-500 hover:bg-rose-100 hover:text-rose-600 transition cursor-pointer"
+                          >
+                            <Trash2 size={12} /> Remove
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1670,58 +1827,58 @@ export default function RestaurantPOSPage() {
             )}
           </div>
 
-          <div className="px-3 py-2 border-t border-slate-100 bg-slate-50/50">
+          {/* ── Order Note ── */}
+          <div className="px-3 py-2.5 border-t border-slate-100 bg-slate-50/50">
             <div className="relative">
               <input
                 type="text"
                 value={orderNote}
                 onChange={(e) => setOrderNote(e.target.value)}
                 placeholder="Add Order Note..."
-                className="w-full rounded-md border border-slate-200 bg-white py-1 pl-2.5 pr-7 text-xs font-medium text-gray-700 focus:border-orange-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-gray-700 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition"
               />
               <FileText size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
-          </div>
-
-          <div className="flex-none p-3.5 bg-slate-50 border-t border-slate-200 space-y-2.5">
-            <div className="space-y-1 text-xs text-gray-600">
+          </div>{/* ── Summary + Actions ── */}
+          <div className="flex-none p-4 bg-gradient-to-b from-slate-50 to-slate-100 border-t border-slate-200 space-y-3">
+            <div className="space-y-1.5 text-xs text-gray-600">
               <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span className="font-bold text-gray-600">{fmt(subTotal)}</span>
+                <span className="text-gray-500">Subtotal</span>
+                <span className="font-bold text-gray-700">{fmt(subTotal)}</span>
               </div>
 
               {discountPercent > 0 && (
                 <div className="flex justify-between text-emerald-600">
                   <span>Discount ({discountPercent}%)</span>
-                  <span>−{fmt(discountAmount)}</span>
+                  <span className="font-bold">−{fmt(discountAmount)}</span>
                 </div>
               )}
 
               <div className="flex justify-between text-gray-500">
                 <span>Tax (8%)</span>
-                <span>{fmt(taxAmount)}</span>
+                <span className="font-medium">{fmt(taxAmount)}</span>
               </div>
 
               <div className="flex justify-between text-gray-500">
                 <span>Service Charge (4%)</span>
-                <span>{fmt(serviceCharge)}</span>
+                <span className="font-medium">{fmt(serviceCharge)}</span>
               </div>
 
-              <div className="flex justify-between items-baseline pt-1.5 border-t border-slate-200">
-                <span className="text-xs capitalize font-bold text-orange-600 tracking-wider">
+              <div className="flex justify-between items-baseline pt-2 mt-1 border-t border-dashed border-slate-300">
+                <span className="text-xs uppercase font-black text-gray-500 tracking-wider">
                   Total Payable
                 </span>
-                <span className="text-xl font-black text-orange-600 tabular-nums">
+                <span className="text-2xl font-black text-orange-600 tabular-nums tracking-tight">
                   {fmt(grandTotal)}
                 </span>
               </div>
             </div>
 
-            <div className="space-y-1.5 pt-1">
+            <div className="space-y-2 pt-1">
               <button
                 onClick={sendKotToKitchen}
                 disabled={cart.length === 0}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-amber-300 bg-amber-50 text-amber-800 font-bold text-xs hover:bg-amber-100 transition cursor-pointer disabled:opacity-40"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border-2 border-amber-300 bg-amber-50 text-amber-800 font-bold text-xs hover:bg-amber-100 hover:border-amber-400 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Flame size={14} className="text-amber-600" /> KOT to Kitchen
               </button>
@@ -1729,12 +1886,14 @@ export default function RestaurantPOSPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={cart.length === 0}
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-md bg-orange-600 text-white font-bold text-xs hover:bg-orange-700 transition cursor-pointer shadow-xs disabled:opacity-40"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white font-bold text-xs hover:from-orange-600 hover:via-amber-600 hover:to-orange-600 transition cursor-pointer shadow-md shadow-orange-500/25 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <span>Place Order</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="tabular-nums">{fmt(grandTotal)}</span>
-                  <ChevronLeft size={16} className="rotate-180" />
+                <span className="flex items-center gap-2">
+                  <ShoppingBag size={15} /> Place Order
+                </span>
+                <div className="flex items-center gap-1.5 bg-white/20 rounded-md px-2 py-0.5">
+                  <span className="tabular-nums font-black">{fmt(grandTotal)}</span>
+                  <ChevronLeft size={14} className="rotate-180" />
                 </div>
               </button>
             </div>
