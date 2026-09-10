@@ -112,7 +112,7 @@ function RestaurantPageContent() {
       {/* Reusable Custom Breadcrumb Header */}
       <CustomBreadcrumb
         title="Restaurant & Culinary Engine"
-        description="Floor plan management, KOT & KDS station routing, table transfer/merge, meal shift time-slots, and automated Recipe BOM ingredient costing."
+        description="Section management, KOT & KDS station routing, table transfer/merge, meal shift time-slots, and automated Recipe BOM ingredient costing."
         icon={<UtensilsCrossed size={16} className="text-orange-600" />}
         iconClassName="flex h-7 w-7 items-center justify-center rounded-md bg-orange-50 text-orange-600 border border-orange-200 shrink-0"
         items={[{ label: "Restaurant", href: "/restaurant" }]}
@@ -152,7 +152,7 @@ function RestaurantPageContent() {
                 </span>
               </div>
               <p className="text-xs text-gray-500 mt-1 w-full leading-relaxed">
-                Full-width floor plan table grid, real-time KOT & KDS station routing, meal shifts & time-slots, and automated Recipe BOM ingredient costing.
+                Full-width section-based table grid, real-time KOT & KDS station routing, meal shifts & time-slots, and automated Recipe BOM ingredient costing.
               </p>
             </div>
           </div>
@@ -247,7 +247,7 @@ function RestaurantPageContent() {
       {/* Custom Tabs Navigation (Full-Width Card) */}
       <CustomTabs
         tabs={[
-          { id: "floors", label: "Floor Plan & Table Grid", icon: <LayoutGrid className="w-4 h-4 text-orange-600" /> },
+          { id: "floors", label: "Sections & Table Grid", icon: <LayoutGrid className="w-4 h-4 text-orange-600" /> },
           { id: "kds", label: "Kitchen Display (KDS Routing)", icon: <Flame className="w-4 h-4 text-red-600" /> },
           { id: "recipes", label: "Recipe BOM & Food Costing", icon: <PieChart className="w-4 h-4 text-orange-600" /> },
           { id: "shifts", label: "POS Shifts & Time Slots", icon: <Clock className="w-4 h-4 text-teal-600" /> },

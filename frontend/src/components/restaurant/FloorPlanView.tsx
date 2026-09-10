@@ -55,6 +55,12 @@ const STATUS_COLORS: Record<Table["status"], { bg: string; border: string; text:
   CLEANING: { bg: "bg-slate-100", border: "border-slate-200", text: "text-slate-700", dot: "bg-slate-500" },
 };
 
+export const DEFAULT_FLOORS: Floor[] = [
+  { id: "floor-main", name: "Main Dining", sortOrder: 1 },
+  { id: "floor-vip", name: "VIP Lounge", sortOrder: 2 },
+  { id: "floor-terrace", name: "Rooftop Terrace", sortOrder: 3 },
+];
+
 export default function FloorPlanView() {
   const [floors, setFloors] = useState<Floor[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
@@ -69,7 +75,7 @@ export default function FloorPlanView() {
   const [newCapacity, setNewCapacity] = useState(4);
   const [addTableFloorId, setAddTableFloorId] = useState("");
 
-  // New Floor modal state
+  // New Section modal state
   const [showFloorModal, setShowFloorModal] = useState(false);
   const [newFloorName, setNewFloorName] = useState("");
 
@@ -89,12 +95,6 @@ export default function FloorPlanView() {
 
   // Dynamic branch ID
   const [branchId, setBranchId] = useState("");
-
-  const DEFAULT_FLOORS: Floor[] = [
-    { id: "floor-main", name: "Main Dining", sortOrder: 1 },
-    { id: "floor-vip", name: "VIP Lounge", sortOrder: 2 },
-    { id: "floor-terrace", name: "Rooftop Terrace", sortOrder: 3 },
-  ];
 
   const loadData = async () => {
     setLoading(true);
@@ -118,7 +118,7 @@ export default function FloorPlanView() {
       setFloors(loadedFloors.length > 0 ? loadedFloors : DEFAULT_FLOORS);
       setTables(loadedTables);
     } catch (err: any) {
-      setError(err.message || "Failed to load floor plan");
+      setError(err.message || "Failed to load sections");
       setFloors(DEFAULT_FLOORS);
     } finally {
       setLoading(false);
@@ -142,10 +142,10 @@ export default function FloorPlanView() {
       if (!tableId.startsWith("table-")) {
         await api.put(`/v1/restaurant/tables/${tableId}`, { floorId: newFloorId || null });
       }
-      toast.success("Table floor updated successfully!");
+      toast.success("Table section updated successfully!");
       loadData();
     } catch (err: any) {
-      toast.error("Failed to update table floor: " + (err.response?.data?.detail || err.message));
+      toast.error("Failed to update table section: " + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -208,7 +208,7 @@ export default function FloorPlanView() {
     setFloors((prev) => [...prev, newFloorObj]);
     setShowFloorModal(false);
     setNewFloorName("");
-    toast.success("Floor created successfully!");
+    toast.success("Section created successfully!");
     try {
       await api.post("/v1/restaurant/floors", {
         branchId: branchId,
@@ -232,7 +232,7 @@ export default function FloorPlanView() {
     setShowEditFloorModal(false);
     setEditingFloor(null);
     setEditFloorName("");
-    toast.success("Floor updated successfully!");
+    toast.success("Section updated successfully!");
     try {
       if (!targetFloor.id.startsWith("floor-")) {
         await api.put(`/v1/restaurant/floors/${targetFloor.id}`, {
@@ -248,7 +248,7 @@ export default function FloorPlanView() {
   const handleDeleteFloor = async (floorId: string) => {
     setFloors((prev) => prev.filter((f) => f.id !== floorId));
     if (selectedFloorId === floorId) setSelectedFloorId("");
-    toast.success("Floor deleted successfully!");
+    toast.success("Section deleted successfully!");
     try {
       if (!floorId.startsWith("floor-")) {
         await api.del(`/v1/restaurant/floors/${floorId}`);
@@ -295,7 +295,7 @@ export default function FloorPlanView() {
                 : "bg-slate-100 text-gray-600 hover:text-gray-900 hover:bg-slate-200"
             }`}
           >
-            All Floors
+            All Sections
           </button>
           {floors.map((f) => {
             const isSelected = selectedFloorId === f.id;
@@ -320,7 +320,7 @@ export default function FloorPlanView() {
             onClick={() => setShowFloorModal(true)}
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 rounded-md transition-all cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" /> New Floor
+            <Plus className="w-3.5 h-3.5" /> New Section
           </button>
 
           {/* Actions for Selected Active Floor */}
@@ -338,10 +338,10 @@ export default function FloorPlanView() {
                   }
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md border border-slate-200 transition cursor-pointer"
-                title="Edit active floor name"
+                title="Edit active section name"
               >
                 <Pencil className="w-3.5 h-3.5 text-slate-600" />
-                <span>Edit Floor</span>
+                <span>Edit Section</span>
               </button>
 
               <button
@@ -354,10 +354,10 @@ export default function FloorPlanView() {
                   }
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-md border border-rose-200 transition cursor-pointer"
-                title="Delete active floor"
+                title="Delete active section"
               >
                 <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-                <span>Delete Floor</span>
+                <span>Delete Section</span>
               </button>
             </div>
           )}
@@ -382,7 +382,7 @@ export default function FloorPlanView() {
             id="btn-refresh-tables"
             onClick={loadData}
             className="p-2 text-gray-600 hover:text-gray-900 bg-slate-100 hover:bg-slate-200 rounded-md transition-all"
-            title="Refresh floor plan"
+            title="Refresh sections"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-orange-600" : ""}`} />
           </button>
@@ -397,7 +397,7 @@ export default function FloorPlanView() {
         </div>
       )}
 
-      {/* Table Grid Floor Plan (Full Width Grid Cards) */}
+      {/* Table Grid by Section (Full Width Grid Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
         {filteredTables.map((t) => {
           const style = STATUS_COLORS[t.status] || STATUS_COLORS.AVAILABLE;
@@ -432,13 +432,13 @@ export default function FloorPlanView() {
                   <div className="flex items-center justify-between gap-2 w-full pt-0.5">
                     <div className="flex items-center gap-2">
                       <Layers className="w-4 h-4 text-orange-600" />
-                      <span>Floor: <strong className="text-gray-700">{t.floor?.name || "Unassigned"}</strong></span>
+                      <span>Section: <strong className="text-gray-700">{t.floor?.name || "Unassigned"}</strong></span>
                     </div>
                     <select
                       value={t.floor?.id || ""}
                       onChange={(e) => handleTableFloorChange(t.id, e.target.value)}
                       className="text-[10px] font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded px-1.5 py-0.5 focus:outline-none cursor-pointer"
-                      title="Assign / Change Floor"
+                      title="Assign / Change Section"
                     >
                       <option value="">Select Floor...</option>
                       {floors.map((f) => (
@@ -491,7 +491,7 @@ export default function FloorPlanView() {
         {filteredTables.length === 0 && !loading && (
           <div className="col-span-full flex flex-col items-center justify-center p-12 bg-white border border-dashed border-slate-200 rounded-md text-gray-500 text-center shadow-2xs w-full">
             <Utensils className="w-10 h-10 mb-3 text-gray-400" />
-            <p className="font-bold text-gray-600">No tables on this floor yet</p>
+            <p className="font-bold text-gray-600">No tables in this section yet</p>
             <p className="text-xs text-gray-500 mt-1">Click &quot;Add Table&quot; above to add your first restaurant dining table.</p>
           </div>
         )}
@@ -527,7 +527,7 @@ export default function FloorPlanView() {
           </div>
 
           <CustomSelect
-            label="Assign Floor"
+            label="Assign Section"
             value={addTableFloorId || selectedFloorId || (floors[0]?.id || "")}
             onChange={(e) => setAddTableFloorId(e.target.value)}
             options={floors.map(f => ({ label: f.name, value: f.id }))}
@@ -564,7 +564,7 @@ export default function FloorPlanView() {
       <CustomModal
         open={showFloorModal}
         onClose={() => setShowFloorModal(false)}
-        title="Add New Floor"
+        title="Add New Section"
         size="sm"
       >
         <form onSubmit={handleCreateFloor} className="space-y-4">
@@ -574,7 +574,7 @@ export default function FloorPlanView() {
           </div>
 
           <CustomInput
-            label="Floor Name"
+            label="Section Name"
             required
             placeholder="e.g. Rooftop Terrace"
             value={newFloorName}
@@ -593,7 +593,7 @@ export default function FloorPlanView() {
               type="submit"
               themeColor="orange"
             >
-              Create Floor
+              Create Section
             </CustomButton>
           </div>
         </form>
@@ -656,7 +656,7 @@ export default function FloorPlanView() {
       <CustomModal
         open={showEditFloorModal}
         onClose={() => setShowEditFloorModal(false)}
-        title="Edit Floor Name"
+        title="Edit Section Name"
         size="sm"
       >
         <form onSubmit={handleUpdateFloor} className="space-y-4">
@@ -666,7 +666,7 @@ export default function FloorPlanView() {
           </div>
 
           <CustomInput
-            label="Floor Name"
+            label="Section Name"
             required
             value={editFloorName}
             onChange={(e) => setEditFloorName(e.target.value)}
@@ -685,7 +685,7 @@ export default function FloorPlanView() {
               type="submit"
               themeColor="orange"
             >
-              Update Floor
+              Update Section
             </CustomButton>
           </div>
         </form>
@@ -705,11 +705,11 @@ export default function FloorPlanView() {
             setDeletingFloor(false);
           }
         }}
-        title="Delete Floor"
-        message={`Are you sure you want to delete floor "${deleteTargetFloor?.name}"?`}
-        description="Any tables assigned to this floor will remain intact, but will become unassigned."
+        title="Delete Section"
+        message={`Are you sure you want to delete section "${deleteTargetFloor?.name}"?`}
+        description="Any tables assigned to this section will remain intact, but will become unassigned."
         type="DANGER"
-        confirmText="Delete Floor"
+        confirmText="Delete Section"
         loading={deletingFloor}
       />
     </div>

@@ -38,11 +38,16 @@ import {
   Square,
   Edit3,
   SlidersHorizontal,
+  Building2,
+  Armchair,
+  CheckCircle2,
+  ArrowLeft,
 } from "lucide-react";
 import { api, TENANT_STORAGE_KEY } from "@/lib/api";
 import { toast } from "react-toastify";
 import { ConfirmModal, CustomModal, CustomPromptModal, CustomInput, CustomButton } from "@/components/custom";
 import { getCategoryIcon } from "@/lib/categoryIcons";
+import { DEFAULT_FLOORS } from "@/components/restaurant/FloorPlanView";
 
 interface TableOption {
   id: string;
@@ -51,6 +56,14 @@ interface TableOption {
   status: "AVAILABLE" | "OCCUPIED" | "RESERVED" | "BILLING";
   currentBill?: number;
   guestCount?: number;
+  floorId?: string;
+  floorName?: string;
+}
+
+interface FloorOption {
+  id: string;
+  name: string;
+  sortOrder?: number;
 }
 
 export interface PortionSizeOption {
@@ -95,128 +108,6 @@ interface RestaurantCartItem {
   kotStatus: "PENDING" | "SENT_TO_KITCHEN" | "PREPARING" | "SERVED" | "READY_TO_SERVE";
 }
 
-const DEMO_RESTAURANT_PRODUCTS: MenuItem[] = [
-  {
-    id: "demo-prod-1",
-    name: "Grilled BBQ Chicken Platter",
-    category: "Main Course",
-    sellingPrice: 580,
-    image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=500&q=80",
-    isPopular: true,
-    isVeg: false,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Flame-grilled tender chicken breast with peri-peri marinade & seasoned wedges",
-  },
-  {
-    id: "demo-prod-2",
-    name: "Special Mutton Dum Biryani",
-    category: "Main Course",
-    sellingPrice: 650,
-    image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&q=80",
-    isPopular: true,
-    isVeg: false,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Aromatic basmati rice cooked with succulent bone-in mutton & saffron spices",
-  },
-  {
-    id: "demo-prod-3",
-    name: "Classic Italian Margherita Pizza",
-    category: "Pizza & Pasta",
-    sellingPrice: 750,
-    image: "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?w=500&q=80",
-    isPopular: true,
-    isVeg: true,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Wood-fired crust with San Marzano tomato sauce, fresh mozzarella & sweet basil",
-  },
-  {
-    id: "demo-prod-4",
-    name: "Creamy Alfredo Fettuccine Pasta",
-    category: "Pizza & Pasta",
-    sellingPrice: 520,
-    image: "https://images.unsplash.com/photo-1645112411341-6c4fd023714a?w=500&q=80",
-    isPopular: false,
-    isVeg: false,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Al dente pasta tossed in rich parmesan garlic cream sauce with grilled mushroom",
-  },
-  {
-    id: "demo-prod-5",
-    name: "Smoky Double Beef Cheese Burger",
-    category: "Burgers & Fast Food",
-    sellingPrice: 420,
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80",
-    isPopular: true,
-    isVeg: false,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Two 100% prime beef patties, melted cheddar, caramelized onions & secret sauce",
-  },
-  {
-    id: "demo-prod-6",
-    name: "Crispy Golden French Fries",
-    category: "Appetizers",
-    sellingPrice: 180,
-    image: "https://images.unsplash.com/photo-1576107232684-1279f3908594?w=500&q=80",
-    isPopular: false,
-    isVeg: true,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Hand-cut crispy Idaho potatoes dusted with smoked paprika sea salt",
-  },
-  {
-    id: "demo-prod-7",
-    name: "Paneer Butter Masala & Naan",
-    category: "Main Course",
-    sellingPrice: 460,
-    image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500&q=80",
-    isPopular: false,
-    isVeg: true,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Cottage cheese simmered in silky tomato butter gravy with warm garlic butter naan",
-  },
-  {
-    id: "demo-prod-8",
-    name: "Artisan Caramel Macchiato",
-    category: "Beverages",
-    sellingPrice: 280,
-    image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=500&q=80",
-    isPopular: false,
-    isVeg: true,
-    isKitchenProduct: false,
-    allTimeSlots: true,
-    description: "Freshly pulled espresso with steamed velvet milk and vanilla caramel drizzle",
-  },
-  {
-    id: "demo-prod-9",
-    name: "Fresh Mint Lemonade Cooler",
-    category: "Beverages",
-    sellingPrice: 160,
-    image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500&q=80",
-    isPopular: true,
-    isVeg: true,
-    isKitchenProduct: false,
-    allTimeSlots: true,
-    description: "Crushed wild mint, freshly squeezed Meyer lemons, soda and crushed ice",
-  },
-  {
-    id: "demo-prod-10",
-    name: "Warm Molten Lava Chocolate Cake",
-    category: "Desserts",
-    sellingPrice: 320,
-    image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&q=80",
-    isPopular: true,
-    isVeg: true,
-    isKitchenProduct: true,
-    allTimeSlots: true,
-    description: "Gooey molten Belgian chocolate center served with vanilla bean ice cream scoop",
-  },
-];
 
 const DEMO_TABLES: TableOption[] = [
   { id: "tbl-01", tableNo: "Table 01", capacity: 4, status: "AVAILABLE" },
@@ -282,12 +173,13 @@ const getCategoryName = (cat: any): string => {
 export default function RestaurantPOSPage() {
   const [storeName, setStoreName] = useState<string>("BlueOceans POS SYSTEM");
   const [tables, setTables] = useState<TableOption[]>(DEMO_TABLES);
+  const [floors, setFloors] = useState<FloorOption[]>([]);
   const [selectedTable, setSelectedTable] = useState<TableOption | null>(DEMO_TABLES[0]);
   const [guestCount, setGuestCount] = useState(2);
   const [waiterName, setWaiterName] = useState("Staff 1");
   const [orderType, setOrderType] = useState<"DINE_IN" | "TAKEAWAY" | "DELIVERY">("DINE_IN");
 
-  const [products, setProducts] = useState<MenuItem[]>(DEMO_RESTAURANT_PRODUCTS);
+  const [products, setProducts] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<CategorySidebarItem[]>(DEFAULT_CATEGORIES);
   const [cart, setCart] = useState<RestaurantCartItem[]>([]);
 
@@ -300,6 +192,7 @@ export default function RestaurantPOSPage() {
 
   // Modals & Dialogs
   const [showSelectTableModal, setShowSelectTableModal] = useState(false);
+  const [tableModalFloorId, setTableModalFloorId] = useState<string>("");
   const [showHoldModal, setShowHoldModal] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showCustomItemModal, setShowCustomItemModal] = useState(false);
@@ -449,12 +342,12 @@ export default function RestaurantPOSPage() {
           });
           setProducts(loadedProducts);
         } else {
-          setProducts(DEMO_RESTAURANT_PRODUCTS);
-          loadedProducts = DEMO_RESTAURANT_PRODUCTS;
+          setProducts([]);
+          loadedProducts = [];
         }
       } catch (errProd) {
-        setProducts(DEMO_RESTAURANT_PRODUCTS);
-        loadedProducts = DEMO_RESTAURANT_PRODUCTS;
+        setProducts([]);
+        loadedProducts = [];
       }
 
       // 2. Fetch created categories for current tenant & business
@@ -591,10 +484,28 @@ export default function RestaurantPOSPage() {
         console.error("Failed to load time slots in POS:", e);
       }
 
-      // 4. Load Tables
+      // 4. Load Sections \Load Floors & Tables (floors power the Floor → Table picker Tables (sections power the Section → Table picker in the Select Table modal)
+      let loadedFloors: FloorOption[] = [];
       try {
-        const resTables: any = await api.get("/v1/restaurant/tables").catch(() => null);
-        const tData = (resTables?.data as any)?.data ?? resTables?.data ?? resTables ?? [];
+        const [resFloors, resTables]: any[] = await Promise.all([
+          api.get("/v1/restaurant/floors").catch(() => null),
+          api.get("/v1/restaurant/tables").catch(() => null),
+        ]);
+
+        // Sections — when the API has none yet, fall back to the same defaults the
+        // Sections page shows, so the modal can always ask "pick a section" first.
+        const fData = resFloors?.data?.data ?? resFloors?.data ?? resFloors ?? [];
+        loadedFloors =
+          Array.isArray(fData) && fData.length > 0
+            ? fData.map((f: any, i: number) => ({
+                id: String(f.id),
+                name: f.name || `Section ${i + 1}`,
+                sortOrder: f.sortOrder !== undefined && f.sortOrder !== null ? Number(f.sortOrder) : i,
+              }))
+            : DEFAULT_FLOORS.map((f) => ({ id: f.id, name: f.name, sortOrder: f.sortOrder }));
+        setFloors(loadedFloors);
+
+        const tData = resTables?.data?.data ?? resTables?.data ?? resTables ?? [];
         if (Array.isArray(tData) && tData.length > 0) {
           const mappedTables: TableOption[] = tData.map((t: any) => ({
             id: String(t.id),
@@ -603,22 +514,50 @@ export default function RestaurantPOSPage() {
             status: t.status || "AVAILABLE",
             currentBill: t.currentBill ? Number(t.currentBill) : undefined,
             guestCount: t.guestCount ? Number(t.guestCount) : undefined,
+            floorId: t.floorId ? String(t.floorId) : undefined,
+            floorName: t.floorName || undefined,
           }));
-          setTables(mappedTables);
-          setSelectedTable((prev) => prev || mappedTables[0]);
+          // Display-only fallback: if none of the tables is assigned to a section yet,
+          // spread them across floors (round-robin) so every floor shows tables.
+          const anyAssigned = mappedTables.some((t) => t.floorId);
+          const withFloors: TableOption[] = anyAssigned
+            ? mappedTables
+            : mappedTables.map((t, i) => ({
+                ...t,
+                floorId: loadedFloors[i % loadedFloors.length].id,
+                floorName: loadedFloors[i % loadedFloors.length].name,
+              }));
+          setTables(withFloors);
+          setSelectedTable((prev) => prev || withFloors[0]);
         } else {
-          setTables(DEMO_TABLES);
-          setSelectedTable((prev) => prev || DEMO_TABLES[0]);
+          // Demo fallback: spread demo tables across sections (round-robin) so the
+          // Section → Table picker stays fully usable without seeded tables.
+          const demoTables: TableOption[] = DEMO_TABLES.map((t, i) => ({
+            ...t,
+            floorId: loadedFloors[i % loadedFloors.length].id,
+            floorName: loadedFloors[i % loadedFloors.length].name,
+          }));
+          setTables(demoTables);
+          setSelectedTable((prev) => prev || demoTables[0]);
         }
       } catch (errTables) {
-        setTables(DEMO_TABLES);
-        setSelectedTable((prev) => prev || DEMO_TABLES[0]);
+        if (loadedFloors.length === 0) {
+          loadedFloors = DEFAULT_FLOORS.map((f) => ({ id: f.id, name: f.name, sortOrder: f.sortOrder }));
+        }
+        setFloors(loadedFloors);
+        const demoTables: TableOption[] = DEMO_TABLES.map((t, i) => ({
+          ...t,
+          floorId: loadedFloors[i % loadedFloors.length].id,
+          floorName: loadedFloors[i % loadedFloors.length].name,
+        }));
+        setTables(demoTables);
+        setSelectedTable((prev) => prev || demoTables[0]);
       }
     } catch (err) {
       console.error("Failed to load restaurant POS data:", err);
       setCategories(DEFAULT_CATEGORIES);
       setTables(DEMO_TABLES);
-      setProducts(DEMO_RESTAURANT_PRODUCTS);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -638,6 +577,14 @@ export default function RestaurantPOSPage() {
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [loadData]);
+
+  // ── Select-Table modal helpers ──
+  // The modal ALWAYS asks to pick a section first and then
+  // shows ONLY that section's tables in the grid below.
+  const showFloorStep = floors.length > 0;
+  const tableModalTables = tableModalFloorId
+    ? tables.filter((t) => t.floorId === tableModalFloorId)
+    : tables;
 
 
 
@@ -1070,7 +1017,10 @@ export default function RestaurantPOSPage() {
       <div className="flex-none flex flex-wrap items-center justify-between gap-2 px-4 py-2 bg-white border-b border-slate-200 shadow-2xs z-10">
         <div className="flex flex-wrap items-center gap-3 text-gray-600">
           <button
-            onClick={() => setShowSelectTableModal(true)}
+            onClick={() => {
+              setTableModalFloorId("");
+              setShowSelectTableModal(true);
+            }}
             className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5 hover:bg-slate-100 transition cursor-pointer"
           >
             <LayoutGrid size={15} className="text-orange-600" />
@@ -1910,82 +1860,198 @@ export default function RestaurantPOSPage() {
         cancelText="Cancel"
       />
 
-      {/* ══════════════ SELECT TABLE MODAL ══════════════ */}
+      {/* ══════════════ SELECT TABLE MODAL (Section → Table) ══════════════ */}
       <CustomModal
         open={showSelectTableModal}
         onClose={() => setShowSelectTableModal(false)}
         title="Select Dining Table"
-        size="lg"
+        size="2xl"
       >
-        <div className="space-y-5">
-          {/* Legend */}
-          <div className="flex items-center justify-center gap-6 text-[10px] font-black capitalize tracking-widest text-slate-400 bg-slate-50 py-3 rounded-2xl border border-slate-100">
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
-              <span>Available</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]" />
-              <span>Occupied</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
-              <span>Selected</span>
-            </div>
-          </div>
-
-          <div className="max-h-96 overflow-y-auto pr-1 custom-scrollbar">
-            {tables.length === 0 ? (
-              <div className="py-20 text-center text-slate-300 space-y-3">
-                <LayoutGrid size={48} className="mx-auto opacity-20" />
-                <p className="text-xs font-bold capitalize tracking-widest">No tables found</p>
+        <div className="space-y-4">
+          {/* ─── STEP 1 · CHOOSE SECTION (skipped automatically when no sections exist) ─── */}
+          {showFloorStep && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-orange-500 text-[10px] font-black text-white shadow-sm">1</span>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Choose Section</span>
+                </div>
+                {tableModalFloorId && (
+                  <button
+                    type="button"
+                    onClick={() => setTableModalFloorId("")}
+                    className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-[10px] font-black uppercase tracking-wider text-orange-600 transition-colors hover:bg-orange-50"
+                  >
+                    <ArrowLeft size={11} strokeWidth={3} /> Change Section
+                  </button>
+                )}
               </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {tables.map((t) => {
-                  const isSelected = selectedTable?.id === t.id;
-                  const isOccupied = t.status === "OCCUPIED" || t.status === "BILLING";
+
+              <div className="flex flex-wrap gap-2">
+                {floors.map((f) => {
+                  const floorTables = tables.filter((t) => t.floorId === f.id);
+                  const isFloorActive = tableModalFloorId === f.id;
 
                   return (
                     <button
-                      key={t.id}
-                      onClick={() => {
-                        setSelectedTable(t);
-                        setShowSelectTableModal(false);
-                        toast.info(`Selected Table ${t.tableNo}`);
-                      }}
-                      className={`flex flex-col items-center justify-center p-5 rounded-[2rem] border-2 transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer select-none group ${
-                        isSelected
-                          ? "bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-500/30"
-                          : isOccupied
-                          ? "bg-amber-50 text-amber-900 border-amber-200 hover:border-amber-400"
-                          : "bg-emerald-50 text-emerald-950 border-emerald-100 hover:border-emerald-300"
+                      key={f.id}
+                      type="button"
+                      onClick={() => setTableModalFloorId(f.id)}
+                      className={`flex cursor-pointer select-none items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-bold transition-colors duration-150 ${
+                        isFloorActive
+                          ? "border-orange-500 bg-orange-500 text-white shadow-sm shadow-orange-500/20"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-orange-400 hover:bg-orange-50/50"
                       }`}
                     >
-                      <span className={`text-lg font-black tracking-tighter ${isSelected ? "text-white" : "text-gray-600"}`}>
-                        {t.tableNo}
+                      <Building2 size={14} className={isFloorActive ? "text-white" : "text-orange-500"} />
+                      {f.name}
+                      <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-black ${isFloorActive ? "bg-white/25 text-white" : "bg-slate-100 text-slate-500"}`}>
+                        {floorTables.length}
                       </span>
-                      <div className={`flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-full text-[9px] font-black capitalize tracking-wider ${
-                        isSelected ? "bg-white/20 text-white" : "bg-white/60 text-slate-400"
-                      }`}>
-                        <Users size={10} strokeWidth={3} /> {t.capacity}
-                      </div>
                     </button>
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* ─── STEP 2 · PICK A TABLE ─── */}
+          <div className="space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              {showFloorStep && !tableModalFloorId ? (
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-200 text-[10px] font-black text-slate-500">2</span>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">Pick a Table</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-orange-500 text-[10px] font-black text-white shadow-sm">
+                    {showFloorStep ? "2" : "•"}
+                  </span>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                    {showFloorStep ? `${floors.find((f) => f.id === tableModalFloorId)?.name || "Section"} · Tables` : "All Tables"}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Free</span>
+                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-amber-500" /> Busy</span>
+                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-purple-500" /> Reserved</span>
+                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-orange-500" /> Selected</span>
+              </div>
+            </div>
+
+            {showFloorStep && !tableModalFloorId ? (
+              <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 py-10 text-center">
+                <LayoutGrid size={32} className="mx-auto text-slate-300" />
+                <p className="mt-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
+                  Select a section above to view its tables
+                </p>
+              </div>
+            ) : (
+              <div className="custom-scrollbar max-h-[46vh] overflow-y-auto pr-1">
+                {tableModalTables.length === 0 ? (
+                  <div className="py-10 text-center">
+                    <Armchair size={36} className="mx-auto text-slate-200" />
+                    <p className="mt-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
+                      No tables {showFloorStep ? "in this section" : "found"}
+                    </p>
+                    {showFloorStep && (
+                      <p className="mt-1 text-[10px] font-medium text-slate-300">
+                        Try another section or add tables from the Sections page.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+                    {tableModalTables.map((t) => {
+                      const isSelected = selectedTable?.id === t.id;
+                      const isReserved = t.status === "RESERVED";
+                      const isBusy = t.status === "OCCUPIED" || t.status === "BILLING";
+
+                      return (
+                        <button
+                          key={t.id}
+                          onClick={() => {
+                            setSelectedTable(t);
+                            setShowSelectTableModal(false);
+                            toast.info(`Selected Table ${t.tableNo}`);
+                          }}
+                          className={`cursor-pointer rounded-xl border p-3 text-left transition-colors duration-150 ${
+                            isSelected
+                              ? "border-orange-500 bg-orange-500 ring-2 ring-orange-200"
+                              : isReserved
+                              ? "border-purple-200 bg-purple-50 hover:border-purple-400 hover:bg-purple-100/50"
+                              : isBusy
+                              ? "border-amber-200 bg-amber-50 hover:border-amber-400 hover:bg-amber-100/50"
+                              : "border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50/60"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className={`truncate text-sm font-black tracking-tight ${isSelected ? "text-white" : "text-gray-700"}`}>
+                              {t.tableNo}
+                            </span>
+                            {isSelected ? (
+                              <CheckCircle2 size={15} className="shrink-0 text-white" />
+                            ) : (
+                              <span className={`h-2 w-2 shrink-0 rounded-full ${isReserved ? "bg-purple-500" : isBusy ? "bg-amber-500" : "bg-emerald-500"}`} />
+                            )}
+                          </div>
+
+                          <div className="mt-2 flex items-center justify-between gap-2">
+                            <span className={`flex items-center gap-1 text-[10px] font-bold ${isSelected ? "text-orange-50" : "text-slate-400"}`}>
+                              <Users size={10} strokeWidth={2.5} /> {t.capacity} Seats
+                            </span>
+                            <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider ${
+                              isSelected
+                                ? "bg-white/20 text-white"
+                                : isReserved
+                                ? "bg-purple-100 text-purple-600"
+                                : isBusy
+                                ? "bg-amber-100 text-amber-600"
+                                : "bg-emerald-100 text-emerald-600"
+                            }`}>
+                              {isReserved ? "Reserved" : isBusy ? "Busy" : "Free"}
+                            </span>
+                          </div>
+
+                          {isBusy && t.currentBill ? (
+                            <div className={`mt-2 rounded-md px-2 py-1 text-[9px] font-bold ${isSelected ? "bg-white/15 text-orange-50" : "bg-amber-100/70 text-amber-700"}`}>
+                              Bill ৳{t.currentBill}{t.guestCount ? ` · ${t.guestCount} guests` : ""}
+                            </div>
+                          ) : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
-          <div className="flex justify-end pt-2">
-            <CustomButton
-              variant="outline"
-              onClick={() => setShowSelectTableModal(false)}
-            >
-              Cancel
-            </CustomButton>
+            <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+              <div className="flex min-w-0 items-center gap-2">
+                {selectedTable ? (
+                  <>
+                    <CheckCircle2 size={14} className="shrink-0 text-emerald-500" />
+                    <span className="truncate text-[11px] font-bold text-slate-500">
+                      Selected: <span className="font-black text-gray-700">{selectedTable.tableNo}</span>
+                      <span className="text-slate-400"> · {selectedTable.capacity} Seats</span>
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-[11px] font-bold text-slate-400">No table selected yet</span>
+                )}
+              </div>
+              <CustomButton
+                variant="outline"
+                onClick={() => setShowSelectTableModal(false)}
+              >
+                Close
+              </CustomButton>
+            </div>
           </div>
-        </div>
       </CustomModal>
 
       {/* ══════════════ MEAL SHIFT DETAILS MODAL ══════════════ */}
