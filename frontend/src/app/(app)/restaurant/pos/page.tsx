@@ -118,6 +118,80 @@ const DEMO_TABLES: TableOption[] = [
   { id: "tbl-06", tableNo: "Terrace T-1", capacity: 4, status: "AVAILABLE" },
 ];
 
+function mapApiProductToMenuItem(p: any): MenuItem {
+  let catName = "Main Course";
+  if (typeof p.category === "string" && p.category.trim()) {
+    catName = p.category;
+  } else if (p.category && typeof p.category === "object") {
+    catName = p.category.name || p.category.label || "Main Course";
+  } else if (p.categoryName) {
+    catName = String(p.categoryName);
+  }
+
+  let isKitchen = true;
+  let timeSlotIds: string[] = [];
+  let allTimeSlots = true;
+  let portionSizes: PortionSizeOption[] = [];
+  let addons: { name: string; price: number }[] = [];
+
+  try {
+    const rawAttrs =
+      typeof p.attributes === "string"
+        ? JSON.parse(p.attributes)
+        : p.attributes || {};
+    const restAttrs = rawAttrs.restaurant || rawAttrs;
+    if (restAttrs?.isKitchenProduct !== undefined) {
+      isKitchen = Boolean(restAttrs.isKitchenProduct);
+    }
+    if (Array.isArray(restAttrs?.timeSlotIds)) {
+      timeSlotIds = restAttrs.timeSlotIds;
+    }
+    if (restAttrs?.allTimeSlots !== undefined) {
+      allTimeSlots = Boolean(restAttrs.allTimeSlots);
+    } else if (timeSlotIds.length > 0) {
+      allTimeSlots = false;
+    }
+    if (Array.isArray(restAttrs?.portionSizes)) {
+      portionSizes = restAttrs.portionSizes
+        .filter((s: any) => s.isEnabled !== false && s.price !== undefined && s.price !== "")
+        .map((s: any) => ({
+          id: String(s.id || s.name),
+          name: String(s.name),
+          price: Number(s.price || 0),
+          isDefault: Boolean(s.isDefault),
+          isEnabled: true,
+        }));
+    }
+
+    if (Array.isArray(restAttrs?.addons)) {
+      addons = restAttrs.addons.map((a: any) => ({
+        name: String(a.name),
+        price: Number(a.price || 0),
+      }));
+    }
+  } catch (e) {}
+
+  return {
+    id: String(p.id || p._id),
+    name: p.name || "Untitled Item",
+    category: catName,
+    sellingPrice: Number(p.sellingPrice || p.price || 0),
+    image: p.imageUrl || p.image || "",
+    isPopular: Boolean(p.isPopular),
+    isVeg: Boolean(p.isVeg),
+    isKitchenProduct: isKitchen,
+    timeSlotIds,
+    allTimeSlots,
+    hasAddons:
+      typeof p.hasAddons === "boolean"
+        ? p.hasAddons
+        : portionSizes.length > 0 || addons.length > 0 || !["beverages", "drinks", "water"].includes(catName.toLowerCase()),
+    portionSizes,
+    addons,
+    description: p.description || "",
+  };
+}
+
 const DEFAULT_PRESET_SLOTS = [
   { id: "shift-breakfast", name: "Breakfast / Morning", startTime: "07:00", endTime: "11:30", color: "#f59e0b", description: "Morning breakfast, tea & coffee", isActive: true },
   { id: "shift-lunch", name: "Lunch Shift", startTime: "12:00", endTime: "16:00", color: "#0d9488", description: "Lunch meals, biryani, thali & combos", isActive: true },
@@ -185,6 +259,8 @@ export default function RestaurantPOSPage() {
 
   const [selectedCategory, setSelectedCategory] = useState("All Items");
   const [searchFilter, setSearchFilter] = useState("");
+  const [searchResults, setSearchResults] = useState<MenuItem[] | null>(null);
+  const [searching, setSearching] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [orderNote, setOrderNote] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
@@ -267,79 +343,7 @@ export default function RestaurantPOSPage() {
         const resProd: any = await api.get("/products", { params: { limit: 150 } });
         const pData = (resProd?.data as any)?.data ?? resProd?.data ?? resProd ?? [];
         if (Array.isArray(pData) && pData.length > 0) {
-          loadedProducts = pData.map((p: any) => {
-            let catName = "Main Course";
-            if (typeof p.category === "string" && p.category.trim()) {
-              catName = p.category;
-            } else if (p.category && typeof p.category === "object") {
-              catName = p.category.name || p.category.label || "Main Course";
-            } else if (p.categoryName) {
-              catName = String(p.categoryName);
-            }
-
-            let isKitchen = true;
-            let timeSlotIds: string[] = [];
-            let allTimeSlots = true;
-            let portionSizes: PortionSizeOption[] = [];
-            let addons: { name: string; price: number }[] = [];
-
-            try {
-              const rawAttrs =
-                typeof p.attributes === "string"
-                  ? JSON.parse(p.attributes)
-                  : p.attributes || {};
-              const restAttrs = rawAttrs.restaurant || rawAttrs;
-              if (restAttrs?.isKitchenProduct !== undefined) {
-                isKitchen = Boolean(restAttrs.isKitchenProduct);
-              }
-              if (Array.isArray(restAttrs?.timeSlotIds)) {
-                timeSlotIds = restAttrs.timeSlotIds;
-              }
-              if (restAttrs?.allTimeSlots !== undefined) {
-                allTimeSlots = Boolean(restAttrs.allTimeSlots);
-              } else if (timeSlotIds.length > 0) {
-                allTimeSlots = false;
-              }
-              if (Array.isArray(restAttrs?.portionSizes)) {
-                portionSizes = restAttrs.portionSizes
-                  .filter((s: any) => s.isEnabled !== false && s.price !== undefined && s.price !== "")
-                  .map((s: any) => ({
-                    id: String(s.id || s.name),
-                    name: String(s.name),
-                    price: Number(s.price || 0),
-                    isDefault: Boolean(s.isDefault),
-                    isEnabled: true,
-                  }));
-              }
-
-              if (Array.isArray(restAttrs?.addons)) {
-                addons = restAttrs.addons.map((a: any) => ({
-                  name: String(a.name),
-                  price: Number(a.price || 0),
-                }));
-              }
-            } catch (e) {}
-
-            return {
-              id: String(p.id || p._id),
-              name: p.name || "Untitled Item",
-              category: catName,
-              sellingPrice: Number(p.sellingPrice || p.price || 0),
-              image: p.imageUrl || p.image || "",
-              isPopular: Boolean(p.isPopular),
-              isVeg: Boolean(p.isVeg),
-              isKitchenProduct: isKitchen,
-              timeSlotIds,
-              allTimeSlots,
-              hasAddons:
-                typeof p.hasAddons === "boolean"
-                  ? p.hasAddons
-                  : portionSizes.length > 0 || addons.length > 0 || !["beverages", "drinks", "water"].includes(catName.toLowerCase()),
-              portionSizes,
-              addons,
-              description: p.description || "",
-            };
-          });
+          loadedProducts = pData.map((p: any) => mapApiProductToMenuItem(p));
           setProducts(loadedProducts);
         } else {
           setProducts([]);
@@ -577,6 +581,29 @@ export default function RestaurantPOSPage() {
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [loadData]);
+
+  // ── Header search: query the API so the search works across ALL restaurant products ──
+  useEffect(() => {
+    const q = searchFilter.trim();
+    if (q.length < 2) {
+      setSearchResults(null);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res: any = await api.get("/products", { params: { search: q, limit: 60 } });
+        const pData = (res?.data as any)?.data ?? res?.data ?? res ?? [];
+        setSearchResults(Array.isArray(pData) ? pData.map((p: any) => mapApiProductToMenuItem(p)) : []);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchFilter]);
 
   // ── Select-Table modal helpers ──
   // The modal ALWAYS asks to pick a section first and then
@@ -869,6 +896,17 @@ export default function RestaurantPOSPage() {
       setDiscountPercent(0);
       toast.success(`Order #${invNo} placed & synced to system!`);
 
+      // ── Booking flow: the table becomes free again once the bill is paid ──
+      if (selectedTable) {
+        const finishedTableId = selectedTable.id;
+        setTables((prev) =>
+          prev.map((x) => (x.id === finishedTableId ? { ...x, status: "AVAILABLE" as const } : x))
+        );
+        try {
+          await api.patch(`/v1/restaurant/tables/${finishedTableId}/status`, { status: "AVAILABLE" });
+        } catch {}
+      }
+
       // Reload product list to reflect updated stock
       loadData();
     } catch (err: any) {
@@ -897,9 +935,16 @@ export default function RestaurantPOSPage() {
     }
   };
 
-  const filteredProducts = products.filter((p) => {
+  const searchQ = searchFilter.toLowerCase().trim();
+  const isSearching = searchQ.length > 0;
+  // While searching, use the API-backed results (all restaurant products);
+  // otherwise browse the base catalog with the sidebar category selection.
+  const sourceProducts = isSearching && searchResults !== null ? searchResults : products;
+
+  const filteredProducts = sourceProducts.filter((p) => {
     // 1. Shift filtering if enabled (supports single or multi-shift concurrent active shifts!)
-    if (timeSlotFilterEnabled && activeSlotIds.length > 0) {
+    //    Skipped during an explicit search so any restaurant product can be found.
+    if (!isSearching && timeSlotFilterEnabled && activeSlotIds.length > 0) {
       const inAnyActiveShift =
         p.allTimeSlots ||
         (Array.isArray(p.timeSlotIds) &&
@@ -908,15 +953,16 @@ export default function RestaurantPOSPage() {
     }
 
     const pCat = getCategoryName(p.category);
-    const matchesCategory =
-      selectedCategory === "All Items"
-        ? true
-        : selectedCategory === "Popular"
-        ? p.isPopular
-        : pCat.toLowerCase() === selectedCategory.toLowerCase();
-    const q = searchFilter.toLowerCase().trim();
+    // 2. Search runs across ALL categories; the sidebar filter applies only while browsing.
+    const matchesCategory = isSearching
+      ? true
+      : selectedCategory === "All Items"
+      ? true
+      : selectedCategory === "Popular"
+      ? p.isPopular
+      : pCat.toLowerCase() === selectedCategory.toLowerCase();
     const matchesSearch =
-      !q || p.name.toLowerCase().includes(q) || pCat.toLowerCase().includes(q);
+      !searchQ || p.name.toLowerCase().includes(searchQ) || pCat.toLowerCase().includes(searchQ);
     return matchesCategory && matchesSearch;
   });
 
@@ -990,9 +1036,15 @@ export default function RestaurantPOSPage() {
               type="text"
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
-              placeholder="Search items..."
-              className="w-full rounded-md bg-white/15 border border-white/20 py-1.5 pl-8 pr-3 text-xs font-medium text-white placeholder-orange-100/70 focus:bg-white focus:text-gray-600 focus:placeholder-gray-400 focus:outline-none transition"
+              placeholder="Search food & drinks..."
+              className="w-full rounded-md bg-white/15 border border-white/20 py-1.5 pl-8 pr-8 text-xs font-medium text-white placeholder-orange-100/70 focus:bg-white focus:text-gray-600 focus:placeholder-gray-400 focus:outline-none transition"
             />
+            {searching && (
+              <RefreshCw
+                size={13}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white animate-spin"
+              />
+            )}
           </div>
           <button
             onClick={loadData}
@@ -1033,6 +1085,17 @@ export default function RestaurantPOSPage() {
           <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
             <Users size={15} className="text-gray-500" />
             <span className="text-xs font-medium text-gray-500">Guests:</span>
+            <button
+              onClick={() => setGuestCount((g) => Math.max(1, g - 1))}
+              disabled={guestCount <= 1}
+              className={`flex h-5 w-5 items-center justify-center rounded-md border font-bold ${
+                guestCount <= 1
+                  ? "bg-slate-100 border-slate-200 text-slate-300 cursor-not-allowed"
+                  : "bg-white border-slate-200 text-gray-700 hover:bg-slate-100 cursor-pointer"
+              }`}
+            >
+              <Minus size={11} />
+            </button>
             <span className="text-xs font-bold text-gray-600 min-w-4 text-center">
               {guestCount}
             </span>
@@ -1850,6 +1913,14 @@ export default function RestaurantPOSPage() {
         onClose={() => setShowClearConfirm(false)}
         onConfirm={() => {
           setCart([]);
+          // ── Booking flow: clearing the order frees the table too ──
+          if (selectedTable) {
+            const clearedTableId = selectedTable.id;
+            setTables((prev) =>
+              prev.map((x) => (x.id === clearedTableId ? { ...x, status: "AVAILABLE" as const } : x))
+            );
+            api.patch(`/v1/restaurant/tables/${clearedTableId}/status`, { status: "AVAILABLE" }).catch(() => {});
+          }
           setShowClearConfirm(false);
           toast.info("Cart cleared successfully");
         }}
@@ -1969,23 +2040,39 @@ export default function RestaurantPOSPage() {
                       const isSelected = selectedTable?.id === t.id;
                       const isReserved = t.status === "RESERVED";
                       const isBusy = t.status === "OCCUPIED" || t.status === "BILLING";
+                      const isAvailable = t.status === "AVAILABLE";
 
                       return (
                         <button
                           key={t.id}
+                          disabled={!isAvailable}
+                          title={isReserved ? "Already reserved" : isBusy ? "Currently occupied" : undefined}
                           onClick={() => {
+                            if (!isAvailable) return;
+                            // ── BOOKING: free the previous table, then reserve this one ──
+                            const previous = selectedTable;
+                            if (previous && previous.id !== t.id) {
+                              setTables((prev) =>
+                                prev.map((x) => (x.id === previous.id ? { ...x, status: "AVAILABLE" as const } : x))
+                              );
+                              api.patch(`/v1/restaurant/tables/${previous.id}/status`, { status: "AVAILABLE" }).catch(() => {});
+                            }
+                            setTables((prev) =>
+                              prev.map((x) => (x.id === t.id ? { ...x, status: "RESERVED" as const } : x))
+                            );
+                            api.patch(`/v1/restaurant/tables/${t.id}/status`, { status: "RESERVED" }).catch(() => {});
                             setSelectedTable(t);
                             setShowSelectTableModal(false);
-                            toast.info(`Selected Table ${t.tableNo}`);
+                            toast.success(`Table ${t.tableNo} reserved for this order`);
                           }}
-                          className={`cursor-pointer rounded-xl border p-3 text-left transition-colors duration-150 ${
+                          className={`rounded-xl border p-3 text-left transition-colors duration-150 ${
                             isSelected
                               ? "border-orange-500 bg-orange-500 ring-2 ring-orange-200"
-                              : isReserved
-                              ? "border-purple-200 bg-purple-50 hover:border-purple-400 hover:bg-purple-100/50"
-                              : isBusy
-                              ? "border-amber-200 bg-amber-50 hover:border-amber-400 hover:bg-amber-100/50"
-                              : "border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50/60"
+                              : !isAvailable
+                              ? isReserved
+                                ? "border-purple-200 bg-purple-50 opacity-80 cursor-not-allowed"
+                                : "border-amber-200 bg-amber-50 opacity-80 cursor-not-allowed"
+                              : "border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50/60 cursor-pointer"
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
