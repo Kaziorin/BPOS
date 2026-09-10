@@ -1371,8 +1371,8 @@ export default function CreateProductPage() {
             </div>
           </div>
 
-          {/* BOX 5: Variants (For Retail, Apparel, Wholesale) */}
-          {!isRestaurant && (
+          {/* BOX 5: Variant-wise Price (RESTAURANT business only — hidden for Grocery, Retail, etc.) */}
+          {isRestaurant && (
             <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                 <div className="flex items-center gap-2 text-gray-600">

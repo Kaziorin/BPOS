@@ -992,7 +992,7 @@ export default function RestaurantPOSPage() {
             <div>
               <h1 className="text-base sm:text-lg font-black tracking-tight leading-none text-white flex items-center gap-1.5">
                 {storeName}{" "}
-                <span className="text-orange-200 text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                <span className="text-orange-200 text-[10px] sm:text-xs font-bold capitalize tracking-wider">
                   POS SYSTEM
                 </span>
               </h1>
@@ -1044,7 +1044,7 @@ export default function RestaurantPOSPage() {
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
               placeholder="Search items..."
-              className="w-full rounded-md bg-white/15 border border-white/20 py-1.5 pl-8 pr-3 text-xs font-medium text-white placeholder-orange-100/70 focus:bg-white focus:text-gray-800 focus:placeholder-gray-400 focus:outline-none transition"
+              className="w-full rounded-md bg-white/15 border border-white/20 py-1.5 pl-8 pr-3 text-xs font-medium text-white placeholder-orange-100/70 focus:bg-white focus:text-gray-600 focus:placeholder-gray-400 focus:outline-none transition"
             />
           </div>
           <button
@@ -1075,7 +1075,7 @@ export default function RestaurantPOSPage() {
           >
             <LayoutGrid size={15} className="text-orange-600" />
             <span className="text-xs font-medium text-gray-500">Table:</span>
-            <span className="text-xs font-bold text-gray-800">
+            <span className="text-xs font-bold text-gray-600">
               {selectedTable ? `${selectedTable.tableNo} (${selectedTable.capacity} Seats)` : "Select Table"}
             </span>
           </button>
@@ -1083,7 +1083,7 @@ export default function RestaurantPOSPage() {
           <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
             <Users size={15} className="text-gray-500" />
             <span className="text-xs font-medium text-gray-500">Guests:</span>
-            <span className="text-xs font-bold text-gray-800 min-w-4 text-center">
+            <span className="text-xs font-bold text-gray-600 min-w-4 text-center">
               {guestCount}
             </span>
             <button
@@ -1100,7 +1100,7 @@ export default function RestaurantPOSPage() {
             <select
               value={waiterName}
               onChange={(e) => setWaiterName(e.target.value)}
-              className="bg-transparent text-xs font-bold text-gray-800 focus:outline-none cursor-pointer"
+              className="bg-transparent text-xs font-bold text-gray-600 focus:outline-none cursor-pointer"
             >
               <option value="Staff 1">Staff 1</option>
               <option value="Staff 2">Staff 2</option>
@@ -1124,7 +1124,7 @@ export default function RestaurantPOSPage() {
                 </span>
               ) : activeSlots.length === 1 ? (
                 <span className="flex items-center gap-1.5">
-                  <span className="font-black text-slate-900">{activeSlots[0].name}</span>
+                  <span className="font-black text-gray-600">{activeSlots[0].name}</span>
                   <span className="text-[11px] font-extrabold text-amber-800 font-mono">
                     ({activeSlots[0].startTime} – {activeSlots[0].endTime})
                   </span>
@@ -1260,7 +1260,7 @@ export default function RestaurantPOSPage() {
                   <Clock size={15} />
                 </div>
                 <div className="flex items-center gap-2 flex-wrap min-w-0">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-amber-900 shrink-0">
+                  <span className="text-[11px] font-black capitalize tracking-wider text-amber-900 shrink-0">
                     POS Shift:
                   </span>
                   {activeSlots.length === 0 ? (
@@ -1269,7 +1269,7 @@ export default function RestaurantPOSPage() {
                     </span>
                   ) : activeSlots.length === 1 ? (
                     <span className="flex items-center gap-1.5 text-xs">
-                      <span className="font-extrabold text-slate-900">{activeSlots[0].name}</span>
+                      <span className="font-extrabold text-gray-600">{activeSlots[0].name}</span>
                       <span className="text-[11px] font-bold text-amber-800 font-mono">
                         ({activeSlots[0].startTime} – {activeSlots[0].endTime})
                       </span>
@@ -1304,7 +1304,7 @@ export default function RestaurantPOSPage() {
           )}
 
           <div className="flex-none p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-            <h2 className="text-xs font-bold text-gray-800 tracking-tight flex items-center gap-2">
+            <h2 className="text-xs font-bold text-gray-600 tracking-tight flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-orange-500 shadow-xs shadow-orange-500/50" />
               {selectedCategory} ({filteredProducts.length})
             </h2>
@@ -1314,7 +1314,7 @@ export default function RestaurantPOSPage() {
                 className={`p-1 rounded-md text-xs font-bold transition ${
                   viewMode === "grid"
                     ? "bg-white text-orange-600 shadow-2xs"
-                    : "text-gray-500 hover:text-gray-800"
+                    : "text-gray-500 hover:text-gray-600"
                 }`}
               >
                 <LayoutGrid size={14} />
@@ -1324,7 +1324,7 @@ export default function RestaurantPOSPage() {
                 className={`p-1 rounded-md text-xs font-bold transition ${
                   viewMode === "list"
                     ? "bg-white text-orange-600 shadow-2xs"
-                    : "text-gray-500 hover:text-gray-800"
+                    : "text-gray-500 hover:text-gray-600"
                 }`}
               >
                 <List size={14} />
@@ -1358,7 +1358,7 @@ export default function RestaurantPOSPage() {
                   <div
                     key={item.id}
                     onClick={() => handleProductAction(item)}
-                    className={`group relative flex rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-orange-500 hover:shadow-md hover:shadow-orange-500/10 transition-all duration-200 cursor-pointer overflow-hidden ${
+                    className={`group relative flex rounded-2xl border border-gray-200 bg-white shadow-sm hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden ${
                       viewMode === "list"
                         ? "flex-row items-center p-2.5 gap-3"
                         : "flex-col justify-between"
@@ -1369,7 +1369,7 @@ export default function RestaurantPOSPage() {
                       className={`relative overflow-hidden bg-gradient-to-br from-amber-50/50 to-orange-50/30 flex items-center justify-center shrink-0 ${
                         viewMode === "list"
                           ? "h-16 w-16 rounded-lg"
-                          : "h-28 sm:h-30 w-full border-b border-slate-100"
+                          : "h-28 sm:h-30 w-full border-b border-gray-100"
                       }`}
                     >
                       {item.image ? (
@@ -1388,7 +1388,7 @@ export default function RestaurantPOSPage() {
                       <div className="absolute left-2 top-2 flex flex-wrap items-center gap-1 z-10">
                         {isItemCustomizable(item) && (
                           <span
-                            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[9px] font-black shadow-xs tracking-wider uppercase"
+                            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[9px] font-black shadow-xs tracking-wider capitalize"
                             title="Custom Add-ons Available"
                           >
                             <SlidersHorizontal size={9} strokeWidth={3} /> Custom
@@ -1413,17 +1413,17 @@ export default function RestaurantPOSPage() {
                       </div>
                     </div>
 
-                    {/* Title & Price & Right Add Button Row */}
+                    {/* Title & Price (inline, one line) & Right Add Button Row */}
                     <div
-                      className={`flex items-end justify-between gap-2 ${
-                        viewMode === "list" ? "flex-1 min-w-0" : "p-3 w-full flex-1"
+                      className={`flex items-center justify-between gap-2 ${
+                        viewMode === "list" ? "flex-1 min-w-0" : "p-3 w-full flex-1 min-w-0"
                       }`}
                     >
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-xs sm:text-sm text-gray-800 line-clamp-1 group-hover:text-orange-600 transition">
+                      <div className="flex-1 min-w-0 flex items-center gap-1.5">
+                        <h3 className="font-bold text-xs sm:text-sm text-gray-600 truncate group-hover:text-orange-600 transition min-w-0 flex-1">
                           {item.name}
                         </h3>
-                        <span className="font-black text-sm sm:text-base text-orange-600 mt-1 block tabular-nums">
+                        <span className="font-black text-xs sm:text-sm text-orange-600 tabular-nums shrink-0 whitespace-nowrap">
                           {fmt(item.sellingPrice)}
                         </span>
                       </div>
@@ -1537,7 +1537,7 @@ export default function RestaurantPOSPage() {
         <aside className="w-80 sm:w-96 flex-none flex flex-col rounded-md bg-white border border-slate-200 shadow-sm overflow-hidden">
           <div className="flex-none p-3 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
             <div className="flex items-center gap-2">
-              <h2 className="text-xs font-bold text-gray-800">Order Summary</h2>
+              <h2 className="text-xs font-bold text-gray-600">Order Summary</h2>
               <span className="rounded-md bg-orange-100 text-orange-700 border border-orange-200 px-2 py-0.5 text-[10px] font-bold">
                 {cart.length} Items
               </span>
@@ -1572,7 +1572,7 @@ export default function RestaurantPOSPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-1">
                         <div className="flex items-center gap-1.5 min-w-0">
-                          <h4 className="font-bold text-xs text-gray-800 truncate">{item.name}</h4>
+                          <h4 className="font-bold text-xs text-gray-600 truncate">{item.name}</h4>
                           <button
                             onClick={() => handleEditCartItemAddons(item)}
                             className="p-1 text-orange-600 hover:bg-orange-50 rounded transition cursor-pointer"
@@ -1581,7 +1581,7 @@ export default function RestaurantPOSPage() {
                             <Edit3 size={11} />
                           </button>
                         </div>
-                        <span className="font-bold text-xs text-gray-900 tabular-nums">
+                        <span className="font-bold text-xs text-gray-600 tabular-nums">
                           {fmt(item.qty * item.unitPrice)}
                         </span>
                       </div>
@@ -1610,7 +1610,7 @@ export default function RestaurantPOSPage() {
                             className={`inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold ${
                               item.kotStatus === "SENT_TO_KITCHEN"
                                 ? "bg-amber-100 text-amber-800"
-                                : "bg-slate-100 text-slate-700"
+                                : "bg-slate-100 text-gray-600"
                             }`}
                           >
                             🍳 {item.kotStatus === "SENT_TO_KITCHEN" ? "KOT Sent" : "KOT Pending"}
@@ -1632,7 +1632,7 @@ export default function RestaurantPOSPage() {
                           >
                             <Minus size={9} />
                           </button>
-                          <span className="w-4 text-center font-bold text-xs text-gray-800">
+                          <span className="w-4 text-center font-bold text-xs text-gray-600">
                             {item.qty}
                           </span>
                           <button
@@ -1674,7 +1674,7 @@ export default function RestaurantPOSPage() {
             <div className="space-y-1 text-xs text-gray-600">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-bold text-gray-800">{fmt(subTotal)}</span>
+                <span className="font-bold text-gray-600">{fmt(subTotal)}</span>
               </div>
 
               {discountPercent > 0 && (
@@ -1695,7 +1695,7 @@ export default function RestaurantPOSPage() {
               </div>
 
               <div className="flex justify-between items-baseline pt-1.5 border-t border-slate-200">
-                <span className="text-xs uppercase font-bold text-orange-600 tracking-wider">
+                <span className="text-xs capitalize font-bold text-orange-600 tracking-wider">
                   Total Payable
                 </span>
                 <span className="text-xl font-black text-orange-600 tabular-nums">
@@ -1739,7 +1739,7 @@ export default function RestaurantPOSPage() {
         <form onSubmit={handleAddCustomItem} className="space-y-4">
           <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-xl border border-orange-100 mb-2">
             <ChefHat className="text-orange-600" size={20} />
-            <p className="text-xs font-bold text-orange-800 uppercase tracking-wider">Quick Menu Entry</p>
+            <p className="text-xs font-bold text-orange-800 capitalize tracking-wider">Quick Menu Entry</p>
           </div>
 
           <CustomInput
@@ -1787,7 +1787,7 @@ export default function RestaurantPOSPage() {
           {heldOrders.length === 0 ? (
             <div className="py-12 text-center text-gray-400">
               <RotateCcw size={48} className="mx-auto mb-3 opacity-20" />
-              <p className="text-sm font-bold uppercase tracking-widest">No held orders found</p>
+              <p className="text-sm font-bold capitalize tracking-widest">No held orders found</p>
             </div>
           ) : (
             heldOrders.map((h) => (
@@ -1797,10 +1797,10 @@ export default function RestaurantPOSPage() {
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-black text-slate-900 uppercase font-mono tracking-tighter">#{h.id}</span>
-                    <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 border border-orange-100 uppercase tracking-widest">Table {h.table?.tableNo || "N/A"}</span>
+                    <span className="text-[11px] font-black text-gray-600 capitalize font-mono tracking-tighter">#{h.id}</span>
+                    <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 border border-orange-100 capitalize tracking-widest">Table {h.table?.tableNo || "N/A"}</span>
                   </div>
-                  <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tight">
+                  <p className="text-[10px] font-bold text-slate-400 mt-1 capitalize tracking-tight">
                     {h.cart.length} items • Waiter: {h.waiterName} • {h.time}
                   </p>
                 </div>
@@ -1825,13 +1825,13 @@ export default function RestaurantPOSPage() {
       >
         <div className="space-y-5">
           <div className="text-center border-b border-dashed border-slate-300 pb-4 space-y-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-0.5 rounded-full">
+            <span className="text-[10px] font-black capitalize tracking-widest text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-0.5 rounded-full">
               {storeName}
             </span>
-            <p className="text-xs font-mono text-slate-500 mt-2 uppercase tracking-tighter font-bold">
+            <p className="text-xs font-mono text-slate-500 mt-2 capitalize tracking-tighter font-bold">
               Table: {completedBill?.table?.tableNo || "N/A"} • INV: {completedBill?.invoiceNo}
             </p>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">
+            <p className="text-[10px] text-slate-400 capitalize font-bold tracking-widest">
               {completedBill && new Date(completedBill.date).toLocaleString()}
             </p>
           </div>
@@ -1839,13 +1839,13 @@ export default function RestaurantPOSPage() {
           <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar text-xs">
             {(completedBill?.items || []).map((item: any, idx: number) => (
               <div key={idx} className="border-b border-slate-50 pb-1.5 last:border-0">
-                <div className="flex justify-between font-bold text-slate-800">
-                  <span className="uppercase tracking-tight">
+                <div className="flex justify-between font-bold text-gray-600">
+                  <span className="capitalize tracking-tight">
                     {idx + 1}. {item.name}
                   </span>
                   <span className="font-black">৳{fmt(item.qty * item.unitPrice).replace('৳','')}</span>
                 </div>
-                <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight pl-4 mt-0.5">
+                <div className="text-[10px] text-slate-400 font-bold capitalize tracking-tight pl-4 mt-0.5">
                   {item.qty} × {fmt(item.unitPrice)}
                   {item.notes && (
                     <span className="block italic text-orange-600 font-medium mt-0.5">&quot;{item.notes}&quot;</span>
@@ -1856,20 +1856,20 @@ export default function RestaurantPOSPage() {
           </div>
 
           <div className="border-t border-dashed border-slate-300 pt-3 text-xs space-y-1.5 bg-slate-50/50 p-4 rounded-2xl">
-            <div className="flex justify-between text-slate-500 font-bold uppercase tracking-tighter">
+            <div className="flex justify-between text-slate-500 font-bold capitalize tracking-tighter">
               <span>Subtotal:</span>
               <span>{fmt(completedBill?.subTotal || 0)}</span>
             </div>
-            <div className="flex justify-between text-slate-500 font-bold uppercase tracking-tighter">
+            <div className="flex justify-between text-slate-500 font-bold capitalize tracking-tighter">
               <span>Tax (8%):</span>
               <span>{fmt(completedBill?.taxAmount || 0)}</span>
             </div>
-            <div className="flex justify-between text-slate-500 font-bold uppercase tracking-tighter">
+            <div className="flex justify-between text-slate-500 font-bold capitalize tracking-tighter">
               <span>Service Charge (4%):</span>
               <span>{fmt(completedBill?.serviceCharge || 0)}</span>
             </div>
             <div className="flex justify-between font-black text-sm text-orange-600 pt-2 border-t border-orange-100">
-              <span className="uppercase tracking-tight">Total Payable:</span>
+              <span className="capitalize tracking-tight">Total Payable:</span>
               <span>{fmt(completedBill?.grandTotal || 0)}</span>
             </div>
           </div>
@@ -1919,7 +1919,7 @@ export default function RestaurantPOSPage() {
       >
         <div className="space-y-5">
           {/* Legend */}
-          <div className="flex items-center justify-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 py-3 rounded-2xl border border-slate-100">
+          <div className="flex items-center justify-center gap-6 text-[10px] font-black capitalize tracking-widest text-slate-400 bg-slate-50 py-3 rounded-2xl border border-slate-100">
             <div className="flex items-center gap-2">
               <span className="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
               <span>Available</span>
@@ -1938,7 +1938,7 @@ export default function RestaurantPOSPage() {
             {tables.length === 0 ? (
               <div className="py-20 text-center text-slate-300 space-y-3">
                 <LayoutGrid size={48} className="mx-auto opacity-20" />
-                <p className="text-xs font-bold uppercase tracking-widest">No tables found</p>
+                <p className="text-xs font-bold capitalize tracking-widest">No tables found</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -1962,10 +1962,10 @@ export default function RestaurantPOSPage() {
                           : "bg-emerald-50 text-emerald-950 border-emerald-100 hover:border-emerald-300"
                       }`}
                     >
-                      <span className={`text-lg font-black tracking-tighter ${isSelected ? "text-white" : "text-slate-800"}`}>
+                      <span className={`text-lg font-black tracking-tighter ${isSelected ? "text-white" : "text-gray-600"}`}>
                         {t.tableNo}
                       </span>
-                      <div className={`flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                      <div className={`flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-full text-[9px] font-black capitalize tracking-wider ${
                         isSelected ? "bg-white/20 text-white" : "bg-white/60 text-slate-400"
                       }`}>
                         <Users size={10} strokeWidth={3} /> {t.capacity}
@@ -2003,11 +2003,11 @@ export default function RestaurantPOSPage() {
                 <Clock size={24} />
               </div>
               <div>
-                <div className="text-[11px] font-extrabold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="text-[11px] font-extrabold text-amber-900 capitalize tracking-wider flex items-center gap-1.5">
                   <Sparkles size={13} className="text-amber-600" />
                   <span>Today's Real-time Active Shifts &amp; Demand Overlaps</span>
                 </div>
-                <div className="text-base sm:text-lg font-black text-gray-900 flex items-center gap-2.5 flex-wrap mt-0.5">
+                <div className="text-base sm:text-lg font-black text-gray-600 flex items-center gap-2.5 flex-wrap mt-0.5">
                   {activeSlots.length === 0 ? (
                     <span className="text-gray-600">No Shifts Active (Full Menu Catalog Available)</span>
                   ) : activeSlots.length === 1 ? (
@@ -2086,27 +2086,27 @@ export default function RestaurantPOSPage() {
                               className="h-3.5 w-3.5 rounded-full shrink-0 shadow-2xs ring-2 ring-white"
                               style={{ backgroundColor: slotColor }}
                             />
-                            <h3 className="text-sm font-black text-gray-900 truncate">
+                            <h3 className="text-sm font-black text-gray-600 truncate">
                               {slot.name}
                             </h3>
                           </div>
 
                           {override?.action === "FORCE_ACTIVE" ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-orange-100 text-orange-900 border border-orange-300 shrink-0 flex items-center gap-1">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black capitalize tracking-wider bg-orange-100 text-orange-900 border border-orange-300 shrink-0 flex items-center gap-1">
                               <span className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-ping" />
                               Started Early Today
                             </span>
                           ) : override?.action === "EXTEND_1H" || override?.action === "EXTEND_30M" ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-900 border border-blue-300 shrink-0 flex items-center gap-1">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black capitalize tracking-wider bg-blue-100 text-blue-900 border border-blue-300 shrink-0 flex items-center gap-1">
                               <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
                               Extended Today
                             </span>
                           ) : override?.action === "FORCE_INACTIVE" ? (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600 shrink-0">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold capitalize bg-slate-100 text-slate-600 shrink-0">
                               Ended Early Today
                             </span>
                           ) : isCurActive ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0 flex items-center gap-1">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black capitalize tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0 flex items-center gap-1">
                               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                               Active (Scheduled)
                             </span>
@@ -2121,7 +2121,7 @@ export default function RestaurantPOSPage() {
                         <div className="my-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Clock size={15} className="text-amber-600" />
-                            <span className="text-xs font-black text-gray-800 font-mono tracking-tight">
+                            <span className="text-xs font-black text-gray-600 font-mono tracking-tight">
                               {slot.startTime} – {slot.endTime}
                             </span>
                           </div>
@@ -2151,7 +2151,7 @@ export default function RestaurantPOSPage() {
 
                       {/* Demand Management Actions Bar */}
                       <div className="mt-3 pt-2.5 border-t border-slate-100 space-y-2">
-                        <div className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400">
+                        <div className="text-[10px] font-extrabold capitalize tracking-wider text-gray-400">
                           Today's Demand Controls
                         </div>
 
@@ -2209,7 +2209,7 @@ export default function RestaurantPOSPage() {
                               type="button"
                               disabled={overrideLoading}
                               onClick={() => handleShiftOverride(slot.id, "RESET")}
-                              className="px-2 py-1 rounded-lg text-[10px] font-bold text-gray-500 hover:text-gray-800 hover:bg-slate-100 transition flex items-center gap-1 cursor-pointer ml-auto"
+                              className="px-2 py-1 rounded-lg text-[10px] font-bold text-gray-500 hover:text-gray-600 hover:bg-slate-100 transition flex items-center gap-1 cursor-pointer ml-auto"
                               title="Revert back to standard schedule"
                             >
                               <RotateCcw size={10} /> Revert
@@ -2263,7 +2263,7 @@ export default function RestaurantPOSPage() {
         {selectedProductForAddons && (
           <div className="space-y-5 p-1">
             {/* Dish Header Banner Card */}
-            <div className="flex items-center gap-4 bg-gradient-to-r from-orange-50 via-amber-50/60 to-orange-50 p-3.5 rounded-md border border-orange-100 shadow-2xs">
+            <div className="flex items-center gap-4 bg-gradient-to-r from-orange-50 via-amber-50/60 to-orange-50 p-3.5 rounded-md border border-orange-100 shadow-sm">
               {selectedProductForAddons.image ? (
                 <img
                   src={selectedProductForAddons.image}
@@ -2277,10 +2277,10 @@ export default function RestaurantPOSPage() {
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-black text-base text-gray-900 truncate">
+                  <h3 className="font-black text-base text-gray-600 truncate">
                     {selectedProductForAddons.name}
                   </h3>
-                  <span className="px-2 py-0.5 rounded-md bg-orange-600 text-white text-[10px] font-black uppercase tracking-wider">
+                  <span className="px-2 py-0.5 rounded-md bg-orange-600 text-white text-[10px] font-black capitalize tracking-wider">
                     {selectedProductForAddons.category}
                   </span>
                 </div>
@@ -2299,7 +2299,7 @@ export default function RestaurantPOSPage() {
             {/* 1. Portion Size Selection (Only shown if configured for this product) */}
             {selectedProductForAddons.portionSizes && selectedProductForAddons.portionSizes.length > 0 && (
               <div>
-                <label className="block text-xs font-black text-gray-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <label className="block text-xs font-black text-gray-600 capitalize tracking-wider mb-2 flex items-center gap-1.5">
                   <span className="flex h-5 w-5 items-center justify-center rounded-md bg-orange-100 text-orange-700 text-[10px]">
                     1
                   </span>
@@ -2313,15 +2313,15 @@ export default function RestaurantPOSPage() {
                         type="button"
                         key={s.id || s.name}
                         onClick={() => setSelectedSize({ label: s.name, price: s.price })}
-                        className={`flex items-center justify-between p-3 rounded-md border-2 transition cursor-pointer select-none ${
+                        className={`flex items-center justify-between gap-2 p-3 rounded-md border-2 transition cursor-pointer select-none ${
                           isSelected
-                            ? "bg-orange-50 border-orange-500 text-orange-950 font-bold shadow-xs"
-                            : "bg-white border-slate-200 text-gray-700 hover:border-orange-300 font-medium"
+                            ? "bg-orange-50 border-orange-500 text-orange-950 font-bold shadow-sm"
+                            : "bg-white border-slate-200 text-gray-700 hover:border-orange-300 hover:shadow-xs font-medium"
                         }`}
                       >
-                        <div className="flex flex-col text-left min-w-0">
+                        <div className="flex items-center gap-1.5 text-left min-w-0 flex-1">
                           <span className="text-xs font-bold truncate">{s.name}</span>
-                          <span className="text-[11px] text-orange-600 font-extrabold mt-0.5">
+                          <span className="text-[11px] text-orange-600 font-extrabold shrink-0 whitespace-nowrap">
                             {fmt(s.price)}
                           </span>
                         </div>
@@ -2341,7 +2341,7 @@ export default function RestaurantPOSPage() {
 
             {/* 2. Spice Level Selection */}
             <div>
-              <label className="block text-xs font-black text-gray-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <label className="block text-xs font-black text-gray-600 capitalize tracking-wider mb-2 flex items-center gap-1.5">
                 <span className="flex h-5 w-5 items-center justify-center rounded-md bg-rose-100 text-rose-700 text-[10px]">
                   2
                 </span>
@@ -2357,8 +2357,8 @@ export default function RestaurantPOSPage() {
                       onClick={() => setSelectedSpice(spice.label)}
                       className={`flex items-center justify-center gap-1.5 p-2.5 rounded-md border-2 text-xs font-bold transition cursor-pointer ${
                         isSelected
-                          ? "bg-rose-50 border-rose-500 text-rose-800 shadow-xs"
-                          : "bg-white border-slate-200 text-gray-700 hover:border-rose-300"
+                          ? "bg-rose-50 border-rose-500 text-rose-800 shadow-sm"
+                          : "bg-white border-slate-200 text-gray-700 hover:border-rose-300 hover:shadow-xs"
                       }`}
                     >
                       <span>{spice.icon}</span>
@@ -2371,7 +2371,7 @@ export default function RestaurantPOSPage() {
 
             {/* 3. Extra Add-ons & Toppings (No Images - Title & Price Only) */}
             <div>
-              <label className="block text-xs font-black text-gray-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <label className="block text-xs font-black text-gray-600 capitalize tracking-wider mb-2 flex items-center gap-1.5">
                 <span className="flex h-5 w-5 items-center justify-center rounded-md bg-amber-100 text-amber-800 text-[10px]">
                   3
                 </span>
@@ -2389,8 +2389,8 @@ export default function RestaurantPOSPage() {
                       onClick={() => toggleExtraTopping(top)}
                       className={`flex items-center gap-3 p-3 rounded-md border-2 transition cursor-pointer select-none ${
                         isChecked
-                          ? "bg-amber-50/90 border-amber-500 text-amber-950 shadow-xs font-bold"
-                          : "bg-white border-slate-200 text-gray-700 hover:border-amber-300 font-medium"
+                          ? "bg-amber-50/90 border-amber-500 text-amber-950 shadow-sm font-bold"
+                          : "bg-white border-slate-200 text-gray-700 hover:border-amber-300 hover:shadow-xs font-medium"
                       }`}
                     >
                       <input
@@ -2400,10 +2400,10 @@ export default function RestaurantPOSPage() {
                         className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500 accent-amber-600 cursor-pointer shrink-0"
                       />
 
-                      <div className="flex-1 min-w-0">
-                        <h5 className="text-xs font-bold text-gray-800 truncate">{top.label}</h5>
+                      <div className="flex-1 min-w-0 flex items-center gap-1.5">
+                        <h5 className="text-xs font-bold text-gray-600 truncate">{top.label}</h5>
                         <span
-                          className={`text-[11px] font-black block mt-0.5 ${
+                          className={`text-[11px] font-black shrink-0 whitespace-nowrap ${
                             isChecked ? "text-amber-700" : "text-gray-500"
                           }`}
                         >
@@ -2418,8 +2418,8 @@ export default function RestaurantPOSPage() {
 
             {/* 4. Special Cooking Instructions */}
             <div>
-              <label className="block text-xs font-black text-gray-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-100 text-slate-700 text-[10px]">
+              <label className="block text-xs font-black text-gray-600 capitalize tracking-wider mb-1.5 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-100 text-gray-600 text-[10px]">
                   4
                 </span>
                 Cooking Instructions / Note
@@ -2429,20 +2429,21 @@ export default function RestaurantPOSPage() {
                 value={itemNote}
                 onChange={(e) => setItemNote(e.target.value)}
                 placeholder="e.g. Less oil, extra sauce on side, no onions..."
-                className="w-full rounded-md border border-slate-200 bg-white p-2.5 text-xs text-gray-800 focus:border-orange-500 focus:outline-none"
+                className="w-full rounded-md border border-slate-200 bg-white p-2.5 text-xs text-gray-600 focus:border-orange-500 focus:outline-none"
               />
             </div>
 
             {/* Modal Footer with Live Item Price Calculation */}
             <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider block">
+                <span className="text-[10px] text-gray-500 capitalize font-bold tracking-wider block">
                   Customized Item Total
                 </span>
                 <span className="font-black text-xl text-orange-600 tabular-nums">
                   {fmt(
-                    selectedProductForAddons.sellingPrice +
-                      selectedSize.price +
+                    (selectedProductForAddons.portionSizes && selectedProductForAddons.portionSizes.length > 0
+                      ? selectedSize.price
+                      : selectedProductForAddons.sellingPrice) +
                       selectedExtras.reduce((sum, e) => sum + e.price, 0)
                   )}
                 </span>
