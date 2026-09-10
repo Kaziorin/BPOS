@@ -1,489 +1,386 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Search, ShoppingCart, Pill, AlertTriangle, RefreshCw, ScanLine } from "lucide-react";
-import { api } from "@/lib/api";
-import { CustomInput } from "@/components/custom/CustomInput";
-import { CustomSelect } from "@/components/custom/CustomSelect";
-import { CustomButton } from "@/components/custom/CustomButton";
-import { CustomModal } from "@/components/custom/CustomModal";
-import { CartPanel } from "../pos/CartPanel";
-import { PaymentPanel } from "../pos/PaymentPanel";
-import { ReceiptModal } from "../pos/ReceiptModal";
-import type { CartItem, PaymentLine, SaleResult } from "../pos/pos-types";
-import { isOnline } from "@/lib/offline/db";
-import { syncManager } from "@/lib/offline/sync";
+import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import {
-  fetchAllProducts, fetchBatches, applyBatchStock, fetchRegisterContext,
-  groupBatchesByProduct, daysUntilExpiry, expiryBadge,
-  type RegisterProduct, type RegisterContext, type BatchRow,
-} from "@/lib/catalog";
+  ShoppingCart,
+  Pill,
+  Barcode,
+  Receipt,
+  Search,
+  Sparkles,
+  ArrowRight,
+  TrendingUp,
+  Package,
+  Clock,
+  CheckCircle2,
+  RefreshCw,
+  Printer,
+  ChevronRight,
+  PlusCircle,
+  Users,
+  Layers,
+  Zap,
+  LayoutDashboard,
+  History,
+  Activity,
+  Monitor,
+  HeartPulse,
+  Stethoscope,
+  ShieldAlert,
+} from "lucide-react";
+import { api } from "@/lib/api";
+import { UniversalInvoiceModal } from "@/components/invoices/UniversalInvoiceModal";
 
-/** Cart line for a pharmacy sale — batch selection travels with the item. */
-interface RxCartItem extends CartItem {
-  batchNo?: string | null;
-  expiryDate?: string | null;
+function getCustomerTier(pts: number) {
+  if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-100" };
+  if (pts >= 1500) return { name: "Gold", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" };
+  if (pts >= 500) return { name: "Silver", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-100" };
+  return { name: "Bronze", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-100" };
 }
 
-export default function PharmacyPage() {
-  const [ctx, setCtx] = useState<RegisterContext>({ branch: null, warehouse: null, currency: "BDT" });
-  const [search, setSearch] = useState("");
-  const [products, setProducts] = useState<RegisterProduct[]>([]);
-  const [batches, setBatches] = useState<BatchRow[]>([]);
-  const [customers, setCustomers] = useState<{ id: string; name: string; phone: string | null }[]>([]);
-  const [customerId, setCustomerId] = useState("");
-  const [cart, setCart] = useState<RxCartItem[]>([]);
-  const [payments, setPayments] = useState<PaymentLine[]>([{ method: "CASH", amount: 0 }]);
+export default function PharmacyHubPage() {
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<SaleResult | null>(null);
-  const [online, setOnline] = useState(true);
-  const [note, setNote] = useState("");
-  const [discountTotal, setDiscountTotal] = useState(0);
-  const searchRef = useRef<HTMLInputElement>(null);
-
-  // Batch picker state
-  const [pickerFor, setPickerFor] = useState<RegisterProduct | null>(null);
-  const [pickerBatch, setPickerBatch] = useState<BatchRow | null>(null);
-
-  // ── connectivity ──
-  useEffect(() => {
-    setOnline(isOnline());
-    const on = () => setOnline(true);
-    const off = () => setOnline(false);
-    window.addEventListener("online", on);
-    window.addEventListener("offline", off);
-    return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); };
-  }, []);
+  const [sales, setSales] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSale, setSelectedSale] = useState<any | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    const [c, prods, bts] = await Promise.all([
-      fetchRegisterContext(),
-      fetchAllProducts().catch(() => []),
-      fetchBatches(),
-    ]);
-    setCtx(c);
-    setBatches(bts);
-    setProducts(applyBatchStock(prods, bts));
     try {
-      const res = await api.get<{ data: { id: string; name: string; phone: string | null }[] }>("/customers?limit=500");
-      setCustomers(res.data ?? []);
-    } catch { /* optional */ }
-    setLoading(false);
+      const [salesRes, prodRes] = await Promise.allSettled([
+        api.get("/pos/sales", { params: { limit: 50 } }),
+        api.get("/products?productType=PHARMACY", { params: { limit: 100 } }),
+      ]);
+      const sData = salesRes.status === "fulfilled" ? ((salesRes.value as any)?.data ?? salesRes.value ?? []) : [];
+      const pData = prodRes.status === "fulfilled" ? ((prodRes.value as any)?.data ?? prodRes.value ?? []) : [];
+      setSales(Array.isArray(sData) ? sData : []);
+      setProducts(Array.isArray(pData) ? pData : []);
+    } catch (err) {
+      console.error("Failed to load pharmacy data:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  useEffect(() => { loadData(); }, [loadData]);
-
-  // ── fast medicine search (barcode-first) ──
-  const visible = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return products;
-    return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(term) ||
-        p.sku.toLowerCase().includes(term) ||
-        (p.barcode && p.barcode === search.trim()),
-    );
-  }, [products, search]);
-
-  const byProduct = useMemo(() => groupBatchesByProduct(batches), [batches]);
-
-  // Expiry summary for the alert strip
-  const expiryStats = useMemo(() => {
-    let expired = 0, expiring = 0;
-    for (const b of batches) {
-      const d = daysUntilExpiry(b.expiryDate);
-      if (d === null) continue;
-      if (d < 0) expired += 1;
-      else if (d <= 30) expiring += 1;
-    }
-    return { expired, expiring };
-  }, [batches]);
-
-  const subtotal = useMemo(() => cart.reduce((s, i) => s + i.lineTotal, 0), [cart]);
-  const total = Math.max(subtotal - discountTotal, 0);
-
   useEffect(() => {
-    if (payments.length === 1) setPayments([{ ...payments[0], amount: total }]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [total]);
+    loadData();
+  }, [loadData]);
 
-  function calcLine(item: RxCartItem): RxCartItem {
-    return { ...item, lineTotal: item.qty * item.unitPrice - item.discountAmount };
-  }
+  const fmt = (n: number) => `৳${Number(n || 0).toLocaleString("en-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  /** Open batch picker for a medicine that carries batches. */
-  function tapProduct(p: RegisterProduct) {
-    const list = byProduct.get(p.id) ?? [];
-    const usable = list.filter((b) => Number(b.qty || 0) > 0);
-    if (usable.length <= 1) {
-      // FEFO default or no batches — add straight away
-      const batch = usable[0] ?? null;
-      if (batch && (daysUntilExpiry(batch.expiryDate) ?? 0) < 0) {
-        setError(`${p.name} — only available in an EXPIRED batch (${batch.batchNo}). Receive new stock first.`);
-        return;
-      }
-      addToCart(p, batch);
-      return;
-    }
-    setPickerFor(p);
-    setPickerBatch(usable[0]); // FEFO default
-    setError(null);
-  }
+  const totalSales = sales.reduce((acc, s) => acc + Number(s.grandTotal ?? s.totalAmount ?? s.total ?? 0), 0);
+  const totalItemsSold = sales.reduce((acc, s) => acc + (s.items || []).reduce((sum: number, it: any) => sum + Number(it.qty || 1), 0), 0);
 
-  function addToCart(p: RegisterProduct, batch: BatchRow | null) {
-    setCart((prev) => {
-      const idx = prev.findIndex((i) => i.productId === p.id && (i.batchNo ?? null) === (batch?.batchNo ?? null));
-      if (idx >= 0) {
-        const updated = [...prev];
-        updated[idx] = calcLine({ ...updated[idx], qty: updated[idx].qty + 1 });
-        return updated;
-      }
-      return [...prev, calcLine({
-        productId: p.id, variantId: null,
-        name: p.name, qty: 1,
-        unitPrice: p.sellingPrice,
-        discountAmount: 0, lineTotal: 0,
-        batchNo: batch?.batchNo ?? null,
-        expiryDate: batch?.expiryDate ?? null,
-      })];
-    });
-    setSearch("");
-    searchRef.current?.focus();
-  }
-
-  function onQty(idx: number, qty: number) {
-    if (qty <= 0) { setCart((prev) => prev.filter((_, i) => i !== idx)); return; }
-    setCart((prev) => prev.map((item, i) => (i === idx ? calcLine({ ...item, qty }) : item)));
-  }
-  function onRemove(idx: number) { setCart((prev) => prev.filter((_, i) => i !== idx)); }
-  function onDiscount(idx: number, d: number) {
-    setCart((prev) => prev.map((item, i) => (i === idx ? calcLine({ ...item, discountAmount: d }) : item)));
-  }
-  function onPrice(idx: number, price: number) {
-    setCart((prev) => prev.map((item, i) => (i === idx ? calcLine({ ...item, unitPrice: price }) : item)));
-  }
-
-  function handleSearchKey(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && search.trim()) {
-      const match = products.find((p) => (p.barcode && p.barcode === search.trim()) || p.sku === search.trim());
-      if (match) { tapProduct(match); return; }
-      if (visible.length === 1) tapProduct(visible[0]);
-    }
-  }
-
-  async function confirmSale() {
-    if (cart.length === 0) return;
-    if (!ctx.branch?.id || !ctx.warehouse?.id) {
-      setError("Branch/warehouse not configured. Complete onboarding first.");
-      return;
-    }
-    // Block expired stock at the register
-    for (const line of cart) {
-      if (line.batchNo && line.expiryDate) {
-        const d = daysUntilExpiry(line.expiryDate);
-        if (d !== null && d < 0) {
-          setError(`“${line.name}” (batch ${line.batchNo}) is EXPIRED — cannot be sold.`);
-          return;
-        }
-      }
-    }
-    setError(null);
-    setSubmitting(true);
-    try {
-      if (online) {
-        const res = await api.post<SaleResult>("/api/v1/pos/confirm", {
-          branchId: ctx.branch.id,
-          warehouseId: ctx.warehouse.id,
-          customerId: customerId || null,
-          items: cart.map((i) => ({
-            productId: i.productId, name: i.name, qty: i.qty,
-            unitPrice: i.unitPrice, discountAmount: i.discountAmount,
-            batchNo: i.batchNo ?? null,
-          })),
-          payments,
-          discountTotal,
-          note,
-        });
-        setResult(res);
-      } else {
-        const saleId = crypto.randomUUID();
-        await syncManager.createOfflineTransaction({
-          entityType: "SALE",
-          entityId: saleId,
-          branchId: ctx.branch.id,
-          payload: {
-            saleId,
-            branchId: ctx.branch.id,
-            warehouseId: ctx.warehouse.id,
-            customerId: customerId || null,
-            items: cart.map((i) => ({
-              productId: i.productId, name: i.name, qty: i.qty,
-              unitPrice: i.unitPrice, discountAmount: i.discountAmount,
-              batchNo: i.batchNo ?? null,
-            })),
-            payments,
-            discountTotal,
-            note,
-          },
-        });
-        setResult({
-          saleId,
-          invoiceNo: `OFF-${Date.now().toString(36).toUpperCase()}`,
-          invoiceId: crypto.randomUUID(),
-          total,
-          paidTotal: payments.reduce((s, p) => s + p.amount, 0),
-          dueTotal: Math.max(total - payments.reduce((s, p) => s + p.amount, 0), 0),
-          paymentIds: [],
-        } as SaleResult);
-      }
-      resetSale();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  function resetSale() {
-    setCart([]);
-    setCustomerId("");
-    setDiscountTotal(0);
-    setPayments([{ method: "CASH", amount: 0 }]);
-    setResult(null);
-    setNote("");
-    setError(null);
-    searchRef.current?.focus();
-  }
-
-  if (result) {
+  const filteredSales = sales.filter((s) => {
+    const q = searchTerm.toLowerCase().trim();
+    if (!q) return true;
+    const custName = s.customer?.name || s.customerName || "";
     return (
-      <div className="mx-auto max-w-md">
-        <ReceiptModal result={result} onNewSale={resetSale} />
-      </div>
+      (s.invoiceNo && s.invoiceNo.toLowerCase().includes(q)) ||
+      (custName && custName.toLowerCase().includes(q)) ||
+      (s.cashier?.name && s.cashier.name.toLowerCase().includes(q))
     );
-  }
+  });
 
   return (
-    <div className="flex flex-col gap-4 overflow-y-auto pb-14 lg:h-[calc(100vh-4rem)] lg:flex-row lg:overflow-hidden lg:pb-0">
-      {/* LEFT — medicine search + grid */}
-      <div className="flex h-[55dvh] min-w-0 flex-1 flex-col gap-3 overflow-hidden lg:h-auto">
-        <div className="flex items-center gap-2">
-          <Pill size={16} className="shrink-0 text-primary-600" />
-          <span className="shrink-0 text-sm font-semibold text-gray-900">Pharmacy Register</span>
-          {!online && (
-            <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
-              <AlertTriangle size={11} /> Offline — sales queue for sync
-            </span>
-          )}
-          {loading && <RefreshCw size={14} className="ml-1 animate-spin text-gray-300" />}
+    <div className="relative w-full min-h-screen overflow-hidden p-6 space-y-8" style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}>
+
+      {/* ══ POS-Style Background Waves (Pharmacy Cyan/Teal Theme) ══ */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+        <svg className="absolute top-0 left-0 w-full h-[300px] opacity-[0.15]" viewBox="0 0 1200 300" fill="none" preserveAspectRatio="none">
+          <path d="M 0 0 L 1200 0 L 1200 150 C 900 280, 400 100, 0 200 Z" fill="url(#hub-cyan-wave)" />
+          <defs>
+            <linearGradient id="hub-cyan-wave" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(6, 182, 212, 1)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      {/* Header Banner: Glassmorphic & Curved */}
+      <div className="relative group overflow-hidden rounded-[2.5rem] bg-white/70 backdrop-blur-xl border border-white shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] p-8 flex flex-col md:flex-row items-center justify-between gap-8 transition-all hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.15)]">
+        <div className={`absolute -left-20 -top-20 w-64 h-64 blur-3xl opacity-20 rounded-full bg-cyan-400 group-hover:scale-125 transition-transform duration-700`} />
+
+        <div className="relative flex items-center gap-6 z-10">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center text-white shadow-lg transform rotate-3 group-hover:rotate-6 transition-transform duration-500">
+            <HeartPulse size={40} strokeWidth={2.2} />
+          </div>
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-black text-slate-900 tracking-tight">Pharmacy Hub</h1>
+              <span className="px-3 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] bg-cyan-100 text-cyan-700 border border-cyan-200 rounded-full shadow-sm">
+                Rx Control
+              </span>
+            </div>
+            <p className="text-slate-500 font-medium max-w-xl mt-2 leading-relaxed">
+              Clinical-grade dispense monitoring. Manage prescription batches, track medicine expiry dates, and oversee pharmacy lane throughput with real-time stock sync.
+            </p>
+          </div>
         </div>
 
-        {(expiryStats.expired > 0 || expiryStats.expiring > 0) && (
-          <div className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-            <AlertTriangle size={14} className="shrink-0" />
-            <span>
-              {expiryStats.expiring > 0 && <b>{expiryStats.expiring} batch{expiryStats.expiring === 1 ? "" : "es"} expiring within 30 days</b>}
-              {expiryStats.expired > 0 && (
-                <>
-                  {expiryStats.expiring > 0 ? " · " : ""}
-                  <b className="text-red-700">{expiryStats.expired} expired</b> — FEFO sells the soonest-expiring first
-                </>
-              )}
-            </span>
-          </div>
-        )}
+        <div className="relative flex flex-col sm:flex-row items-center gap-3 z-10">
+          <Link
+            href="/pharmacy/pos"
+            className="group/btn flex items-center gap-3 px-6 py-3.5 rounded-2xl text-sm font-black bg-slate-900 text-white shadow-xl shadow-slate-900/20 hover:bg-cyan-600 hover:shadow-cyan-500/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
+          >
+            <Zap size={18} className="text-cyan-400 group-hover/btn:animate-pulse" />
+            Open Rx Register
+            <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
+          </Link>
 
-        <CustomInput
-          ref={searchRef}
-          autoFocus
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={handleSearchKey}
-          placeholder="Scan barcode or search medicine… (Enter adds FEFO batch)"
-          leftIcon={<Search size={15} />}
-          className="py-2.5"
-        />
-
-        <div className="grid grid-cols-2 gap-2 overflow-y-auto pb-2 sm:grid-cols-3 xl:grid-cols-4">
-          {visible.map((p) => {
-            const list = (byProduct.get(p.id) ?? []).filter((b) => Number(b.qty || 0) > 0);
-            const fefo = list[0] ?? null;
-            const fefoDays = fefo ? daysUntilExpiry(fefo.expiryDate) : null;
-            const out = (p.stockQty ?? 0) <= 0;
-            const badge = expiryBadge(fefoDays);
-            return (
-              <button
-                key={p.id}
-                disabled={out || (fefo && fefoDays !== null && fefoDays < 0)}
-                onClick={() => tapProduct(p)}
-                className="flex flex-col items-start rounded-xl border border-gray-100 bg-white p-3 text-left transition hover:border-primary-300 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <div className="flex w-full items-start justify-between gap-1">
-                  <p className="line-clamp-2 text-sm font-medium text-gray-800">{p.name}</p>
-                  {p.barcode && <ScanLine size={13} className="mt-0.5 shrink-0 text-gray-300" />}
-                </div>
-                <p className="mt-0.5 text-xs text-gray-400">{p.sku}</p>
-                <div className="mt-1.5 flex w-full flex-wrap items-center gap-1.5">
-                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
-                    {p.stockQty ?? 0} in stock
-                  </span>
-                  {fefo && badge && (
-                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${badge.cls}`}>
-                      {badge.label}
-                    </span>
-                  )}
-                  {!fefo && list.length === 0 && p.stockQty === 0 && (
-                    <span className="rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-600">No batch</span>
-                  )}
-                </div>
-                <p className="mt-1.5 text-sm font-bold text-primary-600 tabular-nums">
-                  {Number(p.sellingPrice).toFixed(2)}
-                </p>
-                {fefo && list.length > 1 && (
-                  <p className="mt-0.5 text-[11px] text-gray-400">Choose batch… ({list.length})</p>
-                )}
-              </button>
-            );
-          })}
-          {visible.length === 0 && !loading && (
-            <p className="col-span-full py-12 text-center text-sm text-gray-400">
-              {search ? "No medicines match — check barcode or name" : "No medicines in this pharmacy yet"}
-            </p>
-          )}
+          <Link
+            href="/customer-display"
+            target="_blank"
+            className="group/cd flex items-center gap-3 px-6 py-3.5 rounded-2xl text-sm font-black bg-white text-slate-700 border border-slate-200 shadow-lg shadow-slate-200/20 hover:bg-slate-50 hover:border-cyan-300 hover:text-cyan-700 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
+          >
+            <Monitor size={18} className="text-slate-400 group-hover/cd:text-cyan-500" />
+            Patient Display
+          </Link>
         </div>
       </div>
 
-      {/* RIGHT — cart + checkout */}
-      <div className="flex w-full shrink-0 flex-col rounded-2xl border border-gray-100 bg-white shadow-sm lg:w-80">
-        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-          <span className="flex items-center gap-2 text-sm font-semibold text-gray-900">
-            <ShoppingCart size={16} className="text-gray-400" />
-            Cart {cart.length > 0 && `(${cart.length})`}
-          </span>
-        </div>
-
-        <div className="flex flex-1 flex-col gap-2 overflow-hidden px-3 py-2">
-          <CartPanel
-            items={cart}
-            selfCheckout={false}
-            onQtyChange={onQty}
-            onRemove={onRemove}
-            onDiscountChange={onDiscount}
-            onPriceOverride={onPrice}
-          />
-          {/* Batch trace on each cart line */}
-          {cart.some((c) => c.batchNo) && (
-            <div className="max-h-24 space-y-0.5 overflow-y-auto rounded-lg bg-gray-50 p-2 text-[11px] text-gray-500">
-              {cart.filter((c) => c.batchNo).map((c, i) => {
-                const b = expiryBadge(daysUntilExpiry(c.expiryDate));
-                return (
-                  <div key={i} className="flex items-center justify-between gap-2">
-                    <span className="truncate">{c.name}</span>
-                    <span className="flex shrink-0 items-center gap-1">
-                      <span className="rounded bg-white px-1 font-mono">{c.batchNo}</span>
-                      {b && <span className={`rounded px-1 ${b.cls}`}>{b.label}</span>}
-                    </span>
-                  </div>
-                );
-              })}
+      {/* KPI Stats: Tactile Premium Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: "Daily Revenue", val: fmt(totalSales), sub: "Rx checkout volume", icon: TrendingUp, color: "cyan", iconColor: "text-cyan-600", bg: "bg-cyan-50" },
+          { label: "Prescriptions", val: sales.length, sub: "Completed dispenses", icon: Receipt, color: "teal", iconColor: "text-teal-600", bg: "bg-teal-50" },
+          { label: "Units Dispensed", val: totalItemsSold, sub: "Medicine units sold", icon: Pill, color: "indigo", iconColor: "text-indigo-600", bg: "bg-indigo-50" },
+          { label: "Active Batches", val: products.length, sub: "FEFO tracked stock", icon: Activity, color: "amber", iconColor: "text-amber-600", bg: "bg-amber-50" },
+        ].map((stat, i) => (
+          <div key={i} className="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-1">
+            <div className={`absolute -right-4 -bottom-4 w-24 h-24 blur-2xl opacity-[0.05] rounded-full ${stat.bg}`} />
+            <div className="flex items-center justify-between mb-4">
+              <div className={`w-12 h-12 rounded-2xl ${stat.bg} flex items-center justify-center ${stat.iconColor} shadow-sm group-hover:scale-110 transition-transform`}>
+                <stat.icon size={24} strokeWidth={2.5} />
+              </div>
+              <div className="px-2 py-1 rounded-lg bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-slate-100">
+                Live
+              </div>
             </div>
-          )}
-        </div>
-
-        <div className="space-y-3 border-t border-gray-100 px-4 py-3">
-          <CustomSelect
-            value={customerId}
-            onChange={(e) => setCustomerId(e.target.value)}
-            placeholder="Walk-in customer / patient"
-            options={customers.map((c) => ({ value: c.id, label: `${c.name}${c.phone ? ` · ${c.phone}` : ""}` }))}
-          />
-          <div className="space-y-1 text-sm">
-            <div className="flex justify-between text-gray-500">
-              <span>Subtotal</span><span className="tabular-nums">{subtotal.toFixed(2)}</span>
+            <p className="text-3xl font-black text-slate-900 tracking-tighter">{stat.val}</p>
+            <div className="flex flex-col mt-1">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{stat.label}</span>
+              <span className="text-[10px] text-slate-400 font-medium">{stat.sub}</span>
             </div>
-            {discountTotal > 0 && (
-              <div className="flex justify-between text-amber-600">
-                <span>Discount</span><span className="tabular-nums">−{discountTotal.toFixed(2)}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Main Content: Rx Transactions & Medicine Stock */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
+
+        {/* Left 2 Cols: Recent Pharmacy Transactions */}
+        <div className="lg:col-span-2 rounded-[2.5rem] bg-white border border-slate-100 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
+          <div className="p-8 border-b border-slate-50 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <History className="text-cyan-500" size={24} /> Rx Activity
+              </h3>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Dispense & Sales Stream</p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search Rx #, patient..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="rounded-2xl border border-slate-200 bg-slate-50/50 py-2.5 pl-11 pr-4 text-xs font-bold focus:border-cyan-500 focus:outline-none focus:bg-white transition-all w-64 shadow-inner"
+                />
+              </div>
+              <button
+                onClick={loadData}
+                className="rounded-2xl border border-slate-100 p-2.5 text-slate-500 hover:bg-cyan-50 hover:text-cyan-600 transition-all shadow-sm active:scale-90"
+              >
+                <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-hidden p-2">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-32 gap-4">
+                <div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Syncing Rx data...</p>
+              </div>
+            ) : filteredSales.length === 0 ? (
+              <div className="py-32 text-center space-y-4">
+                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-300">
+                  <Receipt size={40} />
+                </div>
+                <div>
+                  <p className="text-lg font-black text-slate-600">No Rx Activity</p>
+                  <p className="text-xs font-bold text-slate-400 max-w-xs mx-auto mt-1 uppercase tracking-wide">Launch a pharmacy register to start dispensing</p>
+                </div>
+              </div>
+            ) : (
+              <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+                      <th className="py-5 px-6">Invoice / Rx</th>
+                      <th className="py-5 px-6">Patient & Tier</th>
+                      <th className="py-5 px-6">Time</th>
+                      <th className="py-5 px-6 text-center">Items</th>
+                      <th className="py-5 px-6 text-right">Total</th>
+                      <th className="py-5 px-6 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {filteredSales.map((s) => {
+                      const points = s.customer?.loyaltyPoints || 0;
+                      const tier = getCustomerTier(points);
+                      const custName = s.customer?.name || s.customerName || "Walk-in Patient";
+                      const itemCount = Array.isArray(s.items) && s.items.length > 0 ? s.items.length : (s.itemsCount || 0);
+                      const totalAmt = Number(s.grandTotal ?? s.totalAmount ?? s.total ?? 0);
+                      return (
+                        <tr key={s.id} className="group hover:bg-cyan-50/40 transition-colors">
+                          <td className="py-5 px-6">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center font-mono font-black text-[10px] border border-cyan-100">
+                                Rx
+                              </div>
+                              <span className="font-mono font-black text-xs text-slate-700">{s.invoiceNo || s.id.slice(0, 8).toUpperCase()}</span>
+                            </div>
+                          </td>
+                          <td className="py-5 px-6">
+                            <div className="flex flex-col">
+                              <span className="text-xs font-black text-slate-900 tracking-tight">{custName}</span>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-widest ${tier.color} ${tier.bg} ${tier.border}`}>
+                                  {tier.name}
+                                </span>
+                                <span className="text-[9px] font-bold text-slate-400">{s.paymentMethod || "CASH"}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-5 px-6">
+                            <div className="flex flex-col">
+                              <span className="text-xs font-black text-slate-700">{new Date(s.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}</span>
+                              <span className="text-[10px] font-bold text-slate-400">{new Date(s.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          </td>
+                          <td className="py-5 px-6 text-center">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-[10px] font-black">
+                              {itemCount}
+                            </span>
+                          </td>
+                          <td className="py-5 px-6 text-right font-black tabular-nums text-slate-900 text-sm">
+                            {fmt(totalAmt)}
+                          </td>
+                          <td className="py-5 px-6 text-center">
+                            <button
+                              onClick={() => setSelectedSale(s)}
+                              className="rounded-xl bg-slate-900 text-white hover:bg-cyan-600 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95"
+                            >
+                              Receipt
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
-            <div className="flex justify-between border-t border-gray-100 pt-1 font-bold text-gray-900">
-              <span>Total</span><span className="tabular-nums">{total.toFixed(2)}</span>
-            </div>
           </div>
-          <CustomInput label="Discount" type="number" min={0} step="0.01" value={discountTotal || ""}
-                       onChange={(e) => setDiscountTotal(Number(e.target.value))} className="py-1.5 text-sm" />
-          <PaymentPanel total={total} payments={payments} onChange={setPayments} />
-          <CustomInput label="Note" value={note} onChange={(e) => setNote(e.target.value)} className="py-1.5 text-sm" />
-          {error && <p className="text-xs text-red-600">{error}</p>}
-          <CustomButton fullWidth size="lg" loading={submitting} disabled={cart.length === 0} onClick={confirmSale}>
-            {!online ? "⚡ Confirm Offline Sale" : "Confirm Sale"}
-          </CustomButton>
+        </div>
+
+        {/* Right Col: Medicine Inventory & Expiry Alerts */}
+        <div className="rounded-[2.5rem] bg-white border border-slate-100 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
+          <div className="p-8 border-b border-slate-50 bg-slate-50/30">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <Stethoscope className="text-cyan-500" size={24} /> Inventory
+              </h3>
+              <Link
+                href="/products/create"
+                className="w-8 h-8 rounded-xl bg-cyan-600 text-white flex items-center justify-center hover:bg-cyan-700 transition shadow-lg shadow-cyan-500/20 active:scale-90"
+              >
+                <PlusCircle size={18} />
+              </Link>
+            </div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Stock Control</p>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+            {products.slice(0, 15).map((p) => {
+              const outOfStock = (p.stockQty ?? 0) <= 0;
+              return (
+                <div
+                  key={p.id}
+                  className="group flex items-center justify-between p-4 rounded-3xl bg-white border border-slate-100 hover:border-cyan-200 hover:shadow-md transition-all duration-300"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:bg-cyan-600 group-hover:text-white transition-colors shrink-0 font-bold text-sm">
+                      {p.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-black text-slate-800 truncate text-xs tracking-tight">{p.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[9px] font-black text-slate-400 uppercase font-mono">{p.sku || "NO-SKU"}</span>
+                        {outOfStock ? (
+                           <span className="text-[8px] font-black bg-rose-100 text-rose-700 px-1 rounded uppercase">Out</span>
+                        ) : (
+                           <span className="text-[8px] font-black bg-cyan-100 text-cyan-700 px-1 rounded uppercase">In Stock</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-black text-slate-900 tracking-tighter block">{fmt(Number(p.sellingPrice || 0))}</span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Qty: {p.stockQty ?? 0}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="p-6 bg-slate-50/50">
+            <Link
+              href="/pharmacy/pos"
+              className="group w-full flex items-center justify-center gap-2 rounded-2xl bg-slate-900 p-4 text-xs font-black text-white hover:bg-cyan-600 transition-all shadow-lg shadow-slate-900/10 active:scale-95"
+            >
+              Dispatch Register
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Batch picker modal — FEFO first */}
-      <CustomModal
-        open={pickerFor !== null}
-        onClose={() => setPickerFor(null)}
-        title={pickerFor ? `Select batch — ${pickerFor.name}` : "Select batch"}
-      >
-        {pickerFor && (
-          <div className="space-y-2">
-            <p className="rounded-lg bg-primary-50 px-3 py-2 text-xs text-primary-700">
-              FEFO (first-expiry-first-out) — the soonest-expiring batch is highlighted and pre-selected.
-            </p>
-            {(byProduct.get(pickerFor.id) ?? []).filter((b) => Number(b.qty || 0) > 0).length === 0 && (
-              <p className="py-4 text-center text-sm text-gray-400">No sellable stock for this medicine.</p>
-            )}
-            {(byProduct.get(pickerFor.id) ?? [])
-              .filter((b) => Number(b.qty || 0) > 0)
-              .map((b, i) => {
-                const d = daysUntilExpiry(b.expiryDate);
-                const expired = d !== null && d < 0;
-                const badge = expiryBadge(d);
-                const selected = pickerBatch?.id === b.id;
-                return (
-                  <button
-                    key={b.id}
-                    disabled={expired}
-                    onClick={() => setPickerBatch(b)}
-                    className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left transition disabled:opacity-40 ${
-                      selected ? "border-primary-400 bg-primary-50 ring-1 ring-primary-200" : "border-gray-100 hover:border-gray-200"
-                    }`}
-                  >
-                    <div className="min-w-0">
-                      <p className="flex items-center gap-2 text-sm font-medium text-gray-800">
-                        <span className="font-mono">{b.batchNo}</span>
-                        {i === 0 && !expired && (
-                          <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">FEFO</span>
-                        )}
-                      </p>
-                      <p className="mt-0.5 text-xs text-gray-400 tabular-nums">{b.qty} units available</p>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      {badge && <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${badge.cls}`}>{badge.label}</span>}
-                      {b.expiryDate && <span className="text-xs text-gray-400 tabular-nums">{b.expiryDate.slice(0, 10)}</span>}
-                    </div>
-                  </button>
-                );
-              })}
-            <div className="flex justify-end gap-2 pt-2">
-              <CustomButton variant="outline" onClick={() => setPickerFor(null)}>Cancel</CustomButton>
-              <CustomButton
-                onClick={() => {
-                  if (pickerFor && pickerBatch) addToCart(pickerFor, pickerBatch);
-                  setPickerFor(null);
-                }}
-              >
-                Add selected batch
-              </CustomButton>
-            </div>
-          </div>
-        )}
-      </CustomModal>
+
+      {/* Specialized Pharmacy Receipt Modal */}
+      {selectedSale && (
+        <UniversalInvoiceModal
+          data={{
+            id: selectedSale.id,
+            invoiceNo: selectedSale.invoiceNo || `Rx-${selectedSale.id.slice(0, 8)}`,
+            saleDate: selectedSale.createdAt,
+            vertical: "pharmacy",
+            customer: selectedSale.customer || { name: selectedSale.customerName || "Walk-in Patient" },
+            items: (selectedSale.items || []).map((it: any) => ({
+              name: it.productName || it.name || it.product?.name || "Medicine",
+              productName: it.productName || it.name || it.product?.name || "Medicine",
+              qty: Number(it.qty || 1),
+              unitPrice: Number(it.unitPrice || 0),
+              batchNo: it.batchNo || "BX-001",
+              uom: it.uom || "pcs",
+            })),
+            subTotal: Number(selectedSale.subTotal || selectedSale.subtotal || selectedSale.total || selectedSale.grandTotal || 0),
+            grandTotal: Number(selectedSale.grandTotal ?? selectedSale.totalAmount ?? selectedSale.total ?? 0),
+            paidTotal: Number(selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0),
+            dueTotal: Number(selectedSale.dueTotal || 0),
+            paymentMethod: selectedSale.paymentMethod || "CASH",
+          }}
+          initialVertical="pharmacy"
+          onClose={() => setSelectedSale(null)}
+        />
+      )}
     </div>
   );
 }

@@ -26,6 +26,8 @@ export interface RegisterProduct {
   status: string;
   stockQty?: number;
   imageUrl?: string | null;
+  categoryName?: string | null;
+  brandName?: string | null;
 }
 
 export interface ApiProductRow {
@@ -63,6 +65,8 @@ export function toRegisterProduct(row: ApiProductRow): RegisterProduct {
     status: row.status ?? "ACTIVE",
     stockQty: stockRows > 0 ? stockRows : undefined,
     imageUrl: row.imageUrl || (row as any).image || null,
+    categoryName: row.category?.name ?? null,
+    brandName: row.brand?.name ?? null,
   };
 }
 

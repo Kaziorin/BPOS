@@ -85,7 +85,7 @@ export const navGroups: NavGroup[] = [
     title: "Modules",
     items: [
       { label: "Restaurant", href: "/restaurant", icon: UtensilsCrossed },
-      { label: "Pharmacy Register", href: "/pharmacy", icon: Pill },
+      { label: "Pharmacy Hub", href: "/pharmacy", icon: Pill },
       { label: "Customer Display", href: "/customer-display", icon: Monitor },
       { label: "HRM", href: "/hrm", icon: UserCog },
       { label: "Reports", href: "/reports", icon: BarChart3 },

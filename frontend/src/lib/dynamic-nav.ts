@@ -503,7 +503,7 @@ export function useDynamicNav() {
               !children[0].children?.length;
 
             // Modules that should be direct links (no sub-menu accordion)
-            const DIRECT_LINK_ROUTES = ["/grocery"];
+            const DIRECT_LINK_ROUTES = ["/grocery", "/pharmacy"];
             const forceDirectLink = DIRECT_LINK_ROUTES.includes(mod.moduleRoute ?? "");
 
             items.push({
