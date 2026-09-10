@@ -19,6 +19,17 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
+function CashRegisterIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="6" y="4" width="12" height="5" rx="1" />
+      <path d="M4 13h16" />
+      <path d="M5 9h14l1 9H4l1-9z" />
+      <path d="M8 12h.01M12 12h.01M16 12h.01M8 15h.01M12 15h.01M16 15h.01" strokeWidth="2.5" />
+    </svg>
+  );
+}
+
 export interface RxCartItem {
   productId: string;
   variantId?: string | null;
@@ -394,13 +405,13 @@ export function PharmacyPOSRightPanel({
         )}
 
         {/* Bottom Hold & Pay Buttons */}
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           {/* Hold Bill */}
           <button
             type="button"
             onClick={holdBill}
             disabled={cart.length === 0}
-            className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-slate-700 hover:bg-slate-100 transition disabled:opacity-40"
+            className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-700 hover:bg-slate-100 transition shadow-2xs disabled:opacity-40 shrink-0"
           >
             <PauseCircle size={16} />
             <span className="text-[9.5px] font-extrabold mt-0.5">Hold Bill</span>
@@ -412,15 +423,23 @@ export function PharmacyPOSRightPanel({
             type="button"
             disabled={cart.length === 0 || submitting}
             onClick={confirmSale}
-            className="flex-1 flex items-center justify-between rounded-xl bg-[#00796b] px-3.5 py-2.5 text-white shadow-md hover:bg-[#005a50] transition disabled:opacity-50"
+            className="flex-1 flex items-center justify-between rounded-2xl bg-[#00695c] px-4 py-3 text-white shadow-md hover:bg-[#005247] active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <div className="flex items-center gap-1.5">
-              <Wallet size={16} />
-              <span className="text-[14px] font-black">Pay</span>
+            {/* Left: Cash Register Icon & Pay Text */}
+            <div className="flex items-center gap-2">
+              <CashRegisterIcon className="w-5 h-5 text-white shrink-0" />
+              <span className="text-[16px] font-bold text-white tracking-wide">Pay</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[15px] font-black tabular-nums">৳ {total.toFixed(2)}</span>
-              <span className="text-[10px] font-bold opacity-80">(F1) →</span>
+
+            {/* Center: Total Amount */}
+            <div className="text-[17px] font-black text-white tabular-nums tracking-tight">
+              ৳ {total.toFixed(2)}
+            </div>
+
+            {/* Right: Shortcut & Arrow */}
+            <div className="flex items-center gap-1 text-white">
+              <span className="text-[11.5px] font-semibold text-white/80">(F1)</span>
+              <ArrowRight size={17} strokeWidth={2.5} className="shrink-0" />
             </div>
           </button>
         </div>

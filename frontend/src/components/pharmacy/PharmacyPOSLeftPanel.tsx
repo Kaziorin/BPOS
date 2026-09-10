@@ -32,6 +32,9 @@ import {
   Leaf,
   Briefcase,
   SlidersHorizontal,
+  ArrowRight,
+  History,
+  Archive,
 } from "lucide-react";
 import type { RegisterProduct } from "@/lib/catalog";
 import { cn } from "@/lib/cn";
@@ -95,6 +98,8 @@ export const BOTTOM_ACTIONS = [
   { id: "loyalty", label: "Loyalty", sub: "Add Points", Icon: Heart, color: "text-rose-500", bg: "bg-rose-50" },
   { id: "note", label: "Note", sub: "Add Note", Icon: FileText, color: "text-teal-600", bg: "bg-teal-50" },
   { id: "return", label: "Return", sub: "Quick Return", Icon: RotateCcw, color: "text-orange-500", bg: "bg-orange-50" },
+  { id: "sales-history", label: "Sales History", sub: "View History", Icon: History, color: "text-indigo-600", bg: "bg-indigo-50" },
+  { id: "open-drawer", label: "Open Drawer", sub: "Cash Drawer", Icon: Archive, color: "text-emerald-600", bg: "bg-emerald-50" },
 ];
 
 function MedCrossLogo({ size = 40 }: { size?: number }) {
@@ -281,19 +286,19 @@ export function PharmacyPOSLeftPanel({
             })}
           </div>
 
-          {/* Bottom Customer Pill */}
-          <div className="border-t border-slate-100 p-2.5">
+          {/* Bottom Customer Pill (NO top border line, matched height) */}
+          <div className="p-3">
             <button
               type="button"
               onClick={onCustomerClick}
-              className="flex w-full items-center gap-2.5 rounded-xl border border-teal-100 bg-[#e8f4f8] p-2 text-left transition hover:border-teal-300"
+              className="flex w-full h-[68px] items-center gap-2.5 rounded-2xl border border-teal-200/70 bg-[#e8f4f8] px-3 py-2 text-left transition hover:border-teal-300 shadow-2xs"
             >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-teal-600 text-white shadow-xs">
-                <User size={16} />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#00796b] text-white shadow-xs">
+                <User size={18} />
               </div>
               <div className="leading-tight min-w-0">
-                <p className="text-[12px] font-extrabold text-slate-800">Customer</p>
-                <p className="text-[10px] font-semibold text-slate-400 truncate">Add / View Customer</p>
+                <p className="text-[12.5px] font-bold text-slate-800">Customer</p>
+                <p className="text-[10px] font-medium text-slate-400 truncate">Add / View Customer</p>
               </div>
             </button>
           </div>
@@ -413,37 +418,40 @@ export function PharmacyPOSLeftPanel({
                 <p className="text-sm font-semibold">No medicines found</p>
               </div>
             )}
+          </div>
 
-            {/* Generic Alternative Available Banner */}
-            <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#e6f7f5] border border-teal-200/60 p-3 shadow-xs">
+          {/* FIXED GENERIC BANNER (Anchored right above 6 action buttons) */}
+          <div className="flex-none px-3 pb-2 pt-1 bg-slate-50/50">
+            <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#f0faf8] border border-[#cceee7] px-4 py-2.5 shadow-2xs">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#00796b] text-white shadow-xs">
-                  <Sparkles size={18} />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#10b981] shadow-2xs">
+                  <Leaf size={18} />
                 </div>
                 <div>
-                  <h4 className="text-[13px] font-black text-slate-900">Generic Alternative Available</h4>
-                  <p className="text-[11px] font-semibold text-slate-500">This medicine has 3 generic alternatives</p>
+                  <h4 className="text-[13px] font-bold text-slate-800">Generic Alternative Available</h4>
+                  <p className="text-[11px] font-medium text-slate-400">This medicine has 3 generic alternatives</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setGridFilter("Generic Available")}
-                className="inline-flex items-center gap-1 rounded-xl bg-[#00796b] px-3.5 py-2 text-[11px] font-extrabold text-white transition hover:bg-[#005a50] shadow-xs"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#00695c] px-4 py-1.5 text-[12px] font-bold text-white transition hover:bg-[#005247] shadow-2xs shrink-0"
               >
-                View Alternatives →
+                <span>View Alternatives</span>
+                <ArrowRight size={14} />
               </button>
             </div>
           </div>
 
           {/* Bottom Action Grid (6 Buttons) */}
-          <div className="flex-none border-t border-slate-200 bg-white px-3 py-2">
-            <div className="grid grid-cols-6 gap-2">
+          <div className="flex-none border-t border-slate-200 bg-white p-3">
+            <div className="grid grid-cols-8 gap-2">
               {BOTTOM_ACTIONS.map(({ id, label, sub, Icon, color, bg }) => (
                 <button
                   key={id}
                   type="button"
                   onClick={() => onQuickAction?.(id)}
-                  className="flex flex-col items-center justify-center rounded-2xl border border-slate-200/80 bg-white px-1 py-2 text-center shadow-2xs transition hover:border-teal-300 hover:shadow-xs group"
+                  className="flex h-[68px] flex-col items-center justify-center rounded-2xl border border-slate-200/80 bg-white px-1 py-2 text-center shadow-2xs transition hover:border-teal-300 hover:shadow-xs group"
                 >
                   <div className={cn("flex h-7 w-7 items-center justify-center rounded-xl transition mb-1", bg)}>
                     <Icon size={15} className={color} />
