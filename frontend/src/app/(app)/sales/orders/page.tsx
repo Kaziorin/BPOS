@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { useAuth } from "@/lib/auth";
 import Link from "next/link";
 import {
   Plus,
@@ -62,6 +63,8 @@ interface SalesOrder {
   createdAt: string;
   branchName?: string;
   paymentStatus?: string;
+  cashierId?: string;
+  cashierName?: string;
   customer?: {
     id?: string;
     name?: string;
@@ -93,6 +96,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export default function SalesOrdersPage() {
+  const { user } = useAuth();
   const [orders, setOrders] = useState<SalesOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("ALL");
@@ -202,6 +206,10 @@ export default function SalesOrdersPage() {
       dueTotal: Number(order.dueTotal),
       status: order.status,
       paymentMethod: "CASH",
+      cashier: {
+        id: order.cashierId || "",
+        name: order.cashierName || user?.name || "Cashier",
+      },
     };
     setActiveInvoice(invoice);
   };

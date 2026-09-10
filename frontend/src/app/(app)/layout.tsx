@@ -7,7 +7,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileNav } from "@/components/layout/MobileNav";
-import OfflineIndicator from "@/components/offline/OfflineIndicator";
+
 import { syncManager } from "@/lib/offline/sync";
 
 import { ToastContainer } from "react-toastify";
@@ -52,7 +52,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (isPosPage) {
     return (
       <div className="h-screen w-screen overflow-hidden bg-background">
-        <OfflineIndicator />
+
         {children}
         <ToastContainer
           position="top-right"
@@ -75,7 +75,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header />
-        <OfflineIndicator />
+
         <main className="flex-1 overflow-y-auto p-4 pb-20 sm:p-6 sm:pb-6 lg:pb-6">
           <div className="min-h-full w-full rounded-md border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
             {children}

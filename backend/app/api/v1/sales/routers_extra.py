@@ -317,10 +317,12 @@ async def list_sales_orders(
             SELECT s.id, s.invoiceNo AS orderNo, 'POS' AS source, s.status, s.subtotal, s.total,
                    s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                    s.paymentStatus, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
-                   b.name AS branchName
+                   b.name AS branchName,
+                   s.userId AS cashierId, u.name AS cashierName
             FROM sales s
             LEFT JOIN customers c ON c.id = s.customerId
             LEFT JOIN branches b ON b.id = s.branchId
+            LEFT JOIN users u ON u.id = s.userId
             WHERE {pos_where}
             ORDER BY s.createdAt DESC LIMIT 200
         """), params)).fetchall())

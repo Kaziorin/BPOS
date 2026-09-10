@@ -22,6 +22,7 @@ import {
   User,
   ShieldCheck,
   ChevronDown,
+  RotateCcw,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
@@ -64,6 +65,7 @@ export interface InvoiceData {
   invoiceNo: string;
   saleDate?: string;
   createdAt?: string;
+  date?: string;
   vertical?: InvoiceVerticalType;
   customer?: {
     id?: string;
@@ -122,8 +124,10 @@ export interface UniversalInvoiceModalProps {
   invoice?: InvoiceData;
   initialVertical?: InvoiceVerticalType;
   verticalType?: InvoiceVerticalType;
+  defaultTemplate?: InvoiceVerticalType;
   open?: boolean;
   onClose: () => void;
+  onNewSale?: () => void;
 }
 
 const VERTICAL_OPTIONS: { id: InvoiceVerticalType; label: string; icon: any; color: string }[] = [
@@ -142,11 +146,13 @@ export function UniversalInvoiceModal({
   invoice,
   initialVertical,
   verticalType,
+  defaultTemplate,
   open = true,
   onClose,
+  onNewSale,
 }: UniversalInvoiceModalProps) {
   const data = propData || invoice;
-  const vert = initialVertical || verticalType;
+  const vert = initialVertical || verticalType || defaultTemplate;
 
   // Auto-detect vertical if not explicitly provided
   const detectedVertical = useMemo<InvoiceVerticalType>(() => {
@@ -168,6 +174,18 @@ export function UniversalInvoiceModal({
   useEffect(() => {
     setActiveVertical(detectedVertical);
   }, [detectedVertical]);
+
+  useEffect(() => {
+    if (!open || !onNewSale) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "F1") {
+        e.preventDefault();
+        onNewSale?.();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onNewSale]);
 
   if (!open || !data) return null;
 
@@ -248,6 +266,15 @@ export function UniversalInvoiceModal({
             >
               <Printer size={14} /> Print
             </button>
+
+            {onNewSale && (
+              <button
+                onClick={onNewSale}
+                className="flex items-center gap-1.5 rounded-xl bg-[#00796b] px-4 py-1.5 text-xs font-black text-white hover:bg-[#005a50] shadow-sm transition"
+              >
+                <RotateCcw size={14} /> New Sale (F1)
+              </button>
+            )}
 
             <button
               onClick={onClose}

@@ -13,6 +13,9 @@ interface PharmacyPOSFooterProps {
   lastBackupTime?: string;
   heldBillsCount?: number;
   onResumeHeldBill?: () => void;
+  onSalesHistory?: () => void;
+  onOpenDrawer?: () => void;
+  darkMode?: boolean;
 }
 
 export function PharmacyPOSFooter({
@@ -24,9 +27,15 @@ export function PharmacyPOSFooter({
   lastBackupTime = "11:30 AM",
   heldBillsCount = 0,
   onResumeHeldBill,
+  onSalesHistory,
+  onOpenDrawer,
+  darkMode,
 }: PharmacyPOSFooterProps) {
   return (
-    <footer className="flex w-full flex-none flex-wrap items-center justify-between bg-white px-4 py-1 text-[11px] select-none h-10">
+    <footer className={cn(
+      "flex w-full flex-none flex-wrap items-center justify-between px-4 py-1 text-[11px] select-none h-10 transition",
+      darkMode ? "bg-slate-900 text-slate-100" : "bg-white text-slate-800"
+    )}>
       {/* Left: Time & Date */}
       <div className="flex items-center gap-4">
         <div className="leading-tight">
@@ -34,7 +43,7 @@ export function PharmacyPOSFooter({
           <p className="text-[10px] font-semibold text-slate-400">{dateStr}</p>
         </div>
 
-        <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block" />
+        <div className={cn("h-6 w-px mx-1 hidden sm:block", darkMode ? "bg-slate-700" : "bg-slate-200")} />
 
         {/* Cashier */}
         <div className="hidden sm:flex items-center gap-2">
@@ -43,11 +52,11 @@ export function PharmacyPOSFooter({
           </div>
           <div className="leading-tight">
             <p className="text-[9px] font-semibold text-slate-400">Cashier</p>
-            <p className="text-[11px] font-extrabold text-slate-800">{cashierName}</p>
+            <p className={cn("text-[11px] font-extrabold", darkMode ? "text-slate-100" : "text-slate-800")}>{cashierName}</p>
           </div>
         </div>
 
-        <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block" />
+        <div className={cn("h-6 w-px mx-1 hidden sm:block", darkMode ? "bg-slate-700" : "bg-slate-200")} />
 
         {/* Terminal */}
         <div className="hidden sm:flex items-center gap-2">
@@ -56,7 +65,7 @@ export function PharmacyPOSFooter({
           </div>
           <div className="leading-tight">
             <p className="text-[9px] font-semibold text-slate-400">Terminal</p>
-            <p className="text-[11px] font-extrabold text-slate-800">{terminalName}</p>
+            <p className={cn("text-[11px] font-extrabold", darkMode ? "text-slate-100" : "text-slate-800")}>{terminalName}</p>
           </div>
         </div>
 
@@ -94,32 +103,37 @@ export function PharmacyPOSFooter({
         </div>
       </div>
 
-      {/* Right: Shortcuts */}
-      <div className="flex items-center gap-3 text-[10px] font-bold text-slate-500">
-        <div className="hidden xl:flex items-center gap-2">
-          <span>F1: Pay</span>
+      {/* Right: Action Buttons */}
+      <div className="flex items-center gap-2">
+        {/* Keyboard Shortcuts */}
+        <div className="hidden xl:flex items-center gap-2 text-[10px] font-bold text-slate-500 mr-2">
+          <span className="font-extrabold text-slate-700">F1</span>: Pay
           <span className="text-slate-300">|</span>
-          <span>F2: Add Item</span>
+          <span className="font-extrabold text-slate-700">F2</span>: Add Item
           <span className="text-slate-300">|</span>
-          <span>F3: Search</span>
+          <span className="font-extrabold text-slate-700">F3</span>: Search
           <span className="text-slate-300">|</span>
-          <span>F4: Hold</span>
+          <span className="font-extrabold text-slate-700">F4</span>: Hold
           <span className="text-slate-300">|</span>
-          <span>F5: Print</span>
+          <span className="font-extrabold text-slate-700">F5</span>: Print
           <span className="text-slate-300">|</span>
-          <span>F6: Hold Bill</span>
+          <span className="font-extrabold text-slate-700">F6</span>: Hold Bill
         </div>
 
         {heldBillsCount > 0 && (
           <button
             type="button"
             onClick={onResumeHeldBill}
-            className="rounded-lg bg-teal-50 border border-teal-200 px-2 py-0.5 text-[#00796b] font-bold hover:bg-teal-100 transition"
+            className="rounded-lg bg-teal-50 border border-teal-200 px-2.5 py-1 text-[10.5px] text-[#00796b] font-bold hover:bg-teal-100 transition"
           >
             Resume Held ({heldBillsCount})
           </button>
         )}
+
+
       </div>
     </footer>
   );
 }
+
+

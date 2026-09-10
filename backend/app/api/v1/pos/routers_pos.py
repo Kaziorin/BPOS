@@ -445,9 +445,10 @@ async def pos_sales(page: int = Query(1), limit: int = Query(20), tenantId: str 
     off, lim = paginate_params(page, limit)
     rows = rows_to_dicts((await db.execute(text(
         "SELECT s.id, s.invoiceNo, s.subtotal, s.discountTotal, s.taxTotal, s.serviceCharge, s.total, s.paidTotal, s.dueTotal, s.status, s.createdAt, "
+        "s.userId AS cashierId, u.name AS cashierName, "
         "c.id AS customerId, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail, c.loyaltyPoints AS customerPoints, "
         "(SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod "
-        "FROM sales s LEFT JOIN customers c ON c.id=s.customerId WHERE s.tenantId=:t ORDER BY s.createdAt DESC LIMIT :lim OFFSET :off"),
+        "FROM sales s LEFT JOIN customers c ON c.id=s.customerId LEFT JOIN users u ON u.id=s.userId WHERE s.tenantId=:t ORDER BY s.createdAt DESC LIMIT :lim OFFSET :off"),
         {"t": tenantId, "lim": lim, "off": off})).fetchall())
     total = (await db.execute(text("SELECT COUNT(*) FROM sales WHERE tenantId=:t"), {"t": tenantId})).first()[0]
 
@@ -486,8 +487,13 @@ async def pos_sales(page: int = Query(1), limit: int = Query(20), tenantId: str 
                 "email": r.get("customerEmail"),
                 "loyaltyPoints": r.get("customerPoints") or 0,
             }
+            r["cashier"] = {
+                "id": r.get("cashierId"),
+                "name": r.get("cashierName"),
+            }
             r["items"] = items_by_sale.get(r["id"], [])
             r["itemsCount"] = len(r["items"])
+
 
     return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": (total + lim - 1) // lim}})
 

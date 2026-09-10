@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "@/lib/auth";
 import Link from "next/link";
 import {
   ShoppingCart,
@@ -30,7 +31,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { UniversalInvoiceModal } from "@/components/invoices/UniversalInvoiceModal";
+import { ReceiptModal } from "../pos/ReceiptModal";
 
 function getCustomerTier(pts: number) {
   if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-100" };
@@ -40,6 +41,7 @@ function getCustomerTier(pts: number) {
 }
 
 export default function PharmacyHubPage() {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [sales, setSales] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -354,32 +356,40 @@ export default function PharmacyHubPage() {
       </div>
 
 
-      {/* Specialized Pharmacy Receipt Modal */}
+      {/* Same Receipt Modal as POS screen */}
       {selectedSale && (
-        <UniversalInvoiceModal
-          data={{
-            id: selectedSale.id,
-            invoiceNo: selectedSale.invoiceNo || `Rx-${selectedSale.id.slice(0, 8)}`,
-            saleDate: selectedSale.createdAt,
-            vertical: "pharmacy",
-            customer: selectedSale.customer || { name: selectedSale.customerName || "Walk-in Patient" },
-            items: (selectedSale.items || []).map((it: any) => ({
-              name: it.productName || it.name || it.product?.name || "Medicine",
-              productName: it.productName || it.name || it.product?.name || "Medicine",
-              qty: Number(it.qty || 1),
-              unitPrice: Number(it.unitPrice || 0),
-              batchNo: it.batchNo || "BX-001",
-              uom: it.uom || "pcs",
-            })),
-            subTotal: Number(selectedSale.subTotal || selectedSale.subtotal || selectedSale.total || selectedSale.grandTotal || 0),
-            grandTotal: Number(selectedSale.grandTotal ?? selectedSale.totalAmount ?? selectedSale.total ?? 0),
-            paidTotal: Number(selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0),
-            dueTotal: Number(selectedSale.dueTotal || 0),
-            paymentMethod: selectedSale.paymentMethod || "CASH",
-          }}
-          initialVertical="pharmacy"
-          onClose={() => setSelectedSale(null)}
-        />
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm overflow-y-auto"
+          onClick={() => setSelectedSale(null)}
+        >
+          <div
+            className="bg-white rounded-3xl p-4 max-w-md w-full my-auto shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ReceiptModal
+              result={{
+                saleId: selectedSale.id || crypto.randomUUID(),
+                invoiceId: selectedSale.id || crypto.randomUUID(),
+                invoiceNo: selectedSale.invoiceNo || `INV-${(selectedSale.id || "").slice(0, 8).toUpperCase()}`,
+                total: Number(selectedSale.grandTotal ?? selectedSale.totalAmount ?? selectedSale.total ?? 0),
+                paidTotal: Number(selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0),
+                dueTotal: Number(selectedSale.dueTotal || 0),
+                paymentIds: [],
+              }}
+              cart={(selectedSale.items || []).map((it: any) => ({
+                name: it.productName || it.name || it.product?.name || "Item",
+                qty: Number(it.qty || 1),
+                unitPrice: Number(it.unitPrice || 0),
+                lineTotal: Number(it.unitPrice || 0) * Number(it.qty || 1),
+                sku: it.sku,
+              }))}
+              payments={[{ method: selectedSale.paymentMethod || "CASH", amount: Number(selectedSale.grandTotal ?? selectedSale.total ?? 0) }]}
+              cashierName={selectedSale.cashier?.name || user?.name || "Cashier"}
+              customerName={selectedSale.customer?.name || selectedSale.customerName || "Walk-in Retail Customer"}
+              onNewSale={() => setSelectedSale(null)}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

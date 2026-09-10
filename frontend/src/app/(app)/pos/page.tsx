@@ -87,11 +87,23 @@ export default function PosPage() {
       return [];
     }
   });
-  const [customerId, setCustomerId] = useState("");
+  const [customerId, setCustomerId] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    try { return localStorage.getItem("bpos_general_customer") || ""; } catch { return ""; }
+  });
   const [customers, setCustomers] = useState<CachedCustomer[]>([]);
-  const [discountTotal, setDiscountTotal] = useState(0);
-  const [serviceCharge, setServiceCharge] = useState(0);
-  const [note, setNote] = useState("");
+  const [discountTotal, setDiscountTotal] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    try { return Number(localStorage.getItem("bpos_general_discount_total")) || 0; } catch { return 0; }
+  });
+  const [serviceCharge, setServiceCharge] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    try { return Number(localStorage.getItem("bpos_general_service_charge")) || 0; } catch { return 0; }
+  });
+  const [note, setNote] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    try { return localStorage.getItem("bpos_general_note") || ""; } catch { return ""; }
+  });
 
   // Payments
   const [payments, setPayments] = useState<PaymentLine[]>([{ method: "CASH", amount: 0 }]);
@@ -102,6 +114,14 @@ export default function PosPage() {
   const [result, setResult] = useState<SaleResult | null>(null);
   const [showExtras, setShowExtras] = useState(false);
   const extrasRef = useRef<HTMLDivElement>(null);
+
+  // Snapshot of cart/payments/customer captured at the moment of sale
+  // (cart/customer state is cleared after sale, but receipt still needs them)
+  const [saleSnapshot, setSaleSnapshot] = useState<{
+    cart: CartItem[];
+    payments: PaymentLine[];
+    customerName: string;
+  } | null>(null);
 
   // ── Configurable keyboard shortcuts (§27: F1–F7) ──
   const [shortcuts, setShortcuts] = useState(loadShortcuts);
@@ -161,11 +181,29 @@ export default function PosPage() {
       }
 
       try {
-        const res = await api.get<any>("/customers");
-        const list = Array.isArray(res) ? res : res?.data || [];
-        setCustomers(Array.isArray(list) ? list : []);
+        const res = await api.get<any>("/api/v1/customers?limit=500");
+        const list = res.data ?? (Array.isArray(res) ? res : res?.data || []);
+        let localCusts: any[] = [];
+        try {
+          const raw = localStorage.getItem("bpos_custom_customers");
+          if (raw) localCusts = JSON.parse(raw);
+        } catch {}
+
+        const mergedMap = new Map();
+        (Array.isArray(list) ? list : []).forEach((c: any) => {
+          if (c && c.id) mergedMap.set(c.id, c);
+        });
+        localCusts.forEach((c: any) => {
+          if (c && c.id) mergedMap.set(c.id, c);
+        });
+        setCustomers(Array.from(mergedMap.values()));
       } catch {
-        setCustomers([]);
+        let localCusts: any[] = [];
+        try {
+          const raw = localStorage.getItem("bpos_custom_customers");
+          if (raw) localCusts = JSON.parse(raw);
+        } catch {}
+        setCustomers(localCusts);
       }
 
       // Pull and cache for offline use
@@ -246,8 +284,28 @@ export default function PosPage() {
       } else {
         localStorage.removeItem("bpos_general_cart");
       }
+      if (customerId) {
+        localStorage.setItem("bpos_general_customer", customerId);
+      } else {
+        localStorage.removeItem("bpos_general_customer");
+      }
+      if (discountTotal > 0) {
+        localStorage.setItem("bpos_general_discount_total", discountTotal.toString());
+      } else {
+        localStorage.removeItem("bpos_general_discount_total");
+      }
+      if (serviceCharge > 0) {
+        localStorage.setItem("bpos_general_service_charge", serviceCharge.toString());
+      } else {
+        localStorage.removeItem("bpos_general_service_charge");
+      }
+      if (note) {
+        localStorage.setItem("bpos_general_note", note);
+      } else {
+        localStorage.removeItem("bpos_general_note");
+      }
     } catch {}
-  }, [cart, subtotal, discountTotal, taxTotal, total]);
+  }, [cart, customerId, note, discountTotal, serviceCharge, subtotal, taxTotal, total]);
 
   // Keep first payment amount in sync with total when only one payment line
   useEffect(() => {
@@ -320,6 +378,14 @@ export default function PosPage() {
     const onlineNow = isOnline();
 
     try {
+      // Capture snapshot BEFORE clearing state so receipt can display it
+      const cartSnapshot = [...cart];
+      const paymentsSnapshot = [...payments];
+      const selectedCustomer = customers.find((c) => c.id === customerId);
+      const customerNameSnapshot = selectedCustomer
+        ? (selectedCustomer as any).name || (selectedCustomer as any).fullName || "Walk-in Customer"
+        : "Walk-in Retail Customer";
+
       if (onlineNow) {
         // Online: direct API call
         const res = await api.post<SaleResult>("/api/v1/pos/confirm", {
@@ -334,7 +400,22 @@ export default function PosPage() {
           note,
           heldSaleId: resumingHoldId ?? undefined,
         });
+        setSaleSnapshot({ cart: cartSnapshot, payments: paymentsSnapshot, customerName: customerNameSnapshot });
         setResult(res);
+        // Clear cart and customer immediately after successful sale
+        setCart([]);
+        setCustomerId("");
+        setDiscountTotal(0);
+        setServiceCharge(0);
+        setNote("");
+        setPayments([{ method: "CASH", amount: 0 }]);
+        try {
+          localStorage.removeItem("bpos_general_cart");
+          localStorage.removeItem("bpos_general_customer");
+          localStorage.removeItem("bpos_general_discount_total");
+          localStorage.removeItem("bpos_general_service_charge");
+          localStorage.removeItem("bpos_general_note");
+        } catch {}
         loadHolds();
         publishCart({
           updatedAt: Date.now(),
@@ -369,9 +450,24 @@ export default function PosPage() {
           },
         });
 
-        // Generate local receipt
-        const localResult = makeOfflineResult(invoiceNo, cart, total, payments);
+        // Generate local receipt (use snapshot so cart cleared state doesn't matter)
+        const localResult = makeOfflineResult(invoiceNo, cartSnapshot, total, paymentsSnapshot);
+        setSaleSnapshot({ cart: cartSnapshot, payments: paymentsSnapshot, customerName: customerNameSnapshot });
         setResult(localResult);
+        // Clear cart and customer immediately after offline sale
+        setCart([]);
+        setCustomerId("");
+        setDiscountTotal(0);
+        setServiceCharge(0);
+        setNote("");
+        setPayments([{ method: "CASH", amount: 0 }]);
+        try {
+          localStorage.removeItem("bpos_general_cart");
+          localStorage.removeItem("bpos_general_customer");
+          localStorage.removeItem("bpos_general_discount_total");
+          localStorage.removeItem("bpos_general_service_charge");
+          localStorage.removeItem("bpos_general_note");
+        } catch {}
       }
     } catch (err: any) {
       setError(err.message);
@@ -382,16 +478,23 @@ export default function PosPage() {
 
   function resetSale() {
     setCart([]);
-    try { localStorage.removeItem("bpos_general_cart"); } catch {}
     setCustomerId("");
     setDiscountTotal(0);
     setServiceCharge(0);
     setNote("");
     setPayments([{ method: "CASH", amount: 0 }]);
     setResult(null);
+    setSaleSnapshot(null);
     setResumingHoldId(null);
     setError(null);
     setShowExtras(false);
+    try {
+      localStorage.removeItem("bpos_general_cart");
+      localStorage.removeItem("bpos_general_customer");
+      localStorage.removeItem("bpos_general_discount_total");
+      localStorage.removeItem("bpos_general_service_charge");
+      localStorage.removeItem("bpos_general_note");
+    } catch {}
     searchRef.current?.focus();
   }
 
@@ -588,7 +691,14 @@ export default function PosPage() {
   if (result) {
     return (
       <div className="mx-auto max-w-md">
-        <ReceiptModal result={result} onNewSale={resetSale} />
+        <ReceiptModal
+          result={result}
+          cart={saleSnapshot?.cart}
+          payments={saleSnapshot?.payments}
+          customerName={saleSnapshot?.customerName}
+          cashierName={openShift?.cashierName || (openShift as any)?.user?.name || "Cashier"}
+          onNewSale={resetSale}
+        />
       </div>
     );
   }
