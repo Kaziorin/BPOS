@@ -43,6 +43,7 @@ import {
   CheckCircle2,
   ArrowLeft,
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { api, TENANT_STORAGE_KEY } from "@/lib/api";
 import { toast } from "react-toastify";
 import { ConfirmModal, CustomModal, CustomPromptModal, CustomInput, CustomButton } from "@/components/custom";
@@ -248,6 +249,8 @@ const getCategoryName = (cat: any): string => {
 
 export default function RestaurantPOSPage() {
   const [storeName, setStoreName] = useState<string>("BlueOceans POS SYSTEM");
+  const [branchName, setBranchName] = useState<string>("Main Branch");
+  const [branchAddress, setBranchAddress] = useState<string>("Dhaka, Bangladesh");
   const [tables, setTables] = useState<TableOption[]>(DEMO_TABLES);
   const [floors, setFloors] = useState<FloorOption[]>([]);
   const [selectedTable, setSelectedTable] = useState<TableOption | null>(() => {
@@ -388,6 +391,15 @@ export default function RestaurantPOSPage() {
         setProducts([]);
         loadedProducts = [];
       }
+
+      // 1b. Fetch tenant/store info for bill header
+      try {
+        const resTenant: any = await api.get("/api/v1/tenant");
+        const tData = (resTenant?.data as any)?.data ?? resTenant?.data ?? resTenant ?? {};
+        if (tData?.tenant?.name) setStoreName(tData.tenant.name);
+        if (tData?.branches?.[0]?.name) setBranchName(tData.branches[0].name);
+        if (tData?.branches?.[0]?.address) setBranchAddress(tData.branches[0].address);
+      } catch (_) {}
 
       // 2. Fetch created categories for current tenant & business
       const catRes: any = await api.get("/v1/products/categories").catch(() => null);
@@ -1992,77 +2004,132 @@ export default function RestaurantPOSPage() {
       <CustomModal
         open={!!completedBill}
         onClose={() => setCompletedBill(null)}
-        title="Dine-In Guest Receipt"
+        title=""
         size="sm"
       >
-        <div className="space-y-5">
-          <div className="text-center border-b border-dashed border-slate-300 pb-4 space-y-1">
-            <span className="text-[10px] font-black capitalize tracking-widest text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-0.5 rounded-full">
-              {storeName}
-            </span>
-            <p className="text-xs font-mono text-slate-500 mt-2 capitalize tracking-tighter font-bold">
-              Table: {completedBill?.table?.tableNo || "N/A"} • INV: {completedBill?.invoiceNo}
-            </p>
-            <p className="text-[10px] text-slate-400 capitalize font-bold tracking-widest">
-              {completedBill && new Date(completedBill.date).toLocaleString()}
-            </p>
+        {/* ── Custom Orange Header ── */}
+        <div className="bg-gradient-to-r from-orange-500 to-amber-500 -mx-6 -mt-5 mb-5 px-6 py-4 flex items-center gap-2.5 rounded-t-md">
+          <FileText size={20} className="text-white" />
+          <h2 className="text-lg font-bold text-white tracking-wide">Bill Print</h2>
+        </div>
+
+        {/* ── Printable Receipt (wrapped for CSS print) ── */}
+        <div id="restaurant-receipt" className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+
+          {/* Store Name */}
+          <div className="text-center space-y-1">
+            <h3 className="text-xl font-bold text-slate-800">{storeName}</h3>
+            <p className="text-sm text-slate-500">{branchName}{branchAddress ? `, ${branchAddress}` : ""}</p>
           </div>
 
-          <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar text-xs">
+          {/* Dashed Separator */}
+          <div className="border-t-2 border-dashed border-slate-300" />
+
+          {/* Table / Waiter / Date */}
+          <div className="space-y-1.5 text-sm">
+            <div className="flex justify-between">
+              <span className="text-slate-500">Table</span>
+              <span className="font-semibold text-slate-700">{completedBill?.table?.tableNo || "N/A"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Waiter</span>
+              <span className="font-semibold text-slate-700">{completedBill?.waiterName || "N/A"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Date</span>
+              <span className="font-semibold text-slate-700">
+                {completedBill && new Date(completedBill.date).toLocaleString("en-BD", {
+                  year: "numeric", month: "2-digit", day: "2-digit",
+                  hour: "2-digit", minute: "2-digit", hour12: false,
+                })}
+              </span>
+            </div>
+          </div>
+
+          {/* Dashed Separator */}
+          <div className="border-t-2 border-dashed border-slate-300" />
+
+          {/* Items Table Header */}
+          <div className="grid grid-cols-12 gap-2 text-xs font-bold text-slate-500 uppercase tracking-wide">
+            <div className="col-span-6">Item</div>
+            <div className="col-span-2 text-center">Qty</div>
+            <div className="col-span-4 text-right">Price</div>
+          </div>
+
+          {/* Items */}
+          <div className="space-y-3">
             {(completedBill?.items || []).map((item: any, idx: number) => (
-              <div key={idx} className="border-b border-slate-50 pb-1.5 last:border-0">
-                <div className="flex justify-between font-bold text-gray-600">
-                  <span className="capitalize tracking-tight">
-                    {idx + 1}. {item.name}
-                  </span>
-                  <span className="font-black">৳{fmt(item.qty * item.unitPrice).replace('৳','')}</span>
+              <div key={idx} className="text-sm">
+                <div className="grid grid-cols-12 gap-2 items-start">
+                  <div className="col-span-6 font-semibold text-slate-700 capitalize">{item.name}</div>
+                  <div className="col-span-2 text-center text-slate-600">{item.qty}</div>
+                  <div className="col-span-4 text-right font-semibold text-slate-700">{fmt(item.qty * item.unitPrice)}</div>
                 </div>
-                <div className="text-[10px] text-slate-400 font-bold capitalize tracking-tight pl-4 mt-0.5">
-                  {item.qty} × {fmt(item.unitPrice)}
-                  {item.notes && (
-                    <span className="block italic text-orange-600 font-medium mt-0.5">&quot;{item.notes}&quot;</span>
-                  )}
-                </div>
+                {/* Modifiers */}
+                {item.modifiers && item.modifiers.length > 0 && (
+                  <p className="text-xs text-slate-400 mt-0.5 pl-0">
+                    {item.modifiers.map((m: any) => m.value || m.label).join(", ")}
+                  </p>
+                )}
+                {item.extras && item.extras.length > 0 && (
+                  <p className="text-xs text-slate-400 mt-0.5 pl-0">
+                    {item.extras.map((e: any) => e.label).join(", ")}
+                  </p>
+                )}
+                {item.notes && (
+                  <p className="text-xs italic text-orange-500 mt-0.5 pl-0">&quot;{item.notes}&quot;</p>
+                )}
               </div>
             ))}
           </div>
 
-          <div className="border-t border-dashed border-slate-300 pt-3 text-xs space-y-1.5 bg-slate-50/50 p-4 rounded-2xl">
-            <div className="flex justify-between text-slate-500 font-bold capitalize tracking-tighter">
-              <span>Subtotal:</span>
+          {/* Dashed Separator */}
+          <div className="border-t-2 border-dashed border-slate-300" />
+
+          {/* Financial Summary */}
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between text-slate-500">
+              <span>Subtotal</span>
               <span>{fmt(completedBill?.subTotal || 0)}</span>
             </div>
-            <div className="flex justify-between text-slate-500 font-bold capitalize tracking-tighter">
-              <span>Tax (8%):</span>
+            <div className="flex justify-between text-slate-500">
+              <span>Tax (8%)</span>
               <span>{fmt(completedBill?.taxAmount || 0)}</span>
             </div>
-            <div className="flex justify-between text-slate-500 font-bold capitalize tracking-tighter">
-              <span>Service Charge (4%):</span>
-              <span>{fmt(completedBill?.serviceCharge || 0)}</span>
-            </div>
-            <div className="flex justify-between font-black text-sm text-orange-600 pt-2 border-t border-orange-100">
-              <span className="capitalize tracking-tight">Total Payable:</span>
+            <div className="flex justify-between font-bold text-base text-orange-600 pt-2 border-t border-orange-200">
+              <span>Total Payable</span>
               <span>{fmt(completedBill?.grandTotal || 0)}</span>
             </div>
           </div>
 
-          <div className="flex gap-3 pt-1">
-            <CustomButton
-              fullWidth
-              variant="outline"
-              onClick={() => window.print()}
-              leftIcon={<Printer size={16} />}
-            >
-              Print
-            </CustomButton>
-            <CustomButton
-              fullWidth
-              themeColor="orange"
-              onClick={() => setCompletedBill(null)}
-            >
-              Next Table
-            </CustomButton>
+          {/* QR Code */}
+          <div className="flex justify-center py-2">
+            <div className="p-2 bg-white rounded-lg border border-slate-200">
+              <QRCodeSVG value={completedBill?.invoiceNo || "N/A"} size={80} level="M" />
+            </div>
           </div>
+
+          {/* Thank You */}
+          <p className="text-center text-sm italic text-slate-400">Thank you for visiting!</p>
+        </div>
+
+        {/* ── Action Buttons ── */}
+        <div className="flex gap-3 mt-5 no-print">
+          <CustomButton
+            fullWidth
+            variant="outline"
+            onClick={() => setCompletedBill(null)}
+          >
+            Cancel
+          </CustomButton>
+          <CustomButton
+            fullWidth
+            themeColor="orange"
+            onClick={() => window.print()}
+            leftIcon={<Printer size={16} />}
+          >
+            Print Now
+          </CustomButton>
         </div>
       </CustomModal>
 
