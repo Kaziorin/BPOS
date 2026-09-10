@@ -27,6 +27,7 @@ import {
   Wrench,
   Building2,
   Lock,
+  Scale,
 } from "lucide-react";
 import { api, axiosClient } from "@/lib/api";
 import { SearchableSelect, SearchableSelectOption } from "@/components/custom/SearchableSelect";
@@ -192,6 +193,88 @@ export default function CreateProductPage() {
         [field]: val,
       },
     }));
+  };
+
+  // Portion sizes state & handlers for Restaurant vertical
+  const [createCustomSizeName, setCreateCustomSizeName] = useState("");
+  const [createCustomSizePrice, setCreateCustomSizePrice] = useState("");
+
+  const isRestaurant = selectedVertical === "RESTAURANT" || selectedVertical === "FOOD";
+
+  const DEFAULT_SIZES_LIST = [
+    { id: "small", name: "Small", price: "", isDefault: false, isEnabled: false },
+    { id: "regular", name: "Regular", price: "", isDefault: true, isEnabled: false },
+    { id: "large", name: "Large", price: "", isDefault: false, isEnabled: false },
+    { id: "xlarge", name: "Extra Large", price: "", isDefault: false, isEnabled: false },
+  ];
+
+  const currentPortionSizes =
+    verticalFormState.restaurant?.portionSizes && verticalFormState.restaurant.portionSizes.length > 0
+      ? verticalFormState.restaurant.portionSizes
+      : DEFAULT_SIZES_LIST;
+
+  const enabledPortionSizesCount = currentPortionSizes.filter((s: any) => s.isEnabled).length;
+
+  const togglePortionSizeInCreate = (id: string) => {
+    const updated = currentPortionSizes.map((s: any) => {
+      if (s.id === id) {
+        const nextEnabled = !s.isEnabled;
+        const nextPrice = nextEnabled && (!s.price || s.price === "0") ? form.sellingPrice || "" : s.price;
+        return { ...s, isEnabled: nextEnabled, price: nextPrice };
+      }
+      return s;
+    });
+
+    const enabled = updated.filter((s: any) => s.isEnabled);
+    if (enabled.length > 0 && !enabled.some((s: any) => s.isDefault)) {
+      enabled[0].isDefault = true;
+    }
+
+    handleUpdateVertical("restaurant", "portionSizes", updated);
+  };
+
+  const updatePortionSizePriceInCreate = (id: string, price: string) => {
+    const updated = currentPortionSizes.map((s: any) => (s.id === id ? { ...s, price } : s));
+    handleUpdateVertical("restaurant", "portionSizes", updated);
+
+    const target = updated.find((s: any) => s.id === id);
+    if (target?.isDefault && target.isEnabled && price) {
+      updateForm("sellingPrice", price);
+    }
+  };
+
+  const setDefaultPortionSizeInCreate = (id: string) => {
+    const updated = currentPortionSizes.map((s: any) => ({
+      ...s,
+      isDefault: s.id === id,
+    }));
+    handleUpdateVertical("restaurant", "portionSizes", updated);
+
+    const target = updated.find((s: any) => s.id === id);
+    if (target?.isEnabled && target.price) {
+      updateForm("sellingPrice", target.price);
+    }
+  };
+
+  const addCustomPortionSizeInCreate = () => {
+    if (!createCustomSizeName.trim()) return;
+    const newSize = {
+      id: `custom-${Date.now()}`,
+      name: createCustomSizeName.trim(),
+      price: createCustomSizePrice || form.sellingPrice || "",
+      isDefault: false,
+      isEnabled: true,
+      isCustom: true,
+    };
+    const updated = [...currentPortionSizes, newSize];
+    handleUpdateVertical("restaurant", "portionSizes", updated);
+    setCreateCustomSizeName("");
+    setCreateCustomSizePrice("");
+  };
+
+  const removePortionSizeInCreate = (id: string) => {
+    const updated = currentPortionSizes.filter((s: any) => s.id !== id);
+    handleUpdateVertical("restaurant", "portionSizes", updated);
   };
 
   // Quick Create Modal state
@@ -704,7 +787,6 @@ export default function CreateProductPage() {
     label: `${u.name} ${u.code ? `(${u.code})` : ""}`,
   }));
 
-  const isRestaurant = selectedVertical === "RESTAURANT" || selectedVertical === "FOOD";
   const isPharmacy = selectedVertical === "PHARMACY" || selectedVertical === "MEDICINE";
   const isSalon = selectedVertical === "SALON" || selectedVertical === "SPA";
   const isRepair = selectedVertical === "REPAIR" || selectedVertical === "SERVICE";
@@ -825,11 +907,6 @@ export default function CreateProductPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* LEFT COLUMN */}
         <div className="lg:col-span-8 space-y-4">
-
-          {/* DYNAMIC BUSINESS VERTICAL FORM FIELDS */}
-          <div>
-            {renderVerticalProductFields(selectedVertical, verticalFormState, handleUpdateVertical)}
-          </div>
 
           {/* BOX 1: Basic Information */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
@@ -1087,7 +1164,7 @@ export default function CreateProductPage() {
                 />
               </div>
 
-              <div className="sm:col-span-2 flex items-center mt-3">
+              <div className="sm:col-span-2 flex items-center mt-1">
                 <CustomCheckbox
                   label="Add Promotional / Special Discount Price"
                   checked={form.hasPromoPrice}
@@ -1096,6 +1173,132 @@ export default function CreateProductPage() {
               </div>
             </div>
           </div>
+
+          {/* DEDICATED RESTAURANT PORTION SIZES & PRICING CARD */}
+          {isRestaurant && (
+            <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
+                <div className="flex items-center gap-2">
+                  <Scale className="h-4 w-4 text-teal-600" />
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                    Portion Sizes &amp; Size-wise Pricing (Optional)
+                  </h2>
+                </div>
+                <span className="px-2 py-0.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-bold shrink-0">
+                  {enabledPortionSizesCount > 0
+                    ? `${enabledPortionSizesCount} Portion ${enabledPortionSizesCount === 1 ? "Size" : "Sizes"} Active`
+                    : "Single Price Mode (Menu Price)"}
+                </span>
+              </div>
+
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Check available portion sizes for this dish (e.g. Small ৳150, Regular ৳200, Large ৳280). If no portion size is checked, this dish sells at the single Menu Price (৳) above.
+              </p>
+
+              {/* Portion Sizes Checkbox Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                {currentPortionSizes.map((size: any) => {
+                  return (
+                    <div
+                      key={size.id}
+                      className={`p-3 rounded-lg border transition-all duration-150 ${
+                        size.isEnabled
+                          ? "bg-white border-teal-300 shadow-2xs ring-1 ring-teal-500/10"
+                          : "bg-slate-50/70 border-slate-200 opacity-70 hover:opacity-100"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="flex items-center gap-2 text-xs font-bold text-gray-800 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={size.isEnabled}
+                            onChange={() => togglePortionSizeInCreate(size.id)}
+                            className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 accent-teal-600 cursor-pointer"
+                          />
+                          <span className="text-xs font-bold text-slate-800">{size.name}</span>
+                          {size.isDefault && size.isEnabled && (
+                            <span className="px-1.5 py-0.2 rounded-full bg-teal-600 text-white text-[9px] font-black uppercase tracking-wide">
+                              Default
+                            </span>
+                          )}
+                        </label>
+
+                        {size.isCustom && (
+                          <button
+                            type="button"
+                            onClick={() => removePortionSizeInCreate(size.id)}
+                            className="p-1 rounded text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer"
+                            title="Remove size"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        )}
+                      </div>
+
+                      {size.isEnabled && (
+                        <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                            <span className="text-[11px] font-bold text-slate-500">Price (৳):</span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="any"
+                              value={size.price}
+                              onChange={(e) => updatePortionSizePriceInCreate(size.id, e.target.value)}
+                              placeholder="0.00"
+                              className="w-full rounded border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-gray-800 focus:border-teal-500 focus:outline-none"
+                            />
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => setDefaultPortionSizeInCreate(size.id)}
+                            className={`px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer shrink-0 ${
+                              size.isDefault
+                                ? "bg-teal-600 text-white shadow-2xs"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            }`}
+                          >
+                            {size.isDefault ? "✓ Default" : "Set Default"}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Custom Size Addition */}
+              <div className="pt-2 border-t border-slate-100 space-y-1.5">
+                <div className="text-[11px] font-bold text-slate-600 uppercase tracking-wide">
+                  Add Custom Portion Size
+                </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Size Name (e.g. Medium, Half, 1 Litre, Family Pack)"
+                    value={createCustomSizeName}
+                    onChange={(e) => setCreateCustomSizeName(e.target.value)}
+                    className="flex-1 rounded border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium focus:border-teal-500 focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Price (৳)"
+                    value={createCustomSizePrice}
+                    onChange={(e) => setCreateCustomSizePrice(e.target.value)}
+                    className="w-full sm:w-28 rounded border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium focus:border-teal-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={addCustomPortionSizeInCreate}
+                    className="px-3.5 py-1.5 rounded bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs"
+                  >
+                    <Plus size={13} /> Add Size
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* BOX 4: Units */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
@@ -1284,6 +1487,11 @@ export default function CreateProductPage() {
               </div>
             </div>
           )}
+
+          {/* DYNAMIC BUSINESS VERTICAL FORM FIELDS */}
+          <div>
+            {renderVerticalProductFields(selectedVertical, verticalFormState, handleUpdateVertical)}
+          </div>
         </div>
 
         {/* RIGHT COLUMN SIDEBAR (30%) */}

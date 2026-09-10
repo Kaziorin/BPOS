@@ -60,6 +60,12 @@ export const initialVerticalFormState: VerticalFormState = {
     dineInAvailable: true,
     takeawayAvailable: true,
     deliveryAvailable: true,
+    portionSizes: [
+      { id: "small", name: "Small", price: "", isDefault: false, isEnabled: false },
+      { id: "regular", name: "Regular", price: "", isDefault: true, isEnabled: false },
+      { id: "large", name: "Large", price: "", isDefault: false, isEnabled: false },
+      { id: "xlarge", name: "Extra Large", price: "", isDefault: false, isEnabled: false },
+    ],
     addons: [],
     modifierGroups: [],
     relatedProducts: [],

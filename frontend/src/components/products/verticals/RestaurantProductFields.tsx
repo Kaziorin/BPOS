@@ -58,6 +58,15 @@ export interface RestaurantRecipeItem {
   unitCost: string;
 }
 
+export interface RestaurantPortionSize {
+  id: string;
+  name: string;
+  price: string;
+  isDefault: boolean;
+  isEnabled: boolean;
+  isCustom?: boolean;
+}
+
 export interface RestaurantFormData {
   isKitchenProduct?: boolean;
   timeSlotIds?: string[];
@@ -75,6 +84,7 @@ export interface RestaurantFormData {
   dineInAvailable: boolean;
   takeawayAvailable: boolean;
   deliveryAvailable: boolean;
+  portionSizes?: RestaurantPortionSize[];
   addons: RestaurantAddon[];
   modifierGroups: RestaurantModifierGroup[];
   relatedProducts: RestaurantRelatedProduct[];
@@ -103,9 +113,20 @@ const SPICE_LEVELS = [
   "Extra Hot / Ghost Pepper 🌶️🔥",
 ];
 
+export const DEFAULT_PORTION_SIZES: RestaurantPortionSize[] = [
+  { id: "small", name: "Small", price: "", isDefault: false, isEnabled: false },
+  { id: "regular", name: "Regular", price: "", isDefault: true, isEnabled: false },
+  { id: "large", name: "Large", price: "", isDefault: false, isEnabled: false },
+  { id: "xlarge", name: "Extra Large", price: "", isDefault: false, isEnabled: false },
+];
+
 export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange }) => {
-  const [activeTab, setActiveTab] = useState<"KITCHEN" | "ADDONS" | "RELATED" | "RECIPE">("KITCHEN");
+  const [activeTab, setActiveTab] = useState<"KITCHEN" | "SIZES" | "ADDONS" | "RELATED" | "RECIPE">("KITCHEN");
   const [timeSlots, setTimeSlots] = useState<any[]>([]);
+
+  // Custom portion size input state
+  const [newCustomSizeName, setNewCustomSizeName] = useState("");
+  const [newCustomSizePrice, setNewCustomSizePrice] = useState("");
 
   useEffect(() => {
     async function fetchSlots() {
@@ -121,6 +142,62 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
     }
     fetchSlots();
   }, []);
+
+  // Portion Size Handlers
+  const portionSizes = formData.portionSizes && formData.portionSizes.length > 0 ? formData.portionSizes : DEFAULT_PORTION_SIZES;
+
+  const handleTogglePortionSizeEnabled = (id: string) => {
+    const current = formData.portionSizes && formData.portionSizes.length > 0 ? formData.portionSizes : DEFAULT_PORTION_SIZES;
+    const updated = current.map((s) => {
+      if (s.id === id) {
+        return { ...s, isEnabled: !s.isEnabled };
+      }
+      return s;
+    });
+
+    const enabledList = updated.filter((s) => s.isEnabled);
+    if (enabledList.length > 0 && !enabledList.some((s) => s.isDefault)) {
+      enabledList[0].isDefault = true;
+    }
+
+    onChange("portionSizes", updated);
+  };
+
+  const handleUpdatePortionSizePrice = (id: string, price: string) => {
+    const current = formData.portionSizes && formData.portionSizes.length > 0 ? formData.portionSizes : DEFAULT_PORTION_SIZES;
+    const updated = current.map((s) => (s.id === id ? { ...s, price } : s));
+    onChange("portionSizes", updated);
+  };
+
+  const handleSetDefaultPortionSize = (id: string) => {
+    const current = formData.portionSizes && formData.portionSizes.length > 0 ? formData.portionSizes : DEFAULT_PORTION_SIZES;
+    const updated = current.map((s) => ({
+      ...s,
+      isDefault: s.id === id,
+    }));
+    onChange("portionSizes", updated);
+  };
+
+  const handleAddCustomSize = () => {
+    if (!newCustomSizeName.trim()) return;
+    const current = formData.portionSizes && formData.portionSizes.length > 0 ? formData.portionSizes : DEFAULT_PORTION_SIZES;
+    const newSize: RestaurantPortionSize = {
+      id: `custom-size-${Date.now()}`,
+      name: newCustomSizeName.trim(),
+      price: newCustomSizePrice || "",
+      isDefault: false,
+      isEnabled: true,
+      isCustom: true,
+    };
+    onChange("portionSizes", [...current, newSize]);
+    setNewCustomSizeName("");
+    setNewCustomSizePrice("");
+  };
+
+  const handleRemovePortionSize = (id: string) => {
+    const current = formData.portionSizes || [];
+    onChange("portionSizes", current.filter((s) => s.id !== id));
+  };
 
   // New Add-on State
   const [newAddonName, setNewAddonName] = useState("");
@@ -269,6 +346,23 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           >
             <Printer size={13} />
             Kitchen & Station
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("SIZES")}
+            className={`px-2.5 py-1 text-xs font-semibold rounded transition cursor-pointer flex items-center gap-1 ${
+              activeTab === "SIZES"
+                ? "bg-white text-teal-700 shadow-2xs font-bold"
+                : "text-slate-600 hover:text-gray-900"
+            }`}
+          >
+            <Scale size={13} />
+            Portion Sizes & Prices
+            {portionSizes.filter((s) => s.isEnabled).length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-teal-600 text-white text-[10px]">
+                {portionSizes.filter((s) => s.isEnabled).length}
+              </span>
+            )}
           </button>
           <button
             type="button"
@@ -574,6 +668,130 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                   label="🌾 Gluten-Free Dish"
                 />
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: Portion Sizes & Variations */}
+      {activeTab === "SIZES" && (
+        <div className="space-y-4 animate-in fade-in-50 duration-200">
+          <div className="bg-teal-50/60 border border-teal-200 p-3.5 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-xs font-bold text-teal-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <Scale size={14} className="text-teal-600" />
+                  Portion Sizes & Custom Prices (Small, Regular, Large, Extra Large)
+                </h4>
+                <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                  Check which portion sizes are available for this dish and set their individual prices. Select one size as default (e.g. Small or Regular). If no size is checked, the dish will sell at the default Base Selling Price.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Portion Size List */}
+          <div className="space-y-2.5">
+            {portionSizes.map((size) => {
+              return (
+                <div
+                  key={size.id}
+                  className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-lg border transition ${
+                    size.isEnabled
+                      ? "bg-teal-50/50 border-teal-200 shadow-2xs"
+                      : "bg-slate-50/60 border-slate-200 text-gray-400"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={size.isEnabled}
+                      onChange={() => handleTogglePortionSizeEnabled(size.id)}
+                      className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 accent-teal-600 cursor-pointer"
+                    />
+                    <span className={`text-xs font-bold ${size.isEnabled ? "text-gray-800" : "text-gray-400"}`}>
+                      {size.name}
+                    </span>
+                    {size.isDefault && size.isEnabled && (
+                      <span className="px-2.5 py-0.5 rounded-full bg-teal-600 text-white text-[10px] font-black uppercase tracking-wider">
+                        Default Size
+                      </span>
+                    )}
+                  </div>
+
+                  {size.isEnabled ? (
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-semibold text-gray-500">Price (৳):</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="any"
+                          value={size.price}
+                          onChange={(e) => handleUpdatePortionSizePrice(size.id, e.target.value)}
+                          placeholder="0.00"
+                          className="w-32 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold text-gray-800 focus:border-teal-500 focus:outline-none"
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSetDefaultPortionSize(size.id)}
+                        className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition cursor-pointer ${
+                          size.isDefault
+                            ? "bg-teal-600 text-white shadow-2xs"
+                            : "bg-white border border-slate-200 text-gray-600 hover:bg-slate-100"
+                        }`}
+                      >
+                        {size.isDefault ? "✓ Default" : "Set Default"}
+                      </button>
+
+                      {size.isCustom && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePortionSize(size.id)}
+                          className="p-1.5 rounded-md text-rose-500 hover:bg-rose-50 transition"
+                          title="Remove custom size"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-[11px] text-slate-400 italic">Check box to enable size & price</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Add Custom Portion Size */}
+          <div className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-lg space-y-2">
+            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+              Add Custom Portion Size (e.g. Medium, 1/2 Portion, Family Pack)
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Size Name (e.g. Medium / 1 Litre / Family Pack)"
+                value={newCustomSizeName}
+                onChange={(e) => setNewCustomSizeName(e.target.value)}
+                className="flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium focus:border-teal-500 focus:outline-none"
+              />
+              <input
+                type="number"
+                placeholder="Price (৳)"
+                value={newCustomSizePrice}
+                onChange={(e) => setNewCustomSizePrice(e.target.value)}
+                className="w-32 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium focus:border-teal-500 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={handleAddCustomSize}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition cursor-pointer shrink-0"
+              >
+                <Plus size={14} /> Add Size
+              </button>
             </div>
           </div>
         </div>

@@ -53,6 +53,14 @@ interface TableOption {
   guestCount?: number;
 }
 
+export interface PortionSizeOption {
+  id: string;
+  name: string;
+  price: number;
+  isDefault?: boolean;
+  isEnabled?: boolean;
+}
+
 interface MenuItem {
   id: string;
   name: string;
@@ -65,6 +73,8 @@ interface MenuItem {
   timeSlotIds?: string[];
   allTimeSlots?: boolean;
   hasAddons?: boolean;
+  portionSizes?: PortionSizeOption[];
+  addons?: { name: string; price: number }[];
   description?: string;
 }
 
@@ -377,6 +387,8 @@ export default function RestaurantPOSPage() {
             let isKitchen = true;
             let timeSlotIds: string[] = [];
             let allTimeSlots = true;
+            let portionSizes: PortionSizeOption[] = [];
+            let addons: { name: string; price: number }[] = [];
 
             try {
               const rawAttrs =
@@ -395,6 +407,24 @@ export default function RestaurantPOSPage() {
               } else if (timeSlotIds.length > 0) {
                 allTimeSlots = false;
               }
+              if (Array.isArray(restAttrs?.portionSizes)) {
+                portionSizes = restAttrs.portionSizes
+                  .filter((s: any) => s.isEnabled !== false && s.price !== undefined && s.price !== "")
+                  .map((s: any) => ({
+                    id: String(s.id || s.name),
+                    name: String(s.name),
+                    price: Number(s.price || 0),
+                    isDefault: Boolean(s.isDefault),
+                    isEnabled: true,
+                  }));
+              }
+
+              if (Array.isArray(restAttrs?.addons)) {
+                addons = restAttrs.addons.map((a: any) => ({
+                  name: String(a.name),
+                  price: Number(a.price || 0),
+                }));
+              }
             } catch (e) {}
 
             return {
@@ -411,7 +441,9 @@ export default function RestaurantPOSPage() {
               hasAddons:
                 typeof p.hasAddons === "boolean"
                   ? p.hasAddons
-                  : !["beverages", "drinks", "water"].includes(catName.toLowerCase()),
+                  : portionSizes.length > 0 || addons.length > 0 || !["beverages", "drinks", "water"].includes(catName.toLowerCase()),
+              portionSizes,
+              addons,
               description: p.description || "",
             };
           });
@@ -607,12 +639,7 @@ export default function RestaurantPOSPage() {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [loadData]);
 
-  // Options
-  const SIZE_OPTIONS = [
-    { label: "Regular", price: 0 },
-    { label: "Large (+৳50)", price: 50 },
-    { label: "Family Pack (+৳150)", price: 150 },
-  ];
+
 
   const SPICE_OPTIONS = [
     { label: "Mild", icon: "🟢" },
@@ -633,7 +660,13 @@ export default function RestaurantPOSPage() {
   const handleOpenAddonModal = (product: MenuItem) => {
     setSelectedProductForAddons(product);
     setEditingCartItem(null);
-    setSelectedSize({ label: "Regular", price: 0 });
+
+    if (product.portionSizes && product.portionSizes.length > 0) {
+      const def = product.portionSizes.find((s) => s.isDefault) || product.portionSizes[0];
+      setSelectedSize({ label: def.name, price: def.price });
+    } else {
+      setSelectedSize({ label: "Standard", price: product.sellingPrice });
+    }
     setSelectedSpice("Medium");
     setSelectedExtras([]);
     setItemNote("");
@@ -652,7 +685,13 @@ export default function RestaurantPOSPage() {
     setItemNote(cartItem.notes || "");
     setSelectedSpice("Medium");
     setSelectedExtras([]);
-    setSelectedSize({ label: "Regular", price: 0 });
+
+    if (prod.portionSizes && prod.portionSizes.length > 0) {
+      const def = prod.portionSizes.find((s) => s.isDefault) || prod.portionSizes[0];
+      setSelectedSize({ label: def.name, price: def.price });
+    } else {
+      setSelectedSize({ label: "Standard", price: prod.sellingPrice });
+    }
   };
 
   const toggleExtraTopping = (topping: { label: string; price: number; image?: string }) => {
@@ -666,13 +705,15 @@ export default function RestaurantPOSPage() {
   const handleConfirmAddons = () => {
     if (!selectedProductForAddons) return;
 
-    const extraTotal = selectedSize.price + selectedExtras.reduce((sum, e) => sum + e.price, 0);
-    const finalUnitPrice = selectedProductForAddons.sellingPrice + extraTotal;
+    const hasSizes = Boolean(selectedProductForAddons.portionSizes && selectedProductForAddons.portionSizes.length > 0);
+    const sizeBasePrice = hasSizes ? selectedSize.price : selectedProductForAddons.sellingPrice;
+    const extraTotal = selectedExtras.reduce((sum, e) => sum + e.price, 0);
+    const finalUnitPrice = sizeBasePrice + extraTotal;
 
     const modifiersList: CartModifier[] = [
-      ...(selectedSize.price > 0 ? [{ label: "Size", value: selectedSize.label }] : []),
+      ...(hasSizes ? [{ label: "Size", value: `${selectedSize.label} (${fmt(selectedSize.price)})` }] : []),
       { label: "Spice", value: selectedSpice },
-      ...selectedExtras.map((e) => ({ label: "Extra", value: `${e.label} (+৳${e.price})` })),
+      ...selectedExtras.map((e) => ({ label: "Extra", value: `${e.label} (+${fmt(e.price)})` })),
     ];
 
     if (editingCartItem) {
@@ -2255,41 +2296,48 @@ export default function RestaurantPOSPage() {
               </div>
             </div>
 
-            {/* 1. Portion Size Selection (No images as requested) */}
-            <div>
-              <label className="block text-xs font-black text-gray-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-orange-100 text-orange-700 text-[10px]">
-                  1
-                </span>
-                Portion Size Options
-              </label>
-              <div className="grid grid-cols-3 gap-3">
-                {SIZE_OPTIONS.map((opt) => {
-                  const isSelected = selectedSize.label === opt.label;
-                  return (
-                    <button
-                      type="button"
-                      key={opt.label}
-                      onClick={() => setSelectedSize(opt)}
-                      className={`flex items-center justify-between p-3 rounded-md border-2 transition cursor-pointer select-none ${
-                        isSelected
-                          ? "bg-orange-50 border-orange-500 text-orange-950 font-bold shadow-xs"
-                          : "bg-white border-slate-200 text-gray-700 hover:border-orange-300 font-medium"
-                      }`}
-                    >
-                      <span className="text-xs font-bold">{opt.label}</span>
-                      <div
-                        className={`h-4 w-4 rounded-full border-2 flex items-center justify-center ${
-                          isSelected ? "border-orange-600 bg-orange-600 text-white" : "border-slate-300"
+            {/* 1. Portion Size Selection (Only shown if configured for this product) */}
+            {selectedProductForAddons.portionSizes && selectedProductForAddons.portionSizes.length > 0 && (
+              <div>
+                <label className="block text-xs font-black text-gray-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-orange-100 text-orange-700 text-[10px]">
+                    1
+                  </span>
+                  Portion Size Options
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {selectedProductForAddons.portionSizes.map((s) => {
+                    const isSelected = selectedSize.label === s.name;
+                    return (
+                      <button
+                        type="button"
+                        key={s.id || s.name}
+                        onClick={() => setSelectedSize({ label: s.name, price: s.price })}
+                        className={`flex items-center justify-between p-3 rounded-md border-2 transition cursor-pointer select-none ${
+                          isSelected
+                            ? "bg-orange-50 border-orange-500 text-orange-950 font-bold shadow-xs"
+                            : "bg-white border-slate-200 text-gray-700 hover:border-orange-300 font-medium"
                         }`}
                       >
-                        {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
-                      </div>
-                    </button>
-                  );
-                })}
+                        <div className="flex flex-col text-left min-w-0">
+                          <span className="text-xs font-bold truncate">{s.name}</span>
+                          <span className="text-[11px] text-orange-600 font-extrabold mt-0.5">
+                            {fmt(s.price)}
+                          </span>
+                        </div>
+                        <div
+                          className={`h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                            isSelected ? "border-orange-600 bg-orange-600 text-white" : "border-slate-300"
+                          }`}
+                        >
+                          {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* 2. Spice Level Selection */}
             <div>
@@ -2321,7 +2369,7 @@ export default function RestaurantPOSPage() {
               </div>
             </div>
 
-            {/* 3. Extra Add-ons & Toppings (With Checkboxes) */}
+            {/* 3. Extra Add-ons & Toppings (No Images - Title & Price Only) */}
             <div>
               <label className="block text-xs font-black text-gray-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                 <span className="flex h-5 w-5 items-center justify-center rounded-md bg-amber-100 text-amber-800 text-[10px]">
@@ -2329,17 +2377,20 @@ export default function RestaurantPOSPage() {
                 </span>
                 Extra Add-ons & Toppings (Select Any)
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {EXTRA_TOPPINGS.map((top) => {
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                {((selectedProductForAddons.addons && selectedProductForAddons.addons.length > 0)
+                  ? selectedProductForAddons.addons.map((a) => ({ label: a.name, price: a.price }))
+                  : EXTRA_TOPPINGS
+                ).map((top) => {
                   const isChecked = selectedExtras.some((e) => e.label === top.label);
                   return (
                     <label
                       key={top.label}
                       onClick={() => toggleExtraTopping(top)}
-                      className={`flex items-center gap-3 p-2.5 rounded-md border-2 transition cursor-pointer select-none ${
+                      className={`flex items-center gap-3 p-3 rounded-md border-2 transition cursor-pointer select-none ${
                         isChecked
-                          ? "bg-amber-50/90 border-amber-500 text-amber-950 shadow-xs"
-                          : "bg-white border-slate-200 text-gray-700 hover:border-amber-300"
+                          ? "bg-amber-50/90 border-amber-500 text-amber-950 shadow-xs font-bold"
+                          : "bg-white border-slate-200 text-gray-700 hover:border-amber-300 font-medium"
                       }`}
                     >
                       <input
@@ -2349,27 +2400,14 @@ export default function RestaurantPOSPage() {
                         className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500 accent-amber-600 cursor-pointer shrink-0"
                       />
 
-                      {/* Add-on Image or Centered Icon Box */}
-                      {top.image ? (
-                        <img
-                          src={top.image}
-                          alt={top.label}
-                          className="h-11 w-11 rounded-md object-cover border border-slate-200 shrink-0"
-                        />
-                      ) : (
-                        <div className="h-11 w-11 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
-                          <Utensils size={18} className="opacity-60" />
-                        </div>
-                      )}
-
                       <div className="flex-1 min-w-0">
                         <h5 className="text-xs font-bold text-gray-800 truncate">{top.label}</h5>
                         <span
-                          className={`text-xs font-black block mt-0.5 ${
+                          className={`text-[11px] font-black block mt-0.5 ${
                             isChecked ? "text-amber-700" : "text-gray-500"
                           }`}
                         >
-                          +৳{top.price}
+                          + {fmt(top.price)}
                         </span>
                       </div>
                     </label>
