@@ -148,7 +148,7 @@ export default function PharmacyHubPage() {
           { label: "Daily Revenue", val: fmt(totalSales), sub: "Rx checkout volume", icon: TrendingUp, color: "cyan", iconColor: "text-cyan-600", bg: "bg-cyan-50" },
           { label: "Prescriptions", val: sales.length, sub: "Completed dispenses", icon: Receipt, color: "teal", iconColor: "text-teal-600", bg: "bg-teal-50" },
           { label: "Units Dispensed", val: totalItemsSold, sub: "Medicine units sold", icon: Pill, color: "indigo", iconColor: "text-indigo-600", bg: "bg-indigo-50" },
-          { label: "Active Batches", val: products.length, sub: "FEFO tracked stock", icon: Activity, color: "amber", iconColor: "text-amber-600", bg: "bg-amber-50" },
+          { label: "Active Medicines", val: products.length, sub: "FEFO tracked stock", icon: Activity, color: "amber", iconColor: "text-amber-600", bg: "bg-amber-50" },
         ].map((stat, i) => (
           <div key={i} className="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-1">
             <div className={`absolute -right-4 -bottom-4 w-24 h-24 blur-2xl opacity-[0.05] rounded-full ${stat.bg}`} />
@@ -233,7 +233,7 @@ export default function PharmacyHubPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     {filteredSales.map((s) => {
-                      const points = s.customer?.loyaltyPoints || 0;
+                      const points = s.customer?.loyaltyPoints || s.customerPoints || 0;
                       const tier = getCustomerTier(points);
                       const custName = s.customer?.name || s.customerName || "Walk-in Patient";
                       const itemCount = Array.isArray(s.items) && s.items.length > 0 ? s.items.length : (s.itemsCount || 0);

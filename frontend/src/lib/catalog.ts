@@ -52,7 +52,11 @@ export function toRegisterProduct(row: ApiProductRow): RegisterProduct {
     typeof row.unit === "object" && row.unit !== null && row.unit.name
       ? row.unit.name
       : (row.unitId as string) ?? "";
+
+  // Use backend provided totalStock if available, otherwise fallback to count
+  const backendStock = (row as any).totalStock !== undefined ? Number((row as any).totalStock) : undefined;
   const stockRows = Number(row._count?.stockRows ?? 0);
+
   return {
     id: row.id,
     name: row.name,
@@ -63,7 +67,7 @@ export function toRegisterProduct(row: ApiProductRow): RegisterProduct {
     productType: row.productType ?? "SIMPLE",
     unit,
     status: row.status ?? "ACTIVE",
-    stockQty: stockRows > 0 ? stockRows : undefined,
+    stockQty: backendStock !== undefined ? backendStock : (stockRows > 0 ? stockRows : undefined),
     imageUrl: row.imageUrl || (row as any).image || null,
     categoryName: row.category?.name ?? null,
     brandName: row.brand?.name ?? null,
@@ -168,10 +172,15 @@ export function applyBatchStock(products: RegisterProduct[], batches: BatchRow[]
   for (const b of batches) {
     perProduct.set(b.product.id, (perProduct.get(b.product.id) ?? 0) + Number(b.qty || 0));
   }
-  return products.map((p) => ({
-    ...p,
-    stockQty: perProduct.get(p.id) ?? 0,
-  }));
+  return products.map((p) => {
+    const batchQty = perProduct.get(p.id);
+    return {
+      ...p,
+      // If product has entries in batches, use that aggregate.
+      // Otherwise, trust the product's own total stock (from simple stock management).
+      stockQty: batchQty !== undefined ? batchQty : (p.stockQty ?? 0),
+    };
+  });
 }
 
 /** Per-product batches, FEFO-ordered (soonest expiry first; no-expiry last). */

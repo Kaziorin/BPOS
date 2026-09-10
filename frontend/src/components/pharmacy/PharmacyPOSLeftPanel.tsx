@@ -356,66 +356,74 @@ export function PharmacyPOSLeftPanel({
           </div>
 
           {/* Product Grid Scrollable Area */}
-          <div className="min-h-0 flex-1 overflow-y-auto p-3 space-y-3">
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-              {products.map((p) => {
-                const outOfStock = (p.stockQty ?? 0) <= 0;
-                return (
-                  <div
-                    key={p.id}
-                    onClick={() => !outOfStock && onTapProduct(p)}
-                    className={cn(
-                      "group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-2.5 text-left shadow-xs transition hover:border-teal-400 hover:shadow-md cursor-pointer",
-                      outOfStock && "opacity-40 pointer-events-none",
-                    )}
-                  >
-                    <div>
-                      {/* Product Thumbnail */}
-                      <div className="mb-2 overflow-hidden rounded-xl">
-                        <ProductThumb product={p} />
+          <div className={cn("min-h-0 flex-1 overflow-y-auto p-3 space-y-3", products.length === 0 && "flex flex-col items-center justify-center")}>
+            {products.length > 0 ? (
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                {products.map((p) => {
+                  const outOfStock = (p.stockQty ?? 0) <= 0;
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => !outOfStock && onTapProduct(p)}
+                      className={cn(
+                        "group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-2.5 text-left shadow-xs transition hover:border-teal-400 hover:shadow-md cursor-pointer",
+                        outOfStock && "opacity-40 pointer-events-none bg-slate-50/50",
+                      )}
+                    >
+                      <div>
+                        {/* Product Thumbnail */}
+                        <div className="mb-2 overflow-hidden rounded-xl">
+                          <ProductThumb product={p} />
+                          {outOfStock && (
+                            <div className="absolute top-2 left-2 z-10 bg-rose-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shadow-sm">
+                              Out of stock
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Product Title */}
+                        <h3 className="line-clamp-1 text-[12.5px] font-extrabold text-slate-800 group-hover:text-[#00796b] transition">
+                          {p.name}
+                        </h3>
+
+                        {/* Unit & Dosage */}
+                        <p className="mt-0.5 text-[10px] font-semibold text-slate-400">
+                          {p.unit || "Tablet • 10mg"}
+                        </p>
+
+                        {/* Stock Info */}
+                        <p className="mt-0.5 text-[10px] font-bold text-slate-400">
+                          Stock: <span className="text-slate-600">{p.stockQty ?? 0}</span>
+                        </p>
                       </div>
 
-                      {/* Product Title */}
-                      <h3 className="line-clamp-1 text-[12.5px] font-extrabold text-slate-800 group-hover:text-[#00796b] transition">
-                        {p.name}
-                      </h3>
-
-                      {/* Unit & Dosage */}
-                      <p className="mt-0.5 text-[10px] font-semibold text-slate-400">
-                        {p.unit || "Tablet • 10mg"}
-                      </p>
-
-                      {/* Stock Info */}
-                      <p className="mt-0.5 text-[10px] font-bold text-slate-400">
-                        Stock: <span className="text-slate-600">{p.stockQty ?? 0}</span>
-                      </p>
+                      {/* Price & Add Button */}
+                      <div className="mt-2.5 flex items-center justify-between pt-1 border-t border-slate-50">
+                        <span className="text-[13.5px] font-black text-[#00796b] tabular-nums">
+                          ৳ {p.sellingPrice.toFixed(2)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!outOfStock) onTapProduct(p);
+                          }}
+                          className="flex h-7 w-7 items-center justify-center rounded-full bg-[#00796b] text-white shadow-xs transition hover:bg-[#005a50] hover:scale-105 active:scale-95"
+                        >
+                          <Plus size={15} strokeWidth={2.8} />
+                        </button>
+                      </div>
                     </div>
-
-                    {/* Price & Add Button */}
-                    <div className="mt-2.5 flex items-center justify-between pt-1 border-t border-slate-50">
-                      <span className="text-[13.5px] font-black text-[#00796b] tabular-nums">
-                        ৳ {p.sellingPrice.toFixed(2)}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!outOfStock) onTapProduct(p);
-                        }}
-                        className="flex h-7 w-7 items-center justify-center rounded-full bg-[#00796b] text-white shadow-xs transition hover:bg-[#005a50] hover:scale-105 active:scale-95"
-                      >
-                        <Plus size={15} strokeWidth={2.8} />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {products.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-                <Pill size={36} className="text-slate-300 mb-2" />
-                <p className="text-sm font-semibold">No medicines found</p>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-slate-400 animate-in fade-in zoom-in-95 duration-300">
+                <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-4 border border-slate-100 shadow-inner">
+                  <Pill size={40} className="text-slate-200" />
+                </div>
+                <p className="text-base font-bold text-slate-600">No medicines found</p>
+                <p className="text-xs text-slate-400 mt-1 max-w-[200px] text-center font-medium leading-relaxed uppercase tracking-wider">Try adjusting your search or category filter</p>
               </div>
             )}
           </div>
