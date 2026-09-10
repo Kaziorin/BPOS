@@ -115,10 +115,22 @@ const SPICE_LEVELS = [
 
 export const DEFAULT_PORTION_SIZES: RestaurantPortionSize[] = [
   { id: "small", name: "Small", price: "", isDefault: false, isEnabled: false },
-  { id: "regular", name: "Regular", price: "", isDefault: true, isEnabled: false },
+  { id: "regular", name: "Regular", price: "", isDefault: false, isEnabled: false },
   { id: "large", name: "Large", price: "", isDefault: false, isEnabled: false },
   { id: "xlarge", name: "Extra Large", price: "", isDefault: false, isEnabled: false },
 ];
+
+const ensureSingleDefaultInVertical = (sizes: RestaurantPortionSize[]) => {
+  const enabled = sizes.filter((s) => s.isEnabled);
+  if (enabled.length === 0) {
+    return sizes.map((s) => ({ ...s, isDefault: false }));
+  }
+  const firstDefault = enabled.find((s) => s.isDefault)?.id || enabled[0].id;
+  return sizes.map((s) => ({
+    ...s,
+    isDefault: s.isEnabled && s.id === firstDefault,
+  }));
+};
 
 export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange }) => {
   const [activeTab, setActiveTab] = useState<"KITCHEN" | "SIZES" | "ADDONS" | "RELATED" | "RECIPE">("KITCHEN");
@@ -144,43 +156,38 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
   }, []);
 
   // Portion Size Handlers
-  const portionSizes = formData.portionSizes && formData.portionSizes.length > 0 ? formData.portionSizes : DEFAULT_PORTION_SIZES;
+  const rawPortionSizes = formData.portionSizes && formData.portionSizes.length > 0 ? formData.portionSizes : DEFAULT_PORTION_SIZES;
+  const portionSizes = ensureSingleDefaultInVertical(rawPortionSizes);
 
   const handleTogglePortionSizeEnabled = (id: string) => {
-    const current = formData.portionSizes && formData.portionSizes.length > 0 ? formData.portionSizes : DEFAULT_PORTION_SIZES;
-    const updated = current.map((s) => {
+    const updated = portionSizes.map((s) => {
       if (s.id === id) {
         return { ...s, isEnabled: !s.isEnabled };
       }
       return s;
     });
 
-    const enabledList = updated.filter((s) => s.isEnabled);
-    if (enabledList.length > 0 && !enabledList.some((s) => s.isDefault)) {
-      enabledList[0].isDefault = true;
-    }
-
-    onChange("portionSizes", updated);
+    const cleaned = ensureSingleDefaultInVertical(updated);
+    onChange("portionSizes", cleaned);
   };
 
   const handleUpdatePortionSizePrice = (id: string, price: string) => {
-    const current = formData.portionSizes && formData.portionSizes.length > 0 ? formData.portionSizes : DEFAULT_PORTION_SIZES;
-    const updated = current.map((s) => (s.id === id ? { ...s, price } : s));
-    onChange("portionSizes", updated);
+    const updated = portionSizes.map((s) => (s.id === id ? { ...s, price } : s));
+    const cleaned = ensureSingleDefaultInVertical(updated);
+    onChange("portionSizes", cleaned);
   };
 
   const handleSetDefaultPortionSize = (id: string) => {
-    const current = formData.portionSizes && formData.portionSizes.length > 0 ? formData.portionSizes : DEFAULT_PORTION_SIZES;
-    const updated = current.map((s) => ({
+    const updated = portionSizes.map((s) => ({
       ...s,
       isDefault: s.id === id,
     }));
-    onChange("portionSizes", updated);
+    const cleaned = ensureSingleDefaultInVertical(updated);
+    onChange("portionSizes", cleaned);
   };
 
   const handleAddCustomSize = () => {
     if (!newCustomSizeName.trim()) return;
-    const current = formData.portionSizes && formData.portionSizes.length > 0 ? formData.portionSizes : DEFAULT_PORTION_SIZES;
     const newSize: RestaurantPortionSize = {
       id: `custom-size-${Date.now()}`,
       name: newCustomSizeName.trim(),
@@ -189,14 +196,17 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
       isEnabled: true,
       isCustom: true,
     };
-    onChange("portionSizes", [...current, newSize]);
+    const updated = [...portionSizes, newSize];
+    const cleaned = ensureSingleDefaultInVertical(updated);
+    onChange("portionSizes", cleaned);
     setNewCustomSizeName("");
     setNewCustomSizePrice("");
   };
 
   const handleRemovePortionSize = (id: string) => {
-    const current = formData.portionSizes || [];
-    onChange("portionSizes", current.filter((s) => s.id !== id));
+    const updated = portionSizes.filter((s) => s.id !== id);
+    const cleaned = ensureSingleDefaultInVertical(updated);
+    onChange("portionSizes", cleaned);
   };
 
   // New Add-on State
@@ -357,7 +367,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
             }`}
           >
             <Scale size={13} />
-            Portion Sizes & Prices
+            Variation & Size
             {portionSizes.filter((s) => s.isEnabled).length > 0 && (
               <span className="px-1.5 py-0.2 rounded-full bg-teal-600 text-white text-[10px]">
                 {portionSizes.filter((s) => s.isEnabled).length}
@@ -681,48 +691,46 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
               <div>
                 <h4 className="text-xs font-bold text-teal-900 uppercase tracking-wider flex items-center gap-1.5">
                   <Scale size={14} className="text-teal-600" />
-                  Portion Sizes & Custom Prices (Small, Regular, Large, Extra Large)
+                  Variation & Size Prices (Small, Regular, Large, Extra Large)
                 </h4>
                 <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
-                  Check which portion sizes are available for this dish and set their individual prices. Select one size as default (e.g. Small or Regular). If no size is checked, the dish will sell at the default Base Selling Price.
+                  Check which sizes are available for this dish and set their individual prices. Select one size as default (e.g. Small or Regular). If no size is checked, the dish will sell at the default Base Selling Price.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Portion Size List */}
-          <div className="space-y-2.5">
+          {/* Size List */}
+          <div className="space-y-2">
             {portionSizes.map((size) => {
               return (
                 <div
                   key={size.id}
-                  className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-lg border transition ${
+                  className={`px-3 py-2.5 rounded-lg border transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 ${
                     size.isEnabled
-                      ? "bg-teal-50/50 border-teal-200 shadow-2xs"
-                      : "bg-slate-50/60 border-slate-200 text-gray-400"
+                      ? "bg-white border-teal-300 shadow-2xs ring-1 ring-teal-500/10"
+                      : "bg-slate-50/70 border-slate-200 opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 text-xs font-bold text-gray-800 cursor-pointer select-none shrink-0 min-w-0">
                     <input
                       type="checkbox"
                       checked={size.isEnabled}
                       onChange={() => handleTogglePortionSizeEnabled(size.id)}
                       className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 accent-teal-600 cursor-pointer"
                     />
-                    <span className={`text-xs font-bold ${size.isEnabled ? "text-gray-800" : "text-gray-400"}`}>
-                      {size.name}
-                    </span>
+                    <span className="text-xs font-bold text-slate-800 truncate">{size.name}</span>
                     {size.isDefault && size.isEnabled && (
-                      <span className="px-2.5 py-0.5 rounded-full bg-teal-600 text-white text-[10px] font-black uppercase tracking-wider">
-                        Default Size
+                      <span className="px-1.5 py-0.2 rounded-full bg-teal-600 text-white text-[9px] font-black uppercase tracking-wide shrink-0">
+                        Default
                       </span>
                     )}
-                  </div>
+                  </label>
 
                   {size.isEnabled ? (
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-semibold text-gray-500">Price (৳):</span>
+                    <div className="flex items-center gap-2 flex-1 sm:flex-initial justify-end min-w-0">
+                      <div className="flex items-center gap-1.5 min-w-0 flex-1 sm:w-36">
+                        <span className="text-[11px] font-bold text-slate-500 whitespace-nowrap shrink-0">Price (৳):</span>
                         <input
                           type="number"
                           min="0"
@@ -730,17 +738,17 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                           value={size.price}
                           onChange={(e) => handleUpdatePortionSizePrice(size.id, e.target.value)}
                           placeholder="0.00"
-                          className="w-32 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold text-gray-800 focus:border-teal-500 focus:outline-none"
+                          className="w-full rounded border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-gray-800 focus:border-teal-500 focus:outline-none"
                         />
                       </div>
 
                       <button
                         type="button"
                         onClick={() => handleSetDefaultPortionSize(size.id)}
-                        className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition cursor-pointer ${
+                        className={`px-2 py-1 rounded text-[10px] font-bold transition cursor-pointer shrink-0 ${
                           size.isDefault
                             ? "bg-teal-600 text-white shadow-2xs"
-                            : "bg-white border border-slate-200 text-gray-600 hover:bg-slate-100"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                         }`}
                       >
                         {size.isDefault ? "✓ Default" : "Set Default"}
@@ -750,15 +758,24 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                         <button
                           type="button"
                           onClick={() => handleRemovePortionSize(size.id)}
-                          className="p-1.5 rounded-md text-rose-500 hover:bg-rose-50 transition"
-                          title="Remove custom size"
+                          className="p-1 rounded text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
+                          title="Remove size"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={13} />
                         </button>
                       )}
                     </div>
                   ) : (
-                    <span className="text-[11px] text-slate-400 italic">Check box to enable size & price</span>
+                    size.isCustom && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePortionSize(size.id)}
+                        className="p-1 rounded text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
+                        title="Remove size"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )
                   )}
                 </div>
               );
@@ -768,7 +785,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           {/* Add Custom Portion Size */}
           <div className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-lg space-y-2">
             <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide">
-              Add Custom Portion Size (e.g. Medium, 1/2 Portion, Family Pack)
+              Add Custom Size (e.g. Medium, Half Pack, Family Pack)
             </label>
             <div className="flex items-center gap-2">
               <input

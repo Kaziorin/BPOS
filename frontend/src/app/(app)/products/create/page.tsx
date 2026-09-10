@@ -203,15 +203,29 @@ export default function CreateProductPage() {
 
   const DEFAULT_SIZES_LIST = [
     { id: "small", name: "Small", price: "", isDefault: false, isEnabled: false },
-    { id: "regular", name: "Regular", price: "", isDefault: true, isEnabled: false },
+    { id: "regular", name: "Regular", price: "", isDefault: false, isEnabled: false },
     { id: "large", name: "Large", price: "", isDefault: false, isEnabled: false },
     { id: "xlarge", name: "Extra Large", price: "", isDefault: false, isEnabled: false },
   ];
 
-  const currentPortionSizes =
+  const ensureSingleDefault = (sizes: any[]) => {
+    const enabled = sizes.filter((s: any) => s.isEnabled);
+    if (enabled.length === 0) {
+      return sizes.map((s: any) => ({ ...s, isDefault: false }));
+    }
+    const firstDefault = enabled.find((s: any) => s.isDefault)?.id || enabled[0].id;
+    return sizes.map((s: any) => ({
+      ...s,
+      isDefault: s.isEnabled && s.id === firstDefault,
+    }));
+  };
+
+  const rawPortionSizes =
     verticalFormState.restaurant?.portionSizes && verticalFormState.restaurant.portionSizes.length > 0
       ? verticalFormState.restaurant.portionSizes
       : DEFAULT_SIZES_LIST;
+
+  const currentPortionSizes = ensureSingleDefault(rawPortionSizes);
 
   const enabledPortionSizesCount = currentPortionSizes.filter((s: any) => s.isEnabled).length;
 
@@ -225,19 +239,16 @@ export default function CreateProductPage() {
       return s;
     });
 
-    const enabled = updated.filter((s: any) => s.isEnabled);
-    if (enabled.length > 0 && !enabled.some((s: any) => s.isDefault)) {
-      enabled[0].isDefault = true;
-    }
-
-    handleUpdateVertical("restaurant", "portionSizes", updated);
+    const cleaned = ensureSingleDefault(updated);
+    handleUpdateVertical("restaurant", "portionSizes", cleaned);
   };
 
   const updatePortionSizePriceInCreate = (id: string, price: string) => {
     const updated = currentPortionSizes.map((s: any) => (s.id === id ? { ...s, price } : s));
-    handleUpdateVertical("restaurant", "portionSizes", updated);
+    const cleaned = ensureSingleDefault(updated);
+    handleUpdateVertical("restaurant", "portionSizes", cleaned);
 
-    const target = updated.find((s: any) => s.id === id);
+    const target = cleaned.find((s: any) => s.id === id);
     if (target?.isDefault && target.isEnabled && price) {
       updateForm("sellingPrice", price);
     }
@@ -248,9 +259,10 @@ export default function CreateProductPage() {
       ...s,
       isDefault: s.id === id,
     }));
-    handleUpdateVertical("restaurant", "portionSizes", updated);
+    const cleaned = ensureSingleDefault(updated);
+    handleUpdateVertical("restaurant", "portionSizes", cleaned);
 
-    const target = updated.find((s: any) => s.id === id);
+    const target = cleaned.find((s: any) => s.id === id);
     if (target?.isEnabled && target.price) {
       updateForm("sellingPrice", target.price);
     }
@@ -267,14 +279,16 @@ export default function CreateProductPage() {
       isCustom: true,
     };
     const updated = [...currentPortionSizes, newSize];
-    handleUpdateVertical("restaurant", "portionSizes", updated);
+    const cleaned = ensureSingleDefault(updated);
+    handleUpdateVertical("restaurant", "portionSizes", cleaned);
     setCreateCustomSizeName("");
     setCreateCustomSizePrice("");
   };
 
   const removePortionSizeInCreate = (id: string) => {
     const updated = currentPortionSizes.filter((s: any) => s.id !== id);
-    handleUpdateVertical("restaurant", "portionSizes", updated);
+    const cleaned = ensureSingleDefault(updated);
+    handleUpdateVertical("restaurant", "portionSizes", cleaned);
   };
 
   // Quick Create Modal state
@@ -1181,18 +1195,18 @@ export default function CreateProductPage() {
                 <div className="flex items-center gap-2">
                   <Scale className="h-4 w-4 text-teal-600" />
                   <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                    Portion Sizes &amp; Size-wise Pricing (Optional)
+                    Variation &amp; Size (Optional)
                   </h2>
                 </div>
                 <span className="px-2 py-0.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-bold shrink-0">
                   {enabledPortionSizesCount > 0
-                    ? `${enabledPortionSizesCount} Portion ${enabledPortionSizesCount === 1 ? "Size" : "Sizes"} Active`
+                    ? `${enabledPortionSizesCount} ${enabledPortionSizesCount === 1 ? "Size" : "Sizes"} Active`
                     : "Single Price Mode (Menu Price)"}
                 </span>
               </div>
 
               <p className="text-[11px] text-slate-500 leading-relaxed">
-                Check available portion sizes for this dish (e.g. Small ৳150, Regular ৳200, Large ৳280). If no portion size is checked, this dish sells at the single Menu Price (৳) above.
+                Check available sizes for this dish (e.g. Small ৳150, Regular ৳200, Large ৳280). If no size is checked, this dish sells at the single Menu Price (৳) above.
               </p>
 
               {/* Portion Sizes Checkbox Grid */}
@@ -1201,44 +1215,31 @@ export default function CreateProductPage() {
                   return (
                     <div
                       key={size.id}
-                      className={`p-3 rounded-lg border transition-all duration-150 ${
+                      className={`px-3 py-2.5 rounded-lg border transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 ${
                         size.isEnabled
                           ? "bg-white border-teal-300 shadow-2xs ring-1 ring-teal-500/10"
                           : "bg-slate-50/70 border-slate-200 opacity-70 hover:opacity-100"
                       }`}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <label className="flex items-center gap-2 text-xs font-bold text-gray-800 cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            checked={size.isEnabled}
-                            onChange={() => togglePortionSizeInCreate(size.id)}
-                            className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 accent-teal-600 cursor-pointer"
-                          />
-                          <span className="text-xs font-bold text-slate-800">{size.name}</span>
-                          {size.isDefault && size.isEnabled && (
-                            <span className="px-1.5 py-0.2 rounded-full bg-teal-600 text-white text-[9px] font-black uppercase tracking-wide">
-                              Default
-                            </span>
-                          )}
-                        </label>
-
-                        {size.isCustom && (
-                          <button
-                            type="button"
-                            onClick={() => removePortionSizeInCreate(size.id)}
-                            className="p-1 rounded text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer"
-                            title="Remove size"
-                          >
-                            <Trash2 size={13} />
-                          </button>
+                      <label className="flex items-center gap-2 text-xs font-bold text-gray-800 cursor-pointer select-none shrink-0 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={size.isEnabled}
+                          onChange={() => togglePortionSizeInCreate(size.id)}
+                          className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 accent-teal-600 cursor-pointer"
+                        />
+                        <span className="text-xs font-bold text-slate-800 truncate">{size.name}</span>
+                        {size.isDefault && size.isEnabled && (
+                          <span className="px-1.5 py-0.2 rounded-full bg-teal-600 text-white text-[9px] font-black uppercase tracking-wide shrink-0">
+                            Default
+                          </span>
                         )}
-                      </div>
+                      </label>
 
-                      {size.isEnabled && (
-                        <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            <span className="text-[11px] font-bold text-slate-500">Price (৳):</span>
+                      {size.isEnabled ? (
+                        <div className="flex items-center gap-2 flex-1 sm:flex-initial justify-end min-w-0">
+                          <div className="flex items-center gap-1.5 min-w-0 flex-1 sm:w-36">
+                            <span className="text-[11px] font-bold text-slate-500 whitespace-nowrap shrink-0">Price (৳):</span>
                             <input
                               type="number"
                               min="0"
@@ -1253,7 +1254,7 @@ export default function CreateProductPage() {
                           <button
                             type="button"
                             onClick={() => setDefaultPortionSizeInCreate(size.id)}
-                            className={`px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer shrink-0 ${
+                            className={`px-2 py-1 rounded text-[10px] font-bold transition cursor-pointer shrink-0 ${
                               size.isDefault
                                 ? "bg-teal-600 text-white shadow-2xs"
                                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -1261,7 +1262,29 @@ export default function CreateProductPage() {
                           >
                             {size.isDefault ? "✓ Default" : "Set Default"}
                           </button>
+
+                          {size.isCustom && (
+                            <button
+                              type="button"
+                              onClick={() => removePortionSizeInCreate(size.id)}
+                              className="p-1 rounded text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
+                              title="Remove size"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          )}
                         </div>
+                      ) : (
+                        size.isCustom && (
+                          <button
+                            type="button"
+                            onClick={() => removePortionSizeInCreate(size.id)}
+                            className="p-1 rounded text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
+                            title="Remove size"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        )
                       )}
                     </div>
                   );
@@ -1271,7 +1294,7 @@ export default function CreateProductPage() {
               {/* Custom Size Addition */}
               <div className="pt-2 border-t border-slate-100 space-y-1.5">
                 <div className="text-[11px] font-bold text-slate-600 uppercase tracking-wide">
-                  Add Custom Portion Size
+                  Add Custom Size
                 </div>
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <input
