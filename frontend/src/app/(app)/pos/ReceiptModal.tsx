@@ -45,6 +45,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
 
   const rawVat = result.total > subtotal ? result.total - subtotal : subtotal * 0.05;
   const vatAmount = Math.max(0, rawVat);
+  const vatRatePct = subtotal > 0 && vatAmount > 0 ? Math.round((vatAmount / subtotal) * 100) : 5;
   const netPayable = result.total;
 
   // Primary payment method text
@@ -137,7 +138,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
             <span className="font-mono text-gray-900">৳{subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-gray-500">
-            <span>VAT (Mushak 6.3 - 5%):</span>
+            <span>VAT (Mushak 6.3 - {vatRatePct}%):</span>
             <span className="font-mono">৳{vatAmount.toFixed(2)}</span>
           </div>
 

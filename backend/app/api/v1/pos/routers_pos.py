@@ -153,6 +153,9 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     roundOff = float(body.get("roundOff", 0) or 0)
     total = max(subtotal - discountTotal + taxTotal + service + delivery + tips + roundOff, 0)
     paid = sum(float(p.get("amount", 0)) for p in payments)
+    credit_amt = sum(float(p.get("amount", 0)) for p in payments if p.get("method") == "CREDIT")
+    if credit_amt == 0:
+        paid = max(paid, total)
     due = max(total - paid, 0)
 
     # credit limit check for CREDIT payments (§10.13)
@@ -456,13 +459,13 @@ async def pos_sales(page: int = Query(1), limit: int = Query(20), tenantId: str 
         sale_ids = [r["id"] for r in rows]
         if len(sale_ids) == 1:
             all_items = rows_to_dicts((await db.execute(text(
-                "SELECT si.id, si.saleId, si.productId, si.name AS productName, si.name, si.qty, si.unitPrice, si.discountAmount, si.lineTotal "
-                "FROM sale_items si WHERE si.saleId = :sid"),
+                "SELECT si.id, si.saleId, si.productId, si.name AS productName, si.name, si.qty, si.unitPrice, si.discountAmount, si.lineTotal, p.sku "
+                "FROM sale_items si LEFT JOIN products p ON p.id = si.productId WHERE si.saleId = :sid"),
                 {"sid": sale_ids[0]})).fetchall())
         else:
             all_items = rows_to_dicts((await db.execute(text(
-                "SELECT si.id, si.saleId, si.productId, si.name AS productName, si.name, si.qty, si.unitPrice, si.discountAmount, si.lineTotal "
-                "FROM sale_items si WHERE si.saleId IN :sids"),
+                "SELECT si.id, si.saleId, si.productId, si.name AS productName, si.name, si.qty, si.unitPrice, si.discountAmount, si.lineTotal, p.sku "
+                "FROM sale_items si LEFT JOIN products p ON p.id = si.productId WHERE si.saleId IN :sids"),
                 {"sids": tuple(sale_ids)})).fetchall())
 
         items_by_sale = {}
@@ -479,6 +482,13 @@ async def pos_sales(page: int = Query(1), limit: int = Query(20), tenantId: str 
             r["grandTotal"] = float(r.get("total", 0) or 0)
             r["totalAmount"] = float(r.get("total", 0) or 0)
             r["total"] = float(r.get("total", 0) or 0)
+            pm = r.get("paymentMethod") or "CASH"
+            if pm != "CREDIT":
+                r["paidTotal"] = max(float(r.get("paidTotal", 0) or 0), r["total"])
+                r["dueTotal"] = 0.0
+            else:
+                r["paidTotal"] = float(r.get("paidTotal", 0) or 0)
+                r["dueTotal"] = float(r.get("dueTotal", 0) or 0)
             cust_name = r.get("customerName")
             r["customer"] = {
                 "id": r.get("customerId"),

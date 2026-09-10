@@ -202,8 +202,10 @@ export default function SalesOrdersPage() {
       discountTotal: 0,
       taxTotal: 0,
       grandTotal: Number(order.total),
-      paidTotal: Number(order.paidTotal),
-      dueTotal: Number(order.dueTotal),
+      paidTotal: order.source === "POS" || order.paymentStatus === "PAID" || (order as any).paymentMethod !== "CREDIT"
+        ? Math.max(Number(order.paidTotal || 0), Number(order.total))
+        : Number(order.paidTotal),
+      dueTotal: order.source === "POS" || order.paymentStatus === "PAID" || (order as any).paymentMethod !== "CREDIT" ? 0 : Number(order.dueTotal),
       status: order.status,
       paymentMethod: "CASH",
       cashier: {

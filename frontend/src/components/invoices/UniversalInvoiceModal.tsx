@@ -397,7 +397,7 @@ function RetailInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; 
           </div>
         )}
         <div className="flex justify-between text-slate-500 text-[11px]">
-          <span>VAT (Mushak 6.3 - 5%):</span>
+          <span>VAT (Mushak 6.3 - {data.vatRate || ((data.subTotal || data.grandTotal) > 0 && data.taxTotal ? Math.round((data.taxTotal / (data.subTotal || data.grandTotal)) * 100) : 5)}%):</span>
           <span>{fmt(data.taxTotal || data.grandTotal * 0.05)}</span>
         </div>
         <div className="flex justify-between font-black text-sm text-slate-950 border-t border-b border-slate-300 py-1.5 my-1">

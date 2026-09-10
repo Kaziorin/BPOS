@@ -469,6 +469,7 @@ export default function PharmacyPOSPage() {
           productId: p.id,
           variantId: null,
           name: p.name,
+          sku: p.sku,
           qty: 1,
           unitPrice: p.sellingPrice,
           discountAmount: 0,
@@ -543,13 +544,14 @@ export default function PharmacyPOSPage() {
   }
 
   // ─── Sale ─────────────────────────────────────────────────────────────────
-  async function confirmSale() {
+  async function confirmSale(tenderedAmount?: number) {
     if (cart.length === 0 || submitting) return;
     setError(null);
     setSubmitting(true);
     try {
+      const paidAmt = (tenderedAmount !== undefined && tenderedAmount > 0) ? tenderedAmount : total;
       const finalPayments = payments.map(p => 
-        p.amount === 0 ? { ...p, amount: total } : p
+        ({ ...p, amount: (tenderedAmount !== undefined && tenderedAmount > 0) ? tenderedAmount : (p.amount === 0 ? total : p.amount) })
       );
 
       let saleRes: SaleResult | null = null;
@@ -1025,9 +1027,9 @@ export default function PharmacyPOSPage() {
         cashierName={cashierName}
         payMethod={payMethod as CheckoutPayMethod}
         onChangePayMethod={(m) => setPayMethod(m as PayMethod)}
-        onConfirm={(_cashTendered, _printReceipt) => {
+        onConfirm={(cashTendered, _printReceipt) => {
           setCheckoutOpen(false);
-          void confirmSale();
+          void confirmSale(cashTendered);
         }}
         submitting={submitting}
         darkMode={darkMode}

@@ -39,6 +39,7 @@ export interface RxCartItem {
   productId: string;
   variantId?: string | null;
   name: string;
+  sku?: string;
   qty: number;
   unitPrice: number;
   discountAmount: number;

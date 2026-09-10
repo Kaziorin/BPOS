@@ -328,6 +328,10 @@ async def list_sales_orders(
         """), params)).fetchall())
 
         for r in pos_rows:
+            r["total"] = float(r.get("total", 0) or 0)
+            r["paidTotal"] = max(float(r.get("paidTotal", 0) or 0), r["total"])
+            r["dueTotal"] = 0.0
+            r["paymentStatus"] = "PAID"
             r["customer"] = {
                 "id": r.get("customerId"),
                 "name": r.pop("customerName", None) or "Walk-in Retail Customer",
