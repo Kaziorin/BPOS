@@ -835,33 +835,86 @@ async def delete_unit(unitId: str,
 
 # ─────────────────────────── CUSTOMERS ───────────────────────────
 
+@router.get("/api/v1/customers/stats")
+async def get_customer_stats(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    """Summary statistics for customer management dashboard."""
+    r = (
+        await db.execute(
+            text(
+                "SELECT "
+                "  COUNT(*) AS total, "
+                "  SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) AS active, "
+                "  SUM(CASE WHEN status != 'ACTIVE' THEN 1 ELSE 0 END) AS inactive, "
+                "  COALESCE(SUM(currentDue), 0) AS totalDue, "
+                "  SUM(CASE WHEN currentDue > 0 THEN 1 ELSE 0 END) AS customersWithDue, "
+                "  COALESCE(SUM(loyaltyPoints), 0) AS totalPoints, "
+                "  SUM(CASE WHEN segmentation IN ('VIP', 'HIGH_VALUE', 'CORPORATE') THEN 1 ELSE 0 END) AS vipCount, "
+                "  SUM(CASE WHEN segmentation = 'WHOLESALE' THEN 1 ELSE 0 END) AS wholesaleCount "
+                "FROM customers WHERE tenantId = :t"
+            ),
+            {"t": tenantId},
+        )
+    ).first()
+
+    sales_total = (
+        await db.execute(
+            text("SELECT COALESCE(SUM(total), 0) FROM sales WHERE tenantId = :t AND status != 'CANCELLED'"),
+            {"t": tenantId},
+        )
+    ).scalar() or 0.0
+
+    d = dict(r._mapping) if r else {}
+    return ok({
+        "total": int(d.get("total") or 0),
+        "active": int(d.get("active") or 0),
+        "inactive": int(d.get("inactive") or 0),
+        "totalDue": float(d.get("totalDue") or 0),
+        "customersWithDue": int(d.get("customersWithDue") or 0),
+        "totalPoints": int(d.get("totalPoints") or 0),
+        "vipCount": int(d.get("vipCount") or 0),
+        "wholesaleCount": int(d.get("wholesaleCount") or 0),
+        "totalSalesValue": float(sales_total),
+    })
+
+
 @router.get("/api/v1/customers")
 async def list_customers(
     search: str = "", segmentation: str = "", groupId: str = "", status: str = "",
+    hasDue: str = "", sortBy: str = "createdAt", sortDir: str = "desc",
     page: int = Query(1), limit: int = Query(20),
     tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
 ):
-    # Prompt 39: customer quick-lookup cached 20s per tenant + filters.
-    cache_key = f"customers:{tenantId}:list:{search}|{segmentation}|{groupId}|{status}|{page}|{limit}"
-    hit = cache_mod.get(cache_key)
-    if hit is not None:
-        return ApiJSONResponse(hit)
     where = "c.tenantId = :t"
     params: dict = {"t": tenantId}
     if search:
-        where += " AND (c.name LIKE :s OR c.phone LIKE :s OR c.email LIKE :s)"; params["s"] = f"%{search}%"
+        where += " AND (c.name LIKE :s OR c.phone LIKE :s OR c.email LIKE :s OR c.address LIKE :s OR c.taxRegNo LIKE :s)"
+        params["s"] = f"%{search}%"
     if segmentation: where += " AND c.segmentation = :seg"; params["seg"] = segmentation
     if groupId: where += " AND c.groupId = :g"; params["g"] = groupId
     if status: where += " AND c.status = :st"; params["st"] = status
+    if hasDue in ("1", "true", "True"): where += " AND c.currentDue > 0"
+
+    sort_map = {
+        "name": "c.name",
+        "currentDue": "c.currentDue",
+        "loyaltyPoints": "c.loyaltyPoints",
+        "salesCount": "salesCount",
+        "createdAt": "c.createdAt",
+        "status": "c.status",
+    }
+    order_col = sort_map.get(sortBy, "c.createdAt")
+    order_direction = "ASC" if sortDir.lower() == "asc" else "DESC"
+
     off, lim = paginate_params(page, limit)
     rows = rows_to_dicts(
         (
             await db.execute(
                 text(
                     f"SELECT c.*, g.name AS group_name, "
-                    f"(SELECT COUNT(*) FROM sales s WHERE s.customerId = c.id) salesCount "
+                    f"(SELECT COUNT(*) FROM sales s WHERE s.customerId = c.id) salesCount, "
+                    f"(SELECT COALESCE(SUM(s2.total),0) FROM sales s2 WHERE s2.customerId = c.id AND s2.status != 'CANCELLED') totalSpent "
                     f"FROM customers c LEFT JOIN customer_groups g ON g.id = c.groupId "
-                    f"WHERE {where} ORDER BY c.createdAt DESC LIMIT :lim OFFSET :off"
+                    f"WHERE {where} ORDER BY {order_col} {order_direction} LIMIT :lim OFFSET :off"
                 ),
                 {**params, "lim": lim, "off": off},
             )
@@ -870,10 +923,10 @@ async def list_customers(
     for r in rows:
         r["group"] = {"id": r.pop("groupId"), "name": r.pop("group_name")} if r.get("group_name") else None
         r["_count"] = {"sales": r.pop("salesCount"), "invoices": 0, "complaints": 0}
-    total = (await db.execute(text(f"SELECT COUNT(*) FROM customers c WHERE {where}"), params)).first()[0]
+        r["totalSpent"] = float(r.pop("totalSpent", 0) or 0)
+    total = (await db.execute(text(f"SELECT COUNT(*) FROM customers c WHERE {where}"), params)).scalar() or 0
     body = {"data": rows, "pagination": {"page": page, "limit": lim, "total": total,
                                          "totalPages": (total + lim - 1) // lim}}
-    cache_mod.set(cache_key, body, ttl=20)
     return ApiJSONResponse(body)
 
 
@@ -950,7 +1003,8 @@ async def update_customer(customerId: str, body: dict,
     allowed = {"name": "name", "phone": "phone", "email": "email", "address": "address", "city": "city",
                "segmentation": "segmentation", "groupId": "groupId", "creditLimit": "creditLimit",
                "creditPeriodDays": "creditPeriodDays", "currentDue": "currentDue", "walletBalance": "walletBalance",
-               "storeCredit": "storeCredit", "loyaltyPoints": "loyaltyPoints", "notes": "notes", "status": "status"}
+               "storeCredit": "storeCredit", "loyaltyPoints": "loyaltyPoints", "notes": "notes", "status": "status",
+               "dateOfBirth": "dateOfBirth", "gender": "gender", "taxRegNo": "taxRegNo"}
     sets, params = [], {"id": customerId, "t": tenantId, "u": user.id}
     for jk, ck in allowed.items():
         if jk in body: sets.append(f"{ck} = :{ck}"); params[ck] = body[jk]
@@ -961,6 +1015,70 @@ async def update_customer(customerId: str, body: dict,
     cache_mod.invalidate_namespace("customers", tenantId)
     if res.rowcount == 0: return err("Customer not found", 404)
     return ok({"updated": True})
+
+
+@router.delete("/api/v1/customers/{customerId}")
+async def delete_customer(customerId: str,
+                          user: AuthUser = Depends(require_permission("customers.delete")),
+                          tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    # Soft delete: mark as INACTIVE
+    res = await db.execute(
+        text("UPDATE customers SET status='INACTIVE', updatedBy=:u WHERE id=:id AND tenantId=:t"),
+        {"id": customerId, "t": tenantId, "u": user.id}
+    )
+    await db.commit()
+    cache_mod.invalidate_namespace("customers", tenantId)
+    if res.rowcount == 0: return err("Customer not found", 404)
+    return ok({"deleted": True})
+
+
+@router.post("/api/v1/customers/{customerId}/collect-due")
+async def collect_customer_due(
+    customerId: str, body: dict,
+    user: AuthUser = Depends(require_permission("customers.edit")),
+    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)
+):
+    """Collect payment against customer outstanding due."""
+    amount = float(body.get("amount") or 0)
+    if amount <= 0:
+        return err("Collection amount must be greater than 0", 400)
+    method = body.get("paymentMethod", "CASH").upper()
+    note_text = body.get("note", "").strip()
+
+    cust = (await db.execute(text("SELECT name, currentDue FROM customers WHERE id=:id AND tenantId=:t"), {"id": customerId, "t": tenantId})).first()
+    if not cust:
+        return err("Customer not found", 404)
+
+    curr_due = float(cust.currentDue or 0)
+    new_due = max(0.0, curr_due - amount)
+
+    # Update customer due
+    await db.execute(
+        text("UPDATE customers SET currentDue = :nd, updatedBy = :u WHERE id = :id AND tenantId = :t"),
+        {"nd": new_due, "u": user.id, "id": customerId, "t": tenantId}
+    )
+
+    # Insert note record
+    due_note = f"Received ৳{amount:,.2f} via {method}. Previous Due: ৳{curr_due:,.2f}, Remaining Due: ৳{new_due:,.2f}."
+    if note_text:
+        due_note += f" Note: {note_text}"
+
+    await db.execute(
+        text("INSERT INTO customer_notes (id, tenantId, customerId, note, createdBy, updatedAt) VALUES (UUID(), :t, :id, :n, :u, NOW())"),
+        {"t": tenantId, "id": customerId, "n": due_note, "u": user.id}
+    )
+
+    await db.commit()
+    cache_mod.invalidate_namespace("customers", tenantId)
+    return ok({
+        "success": True,
+        "collectedAmount": amount,
+        "previousDue": curr_due,
+        "remainingDue": new_due,
+        "customerName": cust.name,
+        "paymentMethod": method,
+        "timestamp": time.time(),
+    })
 
 
 @router.post("/api/v1/customers/{customerId}/notes")
@@ -1009,6 +1127,37 @@ async def list_customer_groups(tenantId: str = Depends(resolve_tenant), db: Asyn
     for r in rows:
         r["_count"] = {"customers": r.pop("customerCount")}
     return ok(rows)
+
+
+@router.post("/api/v1/customer-groups")
+async def create_customer_group(
+    body: dict,
+    user: AuthUser = Depends(require_permission("customers.create")),
+    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)
+):
+    name = body.get("name")
+    if not name: return err("Group name is required", 400)
+    await db.execute(
+        text("INSERT INTO customer_groups (id, tenantId, name, discountPercent, description, createdAt, updatedAt) "
+             "VALUES (UUID(), :t, :n, :d, :desc, NOW(), NOW())"),
+        {"t": tenantId, "n": name, "d": float(body.get("discountPercent") or 0), "desc": body.get("description", "")}
+    )
+    await db.commit()
+    return ok({"created": True, "name": name}, 201)
+
+
+@router.delete("/api/v1/customer-groups/{groupId}")
+async def delete_customer_group(
+    groupId: str,
+    user: AuthUser = Depends(require_permission("customers.delete")),
+    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)
+):
+    await db.execute(
+        text("DELETE FROM customer_groups WHERE id = :id AND tenantId = :t"),
+        {"id": groupId, "t": tenantId}
+    )
+    await db.commit()
+    return ok({"deleted": True})
 
 
 # ─────────────────────────── SUPPLIERS ───────────────────────────
