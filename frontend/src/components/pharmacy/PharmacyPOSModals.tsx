@@ -39,8 +39,14 @@ import {
   CheckCheck,
   Trash2,
   Monitor,
+  Loader2,
+  RefreshCw,
+  Calendar,
+  ChevronRight,
+  ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { api } from "@/lib/api";
 import type { RegisterProduct } from "@/lib/catalog";
 import type { RxCartItem } from "./PharmacyPOSRightPanel";
 
@@ -203,18 +209,44 @@ export function ModalWrapper({
 }
 
 // ═══════════════════════════════════════════
-// SALES HISTORY PANEL
 // ═══════════════════════════════════════════
-const MOCK_SALES = [
-  { id: "INV-2024-0891", time: "1:15 PM", customer: "Walk-in", items: 4, total: 74.50, method: "CASH", status: "paid" },
-  { id: "INV-2024-0890", time: "12:48 PM", customer: "Rahim Ahmed", items: 2, total: 32.00, method: "MOBILE", status: "paid" },
-  { id: "INV-2024-0889", time: "12:22 PM", customer: "Walk-in", items: 6, total: 128.75, method: "CARD", status: "paid" },
-  { id: "INV-2024-0888", time: "11:55 AM", customer: "Fatema Begum", items: 3, total: 46.00, method: "CASH", status: "paid" },
-  { id: "INV-2024-0887", time: "11:30 AM", customer: "Walk-in", items: 1, total: 12.00, method: "CASH", status: "refunded" },
-  { id: "INV-2024-0886", time: "11:08 AM", customer: "Dr. Karim Patient", items: 5, total: 95.50, method: "CREDIT", status: "paid" },
-  { id: "INV-2024-0885", time: "10:44 AM", customer: "Walk-in", items: 2, total: 18.00, method: "MOBILE", status: "paid" },
-  { id: "INV-2024-0884", time: "10:20 AM", customer: "Nasrin Khatun", items: 7, total: 210.00, method: "CARD", status: "paid" },
-];
+// SALES HISTORY PANEL (REAL API CONNECTED)
+// ═══════════════════════════════════════════
+interface ApiSaleItem {
+  id?: string;
+  name?: string;
+  productName?: string;
+  qty?: number;
+  unitPrice?: number;
+  lineTotal?: number;
+  sku?: string;
+}
+
+interface ApiSale {
+  id: string;
+  invoiceNo?: string;
+  total?: number;
+  grandTotal?: number;
+  paidTotal?: number;
+  dueTotal?: number;
+  status?: string;
+  createdAt?: string;
+  paymentMethod?: string;
+  itemsCount?: number;
+  customerName?: string;
+  customerPhone?: string;
+  customer?: {
+    id?: string;
+    name?: string;
+    phone?: string;
+    email?: string;
+  };
+  cashier?: {
+    id?: string;
+    name?: string;
+  };
+  items?: ApiSaleItem[];
+}
 
 interface SalesHistoryPanelProps {
   open: boolean;
@@ -222,88 +254,331 @@ interface SalesHistoryPanelProps {
 }
 
 export function SalesHistoryPanel({ open, onClose }: SalesHistoryPanelProps) {
+  const [sales, setSales] = useState<ApiSale[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const filtered = MOCK_SALES.filter(
-    (s) =>
-      s.id.toLowerCase().includes(search.toLowerCase()) ||
-      s.customer.toLowerCase().includes(search.toLowerCase()),
-  );
+  const [viewScope, setViewScope] = useState<"today" | "all">("today");
+  const [expandedSaleId, setExpandedSaleId] = useState<string | null>(null);
 
-  const totalRevenue = MOCK_SALES.reduce((s, i) => (i.status === "paid" ? s + i.total : s), 0);
+  const fetchSales = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params: Record<string, any> = {
+        limit: 100,
+        sortBy: "createdAt",
+        sortDir: "desc",
+      };
+
+      if (viewScope === "today") {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        params.startDate = todayStr;
+        params.endDate = todayStr;
+      }
+
+      const res: any = await api.get("/pos/sales", { params });
+      const items: ApiSale[] = Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res?.data?.data)
+        ? res.data.data
+        : Array.isArray(res)
+        ? res
+        : [];
+
+      setSales(items);
+    } catch (err: any) {
+      console.error("Failed to load POS sales:", err);
+      setError(err?.message || "Failed to load sales history from server");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (open) {
+      fetchSales();
+    }
+  }, [open, viewScope]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return sales;
+    return sales.filter((s) => {
+      const inv = (s.invoiceNo || s.id || "").toLowerCase();
+      const cust = (s.customer?.name || s.customerName || "").toLowerCase();
+      const phone = (s.customer?.phone || s.customerPhone || "").toLowerCase();
+      const pm = (s.paymentMethod || "").toLowerCase();
+      return inv.includes(q) || cust.includes(q) || phone.includes(q) || pm.includes(q);
+    });
+  }, [sales, search]);
+
+  const totalRevenue = useMemo(() => {
+    return filtered.reduce((acc, s) => {
+      const st = (s.status || "").toLowerCase();
+      if (st.includes("void") || st.includes("refund")) return acc;
+      return acc + Number(s.total ?? s.grandTotal ?? 0);
+    }, 0);
+  }, [filtered]);
+
+  const transactionsCount = filtered.length;
+  const avgBill = transactionsCount > 0 ? totalRevenue / transactionsCount : 0;
+
+  function formatTime(val?: string) {
+    if (!val) return "";
+    try {
+      const d = new Date(val);
+      if (isNaN(d.getTime())) return val;
+      const isToday = new Date().toDateString() === d.toDateString();
+      if (isToday) {
+        return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true });
+      }
+      return `${d.toLocaleDateString([], { month: "short", day: "numeric" })} · ${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })}`;
+    } catch {
+      return val;
+    }
+  }
 
   return (
     <SlideOver
       open={open}
       onClose={onClose}
       title="Sales History"
-      subtitle="Today's transactions"
+      subtitle={viewScope === "today" ? "Today's transactions" : "Recent transactions"}
       Icon={History}
-      width="w-[520px]"
+      width="w-[540px]"
     >
       <div className="flex flex-col h-full">
+        {/* Scope Tabs & Refresh */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-2 border-b border-slate-100 bg-slate-50/60">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-200/60 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setViewScope("today")}
+              className={cn(
+                "px-3 py-1 text-[11px] font-bold rounded-lg transition",
+                viewScope === "today"
+                  ? "bg-white text-teal-800 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              )}
+            >
+              Today
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewScope("all")}
+              className={cn(
+                "px-3 py-1 text-[11px] font-bold rounded-lg transition",
+                viewScope === "all"
+                  ? "bg-white text-teal-800 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              )}
+            >
+              All Recent
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={fetchSales}
+            disabled={loading}
+            className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 hover:text-teal-700 bg-white border border-slate-200 px-2.5 py-1.5 rounded-xl shadow-xs transition active:scale-95 disabled:opacity-50"
+            title="Refresh sales list"
+          >
+            <RefreshCw size={13} className={cn(loading && "animate-spin text-teal-600")} />
+            <span>Refresh</span>
+          </button>
+        </div>
+
         {/* Stats Bar */}
-        <div className="grid grid-cols-3 gap-3 border-b border-slate-100 px-5 py-3">
-          <div className="rounded-xl bg-emerald-50 p-3 text-center">
-            <p className="text-[10px] font-semibold text-slate-500">Total Sales</p>
-            <p className="text-[18px] font-black text-emerald-600">৳{totalRevenue.toFixed(2)}</p>
+        <div className="grid grid-cols-3 gap-3 border-b border-slate-100 px-5 py-3 bg-white">
+          <div className="rounded-xl bg-emerald-50 p-3 text-center border border-emerald-100/60">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Total Sales</p>
+            <p className="text-[18px] font-black text-emerald-600 tabular-nums">৳{totalRevenue.toFixed(2)}</p>
           </div>
-          <div className="rounded-xl bg-sky-50 p-3 text-center">
-            <p className="text-[10px] font-semibold text-slate-500">Transactions</p>
-            <p className="text-[18px] font-black text-sky-600">{MOCK_SALES.length}</p>
+          <div className="rounded-xl bg-sky-50 p-3 text-center border border-sky-100/60">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Transactions</p>
+            <p className="text-[18px] font-black text-sky-600 tabular-nums">{transactionsCount}</p>
           </div>
-          <div className="rounded-xl bg-purple-50 p-3 text-center">
-            <p className="text-[10px] font-semibold text-slate-500">Avg. Bill</p>
-            <p className="text-[18px] font-black text-purple-600">
-              ৳{(totalRevenue / MOCK_SALES.length).toFixed(2)}
+          <div className="rounded-xl bg-purple-50 p-3 text-center border border-purple-100/60">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Avg. Bill</p>
+            <p className="text-[18px] font-black text-purple-600 tabular-nums">
+              ৳{avgBill.toFixed(2)}
             </p>
           </div>
         </div>
 
         {/* Search */}
-        <div className="border-b border-slate-100 px-5 py-2.5">
+        <div className="border-b border-slate-100 px-5 py-2.5 bg-white">
           <div className="relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by invoice or customer..."
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 py-2 text-[12px] font-medium text-slate-800 placeholder-slate-400 focus:border-[#00897b] focus:outline-none"
+              placeholder="Search by invoice, customer, phone, payment..."
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 py-2 text-[12px] font-medium text-slate-800 placeholder-slate-400 focus:border-[#00897b] focus:bg-white focus:outline-none transition"
             />
           </div>
         </div>
 
-        {/* Sales List */}
-        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-2">
-          {filtered.map((sale) => (
-            <div
-              key={sale.id}
-              className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 hover:border-teal-200 hover:shadow-sm transition cursor-pointer"
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#e0f2f1] text-[#00796b]">
-                <ReceiptText size={18} />
+        {/* Sales List / States */}
+        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-2.5">
+          {loading && sales.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+              <Loader2 size={28} className="animate-spin text-[#00897b] mb-2" />
+              <p className="text-[12px] font-medium">Loading sales history...</p>
+            </div>
+          ) : error ? (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-4 text-center">
+              <AlertTriangle size={24} className="mx-auto text-rose-500 mb-1" />
+              <p className="text-[12px] font-bold text-rose-700">{error}</p>
+              <button
+                type="button"
+                onClick={fetchSales}
+                className="mt-2 text-[11px] font-bold text-white bg-rose-600 px-3 py-1.5 rounded-xl hover:bg-rose-700 transition"
+              >
+                Retry
+              </button>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400">
+              <div className="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-2 text-slate-400">
+                <ReceiptText size={24} />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[12.5px] font-extrabold text-slate-800">{sale.id}</p>
-                <p className="text-[10.5px] font-medium text-slate-400">
-                  {sale.customer} · {sale.items} items · {sale.time}
-                </p>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-[13px] font-black text-[#00796b] tabular-nums">৳{sale.total.toFixed(2)}</p>
-                <span
+              <p className="text-[13px] font-extrabold text-slate-600">No transactions found</p>
+              <p className="text-[11px] text-slate-400 max-w-xs mt-0.5">
+                {viewScope === "today"
+                  ? "No sales have been recorded yet today. Switch to 'All Recent' to view previous transactions."
+                  : "No sales records match your search."}
+              </p>
+              {viewScope === "today" && (
+                <button
+                  type="button"
+                  onClick={() => setViewScope("all")}
+                  className="mt-3 text-[11px] font-bold text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1.5 rounded-xl hover:bg-teal-100 transition"
+                >
+                  View All Recent Sales
+                </button>
+              )}
+            </div>
+          ) : (
+            filtered.map((sale) => {
+              const invNo = sale.invoiceNo || sale.id;
+              const custName = sale.customer?.name || sale.customerName || "Walk-in";
+              const itemCount = sale.itemsCount ?? (Array.isArray(sale.items) ? sale.items.length : 0);
+              const totalAmount = Number(sale.total ?? sale.grandTotal ?? 0);
+              const due = Number(sale.dueTotal ?? 0);
+              const status = (sale.status || (due > 0 ? "due" : "paid")).toLowerCase();
+              const isExpanded = expandedSaleId === sale.id;
+
+              return (
+                <div
+                  key={sale.id}
                   className={cn(
-                    "text-[10px] font-bold px-2 py-0.5 rounded-full",
-                    sale.status === "paid"
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-rose-100 text-rose-600",
+                    "rounded-2xl border transition overflow-hidden bg-white",
+                    isExpanded
+                      ? "border-teal-300 ring-2 ring-teal-50 shadow-sm"
+                      : "border-slate-200/80 hover:border-teal-200 hover:shadow-xs"
                   )}
                 >
-                  {sale.status}
-                </span>
-              </div>
-            </div>
-          ))}
+                  <div
+                    onClick={() => setExpandedSaleId(isExpanded ? null : sale.id)}
+                    className="flex items-center gap-3 p-3 cursor-pointer select-none"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#e0f2f1] text-[#00796b]">
+                      <ReceiptText size={18} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-[12.5px] font-black text-slate-800 tracking-tight">{invNo}</p>
+                        {sale.paymentMethod && (
+                          <span className="text-[9.5px] font-extrabold uppercase px-1.5 py-0.2 rounded-md bg-slate-100 text-slate-600">
+                            {sale.paymentMethod}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] font-medium text-slate-400 truncate mt-0.5">
+                        {custName} · {itemCount} {itemCount === 1 ? "item" : "items"} · {formatTime(sale.createdAt)}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0 flex items-center gap-2">
+                      <div>
+                        <p className="text-[13px] font-black text-[#00796b] tabular-nums">৳{totalAmount.toFixed(2)}</p>
+                        <span
+                          className={cn(
+                            "inline-block text-[9.5px] font-bold px-2 py-0.5 rounded-full capitalize",
+                            status === "paid" || status === "completed"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : status.includes("refund") || status.includes("void")
+                              ? "bg-rose-100 text-rose-600"
+                              : "bg-amber-100 text-amber-700"
+                          )}
+                        >
+                          {status}
+                        </span>
+                      </div>
+                      {isExpanded ? (
+                        <ChevronUp size={15} className="text-slate-400" />
+                      ) : (
+                        <ChevronDown size={15} className="text-slate-400" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Expanded Details */}
+                  {isExpanded && (
+                    <div className="border-t border-slate-100 bg-slate-50/70 p-3 text-[11px] space-y-2">
+                      <div className="grid grid-cols-2 gap-2 text-slate-600 pb-2 border-b border-slate-200/60">
+                        <div>
+                          <span className="font-semibold text-slate-400">Cashier: </span>
+                          <span className="font-bold text-slate-700">{sale.cashier?.name || "System"}</span>
+                        </div>
+                        <div>
+                          <span className="font-semibold text-slate-400">Payment: </span>
+                          <span className="font-bold text-slate-700">{sale.paymentMethod || "CASH"}</span>
+                        </div>
+                        {sale.customer?.phone && (
+                          <div className="col-span-2">
+                            <span className="font-semibold text-slate-400">Phone: </span>
+                            <span className="font-bold text-slate-700">{sale.customer.phone}</span>
+                          </div>
+                        )}
+                        {due > 0 && (
+                          <div className="col-span-2 text-amber-700 font-bold">
+                            Due Amount: ৳{due.toFixed(2)}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Items table */}
+                      {sale.items && sale.items.length > 0 ? (
+                        <div className="space-y-1 pt-1">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Purchased Items</p>
+                          <div className="divide-y divide-slate-100 bg-white rounded-xl border border-slate-200/70 overflow-hidden">
+                            {sale.items.map((it, idx) => (
+                              <div key={it.id || idx} className="flex items-center justify-between p-2">
+                                <div className="min-w-0 flex-1 pr-2">
+                                  <p className="font-bold text-slate-800 truncate">{it.name || it.productName || "Product"}</p>
+                                  <p className="text-[10px] text-slate-400">
+                                    Qty: {it.qty} × ৳{Number(it.unitPrice || 0).toFixed(2)}
+                                  </p>
+                                </div>
+                                <p className="font-black text-slate-700 shrink-0 tabular-nums">
+                                  ৳{Number(it.lineTotal || (it.qty || 0) * (it.unitPrice || 0)).toFixed(2)}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-[10px] text-slate-400 italic">No line item details available for this record.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </SlideOver>

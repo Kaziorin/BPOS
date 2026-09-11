@@ -448,6 +448,8 @@ async def pos_sales(
     status: str = "",
     paymentStatus: str = "",
     hasDue: str = "",
+    startDate: str = "",
+    endDate: str = "",
     sortBy: str = "createdAt",
     sortDir: str = "desc",
     page: int = Query(1),
@@ -468,6 +470,12 @@ async def pos_sales(
         params["st"] = status
     if hasDue in ("1", "true", "yes"):
         where_clauses.append("s.dueTotal > 0")
+    if startDate:
+        where_clauses.append("DATE(s.createdAt) >= :start_date")
+        params["start_date"] = startDate
+    if endDate:
+        where_clauses.append("DATE(s.createdAt) <= :end_date")
+        params["end_date"] = endDate
 
     where_sql = " AND ".join(where_clauses)
     
