@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import math
 import accounting as acc
 import tax as tax_engine
 import workflow as wf
@@ -741,13 +742,32 @@ async def receive_goods(body: dict, user: AuthUser = Depends(require_auth),
 
 
 @router.get("/api/v1/purchasing/grns")
-async def list_grns(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
-                    db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts((await db.execute(text(
-        "SELECT g.*, s.name AS supplierName, w.name AS warehouseName, po.poNo FROM goods_receipts g "
-        "JOIN suppliers s ON s.id=g.supplierId JOIN warehouses w ON w.id=g.warehouseId "
-        "LEFT JOIN purchase_orders po ON po.id=g.purchaseOrderId WHERE g.tenantId=:t ORDER BY g.createdAt DESC LIMIT 50"),
-        {"t": tenantId})).fetchall())
+async def list_grns(
+    search: str = "", page: int = Query(1), limit: int = Query(20),
+    user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "g.tenantId=:t"
+    params: dict = {"t": tenantId}
+    if search:
+        where += " AND (g.grnNo LIKE :s OR s.name LIKE :s OR w.name LIKE :s OR po.poNo LIKE :s)"
+        params["s"] = f"%{search}%"
+
+    off, lim = paginate_params(page, limit)
+    total = (await db.execute(text(f"""
+        SELECT COUNT(*) FROM goods_receipts g
+        JOIN suppliers s ON s.id=g.supplierId
+        JOIN warehouses w ON w.id=g.warehouseId
+        LEFT JOIN purchase_orders po ON po.id=g.purchaseOrderId
+        WHERE {where}
+    """), params)).first()[0]
+
+    rows = rows_to_dicts((await db.execute(text(f"""
+        SELECT g.*, s.name AS supplierName, w.name AS warehouseName, po.poNo FROM goods_receipts g
+        JOIN suppliers s ON s.id=g.supplierId JOIN warehouses w ON w.id=g.warehouseId
+        LEFT JOIN purchase_orders po ON po.id=g.purchaseOrderId
+        WHERE {where} ORDER BY g.createdAt DESC LIMIT :lim OFFSET :off
+    """), {**params, "lim": lim, "off": off})).fetchall())
     for r in rows:
         r["supplier"] = {"id": r.pop("supplierId"), "name": r.pop("supplierName")}
         r["warehouse"] = {"id": r.pop("warehouseId"), "name": r.pop("warehouseName")}
@@ -755,7 +775,7 @@ async def list_grns(user: AuthUser = Depends(require_auth), tenantId: str = Depe
         r["items"] = rows_to_dicts((await db.execute(text(
             "SELECT gi.*, p.name AS productName FROM goods_receipt_items gi JOIN products p ON p.id=gi.productId WHERE gi.goodsReceiptId=:id"),
             {"id": r["id"]})).fetchall())
-    return ok(rows)
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 
 @router.post("/api/v1/purchasing/invoices")
@@ -805,13 +825,34 @@ async def create_purchase_invoice(body: dict, user: AuthUser = Depends(require_a
 
 
 @router.get("/api/v1/purchasing/invoices")
-async def list_purchase_invoices(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
-                                 db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts((await db.execute(text(
-        "SELECT pi.*, s.name AS supplierName FROM purchase_invoices pi JOIN suppliers s ON s.id=pi.supplierId "
-        "WHERE pi.tenantId=:t ORDER BY pi.createdAt DESC LIMIT 50"), {"t": tenantId})).fetchall())
+async def list_purchase_invoices(
+    search: str = "", status: str = "", page: int = Query(1), limit: int = Query(20),
+    user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "pi.tenantId=:t"
+    params: dict = {"t": tenantId}
+    if search:
+        where += " AND (pi.piNo LIKE :s OR s.name LIKE :s)"
+        params["s"] = f"%{search}%"
+    if status:
+        where += " AND pi.status = :st"
+        params["st"] = status
+
+    off, lim = paginate_params(page, limit)
+    total = (await db.execute(text(f"""
+        SELECT COUNT(*) FROM purchase_invoices pi
+        JOIN suppliers s ON s.id=pi.supplierId
+        WHERE {where}
+    """), params)).first()[0]
+
+    rows = rows_to_dicts((await db.execute(text(f"""
+        SELECT pi.*, s.name AS supplierName FROM purchase_invoices pi
+        JOIN suppliers s ON s.id=pi.supplierId
+        WHERE {where} ORDER BY pi.createdAt DESC LIMIT :lim OFFSET :off
+    """), {**params, "lim": lim, "off": off})).fetchall())
     for r in rows: r["supplier"] = {"id": r.pop("supplierId"), "name": r.pop("supplierName")}
-    return ok(rows)
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 
 @router.get("/api/v1/purchasing/invoices/{invoice_id}")
@@ -949,13 +990,31 @@ async def pay_supplier(body: dict, user: AuthUser = Depends(require_auth),
 
 
 @router.get("/api/v1/purchasing/payments")
-async def list_supplier_payments(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
-                                 db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts((await db.execute(text(
-        "SELECT sp.*, s.name AS supplierName FROM supplier_payments sp JOIN suppliers s ON s.id=sp.supplierId "
-        "WHERE sp.tenantId=:t ORDER BY sp.createdAt DESC LIMIT 100"), {"t": tenantId})).fetchall())
+async def list_supplier_payments(
+    search: str = "", page: int = Query(1), limit: int = Query(20),
+    user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "sp.tenantId=:t"
+    params: dict = {"t": tenantId}
+    if search:
+        where += " AND (sp.paymentNo LIKE :s OR s.name LIKE :s)"
+        params["s"] = f"%{search}%"
+
+    off, lim = paginate_params(page, limit)
+    total = (await db.execute(text(f"""
+        SELECT COUNT(*) FROM supplier_payments sp
+        JOIN suppliers s ON s.id=sp.supplierId
+        WHERE {where}
+    """), params)).first()[0]
+
+    rows = rows_to_dicts((await db.execute(text(f"""
+        SELECT sp.*, s.name AS supplierName FROM supplier_payments sp
+        JOIN suppliers s ON s.id=sp.supplierId
+        WHERE {where} ORDER BY sp.createdAt DESC LIMIT :lim OFFSET :off
+    """), {**params, "lim": lim, "off": off})).fetchall())
     for r in rows: r["supplier"] = {"id": r.pop("supplierId"), "name": r.pop("supplierName")}
-    return ok(rows)
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 
 @router.post("/api/v1/purchasing/returns")
@@ -1013,14 +1072,33 @@ async def purchase_return(body: dict, user: AuthUser = Depends(require_auth),
 
 
 @router.get("/api/v1/purchasing/returns")
-async def list_purchase_returns(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
-                                db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts((await db.execute(text(
-        "SELECT pr.*, s.name AS supplierName, po.poNo, w.name AS warehouseName FROM purchase_returns pr "
-        "JOIN suppliers s ON s.id=pr.supplierId "
-        "LEFT JOIN warehouses w ON w.id=pr.warehouseId "
-        "LEFT JOIN purchase_orders po ON po.id=pr.purchaseOrderId "
-        "WHERE pr.tenantId=:t ORDER BY pr.createdAt DESC LIMIT 100"), {"t": tenantId})).fetchall())
+async def list_purchase_returns(
+    search: str = "", page: int = Query(1), limit: int = Query(20),
+    user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "pr.tenantId=:t"
+    params: dict = {"t": tenantId}
+    if search:
+        where += " AND (pr.returnNo LIKE :s OR s.name LIKE :s OR w.name LIKE :s OR po.poNo LIKE :s)"
+        params["s"] = f"%{search}%"
+
+    off, lim = paginate_params(page, limit)
+    total = (await db.execute(text(f"""
+        SELECT COUNT(*) FROM purchase_returns pr
+        JOIN suppliers s ON s.id=pr.supplierId
+        LEFT JOIN warehouses w ON w.id=pr.warehouseId
+        LEFT JOIN purchase_orders po ON po.id=pr.purchaseOrderId
+        WHERE {where}
+    """), params)).first()[0]
+
+    rows = rows_to_dicts((await db.execute(text(f"""
+        SELECT pr.*, s.name AS supplierName, po.poNo, w.name AS warehouseName FROM purchase_returns pr
+        JOIN suppliers s ON s.id=pr.supplierId
+        LEFT JOIN warehouses w ON w.id=pr.warehouseId
+        LEFT JOIN purchase_orders po ON po.id=pr.purchaseOrderId
+        WHERE {where} ORDER BY pr.createdAt DESC LIMIT :lim OFFSET :off
+    """), {**params, "lim": lim, "off": off})).fetchall())
     for r in rows:
         r["supplier"] = {"id": r.pop("supplierId"), "name": r.pop("supplierName")}
         wh_name = r.pop("warehouseName", None)
@@ -1032,7 +1110,7 @@ async def list_purchase_returns(user: AuthUser = Depends(require_auth), tenantId
         r["items"] = rows_to_dicts((await db.execute(text(
             "SELECT pri.*, p.name AS productName, p.sku AS productSku FROM purchase_return_items pri JOIN products p ON p.id=pri.productId WHERE pri.returnId=:id"),
             {"id": r["id"]})).fetchall())
-    return ok(rows)
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 
 @router.get("/api/v1/purchasing/suppliers/compare")

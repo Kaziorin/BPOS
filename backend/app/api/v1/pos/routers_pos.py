@@ -443,17 +443,54 @@ async def pos_return(saleId: str, body: dict, user: AuthUser = Depends(require_a
 
 @router.get("/api/v1/sales")
 @router.get("/api/v1/pos/sales")
-async def pos_sales(page: int = Query(1), limit: int = Query(20), tenantId: str = Depends(resolve_tenant),
-                    db: AsyncSession = Depends(get_db), user: AuthUser = Depends(require_auth)):
+async def pos_sales(
+    search: str = "",
+    status: str = "",
+    paymentStatus: str = "",
+    hasDue: str = "",
+    sortBy: str = "createdAt",
+    sortDir: str = "desc",
+    page: int = Query(1),
+    limit: int = Query(20),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+    user: AuthUser = Depends(require_auth)
+):
     off, lim = paginate_params(page, limit)
+    where_clauses = ["s.tenantId = :t"]
+    params: dict = {"t": tenantId}
+
+    if search:
+        where_clauses.append("(s.invoiceNo LIKE :q OR c.name LIKE :q OR c.phone LIKE :q OR u.name LIKE :q)")
+        params["q"] = f"%{search}%"
+    if status:
+        where_clauses.append("s.status = :st")
+        params["st"] = status
+    if hasDue in ("1", "true", "yes"):
+        where_clauses.append("s.dueTotal > 0")
+
+    where_sql = " AND ".join(where_clauses)
+    
+    sort_cols = {
+        "createdAt": "s.createdAt",
+        "date": "s.createdAt",
+        "total": "s.total",
+        "due": "s.dueTotal",
+        "dueTotal": "s.dueTotal",
+        "invoiceNo": "s.invoiceNo"
+    }
+    sort_col = sort_cols.get(sortBy, "s.createdAt")
+    sort_direction = "ASC" if sortDir.lower() == "asc" else "DESC"
+
     rows = rows_to_dicts((await db.execute(text(
-        "SELECT s.id, s.invoiceNo, s.subtotal, s.discountTotal, s.taxTotal, s.serviceCharge, s.total, s.paidTotal, s.dueTotal, s.status, s.createdAt, "
-        "s.userId AS cashierId, u.name AS cashierName, "
-        "c.id AS customerId, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail, c.loyaltyPoints AS customerPoints, "
-        "(SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod "
-        "FROM sales s LEFT JOIN customers c ON c.id=s.customerId LEFT JOIN users u ON u.id=s.userId WHERE s.tenantId=:t ORDER BY s.createdAt DESC LIMIT :lim OFFSET :off"),
-        {"t": tenantId, "lim": lim, "off": off})).fetchall())
-    total = (await db.execute(text("SELECT COUNT(*) FROM sales WHERE tenantId=:t"), {"t": tenantId})).first()[0]
+        f"SELECT s.id, s.invoiceNo, s.subtotal, s.discountTotal, s.taxTotal, s.serviceCharge, s.total, s.paidTotal, s.dueTotal, s.status, s.createdAt, "
+        f"s.userId AS cashierId, u.name AS cashierName, "
+        f"c.id AS customerId, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail, c.loyaltyPoints AS customerPoints, "
+        f"(SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod "
+        f"FROM sales s LEFT JOIN customers c ON c.id=s.customerId LEFT JOIN users u ON u.id=s.userId WHERE {where_sql} ORDER BY {sort_col} {sort_direction} LIMIT :lim OFFSET :off"),
+        {**params, "lim": lim, "off": off})).fetchall())
+
+    total = (await db.execute(text(f"SELECT COUNT(*) FROM sales s LEFT JOIN customers c ON c.id=s.customerId LEFT JOIN users u ON u.id=s.userId WHERE {where_sql}"), params)).first()[0]
 
     if rows:
         sale_ids = [r["id"] for r in rows]
@@ -504,8 +541,7 @@ async def pos_sales(page: int = Query(1), limit: int = Query(20), tenantId: str 
             r["items"] = items_by_sale.get(r["id"], [])
             r["itemsCount"] = len(r["items"])
 
-
-    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": (total + lim - 1) // lim}})
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": (total + lim - 1) // lim if lim else 1}})
 
 
 

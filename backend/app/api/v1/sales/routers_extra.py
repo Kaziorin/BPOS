@@ -23,22 +23,31 @@ def _uuid():
 # ═════════════════════════ CREDIT (§10.13) ═════════════════════════
 
 @router.get("/api/v1/credit")
-async def list_credit(onHoldOnly: bool = False, overLimitOnly: bool = False,
+async def list_credit(search: str = "", onHoldOnly: bool = False, overLimitOnly: bool = False,
+                      page: int = Query(1), limit: int = Query(20),
                       user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
                       db: AsyncSession = Depends(get_db)):
-    where = "tenantId=:t"
+    where = "tenantId=:t AND creditLimit > 0"
     params: dict = {"t": tenantId}
+    if search:
+        where += " AND (name LIKE :s OR phone LIKE :s)"
+        params["s"] = f"%{search}%"
+    if onHoldOnly:
+        where += " AND status = 'INACTIVE'"
+    if overLimitOnly:
+        where += " AND currentDue > creditLimit"
+
+    off, lim = paginate_params(page, limit)
+    total = (await db.execute(text(f"SELECT COUNT(*) FROM customers WHERE {where}"), params)).first()[0]
     rows = rows_to_dicts((await db.execute(text(
         f"SELECT id, name, phone, creditLimit, currentDue, creditPeriodDays, status FROM customers WHERE {where} "
-        f"AND creditLimit > 0 ORDER BY currentDue DESC"), params)).fetchall())
+        f"ORDER BY currentDue DESC LIMIT :lim OFFSET :off"), {**params, "lim": lim, "off": off})).fetchall())
     out = []
     for r in rows:
         item = {**r, "availableCredit": float(r["creditLimit"]) - float(r["currentDue"]),
                 "isOverLimit": float(r["currentDue"]) > float(r["creditLimit"])}
-        if onHoldOnly and r["status"] != "INACTIVE": continue
-        if overLimitOnly and not item["isOverLimit"]: continue
         out.append(item)
-    return ok(out)
+    return ok(out, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 
 @router.get("/api/v1/credit/aging")
@@ -112,16 +121,30 @@ async def credit_hold(customerId: str, body: dict, user: AuthUser = Depends(requ
 # ═════════════════════════ INSTALLMENTS (§10.14) ═════════════════════════
 
 @router.get("/api/v1/installments")
-async def list_installments(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+async def list_installments(search: str = "", status: str = "",
+                            page: int = Query(1), limit: int = Query(20),
+                            user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
                             db: AsyncSession = Depends(get_db)):
+    where = "i.tenantId=:t"
+    params: dict = {"t": tenantId}
+    if search:
+        where += " AND (i.planNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s)"
+        params["s"] = f"%{search}%"
+    if status:
+        where += " AND i.status = :st"
+        params["st"] = status
+
+    off, lim = paginate_params(page, limit)
+    total = (await db.execute(text(
+        f"SELECT COUNT(*) FROM installments i LEFT JOIN customers c ON c.id=i.customerId WHERE {where}"), params)).first()[0]
     rows = rows_to_dicts((await db.execute(text(
-        "SELECT i.*, c.name AS customerName FROM installments i LEFT JOIN customers c ON c.id=i.customerId "
-        "WHERE i.tenantId=:t ORDER BY i.createdAt DESC LIMIT 100"), {"t": tenantId})).fetchall())
+        f"SELECT i.*, c.name AS customerName FROM installments i LEFT JOIN customers c ON c.id=i.customerId "
+        f"WHERE {where} ORDER BY i.createdAt DESC LIMIT :lim OFFSET :off"), {**params, "lim": lim, "off": off})).fetchall())
     for r in rows:
         r["customer"] = {"id": r.pop("customerId"), "name": r.pop("customerName")} if r.get("customerName") else None
         r["schedules"] = rows_to_dicts((await db.execute(text(
             "SELECT * FROM installment_schedules WHERE installmentId=:id ORDER BY dueDate"), {"id": r["id"]})).fetchall())
-    return ok(rows)
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 
 @router.post("/api/v1/installments")
@@ -258,62 +281,45 @@ async def list_sales_orders(
     user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db)
 ):
+    off, lim = paginate_params(page, limit)
+    src_norm = (source or "").strip().upper()
+
     b2b_where = "so.tenantId = :t"
+    pos_where = "s.tenantId = :t"
     params: dict = {"t": tenantId}
     if search:
         b2b_where += " AND (so.orderNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s)"
+        pos_where += " AND (s.invoiceNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s)"
         params["s"] = f"%{search}%"
     if status:
         b2b_where += " AND so.status = :st"
+        pos_where += " AND s.status = :st"
         params["st"] = status
 
-    b2b_rows = []
-    if not source or source.upper() in ("B2B", "CORPORATE", "ALL"):
-        b2b_rows = rows_to_dicts((await db.execute(text(f"""
+    if src_norm in ("B2B", "CORPORATE"):
+        total = (await db.execute(text(f"""
+            SELECT COUNT(*) FROM sales_orders so
+            LEFT JOIN customers c ON c.id = so.customerId
+            WHERE {b2b_where}
+        """), params)).first()[0]
+        rows = rows_to_dicts((await db.execute(text(f"""
             SELECT so.id, so.orderNo, 'B2B' AS source, so.status, so.subtotal, so.total,
                    0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
                    c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
-                   b.name AS branchName
+                   b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName
             FROM sales_orders so
             LEFT JOIN customers c ON c.id = so.customerId
             LEFT JOIN branches b ON b.id = so.branchId
             WHERE {b2b_where}
-            ORDER BY so.createdAt DESC LIMIT 200
-        """), params)).fetchall())
-
-        for r in b2b_rows:
-            r["customer"] = {
-                "id": r.get("customerId"),
-                "name": r.pop("customerName", None) or "Corporate Client",
-                "phone": r.pop("customerPhone", None),
-                "email": r.pop("customerEmail", None),
-            }
-            items = rows_to_dicts((await db.execute(text("""
-                SELECT soi.id, soi.productId, p.name, p.sku, soi.qtyOrdered, 0 AS qtyDelivered,
-                       0 AS qtyReserved, 0 AS qtyBackordered, soi.unitPrice, soi.lineTotal
-                FROM sales_order_items soi
-                LEFT JOIN products p ON p.id = soi.productId
-                WHERE soi.salesOrderId = :id
-            """), {"id": r["id"]})).fetchall())
-            for it in items:
-                it["name"] = it.pop("name", None) or it.get("productName") or "Item"
-                it["qtyOrdered"] = float(it.get("qtyOrdered", 0) or 0)
-                it["qtyDelivered"] = float(it.get("qtyDelivered", 0) or 0)
-                it["qtyReserved"] = float(it.get("qtyReserved", 0) or 0)
-                it["qtyBackordered"] = float(it.get("qtyBackordered", 0) or 0)
-                it["unitPrice"] = float(it.get("unitPrice", 0) or 0)
-                it["lineTotal"] = float(it.get("lineTotal", 0) or 0)
-            r["items"] = items
-
-    pos_where = "s.tenantId = :t"
-    if search:
-        pos_where += " AND (s.invoiceNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s)"
-    if status:
-        pos_where += " AND s.status = :st"
-
-    pos_rows = []
-    if not source or source.upper() in ("POS", "RETAIL", "ALL"):
-        pos_rows = rows_to_dicts((await db.execute(text(f"""
+            ORDER BY so.createdAt DESC LIMIT :lim OFFSET :off
+        """), {**params, "lim": lim, "off": off})).fetchall())
+    elif src_norm in ("POS", "RETAIL"):
+        total = (await db.execute(text(f"""
+            SELECT COUNT(*) FROM sales s
+            LEFT JOIN customers c ON c.id = s.customerId
+            WHERE {pos_where}
+        """), params)).first()[0]
+        rows = rows_to_dicts((await db.execute(text(f"""
             SELECT s.id, s.invoiceNo AS orderNo, 'POS' AS source, s.status, s.subtotal, s.total,
                    s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                    s.paymentStatus, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
@@ -324,11 +330,51 @@ async def list_sales_orders(
             LEFT JOIN branches b ON b.id = s.branchId
             LEFT JOIN users u ON u.id = s.userId
             WHERE {pos_where}
-            ORDER BY s.createdAt DESC LIMIT 200
-        """), params)).fetchall())
+            ORDER BY s.createdAt DESC LIMIT :lim OFFSET :off
+        """), {**params, "lim": lim, "off": off})).fetchall())
+    else:
+        b2b_cnt = (await db.execute(text(f"""
+            SELECT COUNT(*) FROM sales_orders so
+            LEFT JOIN customers c ON c.id = so.customerId
+            WHERE {b2b_where}
+        """), params)).first()[0]
+        pos_cnt = (await db.execute(text(f"""
+            SELECT COUNT(*) FROM sales s
+            LEFT JOIN customers c ON c.id = s.customerId
+            WHERE {pos_where}
+        """), params)).first()[0]
+        total = b2b_cnt + pos_cnt
 
-        for r in pos_rows:
-            r["total"] = float(r.get("total", 0) or 0)
+        rows = rows_to_dicts((await db.execute(text(f"""
+            SELECT * FROM (
+                SELECT so.id, so.orderNo, 'B2B' AS source, so.status, so.subtotal, so.total,
+                       0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
+                       c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
+                       b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName
+                FROM sales_orders so
+                LEFT JOIN customers c ON c.id = so.customerId
+                LEFT JOIN branches b ON b.id = so.branchId
+                WHERE {b2b_where}
+
+                UNION ALL
+
+                SELECT s.id, s.invoiceNo AS orderNo, 'POS' AS source, s.status, s.subtotal, s.total,
+                       s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
+                       c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
+                       b.name AS branchName, s.paymentStatus, s.userId AS cashierId, u.name AS cashierName
+                FROM sales s
+                LEFT JOIN customers c ON c.id = s.customerId
+                LEFT JOIN branches b ON b.id = s.branchId
+                LEFT JOIN users u ON u.id = s.userId
+                WHERE {pos_where}
+            ) AS combined_orders
+            ORDER BY createdAt DESC LIMIT :lim OFFSET :off
+        """), {**params, "lim": lim, "off": off})).fetchall())
+
+    for r in rows:
+        r["total"] = float(r.get("total", 0) or 0)
+        is_pos = (r.get("source") == "POS")
+        if is_pos:
             r["paidTotal"] = max(float(r.get("paidTotal", 0) or 0), r["total"])
             r["dueTotal"] = 0.0
             r["paymentStatus"] = "PAID"
@@ -353,30 +399,108 @@ async def list_sales_orders(
                 it["unitPrice"] = float(it.get("unitPrice", 0) or 0)
                 it["lineTotal"] = float(it.get("lineTotal", 0) or 0)
             r["items"] = items
+        else:
+            r["paidTotal"] = float(r.get("paidTotal", 0) or 0)
+            r["dueTotal"] = float(r.get("dueTotal", 0) or r["total"])
+            r["customer"] = {
+                "id": r.get("customerId"),
+                "name": r.pop("customerName", None) or "Corporate Client",
+                "phone": r.pop("customerPhone", None),
+                "email": r.pop("customerEmail", None),
+            }
+            items = rows_to_dicts((await db.execute(text("""
+                SELECT soi.id, soi.productId, p.name, p.sku, soi.qtyOrdered, 0 AS qtyDelivered,
+                       0 AS qtyReserved, 0 AS qtyBackordered, soi.unitPrice, soi.lineTotal
+                FROM sales_order_items soi
+                LEFT JOIN products p ON p.id = soi.productId
+                WHERE soi.salesOrderId = :id
+            """), {"id": r["id"]})).fetchall())
+            for it in items:
+                it["name"] = it.pop("name", None) or it.get("productName") or "Item"
+                it["qtyOrdered"] = float(it.get("qtyOrdered", 0) or 0)
+                it["qtyDelivered"] = float(it.get("qtyDelivered", 0) or 0)
+                it["qtyReserved"] = float(it.get("qtyReserved", 0) or 0)
+                it["qtyBackordered"] = float(it.get("qtyBackordered", 0) or 0)
+                it["unitPrice"] = float(it.get("unitPrice", 0) or 0)
+                it["lineTotal"] = float(it.get("lineTotal", 0) or 0)
+            r["items"] = items
 
-    combined = b2b_rows + pos_rows
-    combined.sort(key=lambda x: str(x.get("createdAt", "")), reverse=True)
-
-    total = len(combined)
-    offset = (page - 1) * limit
-    paged = combined[offset: offset + limit]
-
-    return ok(paged, extra={
+    return ok(rows, extra={
         "pagination": {
             "page": page,
-            "limit": limit,
+            "limit": lim,
             "total": total,
-            "totalPages": max(1, math.ceil(total / limit)) if limit else 1
+            "totalPages": max(1, math.ceil(total / lim)) if lim else 1
         }
     })
 
 
 @router.get("/api/v1/sales/quotations")
-async def list_quotations(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
-                          db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts((await db.execute(text(
-        "SELECT * FROM quotations WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 50"), {"t": tenantId})).fetchall())
-    return ok(rows)
+async def list_quotations(
+    search: str = "", status: str = "",
+    page: int = Query(1), limit: int = Query(20),
+    user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "q.tenantId = :t"
+    params: dict = {"t": tenantId}
+    if search:
+        where += " AND (q.quotationNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s OR c.email LIKE :s)"
+        params["s"] = f"%{search}%"
+    if status and status.upper() != "ALL":
+        where += " AND q.status = :st"
+        params["st"] = status.upper()
+
+    off, lim = paginate_params(page, limit)
+    total = (await db.execute(text(
+        f"SELECT COUNT(*) FROM quotations q LEFT JOIN customers c ON c.id=q.customerId WHERE {where}"), params)).first()[0]
+
+    rows = rows_to_dicts((await db.execute(text(f"""
+        SELECT q.*, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail
+        FROM quotations q
+        LEFT JOIN customers c ON c.id = q.customerId
+        WHERE {where}
+        ORDER BY q.createdAt DESC
+        LIMIT :lim OFFSET :off
+    """), {**params, "lim": lim, "off": off})).fetchall())
+
+    if rows:
+        q_ids = [r["id"] for r in rows]
+        if len(q_ids) == 1:
+            items = rows_to_dicts((await db.execute(text(
+                "SELECT qi.*, p.name AS productName, p.sku FROM quotation_items qi "
+                "LEFT JOIN products p ON p.id = qi.productId "
+                "WHERE qi.quotationId = :qid"
+            ), {"qid": q_ids[0]})).fetchall())
+        else:
+            items = rows_to_dicts((await db.execute(text(
+                "SELECT qi.*, p.name AS productName, p.sku FROM quotation_items qi "
+                "LEFT JOIN products p ON p.id = qi.productId "
+                "WHERE qi.quotationId IN :qids"
+            ), {"qids": tuple(q_ids)})).fetchall())
+
+        items_by_q = {}
+        for it in items:
+            it["name"] = it.get("productName") or "Item"
+            it["qty"] = float(it.get("qty", 0) or 0)
+            it["unitPrice"] = float(it.get("unitPrice", 0) or 0)
+            it["discountAmount"] = float(it.get("discountAmount", 0) or 0)
+            it["taxAmount"] = float(it.get("taxAmount", 0) or 0)
+            it["lineTotal"] = float(it.get("lineTotal", 0) or (it["qty"] * it["unitPrice"]))
+            items_by_q.setdefault(it["quotationId"], []).append(it)
+
+        for r in rows:
+            r["customer"] = {
+                "id": r.get("customerId"),
+                "name": r.pop("customerName", None) or "Client",
+                "phone": r.pop("customerPhone", None),
+                "email": r.pop("customerEmail", None),
+            } if r.get("customerId") or r.get("customerName") else None
+            r["items"] = items_by_q.get(r["id"], [])
+            r["total"] = float(r.get("total", 0) or 0)
+            r["subtotal"] = float(r.get("subtotal", 0) or r["total"])
+
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 
 @router.post("/api/v1/sales/quotations")
@@ -406,11 +530,14 @@ async def create_quotation(body: dict, user: AuthUser = Depends(require_auth),
 # ═════════════════════════ INVOICES (§10.12) ═════════════════════════
 
 @router.get("/api/v1/invoices")
-async def list_invoices(status: str = "", page: int = Query(1), limit: int = Query(20),
+async def list_invoices(search: str = "", status: str = "", page: int = Query(1), limit: int = Query(20),
                         user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
                         db: AsyncSession = Depends(get_db)):
     where = "i.tenantId=:t"; params: dict = {"t": tenantId}
     if status: where += " AND i.status=:st"; params["st"] = status
+    if search:
+        where += " AND (i.invoiceNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s)"
+        params["s"] = f"%{search}%"
     off, lim = paginate_params(page, limit)
     rows = rows_to_dicts((await db.execute(text(
         f"SELECT i.*, c.name AS customerName FROM invoices i LEFT JOIN customers c ON c.id=i.customerId "
@@ -418,8 +545,8 @@ async def list_invoices(status: str = "", page: int = Query(1), limit: int = Que
         {**params, "lim": lim, "off": off})).fetchall())
     for r in rows:
         r["customer"] = {"id": r.pop("customerId"), "name": r.pop("customerName")} if r.get("customerName") else None
-    total = (await db.execute(text(f"SELECT COUNT(*) FROM invoices i WHERE {where}"), params)).first()[0]
-    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": (total + lim - 1) // lim}})
+    total = (await db.execute(text(f"SELECT COUNT(*) FROM invoices i LEFT JOIN customers c ON c.id=i.customerId WHERE {where}"), params)).first()[0]
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 
 @router.get("/api/v1/invoices/{invoiceId}")
@@ -468,14 +595,32 @@ async def allocate_payment(body: dict, user: AuthUser = Depends(require_auth),
 # ═════════════════════════ INVOICE COLLECTIONS ═════════════════════════
 
 @router.get("/api/v1/invoices/collection/entries")
-async def list_collection_entries(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts((await db.execute(text(
-        "SELECT ce.*, c.name AS customerName, c.phone AS customerPhone, i.invoiceNo, i.total AS invoiceTotal "
-        "FROM collection_entries ce "
-        "LEFT JOIN customers c ON c.id = ce.customerId "
-        "LEFT JOIN invoices i ON i.id = ce.invoiceId "
-        "WHERE ce.tenantId = :t ORDER BY ce.collectedAt DESC"
-    ), {"t": tenantId})).fetchall())
+async def list_collection_entries(
+    search: str = "", page: int = Query(1), limit: int = Query(20),
+    user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "ce.tenantId = :t"
+    params: dict = {"t": tenantId}
+    if search:
+        where += " AND (ce.collectionNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s OR i.invoiceNo LIKE :s)"
+        params["s"] = f"%{search}%"
+
+    off, lim = paginate_params(page, limit)
+    total = (await db.execute(text(f"""
+        SELECT COUNT(*) FROM collection_entries ce
+        LEFT JOIN customers c ON c.id = ce.customerId
+        LEFT JOIN invoices i ON i.id = ce.invoiceId
+        WHERE {where}
+    """), params)).first()[0]
+
+    rows = rows_to_dicts((await db.execute(text(f"""
+        SELECT ce.*, c.name AS customerName, c.phone AS customerPhone, i.invoiceNo, i.total AS invoiceTotal
+        FROM collection_entries ce
+        LEFT JOIN customers c ON c.id = ce.customerId
+        LEFT JOIN invoices i ON i.id = ce.invoiceId
+        WHERE {where} ORDER BY ce.collectedAt DESC LIMIT :lim OFFSET :off
+    """), {**params, "lim": lim, "off": off})).fetchall())
     for r in rows:
         r["isOffline"] = bool(r.get("isOffline"))
         r["amount"] = float(r.get("amount") or 0)
@@ -483,7 +628,7 @@ async def list_collection_entries(user: AuthUser = Depends(require_auth), tenant
             r["customer"] = {"id": r.get("customerId"), "name": r.get("customerName"), "phone": r.get("customerPhone")}
         if r.get("invoiceNo"):
             r["invoice"] = {"id": r.get("invoiceId"), "invoiceNo": r.get("invoiceNo"), "total": float(r.get("invoiceTotal") or 0)}
-    return ok(rows)
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 @router.post("/api/v1/invoices/collection/entries")
 async def create_collection_entry(body: dict, user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
@@ -513,14 +658,32 @@ async def create_collection_entry(body: dict, user: AuthUser = Depends(require_a
     return ok({"id": cid, "collectionNo": no}, 201)
 
 @router.get("/api/v1/invoices/collection/schedules")
-async def list_collection_schedules(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
-    rows = rows_to_dicts((await db.execute(text(
-        "SELECT cs.*, c.name AS customerName, c.phone AS customerPhone, i.invoiceNo, i.total AS invoiceTotal, i.paidTotal AS invoicePaidTotal "
-        "FROM collection_schedules cs "
-        "LEFT JOIN customers c ON c.id = cs.customerId "
-        "LEFT JOIN invoices i ON i.id = cs.invoiceId "
-        "WHERE cs.tenantId = :t ORDER BY cs.scheduledAt ASC"
-    ), {"t": tenantId})).fetchall())
+async def list_collection_schedules(
+    status: str = "", page: int = Query(1), limit: int = Query(20),
+    user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "cs.tenantId = :t"
+    params: dict = {"t": tenantId}
+    if status:
+        where += " AND cs.status = :st"
+        params["st"] = status
+
+    off, lim = paginate_params(page, limit)
+    total = (await db.execute(text(f"""
+        SELECT COUNT(*) FROM collection_schedules cs
+        LEFT JOIN customers c ON c.id = cs.customerId
+        LEFT JOIN invoices i ON i.id = cs.invoiceId
+        WHERE {where}
+    """), params)).first()[0]
+
+    rows = rows_to_dicts((await db.execute(text(f"""
+        SELECT cs.*, c.name AS customerName, c.phone AS customerPhone, i.invoiceNo, i.total AS invoiceTotal, i.paidTotal AS invoicePaidTotal
+        FROM collection_schedules cs
+        LEFT JOIN customers c ON c.id = cs.customerId
+        LEFT JOIN invoices i ON i.id = cs.invoiceId
+        WHERE {where} ORDER BY cs.scheduledAt ASC LIMIT :lim OFFSET :off
+    """), {**params, "lim": lim, "off": off})).fetchall())
     for r in rows:
         r["expectedAmount"] = float(r.get("expectedAmount") or 0)
         r["collectedAmount"] = float(r.get("collectedAmount") or 0)
@@ -528,7 +691,7 @@ async def list_collection_schedules(user: AuthUser = Depends(require_auth), tena
             r["customer"] = {"id": r.get("customerId"), "name": r.get("customerName"), "phone": r.get("customerPhone")}
         if r.get("invoiceNo"):
             r["invoice"] = {"id": r.get("invoiceId"), "invoiceNo": r.get("invoiceNo"), "total": float(r.get("invoiceTotal") or 0), "paidTotal": float(r.get("invoicePaidTotal") or 0)}
-    return ok(rows)
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 @router.post("/api/v1/invoices/collection/schedules")
 async def create_collection_schedule(body: dict, user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
@@ -666,11 +829,23 @@ async def add_price_list_item(id: str, body: dict, user: AuthUser = Depends(requ
 
 
 @router.get("/api/v1/promotions")
-async def list_promotions(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
-                          db: AsyncSession = Depends(get_db)):
+async def list_promotions(
+    search: str = "", page: int = Query(1), limit: int = Query(20),
+    user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "tenantId=:t"
+    params: dict = {"t": tenantId}
+    if search:
+        where += " AND (name LIKE :s OR description LIKE :s)"
+        params["s"] = f"%{search}%"
+
+    off, lim = paginate_params(page, limit)
+    total = (await db.execute(text(f"SELECT COUNT(*) FROM promotions WHERE {where}"), params)).first()[0]
     rows = rows_to_dicts((await db.execute(text(
-        "SELECT * FROM promotions WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 100"), {"t": tenantId})).fetchall())
-    return ok(rows)
+        f"SELECT * FROM promotions WHERE {where} ORDER BY createdAt DESC LIMIT :lim OFFSET :off"),
+        {**params, "lim": lim, "off": off})).fetchall())
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 
 @router.post("/api/v1/promotions")
@@ -690,11 +865,23 @@ async def create_promotion(body: dict, user: AuthUser = Depends(require_auth),
 
 
 @router.get("/api/v1/coupons")
-async def list_coupons(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
-                       db: AsyncSession = Depends(get_db)):
+async def list_coupons(
+    search: str = "", page: int = Query(1), limit: int = Query(20),
+    user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "tenantId=:t"
+    params: dict = {"t": tenantId}
+    if search:
+        where += " AND (code LIKE :s OR description LIKE :s)"
+        params["s"] = f"%{search}%"
+
+    off, lim = paginate_params(page, limit)
+    total = (await db.execute(text(f"SELECT COUNT(*) FROM coupons WHERE {where}"), params)).first()[0]
     rows = rows_to_dicts((await db.execute(text(
-        "SELECT * FROM coupons WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 100"), {"t": tenantId})).fetchall())
-    return ok(rows)
+        f"SELECT * FROM coupons WHERE {where} ORDER BY createdAt DESC LIMIT :lim OFFSET :off"),
+        {**params, "lim": lim, "off": off})).fetchall())
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 
 @router.post("/api/v1/coupons")
