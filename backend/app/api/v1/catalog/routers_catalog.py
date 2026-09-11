@@ -1162,33 +1162,113 @@ async def delete_customer_group(
 
 # ─────────────────────────── SUPPLIERS ───────────────────────────
 
+@router.get("/api/v1/suppliers/stats")
+async def get_supplier_stats(
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    counts = (await db.execute(
+        text("""
+            SELECT 
+                COUNT(*) as total,
+                COALESCE(SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END), 0) as active,
+                COALESCE(SUM(CASE WHEN status = 'INACTIVE' THEN 1 ELSE 0 END), 0) as inactive,
+                COALESCE(SUM(CASE WHEN currentDue > 0 THEN currentDue ELSE 0 END), 0) as totalPayableDue,
+                COALESCE(SUM(CASE WHEN currentDue > 0 THEN 1 ELSE 0 END), 0) as suppliersWithDue
+            FROM suppliers 
+            WHERE tenantId = :t
+        """),
+        {"t": tenantId}
+    )).first()
+
+    po_stats = (await db.execute(
+        text("""
+            SELECT 
+                COUNT(*) as totalPOs,
+                COALESCE(SUM(total), 0) as totalPurchases
+            FROM purchase_orders
+            WHERE tenantId = :t AND status != 'CANCELLED'
+        """),
+        {"t": tenantId}
+    )).first()
+
+    return ok({
+        "total": int(counts.total or 0) if counts else 0,
+        "active": int(counts.active or 0) if counts else 0,
+        "inactive": int(counts.inactive or 0) if counts else 0,
+        "totalPayableDue": float(counts.totalPayableDue or 0) if counts else 0.0,
+        "suppliersWithDue": int(counts.suppliersWithDue or 0) if counts else 0,
+        "totalPOs": int(po_stats.totalPOs or 0) if po_stats else 0,
+        "totalPurchaseValue": float(po_stats.totalPurchases or 0) if po_stats else 0.0,
+    })
+
+
 @router.get("/api/v1/suppliers")
 async def list_suppliers(
-    search: str = "", status: str = "", page: int = Query(1), limit: int = Query(20),
-    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
+    search: str = "",
+    status: str = "",
+    hasDue: str = "",
+    city: str = "",
+    sortBy: str = "createdAt",
+    sortDir: str = "desc",
+    page: int = Query(1),
+    limit: int = Query(20),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
 ):
     where = "s.tenantId = :t"
     params: dict = {"t": tenantId}
     if search:
-        where += " AND (s.name LIKE :q OR s.company LIKE :q OR s.phone LIKE :q)"; params["q"] = f"%{search}%"
-    if status: where += " AND s.status = :st"; params["st"] = status
+        where += " AND (s.name LIKE :q OR s.company LIKE :q OR s.phone LIKE :q OR s.contactPerson LIKE :q OR s.email LIKE :q)"
+        params["q"] = f"%{search}%"
+    if status:
+        where += " AND s.status = :st"
+        params["st"] = status
+    if hasDue in ("1", "true", "yes"):
+        where += " AND s.currentDue > 0"
+    if city:
+        where += " AND s.city = :city"
+        params["city"] = city
+
+    sort_cols = {
+        "name": "s.name",
+        "company": "s.company",
+        "currentDue": "s.currentDue",
+        "creditLimit": "s.creditLimit",
+        "createdAt": "s.createdAt",
+        "totalPurchased": "totalPurchased"
+    }
+    sort_col = sort_cols.get(sortBy, "s.createdAt")
+    sort_direction = "ASC" if sortDir.lower() == "asc" else "DESC"
+
     off, lim = paginate_params(page, limit)
+    query_sql = f"""
+        SELECT 
+            s.*,
+            (SELECT COUNT(*) FROM purchase_orders po WHERE po.supplierId = s.id AND po.tenantId = s.tenantId) as poCount,
+            (SELECT COALESCE(SUM(po.total), 0) FROM purchase_orders po WHERE po.supplierId = s.id AND po.tenantId = s.tenantId AND po.status != 'CANCELLED') as totalPurchased,
+            (SELECT COUNT(*) FROM products p WHERE p.supplierId = s.id AND p.tenantId = s.tenantId) as productCount
+        FROM suppliers s 
+        WHERE {where} 
+        ORDER BY {sort_col} {sort_direction} 
+        LIMIT :lim OFFSET :off
+    """
     rows = rows_to_dicts(
-        (
-            await db.execute(
-                text(
-                    f"SELECT s.*, (SELECT COUNT(*) FROM purchase_orders po WHERE po.supplierId = s.id) poCount, "
-                    f"(SELECT COUNT(*) FROM products p WHERE p.supplierId = s.id) productCount "
-                    f"FROM suppliers s WHERE {where} ORDER BY s.createdAt DESC LIMIT :lim OFFSET :off"
-                ),
-                {**params, "lim": lim, "off": off},
-            )
-        ).fetchall()
+        (await db.execute(text(query_sql), {**params, "lim": lim, "off": off})).fetchall()
     )
     for r in rows:
-        r["_count"] = {"purchaseOrders": r.pop("poCount"), "goodsReceipts": 0, "products": r.pop("productCount")}
+        r["totalPurchased"] = float(r.get("totalPurchased") or 0)
+        r["currentDue"] = float(r.get("currentDue") or 0)
+        r["creditLimit"] = float(r.get("creditLimit") or 0)
+        r["openingDue"] = float(r.get("openingDue") or 0)
+        r["rebatePercent"] = float(r.get("rebatePercent") or 0)
+        r["_count"] = {
+            "purchaseOrders": r.pop("poCount", 0),
+            "goodsReceipts": 0,
+            "products": r.pop("productCount", 0)
+        }
     total = (await db.execute(text(f"SELECT COUNT(*) FROM suppliers s WHERE {where}"), params)).first()[0]
-    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": (total + lim - 1) // lim}})
+    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": (total + lim - 1) // lim if lim else 1}})
 
 
 @router.post("/api/v1/suppliers")
@@ -1251,6 +1331,46 @@ async def update_supplier(supplierId: str, body: dict,
     await db.commit()
     if res.rowcount == 0: return err("Supplier not found", 404)
     return ok({"updated": True})
+
+
+@router.post("/api/v1/suppliers/{supplierId}/pay-due")
+async def pay_supplier_due(
+    supplierId: str,
+    body: dict,
+    user: AuthUser = Depends(require_permission("suppliers.edit")),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    amount = float(body.get("amount") or 0)
+    if amount <= 0:
+        return err("Payment amount must be greater than 0", 400)
+    
+    supplier = (await db.execute(
+        text("SELECT id, name, currentDue FROM suppliers WHERE id = :id AND tenantId = :t"),
+        {"id": supplierId, "t": tenantId}
+    )).first()
+    if not supplier:
+        return err("Supplier not found", 404)
+    
+    cur_due = float(supplier.currentDue or 0)
+    new_due = max(0.0, cur_due - amount)
+    
+    await db.execute(
+        text("UPDATE suppliers SET currentDue = :nd, updatedBy = :u WHERE id = :id AND tenantId = :t"),
+        {"nd": new_due, "u": user.id, "id": supplierId, "t": tenantId}
+    )
+    await db.commit()
+    
+    return ok({
+        "success": True,
+        "supplierId": supplierId,
+        "paidAmount": amount,
+        "previousDue": cur_due,
+        "remainingDue": new_due,
+        "paymentMethod": body.get("paymentMethod", "CASH"),
+        "referenceNo": body.get("referenceNo"),
+        "note": body.get("note")
+    })
 
 
 @router.delete("/api/v1/suppliers/{supplierId}")
