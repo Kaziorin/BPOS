@@ -98,41 +98,41 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24">
-        <Loader2 size={32} className="animate-spin text-blue-600 mb-3" />
-        <p className="text-sm font-semibold text-slate-700">Loading customer profile...</p>
+      <div className="flex flex-col items-center justify-center py-20">
+        <Loader2 size={24} className="animate-spin text-primary-600 mb-2" />
+        <p className="text-xs font-medium text-gray-500">Loading customer profile...</p>
       </div>
     );
   }
 
   if (!customer) {
     return (
-      <div className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
-        <AlertTriangle size={36} className="mx-auto text-amber-500 mb-3" />
-        <h2 className="text-lg font-bold text-slate-900">Customer Not Found</h2>
-        <p className="text-xs text-slate-500 mt-1">The requested customer record does not exist or has been removed.</p>
+      <div className="mx-auto max-w-md rounded-xl border border-gray-200 bg-white p-8 text-center shadow-xs">
+        <AlertTriangle size={32} className="mx-auto text-amber-500 mb-2" />
+        <h2 className="text-sm font-bold text-gray-900">Customer Not Found</h2>
+        <p className="text-xs text-gray-500 mt-1">This customer record does not exist or has been removed.</p>
         <Link
           href="/customers"
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700"
+          className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-700"
         >
-          <ArrowLeft size={14} /> Back to Customer Directory
+          <ArrowLeft size={13} /> Return to Customers
         </Link>
       </div>
     );
   }
 
-  const segColors: Record<string, { bg: string; text: string; border: string; icon: string }> = {
-    VIP: { bg: "bg-amber-50", text: "text-amber-800", border: "border-amber-200", icon: "👑" },
-    HIGH_VALUE: { bg: "bg-emerald-50", text: "text-emerald-800", border: "border-emerald-200", icon: "💎" },
-    WHOLESALE: { bg: "bg-blue-50", text: "text-blue-800", border: "border-blue-200", icon: "🏢" },
-    CORPORATE: { bg: "bg-purple-50", text: "text-purple-800", border: "border-purple-200", icon: "🏛️" },
-    NEW: { bg: "bg-teal-50", text: "text-teal-800", border: "border-teal-200", icon: "✨" },
-    REGULAR: { bg: "bg-slate-50", text: "text-slate-700", border: "border-slate-200", icon: "👤" },
-    AT_RISK: { bg: "bg-rose-50", text: "text-rose-800", border: "border-rose-200", icon: "⚠️" },
-    INACTIVE: { bg: "bg-slate-100", text: "text-slate-500", border: "border-slate-200", icon: "💤" },
+  const segBadgeMap: Record<string, { bg: string; text: string; label: string }> = {
+    VIP: { bg: "bg-amber-50 text-amber-700 border-amber-200/60", text: "text-amber-700", label: "VIP" },
+    HIGH_VALUE: { bg: "bg-emerald-50 text-emerald-700 border-emerald-200/60", text: "text-emerald-700", label: "High Value" },
+    WHOLESALE: { bg: "bg-primary-50 text-primary-700 border-primary-200/60", text: "text-primary-700", label: "Wholesale" },
+    CORPORATE: { bg: "bg-purple-50 text-purple-700 border-purple-200/60", text: "text-purple-700", label: "Corporate" },
+    NEW: { bg: "bg-sky-50 text-sky-700 border-sky-200/60", text: "text-sky-700", label: "New" },
+    REGULAR: { bg: "bg-gray-50 text-gray-700 border-gray-200", text: "text-gray-700", label: "Regular" },
+    AT_RISK: { bg: "bg-rose-50 text-rose-700 border-rose-200/60", text: "text-rose-700", label: "At Risk" },
+    INACTIVE: { bg: "bg-gray-100 text-gray-500 border-gray-200", text: "text-gray-500", label: "Inactive" },
   };
 
-  const seg = segColors[customer.segmentation || "REGULAR"] || segColors.REGULAR;
+  const seg = segBadgeMap[customer.segmentation || "REGULAR"] || segBadgeMap.REGULAR;
   const currDue = Number(customer.currentDue || 0);
 
   const getInitials = (name: string) => {
@@ -142,34 +142,34 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
   };
 
   const inputClass =
-    "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20";
-  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1";
+    "w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-900 focus:border-primary-500 focus:outline-none";
+  const labelClass = "block text-[11px] font-semibold text-gray-600 mb-1";
 
   const tabs = [
     { key: "details", label: "Profile & Settings" },
     { key: "purchases", label: `Purchase History (${customer.purchaseHistory?.totalOrders || 0})` },
-    { key: "notes", label: `Notes & Logs (${customer.customerNotes?.length || 0})` },
+    { key: "notes", label: `Activity Notes (${customer.customerNotes?.length || 0})` },
     { key: "complaints", label: `Complaints (${customer.complaints?.length || 0})` },
   ];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 pb-16">
+    <div className="mx-auto max-w-5xl space-y-5 pb-12">
       {/* ── Top Navigation Bar ── */}
       <div className="flex items-center justify-between">
         <Link
           href="/customers"
-          className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition"
+          className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
         >
-          <ArrowLeft size={15} /> Back to Customers
+          <ArrowLeft size={13} /> Back to Customers
         </Link>
 
         <div className="flex items-center gap-2">
           {currDue > 0 && (
             <button
               onClick={() => setIsCollectDueOpen(true)}
-              className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition"
+              className="inline-flex items-center gap-1 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-700"
             >
-              <DollarSign size={14} /> Collect Due (৳{currDue.toLocaleString()})
+              <DollarSign size={13} /> Collect Due (৳{currDue.toLocaleString()})
             </button>
           )}
 
@@ -177,56 +177,56 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-blue-500/20 hover:bg-blue-700 transition disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-lg bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-primary-700 disabled:opacity-50"
             >
-              {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+              {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
               Save Changes
             </button>
           ) : (
             <button
               onClick={() => setEditing(true)}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+              className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
             >
-              <Edit3 size={14} /> Edit Profile
+              <Edit3 size={13} /> Edit Profile
             </button>
           )}
         </div>
       </div>
 
       {/* ── Profile Header Card ── */}
-      <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 p-6 sm:p-8 text-white shadow-lg">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <div className="flex h-16 w-16 sm:h-20 sm:w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-500 to-indigo-500 text-2xl sm:text-3xl font-black text-white shadow-xl shadow-blue-500/30">
+      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700 border border-primary-200/60 text-lg font-bold">
               {getInitials(customer.name)}
             </div>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight">{customer.name}</h1>
-                <span className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-bold ${seg.bg} ${seg.text} ${seg.border}`}>
-                  <span>{seg.icon}</span> {customer.segmentation || "REGULAR"}
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-lg font-bold text-gray-900">{customer.name}</h1>
+                <span className={`inline-flex items-center rounded-full border px-2 py-0.2 text-[10px] font-semibold ${seg.bg}`}>
+                  {seg.label}
                 </span>
-              </div>
-              <p className="text-xs text-slate-300 flex items-center gap-2 flex-wrap">
-                <span>{customer.group?.name || "General Group"}</span>
-                <span>•</span>
-                <span>Member since {customer.createdAt ? new Date(customer.createdAt).toLocaleDateString() : "—"}</span>
-                <span>•</span>
-                <span className={customer.status === "ACTIVE" ? "text-emerald-400 font-bold" : "text-red-400 font-bold"}>
+                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.2 text-[10px] font-semibold ${
+                  customer.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-600"
+                }`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${customer.status === "ACTIVE" ? "bg-emerald-500" : "bg-gray-400"}`} />
                   {customer.status || "ACTIVE"}
                 </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Group: {customer.group?.name || "General"} &bull; Customer since {customer.createdAt ? new Date(customer.createdAt).toLocaleDateString() : "—"}
               </p>
             </div>
           </div>
 
-          {/* Contact Action Chips */}
-          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          {/* Contact Action Buttons */}
+          <div className="flex items-center gap-1.5 flex-wrap">
             {customer.phone && (
               <a
                 href={`tel:${customer.phone}`}
-                className="flex items-center gap-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 px-3.5 py-2 text-xs font-bold text-white transition"
+                className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
               >
-                <Phone size={14} /> {customer.phone}
+                <Phone size={12} /> {customer.phone}
               </a>
             )}
             {customer.phone && (
@@ -234,70 +234,64 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                 href={`https://wa.me/${customer.phone.replace(/[^0-9]/g, "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-xl bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/40 px-3.5 py-2 text-xs font-bold transition"
+                className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 text-xs font-medium hover:bg-emerald-100"
               >
-                💬 WhatsApp
+                WhatsApp
               </a>
             )}
             {customer.email && (
               <a
                 href={`mailto:${customer.email}`}
-                className="flex items-center gap-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 px-3.5 py-2 text-xs font-bold text-white transition"
+                className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
               >
-                <Mail size={14} /> Email
+                <Mail size={12} /> Email
               </a>
             )}
           </div>
         </div>
       </div>
 
-      {/* ── 4 Stats Highlights Grid ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Spent</p>
-          <p className="text-xl font-black text-slate-900 mt-1">
+      {/* ── Key Metrics Cards ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="rounded-xl border border-gray-200 bg-white p-3.5 shadow-xs">
+          <p className="text-[10px] font-semibold uppercase text-gray-400">Total Spent</p>
+          <p className="text-base font-bold text-gray-900 mt-0.5">
             ৳{Number(customer.purchaseHistory?.totalSpent || 0).toLocaleString()}
           </p>
-          <p className="text-[11px] text-slate-400 mt-1">Lifetime POS Revenue</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Orders</p>
-          <p className="text-xl font-black text-slate-900 mt-1">
+        <div className="rounded-xl border border-gray-200 bg-white p-3.5 shadow-xs">
+          <p className="text-[10px] font-semibold uppercase text-gray-400">Total Orders</p>
+          <p className="text-base font-bold text-gray-900 mt-0.5">
             {customer.purchaseHistory?.totalOrders || 0}
           </p>
-          <p className="text-[11px] text-slate-400 mt-1">Confirmed Invoices</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Outstanding Due</p>
-          <p className={`text-xl font-black mt-1 ${currDue > 0 ? "text-red-600" : "text-emerald-600"}`}>
+        <div className="rounded-xl border border-gray-200 bg-white p-3.5 shadow-xs">
+          <p className="text-[10px] font-semibold uppercase text-gray-400">Current Due</p>
+          <p className={`text-base font-bold mt-0.5 ${currDue > 0 ? "text-rose-600" : "text-gray-900"}`}>
             ৳{currDue.toLocaleString()}
           </p>
-          <p className="text-[11px] text-slate-400 mt-1">
-            Limit: ৳{Number(customer.creditLimit || 0).toLocaleString()}
-          </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Loyalty Points</p>
-          <p className="text-xl font-black text-amber-600 mt-1 flex items-center gap-1">
-            <Award size={20} /> {customer.loyaltyPoints || 0}
+        <div className="rounded-xl border border-gray-200 bg-white p-3.5 shadow-xs">
+          <p className="text-[10px] font-semibold uppercase text-gray-400">Loyalty Points</p>
+          <p className="text-base font-bold text-amber-600 mt-0.5 flex items-center gap-1">
+            <Award size={15} /> {customer.loyaltyPoints || 0}
           </p>
-          <p className="text-[11px] text-slate-400 mt-1">Redeemable Rewards</p>
         </div>
       </div>
 
-      {/* ── Navigation Tabs ── */}
-      <div className="flex border-b border-slate-200 bg-white rounded-2xl px-4 shadow-sm">
+      {/* ── Tabs Bar ── */}
+      <div className="flex border-b border-gray-200 bg-white rounded-xl px-3 shadow-xs">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setActiveTab(t.key as any)}
-            className={`border-b-2 py-3 px-4 text-xs font-bold transition ${
+            className={`border-b-2 py-2.5 px-3 text-xs font-medium transition ${
               activeTab === t.key
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+                ? "border-primary-600 text-primary-700 font-semibold"
+                : "border-transparent text-gray-500 hover:text-gray-900"
             }`}
           >
             {t.label}
@@ -306,15 +300,15 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
       </div>
 
       {/* ── Tab Content ── */}
-      <div className="space-y-6">
-        {/* Tab 1: Profile Details & Edit */}
+      <div className="space-y-4">
+        {/* Tab 1: Profile & Settings */}
         {activeTab === "details" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">Basic Information</h3>
-              <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">Contact & Personal</h3>
+              <div className="space-y-2.5">
                 <div>
-                  <label className={labelClass}>Customer Name</label>
+                  <label className={labelClass}>Name</label>
                   {editing ? (
                     <input
                       type="text"
@@ -323,11 +317,11 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                       className={inputClass}
                     />
                   ) : (
-                    <p className="text-xs font-semibold text-slate-900">{customer.name}</p>
+                    <p className="text-xs font-medium text-gray-900">{customer.name}</p>
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className={labelClass}>Phone</label>
                     {editing ? (
@@ -338,7 +332,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         className={inputClass}
                       />
                     ) : (
-                      <p className="text-xs font-semibold text-slate-900">{customer.phone || "—"}</p>
+                      <p className="text-xs font-medium text-gray-900">{customer.phone || "—"}</p>
                     )}
                   </div>
                   <div>
@@ -351,14 +345,14 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         className={inputClass}
                       />
                     ) : (
-                      <p className="text-xs font-semibold text-slate-900 truncate">{customer.email || "—"}</p>
+                      <p className="text-xs font-medium text-gray-900 truncate">{customer.email || "—"}</p>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className={labelClass}>City / Area</label>
+                    <label className={labelClass}>City</label>
                     {editing ? (
                       <input
                         type="text"
@@ -367,7 +361,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         className={inputClass}
                       />
                     ) : (
-                      <p className="text-xs font-semibold text-slate-900">{customer.city || "—"}</p>
+                      <p className="text-xs font-medium text-gray-900">{customer.city || "—"}</p>
                     )}
                   </div>
                   <div>
@@ -380,7 +374,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         className={inputClass}
                       />
                     ) : (
-                      <p className="text-xs font-semibold text-slate-900">{customer.taxRegNo || "—"}</p>
+                      <p className="text-xs font-medium text-gray-900">{customer.taxRegNo || "—"}</p>
                     )}
                   </div>
                 </div>
@@ -395,16 +389,16 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                       className={inputClass}
                     />
                   ) : (
-                    <p className="text-xs font-semibold text-slate-900">{customer.address || "—"}</p>
+                    <p className="text-xs font-medium text-gray-900">{customer.address || "—"}</p>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">Classification & Terms</h3>
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">Classification & Credit</h3>
+              <div className="space-y-2.5">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className={labelClass}>Segment</label>
                     {editing ? (
@@ -422,7 +416,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         <option value="AT_RISK">At Risk</option>
                       </select>
                     ) : (
-                      <p className="text-xs font-semibold text-slate-900">{customer.segmentation || "REGULAR"}</p>
+                      <p className="text-xs font-medium text-gray-900">{customer.segmentation || "REGULAR"}</p>
                     )}
                   </div>
 
@@ -438,12 +432,12 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         <option value="INACTIVE">INACTIVE</option>
                       </select>
                     ) : (
-                      <p className="text-xs font-semibold text-slate-900">{customer.status || "ACTIVE"}</p>
+                      <p className="text-xs font-medium text-gray-900">{customer.status || "ACTIVE"}</p>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className={labelClass}>Credit Limit (৳)</label>
                     {editing ? (
@@ -454,7 +448,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         className={inputClass}
                       />
                     ) : (
-                      <p className="text-xs font-semibold text-slate-900">৳{Number(customer.creditLimit || 0).toLocaleString()}</p>
+                      <p className="text-xs font-medium text-gray-900">৳{Number(customer.creditLimit || 0).toLocaleString()}</p>
                     )}
                   </div>
                   <div>
@@ -467,7 +461,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         className={inputClass}
                       />
                     ) : (
-                      <p className="text-xs font-semibold text-slate-900">{customer.creditPeriodDays ? `${customer.creditPeriodDays} Days` : "—"}</p>
+                      <p className="text-xs font-medium text-gray-900">{customer.creditPeriodDays ? `${customer.creditPeriodDays} Days` : "—"}</p>
                     )}
                   </div>
                 </div>
@@ -482,7 +476,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                       className={inputClass}
                     />
                   ) : (
-                    <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl">{customer.notes || "No notes on record."}</p>
+                    <p className="text-xs text-gray-700 bg-gray-50 p-2.5 rounded-lg">{customer.notes || "No notes on record."}</p>
                   )}
                 </div>
               </div>
@@ -490,30 +484,28 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
           </div>
         )}
 
-        {/* Tab 2: Recent Purchases */}
+        {/* Tab 2: Purchase History */}
         {activeTab === "purchases" && (
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">Recent Sales & Invoices</h3>
+          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">Recent Invoices & Orders</h3>
             {customer.recentSales && customer.recentSales.length > 0 ? (
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-gray-100">
                 {customer.recentSales.map((sale: any) => (
-                  <div key={sale.id} className="py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                        <ShoppingBag size={16} />
+                  <div key={sale.id} className="py-2.5 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-600">
+                        <ShoppingBag size={14} />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-slate-900">{sale.invoiceNo}</p>
-                        <p className="text-[11px] text-slate-400">
+                        <p className="font-semibold text-gray-900">{sale.invoiceNo}</p>
+                        <p className="text-[11px] text-gray-400">
                           {sale.createdAt ? new Date(sale.createdAt).toLocaleDateString() : "—"}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-black text-slate-900">৳{Number(sale.total).toLocaleString()}</p>
-                      <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        sale.status === "CONFIRMED" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-700"
-                      }`}>
+                      <p className="font-bold text-gray-900">৳{Number(sale.total).toLocaleString()}</p>
+                      <span className="text-[10px] text-emerald-700 font-medium">
                         {sale.status}
                       </span>
                     </div>
@@ -521,50 +513,48 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-slate-400 text-xs">
-                No orders recorded for this customer yet.
-              </div>
+              <p className="text-center py-8 text-xs text-gray-400">No orders recorded for this customer yet.</p>
             )}
           </div>
         )}
 
         {/* Tab 3: Notes & CRM Activity */}
         {activeTab === "notes" && (
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">Activity Logs & Notes</h3>
+          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">Activity Notes & Logs</h3>
             
             <form onSubmit={addNote} className="space-y-2">
               <textarea
                 rows={2}
-                placeholder="Log phone calls, commitments, or reminders..."
+                placeholder="Log customer contact or reminder..."
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 p-3 text-xs text-slate-800 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 p-2.5 text-xs text-gray-900 focus:border-primary-500 focus:outline-none"
               />
               <div className="flex justify-end">
                 <button
                   type="submit"
                   disabled={addingNote || !noteText.trim()}
-                  className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-1 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-700 disabled:opacity-50"
                 >
-                  {addingNote ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
+                  {addingNote ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
                   Add Activity Note
                 </button>
               </div>
             </form>
 
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2 pt-1">
               {customer.customerNotes && customer.customerNotes.length > 0 ? (
                 customer.customerNotes.map((note: any) => (
-                  <div key={note.id} className="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5 space-y-1">
-                    <p className="text-xs text-slate-800 leading-relaxed">{note.note}</p>
-                    <p className="text-[10px] text-slate-400 flex items-center gap-1 pt-1">
-                      <Clock size={11} /> {note.createdAt ? new Date(note.createdAt).toLocaleString() : "Just now"}
+                  <div key={note.id} className="rounded-lg border border-gray-200 bg-gray-50/70 p-3 text-xs space-y-1">
+                    <p className="text-gray-800 leading-relaxed">{note.note}</p>
+                    <p className="text-[10px] text-gray-400 flex items-center gap-1 pt-0.5">
+                      <Clock size={10} /> {note.createdAt ? new Date(note.createdAt).toLocaleString() : "Just now"}
                     </p>
                   </div>
                 ))
               ) : (
-                <p className="text-xs text-slate-400 text-center py-6">No customer logs recorded yet.</p>
+                <p className="text-xs text-gray-400 text-center py-6">No customer logs recorded yet.</p>
               )}
             </div>
           </div>
@@ -572,17 +562,17 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
 
         {/* Tab 4: Complaints */}
         {activeTab === "complaints" && (
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">Customer Support & Complaints</h3>
+          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">Customer Complaints & Feedback</h3>
             
-            <form onSubmit={addComplaint} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={addComplaint} className="rounded-lg border border-gray-200 bg-gray-50/50 p-3.5 space-y-2.5">
+              <div className="grid grid-cols-2 gap-2.5">
                 <div>
                   <label className={labelClass}>Subject *</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Delayed Delivery, Item Exchange"
+                    placeholder="e.g. Issue description"
                     value={complaintSubject}
                     onChange={(e) => setComplaintSubject(e.target.value)}
                     className={inputClass}
@@ -606,7 +596,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                 <label className={labelClass}>Description</label>
                 <textarea
                   rows={2}
-                  placeholder="Details of customer issue..."
+                  placeholder="Details..."
                   value={complaintDesc}
                   onChange={(e) => setComplaintDesc(e.target.value)}
                   className={inputClass}
@@ -616,32 +606,32 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                 <button
                   type="submit"
                   disabled={addingComplaint || !complaintSubject.trim()}
-                  className="flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-1 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
                 >
-                  {addingComplaint ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
+                  {addingComplaint ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
                   File Complaint
                 </button>
               </div>
             </form>
 
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2 pt-1">
               {customer.complaints && customer.complaints.length > 0 ? (
                 customer.complaints.map((c: any) => (
-                  <div key={c.id} className="rounded-xl border border-slate-200 bg-white p-4 space-y-2">
+                  <div key={c.id} className="rounded-lg border border-gray-200 bg-white p-3 space-y-1.5 text-xs">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-slate-900">{c.subject}</h4>
-                      <span className="rounded-full bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 text-[10px] font-bold">
+                      <h4 className="font-semibold text-gray-900">{c.subject}</h4>
+                      <span className="rounded-full bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.2 text-[10px] font-bold">
                         {c.priority}
                       </span>
                     </div>
-                    {c.description && <p className="text-xs text-slate-600">{c.description}</p>}
-                    <p className="text-[10px] text-slate-400">
+                    {c.description && <p className="text-gray-600">{c.description}</p>}
+                    <p className="text-[10px] text-gray-400">
                       Filed on {c.createdAt ? new Date(c.createdAt).toLocaleString() : "—"}
                     </p>
                   </div>
                 ))
               ) : (
-                <p className="text-xs text-slate-400 text-center py-6">No complaints filed for this customer.</p>
+                <p className="text-xs text-gray-400 text-center py-6">No complaints filed for this customer.</p>
               )}
             </div>
           </div>
