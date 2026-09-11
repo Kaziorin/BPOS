@@ -501,6 +501,22 @@ function GroceryInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData;
           <span>Grand Total:</span>
           <span className="tabular-nums text-emerald-800">{fmt(data.grandTotal)}</span>
         </div>
+        <div className="flex justify-between text-slate-700">
+          <span>Tender Method:</span>
+          <span className="font-bold">{data.paymentMethod || "CASH"} (Paid: {fmt(data.paidTotal || data.grandTotal)})</span>
+        </div>
+        {data.dueTotal > 0 && (
+          <div className="flex justify-between text-amber-700 font-bold">
+            <span>Remaining Due:</span>
+            <span>{fmt(data.dueTotal)}</span>
+          </div>
+        )}
+        {data.paidTotal > data.grandTotal && (
+          <div className="flex justify-between text-emerald-700 font-bold">
+            <span>Change Return:</span>
+            <span className="font-mono">{fmt(data.paidTotal - data.grandTotal)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-[11px] text-emerald-700 font-bold">
           <span>Loyalty Club Points Earned:</span>
           <span>+{data.loyaltyPointsEarned || Math.floor(data.grandTotal / 100)} pts (Bal: {data.loyaltyPointsBalance || 240} pts)</span>
@@ -718,8 +734,20 @@ function RestaurantInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDa
         </div>
         <div className="flex justify-between text-slate-600 pt-1">
           <span>Tender Method:</span>
-          <span className="font-bold">{data.paymentMethod || "CARD / SPLIT"}</span>
+          <span className="font-bold">{data.paymentMethod || "CARD / SPLIT"} (Paid: {fmt(data.paidTotal || data.grandTotal)})</span>
         </div>
+        {data.dueTotal > 0 && (
+          <div className="flex justify-between text-amber-700 font-bold">
+            <span>Remaining Due:</span>
+            <span>{fmt(data.dueTotal)}</span>
+          </div>
+        )}
+        {data.paidTotal > data.grandTotal && (
+          <div className="flex justify-between text-emerald-700 font-bold">
+            <span>Change Return:</span>
+            <span className="font-mono">{fmt(data.paidTotal - data.grandTotal)}</span>
+          </div>
+        )}
       </div>
 
       <BarcodeFooter invoiceNo={data.invoiceNo} footerText="Gratuity / Tips are optional & appreciated. Hope to see you again soon!" />
@@ -747,6 +775,7 @@ function PharmacyInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData
         <div className="text-right"><span className="text-slate-400">Rx No:</span> <strong className="text-teal-800">{data.prescriptionNo || "RX-84920"}</strong></div>
         <div><span className="text-slate-400">Doctor:</span> {data.doctorName || "Dr. K. Zaman, MBBS, FCPS"}</div>
         <div className="text-right"><span className="text-slate-400">Date:</span> {invoiceDate}</div>
+        <div className="col-span-2 text-right"><span className="text-slate-400">Pharmacist/Cashier:</span> <strong>{data.cashier?.name || "Admin"}</strong></div>
       </div>
 
       {/* Drugs with Generic, Batch, Expiry & Dosage */}
@@ -780,19 +809,37 @@ function PharmacyInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData
       </table>
 
       {/* Total & Pharmacist Attestation */}
-      <div className="border-t border-dashed border-slate-300 pt-3 space-y-1 text-xs">
+      <div className="border-t border-dashed border-slate-300 pt-3 space-y-1.5 text-xs">
         <div className="flex justify-between text-slate-600">
-          <span>Prescription Bill Total:</span>
-          <span className="font-bold text-slate-900">{fmt(data.grandTotal)}</span>
+          <span>Prescription Bill Subtotal:</span>
+          <span className="font-bold text-slate-900">{fmt(data.subTotal || data.grandTotal)}</span>
         </div>
-        <div className="flex justify-between text-slate-500 text-[11px]">
-          <span>DGDA Essential Drug Price Compliance:</span>
-          <span>Verified (0% VAT)</span>
+        {Number(data.taxTotal || 0) > 0 && (
+          <div className="flex justify-between text-slate-500 text-[11px]">
+            <span>VAT / Tax:</span>
+            <span>{fmt(data.taxTotal || 0)}</span>
+          </div>
+        )}
+        <div className="flex justify-between font-black text-sm text-teal-950 border-t border-b border-teal-200 bg-teal-50/50 p-2 my-1 rounded-lg">
+          <span>Net Payable:</span>
+          <span className="tabular-nums text-teal-900">{fmt(data.grandTotal)}</span>
         </div>
-        <div className="flex justify-between font-black text-sm text-teal-900 border-t border-b border-teal-200 bg-teal-50/50 p-2 my-1 rounded-lg">
-          <span>Net Paid:</span>
-          <span className="tabular-nums">{fmt(data.paidTotal || data.grandTotal)}</span>
+        <div className="flex justify-between text-slate-700">
+          <span>Tender Method:</span>
+          <span className="font-bold">{data.paymentMethod || "CASH"} (Paid: {fmt(data.paidTotal || data.grandTotal)})</span>
         </div>
+        {data.dueTotal > 0 && (
+          <div className="flex justify-between text-amber-700 font-bold">
+            <span>Remaining Due:</span>
+            <span>{fmt(data.dueTotal)}</span>
+          </div>
+        )}
+        {data.paidTotal > data.grandTotal && (
+          <div className="flex justify-between text-emerald-700 font-bold">
+            <span>Change Return:</span>
+            <span className="font-mono">{fmt(data.paidTotal - data.grandTotal)}</span>
+          </div>
+        )}
       </div>
 
       <div className="pt-2 text-center text-[10px] text-slate-500">

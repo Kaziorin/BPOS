@@ -372,10 +372,8 @@ export default function PharmacyHubPage() {
                 invoiceId: selectedSale.id || crypto.randomUUID(),
                 invoiceNo: selectedSale.invoiceNo || `INV-${(selectedSale.id || "").slice(0, 8).toUpperCase()}`,
                 total: Number(selectedSale.grandTotal ?? selectedSale.totalAmount ?? selectedSale.total ?? 0),
-                paidTotal: selectedSale.paymentMethod !== "CREDIT"
-                  ? Math.max(Number(selectedSale.paidTotal ?? 0), Number(selectedSale.grandTotal ?? selectedSale.totalAmount ?? selectedSale.total ?? 0))
-                  : Number(selectedSale.paidTotal ?? 0),
-                dueTotal: selectedSale.paymentMethod !== "CREDIT" ? 0 : Number(selectedSale.dueTotal || 0),
+                paidTotal: Number(selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0),
+                dueTotal: Number(selectedSale.dueTotal || 0),
                 paymentIds: [],
               }}
               cart={(selectedSale.items || []).map((it: any) => ({
@@ -385,7 +383,10 @@ export default function PharmacyHubPage() {
                 lineTotal: Number(it.unitPrice || 0) * Number(it.qty || 1),
                 sku: it.sku,
               }))}
-              payments={[{ method: selectedSale.paymentMethod || "CASH", amount: Number(selectedSale.grandTotal ?? selectedSale.total ?? 0) }]}
+              payments={[{
+                method: selectedSale.paymentMethod || "CASH",
+                amount: Number(selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0),
+              }]}
               cashierName={selectedSale.cashier?.name || user?.name || "Cashier"}
               customerName={selectedSale.customer?.name || selectedSale.customerName || "Walk-in Retail Customer"}
               onNewSale={() => setSelectedSale(null)}

@@ -306,7 +306,8 @@ async def list_sales_orders(
             SELECT so.id, so.orderNo, 'B2B' AS source, so.status, so.subtotal, so.total,
                    0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
                    c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
-                   b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName
+                   b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName,
+                   NULL AS paymentMethod
             FROM sales_orders so
             LEFT JOIN customers c ON c.id = so.customerId
             LEFT JOIN branches b ON b.id = so.branchId
@@ -324,7 +325,8 @@ async def list_sales_orders(
                    s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                    s.paymentStatus, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                    b.name AS branchName,
-                   s.userId AS cashierId, u.name AS cashierName
+                   s.userId AS cashierId, u.name AS cashierName,
+                   (SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod
             FROM sales s
             LEFT JOIN customers c ON c.id = s.customerId
             LEFT JOIN branches b ON b.id = s.branchId
@@ -350,7 +352,8 @@ async def list_sales_orders(
                 SELECT so.id, so.orderNo, 'B2B' AS source, so.status, so.subtotal, so.total,
                        0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
-                       b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName
+                       b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName,
+                       NULL AS paymentMethod
                 FROM sales_orders so
                 LEFT JOIN customers c ON c.id = so.customerId
                 LEFT JOIN branches b ON b.id = so.branchId
@@ -361,7 +364,8 @@ async def list_sales_orders(
                 SELECT s.id, s.invoiceNo AS orderNo, 'POS' AS source, s.status, s.subtotal, s.total,
                        s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
-                       b.name AS branchName, s.paymentStatus, s.userId AS cashierId, u.name AS cashierName
+                       b.name AS branchName, s.paymentStatus, s.userId AS cashierId, u.name AS cashierName,
+                       (SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod
                 FROM sales s
                 LEFT JOIN customers c ON c.id = s.customerId
                 LEFT JOIN branches b ON b.id = s.branchId
@@ -378,6 +382,7 @@ async def list_sales_orders(
             r["paidTotal"] = max(float(r.get("paidTotal", 0) or 0), r["total"])
             r["dueTotal"] = 0.0
             r["paymentStatus"] = "PAID"
+            r["changeReturn"] = max(r["paidTotal"] - r["total"], 0.0)
             r["customer"] = {
                 "id": r.get("customerId"),
                 "name": r.pop("customerName", None) or "Walk-in Retail Customer",
