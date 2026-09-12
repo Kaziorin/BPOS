@@ -336,6 +336,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
     title: "5. Administration & Intelligence",
     items: [
       { label: "Executive Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { label: "Platform & SaaS Management", href: "/saas", icon: Shield, badge: "SaaS" },
       { label: "Onboarding Wizard", href: "/onboarding", icon: Sparkles },
       { label: "Multi-Branch Outlets", href: "/branches", icon: Building2 },
       {
@@ -472,6 +473,8 @@ export function useDynamicNav() {
         if (!data || typeof data !== "object" || Object.keys(data).length === 0) return;
 
         const groups: NavGroup[] = [];
+        const seenNormalizedRoutes = new Set<string>();
+
         const sortedCategories = Object.keys(data).sort(
           (a, b) => (CATEGORY_ORDER.indexOf(a) === -1 ? 99 : CATEGORY_ORDER.indexOf(a)) - (CATEGORY_ORDER.indexOf(b) === -1 ? 99 : CATEGORY_ORDER.indexOf(b)),
         );
@@ -483,6 +486,102 @@ export function useDynamicNav() {
           const items: NavItem[] = [];
 
           for (const mod of modules) {
+            let moduleRoute = (mod.moduleRoute || "").trim();
+            const modName = (mod.moduleName || "").trim();
+            const modCode = (mod.moduleCode || "").toLowerCase().trim();
+
+            // 1. Consolidate Settings, Tenant & Sync modules into single System & Store Settings
+            if (
+              modCode === "settings" ||
+              modCode === "tenant" ||
+              modCode === "sync" ||
+              moduleRoute === "/settings" ||
+              moduleRoute.startsWith("/settings?") ||
+              modName.toLowerCase().includes("tenant") ||
+              modName.toLowerCase().includes("global settings") ||
+              modName.toLowerCase().includes("store settings")
+            ) {
+              if (seenNormalizedRoutes.has("/settings")) {
+                continue; // Skip duplicate settings entries!
+              }
+              seenNormalizedRoutes.add("/settings");
+              items.push({
+                label: "System & Store Settings",
+                href: "/settings",
+                icon: Settings,
+                badge: "Config",
+                children: [
+                  { label: "Company & Identity", href: "/settings?tab=company", icon: Building },
+                  { label: "Branches & Outlets", href: "/settings?tab=branch", icon: Store },
+                  { label: "POS Terminal Settings", href: "/settings?tab=pos", icon: Monitor },
+                  { label: "Offline Sync Engine (§13)", href: "/settings?tab=sync", icon: HardDrive },
+                  { label: "Tax & NBR VAT", href: "/settings?tab=tax", icon: DollarSign },
+                  { label: "Invoice & Print Layout", href: "/settings?tab=invoice", icon: FileText },
+                  { label: "Payment Gateways", href: "/settings?tab=payment", icon: CreditCard },
+                  { label: "Currencies & FX Rates", href: "/settings?tab=currency", icon: Coins },
+                ],
+              });
+              continue;
+            }
+
+            // 2. Consolidate Audit & Auth modules into single Audit & Security Logs
+            if (
+              modCode === "audit" ||
+              modCode === "auth" ||
+              moduleRoute === "/audit-security" ||
+              moduleRoute.startsWith("/audit-security?") ||
+              modName.toLowerCase().includes("authentication & security") ||
+              modName.toLowerCase().includes("audit system")
+            ) {
+              if (seenNormalizedRoutes.has("/audit-security")) {
+                continue; // Skip duplicate security entries!
+              }
+              seenNormalizedRoutes.add("/audit-security");
+              items.push({
+                label: "Audit & Security Logs",
+                href: "/audit-security",
+                icon: Eye,
+              });
+              continue;
+            }
+
+            // 3. Consolidate Workflow & Base Rules modules
+            if (
+              modCode === "workflow" ||
+              modCode === "baserules" ||
+              moduleRoute === "/workflow" ||
+              moduleRoute === "/business-rules" ||
+              modName.toLowerCase().includes("workflow") ||
+              modName.toLowerCase().includes("business rule")
+            ) {
+              if (seenNormalizedRoutes.has("/workflow")) {
+                continue;
+              }
+              seenNormalizedRoutes.add("/workflow");
+              items.push({
+                label: "Workflow & Approvals",
+                href: "/workflow",
+                icon: GitMerge,
+                badge: "Engine",
+                children: [
+                  { label: "Approval Center", href: "/workflow", icon: GitMerge },
+                  { label: "Pending Approvals", href: "/workflow/pending", icon: Clock },
+                  { label: "Approval Chains & Rules", href: "/workflow/rules", icon: GitBranch },
+                  { label: "Business Rules (§10.27)", href: "/business-rules", icon: Zap },
+                ],
+              });
+              continue;
+            }
+
+            // Deduplicate top-level base route
+            const baseRoute = moduleRoute.split("?")[0];
+            if (baseRoute && baseRoute !== "#" && seenNormalizedRoutes.has(baseRoute)) {
+              continue;
+            }
+            if (baseRoute && baseRoute !== "#") {
+              seenNormalizedRoutes.add(baseRoute);
+            }
+
             const ModIcon = getIcon(mod.moduleIcon);
 
             // Build 2nd-level children (menuItems), each may have 3rd-level sub-children
@@ -500,7 +599,7 @@ export function useDynamicNav() {
             }));
 
             // Inject Product Types submenu if missing under Product Catalog
-            if (mod.moduleName === "Product Catalog" || mod.moduleRoute === "/products") {
+            if (mod.moduleName === "Product Catalog" || moduleRoute === "/products") {
               const hasTypes = rawChildren.some(
                 (c) => c.href === "/product-types" || c.href === "/products/types"
               );
@@ -519,63 +618,66 @@ export function useDynamicNav() {
               }
             }
 
-            // Deduplicate children by label + href combination
+            // Deduplicate children and flatten self-referential redundant recursion
             const children: NavChild[] = [];
-            const seenKeys = new Set<string>();
+            const seenChildKeys = new Set<string>();
             for (const child of rawChildren) {
-              const key = `${child.label.trim().toLowerCase()}-${child.href.trim().toLowerCase()}`;
-              if (!seenKeys.has(key)) {
-                seenKeys.add(key);
-                children.push(child);
+              const childLabel = child.label.trim().toLowerCase();
+              const childHref = child.href.trim().toLowerCase();
+              const key = `${childLabel}-${childHref}`;
+
+              // Skip child if it is identical to parent module (redundant accordion)
+              if (
+                childLabel === modName.toLowerCase() &&
+                childHref === moduleRoute.toLowerCase()
+              ) {
+                continue;
+              }
+
+              if (!seenChildKeys.has(key)) {
+                seenChildKeys.add(key);
+
+                // Flatten child if its sub-children are identical to itself
+                let sanitizedSubChildren = child.children;
+                if (sanitizedSubChildren && sanitizedSubChildren.length === 1) {
+                  if (
+                    sanitizedSubChildren[0].label.trim().toLowerCase() === childLabel ||
+                    sanitizedSubChildren[0].href.trim().toLowerCase() === childHref
+                  ) {
+                    sanitizedSubChildren = undefined;
+                  }
+                }
+
+                children.push({
+                  ...child,
+                  children: sanitizedSubChildren,
+                });
               }
             }
 
-            // Industry & Platform Specific Overrides
-            let moduleRoute = mod.moduleRoute;
+            // Industry Specific Overrides
             let moduleChildren: NavChild[] | undefined = children;
 
-            if (mod.moduleCode === "wholesale") {
+            if (modCode === "wholesale") {
               moduleRoute = "/wholesale";
               moduleChildren = undefined;
             }
 
-            // Consolidate standalone sync module into Settings to prevent duplicate menu items
-            if (mod.moduleCode === "sync" || moduleRoute === "/settings?tab=sync") {
-              continue;
-            }
+            // Direct link routes (no sub-menu accordion)
+            const DIRECT_LINK_ROUTES = ["/grocery", "/pharmacy", "/wholesale", "/saas", "/onboarding", "/branches", "/rbac", "/hrm", "/ai", "/reports"];
+            const forceDirectLink = DIRECT_LINK_ROUTES.includes(moduleRoute);
 
-            // Ensure System & Store Settings has comprehensive submenus if not already provided by backend
-            if (mod.moduleCode === "settings" || moduleRoute === "/settings") {
-              moduleRoute = "/settings";
-              if (!moduleChildren || moduleChildren.length <= 1) {
-                moduleChildren = [
-                  { label: "Company & Identity", href: "/settings?tab=company", icon: Building },
-                  { label: "Branches & Outlets", href: "/settings?tab=branch", icon: Store },
-                  { label: "POS Terminal Settings", href: "/settings?tab=pos", icon: Monitor },
-                  { label: "Offline Sync Engine (§13)", href: "/settings?tab=sync", icon: HardDrive },
-                  { label: "Tax & NBR VAT", href: "/settings?tab=tax", icon: DollarSign },
-                  { label: "Invoice & Print Layout", href: "/settings?tab=invoice", icon: FileText },
-                  { label: "Payment Gateways", href: "/settings?tab=payment", icon: CreditCard },
-                  { label: "Currencies & FX Rates", href: "/settings?tab=currency", icon: Coins },
-                ];
-              }
-            }
-
-            // Single item that matches module route → direct link (no accordion)
+            // Single item that matches module route → direct link
             const singleDirect =
               children.length === 1 &&
-              children[0].href === moduleRoute &&
+              children[0].href.toLowerCase() === moduleRoute.toLowerCase() &&
               !children[0].children?.length;
-
-            // Modules that should be direct links (no sub-menu accordion)
-            const DIRECT_LINK_ROUTES = ["/grocery", "/pharmacy", "/wholesale"];
-            const forceDirectLink = DIRECT_LINK_ROUTES.includes(moduleRoute ?? "");
 
             items.push({
               label: mod.moduleName,
-              href: moduleRoute ?? "#",
+              href: moduleRoute || "#",
               icon: ModIcon,
-              children: forceDirectLink || singleDirect || (moduleChildren?.length === 0) ? undefined : moduleChildren,
+              children: forceDirectLink || singleDirect || (moduleChildren.length === 0) ? undefined : moduleChildren,
             });
           }
 
