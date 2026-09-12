@@ -57,6 +57,9 @@ import {
   Wrench,
   Factory,
   Store,
+  Building,
+  Coins,
+  HardDrive,
   GitMerge,
   GitBranch,
   Zap,
@@ -352,7 +355,22 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
       { label: "HRM & Staff Members", href: "/hrm", icon: UserCog },
       { label: "AI Business Assistant", href: "/ai", icon: Activity },
       { label: "Business Intelligence Reports", href: "/reports", icon: BarChart3 },
-      { label: "System & Store Settings", href: "/settings", icon: Settings },
+      {
+        label: "System & Store Settings",
+        href: "/settings",
+        icon: Settings,
+        badge: "Config",
+        children: [
+          { label: "Company & Identity", href: "/settings?tab=company", icon: Building },
+          { label: "Branches & Outlets", href: "/settings?tab=branch", icon: Store },
+          { label: "POS Terminal Settings", href: "/settings?tab=pos", icon: Monitor },
+          { label: "Offline Sync Engine (§13)", href: "/settings?tab=sync", icon: HardDrive },
+          { label: "Tax & NBR VAT", href: "/settings?tab=tax", icon: DollarSign },
+          { label: "Invoice & Print Layout", href: "/settings?tab=invoice", icon: FileText },
+          { label: "Payment Gateways", href: "/settings?tab=payment", icon: CreditCard },
+          { label: "Currencies & FX Rates", href: "/settings?tab=currency", icon: Coins },
+        ],
+      },
     ],
   },
   {
@@ -512,13 +530,35 @@ export function useDynamicNav() {
               }
             }
 
-            // Industry Specific Overrides
+            // Industry & Platform Specific Overrides
             let moduleRoute = mod.moduleRoute;
             let moduleChildren: NavChild[] | undefined = children;
 
             if (mod.moduleCode === "wholesale") {
               moduleRoute = "/wholesale";
               moduleChildren = undefined;
+            }
+
+            // Consolidate standalone sync module into Settings to prevent duplicate menu items
+            if (mod.moduleCode === "sync" || moduleRoute === "/settings?tab=sync") {
+              continue;
+            }
+
+            // Ensure System & Store Settings has comprehensive submenus if not already provided by backend
+            if (mod.moduleCode === "settings" || moduleRoute === "/settings") {
+              moduleRoute = "/settings";
+              if (!moduleChildren || moduleChildren.length <= 1) {
+                moduleChildren = [
+                  { label: "Company & Identity", href: "/settings?tab=company", icon: Building },
+                  { label: "Branches & Outlets", href: "/settings?tab=branch", icon: Store },
+                  { label: "POS Terminal Settings", href: "/settings?tab=pos", icon: Monitor },
+                  { label: "Offline Sync Engine (§13)", href: "/settings?tab=sync", icon: HardDrive },
+                  { label: "Tax & NBR VAT", href: "/settings?tab=tax", icon: DollarSign },
+                  { label: "Invoice & Print Layout", href: "/settings?tab=invoice", icon: FileText },
+                  { label: "Payment Gateways", href: "/settings?tab=payment", icon: CreditCard },
+                  { label: "Currencies & FX Rates", href: "/settings?tab=currency", icon: Coins },
+                ];
+              }
             }
 
             // Single item that matches module route → direct link (no accordion)
