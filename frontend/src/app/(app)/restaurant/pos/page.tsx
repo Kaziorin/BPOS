@@ -112,6 +112,22 @@ interface RestaurantCartItem {
   kotStatus: "PENDING" | "SENT_TO_KITCHEN" | "PREPARING" | "SERVED" | "READY_TO_SERVE";
 }
 
+interface StaffOption {
+  id: string;
+  name: string;
+  role?: string;
+  shift?: string;
+  avatarColor?: string;
+}
+
+const DEFAULT_STAFF: StaffOption[] = [
+  { id: "staff-1", name: "Staff 1", role: "Captain / Waiter", shift: "Morning", avatarColor: "bg-orange-100 text-orange-700" },
+  { id: "staff-2", name: "Staff 2", role: "Table Server", shift: "Morning", avatarColor: "bg-amber-100 text-amber-700" },
+  { id: "staff-3", name: "Sumon", role: "Head Waiter", shift: "Evening", avatarColor: "bg-blue-100 text-blue-700" },
+  { id: "staff-4", name: "Kabir", role: "Server / Runner", shift: "Evening", avatarColor: "bg-emerald-100 text-emerald-700" },
+  { id: "staff-5", name: "Anis", role: "Beverage Barista", shift: "Full Day", avatarColor: "bg-purple-100 text-purple-700" },
+  { id: "staff-6", name: "Manager", role: "Floor Manager", shift: "General", avatarColor: "bg-rose-100 text-rose-700" },
+];
 
 const DEMO_TABLES: TableOption[] = [
   { id: "tbl-01", tableNo: "Table 01", capacity: 4, status: "AVAILABLE" },
@@ -310,6 +326,9 @@ export default function RestaurantPOSPage() {
   // Modals & Dialogs
   const [showSelectTableModal, setShowSelectTableModal] = useState(false);
   const [tableModalFloorId, setTableModalFloorId] = useState<string>("");
+  const [tableModalStep, setTableModalStep] = useState<1 | 2 | 3>(1);
+  const [staffList, setStaffList] = useState<StaffOption[]>(DEFAULT_STAFF);
+  const [customStaffName, setCustomStaffName] = useState("");
   const [showHoldModal, setShowHoldModal] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showCustomItemModal, setShowCustomItemModal] = useState(false);
@@ -402,6 +421,31 @@ export default function RestaurantPOSPage() {
         if (tData?.tenant?.name) setStoreName(tData.tenant.name);
         if (tData?.branches?.[0]?.name) setBranchName(tData.branches[0].name);
         if (tData?.branches?.[0]?.address) setBranchAddress(tData.branches[0].address);
+      } catch (_) {}
+
+      // 1c. Fetch staff/employees from HRM if available
+      try {
+        const empRes: any = await api.get("/hrm/employees?status=ACTIVE&limit=50").catch(() => null);
+        const empData = (empRes?.data as any)?.data ?? empRes?.data ?? empRes ?? [];
+        if (Array.isArray(empData) && empData.length > 0) {
+          const COLORS = [
+            "bg-orange-100 text-orange-700",
+            "bg-amber-100 text-amber-700",
+            "bg-blue-100 text-blue-700",
+            "bg-emerald-100 text-emerald-700",
+            "bg-purple-100 text-purple-700",
+            "bg-rose-100 text-rose-700",
+          ];
+          setStaffList(
+            empData.map((e: any, idx: number) => ({
+              id: String(e.id || idx),
+              name: e.name || e.fullName || `${e.firstName || ""} ${e.lastName || ""}`.trim() || `Staff ${idx + 1}`,
+              role: e.designation || e.role || "Waiter",
+              shift: e.shift || "Active",
+              avatarColor: COLORS[idx % COLORS.length],
+            }))
+          );
+        }
       } catch (_) {}
 
       // 2. Fetch created categories for current tenant & business
@@ -1284,16 +1328,22 @@ export default function RestaurantPOSPage() {
         <div className="flex flex-wrap items-center gap-3 text-gray-600">
           <button
             onClick={() => {
-              setTableModalFloorId("");
+              setTableModalStep(1);
               setShowSelectTableModal(true);
             }}
-            className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5 hover:bg-slate-100 transition cursor-pointer"
+            className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5 hover:bg-orange-50 hover:border-orange-300 transition cursor-pointer"
+            title="Select Section and Table"
           >
             <LayoutGrid size={15} className="text-orange-600" />
             <span className="text-xs font-medium text-gray-500">Table:</span>
-            <span className="text-xs font-bold text-gray-600">
+            <span className="text-xs font-bold text-gray-700">
               {selectedTable ? `${selectedTable.tableNo} (${selectedTable.capacity} Seats)` : "Select Table"}
             </span>
+            {selectedTable?.floorName && (
+              <span className="text-[10px] bg-orange-100 text-orange-700 font-semibold px-1.5 py-0.5 rounded">
+                {selectedTable.floorName}
+              </span>
+            )}
           </button>
 
           <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
@@ -1321,19 +1371,24 @@ export default function RestaurantPOSPage() {
             </button>
           </div>
 
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
-            <ChefHat size={15} className="text-gray-500" />
-            <span className="text-xs font-medium text-gray-500">Waiter:</span>
-            <select
-              value={waiterName}
-              onChange={(e) => setWaiterName(e.target.value)}
-              className="bg-transparent text-xs font-bold text-gray-600 focus:outline-none cursor-pointer"
-            >
-              <option value="Staff 1">Staff 1</option>
-              <option value="Staff 2">Staff 2</option>
-              <option value="Manager">Manager</option>
-            </select>
-          </div>
+          {/* Waiter / Staff Button (Modal trigger instead of dropdown) */}
+          <button
+            onClick={() => {
+              setTableModalStep(3);
+              setShowSelectTableModal(true);
+            }}
+            className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5 hover:bg-orange-50 hover:border-orange-300 transition cursor-pointer"
+            title="Assign or change staff/waiter"
+          >
+            <ChefHat size={15} className="text-orange-600" />
+            <span className="text-xs font-medium text-gray-500">Staff:</span>
+            <span className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+              {waiterName || "Assign Staff"}
+              <span className="text-[10px] text-orange-600 bg-orange-50 border border-orange-200 px-1.5 py-0.5 rounded font-semibold">
+                Change
+              </span>
+            </span>
+          </button>
 
           <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
             <Users size={15} className="text-gray-500" />
@@ -2296,108 +2351,200 @@ export default function RestaurantPOSPage() {
         cancelText="Cancel"
       />
 
-      {/* ══════════════ SELECT TABLE MODAL (Section → Table) ══════════════ */}
+      {/* ══════════════ UNIFIED ORDER SETUP MODAL (Section → Table → Staff) ══════════════ */}
       <CustomModal
         open={showSelectTableModal}
         onClose={() => setShowSelectTableModal(false)}
-        title="Select Dining Table"
+        title="Order Setup: Section, Table & Staff"
         size="2xl"
       >
         <div className="space-y-4">
-          {/* ─── STEP 1 · CHOOSE SECTION (skipped automatically when no sections exist) ─── */}
-          {showFloorStep && (
-            <div className="space-y-2">
+          {/* ── STEPPER NAVIGATION HEADER ── */}
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3 px-1">
+            <div className="flex items-center gap-1.5 sm:gap-3 w-full">
+              {/* Step 1: Section */}
+              <button
+                type="button"
+                onClick={() => setTableModalStep(1)}
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  tableModalStep === 1
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : tableModalFloorId
+                    ? "bg-orange-50 text-orange-700 border border-orange-200"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                <span
+                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black ${
+                    tableModalStep === 1
+                      ? "bg-white text-orange-600"
+                      : "bg-orange-200 text-orange-800"
+                  }`}
+                >
+                  1
+                </span>
+                <span>1. Section</span>
+                {tableModalFloorId && <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />}
+              </button>
+
+              <div className="h-0.5 w-4 sm:w-8 bg-slate-200" />
+
+              {/* Step 2: Table */}
+              <button
+                type="button"
+                onClick={() => setTableModalStep(2)}
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  tableModalStep === 2
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : selectedTable
+                    ? "bg-orange-50 text-orange-700 border border-orange-200"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                <span
+                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black ${
+                    tableModalStep === 2
+                      ? "bg-white text-orange-600"
+                      : "bg-orange-200 text-orange-800"
+                  }`}
+                >
+                  2
+                </span>
+                <span>2. Table</span>
+                {selectedTable && <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />}
+              </button>
+
+              <div className="h-0.5 w-4 sm:w-8 bg-slate-200" />
+
+              {/* Step 3: Staff */}
+              <button
+                type="button"
+                onClick={() => setTableModalStep(3)}
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  tableModalStep === 3
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : waiterName
+                    ? "bg-orange-50 text-orange-700 border border-orange-200"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                <span
+                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black ${
+                    tableModalStep === 3
+                      ? "bg-white text-orange-600"
+                      : "bg-orange-200 text-orange-800"
+                  }`}
+                >
+                  3
+                </span>
+                <span>3. Staff / Waiter</span>
+                {waiterName && <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />}
+              </button>
+            </div>
+          </div>
+
+          {/* ════════ STEP 1 CONTENT: CHOOSE SECTION ════════ */}
+          {tableModalStep === 1 && (
+            <div className="space-y-3 py-1">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-orange-500 text-[10px] font-black text-white shadow-sm">1</span>
-                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Choose Section</span>
+                <div>
+                  <h4 className="text-sm font-bold text-gray-800">Select Dining Section / Floor</h4>
+                  <p className="text-xs text-gray-400">Choose the dining area or floor for this order</p>
                 </div>
-                {tableModalFloorId && (
-                  <button
-                    type="button"
-                    onClick={() => setTableModalFloorId("")}
-                    className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-[10px] font-black uppercase tracking-wider text-orange-600 transition-colors hover:bg-orange-50"
-                  >
-                    <ArrowLeft size={11} strokeWidth={3} /> Change Section
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTableModalFloorId("");
+                    setTableModalStep(2);
+                  }}
+                  className="text-xs font-bold text-orange-600 hover:text-orange-700 hover:underline cursor-pointer"
+                >
+                  Show All Tables →
+                </button>
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
                 {floors.map((f) => {
                   const floorTables = tables.filter((t) => t.floorId === f.id);
+                  const availableCount = floorTables.filter((t) => t.status === "AVAILABLE").length;
                   const isFloorActive = tableModalFloorId === f.id;
 
                   return (
                     <button
                       key={f.id}
                       type="button"
-                      onClick={() => setTableModalFloorId(f.id)}
-                      className={`flex cursor-pointer select-none items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-bold transition-colors duration-150 ${
+                      onClick={() => {
+                        setTableModalFloorId(f.id);
+                        setTableModalStep(2);
+                      }}
+                      className={`flex flex-col p-3.5 rounded-xl border text-left transition cursor-pointer ${
                         isFloorActive
-                          ? "border-orange-500 bg-orange-500 text-white shadow-sm shadow-orange-500/20"
-                          : "border-slate-200 bg-white text-slate-600 hover:border-orange-400 hover:bg-orange-50/50"
+                          ? "border-orange-500 bg-orange-50/80 ring-2 ring-orange-200 shadow-xs"
+                          : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/30"
                       }`}
                     >
-                      <Building2 size={14} className={isFloorActive ? "text-white" : "text-orange-500"} />
-                      {f.name}
-                      <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-black ${isFloorActive ? "bg-white/25 text-white" : "bg-slate-100 text-slate-500"}`}>
-                        {floorTables.length}
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 text-orange-600">
+                          <Building2 size={16} />
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          {availableCount} Free
+                        </span>
+                      </div>
+                      <h5 className="font-black text-gray-800 text-sm mt-2">{f.name}</h5>
+                      <p className="text-xs text-gray-400 font-medium mt-0.5">
+                        {floorTables.length} Tables Total
+                      </p>
                     </button>
                   );
                 })}
+
+                {/* All Sections Card */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTableModalFloorId("");
+                    setTableModalStep(2);
+                  }}
+                  className="flex flex-col p-3.5 rounded-xl border border-dashed border-slate-300 bg-slate-50 hover:bg-white hover:border-orange-300 text-left transition cursor-pointer"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-200 text-slate-600">
+                    <LayoutGrid size={16} />
+                  </div>
+                  <h5 className="font-black text-gray-800 text-sm mt-2">All Sections</h5>
+                  <p className="text-xs text-gray-400 font-medium mt-0.5">
+                    Show all {tables.length} tables
+                  </p>
+                </button>
               </div>
             </div>
           )}
 
-          {/* ─── STEP 2 · PICK A TABLE ─── */}
-          <div className="space-y-2.5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              {showFloorStep && !tableModalFloorId ? (
-                <div className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-200 text-[10px] font-black text-slate-500">2</span>
-                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">Pick a Table</span>
+          {/* ════════ STEP 2 CONTENT: PICK TABLE ════════ */}
+          {tableModalStep === 2 && (
+            <div className="space-y-3 py-1">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h4 className="text-sm font-bold text-gray-800">
+                    {tableModalFloorId
+                      ? `${floors.find((f) => f.id === tableModalFloorId)?.name || "Section"} Tables`
+                      : "All Dining Tables"}
+                  </h4>
+                  <p className="text-xs text-gray-400">Click a free table to select and proceed to staff</p>
                 </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-orange-500 text-[10px] font-black text-white shadow-sm">
-                    {showFloorStep ? "2" : "•"}
-                  </span>
-                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">
-                    {showFloorStep ? `${floors.find((f) => f.id === tableModalFloorId)?.name || "Section"} · Tables` : "All Tables"}
-                  </span>
+
+                <div className="flex items-center gap-3 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                  <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Free</span>
+                  <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-amber-500" /> Busy</span>
+                  <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-purple-500" /> Reserved</span>
                 </div>
-              )}
-
-              <div className="flex items-center gap-3 text-[9px] font-black uppercase tracking-widest text-slate-400">
-                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Free</span>
-                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-amber-500" /> Busy</span>
-                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-purple-500" /> Reserved</span>
-                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-orange-500" /> Selected</span>
               </div>
-            </div>
 
-            {showFloorStep && !tableModalFloorId ? (
-              <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 py-10 text-center">
-                <LayoutGrid size={32} className="mx-auto text-slate-300" />
-                <p className="mt-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
-                  Select a section above to view its tables
-                </p>
-              </div>
-            ) : (
               <div className="custom-scrollbar max-h-[46vh] overflow-y-auto pr-1">
                 {tableModalTables.length === 0 ? (
                   <div className="py-10 text-center">
                     <Armchair size={36} className="mx-auto text-slate-200" />
-                    <p className="mt-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
-                      No tables {showFloorStep ? "in this section" : "found"}
-                    </p>
-                    {showFloorStep && (
-                      <p className="mt-1 text-[10px] font-medium text-slate-300">
-                        Try another section or add tables from the Sections page.
-                      </p>
-                    )}
+                    <p className="mt-2 text-xs font-bold text-slate-400">No tables found in this section</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
@@ -2410,11 +2557,9 @@ export default function RestaurantPOSPage() {
                       return (
                         <button
                           key={t.id}
-                          disabled={!isAvailable}
-                          title={isReserved ? "Already reserved" : isBusy ? "Currently occupied" : undefined}
+                          disabled={!isAvailable && !isSelected}
                           onClick={() => {
-                            if (!isAvailable) return;
-                            // ── BOOKING: free the previous table, then reserve this one ──
+                            if (!isAvailable && !isSelected) return;
                             const previous = selectedTable;
                             if (previous && previous.id !== t.id) {
                               setTables((prev) =>
@@ -2427,21 +2572,22 @@ export default function RestaurantPOSPage() {
                             );
                             api.patch(`/v1/restaurant/tables/${t.id}/status`, { status: "RESERVED" }).catch(() => {});
                             setSelectedTable(t);
-                            setShowSelectTableModal(false);
-                            toast.success(`Table ${t.tableNo} reserved for this order`);
+                            // Automatically step forward to Step 3: Staff!
+                            setTableModalStep(3);
+                            toast.info(`Table ${t.tableNo} selected! Now choose staff.`);
                           }}
-                          className={`rounded-xl border p-3 text-left transition-colors duration-150 ${
+                          className={`rounded-xl border p-3 text-left transition duration-150 cursor-pointer ${
                             isSelected
-                              ? "border-orange-500 bg-orange-500 ring-2 ring-orange-200"
+                              ? "border-orange-500 bg-orange-500 text-white ring-2 ring-orange-200 shadow-sm"
                               : !isAvailable
                               ? isReserved
                                 ? "border-purple-200 bg-purple-50 opacity-80 cursor-not-allowed"
                                 : "border-amber-200 bg-amber-50 opacity-80 cursor-not-allowed"
-                              : "border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50/60 cursor-pointer"
+                              : "border-slate-200 bg-white hover:border-orange-400 hover:bg-orange-50/50"
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span className={`truncate text-sm font-black tracking-tight ${isSelected ? "text-white" : "text-gray-700"}`}>
+                            <span className={`truncate text-sm font-black tracking-tight ${isSelected ? "text-white" : "text-gray-800"}`}>
                               {t.tableNo}
                             </span>
                             {isSelected ? (
@@ -2452,7 +2598,7 @@ export default function RestaurantPOSPage() {
                           </div>
 
                           <div className="mt-2 flex items-center justify-between gap-2">
-                            <span className={`flex items-center gap-1 text-[10px] font-bold ${isSelected ? "text-orange-50" : "text-slate-400"}`}>
+                            <span className={`flex items-center gap-1 text-[10px] font-bold ${isSelected ? "text-orange-100" : "text-slate-400"}`}>
                               <Users size={10} strokeWidth={2.5} /> {t.capacity} Seats
                             </span>
                             <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider ${
@@ -2469,7 +2615,7 @@ export default function RestaurantPOSPage() {
                           </div>
 
                           {isBusy && t.currentBill ? (
-                            <div className={`mt-2 rounded-md px-2 py-1 text-[9px] font-bold ${isSelected ? "bg-white/15 text-orange-50" : "bg-amber-100/70 text-amber-700"}`}>
+                            <div className={`mt-2 rounded-md px-2 py-1 text-[9px] font-bold ${isSelected ? "bg-white/15 text-white" : "bg-amber-100/70 text-amber-700"}`}>
                               Bill ৳{t.currentBill}{t.guestCount ? ` · ${t.guestCount} guests` : ""}
                             </div>
                           ) : null}
@@ -2479,31 +2625,162 @@ export default function RestaurantPOSPage() {
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-            <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
-              <div className="flex min-w-0 items-center gap-2">
-                {selectedTable ? (
-                  <>
-                    <CheckCircle2 size={14} className="shrink-0 text-emerald-500" />
-                    <span className="truncate text-[11px] font-bold text-slate-500">
-                      Selected: <span className="font-black text-gray-700">{selectedTable.tableNo}</span>
-                      <span className="text-slate-400"> · {selectedTable.capacity} Seats</span>
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-[11px] font-bold text-slate-400">No table selected yet</span>
+          {/* ════════ STEP 3 CONTENT: ASSIGN STAFF / WAITER ════════ */}
+          {tableModalStep === 3 && (
+            <div className="space-y-3 py-1">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-bold text-gray-800">Assign Staff / Server</h4>
+                  <p className="text-xs text-gray-400">Select the waiter or captain taking care of this table</p>
+                </div>
+                {waiterName && (
+                  <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-200">
+                    Current: {waiterName}
+                  </span>
                 )}
               </div>
-              <CustomButton
-                variant="outline"
-                onClick={() => setShowSelectTableModal(false)}
-              >
-                Close
-              </CustomButton>
+
+              {/* Staff Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {staffList.map((staff) => {
+                  const isStaffActive = waiterName.toLowerCase() === staff.name.toLowerCase();
+
+                  return (
+                    <button
+                      key={staff.id}
+                      type="button"
+                      onClick={() => {
+                        setWaiterName(staff.name);
+                        setShowSelectTableModal(false);
+                        toast.success(`${staff.name} assigned to ${selectedTable?.tableNo || "Order"}!`);
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-xl border text-left transition cursor-pointer ${
+                        isStaffActive
+                          ? "border-orange-500 bg-orange-50/80 ring-2 ring-orange-200 shadow-xs"
+                          : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/30"
+                      }`}
+                    >
+                      <div
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-black text-sm shadow-2xs ${
+                          isStaffActive
+                            ? "bg-orange-600 text-white"
+                            : staff.avatarColor || "bg-orange-100 text-orange-700"
+                        }`}
+                      >
+                        {staff.name.charAt(0).toUpperCase()}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <h5 className="font-black text-gray-800 text-sm truncate">{staff.name}</h5>
+                          {isStaffActive && <CheckCircle2 size={15} className="text-orange-600 shrink-0" />}
+                        </div>
+                        <p className="text-[11px] text-gray-500 font-medium truncate">
+                          {staff.role || "Waiter"}
+                        </p>
+                        {staff.shift && (
+                          <span className="inline-block mt-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">
+                            {staff.shift}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Custom Staff Input */}
+              <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
+                <span className="text-xs font-bold text-gray-500 shrink-0">Or type custom name:</span>
+                <input
+                  type="text"
+                  value={customStaffName}
+                  onChange={(e) => setCustomStaffName(e.target.value)}
+                  placeholder="Enter staff name..."
+                  className="flex-1 text-xs border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-orange-500"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && customStaffName.trim()) {
+                      setWaiterName(customStaffName.trim());
+                      setCustomStaffName("");
+                      setShowSelectTableModal(false);
+                      toast.success(`${customStaffName.trim()} assigned to table!`);
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  disabled={!customStaffName.trim()}
+                  onClick={() => {
+                    if (customStaffName.trim()) {
+                      setWaiterName(customStaffName.trim());
+                      setCustomStaffName("");
+                      setShowSelectTableModal(false);
+                      toast.success(`${customStaffName.trim()} assigned to table!`);
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-orange-600 text-white text-xs font-bold disabled:opacity-50 cursor-pointer"
+                >
+                  Set Staff
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── MODAL FOOTER ── */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold text-gray-400">Order Setup:</span>
+              {tableModalFloorId && (
+                <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-semibold">
+                  Section: {floors.find((f) => f.id === tableModalFloorId)?.name || "Section"}
+                </span>
+              )}
+              {selectedTable && (
+                <span className="px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 border border-orange-200 text-xs font-bold">
+                  Table: {selectedTable.tableNo} ({selectedTable.capacity} Seats)
+                </span>
+              )}
+              {waiterName && (
+                <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-semibold">
+                  Staff: {waiterName}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {tableModalStep > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setTableModalStep((s) => (s > 1 ? ((s - 1) as any) : s))}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-gray-600 hover:bg-slate-50 text-xs font-bold cursor-pointer"
+                >
+                  ← Back
+                </button>
+              )}
+
+              {tableModalStep < 3 ? (
+                <button
+                  type="button"
+                  onClick={() => setTableModalStep((s) => (s < 3 ? ((s + 1) as any) : s))}
+                  className="px-3 py-1.5 rounded-lg bg-orange-600 text-white hover:bg-orange-700 text-xs font-bold shadow-2xs cursor-pointer"
+                >
+                  Next Step →
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowSelectTableModal(false)}
+                  className="px-4 py-1.5 rounded-lg bg-orange-600 text-white hover:bg-orange-700 text-xs font-bold shadow-2xs cursor-pointer"
+                >
+                  Confirm & Close
+                </button>
+              )}
             </div>
           </div>
+        </div>
       </CustomModal>
 
       {/* ══════════════ MEAL SHIFT DETAILS MODAL ══════════════ */}
