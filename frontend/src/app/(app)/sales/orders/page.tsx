@@ -204,9 +204,12 @@ export default function SalesOrdersPage() {
       discountTotal: 0,
       taxTotal: 0,
       grandTotal: Number(order.total || 0),
-      paidTotal: Number(order.paidTotal || 0),
+      paidTotal: Number(order.paidTotal || order.total || 0),
       dueTotal: Number(order.dueTotal || 0),
-      paymentMethod: order.paymentStatus || "CASH",
+      paymentMethod: (order as any).paymentMethod || "CASH",
+      cashier: {
+        name: order.cashierName || "Admin",
+      },
       vertical: order.source === "B2B" ? "wholesale" : "retail",
     });
   }

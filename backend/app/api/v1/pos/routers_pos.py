@@ -263,11 +263,13 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                      "rid": saleId, "note": f"Recipe ingredient for sale {invoiceNo}", "u": user.id})
         await db.execute(text(
             "INSERT INTO invoices (id, tenantId, branchId, saleId, customerId, invoiceNo, invoiceType, issueDate, subtotal, discountTotal, taxTotal, total, paidTotal, status, createdBy, updatedAt) "
-            "VALUES (:id, :t, :b, :s, :cust, :inv, 'TAX', NOW(), :sub, :d, :tax, :total, :paid, :st, :u, NOW())"),
+            "VALUES (:id, :t, :b, :s, :cust, :inv, 'TAX', CURDATE(), :sub, :d, :tax, :total, :paid, :st, :u, NOW())"),
             {"id": invoiceId, "t": tenant, "b": branchId, "s": saleId, "cust": customerId, "inv": invoiceNo,
              "sub": subtotal, "d": discountTotal, "tax": taxTotal, "total": total, "paid": paid,
              "st": "PAID" if due <= 0 else ("PARTIALLY_PAID" if paid > 0 else "ISSUED"), "u": user.id})
         payment_ids = []
+        change_return = max(paid - total, 0.0) if credit_amt == 0 else 0.0
+        remaining_change = change_return
         for p in payments:
             pid = _uuid_str()
             await db.execute(text(
@@ -278,10 +280,15 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                  "ik": p.get("idempotencyKey"), "u": user.id})
             payment_ids.append(pid)
             if p.get("method") == "CASH":
+                net_cash = float(p["amount"])
+                if remaining_change > 0:
+                    deduct = min(net_cash, remaining_change)
+                    net_cash -= deduct
+                    remaining_change -= deduct
                 await db.execute(text(
                     "INSERT INTO shift_txns (id, tenantId, shiftId, type, amount, refType, refId, note, userId) "
                     "VALUES (:id, :t, :sh, 'CASH_SALE', :amt, 'SALE', :rid, :note, :u)"),
-                    {"id": _uuid_str(), "t": tenant, "sh": shiftId, "amt": float(p["amount"]), "rid": saleId,
+                    {"id": _uuid_str(), "t": tenant, "sh": shiftId, "amt": net_cash, "rid": saleId,
                      "note": f"Cash sale {invoiceNo}", "u": user.id})
         # customer dues update for credit
         if credit_amt > 0 and customerId:
@@ -309,9 +316,14 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
         # Debit AR for any unpaid balance, Credit Sales Revenue, Credit VAT Payable.
         revenue = total - taxTotal
         sale_lines: list[tuple[str, float, float, str]] = []
+        journal_change = change_return
         for p in payments:
             m = p.get("method", "CASH")
             amt = float(p.get("amount", 0) or 0)
+            if m == "CASH" and journal_change > 0:
+                deduct = min(amt, journal_change)
+                amt -= deduct
+                journal_change -= deduct
             if amt > 0:
                 sale_lines.append((acc.METHOD_ACCOUNT.get(m, "1000"), amt, 0.0, f"Payment via {m}"))
         if due > 0:
@@ -448,6 +460,8 @@ async def pos_sales(
     status: str = "",
     paymentStatus: str = "",
     hasDue: str = "",
+    startDate: str = "",
+    endDate: str = "",
     sortBy: str = "createdAt",
     sortDir: str = "desc",
     page: int = Query(1),
@@ -468,6 +482,12 @@ async def pos_sales(
         params["st"] = status
     if hasDue in ("1", "true", "yes"):
         where_clauses.append("s.dueTotal > 0")
+    if startDate:
+        where_clauses.append("DATE(s.createdAt) >= :start_date")
+        params["start_date"] = startDate
+    if endDate:
+        where_clauses.append("DATE(s.createdAt) <= :end_date")
+        params["end_date"] = endDate
 
     where_sql = " AND ".join(where_clauses)
     
@@ -526,6 +546,7 @@ async def pos_sales(
             else:
                 r["paidTotal"] = float(r.get("paidTotal", 0) or 0)
                 r["dueTotal"] = float(r.get("dueTotal", 0) or 0)
+            r["changeReturn"] = max(r["paidTotal"] - r["total"], 0.0)
             cust_name = r.get("customerName")
             r["customer"] = {
                 "id": r.get("customerId"),

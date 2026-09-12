@@ -571,8 +571,12 @@ export default function PharmacyPatientDisplayPage() {
                     className="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-slate-200/70 shadow-2xs hover:border-cyan-300 hover:shadow-xs transition-all duration-200"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-50 to-teal-50 border border-cyan-200/60 text-2xl flex items-center justify-center shrink-0">
-                        {emoji}
+                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-50 to-teal-50 border border-cyan-200/60 text-2xl flex items-center justify-center shrink-0 overflow-hidden">
+                        {item.image ? (
+                          <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                        ) : (
+                          emoji
+                        )}
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">

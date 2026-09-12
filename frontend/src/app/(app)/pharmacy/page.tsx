@@ -32,6 +32,12 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { ReceiptModal } from "../pos/ReceiptModal";
+import {
+  fetchAllProducts,
+  fetchBatches,
+  applyBatchStock,
+  type RegisterProduct,
+} from "@/lib/catalog";
 
 function getCustomerTier(pts: number) {
   if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-100" };
@@ -44,21 +50,35 @@ export default function PharmacyHubPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [sales, setSales] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<RegisterProduct[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSale, setSelectedSale] = useState<any | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [salesRes, prodRes] = await Promise.allSettled([
+      const [salesRes, prodsRes, btsRes] = await Promise.allSettled([
         api.get("/pos/sales", { params: { limit: 50 } }),
-        api.get("/products?productType=PHARMACY", { params: { limit: 100 } }),
+        fetchAllProducts(),
+        fetchBatches(),
       ]);
+
       const sData = salesRes.status === "fulfilled" ? ((salesRes.value as any)?.data ?? salesRes.value ?? []) : [];
-      const pData = prodRes.status === "fulfilled" ? ((prodRes.value as any)?.data ?? prodRes.value ?? []) : [];
       setSales(Array.isArray(sData) ? sData : []);
-      setProducts(Array.isArray(pData) ? pData : []);
+
+      let allProds: RegisterProduct[] = [];
+      if (prodsRes.status === "fulfilled") {
+        allProds = prodsRes.value;
+        if (btsRes.status === "fulfilled") {
+          allProds = applyBatchStock(allProds, btsRes.value);
+        }
+      }
+
+      // Filter for pharmacy relevant products if they have category/name markers
+      // or just show all if no specific pharmacy flag is set in metadata yet.
+      // For consistency with the register, we'll show products that have stock
+      // or are relevant to the industry.
+      setProducts(allProds);
     } catch (err) {
       console.error("Failed to load pharmacy data:", err);
     } finally {
@@ -319,8 +339,13 @@ export default function PharmacyHubPage() {
                   className="group flex items-center justify-between p-4 rounded-3xl bg-white border border-slate-100 hover:border-cyan-200 hover:shadow-md transition-all duration-300"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:bg-cyan-600 group-hover:text-white transition-colors shrink-0 font-bold text-sm">
-                      {p.name.charAt(0).toUpperCase()}
+                    <div className="w-10 h-10 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:bg-cyan-600 group-hover:text-white transition-colors shrink-0 font-bold text-sm overflow-hidden border border-slate-100/50 shadow-inner">
+                      {p.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.imageUrl} alt={p.name} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                      ) : (
+                        p.name.charAt(0).toUpperCase()
+                      )}
                     </div>
                     <div className="min-w-0">
                       <p className="font-black text-slate-800 truncate text-xs tracking-tight">{p.name}</p>
@@ -372,10 +397,8 @@ export default function PharmacyHubPage() {
                 invoiceId: selectedSale.id || crypto.randomUUID(),
                 invoiceNo: selectedSale.invoiceNo || `INV-${(selectedSale.id || "").slice(0, 8).toUpperCase()}`,
                 total: Number(selectedSale.grandTotal ?? selectedSale.totalAmount ?? selectedSale.total ?? 0),
-                paidTotal: selectedSale.paymentMethod !== "CREDIT"
-                  ? Math.max(Number(selectedSale.paidTotal ?? 0), Number(selectedSale.grandTotal ?? selectedSale.totalAmount ?? selectedSale.total ?? 0))
-                  : Number(selectedSale.paidTotal ?? 0),
-                dueTotal: selectedSale.paymentMethod !== "CREDIT" ? 0 : Number(selectedSale.dueTotal || 0),
+                paidTotal: Number(selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0),
+                dueTotal: Number(selectedSale.dueTotal || 0),
                 paymentIds: [],
               }}
               cart={(selectedSale.items || []).map((it: any) => ({
@@ -385,7 +408,10 @@ export default function PharmacyHubPage() {
                 lineTotal: Number(it.unitPrice || 0) * Number(it.qty || 1),
                 sku: it.sku,
               }))}
-              payments={[{ method: selectedSale.paymentMethod || "CASH", amount: Number(selectedSale.grandTotal ?? selectedSale.total ?? 0) }]}
+              payments={[{
+                method: selectedSale.paymentMethod || "CASH",
+                amount: Number(selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0),
+              }]}
               cashierName={selectedSale.cashier?.name || user?.name || "Cashier"}
               customerName={selectedSale.customer?.name || selectedSale.customerName || "Walk-in Retail Customer"}
               onNewSale={() => setSelectedSale(null)}

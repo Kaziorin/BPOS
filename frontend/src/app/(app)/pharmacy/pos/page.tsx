@@ -436,6 +436,7 @@ export default function PharmacyPOSPage() {
         category: i.unitLabel || "Medicine",
         uom: i.batchNo ? `Batch: ${i.batchNo}` : undefined,
         sku: i.sku,
+        image: i.imageUrl || undefined,
       })),
       subtotal,
       discountTotal: totalDiscount,
@@ -586,7 +587,7 @@ export default function PharmacyPOSPage() {
 
       if (online) {
         try {
-          const res = await api.post<{ data: SaleResult }>("/api/v1/pos/confirm", {
+          const res: any = await api.post("/api/v1/pos/confirm", {
             branchId: ctx.branch?.id || null,
             warehouseId: ctx.warehouse?.id || null,
             customerId: customerId || null,
@@ -602,7 +603,18 @@ export default function PharmacyPOSPage() {
             discountTotal,
             note,
           });
-          saleRes = res.data ?? (res as unknown as SaleResult);
+          const apiData = res?.data ?? res;
+          if (apiData && (apiData.saleId || apiData.id || apiData.invoiceNo)) {
+            saleRes = {
+              saleId: apiData.saleId || apiData.id,
+              invoiceNo: apiData.invoiceNo,
+              invoiceId: apiData.invoiceId || apiData.saleId || apiData.id,
+              total: Number(apiData.total ?? total),
+              paidTotal: Number(paidAmt),
+              dueTotal: Number(apiData.dueTotal ?? 0),
+              paymentIds: apiData.paymentIds ?? [],
+            };
+          }
         } catch (apiErr: any) {
           console.warn("Online sale confirm failed, falling back to local transaction generation", apiErr);
         }
@@ -638,8 +650,8 @@ export default function PharmacyPOSPage() {
           invoiceNo: `INV-${Date.now().toString(36).toUpperCase()}`,
           invoiceId: crypto.randomUUID(),
           total,
-          paidTotal: finalPayments.reduce((s, p) => s + p.amount, 0),
-          dueTotal: Math.max(total - finalPayments.reduce((s, p) => s + p.amount, 0), 0),
+          paidTotal: Number(paidAmt),
+          dueTotal: Math.max(total - paidAmt, 0),
           paymentIds: [],
         };
       }
@@ -776,7 +788,7 @@ export default function PharmacyPOSPage() {
   }
 
   // ─── Misc ─────────────────────────────────────────────────────────────────
-  const cashierName = user?.name ?? "Ahmed R.";
+  const cashierName = user?.name || user?.email || "Ahmed R.";
   const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const dateStr = now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", weekday: "long" });
 
