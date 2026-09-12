@@ -6,6 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import math
+from datetime import datetime
 import accounting as acc
 import workflow as wf
 from db import get_db, txn
@@ -854,6 +855,277 @@ async def allocate_payment(body: dict, user: AuthUser = Depends(require_auth),
             await db.execute(text("UPDATE customers SET currentDue = currentDue - :amt WHERE id=:c"),
                              {"amt": amount, "c": customerId})
     return ok({"allocated": amount, "invoices": len(allocations)}, 201)
+
+
+# ═════════════════════════ PAYMENT & COLLECTION MANAGEMENT ═════════════════════════
+
+@router.get("/api/v1/payments/stats")
+async def get_payment_stats(
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    """Executive KPI stats for all payments & collections."""
+    total_row = (await db.execute(text("""
+        SELECT 
+            COUNT(*) AS totalCount,
+            COALESCE(SUM(CASE WHEN status != 'REFUNDED' THEN amount ELSE 0 END), 0) AS totalAmount,
+            COALESCE(SUM(CASE WHEN status = 'REFUNDED' THEN amount ELSE 0 END), 0) AS refundAmount,
+            COALESCE(SUM(CASE WHEN status = 'REFUNDED' THEN 1 ELSE 0 END), 0) AS refundCount,
+            COALESCE(SUM(CASE WHEN DATE(createdAt) = CURDATE() AND status != 'REFUNDED' THEN amount ELSE 0 END), 0) AS todayAmount,
+            COALESCE(SUM(CASE WHEN DATE(createdAt) = CURDATE() THEN 1 ELSE 0 END), 0) AS todayCount,
+            COALESCE(SUM(CASE WHEN method = 'CASH' AND status != 'REFUNDED' THEN amount ELSE 0 END), 0) AS cashAmount,
+            COALESCE(SUM(CASE WHEN method IN ('BKASH', 'NAGAD', 'ROCKET', 'UPAY') AND status != 'REFUNDED' THEN amount ELSE 0 END), 0) AS mfsAmount,
+            COALESCE(SUM(CASE WHEN method IN ('CARD', 'POS', 'VISA', 'MASTERCARD') AND status != 'REFUNDED' THEN amount ELSE 0 END), 0) AS cardAmount,
+            COALESCE(SUM(CASE WHEN method IN ('BANK_TRANSFER', 'BANK', 'CHEQUE') AND status != 'REFUNDED' THEN amount ELSE 0 END), 0) AS bankAmount
+        FROM payments
+        WHERE tenantId = :t
+    """), {"t": tenantId})).first()
+
+    method_rows = rows_to_dicts((await db.execute(text("""
+        SELECT method, COUNT(*) AS count, COALESCE(SUM(amount), 0) AS totalAmount
+        FROM payments
+        WHERE tenantId = :t AND status != 'REFUNDED'
+        GROUP BY method
+        ORDER BY totalAmount DESC
+    """), {"t": tenantId})).fetchall())
+
+    return ok({
+        "totalCount": int(total_row[0] or 0),
+        "totalAmount": float(total_row[1] or 0),
+        "refundAmount": float(total_row[2] or 0),
+        "refundCount": int(total_row[3] or 0),
+        "todayAmount": float(total_row[4] or 0),
+        "todayCount": int(total_row[5] or 0),
+        "cashAmount": float(total_row[6] or 0),
+        "mfsAmount": float(total_row[7] or 0),
+        "cardAmount": float(total_row[8] or 0),
+        "bankAmount": float(total_row[9] or 0),
+        "byMethod": method_rows,
+    })
+
+
+@router.get("/api/v1/payments")
+async def list_payments(
+    search: str = "",
+    method: str = "",
+    status: str = "",
+    customerId: str = "",
+    branchId: str = "",
+    invoiceId: str = "",
+    dateFrom: str = "",
+    dateTo: str = "",
+    sortBy: str = "createdAt",
+    sortDir: str = "desc",
+    page: int = Query(1),
+    limit: int = Query(20),
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    """List paginated payments with filtering by method, status, customer, branch, invoice, and date."""
+    where = "p.tenantId = :t"
+    params: dict = {"t": tenantId}
+
+    if method:
+        where += " AND p.method = :m"
+        params["m"] = method
+    if status:
+        where += " AND p.status = :st"
+        params["st"] = status
+    if customerId:
+        where += " AND p.customerId = :cid"
+        params["cid"] = customerId
+    if branchId:
+        where += " AND p.branchId = :bid"
+        params["bid"] = branchId
+    if invoiceId:
+        where += " AND p.invoiceId = :invid"
+        params["invid"] = invoiceId
+    if dateFrom:
+        where += " AND p.createdAt >= :df"
+        params["df"] = f"{dateFrom} 00:00:00"
+    if dateTo:
+        where += " AND p.createdAt <= :dt"
+        params["dt"] = f"{dateTo} 23:59:59"
+    if search:
+        where += " AND (p.reference LIKE :s OR c.name LIKE :s OR c.phone LIKE :s OR inv.invoiceNo LIKE :s OR s.invoiceNo LIKE :s)"
+        params["s"] = f"%{search}%"
+
+    allowed_sort = {
+        "createdAt": "p.createdAt",
+        "amount": "p.amount",
+        "method": "p.method",
+        "status": "p.status",
+    }
+    col = allowed_sort.get(sortBy, "p.createdAt")
+    dir_str = "ASC" if sortDir.lower() == "asc" else "DESC"
+
+    off, lim = paginate_params(page, limit)
+
+    count_q = text(f"""
+        SELECT COUNT(*)
+        FROM payments p
+        LEFT JOIN customers c ON c.id = p.customerId
+        LEFT JOIN invoices inv ON inv.id = p.invoiceId
+        LEFT JOIN sales s ON s.id = p.saleId
+        WHERE {where}
+    """)
+    total = (await db.execute(count_q, params)).first()[0]
+
+    select_q = text(f"""
+        SELECT 
+            p.id, p.tenantId, p.branchId, p.saleId, p.invoiceId, p.customerId,
+            p.method, p.amount, p.reference, p.status, p.createdBy, p.createdAt, p.updatedAt,
+            c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail, c.address AS customerAddress,
+            inv.invoiceNo AS invoiceNo, inv.total AS invoiceTotal, inv.paidTotal AS invoicePaidTotal, inv.status AS invoiceStatus,
+            s.invoiceNo AS saleInvoiceNo, s.total AS saleTotal,
+            b.name AS branchName
+        FROM payments p
+        LEFT JOIN customers c ON c.id = p.customerId
+        LEFT JOIN invoices inv ON inv.id = p.invoiceId
+        LEFT JOIN sales s ON s.id = p.saleId
+        LEFT JOIN branches b ON b.id = p.branchId
+        WHERE {where}
+        ORDER BY {col} {dir_str}
+        LIMIT :lim OFFSET :off
+    """)
+    rows = rows_to_dicts((await db.execute(select_q, {**params, "lim": lim, "off": off})).fetchall())
+
+    data = []
+    for r in rows:
+        cid = r.get("customerId")
+        cname = r.pop("customerName", None)
+        cphone = r.pop("customerPhone", None)
+        cemail = r.pop("customerEmail", None)
+        caddr = r.pop("customerAddress", None)
+        r["customer"] = {"id": cid, "name": cname or "Walk-in Customer", "phone": cphone, "email": cemail, "address": caddr} if cid or cname else None
+
+        inv_id = r.get("invoiceId")
+        inv_no = r.pop("invoiceNo", None)
+        inv_tot = r.pop("invoiceTotal", None)
+        inv_paid = r.pop("invoicePaidTotal", None)
+        inv_st = r.pop("invoiceStatus", None)
+        if inv_id or inv_no:
+            r["invoice"] = {"id": inv_id, "invoiceNo": inv_no, "total": float(inv_tot or 0), "paidTotal": float(inv_paid or 0), "status": inv_st}
+        else:
+            sale_inv = r.pop("saleInvoiceNo", None)
+            sale_tot = r.pop("saleTotal", None)
+            if sale_inv:
+                r["invoice"] = {"id": r.get("saleId"), "invoiceNo": sale_inv, "total": float(sale_tot or 0), "paidTotal": float(sale_tot or 0), "status": "PAID"}
+            else:
+                r["invoice"] = None
+
+        r["amount"] = float(r.get("amount") or 0)
+        data.append(r)
+
+    return ok(data, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
+
+
+@router.post("/api/v1/payments")
+async def create_payment(
+    body: dict,
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    """Record a direct customer payment, advance, or due collection."""
+    amount = float(body.get("amount", 0) or 0)
+    if amount <= 0:
+        return err("Payment amount must be greater than 0", 400)
+
+    pid = _uuid()
+    method = str(body.get("method", "CASH")).upper()
+    reference = body.get("reference") or f"RCP-{datetime.utcnow().strftime('%y%m')}-{_uuid()[:6].upper()}"
+    customerId = body.get("customerId") or None
+    invoiceId = body.get("invoiceId") or None
+    branchId = body.get("branchId") or user.branchId or None
+    if not branchId:
+        b_row = (await db.execute(text("SELECT id FROM branches WHERE tenantId=:t LIMIT 1"), {"t": tenantId})).first()
+        branchId = b_row[0] if b_row else "default"
+
+    async with txn(db):
+        await db.execute(text("""
+            INSERT INTO payments (id, tenantId, branchId, invoiceId, customerId, method, amount, reference, status, createdBy, updatedAt)
+            VALUES (:id, :t, :b, :inv, :c, :m, :amt, :ref, 'COMPLETED', :u, NOW())
+        """), {
+            "id": pid, "t": tenantId, "b": branchId, "inv": invoiceId, "c": customerId,
+            "m": method, "amt": amount, "ref": reference, "u": user.id
+        })
+
+        if customerId:
+            await db.execute(text("""
+                UPDATE customers SET currentDue = GREATEST(0, currentDue - :amt) WHERE id = :c AND tenantId = :t
+            """), {"amt": amount, "c": customerId, "t": tenantId})
+
+        if invoiceId:
+            inv = (await db.execute(text("""
+                SELECT total, paidTotal FROM invoices WHERE id = :id AND tenantId = :t FOR UPDATE
+            """), {"id": invoiceId, "t": tenantId})).first()
+            if inv:
+                new_paid = float(inv[1] or 0) + amount
+                tot = float(inv[0] or 0)
+                new_st = "PAID" if new_paid >= tot - 0.01 else "PARTIALLY_PAID"
+                await db.execute(text("""
+                    UPDATE invoices SET paidTotal = :p, status = :s, updatedAt = NOW() WHERE id = :id
+                """), {"p": new_paid, "s": new_st, "id": invoiceId})
+
+    return ok({
+        "id": pid,
+        "amount": amount,
+        "method": method,
+        "reference": reference,
+        "status": "COMPLETED",
+        "customerId": customerId,
+        "invoiceId": invoiceId,
+        "branchId": branchId,
+    }, 201)
+
+
+@router.post("/api/v1/payments/{paymentId}/refund")
+async def refund_payment(
+    paymentId: str,
+    body: dict = {},
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    """Refund or void a payment transaction."""
+    p = (await db.execute(text("""
+        SELECT id, amount, status, customerId, invoiceId, method, reference FROM payments WHERE id = :id AND tenantId = :t FOR UPDATE
+    """), {"id": paymentId, "t": tenantId})).first()
+    if not p:
+        return err("Payment transaction not found", 404)
+    if p[2] == "REFUNDED":
+        return err("Payment is already refunded", 400)
+
+    amount = float(p[1])
+    customerId = p[3]
+    invoiceId = p[4]
+
+    async with txn(db):
+        await db.execute(text("""
+            UPDATE payments SET status = 'REFUNDED', updatedAt = NOW() WHERE id = :id
+        """), {"id": paymentId})
+
+        if customerId:
+            await db.execute(text("""
+                UPDATE customers SET currentDue = currentDue + :amt WHERE id = :c AND tenantId = :t
+            """), {"amt": amount, "c": customerId, "t": tenantId})
+
+        if invoiceId:
+            inv = (await db.execute(text("""
+                SELECT total, paidTotal FROM invoices WHERE id = :id AND tenantId = :t FOR UPDATE
+            """), {"id": invoiceId, "t": tenantId})).first()
+            if inv:
+                new_paid = max(0.0, float(inv[1] or 0) - amount)
+                tot = float(inv[0] or 0)
+                new_st = "ISSUED" if new_paid <= 0.01 else ("PAID" if new_paid >= tot - 0.01 else "PARTIALLY_PAID")
+                await db.execute(text("""
+                    UPDATE invoices SET paidTotal = :p, status = :s, updatedAt = NOW() WHERE id = :id
+                """), {"p": new_paid, "s": new_st, "id": invoiceId})
+
+    return ok({"id": paymentId, "status": "REFUNDED", "refundedAmount": amount})
 
 
 # ═════════════════════════ INVOICE COLLECTIONS ═════════════════════════
