@@ -685,6 +685,9 @@ function WholesalePOSInner() {
               onRemove={onRemove}
               onClearCart={onClearCart}
               onScanItem={() => searchRef.current?.focus()}
+              onHold={holdOrder}
+              onProceed={confirmSale}
+              submitting={submitting}
               darkMode={darkMode}
             />
           </motion.div>

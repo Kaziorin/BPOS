@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ScanLine, Trash2, Settings2, Plus, Minus, X, Package } from "lucide-react";
+import { ScanLine, Trash2, Settings2, Plus, Minus, X, Package, PauseCircle, Truck } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { CustomButton, CustomInput, CustomSelect } from "@/components/custom";
 import type { DiscountMode, WsCartItem } from "./wholesale-pos-types";
@@ -27,6 +27,9 @@ interface WholesalePOSRightPanelProps {
   onRemove: (idx: number) => void;
   onClearCart: () => void;
   onScanItem?: () => void;
+  onHold?: () => void;
+  onProceed?: () => void;
+  submitting?: boolean;
   darkMode?: boolean;
 }
 
@@ -47,6 +50,9 @@ export function WholesalePOSRightPanel({
   onRemove,
   onClearCart,
   onScanItem,
+  onHold,
+  onProceed,
+  submitting = false,
   darkMode = false,
 }: WholesalePOSRightPanelProps) {
   const darkField =
@@ -61,6 +67,7 @@ export function WholesalePOSRightPanel({
           : "border border-primary-100/70 bg-white/95 shadow-[0_8px_40px_rgba(0,102,255,0.08)]",
       )}
     >
+      {/* ... existing header and cart body ... */}
       <div
         className={cn(
           "flex shrink-0 items-center justify-between gap-2 border-b px-4 py-3.5",
@@ -104,18 +111,6 @@ export function WholesalePOSRightPanel({
             title="Clear cart"
           >
             <Trash2 size={15} />
-          </CustomButton>
-          <CustomButton
-            type="button"
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "!h-8 !w-8 !rounded-xl !px-0",
-              darkMode && "!text-slate-400 hover:!bg-slate-800 hover:!text-slate-100",
-            )}
-            title="Settings"
-          >
-            <Settings2 size={15} />
           </CustomButton>
         </div>
       </div>
@@ -381,6 +376,37 @@ export function WholesalePOSRightPanel({
           >
             {fmt(total)}
           </motion.span>
+        </div>
+
+        {/* Action Buttons inside Cart Panel */}
+        <div className="grid grid-cols-2 gap-2 pt-2">
+          <CustomButton
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={onHold}
+            disabled={cart.length === 0}
+            leftIcon={<PauseCircle size={16} />}
+            className={cn(
+              "!h-11 !rounded-2xl !border-2 !border-primary-500 !px-4 !text-[13px] !font-extrabold !text-primary-600",
+              darkMode
+                ? "!bg-slate-900 hover:!bg-slate-800 !text-primary-400"
+                : "!bg-white hover:!bg-primary-50",
+            )}
+          >
+            Hold
+          </CustomButton>
+
+          <CustomButton
+            type="button"
+            size="lg"
+            disabled={cart.length === 0 || submitting}
+            loading={submitting}
+            onClick={onProceed}
+            className="!h-11 !rounded-2xl !px-4 !text-[13px] !font-extrabold shadow-lg shadow-primary-600/30"
+          >
+            {submitting ? "Wait…" : "Proceed"}
+          </CustomButton>
         </div>
       </div>
     </aside>

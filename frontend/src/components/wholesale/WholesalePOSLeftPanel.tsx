@@ -257,6 +257,7 @@ export function WholesalePOSLeftPanel({
 
           <CustomSelect
             value="all"
+            onChange={() => {}}
             options={[{ value: "all", label: warehouseName }]}
             className={cn(
               "!h-9 !rounded-xl !py-1.5 !text-[11px] !font-bold",

@@ -123,35 +123,10 @@ export function WholesalePOSFooter({
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <CustomButton
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onHold}
-            leftIcon={<PauseCircle size={15} />}
-            className={cn(
-              "!h-10 !rounded-xl !border-2 !border-primary-500 !px-4 !text-[12px] !font-bold !text-primary-600",
-              darkMode
-                ? "!bg-slate-900 hover:!bg-slate-800 !text-primary-400"
-                : "!bg-white hover:!bg-primary-50",
-            )}
-          >
-            Hold
-          </CustomButton>
-
-          <motion.div whileHover={canProceed && !submitting ? { y: -1 } : undefined}>
-            <CustomButton
-              type="button"
-              size="sm"
-              disabled={!canProceed || submitting}
-              loading={submitting}
-              onClick={onProceed}
-              leftIcon={<Truck size={15} />}
-              className="!h-10 !rounded-xl !px-5 !text-[12px] !font-bold shadow-md shadow-primary-600/20"
-            >
-              {submitting ? "Wait…" : "Proceed to Delivery"}
-            </CustomButton>
-          </motion.div>
+          {/* Action buttons moved to Cart Panel for better accessibility */}
+          <div className="hidden md:flex items-center gap-2 text-[10px] font-bold text-slate-400 italic pr-2">
+            Proceed with F1 · Hold with F6
+          </div>
         </div>
       </div>
     </div>
