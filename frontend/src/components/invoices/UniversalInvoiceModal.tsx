@@ -397,8 +397,8 @@ function RetailInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; 
           </div>
         )}
         <div className="flex justify-between text-slate-500 text-[11px]">
-          <span>VAT (Mushak 6.3 - {data.vatRate || ((data.subTotal || data.grandTotal) > 0 && data.taxTotal ? Math.round((data.taxTotal / (data.subTotal || data.grandTotal)) * 100) : 5)}%):</span>
-          <span>{fmt(data.taxTotal || data.grandTotal * 0.05)}</span>
+          <span>VAT (Mushak 6.3 - {data.vatRate || ((data.subTotal || data.grandTotal) > 0 && data.taxTotal ? Math.round((data.taxTotal / (data.subTotal || data.grandTotal)) * 100) : 15)}%):</span>
+          <span>{fmt(data.taxTotal || (data.grandTotal > 0 ? (data.grandTotal * 15 / 115) : 0))}</span>
         </div>
         <div className="flex justify-between font-black text-sm text-slate-950 border-t border-b border-slate-300 py-1.5 my-1">
           <span>Net Payable:</span>
@@ -494,8 +494,8 @@ function GroceryInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData;
           <span>৳5.00</span>
         </div>
         <div className="flex justify-between text-slate-500 text-[11px]">
-          <span>NBR Mushak VAT (5% Included):</span>
-          <span>{fmt(data.taxTotal || data.grandTotal * 0.05)}</span>
+          <span>NBR Mushak VAT (15% Included):</span>
+          <span>{fmt(data.taxTotal || (data.grandTotal > 0 ? (data.grandTotal * 15 / 115) : 0))}</span>
         </div>
         <div className="flex justify-between font-black text-sm text-slate-950 border-t border-b border-emerald-200 bg-emerald-50/50 p-1.5 my-1 rounded-lg">
           <span>Grand Total:</span>
@@ -725,8 +725,8 @@ function RestaurantInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDa
           <span>{fmt((data.subTotal || data.grandTotal) * 0.1)}</span>
         </div>
         <div className="flex justify-between text-slate-500 text-[11px]">
-          <span>VAT (Mushak 6.3 - 5%):</span>
-          <span>{fmt((data.subTotal || data.grandTotal) * 0.05)}</span>
+          <span>VAT (Mushak 6.3 - 15%):</span>
+          <span>{fmt(data.taxTotal || (data.grandTotal > 0 ? (data.grandTotal * 15 / 115) : 0))}</span>
         </div>
         <div className="flex justify-between font-black text-sm text-slate-950 border-t border-b border-amber-300 bg-amber-50/50 p-2 my-1 rounded-lg">
           <span>Total Guest Bill:</span>
@@ -814,10 +814,10 @@ function PharmacyInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData
           <span>Prescription Bill Subtotal:</span>
           <span className="font-bold text-slate-900">{fmt(data.subTotal || data.grandTotal)}</span>
         </div>
-        {Number(data.taxTotal || 0) > 0 && (
+        {Number(data.taxTotal || 0) >= 0 && (
           <div className="flex justify-between text-slate-500 text-[11px]">
-            <span>VAT / Tax:</span>
-            <span>{fmt(data.taxTotal || 0)}</span>
+            <span>VAT (Mushak 6.3 - 15%):</span>
+            <span>{fmt(data.taxTotal || (data.grandTotal > 0 ? (data.grandTotal * 15 / 115) : 0))}</span>
           </div>
         )}
         <div className="flex justify-between font-black text-sm text-teal-950 border-t border-b border-teal-200 bg-teal-50/50 p-2 my-1 rounded-lg">

@@ -441,7 +441,7 @@ export function PharmacyPOSRightPanel({
             <span className="font-extrabold tabular-nums text-emerald-500 whitespace-nowrap">− ৳ {totalDiscount.toFixed(2)}</span>
           </div>
           <div className={cn("flex justify-between font-semibold", darkMode ? "text-slate-300" : "text-slate-600")}>
-            <span>VAT (5%)</span>
+            <span>VAT (15%)</span>
             <span className={cn("font-extrabold tabular-nums whitespace-nowrap", darkMode ? "text-slate-100" : "text-slate-800")}>৳ {vatAmount.toFixed(2)}</span>
           </div>
           <div className={cn("pt-1.5 border-t border-dashed flex items-baseline justify-between", darkMode ? "border-slate-700" : "border-slate-200")}>
