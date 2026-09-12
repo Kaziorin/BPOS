@@ -46,7 +46,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
   const rawVat = result.total > subtotal ? result.total - subtotal : 0;
   const vatAmount = Math.max(0, rawVat);
   const vatRatePct = subtotal > 0 && vatAmount > 0 ? Math.round((vatAmount / subtotal) * 100) : 15;
-  const netPayable = result.total;
+  const netPayable = result.total ?? 0;
 
   // Primary payment method text
   const primaryMethod = payments && payments.length > 0 ? payments[0].method.toUpperCase() : "CASH";
