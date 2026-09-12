@@ -40,7 +40,13 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomTable, CustomStatCard, ConfirmModal } from "@/components/custom";
+import {
+  CustomBreadcrumb,
+  CustomButton,
+  CustomTable,
+  CustomStatCard,
+  ConfirmModal,
+} from "@/components/custom";
 import { money } from "@/lib/format";
 
 // ──────────────── Types ────────────────
@@ -273,119 +279,100 @@ export default function TaxPage() {
   const defaultRate = rates.find((r) => r.isDefault);
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
       {/* Toast Notification */}
       {toast && (
         <div
           className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl px-5 py-3.5 shadow-xl transition-all duration-300 ${
             toast.type === "success"
-              ? "bg-emerald-900 text-emerald-50 border border-emerald-700"
-              : "bg-red-900 text-red-50 border border-red-700"
+              ? "bg-slate-900 text-white border border-slate-700"
+              : "bg-red-600 text-white border border-red-700"
           }`}
         >
-          {toast.type === "success" ? <CheckCircle2 size={18} className="text-emerald-400" /> : <AlertCircle size={18} className="text-red-400" />}
-          <span className="text-sm font-medium">{toast.message}</span>
+          {toast.type === "success" ? <CheckCircle2 size={18} className="text-emerald-400" /> : <AlertCircle size={18} className="text-white" />}
+          <span className="text-xs font-semibold">{toast.message}</span>
         </div>
       )}
 
-      {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-7 text-white shadow-xl border border-slate-800">
-        <div className="absolute right-0 top-0 -mt-12 -mr-12 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute left-1/3 bottom-0 -mb-12 h-48 w-48 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide text-amber-300 ring-1 ring-white/15 backdrop-blur-md mb-2">
-              <Sparkles size={13} className="text-amber-400" />
-              Tax & VAT Engine (§10.21 Compliance)
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Configurable Tax & VAT Management
-            </h1>
-            <p className="mt-1.5 max-w-2xl text-sm text-slate-300 leading-relaxed">
-              Version-controlled tax rates, automated tax rules for POS & Invoicing, dynamic VAT reporting, and B2B NBR Mushak compliance.
-            </p>
-          </div>
-
-          {/* Header Quick Buttons */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
+      {/* Reusable Application Breadcrumb Header */}
+      <CustomBreadcrumb
+        title="Tax & VAT Engine"
+        icon={<Percent size={20} />}
+        items={[{ label: "Settings", href: "/settings" }, { label: "Tax & VAT" }]}
+        description="Version-controlled tax rates, automated tax rules for POS & Invoicing, dynamic VAT reporting, and NBR compliance."
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton
+              size="sm"
+              leftIcon={<Plus size={14} />}
               onClick={() => { setEditRate(null); setShowRateForm(true); }}
-              className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-md transition hover:bg-amber-400 active:scale-95"
+              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
             >
-              <Plus size={16} /> Add Tax Rate
-            </button>
-            <button
+              Add Tax Rate
+            </CustomButton>
+            <CustomButton
+              size="sm"
+              variant="outline"
+              leftIcon={<Layers size={14} />}
               onClick={() => { setEditRule(null); setShowRuleForm(true); }}
-              className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-semibold text-white shadow-sm ring-1 ring-white/20 backdrop-blur-md transition hover:bg-white/20 active:scale-95"
+              className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
             >
-              <Plus size={16} /> Add Rule
-            </button>
+              Add Rule
+            </CustomButton>
             <button
               onClick={() => loadData()}
-              className="rounded-xl bg-white/5 p-2.5 text-slate-300 ring-1 ring-white/10 transition hover:bg-white/15 hover:text-white"
+              className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
               title="Refresh Data"
             >
-              <RefreshCw size={17} className={loading ? "animate-spin" : ""} />
+              <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
             </button>
           </div>
-        </div>
+        }
+      />
 
-        {/* Quick KPI Bar */}
-        <div className="relative z-10 mt-6 grid grid-cols-2 gap-3 border-t border-slate-800/80 pt-5 sm:grid-cols-4">
-          <div className="rounded-2xl bg-white/5 p-3.5 ring-1 ring-white/10 backdrop-blur-sm">
-            <p className="text-xs text-slate-400">Active Tax Rates</p>
-            <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-xl font-bold text-white">{activeRatesCount}</span>
-              <span className="text-xs text-slate-400">of {rates.length} total</span>
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-white/5 p-3.5 ring-1 ring-white/10 backdrop-blur-sm">
-            <p className="text-xs text-slate-400">Default Rate</p>
-            <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-xl font-bold text-amber-300">
-                {defaultRate ? `${defaultRate.rate}%` : "None"}
-              </span>
-              {defaultRate && (
-                <span className="truncate text-xs font-mono text-slate-300">({defaultRate.code})</span>
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-white/5 p-3.5 ring-1 ring-white/10 backdrop-blur-sm">
-            <p className="text-xs text-slate-400">Active Tax Rules</p>
-            <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-xl font-bold text-white">{activeRulesCount}</span>
-              <span className="text-xs text-slate-400">configured</span>
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-white/5 p-3.5 ring-1 ring-white/10 backdrop-blur-sm">
-            <p className="text-xs text-slate-400">System Mode</p>
-            <div className="mt-1 flex items-center gap-1.5">
-              <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-sm font-semibold text-emerald-300">Live Auto-Calculation</span>
-            </div>
-          </div>
-        </div>
+      {/* Quick KPI Stat Cards */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <CustomStatCard
+          label="Active Tax Rates"
+          value={`${activeRatesCount} / ${rates.length}`}
+          icon={Percent}
+          tone="primary"
+        />
+        <CustomStatCard
+          label="Default Rate"
+          value={defaultRate ? `${defaultRate.name} (${defaultRate.rate}%)` : "None"}
+          icon={CheckCircle2}
+          tone="green"
+        />
+        <CustomStatCard
+          label="Active Tax Rules"
+          value={String(activeRulesCount)}
+          icon={Shield}
+          tone="amber"
+        />
+        <CustomStatCard
+          label="Compliance Status"
+          value="NBR & VAT 2012"
+          icon={Building2}
+          tone="blue"
+        />
       </div>
 
-      {/* Compliance Disclaimer Notice */}
-      <div className="rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50 to-orange-50/50 p-4 text-sm text-amber-900 flex items-start gap-3 shadow-sm">
-        <Info size={19} className="mt-0.5 shrink-0 text-amber-600" />
+      {/* Compliance Notice */}
+      <div className="rounded-md border border-teal-200/80 bg-teal-50/50 p-3.5 text-xs text-teal-900 flex items-start gap-2.5 shadow-2xs">
+        <Info size={16} className="mt-0.5 shrink-0 text-teal-600" />
         <div className="flex-1">
-          <p className="font-semibold text-amber-950">
+          <p className="font-bold text-teal-950">
             National Board of Revenue (NBR) Compliance & Bangladesh VAT Act 2012
           </p>
-          <p className="mt-0.5 text-xs text-amber-800 leading-relaxed">
+          <p className="mt-0.5 text-[11px] text-teal-800 leading-relaxed">
             All tax rates, input tax credits, and Mushak forms (e.g. Mushak 6.3 Tax Invoice, Mushak 9.1 VAT Return) are fully customizable. Ensure rates comply with your statutory jurisdiction requirements before issuing fiscal documents.
           </p>
         </div>
       </div>
 
-      {/* Modern Segmented Navigation Tabs */}
-      <div className="flex flex-wrap gap-1.5 rounded-2xl bg-slate-100 p-1.5 shadow-inner">
+      {/* Tab Selector Bar */}
+      <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-md border border-slate-200 shadow-2xs overflow-x-auto">
         {[
           { id: "rates", label: "Tax Rates", icon: DollarSign, badge: rates.length },
           { id: "rules", label: "Tax Rules & Hierarchy", icon: Shield, badge: rules.length },
@@ -399,19 +386,19 @@ export default function TaxPage() {
             <button
               key={t.id}
               onClick={() => setTab(t.id as any)}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
+              className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
                 isActive
-                  ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-900/5 font-semibold"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                  ? "bg-teal-50 text-teal-700 border border-teal-200 font-bold"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
               }`}
             >
-              <Icon size={16} className={isActive ? "text-amber-600" : "text-slate-400"} />
+              <Icon size={14} className={isActive ? "text-teal-600" : "text-slate-400"} />
               <span>{t.label}</span>
               {t.badge !== undefined && (
                 <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                  className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
                     isActive
-                      ? "bg-amber-100 text-amber-900"
+                      ? "bg-teal-200/80 text-teal-900"
                       : "bg-slate-200/80 text-slate-600"
                   }`}
                 >
