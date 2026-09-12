@@ -14,20 +14,13 @@ import {
   Clock,
   Scale,
   History,
-  ChevronRight,
   TrendingUp,
   RefreshCw,
   Search,
-  Filter,
-  DollarSign,
   Printer,
   FileText,
   Calculator,
   ShieldCheck,
-  Building2,
-  Receipt,
-  User,
-  AlertCircle,
   Eye,
   Check,
 } from "lucide-react";
@@ -40,7 +33,7 @@ import {
   CustomModal,
   ConfirmModal,
 } from "@/components/custom";
-import { money, dateTime, dateOnly } from "@/lib/format";
+import { money, dateTime } from "@/lib/format";
 
 interface ShiftTxn {
   id: string;
@@ -130,7 +123,6 @@ export default function CashRegisterPage() {
   const [showDenomCalc, setShowDenomCalc] = useState(false);
   const [denoms, setDenoms] = useState<Record<number, number>>({});
 
-  const [zReportModal, setZReportModal] = useState<Shift | null>(null);
   const [approveConfirmShiftId, setApproveConfirmShiftId] = useState<string | null>(null);
 
   const notify = (ok: boolean, text: string) => {
@@ -338,22 +330,6 @@ export default function CashRegisterPage() {
     return filteredHistory.slice(start, start + pageSize);
   }, [filteredHistory, page, pageSize]);
 
-  // Active shift filtered transactions
-  const activeTxns = useMemo(() => {
-    if (!detail?.txns && !shift?.txns) return [];
-    const list = (detail?.shift?.id === shift?.id ? detail?.txns : shift?.txns) || [];
-    return list.filter((t) => {
-      if (txnFilter !== "ALL" && t.type !== txnFilter) return false;
-      if (txnSearch) {
-        const q = txnSearch.toLowerCase();
-        if (!(t.note || "").toLowerCase().includes(q) && !t.type.toLowerCase().includes(q)) {
-          return false;
-        }
-      }
-      return true;
-    });
-  }, [detail, shift, txnFilter, txnSearch]);
-
   const selectedBranchName = branches.find((b) => b.id === branchId)?.name || "Main Branch";
 
   if (loading) {
@@ -455,39 +431,31 @@ export default function CashRegisterPage() {
       {/* ── Top Summary KPI Cards ── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <CustomStatCard
-          title="Expected in Drawer"
+          label="Expected in Drawer"
           value={isOpen && summary ? money(summary.expectedCash) : money(0)}
-          icon={<Scale className="w-5 h-5 text-teal-600" />}
-          change={isOpen ? "Live calculated balance" : "Shift currently closed"}
-          changeType={isOpen ? "positive" : "neutral"}
-          trend="neutral"
+          icon={Scale}
+          tone="primary"
         />
 
         <CustomStatCard
-          title="Today's Cash Sales"
+          label="Today's Cash Sales"
           value={isOpen && summary ? money(summary.cashSales) : money(0)}
-          icon={<TrendingUp className="w-5 h-5 text-emerald-600" />}
-          change={isOpen ? "Direct POS Cash Tendered" : "No active sales"}
-          changeType="positive"
-          trend="up"
+          icon={TrendingUp}
+          tone="green"
         />
 
         <CustomStatCard
-          title="Cash In & Customer Debt"
+          label="Cash In & Customer Debt"
           value={isOpen && summary ? money(summary.cashIn + summary.customerPaymentsIn) : money(0)}
-          icon={<ArrowDownToLine className="w-5 h-5 text-blue-600" />}
-          change={isOpen ? `Top-ups: ${money(summary?.cashIn || 0)}` : "Float entries"}
-          changeType="positive"
-          trend="up"
+          icon={ArrowDownToLine}
+          tone="blue"
         />
 
         <CustomStatCard
-          title="Cash Out & Expenses"
+          label="Cash Out & Expenses"
           value={isOpen && summary ? money(summary.cashOut + summary.cashExpenses + summary.cashRefunds) : money(0)}
-          icon={<ArrowUpFromLine className="w-5 h-5 text-amber-600" />}
-          change={isOpen ? `Drop & Expenses: ${money((summary?.cashOut || 0) + (summary?.cashExpenses || 0))}` : "Outflows"}
-          changeType="negative"
-          trend="down"
+          icon={ArrowUpFromLine}
+          tone="amber"
         />
       </div>
 
@@ -732,12 +700,12 @@ export default function CashRegisterPage() {
         </div>
 
         {/* Shift Table */}
-        <CustomTable
+        <CustomTable<Shift>
           columns={[
             {
+              key: "shiftNo",
               header: "Shift No",
-              accessor: "shiftNo",
-              cell: (row) => (
+              render: (row) => (
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-xs font-bold text-teal-700">{row.shiftNo}</span>
                   {row.needsApproval && (
@@ -749,9 +717,9 @@ export default function CashRegisterPage() {
               ),
             },
             {
+              key: "openedAt",
               header: "Time Span",
-              accessor: "openedAt",
-              cell: (row) => (
+              render: (row) => (
                 <div className="text-xs">
                   <p className="font-medium text-slate-800">{dateTime(row.openedAt)}</p>
                   <p className="text-[11px] text-slate-400">
@@ -761,32 +729,32 @@ export default function CashRegisterPage() {
               ),
             },
             {
+              key: "openingCash",
               header: "Opening Float",
-              accessor: "openingCash",
-              cell: (row) => <span className="font-mono text-xs font-semibold text-slate-700">{money(row.openingCash)}</span>,
+              render: (row) => <span className="font-mono text-xs font-semibold text-slate-700">{money(row.openingCash)}</span>,
             },
             {
+              key: "expectedCash",
               header: "Expected",
-              accessor: "expectedCash",
-              cell: (row) => (
+              render: (row) => (
                 <span className="font-mono text-xs font-semibold text-slate-700">
                   {row.expectedCash != null ? money(row.expectedCash) : "—"}
                 </span>
               ),
             },
             {
+              key: "countedCash",
               header: "Counted",
-              accessor: "countedCash",
-              cell: (row) => (
+              render: (row) => (
                 <span className="font-mono text-xs font-semibold text-slate-800">
                   {row.countedCash != null ? money(row.countedCash) : "—"}
                 </span>
               ),
             },
             {
+              key: "variance",
               header: "Variance",
-              accessor: "variance",
-              cell: (row) => {
+              render: (row) => {
                 if (row.variance == null) return <span className="text-xs text-slate-400">—</span>;
                 const v = Number(row.variance);
                 const isZero = Math.abs(v) < 0.01;
@@ -807,9 +775,9 @@ export default function CashRegisterPage() {
               },
             },
             {
+              key: "status",
               header: "Status",
-              accessor: "status",
-              cell: (row) => {
+              render: (row) => {
                 if (row.status === "OPEN") {
                   return (
                     <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-700 border border-teal-200">
@@ -832,9 +800,9 @@ export default function CashRegisterPage() {
               },
             },
             {
+              key: "actions",
               header: "Actions",
-              accessor: "id",
-              cell: (row) => (
+              render: (row) => (
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => openDetail(row)}
@@ -855,13 +823,9 @@ export default function CashRegisterPage() {
               ),
             },
           ]}
-          data={paginatedHistory}
-          pagination={{
-            currentPage: page,
-            totalPages: Math.max(1, Math.ceil(filteredHistory.length / pageSize)),
-            totalItems: filteredHistory.length,
-            onPageChange: (p) => setPage(p),
-          }}
+          data={filteredHistory}
+          pageSize={pageSize}
+          showPagination={true}
           emptyMessage="No shift history found."
         />
       </div>
