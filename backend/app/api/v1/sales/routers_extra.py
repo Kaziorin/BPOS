@@ -529,38 +529,297 @@ async def create_quotation(body: dict, user: AuthUser = Depends(require_auth),
 
 # ═════════════════════════ INVOICES (§10.12) ═════════════════════════
 
+@router.get("/api/v1/invoices/stats")
+async def get_invoice_stats(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+                            db: AsyncSession = Depends(get_db)):
+    """Executive KPI statistics for Invoice Engine."""
+    row = (await db.execute(text("""
+        SELECT 
+            COUNT(*) AS totalInvoices,
+            COALESCE(SUM(total), 0) AS totalAmount,
+            COALESCE(SUM(paidTotal), 0) AS paidAmount,
+            COALESCE(SUM(CASE WHEN status != 'VOID' THEN (total - paidTotal) ELSE 0 END), 0) AS outstandingAmount,
+            COUNT(CASE WHEN status = 'PAID' THEN 1 END) AS paidCount,
+            COUNT(CASE WHEN status = 'PARTIALLY_PAID' THEN 1 END) AS partiallyPaidCount,
+            COUNT(CASE WHEN status = 'ISSUED' THEN 1 END) AS issuedCount,
+            COUNT(CASE WHEN status = 'VOID' THEN 1 END) AS voidCount,
+            COUNT(CASE WHEN invoiceType = 'TAX' THEN 1 END) AS taxCount,
+            COUNT(CASE WHEN status NOT IN ('PAID', 'VOID') AND dueDate IS NOT NULL AND dueDate < CURDATE() THEN 1 END) AS overdueCount,
+            COALESCE(SUM(CASE WHEN status NOT IN ('PAID', 'VOID') AND dueDate IS NOT NULL AND dueDate < CURDATE() THEN (total - paidTotal) ELSE 0 END), 0) AS overdueAmount
+        FROM invoices WHERE tenantId = :t
+    """), {"t": tenantId})).first()
+    return ok(dict(row._mapping) if row else {})
+
+
 @router.get("/api/v1/invoices")
-async def list_invoices(search: str = "", status: str = "", page: int = Query(1), limit: int = Query(20),
-                        user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
-                        db: AsyncSession = Depends(get_db)):
-    where = "i.tenantId=:t"; params: dict = {"t": tenantId}
-    if status: where += " AND i.status=:st"; params["st"] = status
+async def list_invoices(
+    search: str = "", status: str = "", invoiceType: str = "", customerId: str = "", branchId: str = "",
+    overdue: bool = False, dateFrom: str = "", dateTo: str = "", sortBy: str = "createdAt", sortDir: str = "desc",
+    page: int = Query(1), limit: int = Query(20),
+    user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "i.tenantId = :t"
+    params: dict = {"t": tenantId}
+
+    if status:
+        if status == "OVERDUE":
+            where += " AND i.status NOT IN ('PAID', 'VOID') AND i.dueDate IS NOT NULL AND i.dueDate < CURDATE()"
+        elif status == "UNPAID":
+            where += " AND i.status IN ('ISSUED', 'PARTIALLY_PAID')"
+        else:
+            where += " AND i.status = :st"
+            params["st"] = status
+
+    if invoiceType:
+        where += " AND i.invoiceType = :it"
+        params["it"] = invoiceType
+
+    if customerId:
+        where += " AND i.customerId = :cid"
+        params["cid"] = customerId
+
+    if branchId:
+        where += " AND i.branchId = :bid"
+        params["bid"] = branchId
+
+    if overdue:
+        where += " AND i.status NOT IN ('PAID', 'VOID') AND i.dueDate IS NOT NULL AND i.dueDate < CURDATE()"
+
+    if dateFrom:
+        where += " AND i.issueDate >= :df"
+        params["df"] = dateFrom
+
+    if dateTo:
+        where += " AND i.issueDate <= :dt"
+        params["dt"] = dateTo
+
     if search:
-        where += " AND (i.invoiceNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s)"
+        where += " AND (i.invoiceNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s OR i.note LIKE :s)"
         params["s"] = f"%{search}%"
+
+    allowed_sorts = {
+        "createdAt": "i.createdAt",
+        "issueDate": "i.issueDate",
+        "dueDate": "i.dueDate",
+        "total": "i.total",
+        "paidTotal": "i.paidTotal",
+        "invoiceNo": "i.invoiceNo",
+        "customerName": "c.name",
+    }
+    sort_col = allowed_sorts.get(sortBy, "i.createdAt")
+    direction = "ASC" if sortDir.lower() == "asc" else "DESC"
+
     off, lim = paginate_params(page, limit)
-    rows = rows_to_dicts((await db.execute(text(
-        f"SELECT i.*, c.name AS customerName FROM invoices i LEFT JOIN customers c ON c.id=i.customerId "
-        f"WHERE {where} ORDER BY i.createdAt DESC LIMIT :lim OFFSET :off"),
-        {**params, "lim": lim, "off": off})).fetchall())
+
+    query = f"""
+        SELECT i.*, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
+               b.name AS branchName,
+               (SELECT COUNT(*) FROM invoice_items ii WHERE ii.invoiceId = i.id) AS itemCount
+        FROM invoices i
+        LEFT JOIN customers c ON c.id = i.customerId
+        LEFT JOIN branches b ON b.id = i.branchId
+        WHERE {where}
+        ORDER BY {sort_col} {direction}
+        LIMIT :lim OFFSET :off
+    """
+    rows = rows_to_dicts((await db.execute(text(query), {**params, "lim": lim, "off": off})).fetchall())
+
     for r in rows:
-        r["customer"] = {"id": r.pop("customerId"), "name": r.pop("customerName")} if r.get("customerName") else None
-    total = (await db.execute(text(f"SELECT COUNT(*) FROM invoices i LEFT JOIN customers c ON c.id=i.customerId WHERE {where}"), params)).first()[0]
+        cust_name = r.pop("customerName", None)
+        cust_phone = r.pop("customerPhone", None)
+        cust_email = r.pop("customerEmail", None)
+        cust_id = r.get("customerId")
+        r["customer"] = {"id": cust_id, "name": cust_name, "phone": cust_phone, "email": cust_email} if cust_name or cust_id else None
+        r["dueTotal"] = max(0.0, float(r.get("total", 0)) - float(r.get("paidTotal", 0)))
+        r["_count"] = {"items": int(r.pop("itemCount", 0) or 0)}
+
+    count_query = f"SELECT COUNT(*) FROM invoices i LEFT JOIN customers c ON c.id = i.customerId WHERE {where}"
+    total = (await db.execute(text(count_query), params)).first()[0]
+
     return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
+
+
+@router.post("/api/v1/invoices")
+async def create_invoice(body: dict, user: AuthUser = Depends(require_auth),
+                         tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    """Create a new invoice with itemized line breakdown and optional immediate settlement."""
+    branchId = body.get("branchId")
+    if not branchId:
+        br = (await db.execute(text("SELECT id FROM branches WHERE tenantId=:t LIMIT 1"), {"t": tenantId})).first()
+        branchId = br[0] if br else _uuid()
+
+    invoiceNo = body.get("invoiceNo") or gen_no("INV")
+    invoiceType = body.get("invoiceType", "STANDARD")
+    issueDate = body.get("issueDate") or None
+    dueDate = body.get("dueDate") or None
+    note = body.get("note") or None
+    customerId = body.get("customerId") or None
+    saleId = body.get("saleId") or None
+
+    items = body.get("items") or []
+    if not items:
+        return err("At least one line item is required", 400)
+
+    subtotal = 0.0
+    discountTotal = 0.0
+    taxTotal = 0.0
+    total = 0.0
+
+    calculated_items = []
+    for item in items:
+        desc = item.get("description") or item.get("name") or "Item"
+        qty = float(item.get("qty", 1) or 1)
+        unitPrice = float(item.get("unitPrice", 0) or 0)
+        disc = float(item.get("discountAmount", 0) or 0)
+        tax = float(item.get("taxAmount", 0) or 0)
+        lineTot = (qty * unitPrice) - disc + tax
+
+        subtotal += (qty * unitPrice)
+        discountTotal += disc
+        taxTotal += tax
+        total += lineTot
+
+        calculated_items.append({
+            "id": _uuid(),
+            "productId": item.get("productId") or None,
+            "description": desc,
+            "qty": qty,
+            "unitPrice": unitPrice,
+            "discountAmount": disc,
+            "taxAmount": tax,
+            "lineTotal": lineTot
+        })
+
+    initialPayment = float(body.get("paidTotal", 0) or body.get("initialPayment", 0) or 0)
+    paidTotal = min(total, max(0.0, initialPayment))
+    status = "PAID" if paidTotal >= total and total > 0 else ("PARTIALLY_PAID" if paidTotal > 0 else "ISSUED")
+
+    inv_id = _uuid()
+    async with txn(db):
+        await db.execute(text("""
+            INSERT INTO invoices (id, tenantId, branchId, saleId, customerId, invoiceNo, invoiceType,
+                                 issueDate, dueDate, subtotal, discountTotal, taxTotal, total, paidTotal,
+                                 status, note, createdBy, createdAt, updatedAt)
+            VALUES (:id, :t, :b, :sid, :cid, :no, :itype, COALESCE(:idate, CURDATE()), :ddate,
+                    :sub, :disc, :tax, :tot, :paid, :st, :note, :u, NOW(), NOW())
+        """), {
+            "id": inv_id, "t": tenantId, "b": branchId, "sid": saleId, "cid": customerId,
+            "no": invoiceNo, "itype": invoiceType, "idate": issueDate, "ddate": dueDate,
+            "sub": subtotal, "disc": discountTotal, "tax": taxTotal, "tot": total, "paid": paidTotal,
+            "st": status, "note": note, "u": user.id
+        })
+
+        for ci in calculated_items:
+            await db.execute(text("""
+                INSERT INTO invoice_items (id, tenantId, invoiceId, productId, description, qty,
+                                          unitPrice, discountAmount, taxAmount, lineTotal, status,
+                                          createdBy, createdAt, updatedAt)
+                VALUES (:id, :t, :inv, :pid, :desc, :qty, :up, :disc, :tax, :lt, 'ACTIVE', :u, NOW(), NOW())
+            """), {
+                "id": ci["id"], "t": tenantId, "inv": inv_id, "pid": ci["productId"],
+                "desc": ci["description"], "qty": ci["qty"], "up": ci["unitPrice"],
+                "disc": ci["discountAmount"], "tax": ci["taxAmount"], "lt": ci["lineTotal"], "u": user.id
+            })
+
+        if paidTotal > 0:
+            await db.execute(text("""
+                INSERT INTO payments (id, tenantId, branchId, invoiceId, customerId, method, amount,
+                                     reference, status, createdBy, updatedAt)
+                VALUES (UUID(), :t, :b, :inv, :c, :m, :amt, :ref, 'COMPLETED', :u, NOW())
+            """), {
+                "t": tenantId, "b": branchId, "inv": inv_id, "c": customerId,
+                "m": body.get("paymentMethod", "CASH"), "amt": paidTotal,
+                "ref": body.get("paymentReference", f"Initial payment for {invoiceNo}"), "u": user.id
+            })
+
+        unpaid = total - paidTotal
+        if customerId and unpaid > 0:
+            await db.execute(text("UPDATE customers SET currentDue = currentDue + :amt WHERE id = :c"),
+                             {"amt": unpaid, "c": customerId})
+
+    return ok({"id": inv_id, "invoiceNo": invoiceNo, "total": total, "paidTotal": paidTotal, "status": status}, 201)
 
 
 @router.get("/api/v1/invoices/{invoiceId}")
 async def get_invoice(invoiceId: str, user: AuthUser = Depends(require_auth),
                       tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
     r = (await db.execute(text(
-        "SELECT i.*, c.name AS customerName FROM invoices i LEFT JOIN customers c ON c.id=i.customerId "
+        "SELECT i.*, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail, b.name AS branchName "
+        "FROM invoices i LEFT JOIN customers c ON c.id=i.customerId LEFT JOIN branches b ON b.id=i.branchId "
         "WHERE i.id=:id AND i.tenantId=:t"), {"id": invoiceId, "t": tenantId})).first()
     if not r: return err("Invoice not found", 404)
     d = dict(r._mapping)
-    d["customer"] = {"id": d.pop("customerId"), "name": d.pop("customerName")} if d.get("customerName") else None
+    cust_name = d.pop("customerName", None)
+    cust_phone = d.pop("customerPhone", None)
+    cust_email = d.pop("customerEmail", None)
+    cust_id = d.get("customerId")
+    d["customer"] = {"id": cust_id, "name": cust_name, "phone": cust_phone, "email": cust_email} if cust_name or cust_id else None
+    d["dueTotal"] = max(0.0, float(d.get("total", 0)) - float(d.get("paidTotal", 0)))
     d["items"] = rows_to_dicts((await db.execute(text(
         "SELECT * FROM invoice_items WHERE invoiceId=:id"), {"id": invoiceId})).fetchall())
+    d["payments"] = rows_to_dicts((await db.execute(text(
+        "SELECT id, method, amount, reference, status, createdAt FROM payments WHERE invoiceId=:id ORDER BY createdAt DESC"),
+        {"id": invoiceId})).fetchall())
     return ok(d)
+
+
+@router.post("/api/v1/invoices/{invoiceId}/void")
+async def void_invoice(invoiceId: str, user: AuthUser = Depends(require_auth),
+                       tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    inv = (await db.execute(text("SELECT id, total, paidTotal, status, customerId FROM invoices WHERE id=:id AND tenantId=:t"),
+                            {"id": invoiceId, "t": tenantId})).first()
+    if not inv: return err("Invoice not found", 404)
+    if inv[3] == "VOID": return err("Invoice is already void", 400)
+
+    unpaid = float(inv[1]) - float(inv[2])
+    async with txn(db):
+        await db.execute(text("UPDATE invoices SET status='VOID', updatedAt=NOW() WHERE id=:id"), {"id": invoiceId})
+        if inv[4] and unpaid > 0:
+            await db.execute(text("UPDATE customers SET currentDue = GREATEST(0, currentDue - :amt) WHERE id=:c"),
+                             {"amt": unpaid, "c": inv[4]})
+    return ok({"id": invoiceId, "status": "VOID"})
+
+
+@router.post("/api/v1/invoices/{invoiceId}/payments")
+async def record_invoice_payment(invoiceId: str, body: dict, user: AuthUser = Depends(require_auth),
+                                 tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    amount = float(body.get("amount", 0) or 0)
+    if amount <= 0: return err("Payment amount must be greater than 0", 400)
+
+    inv = (await db.execute(text("SELECT id, branchId, customerId, total, paidTotal, status, invoiceNo FROM invoices WHERE id=:id AND tenantId=:t FOR UPDATE"),
+                            {"id": invoiceId, "t": tenantId})).first()
+    if not inv: return err("Invoice not found", 404)
+    if inv[5] == "VOID": return err("Cannot accept payment for a void invoice", 400)
+    if inv[5] == "PAID": return err("Invoice is already fully paid", 400)
+
+    tot = float(inv[3])
+    prev_paid = float(inv[4])
+    new_paid = prev_paid + amount
+    new_status = "PAID" if new_paid >= tot - 0.01 else "PARTIALLY_PAID"
+
+    branchId = body.get("branchId") or inv[1]
+    customerId = inv[2]
+
+    async with txn(db):
+        await db.execute(text("""
+            INSERT INTO payments (id, tenantId, branchId, invoiceId, customerId, method, amount,
+                                 reference, status, createdBy, updatedAt)
+            VALUES (UUID(), :t, :b, :inv, :c, :m, :amt, :ref, 'COMPLETED', :u, NOW())
+        """), {
+            "t": tenantId, "b": branchId, "inv": invoiceId, "c": customerId,
+            "m": body.get("method", "CASH"), "amt": amount,
+            "ref": body.get("reference", f"Payment for {inv[6]}"), "u": user.id
+        })
+
+        await db.execute(text("UPDATE invoices SET paidTotal=:p, status=:s, updatedAt=NOW() WHERE id=:id"),
+                         {"p": new_paid, "s": new_status, "id": invoiceId})
+
+        if customerId:
+            await db.execute(text("UPDATE customers SET currentDue = GREATEST(0, currentDue - :amt) WHERE id=:c"),
+                             {"amt": amount, "c": customerId})
+
+    return ok({"invoiceId": invoiceId, "paidTotal": new_paid, "status": new_status, "allocated": amount}, 201)
 
 
 @router.post("/api/v1/invoices/payments/allocate")
