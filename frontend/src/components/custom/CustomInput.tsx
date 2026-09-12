@@ -11,11 +11,12 @@ export interface CustomInputProps extends InputHTMLAttributes<HTMLInputElement> 
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   containerClassName?: string;
+  darkMode?: boolean;
 }
 
 export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
   (
-    { label, error, hint, helperText, leftIcon, rightIcon, containerClassName, className, id, ...props },
+    { label, error, hint, helperText, leftIcon, rightIcon, containerClassName, className, id, darkMode, ...props },
     ref
   ) => {
     const autoId = useId();
@@ -25,7 +26,10 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
     return (
       <div className={cn("w-full", containerClassName)}>
         {label && (
-          <label htmlFor={inputId} className="mb-1.5 block text-[15px] font-semibold text-gray-600 capitalize">
+          <label htmlFor={inputId} className={cn(
+            "mb-1.5 block text-[15px] font-semibold capitalize",
+            darkMode ? "text-slate-300" : "text-gray-600"
+          )}>
             {label}
           </label>
         )}
@@ -39,9 +43,11 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              "w-full rounded-lg border bg-white px-3 py-2 text-sm text-gray-900 outline-none transition placeholder:text-gray-400",
-              "focus:border-primary-500 focus:ring-2 focus:ring-primary-100",
-              error ? "border-red-300" : "border-gray-300",
+              "w-full rounded-lg border px-3 py-2 text-sm outline-none transition placeholder:text-gray-400",
+              darkMode
+                ? "bg-slate-800 border-slate-700 text-slate-100 focus:border-primary-500 focus:ring-primary-500/20"
+                : "bg-white border-gray-300 text-gray-900 focus:border-primary-500 focus:ring-primary-100",
+              error ? "border-red-300" : "",
               leftIcon && "pl-9",
               rightIcon && "pr-9",
               className

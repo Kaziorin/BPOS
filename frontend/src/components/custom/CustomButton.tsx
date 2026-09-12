@@ -16,6 +16,7 @@ export interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElemen
   fullWidth?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
+  darkMode?: boolean;
 }
 
 const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
@@ -30,15 +31,20 @@ const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
   purple: "bg-purple-600 text-white shadow-2xs hover:bg-purple-700 focus-visible:ring-purple-300",
 };
 
-const VARIANT_CLASSES: Record<ButtonVariant, string> = {
+const VARIANT_CLASSES = (darkMode: boolean): Record<ButtonVariant, string> => ({
   primary:
     "bg-primary-600 text-white shadow-2xs hover:bg-primary-700 focus-visible:ring-primary-300",
-  secondary: "bg-slate-100 text-gray-700 hover:bg-slate-200 focus-visible:ring-slate-300",
-  outline:
-    "border border-slate-200 bg-white text-gray-700 hover:bg-slate-50 focus-visible:ring-slate-300",
-  ghost: "text-gray-600 hover:bg-slate-100 focus-visible:ring-slate-300",
+  secondary: darkMode
+    ? "bg-slate-800 text-slate-200 hover:bg-slate-700 focus-visible:ring-slate-700"
+    : "bg-slate-100 text-gray-700 hover:bg-slate-200 focus-visible:ring-slate-300",
+  outline: darkMode
+    ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 focus-visible:ring-slate-700"
+    : "border border-slate-200 bg-white text-gray-700 hover:bg-slate-50 focus-visible:ring-slate-300",
+  ghost: darkMode
+    ? "text-slate-400 hover:bg-slate-800 focus-visible:ring-slate-700"
+    : "text-gray-600 hover:bg-slate-100 focus-visible:ring-slate-300",
   danger: "bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-300 shadow-2xs",
-};
+});
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
   sm: "h-8 px-3 text-xs gap-1.5",
@@ -59,6 +65,7 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
       disabled,
       className,
       children,
+      darkMode = false,
       ...props
     },
     ref
@@ -66,7 +73,7 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
     const variantClass =
       variant === "primary" && themeColor
         ? THEME_PRIMARY_CLASSES[themeColor]
-        : VARIANT_CLASSES[variant];
+        : VARIANT_CLASSES(darkMode)[variant];
 
     return (
       <button

@@ -63,7 +63,7 @@ export function WholesalePOSHeader({
 
   const metricCards: { label: string; value: string; Icon: LucideIcon; tone: StatTone }[] = [
     { label: "Today's Sales", value: fmt(stats.todaysSales), Icon: TrendingUp, tone: "blue" },
-    { label: "Orders", value: String(stats.orders), Icon: ShoppingBag, tone: "primary" },
+    { label: "Orders", value: String(stats.orders), Icon: ShoppingBag, tone: "blue" },
     { label: "Delivery", value: String(stats.delivery), Icon: Truck, tone: "blue" },
     { label: "Customers", value: String(stats.customers), Icon: Users, tone: "violet" },
     { label: "Pending Orders", value: String(stats.pendingOrders), Icon: ClipboardList, tone: "amber" },
@@ -80,7 +80,7 @@ export function WholesalePOSHeader({
           "flex items-center gap-4 rounded-[20px] px-5 py-3.5 backdrop-blur-xl transition-colors",
           darkMode
             ? "border border-slate-700/80 bg-slate-900/75 shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
-            : "border border-white/70 bg-white/65 shadow-[0_8px_32px_rgba(0,102,255,0.08)]",
+            : "border border-white bg-white shadow-[0_4px_20px_rgba(37,99,235,0.06)]",
         )}
       >
         <div className="min-w-0 shrink-0 pr-2">
@@ -90,10 +90,10 @@ export function WholesalePOSHeader({
               darkMode ? "text-slate-50" : "text-slate-900",
             )}
           >
-            New Sales Order
+            BPOS
           </h1>
-          <p className={cn("mt-0.5 text-[12px] font-medium tracking-wide", darkMode ? "text-slate-500" : "text-slate-400")}>
-            {orderNo}
+          <p className={cn("mt-0.5 text-[12px] font-bold tracking-wide uppercase", darkMode ? "text-blue-400" : "text-blue-600")}>
+            Wholesale & Distribution
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export function WholesalePOSHeader({
             "flex min-w-0 max-w-full flex-1 items-center gap-0 overflow-hidden rounded-2xl px-4 py-2.5 text-left transition-colors md:flex-none md:max-w-none",
             darkMode
               ? "border border-slate-700 bg-slate-800/90 shadow-[0_2px_12px_rgba(0,0,0,0.25)]"
-              : "border border-slate-100/90 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.04)]",
+              : "border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-200 shadow-sm transition-all",
           )}
         >
           <div className="min-w-0 shrink pr-4 sm:pr-5">
@@ -119,8 +119,8 @@ export function WholesalePOSHeader({
               <CustomBadge
                 tone="primary"
                 className={cn(
-                  "!shrink-0 !px-2 !py-0.5 !text-[10px] !font-semibold",
-                  darkMode ? "!bg-primary-500/15 !text-primary-300" : "!bg-primary-50 !text-primary-600",
+                  "!shrink-0 !px-2 !py-0.5 !text-[10px] !font-black uppercase tracking-tighter",
+                  darkMode ? "!bg-primary-500/15 !text-primary-300" : "!bg-violet-100 !text-violet-700",
                 )}
               >
                 {customer.tier} Customer
@@ -135,9 +135,9 @@ export function WholesalePOSHeader({
           <Divider darkMode={darkMode} />
           <Metric label="Credit Limit" value={fmt(customer.creditLimit)} valueClass={darkMode ? "text-slate-100" : "text-slate-900"} darkMode={darkMode} />
           <Divider darkMode={darkMode} />
-          <Metric label="Available Credit" value={fmt(customer.availableCredit)} valueClass="text-emerald-500" darkMode={darkMode} />
+          <Metric label="Available Credit" value={fmt(customer.availableCredit)} valueClass="text-emerald-600" darkMode={darkMode} />
           <Divider darkMode={darkMode} />
-          <Metric label="Outstanding" value={fmt(customer.outstanding)} valueClass="text-rose-400" darkMode={darkMode} />
+          <Metric label="Outstanding" value={fmt(customer.outstanding)} valueClass="text-rose-500" darkMode={darkMode} />
         </motion.button>
 
         <div className="flex shrink-0 items-center gap-2.5 pl-1">
@@ -166,7 +166,7 @@ export function WholesalePOSHeader({
               className={cn(
                 "absolute inset-y-1 left-1 flex h-7 w-7 items-center justify-center rounded-full shadow-md transition-transform duration-300",
                 darkMode
-                  ? "translate-x-[30px] bg-primary-600 text-white"
+                  ? "translate-x-[30px] bg-blue-600 text-white"
                   : "translate-x-0 bg-white text-amber-500",
               )}
             >
@@ -176,31 +176,15 @@ export function WholesalePOSHeader({
               <span className={cn(darkMode ? "text-slate-600" : "text-amber-500/80")}>
                 <Sun size={11} />
               </span>
-              <span className={cn(darkMode ? "text-primary-300" : "text-slate-400")}>
+              <span className={cn(darkMode ? "text-blue-300" : "text-slate-400")}>
                 <Moon size={11} />
               </span>
             </span>
           </button>
-
-          <CustomButton
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onOpenSettings}
-            className={cn(
-              "!h-9 !w-9 !rounded-xl !px-0",
-              darkMode
-                ? "text-slate-400 hover:!bg-slate-800 hover:!text-slate-200"
-                : "text-slate-400 hover:!bg-slate-100 hover:!text-slate-600",
-            )}
-            aria-label="Settings"
-          >
-            <Settings2 size={18} strokeWidth={1.75} />
-          </CustomButton>
         </div>
       </motion.header>
 
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         {metricCards.map((m, i) => (
           <motion.div
             key={m.label}
@@ -208,18 +192,29 @@ export function WholesalePOSHeader({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 + i * 0.04, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           >
-            <CustomStatCard
-              label={m.label}
-              value={m.value}
-              icon={m.Icon}
-              tone={m.tone}
+            <div
               className={cn(
-                "!rounded-2xl !p-3.5 transition-colors",
+                "flex items-center gap-2.5 rounded-xl border p-2 transition-colors",
                 darkMode
-                  ? "!border-slate-700 !bg-slate-900/90 !text-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.25)] [&_p]:!text-slate-400 [&_p.text-2xl]:!text-slate-50"
-                  : "!border-primary-50 !shadow-[0_2px_12px_rgba(0,102,255,0.06)]",
+                  ? "border-slate-700 bg-slate-900/60 shadow-sm"
+                  : "border-white bg-white shadow-[0_2px_12px_rgba(37,99,235,0.04)]",
               )}
-            />
+            >
+              <div className={cn(
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+                darkMode ? "bg-slate-800 text-slate-400" : "bg-blue-50 text-blue-600"
+              )}>
+                <m.Icon size={16} strokeWidth={2.2} />
+              </div>
+              <div className="min-w-0 overflow-hidden leading-tight">
+                <p className={cn("truncate text-[9px] font-bold uppercase tracking-wider", darkMode ? "text-slate-500" : "text-slate-400")}>
+                  {m.label}
+                </p>
+                <p className={cn("truncate text-[13px] font-black tabular-nums", darkMode ? "text-slate-100" : "text-slate-900")}>
+                  {m.value}
+                </p>
+              </div>
+            </div>
           </motion.div>
         ))}
       </div>

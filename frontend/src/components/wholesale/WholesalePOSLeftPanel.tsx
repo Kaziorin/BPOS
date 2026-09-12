@@ -168,62 +168,55 @@ export function WholesalePOSLeftPanel({
     "!bg-slate-800 !border-slate-700 !text-slate-100 placeholder:!text-slate-500";
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3">
+    <div className="flex h-full min-h-0 flex-col gap-2">
       {/* Search + quick actions */}
-      <div className="flex flex-wrap items-center gap-2.5">
-        <div className="relative min-w-[220px] flex-1">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative min-w-[200px] flex-1">
           <CustomInput
             ref={searchRef}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search products by name, SKU or barcode..."
-            leftIcon={<Search size={16} />}
+            placeholder="Search by name, SKU..."
+            leftIcon={<Search size={15} />}
             rightIcon={
               <button
                 type="button"
                 onClick={onScan}
                 className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-lg text-primary-600",
+                  "flex h-6 w-6 items-center justify-center rounded-lg text-primary-600",
                   darkMode ? "hover:bg-primary-500/15" : "hover:bg-primary-50",
                 )}
-                title="Scan barcode"
               >
-                <ScanLine size={16} />
+                <ScanLine size={14} />
               </button>
             }
             className={cn(
-              "!h-11 !rounded-2xl !py-2.5",
+              "!h-9 !rounded-xl !py-1.5",
               darkMode
-                ? cn(darkField, "shadow-[0_4px_18px_rgba(0,0,0,0.25)]")
-                : "!border-primary-100 shadow-[0_4px_18px_rgba(0,102,255,0.05)]",
+                ? cn(darkField, "shadow-sm")
+                : "!border-primary-100 shadow-xs",
             )}
             containerClassName="flex-1"
           />
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           {QUICK_ACTIONS.map((a) => (
             <CustomButton
               key={a.id}
               type="button"
               variant="outline"
+              size="sm"
               onClick={() => onQuickAction?.(a.id)}
               className={cn(
-                "!h-[64px] !w-[68px] !flex-col !gap-1 !rounded-2xl !px-1 !py-1.5",
+                "!h-9 !gap-1.5 !rounded-xl !px-2.5",
                 darkMode
-                  ? "!border-slate-700 !bg-slate-800 shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:!border-primary-500/40 hover:!bg-slate-700"
-                  : "!border-primary-50 shadow-[0_4px_14px_rgba(0,102,255,0.06)] hover:!border-primary-200 hover:!bg-primary-50/40",
+                  ? "!border-slate-700 !bg-slate-800 shadow-sm hover:!bg-slate-700"
+                  : "!border-primary-50 shadow-xs hover:!bg-primary-50/40",
               )}
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-600 text-white shadow-md shadow-primary-600/25">
-                <a.Icon size={15} strokeWidth={2.2} />
-              </span>
-              <span
-                className={cn(
-                  "text-[9px] font-bold leading-tight",
-                  darkMode ? "text-slate-400" : "text-gray-600",
-                )}
-              >
+              <a.Icon size={14} className="text-primary-500" />
+              <span className={cn("text-[10px] font-bold", darkMode ? "text-slate-400" : "text-gray-600")}>
                 {a.label}
               </span>
             </CustomButton>
@@ -236,27 +229,28 @@ export function WholesalePOSLeftPanel({
         tabs={categoryTabs}
         activeTab={category}
         onChange={(id) => setCategory(id as WsCategory)}
-        themeColor="primary"
+        themeColor="blue"
+        darkMode={darkMode}
         className={cn(
-          "!rounded-2xl !p-1.5 shadow-sm",
+          "!rounded-xl !p-1 shadow-sm transition-all",
           darkMode
-            ? "!border-slate-700 !bg-slate-900/90"
-            : "!border-primary-50 !bg-white/90",
+            ? "!border-slate-700/50 !bg-slate-900/60"
+            : "!border-white !bg-white",
         )}
       />
 
       {/* Filters row */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
           <CustomButton
             type="button"
             variant="outline"
-            size="sm"
+            size="xs"
             onClick={onOpenFilters}
             leftIcon={<Filter size={13} />}
             className={cn(
-              "!rounded-xl",
-              darkMode && "!border-slate-700 !bg-slate-800 !text-slate-100 hover:!bg-slate-700",
+              "!h-9 !rounded-xl !px-3 !text-[11px] font-bold shadow-sm transition-all",
+              darkMode ? "!border-slate-700 !bg-slate-800 !text-slate-200" : "!border-slate-200 !bg-white !text-slate-600 hover:!border-blue-300 hover:!text-blue-600",
             )}
           >
             Filters
@@ -264,25 +258,26 @@ export function WholesalePOSLeftPanel({
 
           <CustomSelect
             value="all"
+            onChange={() => {}}
             options={[{ value: "all", label: warehouseName }]}
             className={cn(
-              "!h-9 !rounded-xl !py-1.5 !text-xs !font-semibold",
-              darkMode && darkField,
+              "!h-9 !rounded-xl !py-1.5 !text-[11px] !font-bold shadow-sm transition-all",
+              darkMode ? darkField : "!border-slate-200 !bg-white hover:!border-blue-300",
             )}
-            containerClassName="w-[160px]"
+            containerClassName="w-[150px]"
           />
 
           <div
             className={cn(
-              "inline-flex h-9 items-center rounded-xl border px-3",
-              darkMode ? "border-slate-700 bg-slate-800" : "border-gray-200 bg-white",
+              "inline-flex h-9 items-center rounded-xl border px-3 transition-colors shadow-sm",
+              darkMode ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white",
             )}
           >
             <CustomCheckbox
-              label="Low Stock Only"
+              label={<span className="text-[11px] font-bold text-slate-500 whitespace-nowrap">Low Stock Only</span>}
               checked={lowStockOnly}
               onChange={(e) => setLowStockOnly(e.target.checked)}
-              themeColor="primary"
+              themeColor="blue"
             />
           </div>
         </div>
@@ -292,57 +287,59 @@ export function WholesalePOSLeftPanel({
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as WsSortBy)}
             options={[
-              { value: "name-asc", label: "Sort by: Name A–Z" },
-              { value: "name-desc", label: "Sort by: Name Z–A" },
+              { value: "name-asc", label: "Sort by: Name A-Z" },
+              { value: "name-desc", label: "Sort by: Name Z-A" },
               { value: "price-asc", label: "Sort by: Price ↑" },
               { value: "price-desc", label: "Sort by: Price ↓" },
               { value: "stock", label: "Sort by: Stock" },
             ]}
             className={cn(
-              "!h-9 !rounded-xl !py-1.5 !text-xs !font-semibold",
-              darkMode && darkField,
+              "!h-9 !rounded-xl !py-1.5 !text-[11px] !font-bold shadow-sm transition-all",
+              darkMode ? darkField : "!border-slate-200 !bg-white hover:!border-blue-300",
             )}
-            containerClassName="w-[170px]"
+            containerClassName="w-[140px]"
           />
 
           <div
             className={cn(
-              "flex rounded-xl border p-0.5",
-              darkMode ? "border-slate-700 bg-slate-800" : "border-gray-200 bg-white",
+              "flex rounded-xl border p-0.5 shadow-sm transition-all",
+              darkMode ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white",
             )}
           >
             <CustomButton
               type="button"
               variant={viewMode === "grid" ? "primary" : "ghost"}
-              size="sm"
+              themeColor="blue"
+              size="xs"
               onClick={() => setViewMode("grid")}
               className={cn(
-                "!h-8 !w-8 !rounded-lg !px-0",
-                darkMode && viewMode !== "grid" && "!text-slate-400 hover:!bg-slate-700 hover:!text-slate-100",
+                "!h-7 !w-7 !rounded-md !px-0",
+                darkMode && viewMode !== "grid" && "!text-slate-400 hover:!bg-slate-700",
+                !darkMode && viewMode !== "grid" && "!text-slate-400 hover:!bg-blue-50 hover:!text-blue-600",
               )}
-              aria-label="Grid view"
             >
-              <Grid2X2 size={14} />
+              <Grid2X2 size={13} />
             </CustomButton>
             <CustomButton
               type="button"
               variant={viewMode === "list" ? "primary" : "ghost"}
-              size="sm"
+              themeColor="blue"
+              size="xs"
               onClick={() => setViewMode("list")}
               className={cn(
-                "!h-8 !w-8 !rounded-lg !px-0",
-                darkMode && viewMode !== "list" && "!text-slate-400 hover:!bg-slate-700 hover:!text-slate-100",
+                "!h-7 !w-7 !rounded-md !px-0",
+                darkMode && viewMode !== "list" && "!text-slate-400 hover:!bg-slate-700",
+                !darkMode && viewMode !== "list" && "!text-slate-400 hover:!bg-blue-50 hover:!text-blue-600",
               )}
-              aria-label="List view"
             >
-              <List size={14} />
+              <List size={13} />
             </CustomButton>
           </div>
         </div>
       </div>
 
       {/* Product grid */}
-      <div className="min-h-0 flex-1 overflow-y-auto pr-1 -mr-1">
+      <div className="min-h-0 flex-1 overflow-y-auto pr-1 -mr-1 no-scrollbar">
         <AnimatePresence mode="popLayout">
           {pageItems.length === 0 ? (
             <motion.div
@@ -350,14 +347,14 @@ export function WholesalePOSLeftPanel({
               animate={{ opacity: 1 }}
               className={cn(
                 "flex h-full min-h-[220px] flex-col items-center justify-center gap-2",
-                darkMode ? "text-slate-500" : "text-gray-400",
+                darkMode ? "text-slate-500" : "text-slate-400",
               )}
             >
               <Package size={36} className="opacity-40" />
-              <p className="text-sm font-semibold">No products found</p>
+              <p className="text-sm font-bold uppercase tracking-widest">No products found</p>
             </motion.div>
           ) : viewMode === "grid" ? (
-            <div className="grid grid-cols-2 gap-3 pb-2 xl:grid-cols-3 2xl:grid-cols-4">
+            <div className="grid grid-cols-3 gap-2 pb-2 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
               {pageItems.map((p, i) => (
                 <ProductCard
                   key={p.id}
@@ -392,12 +389,12 @@ export function WholesalePOSLeftPanel({
               type="button"
               onClick={() => setPage(i)}
               className={cn(
-                "h-2 rounded-full transition-all",
+                "h-2 rounded-full transition-all duration-300",
                 i === page
-                  ? "w-6 bg-primary-600"
+                  ? "w-8 bg-blue-600"
                   : darkMode
                     ? "w-2 bg-slate-700 hover:bg-slate-600"
-                    : "w-2 bg-primary-200 hover:bg-primary-300",
+                    : "w-2 bg-blue-100 hover:bg-blue-200",
               )}
               aria-label={`Page ${i + 1}`}
             />
@@ -425,102 +422,76 @@ function ProductCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 16, rotateX: 8 }}
-      animate={{ opacity: 1, y: 0, rotateX: 0 }}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ delay: index * 0.03, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={
-        disabled
-          ? undefined
-          : {
-              y: -6,
-              rotateX: 2,
-              rotateY: -2,
-              boxShadow: darkMode
-                ? "0 20px 40px rgba(0,102,255,0.22)"
-                : "0 20px 40px rgba(0,102,255,0.14)",
-            }
-      }
-      style={{ transformStyle: "preserve-3d", perspective: 800 }}
+      transition={{ delay: index * 0.015, duration: 0.35 }}
+      whileHover={disabled ? undefined : { y: -3 }}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-2xl border p-3",
+        "group relative flex flex-col overflow-hidden rounded-xl border transition-all text-left",
         darkMode
-          ? "border-slate-700 bg-slate-800 shadow-[0_4px_18px_rgba(0,0,0,0.3)]"
-          : "border-gray-100 bg-white shadow-[0_4px_18px_rgba(15,23,42,0.04)]",
+          ? "border-slate-700 bg-slate-800 shadow-lg"
+          : "border-slate-100 bg-white hover:border-blue-200 hover:shadow-[0_6px_24px_rgba(37,99,235,0.06)]",
         disabled && "opacity-60",
       )}
     >
-      <div
-        className={cn(
-          "pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100",
-          darkMode ? "from-primary-500/10" : "from-primary-50/40",
-        )}
-      />
-
-      <CustomBadge
-        tone={status.tone}
-        className="absolute top-3 left-3 z-10 !gap-1.5 !py-0.5 !text-[10px] !font-bold"
-      >
-        <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
-        {status.label}
-      </CustomBadge>
-
-      <div
-        className="relative mt-5 mb-3 flex h-[110px] items-center justify-center"
-        style={{ transform: "translateZ(20px)" }}
-      >
+      <div className="relative aspect-square w-full overflow-hidden bg-slate-50/50 dark:bg-slate-950/50">
         {product.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={product.imageUrl}
             alt={product.name}
-            className="max-h-full max-w-full object-contain drop-shadow-[0_12px_20px_rgba(15,23,42,0.15)] transition-transform duration-500 ease-out group-hover:scale-105"
+            className="h-full w-full object-contain p-1.5 transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
-          <div
-            className={cn(
-              "flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br shadow-inner",
-              darkMode
-                ? "from-slate-700 to-slate-800 text-slate-500"
-                : "from-gray-100 to-gray-50 text-gray-300",
-            )}
-          >
-            <Package size={32} />
+          <div className="flex h-full w-full items-center justify-center">
+            <Package size={20} className={darkMode ? "text-slate-700" : "text-slate-200"} />
           </div>
         )}
+
+        <div className="absolute top-1.5 left-1.5">
+          <span className={cn(
+            "flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter shadow-sm",
+            (product.stockQty ?? 0) <= 10
+              ? "bg-amber-100 text-amber-600"
+              : "bg-emerald-100 text-emerald-600"
+          )}>
+            <div className={cn("w-1 h-1 rounded-full animate-pulse", (product.stockQty ?? 0) <= 10 ? "bg-amber-500" : "bg-emerald-500")} />
+            {(product.stockQty ?? 0) <= 10 ? "Low" : "In Stock"}
+          </span>
+        </div>
       </div>
 
-      <div className="relative mt-auto space-y-1 pr-10">
-        <h3
-          className={cn(
-            "line-clamp-2 min-h-[2.4em] text-[13px] font-bold leading-snug",
-            darkMode ? "text-slate-100" : "text-gray-900",
-          )}
-        >
+      <div className="flex flex-1 flex-col p-2">
+        <h3 className={cn("line-clamp-2 min-h-[2.6em] text-[11px] font-bold leading-tight", darkMode ? "text-slate-100" : "text-slate-900")}>
           {product.name}
         </h3>
-        <p className={cn("text-[11px] font-medium", darkMode ? "text-slate-500" : "text-gray-400")}>
+        <p className={cn("mt-0.5 text-[9px] font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>
           {product.sku}
         </p>
-        <p
-          className={cn(
-            "pt-0.5 text-[16px] font-bold tabular-nums",
-            darkMode ? "text-slate-100" : "text-gray-900",
-          )}
-        >
-          {fmt(product.sellingPrice)}
-        </p>
-      </div>
 
-      <CustomButton
-        type="button"
-        disabled={disabled}
-        onClick={onAdd}
-        className="absolute bottom-3 right-3 z-10 !h-9 !w-9 !rounded-full !px-0 shadow-lg shadow-primary-600/35"
-        aria-label={`Add ${product.name}`}
-      >
-        <Plus size={18} strokeWidth={2.5} />
-      </CustomButton>
+        <div className="mt-auto flex items-end justify-between pt-1.5">
+          <p className="text-[13px] font-black text-blue-600 tabular-nums leading-none">
+            {fmt(product.sellingPrice)}
+          </p>
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdd();
+            }}
+            className={cn(
+              "flex h-6 w-6 items-center justify-center rounded-lg transition-all active:scale-90 shadow-sm",
+              darkMode
+                ? "bg-blue-600 text-white shadow-blue-600/20"
+                : "bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white"
+            )}
+          >
+            <Plus size={12} strokeWidth={3} />
+          </button>
+        </div>
+      </div>
     </motion.div>
   );
 }

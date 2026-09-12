@@ -18,6 +18,7 @@ export interface CustomTabsProps {
   className?: string;
   themeColor?: "primary" | "orange" | "teal" | "emerald" | "indigo" | "amber" | "rose" | "purple" | "blue";
   variant?: "solid" | "pills" | "underline";
+  darkMode?: boolean;
 }
 
 const THEME_ACTIVE_STYLES: Record<string, string> = {
@@ -32,17 +33,17 @@ const THEME_ACTIVE_STYLES: Record<string, string> = {
   purple: "bg-purple-600 text-white shadow-2xs",
 };
 
-const THEME_HOVER_STYLES: Record<string, string> = {
-  primary: "hover:bg-primary-50 hover:text-primary-600",
-  blue: "hover:bg-blue-50 hover:text-blue-600",
-  orange: "hover:bg-orange-50 hover:text-orange-600",
-  teal: "hover:bg-teal-50 hover:text-teal-600",
-  emerald: "hover:bg-emerald-50 hover:text-emerald-600",
-  indigo: "hover:bg-indigo-50 hover:text-indigo-600",
-  amber: "hover:bg-amber-50 hover:text-amber-600",
-  rose: "hover:bg-rose-50 hover:text-rose-600",
-  purple: "hover:bg-purple-50 hover:text-purple-600",
-};
+const THEME_HOVER_STYLES = (darkMode: boolean): Record<string, string> => ({
+  primary: darkMode ? "hover:bg-primary-500/10 hover:text-primary-400" : "hover:bg-primary-50 hover:text-primary-600",
+  blue: darkMode ? "hover:bg-blue-500/10 hover:text-blue-400" : "hover:bg-blue-50 hover:text-blue-600",
+  orange: darkMode ? "hover:bg-orange-500/10 hover:text-orange-400" : "hover:bg-orange-50 hover:text-orange-600",
+  teal: darkMode ? "hover:bg-teal-500/10 hover:text-teal-400" : "hover:bg-teal-50 hover:text-teal-600",
+  emerald: darkMode ? "hover:bg-emerald-500/10 hover:text-emerald-400" : "hover:bg-emerald-50 hover:text-emerald-600",
+  indigo: darkMode ? "hover:bg-indigo-500/10 hover:text-indigo-400" : "hover:bg-indigo-50 hover:text-indigo-600",
+  amber: darkMode ? "hover:bg-amber-500/10 hover:text-amber-400" : "hover:bg-amber-50 hover:text-amber-600",
+  rose: darkMode ? "hover:bg-rose-500/10 hover:text-rose-400" : "hover:bg-rose-50 hover:text-rose-600",
+  purple: darkMode ? "hover:bg-purple-500/10 hover:text-purple-400" : "hover:bg-purple-50 hover:text-purple-600",
+});
 
 export function CustomTabs({
   tabs,
@@ -51,14 +52,18 @@ export function CustomTabs({
   className,
   themeColor = "orange",
   variant = "solid",
+  darkMode = false,
 }: CustomTabsProps) {
   const activeStyle = THEME_ACTIVE_STYLES[themeColor] || THEME_ACTIVE_STYLES.orange;
-  const hoverStyle = THEME_HOVER_STYLES[themeColor] || THEME_HOVER_STYLES.orange;
+  const hoverStyle = THEME_HOVER_STYLES(darkMode)[themeColor] || THEME_HOVER_STYLES(darkMode).orange;
 
   return (
     <div
       className={cn(
-        "flex items-center gap-1.5 overflow-x-auto rounded-md border border-slate-200 bg-white p-1.5 shadow-2xs w-full",
+        "flex items-center gap-1.5 overflow-x-auto rounded-md p-1.5 w-full transition-colors",
+        darkMode
+          ? "border border-slate-800 bg-slate-900 shadow-none"
+          : "border border-slate-200 bg-white shadow-2xs",
         className
       )}
     >
@@ -75,7 +80,10 @@ export function CustomTabs({
               "flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold rounded-md transition-all duration-200 whitespace-nowrap cursor-pointer select-none",
               isActive
                 ? activeStyle
-                : cn("text-gray-600 bg-transparent", hoverStyle)
+                : cn(
+                    darkMode ? "text-slate-400 bg-transparent" : "text-gray-600 bg-transparent",
+                    hoverStyle
+                  )
             )}
           >
             {tab.icon && (
