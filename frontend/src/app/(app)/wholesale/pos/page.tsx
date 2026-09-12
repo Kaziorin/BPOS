@@ -22,6 +22,7 @@ import { WholesalePOSHeader } from "@/components/wholesale/WholesalePOSHeader";
 import { WholesalePOSLeftPanel } from "@/components/wholesale/WholesalePOSLeftPanel";
 import { WholesalePOSRightPanel } from "@/components/wholesale/WholesalePOSRightPanel";
 import { WholesalePOSFooter } from "@/components/wholesale/WholesalePOSFooter";
+import { WholesaleCustomerModal } from "@/components/wholesale/WholesaleCustomerModal";
 import {
   DEMO_CUSTOMER,
   DEMO_STATS,
@@ -159,6 +160,8 @@ function WholesalePOSInner() {
 
   const [ctx, setCtx] = useState<RegisterContext>({ branch: null, warehouse: null, currency: "USD" });
   const [products, setProducts] = useState<RegisterProduct[]>(DEMO_PRODUCTS);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [customerModalOpen, setCustomerModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [online, setOnline] = useState(true);
 
@@ -176,7 +179,6 @@ function WholesalePOSInner() {
         if (Array.isArray(parsed)) return parsed;
       }
     } catch { /* ignore */ }
-    // First visit: seed a premium demo cart matching the mock layout
     return DEMO_PRODUCTS.slice(0, 8).map((p, i) =>
       calcLine({
         productId: p.id,
@@ -237,8 +239,6 @@ function WholesalePOSInner() {
     try {
       localStorage.setItem("bpos_wholesale_dark_mode", String(darkMode));
     } catch { /* ignore */ }
-
-    // Sync with document element for Tailwind dark: utility classes
     if (darkMode) {
       document.documentElement.classList.add("dark");
     } else {
@@ -246,14 +246,10 @@ function WholesalePOSInner() {
     }
   }, [darkMode]);
 
-  // Cleanup dark mode on unmount
   useEffect(() => {
-    return () => {
-      document.documentElement.classList.remove("dark");
-    };
+    return () => { document.documentElement.classList.remove("dark"); };
   }, []);
 
-  // Persist cart
   useEffect(() => {
     try {
       localStorage.setItem("bpos_wholesale_cart", JSON.stringify(cart));
@@ -278,16 +274,16 @@ function WholesalePOSInner() {
     };
   }, []);
 
-  // Load catalog
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       try {
-        const [ctxRes, prods, batches] = await Promise.allSettled([
+        const [ctxRes, prods, batches, custRes] = await Promise.allSettled([
           fetchRegisterContext(),
           fetchAllProducts(),
           fetchBatches(),
+          api.get("/v1/customers?limit=500"),
         ]);
         if (cancelled) return;
         if (ctxRes.status === "fulfilled") setCtx(ctxRes.value);
@@ -298,30 +294,33 @@ function WholesalePOSInner() {
           if (batches.status === "fulfilled") {
             list = applyBatchStock(list, batches.value);
           }
-          // Enrich missing images with demo visuals so the grid stays premium
           list = list.map((p, i) =>
-            p.imageUrl
-              ? p
-              : { ...p, imageUrl: DEMO_PRODUCTS[i % DEMO_PRODUCTS.length]?.imageUrl ?? null },
+            p.imageUrl ? p : { ...p, imageUrl: DEMO_PRODUCTS[i % DEMO_PRODUCTS.length]?.imageUrl ?? null },
           );
         }
         setProducts(list.length > 0 ? list : DEMO_PRODUCTS);
 
-        try {
-          const custRes: any = await api.get("/customers?limit=50");
-          const rows = custRes?.data?.data ?? custRes?.data ?? custRes ?? [];
-          if (Array.isArray(rows) && rows[0]?.id) {
-            setCustomerId(rows[0].id);
+        if (custRes.status === "fulfilled") {
+          const rows = (custRes.value as any)?.data?.data ?? (custRes.value as any)?.data ?? custRes.value ?? [];
+          if (Array.isArray(rows)) {
+            setCustomers(rows);
+            if (rows[0]?.id) setCustomerId(rows[0].id);
           }
-        } catch { /* keep demo customer UI */ }
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
+
+  const handleAddCustomer = async (newCust: any) => {
+    setCustomers(prev => [newCust, ...prev]);
+    setCustomerId(newCust.id);
+    try {
+      await api.post("/api/v1/customers", newCust);
+    } catch (err) { console.error("Failed to save customer", err); }
+  };
 
   const subtotal = useMemo(
     () => cart.reduce((s, i) => s + i.lineTotal, 0),
@@ -577,6 +576,7 @@ function WholesalePOSInner() {
       )}
       style={{ fontFamily: "var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif" }}
     >
+      {/* ... background nodes ... */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         {darkMode ? (
           <>
@@ -593,22 +593,17 @@ function WholesalePOSInner() {
             <div className="absolute bottom-0 right-1/4 h-[280px] w-[280px] rounded-full bg-sky-300/20 blur-3xl" />
           </>
         )}
-        <svg className={cn("absolute inset-0 h-full w-full", darkMode ? "opacity-[0.2]" : "opacity-[0.35]")} aria-hidden>
+        <svg className={cn("absolute inset-0 h-full w-full", darkMode ? "opacity-[0.2]" : "opacity-[0.35]")}>
           <defs>
             <pattern id="ws-grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path
-                d="M32 0H0V32"
-                fill="none"
-                stroke={darkMode ? "rgba(148,163,184,0.12)" : "rgba(0,102,255,0.06)"}
-                strokeWidth="1"
-              />
+              <path d="M32 0H0V32" fill="none" stroke={darkMode ? "rgba(148,163,184,0.12)" : "rgba(0,102,255,0.06)"} strokeWidth="1" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#ws-grid)" />
         </svg>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 sm:p-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 p-2 sm:p-2.5">
         <WholesalePOSHeader
           orderNo={orderSeq}
           customer={DEMO_CUSTOMER}
@@ -618,26 +613,20 @@ function WholesalePOSInner() {
           onSelectCustomer={() => searchRef.current?.focus()}
         />
 
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto md:flex-row md:overflow-hidden">
+        <div className="flex min-h-0 flex-1 gap-2 flex-col md:flex-row overflow-hidden">
           <motion.div
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
-              "flex min-h-[520px] min-w-0 flex-1 flex-col rounded-[22px] p-3 backdrop-blur-md transition-colors sm:p-4 md:min-h-0",
+              "flex min-w-0 flex-1 flex-col rounded-[20px] p-2 backdrop-blur-md transition-all md:min-h-0",
               darkMode
-                ? "border border-slate-700/80 bg-slate-900/70 shadow-[0_8px_40px_rgba(0,0,0,0.35)]"
-                : "border border-primary-50 bg-white/80 shadow-[0_8px_40px_rgba(0,102,255,0.06)]",
+                ? "border border-slate-700/80 bg-slate-900/70 shadow-lg"
+                : "border border-primary-50 bg-white/80 shadow-sm",
             )}
           >
             {loading ? (
               <div className="flex flex-1 items-center justify-center">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
-                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                    Loading catalog…
-                  </p>
-                </div>
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
               </div>
             ) : (
               <WholesalePOSLeftPanel
@@ -654,9 +643,6 @@ function WholesalePOSInner() {
                 onTapProduct={addProduct}
                 warehouseName={ctx.warehouse?.name || "All Warehouses"}
                 onScan={() => searchRef.current?.focus()}
-                onQuickAction={(id) => {
-                  if (id === "sales") searchRef.current?.focus();
-                }}
                 darkMode={darkMode}
               />
             )}
@@ -665,8 +651,7 @@ function WholesalePOSInner() {
           <motion.div
             initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.45, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-            className="flex w-full shrink-0 min-h-[420px] md:min-h-0 md:w-[340px] lg:w-[380px] xl:w-[400px]"
+            className="flex w-full shrink-0 md:w-[340px] lg:w-[380px] xl:w-[400px]"
           >
             <WholesalePOSRightPanel
               cart={cart}
@@ -687,24 +672,13 @@ function WholesalePOSInner() {
               onScanItem={() => searchRef.current?.focus()}
               onHold={holdOrder}
               onProceed={confirmSale}
+              note={note}
+              setNote={setNote}
               submitting={submitting}
               darkMode={darkMode}
             />
           </motion.div>
         </div>
-
-        {error && (
-          <div
-            className={cn(
-              "rounded-xl px-3 py-2 text-[12px] font-semibold",
-              darkMode
-                ? "border border-rose-500/30 bg-rose-950/50 text-rose-300"
-                : "border border-rose-200 bg-rose-50 text-rose-600",
-            )}
-          >
-            {error}
-          </div>
-        )}
 
         <WholesalePOSFooter
           warehouseName={ctx.warehouse?.name || "Main Warehouse"}
@@ -713,16 +687,21 @@ function WholesalePOSInner() {
           deliveryMethod="Standard"
           paymentTerm="30 Days"
           commission={5}
-          noteCount={note ? 1 : 0}
-          attachmentCount={0}
-          submitting={submitting}
-          canProceed={cart.length > 0}
-          onHold={holdOrder}
-          onProceed={confirmSale}
-          darkMode={darkMode}
           onUtility={(id) => {
-            if (id === "customer") searchRef.current?.focus();
+            if (id === "customer") setCustomerModalOpen(true);
+            else if (id === "hold") holdOrder();
           }}
+          onHold={holdOrder}
+          darkMode={darkMode}
+        />
+
+        <WholesaleCustomerModal
+          open={customerModalOpen}
+          onClose={() => setCustomerModalOpen(false)}
+          customers={customers}
+          onAddCustomer={handleAddCustomer}
+          onSelectCustomer={(id) => setCustomerId(id)}
+          darkMode={darkMode}
         />
       </div>
 

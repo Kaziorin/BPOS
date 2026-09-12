@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import { X } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 export interface CustomModalProps {
   open: boolean;
@@ -9,6 +10,8 @@ export interface CustomModalProps {
   title: string;
   children: ReactNode;
   size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "full";
+  className?: string;
+  darkMode?: boolean;
 }
 
 const sizeClasses: Record<string, string> = {
@@ -25,7 +28,7 @@ const sizeClasses: Record<string, string> = {
   full: "max-w-[95vw]",
 };
 
-export function CustomModal({ open, onClose, title, children, size = "md" }: CustomModalProps) {
+export function CustomModal({ open, onClose, title, children, size = "md", className, darkMode = false }: CustomModalProps) {
   if (!open) return null;
 
   return (
@@ -35,13 +38,27 @@ export function CustomModal({ open, onClose, title, children, size = "md" }: Cus
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`w-full ${sizeClasses[size] ?? "max-w-md"} rounded-md bg-white shadow-2xl border border-gray-100 animate-[scale-in_180ms_ease-out] flex flex-col max-h-[90vh]`}
+        className={cn(
+          "w-full rounded-md shadow-2xl animate-[scale-in_180ms_ease-out] flex flex-col max-h-[90vh]",
+          sizeClasses[size] ?? "max-w-md",
+          darkMode ? "bg-slate-900 border border-slate-800" : "bg-white border border-gray-100",
+          className
+        )}
       >
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 shrink-0">
-          <h2 className="text-base font-bold text-gray-600">{title}</h2>
+        <div className={cn(
+          "flex items-center justify-between border-b px-6 py-4 shrink-0",
+          darkMode ? "border-slate-800" : "border-gray-100"
+        )}>
+          <h2 className={cn(
+            "text-base font-bold",
+            darkMode ? "text-slate-200" : "text-gray-600"
+          )}>{title}</h2>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-gray-400 transition hover:bg-teal-50 hover:text-teal-600"
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-md transition",
+              darkMode ? "text-slate-400 hover:bg-slate-800 hover:text-slate-200" : "text-gray-400 hover:bg-teal-50 hover:text-teal-600"
+            )}
           >
             <X size={18} />
           </button>

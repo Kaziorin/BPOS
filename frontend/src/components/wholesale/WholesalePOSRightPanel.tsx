@@ -29,6 +29,8 @@ interface WholesalePOSRightPanelProps {
   onScanItem?: () => void;
   onHold?: () => void;
   onProceed?: () => void;
+  note?: string;
+  setNote?: (v: string) => void;
   submitting?: boolean;
   darkMode?: boolean;
 }
@@ -52,6 +54,8 @@ export function WholesalePOSRightPanel({
   onScanItem,
   onHold,
   onProceed,
+  note = "",
+  setNote,
   submitting = false,
   darkMode = false,
 }: WholesalePOSRightPanelProps) {
@@ -351,6 +355,27 @@ export function WholesalePOSRightPanel({
               darkMode ? darkField : "!border-primary-100",
             )}
             containerClassName="w-24"
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-2">
+          <span
+            className={cn(
+              "text-[12px] font-semibold",
+              darkMode ? "text-slate-400" : "text-gray-500",
+            )}
+          >
+            Order Note
+          </span>
+          <CustomInput
+            value={note}
+            onChange={(e) => setNote?.(e.target.value)}
+            placeholder="Add instructions..."
+            className={cn(
+              "!h-7 !rounded-lg !px-2 !py-0.5 !text-right !text-[11px] font-medium",
+              darkMode ? darkField : "!border-primary-100",
+            )}
+            containerClassName="w-36"
           />
         </div>
 

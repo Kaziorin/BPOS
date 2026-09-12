@@ -1,7 +1,6 @@
 "use client";
 
 import type { ElementType } from "react";
-import { motion } from "framer-motion";
 import {
   UserPlus,
   PauseCircle,
@@ -15,16 +14,13 @@ import {
   Truck,
   CreditCard,
   Percent,
-  StickyNote,
-  Paperclip,
   ChevronDown,
-  ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { CustomButton } from "@/components/custom";
 
 const UTILITY_ACTIONS = [
-  { id: "customer", label: "Customer Add/Search", Icon: UserPlus },
+  { id: "customer", label: "Add Customer", Icon: UserPlus },
   { id: "hold", label: "Hold Order", Icon: PauseCircle },
   { id: "recent", label: "Recent Orders", Icon: History },
   { id: "quotations", label: "Quotations", Icon: FileText },
@@ -40,92 +36,64 @@ interface WholesalePOSFooterProps {
   deliveryMethod: string;
   paymentTerm: string;
   commission: number;
-  noteCount?: number;
-  attachmentCount?: number;
-  submitting?: boolean;
-  canProceed?: boolean;
   onUtility?: (id: string) => void;
   onHold: () => void;
-  onProceed: () => void;
   darkMode?: boolean;
 }
 
 export function WholesalePOSFooter({
   warehouseName,
   salesRepName,
-  salesRepId = "EMP-1042",
   deliveryDate,
   deliveryMethod,
   paymentTerm,
   commission,
-  noteCount = 0,
-  attachmentCount = 0,
-  submitting,
-  canProceed = true,
   onUtility,
   onHold,
-  onProceed,
   darkMode = false,
 }: WholesalePOSFooterProps) {
   return (
-    <div className="shrink-0 space-y-2.5">
-      <div className="flex flex-wrap items-center gap-1.5">
-        {UTILITY_ACTIONS.map((a) => (
-          <CustomButton
-            key={a.id}
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              if (a.id === "hold") onHold();
-              else onUtility?.(a.id);
-            }}
-            leftIcon={<a.Icon size={13} className="text-primary-500" />}
-            className={cn(
-              "!rounded-xl !text-[11px] !font-semibold",
-              darkMode
-                ? "!border-slate-700 !bg-slate-800/90 !text-slate-300 hover:!border-primary-500/40 hover:!bg-slate-700 hover:!text-primary-300"
-                : "!border-gray-200/80 !bg-white/90 text-gray-600 hover:!border-primary-200 hover:!bg-primary-50/50 hover:!text-primary-700",
-            )}
-          >
-            {a.label}
-          </CustomButton>
-        ))}
-      </div>
-
+    <div className="shrink-0">
       <div
         className={cn(
-          "flex flex-wrap items-center justify-between gap-3 rounded-2xl px-3 py-2 backdrop-blur-md",
+          "flex items-center gap-2 rounded-[22px] px-3 py-2 backdrop-blur-md transition-all",
           darkMode
-            ? "border border-slate-700/80 bg-slate-900/75 shadow-sm"
-            : "border-primary-100/70 bg-white/90 shadow-sm",
+            ? "border border-slate-700/80 bg-slate-900/85 shadow-lg"
+            : "border border-primary-100/70 bg-white/95 shadow-sm",
         )}
       >
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-          <MetaChip Icon={Warehouse} label="Warehouse" value={warehouseName} darkMode={darkMode} />
-          <MetaChip
-            Icon={User}
-            label="Rep"
-            value={salesRepName}
-            avatar
-            darkMode={darkMode}
-          />
-          <MetaChip Icon={Calendar} label="Delivery" value={deliveryDate} darkMode={darkMode} />
-          <MetaChip Icon={Truck} label="Method" value={deliveryMethod} darkMode={darkMode} />
-          <MetaChip Icon={CreditCard} label="Term" value={paymentTerm} darkMode={darkMode} />
-          <MetaChip Icon={Percent} label="Comm." value={`${commission}%`} darkMode={darkMode} />
-          <MetaChip
-            Icon={StickyNote}
-            label="Notes"
-            value={noteCount ? `${noteCount}` : "Add"}
-            darkMode={darkMode}
-          />
-        </div>
+        <div className="flex min-w-0 flex-1 items-center justify-between gap-1 overflow-x-auto no-scrollbar scroll-smooth">
+          {/* 1. Primary Utility Actions */}
+          <div className="flex items-center gap-1.5 pr-3 border-r border-slate-700/30">
+            {UTILITY_ACTIONS.map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                onClick={() => {
+                  if (a.id === "hold") onHold();
+                  else onUtility?.(a.id);
+                }}
+                className={cn(
+                  "flex h-9 items-center gap-2 rounded-xl px-3 text-[11px] font-bold transition-all active:scale-95 whitespace-nowrap",
+                  darkMode
+                    ? "bg-slate-800/60 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/50"
+                    : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/50",
+                )}
+              >
+                <a.Icon size={14} className="text-primary-500" />
+                <span className="hidden lg:inline">{a.label}</span>
+              </button>
+            ))}
+          </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          {/* Action buttons moved to Cart Panel for better accessibility */}
-          <div className="hidden md:flex items-center gap-2 text-[10px] font-bold text-slate-400 italic pr-2">
-            Proceed with F1 · Hold with F6
+          {/* 2. Metadata Info Chips */}
+          <div className="flex items-center gap-1 pl-2">
+            <MetaChip Icon={Warehouse} label="Warehouse" value={warehouseName} darkMode={darkMode} />
+            <MetaChip Icon={User} label="Rep" value={salesRepName} avatar darkMode={darkMode} />
+            <MetaChip Icon={Calendar} label="Delivery" value={deliveryDate} darkMode={darkMode} />
+            <MetaChip Icon={Truck} label="Method" value={deliveryMethod} darkMode={darkMode} />
+            <MetaChip Icon={CreditCard} label="Term" value={paymentTerm} darkMode={darkMode} />
+            <MetaChip Icon={Percent} label="Comm." value={`${commission}%`} darkMode={darkMode} />
           </div>
         </div>
       </div>
