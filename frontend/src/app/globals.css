@@ -67,12 +67,20 @@
   --theme-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #1d4ed8 100%);
 }
 
-/* 5. WHOLESALE & DISTRIBUTION (Deep Indigo) */
+/* 5. WHOLESALE & DISTRIBUTION (Vibrant Action Blue — matches B2B POS mock) */
 [data-theme="wholesale"], .theme-wholesale {
-  --theme-primary-50: #eef2ff; --theme-primary-100: #e0e7ff; --theme-primary-200: #c7d2fe;
-  --theme-primary-500: #6366f1; --theme-primary-600: #4f46e5; --theme-primary-700: #4338ca;
-  --theme-glow: rgba(99, 102, 241, 0.35);
-  --theme-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #4338ca 100%);
+  --theme-primary-50: #eff6ff;
+  --theme-primary-100: #dbeafe;
+  --theme-primary-200: #bfdbfe;
+  --theme-primary-300: #93c5fd;
+  --theme-primary-400: #60a5fa;
+  --theme-primary-500: #3b82f6;
+  --theme-primary-600: #0066ff;
+  --theme-primary-700: #0052cc;
+  --theme-primary-800: #1e40af;
+  --theme-primary-900: #1e3a8a;
+  --theme-glow: rgba(0, 102, 255, 0.28);
+  --theme-gradient: linear-gradient(135deg, #0066ff 0%, #3b82f6 50%, #2563eb 100%);
 }
 
 /* 6. SALON & BEAUTY (Glamour Rose/Pink) */

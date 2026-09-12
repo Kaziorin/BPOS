@@ -1,0 +1,258 @@
+"use client";
+
+import type { ReactElement } from "react";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import {
+  Settings2,
+  Sun,
+  Moon,
+  TrendingUp,
+  ShoppingBag,
+  Truck,
+  Users,
+  ClipboardList,
+  AlertTriangle,
+  type LucideIcon,
+} from "lucide-react";
+import { cn } from "@/lib/cn";
+import { CustomBadge, CustomButton, CustomStatCard } from "@/components/custom";
+import type { StatTone } from "@/components/custom/CustomStatCard";
+import type { WsCustomerProfile, WsStats } from "./wholesale-pos-types";
+
+function fmt(n: number) {
+  return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+interface WholesalePOSHeaderProps {
+  orderNo: string;
+  customer: WsCustomerProfile;
+  stats: WsStats;
+  darkMode?: boolean;
+  onToggleDarkMode?: () => void;
+  onSelectCustomer?: () => void;
+  onOpenSettings?: () => void;
+}
+
+export function WholesalePOSHeader({
+  orderNo,
+  customer,
+  stats,
+  darkMode = false,
+  onToggleDarkMode,
+  onSelectCustomer,
+  onOpenSettings,
+}: WholesalePOSHeaderProps): ReactElement {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const timeStr = now.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+  const dateStr = now.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  const metricCards: { label: string; value: string; Icon: LucideIcon; tone: StatTone }[] = [
+    { label: "Today's Sales", value: fmt(stats.todaysSales), Icon: TrendingUp, tone: "blue" },
+    { label: "Orders", value: String(stats.orders), Icon: ShoppingBag, tone: "primary" },
+    { label: "Delivery", value: String(stats.delivery), Icon: Truck, tone: "blue" },
+    { label: "Customers", value: String(stats.customers), Icon: Users, tone: "violet" },
+    { label: "Pending Orders", value: String(stats.pendingOrders), Icon: ClipboardList, tone: "amber" },
+    { label: "Low Stock Alerts", value: String(stats.lowStockAlerts), Icon: AlertTriangle, tone: "red" },
+  ];
+
+  return (
+    <div className="shrink-0 space-y-3">
+      <motion.header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className={cn(
+          "flex items-center gap-4 rounded-[20px] px-5 py-3.5 backdrop-blur-xl transition-colors",
+          darkMode
+            ? "border border-slate-700/80 bg-slate-900/75 shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
+            : "border border-white/70 bg-white/65 shadow-[0_8px_32px_rgba(0,102,255,0.08)]",
+        )}
+      >
+        <div className="min-w-0 shrink-0 pr-2">
+          <h1
+            className={cn(
+              "text-[20px] font-bold leading-tight tracking-tight sm:text-[22px]",
+              darkMode ? "text-slate-50" : "text-slate-900",
+            )}
+          >
+            New Sales Order
+          </h1>
+          <p className={cn("mt-0.5 text-[12px] font-medium tracking-wide", darkMode ? "text-slate-500" : "text-slate-400")}>
+            {orderNo}
+          </p>
+        </div>
+
+        <div className="hidden flex-1 md:block" />
+
+        <motion.button
+          type="button"
+          onClick={onSelectCustomer}
+          whileHover={{ y: -1 }}
+          whileTap={{ scale: 0.995 }}
+          className={cn(
+            "flex min-w-0 max-w-full flex-1 items-center gap-0 overflow-hidden rounded-2xl px-4 py-2.5 text-left transition-colors md:flex-none md:max-w-none",
+            darkMode
+              ? "border border-slate-700 bg-slate-800/90 shadow-[0_2px_12px_rgba(0,0,0,0.25)]"
+              : "border border-slate-100/90 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.04)]",
+          )}
+        >
+          <div className="min-w-0 shrink pr-4 sm:pr-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={cn("truncate text-[14px] font-bold", darkMode ? "text-slate-100" : "text-slate-900")}>
+                {customer.name}
+              </span>
+              <CustomBadge
+                tone="primary"
+                className={cn(
+                  "!shrink-0 !px-2 !py-0.5 !text-[10px] !font-semibold",
+                  darkMode ? "!bg-primary-500/15 !text-primary-300" : "!bg-primary-50 !text-primary-600",
+                )}
+              >
+                {customer.tier} Customer
+              </CustomBadge>
+            </div>
+            <p className={cn("mt-0.5 truncate text-[11px] font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>
+              {customer.id} <span className={cn("mx-0.5", darkMode ? "text-slate-600" : "text-slate-300")}>•</span>{" "}
+              {customer.phone}
+            </p>
+          </div>
+
+          <Divider darkMode={darkMode} />
+          <Metric label="Credit Limit" value={fmt(customer.creditLimit)} valueClass={darkMode ? "text-slate-100" : "text-slate-900"} darkMode={darkMode} />
+          <Divider darkMode={darkMode} />
+          <Metric label="Available Credit" value={fmt(customer.availableCredit)} valueClass="text-emerald-500" darkMode={darkMode} />
+          <Divider darkMode={darkMode} />
+          <Metric label="Outstanding" value={fmt(customer.outstanding)} valueClass="text-rose-400" darkMode={darkMode} />
+        </motion.button>
+
+        <div className="flex shrink-0 items-center gap-2.5 pl-1">
+          <div className="hidden text-right sm:block">
+            <p className={cn("text-[14px] font-bold leading-tight tabular-nums", darkMode ? "text-slate-100" : "text-slate-900")}>
+              {timeStr}
+            </p>
+            <p className={cn("mt-0.5 text-[11px] font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>{dateStr}</p>
+          </div>
+
+          {/* Light / Dark mode switch */}
+          <button
+            type="button"
+            role="switch"
+            aria-checked={darkMode}
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            onClick={onToggleDarkMode}
+            className={cn(
+              "relative inline-flex h-9 w-[68px] shrink-0 items-center rounded-full border p-1 transition-colors duration-300",
+              darkMode
+                ? "border-slate-600 bg-slate-800"
+                : "border-slate-200 bg-slate-100",
+            )}
+          >
+            <span
+              className={cn(
+                "absolute inset-y-1 left-1 flex h-7 w-7 items-center justify-center rounded-full shadow-md transition-transform duration-300",
+                darkMode
+                  ? "translate-x-[30px] bg-primary-600 text-white"
+                  : "translate-x-0 bg-white text-amber-500",
+              )}
+            >
+              {darkMode ? <Moon size={14} strokeWidth={2.2} /> : <Sun size={14} strokeWidth={2.2} />}
+            </span>
+            <span className="pointer-events-none flex w-full items-center justify-between px-1.5 text-[9px] font-bold uppercase tracking-wide">
+              <span className={cn(darkMode ? "text-slate-600" : "text-amber-500/80")}>
+                <Sun size={11} />
+              </span>
+              <span className={cn(darkMode ? "text-primary-300" : "text-slate-400")}>
+                <Moon size={11} />
+              </span>
+            </span>
+          </button>
+
+          <CustomButton
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onOpenSettings}
+            className={cn(
+              "!h-9 !w-9 !rounded-xl !px-0",
+              darkMode
+                ? "text-slate-400 hover:!bg-slate-800 hover:!text-slate-200"
+                : "text-slate-400 hover:!bg-slate-100 hover:!text-slate-600",
+            )}
+            aria-label="Settings"
+          >
+            <Settings2 size={18} strokeWidth={1.75} />
+          </CustomButton>
+        </div>
+      </motion.header>
+
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
+        {metricCards.map((m, i) => (
+          <motion.div
+            key={m.label}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 + i * 0.04, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <CustomStatCard
+              label={m.label}
+              value={m.value}
+              icon={m.Icon}
+              tone={m.tone}
+              className={cn(
+                "!rounded-2xl !p-3.5 transition-colors",
+                darkMode
+                  ? "!border-slate-700 !bg-slate-900/90 !text-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.25)] [&_p]:!text-slate-400 [&_p.text-2xl]:!text-slate-50"
+                  : "!border-primary-50 !shadow-[0_2px_12px_rgba(0,102,255,0.06)]",
+              )}
+            />
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Divider({ darkMode }: { darkMode?: boolean }) {
+  return (
+    <div
+      className={cn("mx-1 hidden h-9 w-px shrink-0 sm:block", darkMode ? "bg-slate-700" : "bg-slate-200/80")}
+      aria-hidden
+    />
+  );
+}
+
+function Metric({
+  label,
+  value,
+  valueClass,
+  darkMode,
+}: {
+  label: string;
+  value: string;
+  valueClass: string;
+  darkMode?: boolean;
+}) {
+  return (
+    <div className="hidden min-w-[108px] shrink-0 px-3 sm:block lg:px-4">
+      <p className={cn("text-[10px] font-medium leading-none", darkMode ? "text-slate-500" : "text-slate-400")}>
+        {label}
+      </p>
+      <p className={`mt-1.5 text-[14px] font-bold leading-none tabular-nums ${valueClass}`}>{value}</p>
+    </div>
+  );
+}

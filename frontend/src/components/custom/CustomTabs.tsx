@@ -16,11 +16,13 @@ export interface CustomTabsProps {
   activeTab: string;
   onChange: (tabId: string) => void;
   className?: string;
-  themeColor?: "orange" | "teal" | "emerald" | "indigo" | "amber" | "rose" | "purple";
+  themeColor?: "primary" | "orange" | "teal" | "emerald" | "indigo" | "amber" | "rose" | "purple" | "blue";
   variant?: "solid" | "pills" | "underline";
 }
 
 const THEME_ACTIVE_STYLES: Record<string, string> = {
+  primary: "bg-primary-600 text-white shadow-2xs",
+  blue: "bg-blue-600 text-white shadow-2xs",
   orange: "bg-orange-600 text-white shadow-2xs",
   teal: "bg-teal-600 text-white shadow-2xs",
   emerald: "bg-emerald-600 text-white shadow-2xs",
@@ -31,6 +33,8 @@ const THEME_ACTIVE_STYLES: Record<string, string> = {
 };
 
 const THEME_HOVER_STYLES: Record<string, string> = {
+  primary: "hover:bg-primary-50 hover:text-primary-600",
+  blue: "hover:bg-blue-50 hover:text-blue-600",
   orange: "hover:bg-orange-50 hover:text-orange-600",
   teal: "hover:bg-teal-50 hover:text-teal-600",
   emerald: "hover:bg-emerald-50 hover:text-emerald-600",

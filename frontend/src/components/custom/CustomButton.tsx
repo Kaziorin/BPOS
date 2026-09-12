@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 
 export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
-export type ThemeColor = "teal" | "orange" | "indigo" | "emerald" | "amber" | "rose" | "purple";
+export type ThemeColor = "primary" | "teal" | "orange" | "indigo" | "emerald" | "amber" | "rose" | "purple" | "blue";
 
 export interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -19,6 +19,8 @@ export interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
+  primary: "bg-primary-600 text-white shadow-2xs hover:bg-primary-700 focus-visible:ring-primary-300",
+  blue: "bg-blue-600 text-white shadow-2xs hover:bg-blue-700 focus-visible:ring-blue-300",
   teal: "bg-teal-600 text-white shadow-2xs hover:bg-teal-700 focus-visible:ring-teal-300",
   orange: "bg-orange-600 text-white shadow-2xs hover:bg-orange-700 focus-visible:ring-orange-300",
   emerald: "bg-emerald-600 text-white shadow-2xs hover:bg-emerald-700 focus-visible:ring-emerald-300",
@@ -30,7 +32,7 @@ const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
-    "bg-teal-600 text-white shadow-2xs hover:bg-teal-700 focus-visible:ring-teal-300",
+    "bg-primary-600 text-white shadow-2xs hover:bg-primary-700 focus-visible:ring-primary-300",
   secondary: "bg-slate-100 text-gray-700 hover:bg-slate-200 focus-visible:ring-slate-300",
   outline:
     "border border-slate-200 bg-white text-gray-700 hover:bg-slate-50 focus-visible:ring-slate-300",

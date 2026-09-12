@@ -59,11 +59,11 @@ export const VERTICAL_THEMES: Record<VerticalThemeId, VerticalThemeConfig> = {
   wholesale: {
     id: "wholesale",
     name: "Wholesale & Distribution",
-    primaryHex: "#6366f1", // Deep Indigo
-    accentHex: "#06b6d4",
-    badgeBg: "bg-indigo-500/10 border-indigo-500/30",
-    badgeText: "text-indigo-400",
-    description: "Enterprise indigo theme for bulk tier pricing & credit ledger.",
+    primaryHex: "#0066ff", // Action Blue (POS mock)
+    accentHex: "#3b82f6",
+    badgeBg: "bg-blue-500/10 border-blue-500/30",
+    badgeText: "text-blue-500",
+    description: "Vibrant B2B blue theme for bulk tier pricing & credit ledger.",
   },
   salon: {
     id: "salon",

@@ -8,10 +8,20 @@ export interface CustomCheckboxProps extends Omit<InputHTMLAttributes<HTMLInputE
   label?: string;
   description?: string;
   containerClassName?: string;
-  themeColor?: "teal" | "orange" | "indigo" | "emerald" | "amber" | "rose" | "purple";
+  themeColor?: "primary" | "teal" | "orange" | "indigo" | "emerald" | "amber" | "rose" | "purple" | "blue";
 }
 
 const CHECKBOX_THEME_MAP: Record<string, { hover: string; focus: string; checked: string }> = {
+  primary: {
+    hover: "group-hover:border-primary-500",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-primary-500/30 peer-focus-visible:border-primary-500",
+    checked: "peer-checked:bg-primary-600 peer-checked:border-primary-600",
+  },
+  blue: {
+    hover: "group-hover:border-blue-500",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500/30 peer-focus-visible:border-blue-500",
+    checked: "peer-checked:bg-blue-600 peer-checked:border-blue-600",
+  },
   teal: {
     hover: "group-hover:border-teal-500",
     focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-teal-500/30 peer-focus-visible:border-teal-500",
