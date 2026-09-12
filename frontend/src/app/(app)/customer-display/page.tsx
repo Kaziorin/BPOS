@@ -268,12 +268,12 @@ export default function CustomerDisplayPage() {
   const subtotal = isLive
     ? (cart?.subtotal ?? displayLines.reduce((s, l) => s + l.unitPrice * l.qty, 0))
     : 1280.96;
-  const tax = isLive ? (cart?.taxTotal ?? subtotal * 0.07) : 89.67;
+  const tax = isLive ? (cart?.taxTotal ?? subtotal * 0.15) : 192.14;
   const discount = isLive ? (cart?.discountTotal ?? 0) : 0;
   const serviceCharge = isLive ? (cart?.serviceCharge ?? 0) : 0;
   const total = isLive
     ? (cart?.total ?? subtotal - discount + tax + serviceCharge)
-    : 1385.63;
+    : 1473.10;
 
   const customerName = cart?.customerName || "ABC Traders Ltd.";
   const customerTier = cart?.customerTier || "Platinum";

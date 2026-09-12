@@ -2043,7 +2043,7 @@ export default function RestaurantPOSPage() {
               )}
 
               <div className="flex justify-between text-gray-500">
-                <span>Tax</span>
+                <span>Tax (15%)</span>
                 <span className="font-medium">{fmt(estimateTax)}</span>
               </div>
 

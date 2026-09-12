@@ -23,132 +23,18 @@ import { WholesalePOSLeftPanel } from "@/components/wholesale/WholesalePOSLeftPa
 import { WholesalePOSRightPanel } from "@/components/wholesale/WholesalePOSRightPanel";
 import { WholesalePOSFooter } from "@/components/wholesale/WholesalePOSFooter";
 import { WholesaleCustomerModal } from "@/components/wholesale/WholesaleCustomerModal";
+import { WholesaleCheckoutModal, type WsCheckoutPayMethod } from "@/components/wholesale/WholesaleCheckoutModal";
 import {
-  DEMO_CUSTOMER,
-  DEMO_STATS,
   type DiscountMode,
   type WsCartItem,
   type WsCategory,
   type WsSortBy,
 } from "@/components/wholesale/wholesale-pos-types";
 
-/** Premium demo catalog matching the design mock (used when API is empty). */
-const DEMO_PRODUCTS: RegisterProduct[] = [
-  {
-    id: "demo-1",
-    name: "Premium Wireless Headphones",
-    sku: "SKU-HD-2401",
-    barcode: "8901001001",
-    sellingPrice: 129.99,
-    costPrice: 80,
-    productType: "SIMPLE",
-    unit: "pcs",
-    status: "ACTIVE",
-    stockQty: 48,
-    categoryName: "Electronics",
-    imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
-  },
-  {
-    id: "demo-2",
-    name: "Ultra Slim Smart Watch",
-    sku: "SKU-SW-8820",
-    barcode: "8901001002",
-    sellingPrice: 249.0,
-    costPrice: 160,
-    productType: "SIMPLE",
-    unit: "pcs",
-    status: "ACTIVE",
-    stockQty: 32,
-    categoryName: "Electronics",
-    imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
-  },
-  {
-    id: "demo-3",
-    name: "Noise Cancelling Earbuds",
-    sku: "SKU-EB-3311",
-    barcode: "8901001003",
-    sellingPrice: 89.5,
-    costPrice: 45,
-    productType: "SIMPLE",
-    unit: "pcs",
-    status: "ACTIVE",
-    stockQty: 8,
-    categoryName: "Electronics",
-    imageUrl: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=400&fit=crop",
-  },
-  {
-    id: "demo-4",
-    name: "Pro Mechanical Keyboard",
-    sku: "SKU-KB-5502",
-    barcode: "8901001004",
-    sellingPrice: 159.0,
-    costPrice: 95,
-    productType: "SIMPLE",
-    unit: "pcs",
-    status: "ACTIVE",
-    stockQty: 21,
-    categoryName: "Computers",
-    imageUrl: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=400&h=400&fit=crop",
-  },
-  {
-    id: "demo-5",
-    name: "4K Action Camera",
-    sku: "SKU-CAM-901",
-    barcode: "8901001005",
-    sellingPrice: 319.99,
-    costPrice: 210,
-    productType: "SIMPLE",
-    unit: "pcs",
-    status: "ACTIVE",
-    stockQty: 14,
-    categoryName: "Electronics",
-    imageUrl: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&h=400&fit=crop",
-  },
-  {
-    id: "demo-6",
-    name: "Wireless Gaming Mouse",
-    sku: "SKU-MS-4410",
-    barcode: "8901001006",
-    sellingPrice: 69.99,
-    costPrice: 35,
-    productType: "SIMPLE",
-    unit: "pcs",
-    status: "ACTIVE",
-    stockQty: 5,
-    categoryName: "Accessories",
-    imageUrl: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=400&fit=crop",
-  },
-  {
-    id: "demo-7",
-    name: "Portable Bluetooth Speaker",
-    sku: "SKU-SP-2208",
-    barcode: "8901001007",
-    sellingPrice: 79.0,
-    costPrice: 40,
-    productType: "SIMPLE",
-    unit: "pcs",
-    status: "ACTIVE",
-    stockQty: 27,
-    categoryName: "Electronics",
-    imageUrl: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop",
-  },
-  {
-    id: "demo-8",
-    name: "USB-C Hub Dock Station",
-    sku: "SKU-HUB-118",
-    barcode: "8901001008",
-    sellingPrice: 54.5,
-    costPrice: 28,
-    productType: "SIMPLE",
-    unit: "pcs",
-    status: "ACTIVE",
-    stockQty: 40,
-    categoryName: "Accessories",
-    imageUrl: "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=400&fit=crop",
-  },
-];
+/** Placeholder for empty product state. */
+const EMPTY_PRODUCTS: RegisterProduct[] = [];
 
-const TAX_RATE = 0.07;
+const TAX_RATE = 0.15;
 
 function calcLine(item: WsCartItem): WsCartItem {
   return { ...item, lineTotal: item.qty * item.unitPrice - item.discountAmount };
@@ -158,12 +44,16 @@ function WholesalePOSInner() {
   const { user } = useAuth();
   const searchRef = useRef<HTMLInputElement>(null);
 
-  const [ctx, setCtx] = useState<RegisterContext>({ branch: null, warehouse: null, currency: "USD" });
-  const [products, setProducts] = useState<RegisterProduct[]>(DEMO_PRODUCTS);
+  const [ctx, setCtx] = useState<RegisterContext>({ branch: null, warehouse: null, currency: "BDT" });
+  const [products, setProducts] = useState<RegisterProduct[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [wsPayMethod, setWsPayMethod] = useState<WsCheckoutPayMethod>("CREDIT");
   const [loading, setLoading] = useState(true);
   const [online, setOnline] = useState(true);
+  const [todaySales, setTodaySales] = useState(0);
+  const [todayOrders, setTodayOrders] = useState(0);
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<WsCategory>("All Products");
@@ -176,23 +66,13 @@ function WholesalePOSInner() {
       const saved = localStorage.getItem("bpos_wholesale_cart");
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          // Filter out any legacy dummy data
+          return parsed.filter((item: any) => item.productId && !item.productId.startsWith("demo-"));
+        }
       }
     } catch { /* ignore */ }
-    return DEMO_PRODUCTS.slice(0, 8).map((p, i) =>
-      calcLine({
-        productId: p.id,
-        name: p.name,
-        sku: p.sku,
-        qty: i === 0 ? 2 : 1,
-        unitPrice: p.sellingPrice,
-        discountAmount: 0,
-        lineTotal: 0,
-        imageUrl: p.imageUrl,
-        warehouseName: "Main Warehouse",
-        stockQty: p.stockQty,
-      }),
-    );
+    return [];
   });
 
   const [discountMode, setDiscountMode] = useState<DiscountMode>("flat");
@@ -208,6 +88,7 @@ function WholesalePOSInner() {
     payments: PaymentLine[];
     customerName: string;
   } | null>(null);
+  const [recentOrdersOpen, setRecentOrdersOpen] = useState(false);
   const [orderSeq] = useState(() => {
     const d = new Date();
     const y = d.getFullYear().toString().slice(2);
@@ -234,6 +115,23 @@ function WholesalePOSInner() {
       return false;
     }
   });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "F1") {
+        e.preventDefault();
+        setCheckoutOpen(true);
+      } else if (e.key === "F6") {
+        e.preventDefault();
+        holdOrder();
+      } else if (e.ctrlKey && e.key === "/") {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [holdOrder]);
 
   useEffect(() => {
     try {
@@ -295,18 +193,26 @@ function WholesalePOSInner() {
             list = applyBatchStock(list, batches.value);
           }
           list = list.map((p, i) =>
-            p.imageUrl ? p : { ...p, imageUrl: DEMO_PRODUCTS[i % DEMO_PRODUCTS.length]?.imageUrl ?? null },
+            p.imageUrl ? p : { ...p, imageUrl: null },
           );
         }
-        setProducts(list.length > 0 ? list : DEMO_PRODUCTS);
+        setProducts(list);
 
         if (custRes.status === "fulfilled") {
           const rows = (custRes.value as any)?.data?.data ?? (custRes.value as any)?.data ?? custRes.value ?? [];
           if (Array.isArray(rows)) {
             setCustomers(rows);
-            if (rows[0]?.id) setCustomerId(rows[0].id);
           }
         }
+
+        // Fetch today's stats
+        try {
+          const statsRes: any = await api.get("/api/v1/pos/stats/today");
+          if (statsRes?.data) {
+            setTodaySales(statsRes.data.totalSales || statsRes.data.revenue || 0);
+            setTodayOrders(statsRes.data.transactionCount || statsRes.data.count || 0);
+          }
+        } catch { /* ignore */ }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -315,17 +221,52 @@ function WholesalePOSInner() {
   }, []);
 
   const handleAddCustomer = async (newCust: any) => {
-    setCustomers(prev => [newCust, ...prev]);
-    setCustomerId(newCust.id);
     try {
-      await api.post("/api/v1/customers", newCust);
-    } catch (err) { console.error("Failed to save customer", err); }
+      const res: any = await api.post("/api/v1/customers", {
+        name: newCust.name,
+        phone: newCust.phone,
+        email: newCust.email,
+        address: newCust.address,
+        tier: newCust.tier,
+      });
+      const saved = res?.data ?? res;
+      if (saved && (saved.id || saved._id)) {
+        const finalCust = {
+          ...newCust,
+          id: saved.id || saved._id,
+          ...saved
+        };
+        setCustomers(prev => [finalCust, ...prev]);
+        setCustomerId(finalCust.id);
+      } else {
+        setCustomers(prev => [newCust, ...prev]);
+        setCustomerId(newCust.id);
+      }
+    } catch (err) {
+      console.error("Failed to save customer", err);
+      setCustomers(prev => [newCust, ...prev]);
+      setCustomerId(newCust.id);
+    }
   };
 
   const subtotal = useMemo(
     () => cart.reduce((s, i) => s + i.lineTotal, 0),
     [cart],
   );
+
+  const selectedCustomer = useMemo(() => {
+    const found = customers.find((c) => c.id === customerId);
+    if (found) return {
+      id: found.id,
+      name: found.name || found.fullName || "Customer",
+      phone: found.phone || "N/A",
+      tier: found.tier || "Standard",
+      creditLimit: Number(found.creditLimit || found.credit_limit || 0),
+      availableCredit: Number(found.availableCredit || found.available_credit || 0),
+      outstanding: Number(found.outstanding || found.outstanding_balance || 0),
+    };
+    return null;
+  }, [customers, customerId]);
 
   const discountAmount = useMemo(() => {
     const raw = Number(discountInput) || 0;
@@ -354,19 +295,22 @@ function WholesalePOSInner() {
       taxTotal: taxAmount,
       total,
       status: cart.length > 0 ? "ACTIVE" : "IDLE",
-      customerName: DEMO_CUSTOMER.name,
-      customerTier: DEMO_CUSTOMER.tier,
+      customerName: selectedCustomer?.name || "Walk-in Customer",
+      customerTier: selectedCustomer?.tier || "Standard",
     });
-  }, [cart, subtotal, discountAmount, taxAmount, total]);
+  }, [cart, subtotal, discountAmount, taxAmount, total, selectedCustomer]);
 
   const stats = useMemo(() => {
     const low = products.filter((p) => (p.stockQty ?? 0) > 0 && (p.stockQty ?? 0) <= 10).length;
     return {
-      ...DEMO_STATS,
-      lowStockAlerts: low || DEMO_STATS.lowStockAlerts,
-      pendingOrders: heldBills.length || DEMO_STATS.pendingOrders,
+      todaysSales: todaySales,
+      orders: todayOrders,
+      delivery: 0,
+      customers: customers.length,
+      pendingOrders: heldBills.length,
+      lowStockAlerts: low,
     };
-  }, [products, heldBills.length]);
+  }, [products, customers.length, heldBills.length, todaySales, todayOrders]);
 
   const addProduct = useCallback(
     (p: RegisterProduct) => {
@@ -418,6 +362,16 @@ function WholesalePOSInner() {
     setNote("");
   }
 
+  function recallOrder(held: (typeof heldBills)[number]) {
+    setCart(held.items);
+    setDiscountInput(held.discountInput);
+    setDiscountMode(held.discountMode);
+    setShipping(held.shipping);
+    setNote(held.note);
+    setHeldBills((prev) => prev.filter((h) => h.id !== held.id));
+    setRecentOrdersOpen(false);
+  }
+
   function holdOrder() {
     if (cart.length === 0) return;
     setHeldBills((prev) => [
@@ -434,11 +388,17 @@ function WholesalePOSInner() {
     onClearCart();
   }
 
-  async function confirmSale() {
+  async function confirmSale(tenderedAmount?: number) {
     if (cart.length === 0 || submitting) return;
     setError(null);
     setSubmitting(true);
-    const payments: PaymentLine[] = [{ method: "CREDIT", amount: total }];
+
+    // If tenderedAmount is provided (from non-CASH methods or partial payment), use it.
+    // If undefined, assume full payment of 'total'.
+    const paidAmt = tenderedAmount !== undefined ? tenderedAmount : total;
+    const dueAmt = Math.max(total - paidAmt, 0);
+
+    const payments: PaymentLine[] = [{ method: wsPayMethod as any, amount: paidAmt }];
     try {
       let saleRes: SaleResult | null = null;
 
@@ -449,7 +409,7 @@ function WholesalePOSInner() {
             warehouseId: ctx.warehouse?.id || null,
             customerId: customerId || null,
             items: cart.map((i) => ({
-              productId: i.productId.startsWith("demo-") ? undefined : i.productId,
+              productId: i.productId,
               name: i.name,
               qty: i.qty,
               unitPrice: i.unitPrice,
@@ -467,8 +427,8 @@ function WholesalePOSInner() {
               invoiceNo: apiData.invoiceNo || orderSeq,
               invoiceId: apiData.invoiceId || apiData.saleId || apiData.id,
               total: Number(apiData.total ?? total),
-              paidTotal: Number(apiData.paidTotal ?? total),
-              dueTotal: Number(apiData.dueTotal ?? 0),
+              paidTotal: Number(paidAmt),
+              dueTotal: Number(apiData.dueTotal ?? dueAmt),
               paymentIds: apiData.paymentIds ?? [],
             };
           }
@@ -479,7 +439,7 @@ function WholesalePOSInner() {
 
       if (!saleRes) {
         const saleId = crypto.randomUUID();
-        if (ctx.branch?.id && !cart.some((i) => i.productId.startsWith("demo-"))) {
+        if (ctx.branch?.id) {
           await syncManager.createOfflineTransaction({
             entityType: "SALE",
             entityId: saleId,
@@ -507,8 +467,8 @@ function WholesalePOSInner() {
           invoiceNo: orderSeq,
           invoiceId: crypto.randomUUID(),
           total,
-          paidTotal: total,
-          dueTotal: 0,
+          paidTotal: paidAmt,
+          dueTotal: dueAmt,
           paymentIds: [],
         };
       }
@@ -516,7 +476,7 @@ function WholesalePOSInner() {
       setSaleSnapshot({
         cart: [...cart],
         payments,
-        customerName: DEMO_CUSTOMER.name,
+        customerName: selectedCustomer?.name || "Walk-in Customer",
       });
       setResult(saleRes);
     } catch (err: any) {
@@ -531,6 +491,8 @@ function WholesalePOSInner() {
     setResult(null);
     setSaleSnapshot(null);
     setError(null);
+    setCheckoutOpen(false);
+    setWsPayMethod("CREDIT");
   }
 
   const deliveryDate = useMemo(() => {
@@ -559,8 +521,8 @@ function WholesalePOSInner() {
             lineTotal: i.lineTotal,
           }))}
           payments={saleSnapshot?.payments || [{ method: "CREDIT", amount: total }]}
-          customerName={saleSnapshot?.customerName || DEMO_CUSTOMER.name}
-          cashierName={user?.name || "John Smith"}
+          customerName={saleSnapshot?.customerName || "Walk-in Customer"}
+          cashierName={user?.name || "Staff"}
           onNewSale={resetSale}
         />
       </div>
@@ -606,7 +568,15 @@ function WholesalePOSInner() {
       <div className="flex min-h-0 flex-1 flex-col gap-2 p-2 sm:p-2.5">
         <WholesalePOSHeader
           orderNo={orderSeq}
-          customer={DEMO_CUSTOMER}
+          customer={selectedCustomer || {
+            id: "N/A",
+            name: "No Customer Selected",
+            phone: "N/A",
+            tier: "Standard",
+            creditLimit: 0,
+            availableCredit: 0,
+            outstanding: 0,
+          }}
           stats={stats}
           darkMode={darkMode}
           onToggleDarkMode={() => setDarkMode((v) => !v)}
@@ -643,6 +613,13 @@ function WholesalePOSInner() {
                 onTapProduct={addProduct}
                 warehouseName={ctx.warehouse?.name || "All Warehouses"}
                 onScan={() => searchRef.current?.focus()}
+                onQuickAction={(id) => {
+                  if (id === "sales") window.open("/sales/orders", "_blank");
+                  else if (id === "warehouse") window.open("/inventory", "_blank");
+                  else if (id === "credit") window.open("/credit", "_blank");
+                  else if (id === "delivery") window.open("/delivery", "_blank");
+                  else if (id === "commission") window.open("/commission", "_blank");
+                }}
                 darkMode={darkMode}
               />
             )}
@@ -671,7 +648,7 @@ function WholesalePOSInner() {
               onClearCart={onClearCart}
               onScanItem={() => searchRef.current?.focus()}
               onHold={holdOrder}
-              onProceed={confirmSale}
+              onProceed={() => setCheckoutOpen(true)}
               note={note}
               setNote={setNote}
               submitting={submitting}
@@ -682,7 +659,7 @@ function WholesalePOSInner() {
 
         <WholesalePOSFooter
           warehouseName={ctx.warehouse?.name || "Main Warehouse"}
-          salesRepName={user?.name || "John Smith"}
+          salesRepName={user?.name || "Staff"}
           deliveryDate={deliveryDate}
           deliveryMethod="Standard"
           paymentTerm="30 Days"
@@ -690,6 +667,7 @@ function WholesalePOSInner() {
           onUtility={(id) => {
             if (id === "customer") setCustomerModalOpen(true);
             else if (id === "hold") holdOrder();
+            else if (id === "recent") setRecentOrdersOpen(true);
           }}
           onHold={holdOrder}
           darkMode={darkMode}
@@ -703,6 +681,118 @@ function WholesalePOSInner() {
           onSelectCustomer={(id) => setCustomerId(id)}
           darkMode={darkMode}
         />
+
+        <WholesaleCheckoutModal
+          open={checkoutOpen}
+          onClose={() => setCheckoutOpen(false)}
+          total={total}
+          subtotal={subtotal}
+          taxAmount={taxAmount}
+          discountAmount={discountAmount}
+          shipping={shipping}
+          itemCount={cart.length}
+          customerName={selectedCustomer?.name || "Walk-in Customer"}
+          salesRepName={user?.name || "Staff"}
+          payMethod={wsPayMethod}
+          onChangePayMethod={setWsPayMethod}
+          onConfirm={(cashTendered) => confirmSale(cashTendered)}
+          submitting={submitting}
+          darkMode={darkMode}
+        />
+
+        {/* Recent Orders Modal */}
+        {recentOrdersOpen && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className={cn(
+                "flex h-[500px] w-full max-w-2xl flex-col rounded-[24px] overflow-hidden shadow-2xl transition-colors",
+                darkMode ? "bg-slate-900 border border-slate-700" : "bg-white border border-slate-100",
+              )}
+            >
+              <div className="flex items-center justify-between border-b p-5 transition-colors dark:border-slate-800">
+                <div>
+                  <h3 className={cn("text-lg font-bold", darkMode ? "text-white" : "text-slate-900")}>
+                    Held Orders / Recent Bills
+                  </h3>
+                  <p className={cn("text-xs font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>
+                    Restore any suspended sale to the active cart
+                  </p>
+                </div>
+                <button
+                  onClick={() => setRecentOrdersOpen(false)}
+                  className={cn(
+                    "flex h-9 w-9 items-center justify-center rounded-full transition-all",
+                    darkMode ? "bg-slate-800 text-slate-400 hover:text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200",
+                  )}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {heldBills.length === 0 ? (
+                  <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+                    <div className={cn("h-16 w-16 rounded-full flex items-center justify-center", darkMode ? "bg-slate-800" : "bg-slate-50")}>
+                      <ShoppingBag className={cn("opacity-20", darkMode ? "text-white" : "text-slate-900")} size={32} />
+                    </div>
+                    <p className={cn("text-sm font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>
+                      No held orders found
+                    </p>
+                  </div>
+                ) : (
+                  heldBills.map((held) => (
+                    <div
+                      key={held.id}
+                      className={cn(
+                        "group flex items-center justify-between rounded-[18px] border p-4 transition-all hover:scale-[1.01]",
+                        darkMode
+                          ? "border-slate-800 bg-slate-800/40 hover:bg-slate-800 hover:border-slate-700"
+                          : "border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-200 hover:shadow-md",
+                      )}
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className={cn("text-sm font-bold", darkMode ? "text-white" : "text-slate-900")}>
+                            {held.items.length} Items
+                          </span>
+                          <span className={cn("text-[10px] font-black uppercase tracking-widest", darkMode ? "text-blue-400" : "text-blue-600")}>
+                            Held
+                          </span>
+                        </div>
+                        <p className={cn("mt-1 truncate text-xs font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>
+                          {held.note || "No notes provided"}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <p className={cn("text-sm font-black", darkMode ? "text-white" : "text-slate-900")}>
+                            ৳{held.items.reduce((s, i) => s + i.lineTotal, 0).toFixed(2)}
+                          </p>
+                          <p className={cn("text-[10px] font-bold uppercase", darkMode ? "text-slate-600" : "text-slate-400")}>
+                            Total
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => recallOrder(held)}
+                          className={cn(
+                            "flex h-10 items-center justify-center rounded-xl px-5 text-xs font-bold transition-all active:scale-95",
+                            darkMode
+                              ? "bg-primary-600 text-white hover:bg-primary-500"
+                              : "bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-200",
+                          )}
+                        >
+                          Recall
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
 
       {!online && (

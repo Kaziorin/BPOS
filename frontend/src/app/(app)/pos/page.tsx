@@ -289,8 +289,10 @@ export default function PosPage() {
 
   // ── Totals ──
   const subtotal = useMemo(() => cart.reduce((s, i) => s + i.lineTotal, 0), [cart]);
-  const taxTotal = 0;
-  const total = Math.max(subtotal - discountTotal + taxTotal + serviceCharge, 0);
+  const TAX_RATE = 0.15;
+  const taxable = Math.max(subtotal - discountTotal, 0);
+  const taxTotal = taxable * TAX_RATE;
+  const total = Math.max(taxable + taxTotal + serviceCharge, 0);
 
   // ── Customer name lookup ──
   const selectedCustomer = useMemo(
@@ -949,7 +951,7 @@ export default function PosPage() {
               )}
               {taxTotal > 0 && (
                 <div className="flex justify-between text-xs text-slate-500">
-                  <span>Tax (5%)</span>
+                  <span>Tax (15%)</span>
                   <span className="tabular-nums font-medium">৳{taxTotal.toFixed(2)}</span>
                 </div>
               )}

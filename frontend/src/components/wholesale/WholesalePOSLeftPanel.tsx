@@ -59,7 +59,7 @@ const QUICK_ACTIONS = [
 ];
 
 function fmt(n: number) {
-  return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `৳${n.toLocaleString("en-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 function stockStatus(qty?: number) {

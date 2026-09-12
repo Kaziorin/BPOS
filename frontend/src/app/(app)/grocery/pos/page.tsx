@@ -422,7 +422,10 @@ export default function GroceryPOSPage() {
   const discAmt = subTotal * (parseFloat(discountPct) / 100 || 0);
   const totalItems = cart.length;
   const totalQty = cart.reduce((a, i) => a + i.qty, 0);
-  const grandTotal = Math.max(0, subTotal - discAmt);
+  const taxable = Math.max(0, subTotal - discAmt);
+  const TAX_RATE = 0.15;
+  const taxTotal = taxable * TAX_RATE;
+  const grandTotal = taxable + taxTotal;
   const paidAmount = parseFloat(tenderedInput) > 0 ? parseFloat(tenderedInput) : grandTotal;
   const changeDue = Math.max(0, paidAmount - grandTotal);
   const remainingDue = Math.max(0, grandTotal - paidAmount);
@@ -440,7 +443,7 @@ export default function GroceryPOSPage() {
       })),
       subtotal: subTotal,
       discountTotal: discAmt,
-      taxTotal: 0,
+      taxTotal: taxTotal,
       total: grandTotal,
       status: cart.length > 0 ? "ACTIVE" : "IDLE",
       customerName: selectedCustomer?.name !== "Walk-in Customer" ? selectedCustomer?.name : undefined,
@@ -519,7 +522,7 @@ export default function GroceryPOSPage() {
         subTotal,
         grandTotal,
         discountTotal: discAmt,
-        taxTotal: 0,
+        taxTotal: taxTotal,
         serviceCharge: 0,
         note: salesNote || `Grocery POS · ${payMethod}`
       };
@@ -558,7 +561,7 @@ export default function GroceryPOSPage() {
         })),
         subtotal: subTotal,
         discountTotal: discAmt,
-        taxTotal: 0,
+        taxTotal: taxTotal,
         total: grandTotal,
         paidTotal: finalPaid,
         changeTotal: finalChange,
@@ -1134,6 +1137,9 @@ export default function GroceryPOSPage() {
                     <span>Discount</span><span className="text-emerald-700 font-bold">- ৳ {discAmt.toFixed(2)}</span>
                   </div>
                 )}
+                <div className="flex justify-between items-center text-slate-500 font-semibold">
+                  <span>Tax (15%)</span><span className="text-slate-800 font-bold">৳ {taxTotal.toFixed(2)}</span>
+                </div>
                 <div className="pt-1 border-t border-dashed border-emerald-200 flex justify-between items-baseline">
                   <span className="text-xs font-bold text-slate-900 uppercase">Net Total</span>
                   <span className="text-lg font-extrabold text-emerald-600">৳ {grandTotal.toFixed(2)}</span>
@@ -1979,6 +1985,10 @@ export default function GroceryPOSPage() {
                       <span>- ৳{completedInv.discAmt.toFixed(2)}</span>
                     </div>
                   )}
+                  <div className="flex justify-between text-slate-600">
+                    <span>VAT (15%):</span>
+                    <span>৳{(completedInv.grandTotal - completedInv.subTotal + completedInv.discAmt).toFixed(2)}</span>
+                  </div>
                   <div className="flex justify-between font-extrabold text-sm text-slate-900 border-t border-b border-gray-200 py-1 my-1">
                     <span>Net Bill Total:</span>
                     <span className="text-slate-900">৳{completedInv.grandTotal.toFixed(2)}</span>
