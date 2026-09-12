@@ -2,49 +2,110 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Plus, RefreshCw, Trash2, Loader2, Zap, Settings2, ShoppingCart,
-  TestTube2, CheckCircle2, ArrowRight, X,
+  Plus,
+  RefreshCw,
+  Trash2,
+  Loader2,
+  Zap,
+  Settings2,
+  ShoppingCart,
+  TestTube2,
+  CheckCircle2,
+  ArrowRight,
+  X,
+  Sparkles,
+  Shield,
+  Layers,
+  FileText,
+  AlertTriangle,
+  CircleDot,
+  Check,
+  Edit3,
+  SlidersHorizontal,
+  Package,
+  DollarSign,
+  TrendingDown,
+  ArrowUpRight,
+  Building2,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomSelect } from "@/components/custom/CustomSelect";
+import { taka, fmtDt } from "./ApprovalCenter";
 
-interface BusinessRule {
-  id: string; name: string; triggerType: string;
-  conditions: Record<string, any>; actions: any[];
-  priority: number; isActive: number; lastFiredAt?: string | null; createdAt: string;
-}
-interface Recommendation {
-  id: string; productName?: string | null; currentStock: number; reorderPoint: number;
-  suggestedQty: number; status: string; note?: string | null; createdAt: string;
+export interface BusinessRule {
+  id: string;
+  name: string;
+  triggerType: "LOW_STOCK" | "SALE_DISCOUNT" | "VIP_CUSTOMER" | "CREDIT_SALE" | string;
+  conditions: Record<string, any>;
+  actions: any[];
+  priority: number;
+  isActive: number;
+  lastFiredAt?: string | null;
+  createdAt: string;
 }
 
-const TRIGGERS: [string, string][] = [
-  ["LOW_STOCK", "Low stock (stock < reorder point)"],
-  ["SALE_DISCOUNT", "Sale discount"],
-  ["VIP_CUSTOMER", "VIP customer"],
-  ["CREDIT_SALE", "Credit sale risk"],
+export interface Recommendation {
+  id: string;
+  productId: string;
+  productName?: string | null;
+  warehouseId?: string | null;
+  currentStock: number;
+  reorderPoint: number;
+  suggestedQty: number;
+  status: "PENDING" | "CONVERTED" | "DISMISSED" | string;
+  note?: string | null;
+  createdAt: string;
+}
+
+export const TRIGGERS: { type: string; label: string; desc: string; icon: string; tagColor: string }[] = [
+  {
+    type: "LOW_STOCK",
+    label: "Low Stock Inventory Trigger",
+    desc: "Evaluates when on-hand stock falls below product reorder threshold.",
+    icon: "TrendingDown",
+    tagColor: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  {
+    type: "SALE_DISCOUNT",
+    label: "POS Sale Discount Policy",
+    desc: "Monitors cashier discount entries exceeding authorized percentage limits.",
+    icon: "Tag",
+    tagColor: "bg-purple-50 text-purple-700 border-purple-200",
+  },
+  {
+    type: "VIP_CUSTOMER",
+    label: "VIP Loyalty Automatic Perk",
+    desc: "Applies loyalty rewards and pricing tiers when VIP clients are identified.",
+    icon: "Sparkles",
+    tagColor: "bg-blue-50 text-blue-700 border-blue-200",
+  },
+  {
+    type: "CREDIT_SALE",
+    label: "Credit Sale Risk Protection",
+    desc: "Guards against credit limit overdrafts and customer balance defaults.",
+    icon: "Shield",
+    tagColor: "bg-rose-50 text-rose-700 border-rose-200",
+  },
 ];
 
-const TRIGGER_DESC: Record<string, string> = {
-  LOW_STOCK: "Fires when any product's on-hand stock drops below its reorder point.",
-  SALE_DISCOUNT: "Fires when a POS/quote discount is applied at or above the configured level.",
-  VIP_CUSTOMER: "Fires when the customer on the transaction is in the VIP tier.",
-  CREDIT_SALE: "Fires when a customer tries a credit sale while their due balance exceeds their limit.",
-};
-
-const ACTION_TYPES: [string, string][] = [
-  ["CREATE_PURCHASE_RECOMMENDATION", "Create purchase recommendation"],
-  ["CREATE_APPROVAL", "Route to approval engine"],
-  ["SET_DISCOUNT", "Auto-apply discount"],
-  ["BLOCK", "Block the action"],
-  ["LOG", "Log event only"],
+export const ACTION_TYPES = [
+  { value: "CREATE_PURCHASE_RECOMMENDATION", label: "Auto-Generate Purchase Recommendation" },
+  { value: "CREATE_APPROVAL", label: "Route to Multi-Tier Approval Chain" },
+  { value: "SET_DISCOUNT", label: "Auto-Apply Special Discount %" },
+  { value: "BLOCK", label: "Block & Prevent Action from Completing" },
+  { value: "LOG", label: "Audit Log Only" },
 ];
 
-const COND_OPS = [
-  ["eq", "equals"], ["ne", "not equals"], ["gt", ">"], ["gte", "≥"], ["lt", "<"],
+export const COND_OPS = [
+  { value: "eq", label: "Equals (=)" },
+  { value: "ne", label: "Does not equal (≠)" },
+  { value: "gt", label: "Greater than (>)" },
+  { value: "gte", label: "Greater or equal (≥)" },
+  { value: "lt", label: "Less than (<)" },
+  { value: "lte", label: "Less or equal (≤)" },
 ];
 
 export default function BusinessRules({ autoCreate = false }: { autoCreate?: boolean }) {
@@ -52,386 +113,721 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
   const [rules, setRules] = useState<BusinessRule[]>([]);
   const [recs, setRecs] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ text: string; type: "success" | "error" | "info" } | null>(null);
+
+  // Form State
   const [showForm, setShowForm] = useState(autoCreate);
   const [editing, setEditing] = useState<BusinessRule | null>(null);
   const [trigger, setTrigger] = useState("LOW_STOCK");
   const [form, setForm] = useState<any>(null);
   const [saving, setSaving] = useState(false);
 
-  const show = (m: string) => { setMessage(m); setTimeout(() => setMessage(null), 3500); };
+  // Simulator / Testbench State
+  const [simTrigger, setSimTrigger] = useState("SALE_DISCOUNT");
+  const [simContext, setSimContext] = useState<Record<string, any>>({
+    discountPct: 15,
+    amount: 75000,
+    dueBalance: 120000,
+    creditLimit: 100000,
+  });
+  const [simResult, setSimResult] = useState<any>(null);
+  const [simulating, setSimulating] = useState(false);
+
+  const showToast = (text: string, type: "success" | "error" | "info" = "success") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 3500);
+  };
 
   const loadRules = useCallback(async () => {
     try {
       const res = await api.get<{ data: BusinessRule[] }>("/v1/business-rules");
-      setRules(res.data);
-    } catch (err: any) { console.error(err); }
+      setRules(res.data || []);
+    } catch (err: any) {
+      console.error(err);
+    }
   }, []);
+
   const loadRecs = useCallback(async () => {
     try {
       const res = await api.get<{ data: Recommendation[] }>("/v1/purchase-recommendations?status=PENDING");
-      setRecs(res.data);
-    } catch (err: any) { console.error(err); }
+      setRecs(res.data || []);
+    } catch (err: any) {
+      console.error(err);
+    }
   }, []);
 
-  useEffect(() => { (async () => { await Promise.all([loadRules(), loadRecs()]); setLoading(false); })(); }, [loadRules, loadRecs]);
+  const refreshAll = useCallback(async () => {
+    setLoading(true);
+    await Promise.all([loadRules(), loadRecs()]);
+    setLoading(false);
+  }, [loadRules, loadRecs]);
 
-  const counts = useMemo(() => {
-    const c: Record<string, number> = {};
-    for (const r of rules) c[r.triggerType] = (c[r.triggerType] || 0) + 1;
-    return c;
-  }, [rules]);
-  const activeCount = rules.filter((r) => r.isActive).length;
+  useEffect(() => {
+    refreshAll();
+  }, [refreshAll]);
+
+  const activeCount = useMemo(() => rules.filter((r) => r.isActive).length, [rules]);
 
   function freshForm(triggerType = trigger) {
     return {
-      name: "", triggerType,
-      conds: [{ field: "stock", op: "lt", value: "" }],
-      actions: [{ type: triggerType === "LOW_STOCK" ? "CREATE_PURCHASE_RECOMMENDATION" : triggerType === "VIP_CUSTOMER" ? "SET_DISCOUNT" : "CREATE_APPROVAL", reason: "", discountPct: "", entityType: "SALE_DISCOUNT" }],
-      priority: 0,
+      name: "",
+      triggerType,
+      conds: [{ field: triggerType === "LOW_STOCK" ? "stock" : triggerType === "SALE_DISCOUNT" ? "discountPct" : "dueBalance", op: "lt", value: "" }],
+      actions: [
+        {
+          type:
+            triggerType === "LOW_STOCK"
+              ? "CREATE_PURCHASE_RECOMMENDATION"
+              : triggerType === "VIP_CUSTOMER"
+              ? "SET_DISCOUNT"
+              : triggerType === "CREDIT_SALE"
+              ? "BLOCK"
+              : "CREATE_APPROVAL",
+          reason: "",
+          discountPct: "",
+          entityType: "SALE_DISCOUNT",
+          reorderPoint: "",
+        },
+      ],
+      priority: 10,
     };
   }
-  function openNew() {
+
+  function openNew(trig = trigger) {
     setEditing(null);
-    setForm(freshForm());
+    setTrigger(trig);
+    setForm(freshForm(trig));
     setShowForm(true);
-  }
-  function openEdit(r: BusinessRule) {
-    setEditing(r);
-    const conds = Object.entries(r.conditions || {}).map(([field, spec]) => ({
-      field, op: typeof spec === "object" ? spec.op || "eq" : "eq",
-      value: typeof spec === "object" ? String(spec.value ?? "") : String(spec),
-    }));
-    setForm({
-      name: r.name, triggerType: r.triggerType, priority: r.priority,
-      conds: conds.length ? conds : [{ field: "amount", op: "gt", value: "" }],
-      actions: (r.actions || []).map((a) => ({ type: a.type, reason: a.reason || "", discountPct: a.discountPct ?? "", entityType: a.entityType || "SALE_DISCOUNT" })),
-    });
-    setShowForm(true);
-  }
-  function setCond(i: number, patch: any) {
-    setForm((f: any) => ({ ...f, conds: f.conds.map((c: any, idx: number) => idx === i ? { ...c, ...patch } : c) }));
-  }
-  function setAct(i: number, patch: any) {
-    setForm((f: any) => ({ ...f, actions: f.actions.map((a: any, idx: number) => idx === i ? { ...a, ...patch } : a) }));
   }
 
-  function buildConditions() {
-    const out: Record<string, any> = {};
-    for (const c of form.conds || []) {
-      if (!c.field) continue;
-      if (c.op === "eq" || c.op === "ne") out[c.field] = { op: c.op, value: c.value };
-      else out[c.field] = { op: c.op, value: Number(c.value) || 0 };
-    }
-    return out;
-  }
-  function buildActions() {
-    return (form.actions || []).map((a: any) => {
-      const base: any = { type: a.type };
-      if (a.type === "BLOCK") base.reason = a.reason || "Blocked by business rule";
-      if (a.type === "SET_DISCOUNT") base.discountPct = Number(a.discountPct) || 0;
-      if (a.type === "CREATE_APPROVAL") {
-        base.entityType = a.entityType || "SALE_DISCOUNT";
-        base.summary = `Business rule: ${form.name || "rule"}`;
+  function openEdit(r: BusinessRule) {
+    setEditing(r);
+    setTrigger(r.triggerType);
+    const conds = Object.entries(r.conditions || {}).map(([field, spec]: [string, any]) => {
+      if (typeof spec === "object" && spec !== null) {
+        return { field, op: spec.op || "eq", value: String(spec.value ?? "") };
       }
-      return base;
+      return { field, op: "eq", value: String(spec ?? "") };
     });
+    setForm({
+      name: r.name,
+      triggerType: r.triggerType,
+      conds: conds.length ? conds : [{ field: "stock", op: "lt", value: "" }],
+      actions: (r.actions || []).length ? r.actions : [{ type: "CREATE_APPROVAL" }],
+      priority: r.priority || 0,
+    });
+    setShowForm(true);
   }
 
   async function save() {
-    if (!form.name.trim()) { alert("Rule name is required"); return; }
+    if (!form.name.trim()) {
+      showToast("Rule name is required", "error");
+      return;
+    }
     setSaving(true);
     try {
+      const condsObj: Record<string, any> = {};
+      for (const c of form.conds || []) {
+        if (!c.field.trim()) continue;
+        condsObj[c.field.trim()] = { op: c.op, value: isNaN(Number(c.value)) ? c.value : Number(c.value) };
+      }
+
       const payload = {
-        name: form.name, triggerType: form.triggerType,
-        conditions: buildConditions(), actions: buildActions(),
+        name: form.name.trim(),
+        triggerType: form.triggerType,
+        conditions: condsObj,
+        actions: form.actions || [],
         priority: Number(form.priority) || 0,
+        isActive: editing ? undefined : 1,
       };
+
       if (editing) {
         await api.patch(`/v1/business-rules/${editing.id}`, payload);
-        show("Rule updated");
+        showToast("Business rule updated successfully.");
       } else {
         await api.post("/v1/business-rules", payload);
-        show("Rule created — it fires on the next matching trigger");
+        showToast("New business automation rule registered.");
       }
-      setShowForm(false); setEditing(null); loadRules(); loadRecs();
-    } catch (err: any) { alert(err?.message || "Save failed"); }
-    finally { setSaving(false); }
+      setShowForm(false);
+      setEditing(null);
+      loadRules();
+    } catch (err: any) {
+      showToast(err?.message || "Failed to save rule", "error");
+    } finally {
+      setSaving(false);
+    }
   }
-  async function toggleRule(r: BusinessRule) {
-    try { await api.patch(`/v1/business-rules/${r.id}`, { isActive: r.isActive ? 0 : 1 }); loadRules(); }
-    catch (err: any) { alert(err?.message || "Failed"); }
-  }
-  async function deleteRule(r: BusinessRule) {
-    if (!confirm(`Delete rule “${r.name}”?`)) return;
-    try { await api.del(`/v1/business-rules/${r.id}`); show("Rule deleted"); loadRules(); }
-    catch (err: any) { alert(err?.message || "Delete failed"); }
-  }
-  async function convertRec(r: Recommendation) {
-    if (!confirm(`Convert ${r.productName} recommendation into a purchase requisition?`)) return;
+
+  async function toggleActive(r: BusinessRule) {
     try {
-      await api.post(`/v1/purchase-recommendations/${r.id}/convert`, {});
-      show("Converted to purchase requisition"); loadRecs();
-    } catch (err: any) { alert(err?.message || "Convert failed"); }
-  }
-  async function dismissRec(r: Recommendation) {
-    try { await api.post(`/v1/purchase-recommendations/${r.id}/dismiss`, {}); loadRecs(); }
-    catch (err: any) { alert(err?.message || "Failed"); }
-  }
-
-  function humanCond(conds: Record<string, any>) {
-    const parts = Object.entries(conds || {}).map(([f, spec]) => {
-      const op = typeof spec === "object" ? spec.op : "eq";
-      const v = typeof spec === "object" ? spec.value : spec;
-      const opTxt: Record<string, string> = { eq: "=", ne: "≠", gt: ">", gte: "≥", lt: "<" };
-      return `${f} ${opTxt[op] || op} ${v}`;
-    });
-    return parts.join(" AND ") || "always";
-  }
-  const actionLabel = (a: any): string => {
-    const map: Record<string, string> = {
-      CREATE_PURCHASE_RECOMMENDATION: "purchase recommendation",
-      CREATE_APPROVAL: `approval → ${a.entityType || "SALE_DISCOUNT"}`,
-      SET_DISCOUNT: `${a.discountPct ?? 0}% discount`,
-      BLOCK: "block",
-      LOG: "log",
-    };
-    return map[a.type] || a.type;
-  };
-  function humanActions(actions: any[]) {
-    return (actions || []).map(actionLabel).join(", ");
+      await api.patch(`/v1/business-rules/${r.id}`, { isActive: r.isActive ? 0 : 1 });
+      showToast(`Rule "${r.name}" ${r.isActive ? "paused" : "activated"}.`);
+      loadRules();
+    } catch (err: any) {
+      showToast(err?.message || "Failed to update rule state", "error");
+    }
   }
 
-  // ── test console ──
-  const [testTrigger, setTestTrigger] = useState("SALE_DISCOUNT");
-  const [testCtx, setTestCtx] = useState('{\n  "amount": 2500,\n  "discountPct": 25\n}');
-  const [testOut, setTestOut] = useState<any>(null);
-  const [testLoading, setTestLoading] = useState(false);
-
-  async function runTest() {
-    setTestLoading(true);
-    setTestOut(null);
+  async function removeRule(r: BusinessRule) {
+    if (!confirm(`Delete rule "${r.name}"?`)) return;
     try {
-      let ctx = {};
-      try { ctx = JSON.parse(testCtx); } catch { alert("Context must be valid JSON"); return; }
-      const res = await api.post<{ data: any }>("/v1/business-rules/evaluate", { triggerType: testTrigger, context: ctx });
-      setTestOut(res.data);
-    } catch (err: any) { alert(err?.message || "Evaluate failed"); }
-    finally { setTestLoading(false); }
+      await api.del(`/v1/business-rules/${r.id}`);
+      showToast("Rule deleted.");
+      loadRules();
+    } catch (err: any) {
+      showToast(err?.message || "Failed to delete rule", "error");
+    }
+  }
+
+  async function convertRec(rec: Recommendation) {
+    try {
+      const res = await api.post<{ data: any }>(`/v1/purchase-recommendations/${rec.id}/convert`, {});
+      showToast(`Recommendation converted into Draft Purchase Requisition for ${rec.productName || "item"}.`);
+      loadRecs();
+    } catch (err: any) {
+      showToast(err?.message || "Failed to convert recommendation", "error");
+    }
+  }
+
+  async function dismissRec(rec: Recommendation) {
+    try {
+      await api.post(`/v1/purchase-recommendations/${rec.id}/dismiss`, {});
+      showToast("Recommendation dismissed.");
+      loadRecs();
+    } catch (err: any) {
+      showToast(err?.message || "Failed to dismiss recommendation", "error");
+    }
+  }
+
+  async function runSimulation() {
+    setSimulating(true);
+    setSimResult(null);
+    try {
+      const res = await api.post<{ data: any }>("/v1/business-rules/evaluate", {
+        triggerType: simTrigger,
+        context: simContext,
+      });
+      setSimResult(res.data);
+      showToast("Rule simulation evaluated.", "info");
+    } catch (err: any) {
+      showToast(err?.message || "Simulation failed", "error");
+    } finally {
+      setSimulating(false);
+    }
   }
 
   return (
     <div className="space-y-6">
-      {message && <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700">{message}</div>}
-
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-900">
-            <Settings2 size={22} className="text-primary-600" /> Business Rule Engine
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">IF condition THEN action — configurable rules that fire on stock, discount, VIP and credit events</p>
-        </div>
-        <CustomButton onClick={openNew}><Plus size={15} /> New rule</CustomButton>
-      </div>
-
-      {/* KPI + trigger catalog */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium text-gray-400">Active rules</p>
-          <p className="mt-1 text-2xl font-bold text-emerald-600">{activeCount}<span className="ml-1 text-sm font-medium text-gray-400">/ {rules.length}</span></p>
-        </div>
-        {TRIGGERS.map(([code, label]) => (
-          <button key={code} onClick={() => { setTrigger(code); setForm(freshForm(code)); setShowForm(true); }}
-            className="group rounded-xl border border-gray-100 bg-white p-4 text-left shadow-sm transition hover:border-primary-300 hover:shadow-md">
-            <p className="flex items-center justify-between text-xs font-semibold text-gray-700"><Zap size={12} className="text-primary-500" /> {label}</p>
-            <p className="mt-1 text-xl font-bold text-gray-900">{counts[code] || 0}<span className="ml-1 text-[11px] font-normal text-gray-400">rule{counts[code] === 1 ? "" : "s"}</span></p>
-            <p className="mt-1 text-[10px] leading-snug text-gray-400 group-hover:text-primary-600">+ configure new</p>
-          </button>
-        ))}
-      </div>
-
-      {/* Tab bar */}
-      <div className="flex flex-wrap gap-1.5 border-b border-gray-100 pb-2">
-        {([["rules", "Rules", Settings2], ["recommendations", `Purchase suggestions${recs.length ? ` (${recs.length})` : ""}`, ShoppingCart], ["test", "Test console", TestTube2]] as [any, string, any][]).map(([id, label, Icon]) => (
-          <button key={id} onClick={() => setTab(id)}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium transition ${tab === id ? "bg-primary-50 text-primary-700" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}>
-            <Icon size={15} /> {label}
-          </button>
-        ))}
-        <button onClick={() => { loadRules(); loadRecs(); }} className="ml-auto flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"><RefreshCw size={13} /> Refresh</button>
-      </div>
-
-      {/* ═══ RULES TAB ═══ */}
-      {tab === "rules" && (
-        <div className="space-y-3">
-          {loading && <div className="flex justify-center py-10"><Loader2 size={22} className="animate-spin text-gray-300" /></div>}
-          {!loading && rules.length === 0 && (
-            <div className="rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
-              <p className="text-sm text-gray-400">No business rules yet. Start with a trigger card above.</p>
-            </div>
-          )}
-          {rules.map((r) => (
-            <div key={r.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-50 text-primary-600"><Zap size={16} /></span>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-semibold text-gray-900">{r.name}</p>
-                  <span className="rounded-md bg-gray-100 px-1.5 py-0.5 text-[10px] font-bold text-gray-500">{r.triggerType}</span>
-                  {r.lastFiredAt && <span className="text-[10px] text-gray-400">fired {new Date(r.lastFiredAt).toLocaleString("en-GB")}</span>}
-                </div>
-                <p className="mt-0.5 font-mono text-xs text-gray-600">
-                  IF <span className="rounded bg-amber-50 px-1.5 py-0.5 font-semibold text-amber-700">{humanCond(r.conditions)}</span>
-                  <ArrowRight size={11} className="mx-1 inline text-gray-300" />
-                  THEN <span className="rounded bg-emerald-50 px-1.5 py-0.5 font-semibold text-emerald-700">{humanActions(r.actions)}</span>
-                </p>
-              </div>
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${r.isActive ? "bg-emerald-500/10 text-emerald-600" : "bg-gray-200 text-gray-400"}`}>{r.isActive ? "ACTIVE" : "OFF"}</span>
-              <div className="flex items-center gap-1.5">
-                <button onClick={() => toggleRule(r)} className="rounded-md bg-gray-100 px-2 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-200">{r.isActive ? "Pause" : "Enable"}</button>
-                <button onClick={() => openEdit(r)} className="rounded-md bg-gray-100 px-2 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-200">Edit</button>
-                <button onClick={() => deleteRule(r)} className="rounded-md bg-rose-50 px-2 py-1 text-[11px] font-medium text-rose-600 hover:bg-rose-100"><Trash2 size={11} /></button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ═══ RECOMMENDATIONS TAB ═══ */}
-      {tab === "recommendations" && (
-        <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 text-left text-xs uppercase tracking-wide text-gray-400">
-                <th className="px-4 py-3">Product</th><th className="px-4 py-3">On hand</th>
-                <th className="px-4 py-3">Reorder point</th><th className="px-4 py-3">Suggested qty</th>
-                <th className="px-4 py-3">Created</th><th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recs.map((r) => (
-                <tr key={r.id} className="border-b border-gray-50 hover:bg-gray-50/60">
-                  <td className="px-4 py-3">
-                    <p className="font-semibold text-gray-900">{r.productName || "—"}</p>
-                    <p className="text-[11px] text-gray-400">{r.note}</p>
-                  </td>
-                  <td className="px-4 py-3 font-bold text-rose-600">{r.currentStock}</td>
-                  <td className="px-4 py-3 text-gray-700">{r.reorderPoint}</td>
-                  <td className="px-4 py-3 font-semibold text-emerald-600">+{r.suggestedQty}</td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString("en-GB")}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button onClick={() => convertRec(r)} className="rounded-md bg-primary-50 px-2 py-1 text-[11px] font-medium text-primary-700 hover:bg-primary-100">Convert to requisition</button>
-                      <button onClick={() => dismissRec(r)} className="rounded-md bg-gray-100 px-2 py-1 text-[11px] font-medium text-gray-500 hover:bg-gray-200">Dismiss</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {recs.length === 0 && <tr><td colSpan={6} className="px-4 py-12 text-center text-sm text-gray-400">No pending suggestions — rules like “stock &lt; reorder point → recommend purchase” populate this list.</td></tr>}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* ═══ TEST TAB ═══ */}
-      {tab === "test" && (
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className="space-y-3 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-            <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-800"><TestTube2 size={15} className="text-primary-600" /> Fire a trigger against test context</p>
-            <CustomSelect label="Trigger" value={testTrigger} onChange={(e) => setTestTrigger(e.target.value)}
-              options={TRIGGERS.map(([v, l]) => ({ value: v, label: l }))} />
-            <div>
-              <p className="mb-1 text-xs font-medium text-gray-500">Context (JSON)</p>
-              <textarea value={testCtx} onChange={(e) => setTestCtx(e.target.value)} rows={9} spellCheck={false}
-                className="w-full rounded-lg border border-gray-200 bg-gray-900 p-3 font-mono text-[12px] text-gray-100 outline-none focus:border-primary-400" />
-            </div>
-            <div className="flex justify-end"><CustomButton onClick={runTest} disabled={testLoading}>{testLoading ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />} Evaluate</CustomButton></div>
-            <p className="rounded-lg bg-gray-50 p-3 text-[11px] leading-relaxed text-gray-500">{TRIGGER_DESC[testTrigger]}</p>
+      {/* Toast alert */}
+      {message && (
+        <div
+          className={`flex items-center justify-between rounded-xl border p-4 text-sm font-medium shadow-xs transition-all ${
+            message.type === "success"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+              : message.type === "error"
+              ? "border-rose-200 bg-rose-50 text-rose-800"
+              : "border-sky-200 bg-sky-50 text-sky-800"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {message.type === "success" ? (
+              <CheckCircle2 size={18} className="text-emerald-600" />
+            ) : (
+              <AlertTriangle size={18} className="text-sky-600" />
+            )}
+            <span>{message.text}</span>
           </div>
-          <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-800">Result</p>
-            {testOut === null && !testLoading && <p className="mt-8 text-center text-sm text-gray-400">Run an evaluation to see which rules fire.</p>}
-            {testOut && (
-              <div className="mt-3 space-y-2">
-                <p className="text-xs text-gray-500">Trigger <b>{testOut.trigger}</b> matched <b>{testOut.matched}</b> rule{testOut.matched === 1 ? "" : "s"}</p>
-                {(testOut.results || []).map((res: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between rounded-lg border border-gray-100 px-3 py-2 text-sm">
-                    <div className="min-w-0">
-                      <p className="truncate text-xs font-semibold text-gray-800">{res.rule}</p>
-                      <p className="font-mono text-[11px] text-gray-500">{res.action}</p>
-                    </div>
-                    <span className="ml-2 shrink-0">
-                      {res.blocked ? <span className="rounded-md bg-rose-500/10 px-2 py-0.5 text-[11px] font-bold text-rose-600">BLOCKED</span>
-                        : res.approval ? <span className="rounded-md bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold text-amber-600">Approval needed</span>
-                        : res.created !== undefined ? <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-600">{res.created > 0 ? `${res.created} created` : "none"}</span>
-                        : res.discountPct !== undefined ? <span className="rounded-md bg-primary-500/10 px-2 py-0.5 text-[11px] font-bold text-primary-600">{res.discountPct}%</span>
-                        : <CheckCircle2 size={15} className="text-emerald-500" />}
-                    </span>
-                  </div>
-                ))}
-                {(testOut.results || []).length === 0 && <p className="rounded-lg bg-gray-50 p-4 text-center text-xs text-gray-400">No active rule matched this context.</p>}
+          <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 ring-1 ring-purple-500/20 shadow-xs">
+            <Zap size={20} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Business Rule Automation Engine</h1>
+            <p className="text-xs text-slate-500 sm:text-sm">
+              Event-driven policy automation (§10.27) managing real-time inventory reorders, pricing limits, and risk gates.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <CustomButton
+            variant="outline"
+            size="sm"
+            onClick={refreshAll}
+            disabled={loading}
+            className="border-slate-200 bg-white hover:bg-slate-50 shadow-xs"
+          >
+            <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
+            <span>Refresh</span>
+          </CustomButton>
+
+          <CustomButton
+            size="sm"
+            onClick={() => openNew()}
+            className="bg-primary-600 hover:bg-primary-700 text-white shadow-xs"
+          >
+            <Plus size={14} />
+            <span>New Business Rule</span>
+          </CustomButton>
+        </div>
+      </div>
+
+      {/* Sub-Navigation Tabs */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
+        <button
+          onClick={() => setTab("rules")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+            tab === "rules"
+              ? "bg-primary-600 text-white shadow-xs"
+              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+          }`}
+        >
+          <Settings2 size={14} />
+          <span>Automation Rules</span>
+          <span className="rounded-full bg-white/20 px-1.5 py-0.2 text-[10px]">{rules.length}</span>
+        </button>
+
+        <button
+          onClick={() => setTab("recommendations")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+            tab === "recommendations"
+              ? "bg-primary-600 text-white shadow-xs"
+              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+          }`}
+        >
+          <ShoppingCart size={14} />
+          <span>Purchase Recommendations</span>
+          {recs.length > 0 && (
+            <span className="rounded-full bg-amber-500 text-white px-1.5 py-0.2 text-[10px] font-bold">
+              {recs.length}
+            </span>
+          )}
+        </button>
+
+        <button
+          onClick={() => setTab("test")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+            tab === "test"
+              ? "bg-primary-600 text-white shadow-xs"
+              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+          }`}
+        >
+          <TestTube2 size={14} />
+          <span>Interactive Live Simulator</span>
+        </button>
+      </div>
+
+      {/* TAB 1: RULES */}
+      {tab === "rules" && (
+        <div className="space-y-4">
+          {/* Trigger Quick-Add Bar */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {TRIGGERS.map((t) => (
+              <button
+                key={t.type}
+                onClick={() => openNew(t.type)}
+                className="group flex flex-col justify-between rounded-xl border border-dashed border-slate-200 bg-white p-3.5 text-left shadow-xs transition hover:border-primary-400 hover:bg-primary-50/20 hover:shadow-sm"
+              >
+                <div>
+                  <span className={`inline-flex rounded-md border px-2 py-0.5 text-[10px] font-bold ${t.tagColor}`}>
+                    {t.type}
+                  </span>
+                  <p className="mt-2 text-xs font-bold text-slate-800 group-hover:text-primary-700">{t.label}</p>
+                  <p className="mt-1 text-[11px] text-slate-500 line-clamp-2">{t.desc}</p>
+                </div>
+                <div className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-primary-600">
+                  <Plus size={12} /> Add Rule
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Rules List */}
+          <div className="space-y-3">
+            {rules.length === 0 ? (
+              <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-12 text-center">
+                <Zap size={24} className="mx-auto text-slate-300" />
+                <p className="mt-2 text-sm font-semibold text-slate-700">No active business automation rules</p>
+                <p className="text-xs text-slate-400 mt-1">Configure automated triggers above to enforce commercial logic.</p>
               </div>
+            ) : (
+              rules.map((r) => (
+                <div
+                  key={r.id}
+                  className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs hover:shadow-md transition"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-100">
+                        <Zap size={16} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900 text-sm">{r.name}</span>
+                          <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+                            {r.triggerType}
+                          </span>
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                              r.isActive ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-400"
+                            }`}
+                          >
+                            {r.isActive ? "ACTIVE" : "PAUSED"}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 text-xs text-slate-500">
+                          Priority: <span className="font-semibold text-slate-700">{r.priority}</span> · Fired:{" "}
+                          <span className="font-semibold text-slate-700">{r.lastFiredAt ? fmtDt(r.lastFiredAt) : "Never"}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => toggleActive(r)}
+                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        {r.isActive ? "Pause" : "Activate"}
+                      </button>
+                      <button
+                        onClick={() => openEdit(r)}
+                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        <Edit3 size={12} className="inline mr-1" /> Edit
+                      </button>
+                      <button
+                        onClick={() => removeRule(r)}
+                        className="rounded-lg border border-rose-200 bg-rose-50 p-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Conditions & Actions Strip */}
+                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 p-3 text-xs border border-slate-100">
+                    <span className="font-bold text-slate-400 uppercase text-[10px]">Conditions:</span>
+                    {Object.entries(r.conditions || {}).map(([k, v]: [string, any]) => (
+                      <span key={k} className="rounded bg-white px-2 py-0.5 font-mono text-[11px] font-bold text-slate-700 border border-slate-200">
+                        {k} {typeof v === "object" ? `${v.op} ${v.value}` : `= ${v}`}
+                      </span>
+                    ))}
+
+                    <span className="text-slate-300">→</span>
+
+                    <span className="font-bold text-slate-400 uppercase text-[10px]">Actions:</span>
+                    {(r.actions || []).map((a, i) => (
+                      <span key={i} className="rounded bg-primary-50 px-2 py-0.5 font-bold text-primary-700 border border-primary-100">
+                        {a.type}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </div>
       )}
 
-      {/* ── Rule form modal ── */}
-      <CustomModal open={showForm} onClose={() => setShowForm(false)} title={editing ? "Edit business rule" : "New business rule"}>
+      {/* TAB 2: PURCHASE RECOMMENDATIONS */}
+      {tab === "recommendations" && (
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">Inventory Reorder Queue</h3>
+                <p className="text-xs text-slate-500">
+                  Automated procurement suggestions fired by low-stock rules. Convert directly into draft Purchase Requisitions.
+                </p>
+              </div>
+              <span className="text-xs font-bold text-slate-600 bg-slate-100 rounded-lg px-2.5 py-1">
+                {recs.length} Pending Actions
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/70 font-bold uppercase text-slate-500 text-[10px]">
+                    <th className="py-2.5 px-3">Product Name</th>
+                    <th className="py-2.5 px-3">Current Stock</th>
+                    <th className="py-2.5 px-3">Reorder Point</th>
+                    <th className="py-2.5 px-3">Suggested Order Qty</th>
+                    <th className="py-2.5 px-3">Reason / Note</th>
+                    <th className="py-2.5 px-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {recs.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-slate-400 font-medium">
+                        No pending purchase recommendations. Stock levels are within safe thresholds.
+                      </td>
+                    </tr>
+                  ) : (
+                    recs.map((rec) => (
+                      <tr key={rec.id} className="hover:bg-slate-50/50">
+                        <td className="py-3 px-3 font-bold text-slate-800">{rec.productName || rec.productId}</td>
+                        <td className="py-3 px-3 text-rose-600 font-bold">{rec.currentStock} units</td>
+                        <td className="py-3 px-3 text-slate-600">{rec.reorderPoint} units</td>
+                        <td className="py-3 px-3 font-bold text-primary-700">+{rec.suggestedQty} units</td>
+                        <td className="py-3 px-3 text-slate-500">{rec.note || "Stock below threshold"}</td>
+                        <td className="py-3 px-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => convertRec(rec)}
+                              className="inline-flex items-center gap-1 rounded-lg bg-primary-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-primary-700 shadow-xs"
+                            >
+                              <Check size={12} /> Convert to PR
+                            </button>
+                            <button
+                              onClick={() => dismissRec(rec)}
+                              className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-100"
+                            >
+                              Dismiss
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: LIVE SIMULATOR */}
+      {tab === "test" && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {/* Simulator Input Box */}
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+                <TestTube2 size={16} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">Rule Simulator & Testbench</h3>
+                <p className="text-xs text-slate-500">Simulate incoming module payloads against registered rules.</p>
+              </div>
+            </div>
+
+            <CustomSelect
+              label="Trigger Event to Test"
+              value={simTrigger}
+              onChange={(e) => setSimTrigger(e.target.value)}
+              options={TRIGGERS.map((t) => ({ value: t.type, label: t.label }))}
+            />
+
+            <div className="space-y-3 rounded-xl border border-slate-100 bg-slate-50/70 p-3.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Test Context Attributes</span>
+
+              {simTrigger === "SALE_DISCOUNT" && (
+                <div className="grid grid-cols-2 gap-2">
+                  <CustomInput
+                    label="Discount %"
+                    type="number"
+                    value={simContext.discountPct}
+                    onChange={(e: any) => setSimContext({ ...simContext, discountPct: Number(e.target.value) })}
+                  />
+                  <CustomInput
+                    label="Transaction Amount (৳)"
+                    type="number"
+                    value={simContext.amount}
+                    onChange={(e: any) => setSimContext({ ...simContext, amount: Number(e.target.value) })}
+                  />
+                </div>
+              )}
+
+              {simTrigger === "CREDIT_SALE" && (
+                <div className="grid grid-cols-2 gap-2">
+                  <CustomInput
+                    label="Customer Current Due (৳)"
+                    type="number"
+                    value={simContext.dueBalance}
+                    onChange={(e: any) => setSimContext({ ...simContext, dueBalance: Number(e.target.value) })}
+                  />
+                  <CustomInput
+                    label="Credit Limit (৳)"
+                    type="number"
+                    value={simContext.creditLimit}
+                    onChange={(e: any) => setSimContext({ ...simContext, creditLimit: Number(e.target.value) })}
+                  />
+                </div>
+              )}
+
+              {simTrigger === "LOW_STOCK" && (
+                <div className="grid grid-cols-2 gap-2">
+                  <CustomInput
+                    label="Current Stock"
+                    type="number"
+                    value={simContext.stock ?? 3}
+                    onChange={(e: any) => setSimContext({ ...simContext, stock: Number(e.target.value) })}
+                  />
+                  <CustomInput
+                    label="Reorder Threshold"
+                    type="number"
+                    value={simContext.reorderPoint ?? 10}
+                    onChange={(e: any) => setSimContext({ ...simContext, reorderPoint: Number(e.target.value) })}
+                  />
+                </div>
+              )}
+
+              {simTrigger === "VIP_CUSTOMER" && (
+                <CustomInput
+                  label="Customer Tier"
+                  value={simContext.tier ?? "VIP"}
+                  onChange={(e: any) => setSimContext({ ...simContext, tier: e.target.value })}
+                />
+              )}
+            </div>
+
+            <CustomButton
+              onClick={runSimulation}
+              disabled={simulating}
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold"
+            >
+              {simulating ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
+              <span>Evaluate Rule Engine</span>
+            </CustomButton>
+          </div>
+
+          {/* Simulator Output Box */}
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 mb-1">Evaluation Verdict & Action Output</h3>
+              <p className="text-xs text-slate-500 mb-3">Live trace of rule matches and executed actions.</p>
+
+              {simResult ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800">
+                    <CheckCircle2 size={16} className="text-emerald-600" />
+                    <span>
+                      Trigger evaluated: <span className="font-bold">{simResult.trigger}</span> —{" "}
+                      <span className="font-bold">{simResult.matched}</span> rule(s) matched.
+                    </span>
+                  </div>
+
+                  <div className="overflow-x-auto rounded-xl bg-slate-900 p-3 text-slate-100">
+                    <pre className="font-mono text-[11px] leading-relaxed">
+                      {JSON.stringify(simResult.results, null, 2)}
+                    </pre>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-12 text-center text-slate-400">
+                  <TestTube2 size={24} className="mx-auto text-slate-300" />
+                  <p className="mt-2 text-xs">Run a simulation on the left to inspect engine evaluation logs.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Create / Edit Business Rule Modal ─── */}
+      <CustomModal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        title={editing ? "Edit Business Automation Rule" : "Create Business Automation Rule"}
+      >
         {form && (
-          <div className="space-y-3">
-            <CustomInput label="Rule name *" value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Block credit sale over limit" />
-            <CustomSelect label="Trigger *" value={form.triggerType} onChange={(e: any) => setForm({ ...form, triggerType: e.target.value })}
-              options={TRIGGERS.map(([v, l]) => ({ value: v, label: l }))} />
-            <p className="rounded-lg bg-gray-50 p-3 text-[11px] text-gray-500">{TRIGGER_DESC[form.triggerType]}</p>
+          <div className="space-y-4">
+            <CustomInput
+              label="Rule Name *"
+              value={form.name}
+              onChange={(e: any) => setForm({ ...form, name: e.target.value })}
+              placeholder="e.g. Alert and Route High Discounts > 15%"
+            />
 
-            <div>
-              <p className="mb-1.5 text-xs font-medium text-gray-500">Conditions (all must hold)</p>
-              <div className="space-y-2">
-                {(form.conds || []).map((c: any, i: number) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <CustomInput value={c.field} onChange={(e: any) => setCond(i, { field: e.target.value })} placeholder="field" containerClassName="flex-1" />
-                    <CustomSelect value={c.op} onChange={(e: any) => setCond(i, { op: e.target.value })}
-                      options={COND_OPS.map(([v, l]) => ({ value: v, label: l }))} containerClassName="w-28" />
-                    <CustomInput value={c.value} onChange={(e: any) => setCond(i, { value: e.target.value })} placeholder="value" containerClassName="flex-1" />
-                    {(form.conds || []).length > 1 && (
-                      <button onClick={() => setForm((f: any) => ({ ...f, conds: f.conds.filter((_: any, idx: number) => idx !== i) }))} className="text-gray-300 hover:text-rose-500"><X size={14} /></button>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <button onClick={() => setForm((f: any) => ({ ...f, conds: [...f.conds, { field: "amount", op: "gt", value: "" }] }))} className="mt-2 text-xs font-medium text-primary-600 hover:text-primary-700">+ Add condition</button>
+            <CustomSelect
+              label="Trigger Type *"
+              value={form.triggerType}
+              onChange={(e: any) => {
+                const tr = e.target.value;
+                setForm({ ...freshForm(tr), name: form.name });
+              }}
+              options={TRIGGERS.map((t) => ({ value: t.type, label: t.label }))}
+            />
+
+            {/* Conditions */}
+            <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 space-y-2">
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Trigger Conditions</span>
+              {(form.conds || []).map((c: any, i: number) => (
+                <div key={i} className="grid grid-cols-3 gap-2">
+                  <CustomInput
+                    placeholder="Field name"
+                    value={c.field}
+                    onChange={(e: any) => {
+                      const conds = [...form.conds];
+                      conds[i].field = e.target.value;
+                      setForm({ ...form, conds });
+                    }}
+                  />
+                  <CustomSelect
+                    value={c.op}
+                    onChange={(e: any) => {
+                      const conds = [...form.conds];
+                      conds[i].op = e.target.value;
+                      setForm({ ...form, conds });
+                    }}
+                    options={COND_OPS}
+                  />
+                  <CustomInput
+                    placeholder="Threshold value"
+                    value={c.value}
+                    onChange={(e: any) => {
+                      const conds = [...form.conds];
+                      conds[i].value = e.target.value;
+                      setForm({ ...form, conds });
+                    }}
+                  />
+                </div>
+              ))}
             </div>
 
-            <div>
-              <p className="mb-1.5 text-xs font-medium text-gray-500">Actions</p>
-              <div className="space-y-2">
-                {(form.actions || []).map((a: any, i: number) => (
-                  <div key={i} className="rounded-lg border border-gray-100 p-3">
-                    <div className="flex items-center gap-2">
-                      <CustomSelect value={a.type} onChange={(e: any) => setAct(i, { type: e.target.value })}
-                        options={ACTION_TYPES.map(([v, l]) => ({ value: v, label: l }))} containerClassName="flex-1" />
-                      {(form.actions || []).length > 1 && (
-                        <button onClick={() => setForm((f: any) => ({ ...f, actions: f.actions.filter((_: any, idx: number) => idx !== i) }))} className="text-gray-300 hover:text-rose-500"><X size={14} /></button>
-                      )}
-                    </div>
-                    {a.type === "BLOCK" && <CustomInput label="Block reason" value={a.reason} onChange={(e: any) => setAct(i, { reason: e.target.value })} />}
-                    {a.type === "SET_DISCOUNT" && <CustomInput label="Discount %" type="number" value={a.discountPct} onChange={(e: any) => setAct(i, { discountPct: e.target.value })} />}
-                    {a.type === "CREATE_APPROVAL" && (
-                      <CustomSelect label="Approval entity type" value={a.entityType} onChange={(e: any) => setAct(i, { entityType: e.target.value })}
-                        options={[["SALE_DISCOUNT", "Sale discount"], ["PURCHASE_ORDER", "Purchase order"], ["EXPENSE", "Expense"], ["CREDIT_LIMIT", "Credit limit"], ["STOCK_ADJUST", "Stock adjustment"]].map(([v, l]) => ({ value: v, label: l }))} />
-                    )}
-                    {a.type === "CREATE_PURCHASE_RECOMMENDATION" && <p className="text-[11px] text-gray-400">Creates purchase suggestions for every product below its reorder point.</p>}
-                    {a.type === "LOG" && <p className="text-[11px] text-gray-400">Records the event in the audit log only.</p>}
-                  </div>
-                ))}
-              </div>
-              <button onClick={() => setForm((f: any) => ({ ...f, actions: [...f.actions, { type: "LOG", reason: "", discountPct: "", entityType: "SALE_DISCOUNT" }] }))} className="mt-2 text-xs font-medium text-primary-600 hover:text-primary-700">+ Add action</button>
+            {/* Actions */}
+            <div className="rounded-xl border border-slate-200/80 bg-white p-3 space-y-2">
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Executed Actions</span>
+              {(form.actions || []).map((a: any, i: number) => (
+                <div key={i} className="space-y-2">
+                  <CustomSelect
+                    value={a.type}
+                    onChange={(e: any) => {
+                      const actions = [...form.actions];
+                      actions[i].type = e.target.value;
+                      setForm({ ...form, actions });
+                    }}
+                    options={ACTION_TYPES}
+                  />
+                </div>
+              ))}
             </div>
 
-            <CustomInput label="Priority (higher fires first)" type="number" value={form.priority} onChange={(e: any) => setForm({ ...form, priority: e.target.value })} />
-            <div className="flex justify-end gap-2 pt-1">
-              <CustomButton variant="outline" onClick={() => setShowForm(false)}>Cancel</CustomButton>
-              <CustomButton onClick={save} disabled={saving}>{saving ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} {editing ? "Save changes" : "Create rule"}</CustomButton>
+            <CustomInput
+              label="Evaluation Priority (Higher fires first)"
+              type="number"
+              value={form.priority}
+              onChange={(e: any) => setForm({ ...form, priority: e.target.value })}
+            />
+
+            <div className="flex items-center justify-end gap-2 border-t border-slate-100 pt-3">
+              <CustomButton variant="outline" onClick={() => setShowForm(false)}>
+                Cancel
+              </CustomButton>
+              <CustomButton onClick={save} disabled={saving} className="bg-primary-600 hover:bg-primary-700 text-white">
+                {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                <span>{editing ? "Save Rule" : "Create Rule"}</span>
+              </CustomButton>
             </div>
           </div>
         )}

@@ -57,6 +57,9 @@ import {
   Wrench,
   Factory,
   Store,
+  GitMerge,
+  GitBranch,
+  Zap,
   type LucideIcon,
 } from "lucide-react";
 import { api } from "./api";
@@ -332,6 +335,18 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
       { label: "Executive Dashboard", href: "/dashboard", icon: LayoutDashboard },
       { label: "Onboarding Wizard", href: "/onboarding", icon: Sparkles },
       { label: "Multi-Branch Outlets", href: "/branches", icon: Building2 },
+      {
+        label: "Workflow & Approvals",
+        href: "/workflow",
+        icon: GitMerge,
+        badge: "Engine",
+        children: [
+          { label: "Approval Center", href: "/workflow", icon: GitMerge },
+          { label: "Pending Approvals", href: "/workflow/pending", icon: Clock },
+          { label: "Approval Chains & Rules", href: "/workflow/rules", icon: GitBranch },
+          { label: "Business Rules (§10.27)", href: "/business-rules", icon: Zap },
+        ],
+      },
       { label: "Roles & Permissions (RBAC)", href: "/rbac", icon: Shield },
       { label: "Audit & Security Logs", href: "/audit-security", icon: Eye },
       { label: "HRM & Staff Members", href: "/hrm", icon: UserCog },
