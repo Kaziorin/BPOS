@@ -24,3 +24,18 @@ export function dateTime(value?: string | Date | null): string {
     return String(value);
   }
 }
+
+export function dateOnly(value?: string | Date | null): string {
+  if (!value) return "—";
+  try {
+    const d = typeof value === "string" ? new Date(value) : value;
+    if (isNaN(d.getTime())) return String(value);
+    return d.toLocaleDateString("en-BD", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return String(value);
+  }
+}
