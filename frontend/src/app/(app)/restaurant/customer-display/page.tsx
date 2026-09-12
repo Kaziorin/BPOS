@@ -285,32 +285,6 @@ export default function RestaurantCustomerDisplayPage() {
     setCart(empty);
   };
 
-  // ── THANK YOU MODAL ──
-  if (showThankYou) {
-    return (
-      <div
-        className="fixed inset-0 flex flex-col items-center justify-center z-50 overflow-hidden"
-        style={{
-          background: "linear-gradient(135deg, #c2410c 0%, #ea580c 45%, #dc2626 100%)",
-        }}
-      >
-        <div className="flex flex-col items-center gap-5 text-center px-8 text-white animate-in zoom-in-95 duration-300">
-          <div className="text-8xl leading-none animate-bounce">🙏</div>
-          <h1 className="text-6xl font-black tracking-tight" style={{ textShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
-            Thank You!
-          </h1>
-          <p className="text-2xl font-bold opacity-95">
-            {customerName ? `ধন্যবাদ, ${customerName}!` : "Payment Successful!"}
-          </p>
-          <p className="text-lg opacity-85">Thank you for dining with us! Enjoy your meal.</p>
-          <div className="mt-4 px-6 py-2.5 rounded-full bg-white/20 border border-white/30 backdrop-blur font-bold text-sm">
-            {tableNo} • Total Paid: {fmt(total)}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
       <style>{`
@@ -322,6 +296,30 @@ export default function RestaurantCustomerDisplayPage() {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #fed7aa; border-radius: 4px; }
       `}</style>
+
+      {/* ── THANK YOU OVERLAY ── */}
+      {showThankYou && (
+        <div
+          className="fixed inset-0 flex flex-col items-center justify-center z-50 overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, #c2410c 0%, #ea580c 45%, #dc2626 100%)",
+          }}
+        >
+          <div className="flex flex-col items-center gap-5 text-center px-8 text-white animate-in zoom-in-95 duration-300">
+            <div className="text-8xl leading-none animate-bounce">🙏</div>
+            <h1 className="text-6xl font-black tracking-tight" style={{ textShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
+              Thank You!
+            </h1>
+            <p className="text-2xl font-bold opacity-95">
+              {customerName ? `ধন্যবাদ, ${customerName}!` : "Payment Successful!"}
+            </p>
+            <p className="text-lg opacity-85">Thank you for dining with us! Enjoy your meal.</p>
+            <div className="mt-4 px-6 py-2.5 rounded-full bg-white/20 border border-white/30 backdrop-blur font-bold text-sm">
+              {tableNo} • Total Paid: {fmt(total)}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ══ FULLSCREEN CONTAINER WITH RESTAURANT COLOR PATTERN (#ea580c / #ffedd5 / #fff7ed) ══ */}
       <div
