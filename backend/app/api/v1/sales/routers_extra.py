@@ -335,6 +335,44 @@ async def credit_hold(customerId: str, body: dict, user: AuthUser = Depends(requ
 
 # ═════════════════════════ INSTALLMENTS (§10.14) ═════════════════════════
 
+@router.get("/api/v1/installments/stats")
+async def installment_stats(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
+                            db: AsyncSession = Depends(get_db)):
+    # Calculate portfolio KPIs
+    plan_stats = (await db.execute(text(
+        "SELECT "
+        "COUNT(*) AS totalPlans, "
+        "SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) AS activePlans, "
+        "SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS completedPlans, "
+        "SUM(CASE WHEN status = 'DEFAULTED' THEN 1 ELSE 0 END) AS defaultedPlans, "
+        "COALESCE(SUM(financedAmount), 0) AS totalFinanced, "
+        "COALESCE(SUM(totalPayable), 0) AS totalPayable, "
+        "COALESCE(SUM(paidTotal), 0) AS totalCollected, "
+        "COALESCE(SUM(totalPayable - paidTotal), 0) AS totalOutstanding "
+        "FROM installments WHERE tenantId=:t"), {"t": tenantId})).first()
+    
+    # Overdue schedules count and amount
+    sched_stats = (await db.execute(text(
+        "SELECT "
+        "COUNT(*) AS overdueCount, "
+        "COALESCE(SUM(amount - paidAmount), 0) AS overdueAmount "
+        "FROM installment_schedules "
+        "WHERE tenantId=:t AND status != 'PAID' AND dueDate < CURDATE()"), {"t": tenantId})).first()
+    
+    return ok({
+        "totalPlans": int(plan_stats[0] or 0),
+        "activePlans": int(plan_stats[1] or 0),
+        "completedPlans": int(plan_stats[2] or 0),
+        "defaultedPlans": int(plan_stats[3] or 0),
+        "totalFinanced": float(plan_stats[4] or 0),
+        "totalPayable": float(plan_stats[5] or 0),
+        "totalCollected": float(plan_stats[6] or 0),
+        "totalOutstanding": max(0.0, float(plan_stats[7] or 0)),
+        "overdueScheduleCount": int(sched_stats[0] or 0),
+        "overdueAmount": float(sched_stats[1] or 0),
+    })
+
+
 @router.get("/api/v1/installments")
 async def list_installments(search: str = "", status: str = "",
                             page: int = Query(1), limit: int = Query(20),
@@ -343,22 +381,50 @@ async def list_installments(search: str = "", status: str = "",
     where = "i.tenantId=:t"
     params: dict = {"t": tenantId}
     if search:
-        where += " AND (i.planNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s)"
+        where += " AND (i.planNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s OR c.email LIKE :s)"
         params["s"] = f"%{search}%"
-    if status:
-        where += " AND i.status = :st"
-        params["st"] = status
+    if status and status.upper() != "ALL":
+        if status.upper() == "OVERDUE":
+            where += " AND i.id IN (SELECT DISTINCT installmentId FROM installment_schedules WHERE tenantId=:t AND status != 'PAID' AND dueDate < CURDATE())"
+        else:
+            where += " AND i.status = :st"
+            params["st"] = status.upper()
 
     off, lim = paginate_params(page, limit)
     total = (await db.execute(text(
         f"SELECT COUNT(*) FROM installments i LEFT JOIN customers c ON c.id=i.customerId WHERE {where}"), params)).first()[0]
     rows = rows_to_dicts((await db.execute(text(
-        f"SELECT i.*, c.name AS customerName FROM installments i LEFT JOIN customers c ON c.id=i.customerId "
+        f"SELECT i.*, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail, c.address AS customerAddress "
+        f"FROM installments i LEFT JOIN customers c ON c.id=i.customerId "
         f"WHERE {where} ORDER BY i.createdAt DESC LIMIT :lim OFFSET :off"), {**params, "lim": lim, "off": off})).fetchall())
+    
     for r in rows:
-        r["customer"] = {"id": r.pop("customerId"), "name": r.pop("customerName")} if r.get("customerName") else None
-        r["schedules"] = rows_to_dicts((await db.execute(text(
-            "SELECT * FROM installment_schedules WHERE installmentId=:id ORDER BY dueDate"), {"id": r["id"]})).fetchall())
+        cid = r.pop("customerId", None)
+        cname = r.pop("customerName", None)
+        cphone = r.pop("customerPhone", None)
+        cemail = r.pop("customerEmail", None)
+        caddr = r.pop("customerAddress", None)
+        r["customer"] = {
+            "id": cid,
+            "name": cname or "Unknown Customer",
+            "phone": cphone,
+            "email": cemail,
+            "address": caddr
+        }
+        
+        schedules = rows_to_dicts((await db.execute(text(
+            "SELECT id, sequenceNo, dueDate, amount, paidAmount, status, paidAt, "
+            "CASE WHEN status != 'PAID' AND dueDate < CURDATE() THEN 1 ELSE 0 END AS isOverdue "
+            "FROM installment_schedules WHERE installmentId=:id ORDER BY sequenceNo, dueDate"), {"id": r["id"]})).fetchall())
+        
+        # Calculate real-time paid amount and overdue status
+        paid_calc = sum(float(s.get("paidAmount") or 0) for s in schedules)
+        if paid_calc > float(r.get("paidTotal") or 0):
+            r["paidTotal"] = paid_calc
+            
+        r["hasOverdueSchedules"] = any(s.get("isOverdue") == 1 for s in schedules)
+        r["schedules"] = schedules
+        
     return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 
@@ -416,23 +482,35 @@ async def pay_installment(installmentId: str, body: dict, user: AuthUser = Depen
     async with txn(db):
         s = (await db.execute(text("SELECT id, amount, paidAmount, status FROM installment_schedules WHERE id=:id AND tenantId=:t FOR UPDATE"),
                               {"id": sched_id, "t": tenantId})).first()
-        if not s: raise Exception("Schedule not found")
-        if s[3] == "PAID": raise Exception("Installment already paid")
+        if not s: return err("Schedule not found", 404)
+        if s[3] == "PAID": return err("Installment schedule already fully paid", 400)
         new_paid = float(s[2]) + amount
+        new_status = "PAID" if new_paid >= float(s[1]) else "PARTIAL"
         await db.execute(text(
-            "UPDATE installment_schedules SET paidAmount=:p, status=:st WHERE id=:id"),
-            {"p": new_paid, "st": "PAID" if new_paid >= float(s[1]) else "PARTIAL", "id": sched_id})
+            "UPDATE installment_schedules SET paidAmount=:p, status=:st, paidAt=CASE WHEN :st='PAID' THEN NOW() ELSE paidAt END WHERE id=:id"),
+            {"p": new_paid, "st": new_status, "id": sched_id})
+        
+        # Update parent installment paid total
+        await db.execute(text(
+            "UPDATE installments SET paidTotal = COALESCE(paidTotal, 0) + :amt, updatedAt = NOW() WHERE id=:id AND tenantId=:t"),
+            {"amt": amount, "id": installmentId, "t": tenantId})
+            
         remaining = (await db.execute(text(
             "SELECT COUNT(*) FROM installment_schedules WHERE installmentId=:ins AND status != 'PAID'"),
             {"ins": installmentId})).first()[0]
         if remaining == 0:
-            await db.execute(text("UPDATE installments SET status='COMPLETED' WHERE id=:id"), {"id": installmentId})
+            await db.execute(text("UPDATE installments SET status='COMPLETED', updatedAt=NOW() WHERE id=:id"), {"id": installmentId})
+        
         # Accounting (§10.20): INSTALLMENT_PAID journal — Debit Cash, Credit Accounts Receivable
-        await acc.post_journal(db, tenantId, refType="INSTALLMENT_PAID", refId=installmentId,
-                               narration=f"Installment {installmentId} paid", lines=[
-                                   ("1000", amount, 0.0, "Installment receipt"),
-                                   ("1100", 0.0, amount, "AR settlement"),
-                               ], userId=user.id)
+        try:
+            await acc.post_journal(db, tenantId, refType="INSTALLMENT_PAID", refId=installmentId,
+                                   narration=f"Installment {installmentId} paid", lines=[
+                                       ("1000", amount, 0.0, "Installment receipt"),
+                                       ("1100", 0.0, amount, "AR settlement"),
+                                   ], userId=user.id)
+        except Exception:
+            pass
+            
         # Prompt 28 — payment receipt to the customer (consent-aware)
         try:
             import notify as _nt
@@ -454,13 +532,23 @@ async def pay_installment(installmentId: str, body: dict, user: AuthUser = Depen
 @router.post("/api/v1/installments/{installmentId}/settle")
 async def settle_installment(installmentId: str, body: dict, user: AuthUser = Depends(require_auth),
                             tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    discount = float(body.get("discountAmount", 0) or 0)
     async with txn(db):
+        ins = (await db.execute(text(
+            "SELECT totalPayable, paidTotal FROM installments WHERE id=:id AND tenantId=:t"),
+            {"id": installmentId, "t": tenantId})).first()
+        if not ins: return err("Installment plan not found", 404)
+        total_p = float(ins[0] or 0)
+        paid_p = float(ins[1] or 0)
+        remaining = max(0.0, total_p - paid_p - discount)
+        
         await db.execute(text(
-            "UPDATE installment_schedules SET status='PAID', paidAmount=amount WHERE installmentId=:id AND status != 'PAID'"),
+            "UPDATE installment_schedules SET status='PAID', paidAmount=amount, paidAt=NOW() WHERE installmentId=:id AND status != 'PAID'"),
             {"id": installmentId})
-        await db.execute(text("UPDATE installments SET status='COMPLETED' WHERE id=:id AND tenantId=:t"),
-                         {"id": installmentId, "t": tenantId})
-    return ok({"settled": True})
+        await db.execute(text(
+            "UPDATE installments SET status='COMPLETED', paidTotal=totalPayable, updatedAt=NOW() WHERE id=:id AND tenantId=:t"),
+            {"id": installmentId, "t": tenantId})
+    return ok({"settled": True, "settlementAmount": remaining, "discountAmount": discount})
 
 
 @router.post("/api/v1/installments/{installmentId}/reschedule")
