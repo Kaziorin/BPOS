@@ -2,15 +2,46 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  CheckSquare, Plus, RefreshCw, Loader2, AlertCircle, Clock, Flag,
-  User, Link2, MessageSquare, Paperclip, Play, CheckCircle2, XCircle,
-  ShieldCheck, RotateCcw, Calendar, Layers, Search, Trash2,
+  CheckSquare,
+  Plus,
+  RefreshCw,
+  Clock,
+  Flag,
+  User,
+  Link2,
+  MessageSquare,
+  Paperclip,
+  Play,
+  CheckCircle2,
+  XCircle,
+  ShieldCheck,
+  RotateCcw,
+  Calendar,
+  Layers,
+  Search,
+  Trash2,
+  Filter,
+  Check,
+  AlertTriangle,
+  FileText,
+  Eye,
+  Send,
+  ExternalLink,
+  ChevronRight,
+  SlidersHorizontal,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomInput } from "@/components/custom/CustomInput";
-import { CustomSelect } from "@/components/custom/CustomSelect";
-import { CustomButton } from "@/components/custom/CustomButton";
-import { CustomModal } from "@/components/custom/CustomModal";
+import {
+  CustomBreadcrumb,
+  CustomButton,
+  CustomTable,
+  CustomStatCard,
+  CustomModal,
+  ConfirmModal,
+} from "@/components/custom";
+import { dateTime, dateOnly } from "@/lib/format";
 
 interface Task {
   id: string;
@@ -35,135 +66,229 @@ interface Task {
   createdAt: string;
 }
 
-interface Comment { id: string; authorName: string; comment: string; createdAt: string; }
-interface Attachment { id: string; fileName: string; fileUrl: string | null; fileType: string | null; createdAt: string; }
-interface TaskDetail extends Task { comments?: Comment[]; attachments?: Attachment[]; }
-interface EmployeeOption { id: string; label: string; }
-interface UserOption { id: string; label: string; }
+interface Comment {
+  id: string;
+  authorName: string;
+  comment: string;
+  createdAt: string;
+}
 
-const STATUS_META: Record<string, { label: string; badge: string; dot: string }> = {
-  PENDING: { label: "Pending", badge: "bg-slate-500/15 text-slate-700 border-slate-500/25", dot: "bg-slate-400" },
-  IN_PROGRESS: { label: "In Progress", badge: "bg-sky-500/15 text-sky-700 border-sky-500/25", dot: "bg-sky-500" },
-  BLOCKED: { label: "Blocked", badge: "bg-rose-500/15 text-rose-700 border-rose-500/25", dot: "bg-rose-500" },
-  COMPLETED: { label: "Completed", badge: "bg-emerald-500/15 text-emerald-700 border-emerald-500/25", dot: "bg-emerald-500" },
-  APPROVED: { label: "Approved", badge: "bg-indigo-500/15 text-indigo-700 border-indigo-500/25", dot: "bg-indigo-500" },
-  CANCELLED: { label: "Cancelled", badge: "bg-gray-500/15 text-gray-500 border-gray-500/25", dot: "bg-gray-400" },
+interface Attachment {
+  id: string;
+  fileName: string;
+  fileUrl: string | null;
+  fileType: string | null;
+  createdAt: string;
+}
+
+interface TaskDetail extends Task {
+  comments?: Comment[];
+  attachments?: Attachment[];
+}
+
+interface EmployeeOption {
+  id: string;
+  label: string;
+}
+
+interface UserOption {
+  id: string;
+  label: string;
+}
+
+const STATUS_META: Record<string, { label: string; badge: string; dot: string; bg: string }> = {
+  PENDING: { label: "Pending", badge: "bg-slate-50 text-slate-700 border-slate-200", dot: "bg-slate-400", bg: "bg-slate-50/70" },
+  IN_PROGRESS: { label: "In Progress", badge: "bg-blue-50 text-blue-700 border-blue-200", dot: "bg-blue-600", bg: "bg-blue-50/40" },
+  BLOCKED: { label: "Blocked", badge: "bg-rose-50 text-rose-700 border-rose-200", dot: "bg-rose-600", bg: "bg-rose-50/40" },
+  COMPLETED: { label: "Completed", badge: "bg-emerald-50 text-emerald-700 border-emerald-200", dot: "bg-emerald-600", bg: "bg-emerald-50/40" },
+  APPROVED: { label: "Approved", badge: "bg-teal-50 text-teal-700 border-teal-200", dot: "bg-teal-600", bg: "bg-teal-50/40" },
+  CANCELLED: { label: "Cancelled", badge: "bg-gray-100 text-gray-500 border-gray-200", dot: "bg-gray-400", bg: "bg-gray-50" },
 };
 
 const PRIORITY_META: Record<string, { label: string; chip: string; icon: any }> = {
-  URGENT: { label: "Urgent", chip: "bg-red-50 text-red-700 border-red-200", icon: Flag },
+  URGENT: { label: "Urgent", chip: "bg-rose-50 text-rose-700 border-rose-200", icon: Flag },
   HIGH: { label: "High", chip: "bg-amber-50 text-amber-700 border-amber-200", icon: Flag },
-  NORMAL: { label: "Normal", chip: "bg-sky-50 text-sky-700 border-sky-200", icon: Flag },
-  LOW: { label: "Low", chip: "bg-gray-100 text-gray-600 border-gray-200", icon: Flag },
+  NORMAL: { label: "Normal", chip: "bg-blue-50 text-blue-700 border-blue-200", icon: Flag },
+  LOW: { label: "Low", chip: "bg-slate-100 text-slate-600 border-slate-200", icon: Flag },
 };
 
 const BOARD_COLS = ["PENDING", "IN_PROGRESS", "BLOCKED", "COMPLETED", "APPROVED"];
 
 const ENTITY_TYPES = [
-  "CUSTOMER", "INVOICE", "SALE", "SALES_ORDER", "REPAIR_TICKET",
-  "PURCHASE_ORDER", "PURCHASE_REQUISITION", "EMPLOYEE", "LEAD", "DELIVERY",
+  "CUSTOMER",
+  "INVOICE",
+  "SALE",
+  "SALES_ORDER",
+  "REPAIR_TICKET",
+  "PURCHASE_ORDER",
+  "PURCHASE_REQUISITION",
+  "EMPLOYEE",
+  "LEAD",
+  "DELIVERY",
 ];
 
-const fmtDate = (v?: string | null) =>
-  v ? new Date(v).toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) : "—";
-const fmtDateTime = (v?: string | null) =>
-  v ? new Date(v).toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—";
-
 export default function TasksPage() {
-  const [message, setMessage] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [viewMode, setViewMode] = useState<"board" | "table">("board");
 
+  // Filters
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [priorityFilter, setPriorityFilter] = useState("ALL");
+  const [assigneeFilter, setAssigneeFilter] = useState("ALL");
+
+  // Notifications
+  const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
+
+  // Modals & Task Creation
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState<any>({
-    title: "", description: "", priority: "NORMAL", dueAt: "",
-    assigneeType: "EMPLOYEE", assigneeId: "",
-    entityType: "", entityId: "", entityLabel: "",
+    title: "",
+    description: "",
+    priority: "NORMAL",
+    dueAt: "",
+    assigneeType: "EMPLOYEE",
+    assigneeId: "",
+    entityType: "",
+    entityId: "",
+    entityLabel: "",
   });
+
   const [employees, setEmployees] = useState<EmployeeOption[]>([]);
   const [users, setUsers] = useState<UserOption[]>([]);
 
+  // Task Details & Actions
   const [detail, setDetail] = useState<TaskDetail | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [attachName, setAttachName] = useState("");
   const [attachUrl, setAttachUrl] = useState("");
-  const [cancelModal, setCancelModal] = useState<Task | null>(null);
+
+  // Confirmation Modals
+  const [cancelModalTask, setCancelModalTask] = useState<Task | null>(null);
   const [cancelReason, setCancelReason] = useState("");
-  const [deleteModal, setDeleteModal] = useState<Task | null>(null);
+  const [deleteModalTask, setDeleteModalTask] = useState<Task | null>(null);
 
-  const showMessage = (m: string) => { setMessage(m); setTimeout(() => setMessage(null), 3500); };
+  const notify = (ok: boolean, text: string) => {
+    setToast({ ok, text });
+    setTimeout(() => setToast(null), 3500);
+  };
 
-  const loadTasks = useCallback(async () => {
-    setLoading(true);
-    try {
-      let url = "/v1/tasks?limit=200";
-      if (statusFilter) url += `&status=${statusFilter}`;
-      if (search.trim()) url += `&search=${encodeURIComponent(search.trim())}`;
-      const res = await api.get<{ data: Task[] }>(url);
-      setTasks(res.data);
-    } catch (err: any) { console.error(err); } finally { setLoading(false); }
-  }, [statusFilter, search]);
+  const loadTasks = useCallback(
+    async (showIndicator = false) => {
+      if (showIndicator) setRefreshing(true);
+      else setLoading(true);
+      try {
+        let url = "/api/v1/tasks?limit=200";
+        if (statusFilter && statusFilter !== "ALL") url += `&status=${statusFilter}`;
+        if (search.trim()) url += `&search=${encodeURIComponent(search.trim())}`;
+        const res = await api.get<any>(url);
+        setTasks(res.data?.data || res.data || []);
+      } catch (err: any) {
+        notify(false, err.message || "Failed to load tasks");
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [statusFilter, search]
+  );
 
   const loadAssignees = useCallback(async () => {
     try {
       const [e, u] = await Promise.all([
-        api.get<{ data: any[] }>("/v1/hrm/employees?limit=200"),
-        api.get<{ data: any[] }>("/v1/rbac/users?limit=100"),
+        api.get<any>("/api/v1/hrm/employees?limit=200"),
+        api.get<any>("/api/v1/rbac/users?limit=100"),
       ]);
-      setEmployees((e.data || []).map((r: any) => ({
-        id: r.id,
-        label: `${r.employeeNo || ""} — ${r.firstName || ""} ${r.lastName || ""}`.trim().replace(/^—\s*/, "") || r.email || r.id,
-      })));
-      setUsers((u.data || []).map((r: any) => ({ id: r.id, label: r.name || r.email || r.id })));
-    } catch (err: any) { console.error(err); }
+      const empData = e.data?.data || e.data || [];
+      const usrData = u.data?.data || u.data || [];
+
+      setEmployees(
+        empData.map((r: any) => ({
+          id: r.id,
+          label:
+            `${r.employeeNo || ""} — ${r.firstName || ""} ${r.lastName || ""}`.trim().replace(/^—\s*/, "") ||
+            r.email ||
+            r.id,
+        }))
+      );
+      setUsers(usrData.map((r: any) => ({ id: r.id, label: r.name || r.email || r.id })));
+    } catch {
+      // fallback
+    }
   }, []);
 
-  useEffect(() => { loadTasks(); }, [loadTasks]);
-  useEffect(() => { loadAssignees(); }, [loadAssignees]);
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
 
+  useEffect(() => {
+    loadAssignees();
+  }, [loadAssignees]);
+
+  // Dynamic status counts
   const counts = useMemo(() => {
     const c: Record<string, number> = { ALL: tasks.length };
     for (const t of tasks) c[t.status] = (c[t.status] || 0) + 1;
     return c;
   }, [tasks]);
 
-  const assigneeOptions = form.assigneeType === "USER"
-    ? users.map((u) => ({ value: u.id, label: u.label }))
-    : form.assigneeType === "ROLE"
+  const assigneeOptions =
+    form.assigneeType === "USER"
+      ? users.map((u) => ({ value: u.id, label: u.label }))
+      : form.assigneeType === "ROLE"
       ? [{ value: "", label: "No roles available" }]
       : employees.map((e) => ({ value: e.id, label: e.label }));
 
   function openCreate() {
     loadAssignees();
-    setForm({ title: "", description: "", priority: "NORMAL", dueAt: "", assigneeType: "EMPLOYEE", assigneeId: "", entityType: "", entityId: "", entityLabel: "" });
+    setForm({
+      title: "",
+      description: "",
+      priority: "NORMAL",
+      dueAt: "",
+      assigneeType: "EMPLOYEE",
+      assigneeId: "",
+      entityType: "",
+      entityId: "",
+      entityLabel: "",
+    });
     setShowCreate(true);
   }
 
-  async function createTask() {
-    if (!form.title.trim()) { alert("Title is required"); return; }
+  async function createTask(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.title.trim()) {
+      notify(false, "Title is required");
+      return;
+    }
     setSaving(true);
     try {
       const body: any = { title: form.title.trim(), priority: form.priority };
       if (form.description) body.description = form.description;
       if (form.dueAt) body.dueAt = new Date(form.dueAt).toISOString().slice(0, 19).replace("T", " ");
-      if (form.assigneeId) { body.assigneeType = form.assigneeType; body.assigneeId = form.assigneeId; }
+      if (form.assigneeId) {
+        body.assigneeType = form.assigneeType;
+        body.assigneeId = form.assigneeId;
+      }
       if (form.entityType) {
         body.entityType = form.entityType;
         if (form.entityId) body.entityId = form.entityId;
         else if (form.entityLabel) body.entityLabel = form.entityLabel;
       }
-      const res = await api.post<{ data: any }>("/v1/tasks", body);
+      const res = await api.post<any>("/api/v1/tasks", body);
       setShowCreate(false);
-      showMessage(`Task ${res.data?.taskNo || ""} created`);
-      loadTasks();
+      notify(true, `Task ${res.data?.data?.taskNo || res.data?.taskNo || ""} created successfully`);
+      loadTasks(true);
     } catch (err: any) {
-      alert(err?.message || "Failed to create task");
-    } finally { setSaving(false); }
+      notify(false, err?.message || "Failed to create task");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function openDetail(task: Task) {
@@ -171,465 +296,932 @@ export default function TasksPage() {
     setDetailOpen(true);
     setDetailLoading(true);
     try {
-      const res = await api.get<{ data: TaskDetail }>(`/v1/tasks/${task.id}`);
-      setDetail(res.data);
-    } catch (err: any) { console.error(err); } finally { setDetailLoading(false); }
+      const res = await api.get<any>(`/api/v1/tasks/${task.id}`);
+      setDetail(res.data?.data || res.data);
+    } catch {
+      // fallback to current task info
+    } finally {
+      setDetailLoading(false);
+    }
   }
 
   async function runTransition(status: string, extra?: any) {
     if (!detail) return;
     setSaving(true);
     try {
-      await api.post(`/v1/tasks/${detail.id}/status`, { status, ...(extra || {}) });
-      showMessage(`Task ${status === "CANCELLED" ? "cancelled" : `moved to ${STATUS_META[status]?.label || status}`}`);
+      await api.post(`/api/v1/tasks/${detail.id}/status`, { status, ...(extra || {}) });
+      notify(true, `Task moved to ${STATUS_META[status]?.label || status}`);
       setDetailOpen(false);
-      setCancelModal(null);
+      setCancelModalTask(null);
       setCancelReason("");
-      loadTasks();
-    } catch (err: any) { alert(err?.message || "Transition failed"); } finally { setSaving(false); }
+      loadTasks(true);
+    } catch (err: any) {
+      notify(false, err?.message || "Transition failed");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function addComment() {
     if (!detail || !newComment.trim()) return;
     try {
-      await api.post(`/v1/tasks/${detail.id}/comments`, { comment: newComment.trim() });
+      await api.post(`/api/v1/tasks/${detail.id}/comments`, { comment: newComment.trim() });
       setNewComment("");
       openDetail(detail);
-    } catch (err: any) { alert(err?.message || "Failed to add comment"); }
+      notify(true, "Comment posted");
+    } catch (err: any) {
+      notify(false, err?.message || "Failed to add comment");
+    }
   }
 
   async function addAttachment() {
     if (!detail || !attachName.trim()) return;
     try {
-      await api.post(`/v1/tasks/${detail.id}/attachments`, { fileName: attachName.trim(), fileUrl: attachUrl.trim() || null, fileType: attachName.includes(".") ? attachName.split(".").pop() : null });
-      setAttachName(""); setAttachUrl("");
+      await api.post(`/api/v1/tasks/${detail.id}/attachments`, {
+        fileName: attachName.trim(),
+        fileUrl: attachUrl.trim() || null,
+        fileType: attachName.includes(".") ? attachName.split(".").pop() : null,
+      });
+      setAttachName("");
+      setAttachUrl("");
       openDetail(detail);
-    } catch (err: any) { alert(err?.message || "Failed to add attachment"); }
+      notify(true, "Attachment linked");
+    } catch (err: any) {
+      notify(false, err?.message || "Failed to add attachment");
+    }
   }
 
   async function removeTask() {
-    if (!deleteModal) return;
+    if (!deleteModalTask) return;
     try {
-      await api.del(`/v1/tasks/${deleteModal.id}`);
-      setDeleteModal(null);
-      showMessage("Task deleted");
-      loadTasks();
-    } catch (err: any) { alert(err?.message || "Delete failed"); }
+      await api.del(`/api/v1/tasks/${deleteModalTask.id}`);
+      setDeleteModalTask(null);
+      notify(true, "Task deleted successfully");
+      loadTasks(true);
+    } catch (err: any) {
+      notify(false, err?.message || "Delete failed");
+    }
   }
 
+  async function runQuick(t: Task, status: string) {
+    try {
+      await api.post(`/api/v1/tasks/${t.id}/status`, { status });
+      notify(true, `Task ${t.taskNo} → ${STATUS_META[status]?.label || status}`);
+      loadTasks(true);
+    } catch (err: any) {
+      notify(false, err?.message || "Transition failed");
+    }
+  }
+
+  // Action Buttons on task cards
   function ActionButtons({ t, compact }: { t: Task; compact?: boolean }) {
     const st = t.status;
     const cls = compact
-      ? "rounded-md px-2 py-1 text-[11px] font-medium transition "
-      : "inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium transition ";
+      ? "rounded-md px-2 py-1 text-[11px] font-semibold transition cursor-pointer "
+      : "inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition cursor-pointer ";
     const btns: { status: string; label: string; icon: any; color: string; reason?: boolean }[] = [];
+
     if (st === "PENDING") {
-      btns.push({ status: "IN_PROGRESS", label: "Start", icon: Play, color: "bg-sky-50 text-sky-700 hover:bg-sky-100" });
-      btns.push({ status: "BLOCKED", label: "Block", icon: AlertCircle, color: "bg-rose-50 text-rose-700 hover:bg-rose-100" });
-      btns.push({ status: "CANCELLED", label: "Cancel", icon: XCircle, color: "bg-gray-100 text-gray-500 hover:bg-gray-200", reason: true });
+      btns.push({ status: "IN_PROGRESS", label: "Start", icon: Play, color: "bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200" });
+      btns.push({ status: "BLOCKED", label: "Block", icon: AlertTriangle, color: "bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200" });
+      btns.push({ status: "CANCELLED", label: "Cancel", icon: XCircle, color: "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200", reason: true });
     } else if (st === "IN_PROGRESS") {
-      btns.push({ status: "COMPLETED", label: "Complete", icon: CheckCircle2, color: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100" });
-      btns.push({ status: "BLOCKED", label: "Block", icon: AlertCircle, color: "bg-rose-50 text-rose-700 hover:bg-rose-100" });
-      btns.push({ status: "CANCELLED", label: "Cancel", icon: XCircle, color: "bg-gray-100 text-gray-500 hover:bg-gray-200", reason: true });
+      btns.push({ status: "COMPLETED", label: "Complete", icon: CheckCircle2, color: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200" });
+      btns.push({ status: "BLOCKED", label: "Block", icon: AlertTriangle, color: "bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200" });
+      btns.push({ status: "CANCELLED", label: "Cancel", icon: XCircle, color: "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200", reason: true });
     } else if (st === "BLOCKED") {
-      btns.push({ status: "IN_PROGRESS", label: "Resume", icon: Play, color: "bg-sky-50 text-sky-700 hover:bg-sky-100" });
-      btns.push({ status: "CANCELLED", label: "Cancel", icon: XCircle, color: "bg-gray-100 text-gray-500 hover:bg-gray-200", reason: true });
+      btns.push({ status: "IN_PROGRESS", label: "Resume", icon: Play, color: "bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200" });
+      btns.push({ status: "CANCELLED", label: "Cancel", icon: XCircle, color: "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200", reason: true });
     } else if (st === "COMPLETED") {
-      btns.push({ status: "APPROVED", label: "Approve", icon: ShieldCheck, color: "bg-indigo-50 text-indigo-700 hover:bg-indigo-100" });
-      btns.push({ status: "IN_PROGRESS", label: "Reopen", icon: RotateCcw, color: "bg-gray-100 text-gray-600 hover:bg-gray-200" });
+      btns.push({ status: "APPROVED", label: "Approve", icon: ShieldCheck, color: "bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200" });
+      btns.push({ status: "IN_PROGRESS", label: "Reopen", icon: RotateCcw, color: "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200" });
     }
+
     if (btns.length === 0) return null;
+
     return (
       <div className={compact ? "flex flex-wrap gap-1" : "flex flex-wrap gap-1.5"}>
         {btns.map((b) => (
-          <button key={b.status} onClick={() => (b.reason ? (openDetail(t), setCancelModal(t)) : runQuick(t, b.status))} className={`${cls}${b.color}`}>
-            {!compact && <b.icon size={12} />}{b.label}
+          <button
+            key={b.status}
+            onClick={() => (b.reason ? (openDetail(t), setCancelModalTask(t)) : runQuick(t, b.status))}
+            className={`${cls}${b.color}`}
+          >
+            {!compact && <b.icon className="w-3.5 h-3.5" />}
+            {b.label}
           </button>
         ))}
       </div>
     );
   }
 
-  async function runQuick(t: Task, status: string) {
-    try {
-      await api.post(`/v1/tasks/${t.id}/status`, { status });
-      showMessage(`Task ${t.taskNo} → ${STATUS_META[status]?.label || status}`);
-      loadTasks();
-    } catch (err: any) { alert(err?.message || "Transition failed"); }
-  }
-
-  const filtered = tasks.filter((t) => t.status !== "CANCELLED" || statusFilter === "CANCELLED");
+  // Filtered tasks
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((t) => {
+      if (statusFilter !== "ALL" && t.status !== statusFilter) return false;
+      if (priorityFilter !== "ALL" && t.priority !== priorityFilter) return false;
+      if (assigneeFilter !== "ALL" && t.assigneeId !== assigneeFilter) return false;
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        if (
+          !t.title.toLowerCase().includes(q) &&
+          !t.taskNo.toLowerCase().includes(q) &&
+          !(t.entityLabel || "").toLowerCase().includes(q) &&
+          !(t.assigneeName || "").toLowerCase().includes(q)
+        ) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [tasks, statusFilter, priorityFilter, assigneeFilter, search]);
 
   return (
-    <div className="space-y-6">
-      {message && (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700">
-          {message}
+    <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
+      {/* ── Toast Notification ── */}
+      {toast && (
+        <div
+          className={`fixed top-5 right-5 z-50 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium shadow-lg animate-in slide-in-from-top duration-200 ${
+            toast.ok
+              ? "border-teal-200 bg-teal-50 text-teal-800"
+              : "border-rose-200 bg-rose-50 text-rose-800"
+          }`}
+        >
+          {toast.ok ? <CheckCircle2 className="w-5 h-5 text-teal-600" /> : <AlertTriangle className="w-5 h-5 text-rose-600" />}
+          {toast.text}
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-900">
-            <CheckSquare size={22} className="text-primary-600" /> Task Management
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">Plan, assign and track work items across every module</p>
-        </div>
-        <CustomButton onClick={openCreate}><Plus size={15} /> New Task</CustomButton>
+      {/* ── Header ── */}
+      <CustomBreadcrumb
+        title="Task & Operations Board"
+        subtitle="Plan, Delegate, Track and Automate Operational Tasks across Modules"
+        icon={<CheckSquare className="w-5 h-5" />}
+        items={[
+          { label: "Operations", href: "/dashboard" },
+          { label: "Tasks" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton
+              variant="outline"
+              size="sm"
+              icon={<RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />}
+              onClick={() => loadTasks(true)}
+              disabled={refreshing}
+            >
+              Refresh
+            </CustomButton>
+
+            <CustomButton variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={openCreate}>
+              New Task
+            </CustomButton>
+          </div>
+        }
+      />
+
+      {/* ── KPI Stat Cards ── */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <CustomStatCard
+          label="Total Active Tasks"
+          value={counts.ALL?.toString() || "0"}
+          icon={CheckSquare}
+          tone="primary"
+        />
+
+        <CustomStatCard
+          label="In Progress Work"
+          value={counts.IN_PROGRESS?.toString() || "0"}
+          icon={Play}
+          tone="blue"
+        />
+
+        <CustomStatCard
+          label="Pending & Blocked"
+          value={((counts.PENDING || 0) + (counts.BLOCKED || 0)).toString()}
+          icon={Clock}
+          tone="amber"
+        />
+
+        <CustomStatCard
+          label="Completed & Approved"
+          value={((counts.COMPLETED || 0) + (counts.APPROVED || 0)).toString()}
+          icon={CheckCircle2}
+          tone="green"
+        />
       </div>
 
-      {/* KPI cards */}
-      <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        {([["ALL", "Total", CheckSquare], ["PENDING", "Pending", Clock], ["IN_PROGRESS", "In Progress", Play], ["BLOCKED", "Blocked", AlertCircle], ["COMPLETED", "Completed", CheckCircle2], ["APPROVED", "Approved", ShieldCheck]] as const).map(([key, label, Icon]) => (
-          <button key={key} onClick={() => setStatusFilter(key === "ALL" ? "" : key === statusFilter ? "" : key)}
-            className={`rounded-xl border p-4 text-left shadow-sm transition ${key === "ALL" || statusFilter === key ? "border-primary-200 bg-white ring-1 ring-primary-100" : "border-gray-100 bg-white hover:border-gray-200"}`}>
-            <p className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><Icon size={13} /> {label}</p>
-            <p className="mt-1 text-2xl font-bold text-gray-900">{counts[key] ?? 0}</p>
-          </button>
-        ))}
+      {/* ── Filter Bar & View Mode Toggle ── */}
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Search Box */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search task title, #, entity or assignee..."
+              className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50/50 pl-9 pr-3 text-xs text-slate-700 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+            />
+          </div>
+
+          {/* Filters & View Switcher */}
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+            >
+              <option value="ALL">All Priorities</option>
+              <option value="URGENT">Urgent Priority</option>
+              <option value="HIGH">High Priority</option>
+              <option value="NORMAL">Normal Priority</option>
+              <option value="LOW">Low Priority</option>
+            </select>
+
+            <select
+              value={assigneeFilter}
+              onChange={(e) => setAssigneeFilter(e.target.value)}
+              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 max-w-44 truncate"
+            >
+              <option value="ALL">All Assignees</option>
+              {employees.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.label}
+                </option>
+              ))}
+            </select>
+
+            {/* View Mode Switcher */}
+            <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+              <button
+                onClick={() => setViewMode("board")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition cursor-pointer ${
+                  viewMode === "board" ? "bg-white text-teal-700 shadow-2xs" : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" /> Board
+              </button>
+              <button
+                onClick={() => setViewMode("table")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition cursor-pointer ${
+                  viewMode === "table" ? "bg-white text-teal-700 shadow-2xs" : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <List className="w-3.5 h-3.5" /> Table
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Status Pill Filter Bar */}
+        <div className="flex gap-1.5 overflow-x-auto pt-1 border-t border-slate-100">
+          {[
+            { key: "ALL", label: "All Tasks" },
+            { key: "PENDING", label: "Pending" },
+            { key: "IN_PROGRESS", label: "In Progress" },
+            { key: "BLOCKED", label: "Blocked" },
+            { key: "COMPLETED", label: "Completed" },
+            { key: "APPROVED", label: "Approved" },
+            { key: "CANCELLED", label: "Cancelled" },
+          ].map(({ key, label }) => {
+            const active = statusFilter === key;
+            const count = counts[key] ?? 0;
+            return (
+              <button
+                key={key}
+                onClick={() => setStatusFilter(key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
+                  active
+                    ? "bg-teal-600 text-white shadow-2xs"
+                    : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80"
+                }`}
+              >
+                <span>{label}</span>
+                <span
+                  className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                    active ? "bg-white/20 text-white" : "bg-slate-200/80 text-slate-700"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative">
-          <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search tasks…"
-            className="h-9 w-56 rounded-lg border border-gray-200 bg-white pl-8 pr-3 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
-          />
-        </div>
-        <button onClick={() => { loadTasks(); }} className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50">
-          <RefreshCw size={13} /> Refresh
-        </button>
-        <div className="ml-auto hidden text-xs text-gray-400 sm:block">
-          Drag cards between columns, or use the quick actions below each card
-        </div>
-      </div>
-
+      {/* ── MAIN WORKSPACE: KANBAN BOARD OR TABLE VIEW ── */}
       {loading ? (
-        <div className="flex items-center justify-center py-16"><Loader2 size={22} className="animate-spin text-gray-400" /></div>
-      ) : tasks.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
-          <CheckSquare size={28} className="mx-auto text-gray-300" />
-          <p className="mt-3 text-sm font-medium text-gray-500">No tasks found</p>
-          <p className="mt-1 text-xs text-gray-400">Create a task to start tracking work</p>
-          <CustomButton className="mt-4" size="sm" onClick={openCreate}><Plus size={14} /> New Task</CustomButton>
+        <div className="flex h-72 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-2xs">
+          <div className="flex flex-col items-center gap-3">
+            <RefreshCw className="h-8 w-8 animate-spin text-teal-600" />
+            <p className="text-sm font-medium text-slate-500">Loading task items...</p>
+          </div>
+        </div>
+      ) : filteredTasks.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-2xs">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 text-teal-600">
+            <CheckSquare className="h-7 w-7" />
+          </div>
+          <h4 className="mt-4 text-base font-bold text-slate-800">No Tasks Found</h4>
+          <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
+            {search || statusFilter !== "ALL"
+              ? "No tasks match your current filter criteria. Clear filters or search term to see all tasks."
+              : "Create your first task to plan, delegate and monitor operational activities."}
+          </p>
+          <div className="mt-5 flex justify-center gap-2">
+            <CustomButton variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={openCreate}>
+              New Task
+            </CustomButton>
+          </div>
+        </div>
+      ) : viewMode === "board" ? (
+        /* ── KANBAN BOARD VIEW ── */
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+          {BOARD_COLS.map((col) => {
+            const meta = STATUS_META[col];
+            const colTasks = filteredTasks.filter((t) => t.status === col);
+            return (
+              <div key={col} className={`rounded-xl border border-slate-200 p-3 space-y-3 ${meta.bg}`}>
+                {/* Column Header */}
+                <div className="flex items-center justify-between pb-1 border-b border-slate-200/60">
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2.5 w-2.5 rounded-full ${meta.dot}`} />
+                    <span className="text-xs font-bold text-slate-800">{meta.label}</span>
+                  </div>
+                  <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-bold text-slate-600 shadow-2xs border border-slate-200">
+                    {colTasks.length}
+                  </span>
+                </div>
+
+                {/* Cards */}
+                <div className="space-y-2.5 max-h-[calc(100vh-340px)] overflow-y-auto pr-1">
+                  {colTasks.map((t) => {
+                    const p = PRIORITY_META[t.priority] ?? PRIORITY_META.NORMAL;
+                    const PriorityIcon = p.icon;
+                    const overdue =
+                      t.dueAt &&
+                      t.status !== "COMPLETED" &&
+                      t.status !== "APPROVED" &&
+                      t.status !== "CANCELLED" &&
+                      new Date(t.dueAt).getTime() < Date.now();
+
+                    return (
+                      <div
+                        key={t.id}
+                        onClick={() => openDetail(t)}
+                        className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs hover:shadow-md transition hover:-translate-y-0.5 cursor-pointer space-y-2.5"
+                      >
+                        {/* Task header */}
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="font-mono text-[11px] font-bold text-teal-700">{t.taskNo}</span>
+                          <span className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-bold ${p.chip}`}>
+                            <PriorityIcon className="w-3 h-3" />
+                            {p.label}
+                          </span>
+                        </div>
+
+                        {/* Title */}
+                        <h5 className="text-xs font-bold text-slate-900 line-clamp-2 leading-relaxed">{t.title}</h5>
+
+                        {/* Linked Entity */}
+                        {t.entityLabel && (
+                          <div className="inline-flex items-center gap-1 rounded-md bg-teal-50 border border-teal-100 px-2 py-0.5 text-[10px] font-medium text-teal-800 max-w-full truncate">
+                            <Link2 className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{t.entityLabel}</span>
+                          </div>
+                        )}
+
+                        {/* Assignee & Due Date */}
+                        <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+                          <span className="flex items-center gap-1 truncate max-w-[120px]">
+                            <User className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span className="truncate">{t.assigneeName || "Unassigned"}</span>
+                          </span>
+
+                          {t.dueAt && (
+                            <span
+                              className={`flex items-center gap-1 font-mono text-[10px] ${
+                                overdue ? "font-bold text-rose-600 bg-rose-50 px-1.5 py-0.2 rounded" : "text-slate-500"
+                              }`}
+                            >
+                              <Calendar className="w-3 h-3" />
+                              {dateOnly(t.dueAt)}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Quick action triggers */}
+                        <div className="pt-1.5 border-t border-slate-100" onClick={(e) => e.stopPropagation()}>
+                          <ActionButtons t={t} compact />
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {colTasks.length === 0 && (
+                    <div className="rounded-lg border border-dashed border-slate-300 p-6 text-center text-xs text-slate-400">
+                      No tasks in this lane
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       ) : (
-        <>
-          {/* Kanban board */}
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-            {BOARD_COLS.map((col) => {
-              const meta = STATUS_META[col];
-              const colTasks = filtered.filter((t) => t.status === col);
-              return (
-                <div key={col} className="rounded-xl border border-gray-100 bg-gray-50/60 p-2.5">
-                  <div className="mb-2 flex items-center justify-between px-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`h-2 w-2 rounded-full ${meta.dot}`} />
-                      <span className="text-xs font-semibold text-gray-700">{meta.label}</span>
+        /* ── TABLE VIEW ── */
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs">
+          <CustomTable<Task>
+            columns={[
+              {
+                key: "taskNo",
+                header: "Task # & Title",
+                render: (row) => (
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold text-teal-700">{row.taskNo}</span>
+                      <button
+                        onClick={() => openDetail(row)}
+                        className="font-semibold text-xs text-slate-900 hover:text-teal-600 text-left transition"
+                      >
+                        {row.title}
+                      </button>
                     </div>
-                    <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-bold text-gray-500 shadow-sm">{colTasks.length}</span>
+                    <p className="text-[10px] text-slate-400">Created: {dateTime(row.createdAt)}</p>
                   </div>
-                  <div className="space-y-2">
-                    {colTasks.map((t) => {
-                      const p = PRIORITY_META[t.priority] ?? PRIORITY_META.NORMAL;
-                      const overdue = t.dueAt && t.status !== "COMPLETED" && t.status !== "APPROVED" && t.status !== "CANCELLED" && new Date(t.dueAt).getTime() < Date.now();
-                      return (
-                        <div key={t.id} className="cursor-grab rounded-lg border border-gray-100 bg-white p-3 shadow-sm transition hover:shadow-md" onClick={() => openDetail(t)}>
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="text-[10px] font-semibold text-gray-400">{t.taskNo}</p>
-                            <span className={`flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold ${p.chip}`}>
-                              <p.icon size={10} />{p.label}
-                            </span>
-                          </div>
-                          <p className="mt-1 line-clamp-2 text-sm font-semibold text-gray-900">{t.title}</p>
-                          {t.entityLabel && (
-                            <p className="mt-1.5 flex items-center gap-1 truncate text-[11px] text-primary-600">
-                              <Link2 size={11} /> {t.entityLabel}
-                            </p>
-                          )}
-                          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-500">
-                            {t.assigneeName ? <span className="flex items-center gap-1"><User size={11} /> {t.assigneeName}</span> : <span className="flex items-center gap-1 text-gray-400"><User size={11} /> Unassigned</span>}
-                            {t.dueAt && <span className={`flex items-center gap-1 ${overdue ? "font-semibold text-rose-600" : ""}`}><Calendar size={11} /> {fmtDate(t.dueAt)}</span>}
-                          </div>
-                          <div className="mt-2.5" onClick={(e) => e.stopPropagation()}>
-                            <ActionButtons t={t} compact />
-                          </div>
-                        </div>
-                      );
-                    })}
-                    {colTasks.length === 0 && (
-                      <div className="rounded-lg border border-dashed border-gray-200 p-4 text-center text-[11px] text-gray-400">No tasks</div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Table view (all incl. cancelled) */}
-          <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 text-left text-xs uppercase tracking-wide text-gray-400">
-                  <th className="px-4 py-3">Task</th>
-                  <th className="px-4 py-3">Priority</th>
-                  <th className="px-4 py-3">Assignee</th>
-                  <th className="px-4 py-3">Linked to</th>
-                  <th className="px-4 py-3">Due</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((t) => {
-                  const meta = STATUS_META[t.status] ?? STATUS_META.PENDING;
-                  const p = PRIORITY_META[t.priority] ?? PRIORITY_META.NORMAL;
+                ),
+              },
+              {
+                key: "priority",
+                header: "Priority",
+                render: (row) => {
+                  const p = PRIORITY_META[row.priority] ?? PRIORITY_META.NORMAL;
+                  const PriorityIcon = p.icon;
                   return (
-                    <tr key={t.id} className="border-b border-gray-50 hover:bg-gray-50/60">
-                      <td className="max-w-[280px] px-4 py-3">
-                        <button onClick={() => openDetail(t)} className="block text-left">
-                          <p className="font-semibold text-gray-900 hover:text-primary-600">{t.title}</p>
-                          <p className="text-[11px] text-gray-400">{t.taskNo} · {fmtDateTime(t.createdAt)}</p>
-                        </button>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-semibold ${p.chip}`}>
-                          <p.icon size={11} />{p.label}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="text-xs font-medium text-gray-700">{t.assigneeName || "Unassigned"}</p>
-                        {t.assigneeType && t.assigneeType !== "EMPLOYEE" && <p className="text-[10px] text-gray-400">{t.assigneeType}</p>}
-                      </td>
-                      <td className="px-4 py-3">
-                        {t.entityLabel ? (
-                          <span className="inline-flex max-w-[160px] items-center gap-1 truncate rounded-md bg-primary-50 px-2 py-0.5 text-[11px] font-medium text-primary-700">
-                            <Link2 size={11} /> {t.entityLabel}
-                          </span>
-                        ) : <span className="text-xs text-gray-300">—</span>}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-600">{fmtDate(t.dueAt)}</td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-semibold ${meta.badge}`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />{meta.label}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-2">
-                          <button onClick={() => openDetail(t)} className="text-xs font-medium text-primary-600 hover:text-primary-700">Open</button>
-                          <button onClick={() => { setDeleteModal(t); }} className="text-xs text-gray-400 hover:text-rose-600"><Trash2 size={13} /></button>
-                        </div>
-                      </td>
-                    </tr>
+                    <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-bold ${p.chip}`}>
+                      <PriorityIcon className="w-3 h-3" />
+                      {p.label}
+                    </span>
                   );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </>
+                },
+              },
+              {
+                key: "assigneeName",
+                header: "Assignee",
+                render: (row) => (
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <User className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="font-medium text-slate-800">{row.assigneeName || "Unassigned"}</span>
+                  </div>
+                ),
+              },
+              {
+                key: "entityLabel",
+                header: "Linked Record",
+                render: (row) =>
+                  row.entityLabel ? (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-teal-50 border border-teal-100 px-2 py-0.5 text-xs font-medium text-teal-700">
+                      <Link2 className="w-3 h-3" /> {row.entityLabel}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-slate-400">—</span>
+                  ),
+              },
+              {
+                key: "dueAt",
+                header: "Due Date",
+                render: (row) => {
+                  const overdue =
+                    row.dueAt &&
+                    row.status !== "COMPLETED" &&
+                    row.status !== "APPROVED" &&
+                    row.status !== "CANCELLED" &&
+                    new Date(row.dueAt).getTime() < Date.now();
+                  return (
+                    <span
+                      className={`font-mono text-xs ${
+                        overdue ? "font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200" : "text-slate-600"
+                      }`}
+                    >
+                      {row.dueAt ? dateOnly(row.dueAt) : "—"}
+                    </span>
+                  );
+                },
+              },
+              {
+                key: "status",
+                header: "Status",
+                render: (row) => {
+                  const meta = STATUS_META[row.status] ?? STATUS_META.PENDING;
+                  return (
+                    <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${meta.badge}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
+                      {meta.label}
+                    </span>
+                  );
+                },
+              },
+              {
+                key: "actions",
+                header: "Actions",
+                render: (row) => (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => openDetail(row)}
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-teal-700 hover:bg-teal-50 transition cursor-pointer"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> Details
+                    </button>
+                    <button
+                      onClick={() => setDeleteModalTask(row)}
+                      className="inline-flex items-center rounded-md p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ),
+              },
+            ]}
+            data={filteredTasks}
+            pageSize={15}
+            emptyMessage="No tasks found matching criteria."
+          />
+        </div>
       )}
 
-      {/* ── New Task modal ── */}
-      <CustomModal open={showCreate} onClose={() => setShowCreate(false)} title="New Task">
-        <div className="space-y-3">
-          <CustomInput label="Title *" value={form.title} onChange={(e: any) => setForm({ ...form, title: e.target.value })} placeholder="e.g. Follow up invoice INV-1042" />
+      {/* ─── MODAL: CREATE TASK ─── */}
+      <CustomModal open={showCreate} onClose={() => setShowCreate(false)} title="Create New Operational Task" size="lg">
+        <form onSubmit={createTask} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">Description</label>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Task Title *
+            </label>
+            <input
+              type="text"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="e.g. Follow up with client regarding overdue invoice INV-1042"
+              className="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              autoFocus
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Description & Detailed Instructions
+            </label>
             <textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={3}
-              placeholder="What needs to be done?"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+              placeholder="Provide actionable context, expected outcomes, or specific requirements..."
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <CustomSelect label="Priority" value={form.priority} onChange={(e: any) => setForm({ ...form, priority: e.target.value })}
-              options={["URGENT", "HIGH", "NORMAL", "LOW"].map((v) => ({ value: v, label: PRIORITY_META[v].label }))} />
-            <CustomInput label="Due date" type="date" value={form.dueAt} onChange={(e: any) => setForm({ ...form, dueAt: e.target.value })} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <CustomSelect label="Assign to" value={form.assigneeType} onChange={(e: any) => setForm({ ...form, assigneeType: e.target.value, assigneeId: "" })}
-              options={[{ value: "EMPLOYEE", label: "Employee" }, { value: "USER", label: "User" }, { value: "ROLE", label: "Role" }]} />
-            <CustomSelect label={form.assigneeType === "USER" ? "User" : form.assigneeType === "ROLE" ? "Role" : "Employee"}
-              value={form.assigneeId} onChange={(e: any) => setForm({ ...form, assigneeId: e.target.value })} options={assigneeOptions} placeholder="Unassigned" />
-          </div>
-          <div className="rounded-lg border border-dashed border-gray-200 p-3">
-            <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-gray-500"><Link2 size={13} /> Link to a record (optional)</p>
-            <div className="grid grid-cols-2 gap-3">
-              <CustomSelect label="Type" value={form.entityType} onChange={(e: any) => setForm({ ...form, entityType: e.target.value })}
-                options={[{ value: "", label: "None" }, ...ENTITY_TYPES.map((v) => ({ value: v, label: v.replace(/_/g, " ") }))]} />
-              {form.entityType ? (
-                <CustomInput label="Record ID / label" value={form.entityLabel} onChange={(e: any) => setForm({ ...form, entityLabel: e.target.value })} placeholder="e.g. CUST-001 or id" />
-              ) : <div />}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Priority</label>
+              <select
+                value={form.priority}
+                onChange={(e) => setForm({ ...form, priority: e.target.value })}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              >
+                <option value="URGENT">🔴 Urgent Priority</option>
+                <option value="HIGH">🟠 High Priority</option>
+                <option value="NORMAL">🔵 Normal Priority</option>
+                <option value="LOW">⚪ Low Priority</option>
+              </select>
             </div>
-            {form.entityType && !form.entityId && (
-              <p className="mt-2 text-[11px] text-gray-400">Paste a record id to auto-resolve its name, or type a reference label.</p>
-            )}
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Due Date</label>
+              <input
+                type="date"
+                value={form.dueAt}
+                onChange={(e) => setForm({ ...form, dueAt: e.target.value })}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              />
+            </div>
           </div>
-          <div className="flex justify-end gap-2 pt-1">
-            <CustomButton variant="outline" onClick={() => setShowCreate(false)}>Cancel</CustomButton>
-            <CustomButton onClick={createTask} loading={saving}><Plus size={15} /> Create Task</CustomButton>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Assignee Type
+              </label>
+              <select
+                value={form.assigneeType}
+                onChange={(e) => setForm({ ...form, assigneeType: e.target.value, assigneeId: "" })}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              >
+                <option value="EMPLOYEE">HRM Employee</option>
+                <option value="USER">System User</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Select Assignee
+              </label>
+              <select
+                value={form.assigneeId}
+                onChange={(e) => setForm({ ...form, assigneeId: e.target.value })}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              >
+                <option value="">-- Unassigned --</option>
+                {assigneeOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
+
+          {/* Linked Record section */}
+          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+            <span className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <Link2 className="w-3.5 h-3.5 text-teal-600" /> Link to Record (Optional)
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <select
+                  value={form.entityType}
+                  onChange={(e) => setForm({ ...form, entityType: e.target.value })}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                >
+                  <option value="">None (General Task)</option>
+                  {ENTITY_TYPES.map((v) => (
+                    <option key={v} value={v}>
+                      {v.replace(/_/g, " ")}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {form.entityType && (
+                <div>
+                  <input
+                    type="text"
+                    value={form.entityLabel}
+                    onChange={(e) => setForm({ ...form, entityLabel: e.target.value })}
+                    placeholder="e.g. INV-1042 or Customer #..."
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+            <CustomButton variant="outline" size="sm" onClick={() => setShowCreate(false)} type="button">
+              Cancel
+            </CustomButton>
+            <CustomButton variant="primary" size="sm" icon={<Check className="w-4 h-4" />} type="submit" disabled={saving}>
+              {saving ? "Creating..." : "Create Task"}
+            </CustomButton>
+          </div>
+        </form>
       </CustomModal>
 
-      {/* ── Detail modal ── */}
-      <CustomModal open={detailOpen} onClose={() => setDetailOpen(false)} title={detail ? `${detail.taskNo} · Details` : "Task"}>
-        {detailLoading && !detail?.comments ? (
-          <div className="flex justify-center py-10"><Loader2 size={20} className="animate-spin text-gray-400" /></div>
-        ) : detail ? (
-          <div className="space-y-4">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-semibold ${STATUS_META[detail.status]?.badge}`}>
-                  <span className={`h-1.5 w-1.5 rounded-full ${STATUS_META[detail.status]?.dot}`} />{STATUS_META[detail.status]?.label}
-                </span>
-                <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-semibold ${(PRIORITY_META[detail.priority] ?? PRIORITY_META.NORMAL).chip}`}>
-                  <Flag size={10} />{PRIORITY_META[detail.priority]?.label}
-                </span>
-              </div>
-              <h3 className="mt-2 text-base font-bold text-gray-900">{detail.title}</h3>
-              <p className="mt-0.5 text-xs text-gray-400">Created by {detail.creatorName || "—"} · {fmtDateTime(detail.createdAt)}</p>
-            </div>
+      {/* ─── MODAL: TASK DETAIL & DISCUSSION SLIDEOVER ─── */}
+      <CustomModal
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        title={detail ? `${detail.taskNo} · Task Workspace` : "Task Details"}
+        size="xl"
+      >
+        {detail && (
+          <div className="space-y-5">
+            {/* Header metadata */}
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-bold ${STATUS_META[detail.status]?.badge}`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${STATUS_META[detail.status]?.dot}`} />
+                    {STATUS_META[detail.status]?.label}
+                  </span>
 
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded-lg bg-gray-50 p-2.5">
-                <p className="text-gray-400">Assignee</p>
-                <p className="mt-0.5 font-medium text-gray-800">{detail.assigneeName || "Unassigned"}</p>
+                  <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-bold ${(PRIORITY_META[detail.priority] ?? PRIORITY_META.NORMAL).chip}`}>
+                    <Flag className="w-3 h-3" />
+                    {PRIORITY_META[detail.priority]?.label}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-400">
+                  Created {dateTime(detail.createdAt)} by <span className="font-semibold text-slate-700">{detail.creatorName || "System"}</span>
+                </p>
               </div>
-              <div className="rounded-lg bg-gray-50 p-2.5">
-                <p className="text-gray-400">Due</p>
-                <p className="mt-0.5 font-medium text-gray-800">{fmtDate(detail.dueAt)}</p>
+
+              <h3 className="text-base font-bold text-slate-900">{detail.title}</h3>
+
+              {detail.description && (
+                <p className="text-xs text-slate-600 whitespace-pre-wrap leading-relaxed bg-white p-3 rounded-lg border border-slate-200">
+                  {detail.description}
+                </p>
+              )}
+
+              {/* Grid Metadata */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <div className="rounded-lg bg-white p-2.5 border border-slate-200">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">Assignee</span>
+                  <p className="font-semibold text-slate-800 mt-0.5">{detail.assigneeName || "Unassigned"}</p>
+                </div>
+
+                <div className="rounded-lg bg-white p-2.5 border border-slate-200">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">Due Date</span>
+                  <p className="font-semibold text-slate-800 mt-0.5">{detail.dueAt ? dateOnly(detail.dueAt) : "None"}</p>
+                </div>
+
+                <div className="rounded-lg bg-white p-2.5 border border-slate-200">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">Completed At</span>
+                  <p className="font-semibold text-slate-800 mt-0.5">{detail.completedAt ? dateOnly(detail.completedAt) : "—"}</p>
+                </div>
+
+                <div className="rounded-lg bg-white p-2.5 border border-slate-200">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">Approved At</span>
+                  <p className="font-semibold text-slate-800 mt-0.5">{detail.approvedAt ? dateOnly(detail.approvedAt) : "—"}</p>
+                </div>
               </div>
+
               {detail.entityLabel && (
-                <div className="col-span-2 rounded-lg bg-primary-50 p-2.5">
-                  <p className="text-primary-400">Linked to {detail.entityType}</p>
-                  <p className="mt-0.5 flex items-center gap-1 font-medium text-primary-700"><Link2 size={12} /> {detail.entityLabel}{detail.entityId ? ` (${detail.entityId.slice(0, 8)}…)` : ""}</p>
+                <div className="rounded-lg bg-teal-50/70 p-2.5 border border-teal-100 text-xs flex items-center gap-2">
+                  <Link2 className="w-4 h-4 text-teal-600 shrink-0" />
+                  <span className="text-teal-900 font-medium">
+                    Linked to <strong className="font-bold">{detail.entityType}</strong>: {detail.entityLabel}
+                  </span>
                 </div>
               )}
+
               {detail.cancelReason && (
-                <div className="col-span-2 rounded-lg bg-rose-50 p-2.5">
-                  <p className="text-rose-400">Cancellation reason</p>
-                  <p className="mt-0.5 font-medium text-rose-700">{detail.cancelReason}</p>
+                <div className="rounded-lg bg-rose-50 p-2.5 border border-rose-200 text-xs text-rose-800">
+                  <strong>Cancellation Reason: </strong> {detail.cancelReason}
                 </div>
               )}
             </div>
 
-            {detail.description && (
-              <div>
-                <p className="mb-1 text-xs font-semibold text-gray-500">Description</p>
-                <p className="whitespace-pre-wrap text-sm text-gray-700">{detail.description}</p>
+            {/* Transition Action Bar */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Status Workflow Actions</span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <ActionButtons t={detail} />
+                {(detail.status === "PENDING" || detail.status === "IN_PROGRESS" || detail.status === "BLOCKED") && (
+                  <button
+                    onClick={() => setCancelModalTask(detail)}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 cursor-pointer"
+                  >
+                    <XCircle className="w-3.5 h-3.5" /> Cancel Task...
+                  </button>
+                )}
               </div>
-            )}
-
-            {detail.completedAt && <p className="text-[11px] text-emerald-600">Completed {fmtDateTime(detail.completedAt)}</p>}
-            {detail.approvedAt && <p className="text-[11px] text-indigo-600">Approved {fmtDateTime(detail.approvedAt)}</p>}
-
-            {/* Actions */}
-            <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-3">
-              <p className="mb-2 text-xs font-semibold text-gray-500">Actions</p>
-              <ActionButtons t={detail} />
-              {detail.status === "PENDING" || detail.status === "IN_PROGRESS" || detail.status === "BLOCKED" ? (
-                <button onClick={() => { setCancelModal(detail as Task); }} className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-rose-600">
-                  <XCircle size={13} /> Cancel task…
-                </button>
-              ) : null}
             </div>
 
-            {/* Comments */}
-            <div>
-              <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-gray-500"><MessageSquare size={13} /> Comments ({detail.comments?.length || 0})</p>
-              <div className="space-y-2">
+            {/* Comments Stream */}
+            <div className="space-y-3">
+              <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">
+                <MessageSquare className="w-3.5 h-3.5 text-teal-600" /> Discussion & Comments ({detail.comments?.length || 0})
+              </span>
+
+              <div className="space-y-2 max-h-56 overflow-y-auto">
                 {(detail.comments || []).map((c) => (
-                  <div key={c.id} className="rounded-lg border border-gray-100 bg-gray-50/60 p-2.5">
+                  <div key={c.id} className="rounded-xl border border-slate-100 bg-slate-50/70 p-3 space-y-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-semibold text-gray-700">{c.authorName}</p>
-                      <p className="text-[10px] text-gray-400">{fmtDateTime(c.createdAt)}</p>
+                      <span className="font-bold text-xs text-slate-800">{c.authorName}</span>
+                      <span className="text-[10px] text-slate-400">{dateTime(c.createdAt)}</span>
                     </div>
-                    <p className="mt-1 text-sm text-gray-600">{c.comment}</p>
+                    <p className="text-xs text-slate-700 leading-relaxed">{c.comment}</p>
                   </div>
                 ))}
-                {(detail.comments || []).length === 0 && <p className="text-xs text-gray-400">No comments yet</p>}
+                {(detail.comments || []).length === 0 && (
+                  <p className="text-xs text-slate-400 italic">No comments posted yet.</p>
+                )}
               </div>
-              <div className="mt-2 flex gap-2">
+
+              {/* Comment Input */}
+              <div className="flex gap-2">
                 <input
+                  type="text"
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && addComment()}
-                  placeholder="Add a comment…"
-                  className="h-9 flex-1 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                  placeholder="Write a message or update..."
+                  className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
                 />
-                <CustomButton size="sm" onClick={addComment}>Post</CustomButton>
+                <CustomButton variant="primary" size="sm" icon={<Send className="w-3.5 h-3.5" />} onClick={addComment}>
+                  Post
+                </CustomButton>
               </div>
             </div>
 
-            {/* Attachments */}
-            <div>
-              <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-gray-500"><Paperclip size={13} /> Attachments ({detail.attachments?.length || 0})</p>
+            {/* Attachments Section */}
+            <div className="space-y-3 pt-2 border-t border-slate-100">
+              <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">
+                <Paperclip className="w-3.5 h-3.5 text-teal-600" /> Files & Attachments ({detail.attachments?.length || 0})
+              </span>
+
               {(detail.attachments || []).length > 0 && (
                 <div className="space-y-1.5">
                   {(detail.attachments || []).map((a) => (
-                    <div key={a.id} className="flex items-center justify-between rounded-lg border border-gray-100 px-3 py-2">
+                    <div key={a.id} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 bg-slate-50/50 text-xs">
                       <div className="flex items-center gap-2">
-                        <Paperclip size={13} className="text-gray-400" />
-                        <p className="text-xs font-medium text-gray-700">{a.fileName}</p>
-                        {a.fileUrl && <a href={a.fileUrl} target="_blank" rel="noreferrer" className="text-[11px] text-primary-600 hover:underline">open</a>}
+                        <Paperclip className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="font-semibold text-slate-800">{a.fileName}</span>
+                        {a.fileUrl && (
+                          <a
+                            href={a.fileUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-teal-600 hover:underline inline-flex items-center gap-0.5 text-[11px]"
+                          >
+                            open <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        )}
                       </div>
-                      <p className="text-[10px] text-gray-400">{fmtDateTime(a.createdAt)}</p>
+                      <span className="text-[10px] text-slate-400">{dateTime(a.createdAt)}</span>
                     </div>
                   ))}
                 </div>
               )}
-              <div className="mt-2 grid grid-cols-3 gap-2">
+
+              {/* Add Attachment Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <input
+                  type="text"
                   value={attachName}
                   onChange={(e) => setAttachName(e.target.value)}
-                  placeholder="File name"
-                  className="col-span-1 h-9 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                  placeholder="Document Name (e.g. proof.pdf)"
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-teal-600"
                 />
                 <input
+                  type="text"
                   value={attachUrl}
                   onChange={(e) => setAttachUrl(e.target.value)}
-                  placeholder="URL (optional)"
-                  className="col-span-1 h-9 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                  placeholder="Link URL (optional)"
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-teal-600"
                 />
-                <CustomButton size="sm" variant="outline" onClick={addAttachment}><Plus size={13} /> Add</CustomButton>
+                <CustomButton variant="outline" size="sm" icon={<Plus className="w-3.5 h-3.5" />} onClick={addAttachment}>
+                  Add File
+                </CustomButton>
               </div>
             </div>
           </div>
-        ) : null}
+        )}
       </CustomModal>
 
-      {/* ── Cancel modal ── */}
-      <CustomModal open={!!cancelModal} onClose={() => setCancelModal(null)} title="Cancel task">
-        <div className="space-y-3">
-          <p className="text-sm text-gray-600">Provide a reason for cancelling <b>{cancelModal?.taskNo}</b>:</p>
-          <CustomInput label="Reason" value={cancelReason} onChange={(e: any) => setCancelReason(e.target.value)} placeholder="e.g. No longer needed" />
-          <div className="flex justify-end gap-2">
-            <CustomButton variant="outline" onClick={() => setCancelModal(null)}>Back</CustomButton>
-            <CustomButton variant="danger" loading={saving} onClick={() => cancelReason.trim() ? runTransition("CANCELLED", { reason: cancelReason.trim() }) : alert("Reason is required")}>
-              <XCircle size={15} /> Cancel Task
+      {/* ─── MODAL: CANCEL TASK ─── */}
+      <CustomModal open={cancelModalTask !== null} onClose={() => setCancelModalTask(null)} title="Cancel Task" size="md">
+        <div className="space-y-4">
+          <p className="text-xs text-slate-600">
+            Please provide a cancellation reason for task <strong>{cancelModalTask?.taskNo}</strong>:
+          </p>
+          <textarea
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+            rows={2}
+            placeholder="e.g. Duplicate requirement, client withdrew request, or superseded by task #..."
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+            autoFocus
+          />
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+            <CustomButton variant="outline" size="sm" onClick={() => setCancelModalTask(null)}>
+              Back
+            </CustomButton>
+            <CustomButton
+              variant="primary"
+              size="sm"
+              className="bg-rose-600 hover:bg-rose-700 text-white"
+              icon={<XCircle className="w-4 h-4" />}
+              onClick={() => {
+                if (!cancelReason.trim()) {
+                  notify(false, "Reason is required");
+                  return;
+                }
+                runTransition("CANCELLED", { reason: cancelReason.trim() });
+              }}
+              disabled={saving}
+            >
+              Confirm Cancellation
             </CustomButton>
           </div>
         </div>
       </CustomModal>
 
-      {/* ── Delete confirm ── */}
-      <CustomModal open={!!deleteModal} onClose={() => setDeleteModal(null)} title="Delete task">
-        <div className="space-y-3">
-          <p className="text-sm text-gray-600">Delete <b>{deleteModal?.taskNo}</b>? Its comments and attachments will also be removed. This cannot be undone.</p>
-          <div className="flex justify-end gap-2">
-            <CustomButton variant="outline" onClick={() => setDeleteModal(null)}>Keep</CustomButton>
-            <CustomButton variant="danger" onClick={removeTask}><Trash2 size={14} /> Delete</CustomButton>
-          </div>
-        </div>
-      </CustomModal>
+      {/* ─── MODAL: DELETE TASK ─── */}
+      <ConfirmModal
+        open={deleteModalTask !== null}
+        onClose={() => setDeleteModalTask(null)}
+        onConfirm={removeTask}
+        title="Delete Task"
+        message={`Are you sure you want to permanently delete task "${deleteModalTask?.taskNo} — ${deleteModalTask?.title}"? All associated comments and attachments will also be removed.`}
+        confirmText="Delete Task"
+        variant="danger"
+        loading={saving}
+      />
     </div>
   );
 }

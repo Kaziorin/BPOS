@@ -1,334 +1,973 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import {
-  Megaphone, Plus, RefreshCw, Loader2, Zap, Users, Play, Pause, Trash2,
-  Ticket, Send, Eye, Calendar, Clock, ChevronRight,
+  Megaphone,
+  Plus,
+  RefreshCw,
+  Zap,
+  Users,
+  Play,
+  Pause,
+  Trash2,
+  Ticket,
+  Send,
+  Eye,
+  Calendar,
+  Clock,
+  ChevronRight,
+  Check,
+  CheckCircle2,
+  AlertTriangle,
+  Sparkles,
+  Gift,
+  Cake,
+  HeartHandshake,
+  ShoppingBag,
+  Award,
+  BellRing,
+  Mail,
+  MessageSquare,
+  Smartphone,
+  Tag,
+  DollarSign,
+  TrendingUp,
+  Percent,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomInput } from "@/components/custom/CustomInput";
-import { CustomSelect } from "@/components/custom/CustomSelect";
-import { CustomButton } from "@/components/custom/CustomButton";
-import { CustomModal } from "@/components/custom/CustomModal";
+import {
+  CustomBreadcrumb,
+  CustomButton,
+  CustomTable,
+  CustomStatCard,
+  CustomModal,
+  ConfirmModal,
+} from "@/components/custom";
+import { money, dateTime, dateOnly } from "@/lib/format";
 
-interface TriggerDef { code: string; label: string; description: string; }
+interface TriggerDef {
+  code: string;
+  label: string;
+  description: string;
+}
+
 interface Campaign {
-  id: string; name: string; triggerType: string; status: string;
-  channels: string[] | null; conditions: any | null; couponTemplate: any | null;
-  startDate: string | null; endDate: string | null; lastRunAt: string | null;
-  totalMatched: number; totalSent: number; createdAt: string;
-}
-interface Grant {
-  id: string; customerName: string; customerId: string; phone: string | null;
-  email: string | null; channel: string; couponCode: string | null;
-  status: string; reason: string | null; createdAt: string;
+  id: string;
+  name: string;
+  triggerType: string;
+  status: string;
+  channels: string[] | null;
+  conditions: any | null;
+  couponTemplate: any | null;
+  startDate: string | null;
+  endDate: string | null;
+  lastRunAt: string | null;
+  totalMatched: number;
+  totalSent: number;
+  createdAt: string;
 }
 
-const STATUS_META: Record<string, { label: string; chip: string; dot: string }> = {
-  DRAFT: { label: "Draft", chip: "bg-gray-500/15 text-gray-600 border-gray-500/25", dot: "bg-gray-400" },
-  ACTIVE: { label: "Active", chip: "bg-emerald-500/15 text-emerald-700 border-emerald-500/25", dot: "bg-emerald-500" },
-  PAUSED: { label: "Paused", chip: "bg-amber-500/15 text-amber-700 border-amber-500/25", dot: "bg-amber-500" },
-  ARCHIVED: { label: "Archived", chip: "bg-slate-500/15 text-slate-500 border-slate-500/25", dot: "bg-slate-400" },
+interface Grant {
+  id: string;
+  customerName: string;
+  customerId: string;
+  phone: string | null;
+  email: string | null;
+  channel: string;
+  couponCode: string | null;
+  status: string;
+  reason: string | null;
+  createdAt: string;
+}
+
+const STATUS_META: Record<string, { label: string; badge: string; dot: string }> = {
+  DRAFT: { label: "Draft", badge: "bg-slate-100 text-slate-600 border-slate-200", dot: "bg-slate-400" },
+  ACTIVE: { label: "Active", badge: "bg-emerald-50 text-emerald-700 border-emerald-200", dot: "bg-emerald-600" },
+  PAUSED: { label: "Paused", badge: "bg-amber-50 text-amber-700 border-amber-200", dot: "bg-amber-600" },
+  ARCHIVED: { label: "Archived", badge: "bg-gray-100 text-gray-500 border-gray-200", dot: "bg-gray-400" },
+};
+
+const TRIGGER_ICONS: Record<string, any> = {
+  INACTIVE_30D: Clock,
+  BIRTHDAY: Cake,
+  ANNIVERSARY: HeartHandshake,
+  FIRST_PURCHASE: ShoppingBag,
+  HIGH_VALUE: Award,
+  ABANDONED_CART: Tag,
+  EXPIRY_REMINDER: BellRing,
+  LOYALTY_MILESTONE: Gift,
 };
 
 const TRIGGER_DEFAULTS: Record<string, any> = {
-  INACTIVE_30D: { name: "Win-back inactive customers", daysInactive: 30 },
-  BIRTHDAY: { name: "Birthday offer" },
-  ANNIVERSARY: { name: "Membership anniversary" },
-  FIRST_PURCHASE: { name: "Welcome after first purchase", lookbackDays: 7 },
-  HIGH_VALUE: { name: "High-value buyer reward", minAmount: 10000, lookbackDays: 30 },
-  ABANDONED_CART: { name: "Abandoned cart nudge", daysInactive: 1 },
-  EXPIRY_REMINDER: { name: "Gift-card expiry reminder", daysInactive: 7 },
-  LOYALTY_MILESTONE: { name: "Loyalty milestone congrats", milestonePoints: 500 },
+  INACTIVE_30D: { name: "Win-back Inactive Customers (30 Days)", daysInactive: 30 },
+  BIRTHDAY: { name: "Special Birthday Surprise Discount" },
+  ANNIVERSARY: { name: "Membership Anniversary Reward" },
+  FIRST_PURCHASE: { name: "First Purchase Thank-you & Next Order Offer", lookbackDays: 7 },
+  HIGH_VALUE: { name: "VIP High-Value Buyer Privilege Reward", minAmount: 10000, lookbackDays: 30 },
+  ABANDONED_CART: { name: "Abandoned Cart Recovery Nudge", daysInactive: 1 },
+  EXPIRY_REMINDER: { name: "Gift Card & Wallet Expiry Reminder", daysInactive: 7 },
+  LOYALTY_MILESTONE: { name: "Tier Advancement & Milestone Congrats", milestonePoints: 500 },
 };
 
 export default function MarketingPage() {
-  const [message, setMessage] = useState<string | null>(null);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [triggers, setTriggers] = useState<TriggerDef[]>([]);
+  const [grants, setGrants] = useState<Grant[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"campaigns" | "triggers" | "grants">("campaigns");
+
+  // Detail Modal
   const [detail, setDetail] = useState<any>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+
+  // Create Campaign Modal
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState<any>({ name: "", triggerType: "INACTIVE_30D", status: "ACTIVE", channels: ["SMS"], discountType: "PERCENTAGE", discountValue: "10", minAmount: "", maxDiscount: "", validDays: "14", conditions: {} });
+  const [form, setForm] = useState<any>({
+    name: "",
+    triggerType: "INACTIVE_30D",
+    status: "ACTIVE",
+    channels: ["SMS"],
+    discountType: "PERCENTAGE",
+    discountValue: "10",
+    minAmount: "",
+    maxDiscount: "",
+    validDays: "14",
+    conditions: {},
+  });
   const [running, setRunning] = useState(false);
 
-  const showMessage = (m: string) => { setMessage(m); setTimeout(() => setMessage(null), 4000); };
+  // Confirm delete modal
+  const [deleteModalCampaign, setDeleteModalCampaign] = useState<Campaign | null>(null);
 
-  const loadCampaigns = useCallback(async () => {
-    setLoading(true);
+  // Toast
+  const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const notify = (ok: boolean, text: string) => {
+    setToast({ ok, text });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  const loadData = useCallback(async (showIndicator = false) => {
+    if (showIndicator) setRefreshing(true);
+    else setLoading(true);
     try {
-      const res = await api.get<{ data: Campaign[] }>("/v1/marketing/campaigns");
-      setCampaigns(res.data);
-    } catch (err: any) { console.error(err); } finally { setLoading(false); }
+      const [campRes, trigRes, grantRes] = await Promise.all([
+        api.get<any>("/api/v1/marketing/campaigns"),
+        api.get<any>("/api/v1/marketing/triggers"),
+        api.get<any>("/api/v1/marketing/grants"),
+      ]);
+      setCampaigns(campRes.data?.data || campRes.data || []);
+      setTriggers(trigRes.data?.data || trigRes.data || []);
+      setGrants(grantRes.data?.data || grantRes.data || []);
+    } catch (err: any) {
+      notify(false, err.message || "Failed to load marketing data");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
 
-  const loadTriggers = useCallback(async () => {
-    try {
-      const res = await api.get<{ data: TriggerDef[] }>("/v1/marketing/triggers");
-      setTriggers(res.data);
-    } catch (err: any) { console.error(err); }
-  }, []);
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
-  useEffect(() => { loadCampaigns(); loadTriggers(); }, [loadCampaigns, loadTriggers]);
+  // Aggregate summary metrics
+  const summaryStats = useMemo(() => {
+    const totalMatched = campaigns.reduce((sum, c) => sum + (Number(c.totalMatched) || 0), 0);
+    const totalSent = campaigns.reduce((sum, c) => sum + (Number(c.totalSent) || 0), 0);
+    const activeCount = campaigns.filter((c) => c.status === "ACTIVE").length;
+    return {
+      activeCount,
+      totalCampaigns: campaigns.length,
+      triggersCount: triggers.length,
+      totalMatched,
+      totalSent,
+    };
+  }, [campaigns, triggers]);
 
-  function openCreate() {
-    const def = TRIGGER_DEFAULTS[form.triggerType] || {};
-    setForm({ name: def.name || "", triggerType: form.triggerType, status: "ACTIVE", channels: ["SMS"], discountType: "PERCENTAGE", discountValue: "10", minAmount: "", maxDiscount: "", validDays: "14", conditions: { ...def } });
+  function openCreateWithTrigger(triggerCode: string = "INACTIVE_30D") {
+    const def = TRIGGER_DEFAULTS[triggerCode] || {};
+    setForm({
+      name: def.name || "",
+      triggerType: triggerCode,
+      status: "ACTIVE",
+      channels: ["SMS"],
+      discountType: "PERCENTAGE",
+      discountValue: "10",
+      minAmount: "",
+      maxDiscount: "",
+      validDays: "14",
+      conditions: { ...def },
+    });
     setShowCreate(true);
   }
+
   function changeTrigger(t: string) {
     const def = TRIGGER_DEFAULTS[t] || {};
-    setForm((f: any) => ({ ...f, triggerType: t, name: def.name || f.name, conditions: { ...def } }));
+    setForm((f: any) => ({
+      ...f,
+      triggerType: t,
+      name: def.name || f.name,
+      conditions: { ...def },
+    }));
   }
 
-  async function createCampaign() {
-    if (!form.name.trim()) { alert("Campaign name required"); return; }
+  async function createCampaign(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.name.trim()) {
+      notify(false, "Campaign name is required");
+      return;
+    }
     const conditions: any = {};
     if (form.conditions?.daysInactive) conditions.daysInactive = Number(form.conditions.daysInactive);
     if (form.conditions?.lookbackDays) conditions.lookbackDays = Number(form.conditions.lookbackDays);
     if (form.conditions?.minAmount) conditions.minAmount = Number(form.conditions.minAmount);
     if (form.conditions?.milestonePoints) conditions.milestonePoints = Number(form.conditions.milestonePoints);
-    const couponTemplate = { discountType: form.discountType, discountValue: Number(form.discountValue) || 0, minAmount: form.minAmount ? Number(form.minAmount) : null, maxDiscount: form.maxDiscount ? Number(form.maxDiscount) : null, validDays: Number(form.validDays) || 14, codePrefix: form.triggerType.slice(0, 3) };
+
+    const couponTemplate = {
+      discountType: form.discountType,
+      discountValue: Number(form.discountValue) || 0,
+      minAmount: form.minAmount ? Number(form.minAmount) : null,
+      maxDiscount: form.maxDiscount ? Number(form.maxDiscount) : null,
+      validDays: Number(form.validDays) || 14,
+      codePrefix: form.triggerType.slice(0, 3),
+    };
+
     setRunning(true);
     try {
-      await api.post("/v1/marketing/campaigns", {
-        name: form.name.trim(), triggerType: form.triggerType, status: form.status,
-        channels: form.channels, conditions, couponTemplate,
+      await api.post("/api/v1/marketing/campaigns", {
+        name: form.name.trim(),
+        triggerType: form.triggerType,
+        status: form.status,
+        channels: form.channels,
+        conditions,
+        couponTemplate,
       });
-      setShowCreate(false); showMessage("Campaign created"); loadCampaigns();
-    } catch (err: any) { alert(err?.message || "Failed to create"); } finally { setRunning(false); }
+      setShowCreate(false);
+      notify(true, `Campaign "${form.name.trim()}" created successfully`);
+      loadData(true);
+    } catch (err: any) {
+      notify(false, err?.message || "Failed to create campaign");
+    } finally {
+      setRunning(false);
+    }
   }
 
-  async function setStatus(c: Campaign, status: string) {
+  async function toggleStatus(c: Campaign) {
+    const isActivating = c.status !== "ACTIVE";
     try {
-      await api.post(`/v1/marketing/campaigns/${c.id}/${status.toLowerCase() === "active" ? "activate" : "pause"}`);
-      showMessage(`Campaign ${status.toLowerCase()}`);
-      loadCampaigns();
-    } catch (err: any) { alert(err?.message || "Failed"); }
+      await api.post(`/api/v1/marketing/campaigns/${c.id}/${isActivating ? "activate" : "pause"}`);
+      notify(true, `Campaign ${isActivating ? "activated" : "paused"}`);
+      loadData(true);
+    } catch (err: any) {
+      notify(false, err?.message || "Failed to update status");
+    }
   }
 
   async function runCampaign(c: Campaign) {
     setRunning(true);
     try {
-      const res = await api.post<{ data: any }>(`/v1/marketing/campaigns/${c.id}/run`, {});
-      showMessage(`Matched ${res.data?.matched} customer(s) · ${res.data?.couponsCreated} coupon(s) queued`);
-      loadCampaigns();
-    } catch (err: any) { alert(err?.message || "Run failed"); } finally { setRunning(false); }
+      const res = await api.post<any>(`/api/v1/marketing/campaigns/${c.id}/run`, {});
+      const matched = res.data?.data?.matched ?? res.data?.matched ?? 0;
+      const queued = res.data?.data?.couponsCreated ?? res.data?.couponsCreated ?? 0;
+      notify(true, `Target audience evaluated: Matched ${matched} customer(s) · ${queued} coupon(s) generated`);
+      loadData(true);
+    } catch (err: any) {
+      notify(false, err?.message || "Campaign run failed");
+    } finally {
+      setRunning(false);
+    }
   }
 
-  async function openDetail(c: Campaign) {
+  async function openAudienceDetail(c: Campaign) {
     try {
-      const res = await api.get<{ data: any }>(`/v1/marketing/campaigns/${c.id}`);
-      setDetail(res.data);
-    } catch (err: any) { console.error(err); }
+      const res = await api.get<any>(`/api/v1/marketing/campaigns/${c.id}`);
+      setDetail(res.data?.data || res.data);
+      setDetailOpen(true);
+    } catch (err: any) {
+      notify(false, err.message || "Failed to fetch audience details");
+    }
   }
 
-  async function deleteCampaign(c: Campaign) {
-    if (!confirm(`Delete campaign "${c.name}"?`)) return;
+  async function deleteCampaign() {
+    if (!deleteModalCampaign) return;
     try {
-      await api.del(`/v1/marketing/campaigns/${c.id}`);
-      showMessage("Campaign deleted"); loadCampaigns(); if (detail?.id === c.id) setDetail(null);
-    } catch (err: any) { alert(err?.message || "Delete failed"); }
+      await api.del(`/api/v1/marketing/campaigns/${deleteModalCampaign.id}`);
+      notify(true, "Campaign deleted successfully");
+      setDeleteModalCampaign(null);
+      loadData(true);
+    } catch (err: any) {
+      notify(false, err?.message || "Delete failed");
+    }
   }
 
   return (
-    <div className="space-y-6">
-      {message && <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700">{message}</div>}
-
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-900">
-            <Megaphone size={22} className="text-primary-600" /> Marketing Automation
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">Trigger-based campaigns with per-customer coupons — delivery queued for the notification engine</p>
+    <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
+      {/* ── Toast Notification ── */}
+      {toast && (
+        <div
+          className={`fixed top-5 right-5 z-50 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium shadow-lg animate-in slide-in-from-top duration-200 ${
+            toast.ok
+              ? "border-teal-200 bg-teal-50 text-teal-800"
+              : "border-rose-200 bg-rose-50 text-rose-800"
+          }`}
+        >
+          {toast.ok ? <CheckCircle2 className="w-5 h-5 text-teal-600" /> : <AlertTriangle className="w-5 h-5 text-rose-600" />}
+          {toast.text}
         </div>
-        <CustomButton onClick={openCreate}><Plus size={15} /> New Campaign</CustomButton>
+      )}
+
+      {/* ── Header ── */}
+      <CustomBreadcrumb
+        title="Marketing Automation & Campaigns"
+        subtitle="Trigger-Based Lifecycle Marketing, Dynamic Coupon Generation & Multi-Channel Audience Delivery"
+        icon={<Megaphone className="w-5 h-5" />}
+        items={[
+          { label: "Growth", href: "/promotions" },
+          { label: "Marketing Automation" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton
+              variant="outline"
+              size="sm"
+              icon={<RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />}
+              onClick={() => loadData(true)}
+              disabled={refreshing}
+            >
+              Refresh
+            </CustomButton>
+
+            <CustomButton
+              variant="primary"
+              size="sm"
+              icon={<Plus className="w-4 h-4" />}
+              onClick={() => openCreateWithTrigger("INACTIVE_30D")}
+            >
+              New Campaign
+            </CustomButton>
+          </div>
+        }
+      />
+
+      {/* ── KPI Stat Cards ── */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <CustomStatCard
+          label="Active Automations"
+          value={summaryStats.activeCount.toString()}
+          icon={Megaphone}
+          tone="primary"
+        />
+
+        <CustomStatCard
+          label="Catalog Triggers"
+          value={summaryStats.triggersCount.toString()}
+          icon={Zap}
+          tone="violet"
+        />
+
+        <CustomStatCard
+          label="Matched Customers"
+          value={summaryStats.totalMatched.toLocaleString()}
+          icon={Users}
+          tone="green"
+        />
+
+        <CustomStatCard
+          label="Queued Offers & SMS"
+          value={summaryStats.totalSent.toLocaleString()}
+          icon={Send}
+          tone="blue"
+        />
       </div>
 
-      {/* KPI cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><Megaphone size={13} /> Campaigns</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">{campaigns.length}</p>
-        </div>
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><Zap size={13} /> Triggers available</p>
-          <p className="mt-1 text-2xl font-bold text-indigo-600">{triggers.length}</p>
-        </div>
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><Users size={13} /> Customers matched</p>
-          <p className="mt-1 text-2xl font-bold text-emerald-600">{campaigns.reduce((s, c) => s + Number(c.totalMatched || 0), 0)}</p>
-        </div>
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><Send size={13} /> Messages queued</p>
-          <p className="mt-1 text-2xl font-bold text-amber-600">{campaigns.reduce((s, c) => s + Number(c.totalSent || 0), 0)}</p>
-        </div>
-      </div>
-
-      {/* Campaigns table */}
-      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-100 text-left text-xs uppercase tracking-wide text-gray-400">
-              <th className="px-4 py-3">Campaign</th>
-              <th className="px-4 py-3">Trigger</th>
-              <th className="px-4 py-3">Offer</th>
-              <th className="px-4 py-3">Channel</th>
-              <th className="px-4 py-3">Matched / Queued</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {campaigns.map((c) => {
-              const sm = STATUS_META[c.status] ?? STATUS_META.DRAFT;
-              const tpl = c.couponTemplate || {};
-              return (
-                <tr key={c.id} className="border-b border-gray-50 hover:bg-gray-50/60">
-                  <td className="px-4 py-3">
-                    <button onClick={() => openDetail(c)} className="block text-left">
-                      <p className="font-semibold text-gray-900 hover:text-primary-600">{c.name}</p>
-                      <p className="text-[11px] text-gray-400">{c.lastRunAt ? `Last run ${new Date(c.lastRunAt).toLocaleString("en-GB")}` : "Never run"}</p>
-                    </button>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700"><Zap size={11} /> {c.triggerType.replace(/_/g, " ")}</span>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-600">
-                    {tpl?.discountValue ? `${tpl.discountValue}${tpl.discountType === "PERCENTAGE" ? "%" : "৳"} off${tpl.minAmount ? ` ≥ ${tpl.minAmount}` : ""}${tpl.validDays ? ` · ${tpl.validDays}d` : ""}` : "No coupon"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1">
-                      {(c.channels || ["SMS"]).map((ch) => <span key={ch} className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500">{ch}</span>)}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <p className="text-sm font-semibold text-gray-800">{c.totalMatched}</p>
-                    <p className="text-[11px] text-gray-400">{c.totalSent} queued</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-semibold ${sm.chip}`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${sm.dot}`} />{sm.label}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1.5">
-                      {c.status === "DRAFT" && <button onClick={() => setStatus(c, "ACTIVE")} className="rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700 hover:bg-emerald-100">Activate</button>}
-                      {c.status === "ACTIVE" && <button onClick={() => setStatus(c, "PAUSED")} className="rounded-md bg-amber-50 px-2 py-1 text-[11px] font-medium text-amber-700 hover:bg-amber-100">Pause</button>}
-                      {c.status === "PAUSED" && <button onClick={() => setStatus(c, "ACTIVE")} className="rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700 hover:bg-emerald-100">Resume</button>}
-                      <button onClick={() => runCampaign(c)} disabled={running} className="flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-1 text-[11px] font-medium text-indigo-700 hover:bg-indigo-100"><Play size={11} /> Run now</button>
-                      <button onClick={() => openDetail(c)} className="rounded-md bg-gray-100 px-2 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-200"><Eye size={11} /> Audience</button>
-                      <button onClick={() => deleteCampaign(c)} className="rounded-md px-1.5 py-1 text-gray-400 hover:bg-rose-50 hover:text-rose-600"><Trash2 size={13} /></button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-            {campaigns.length === 0 && !loading && (
-              <tr><td colSpan={7} className="px-4 py-12 text-center">
-                <Megaphone size={26} className="mx-auto text-gray-300" />
-                <p className="mt-2 text-sm font-medium text-gray-500">No campaigns yet</p>
-                <p className="mt-1 text-xs text-gray-400">Create a trigger-based campaign to reward your customers automatically</p>
-              </td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Trigger catalog */}
-      <div>
-        <p className="mb-2 text-sm font-semibold text-gray-700">Trigger catalog</p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {triggers.map((t) => (
-            <button key={t.code} onClick={() => { changeTrigger(t.code); openCreate(); }}
-              className="rounded-xl border border-gray-100 bg-white p-3.5 text-left shadow-sm transition hover:border-primary-200 hover:shadow">
-              <p className="flex items-center justify-between text-xs font-bold text-gray-800">
-                <span className="flex items-center gap-1.5"><Zap size={12} className="text-indigo-500" /> {t.label}</span>
-                <ChevronRight size={13} className="text-gray-300" />
-              </p>
-              <p className="mt-1.5 line-clamp-2 text-[11px] text-gray-500">{t.description}</p>
+      {/* ── Tab Navigation Bar ── */}
+      <div className="flex border-b border-slate-200 bg-white px-3 pt-2 rounded-t-xl shadow-2xs overflow-x-auto gap-1">
+        {[
+          { key: "campaigns", label: "Automated Campaigns", icon: Megaphone, count: campaigns.length },
+          { key: "triggers", label: "Trigger Catalog & Recipes", icon: Zap, count: triggers.length },
+          { key: "grants", label: "Audience Delivery Ledger", icon: Ticket, count: grants.length },
+        ].map(({ key, label, icon: Icon, count }) => {
+          const active = activeTab === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key as any)}
+              className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+                active
+                  ? "border-teal-600 text-teal-700 bg-teal-50/40 rounded-t-lg"
+                  : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+              }`}
+            >
+              <Icon className={`w-4 h-4 ${active ? "text-teal-600" : "text-slate-400"}`} />
+              <span>{label}</span>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                  active ? "bg-teal-100 text-teal-800" : "bg-slate-100 text-slate-600"
+                }`}
+              >
+                {count}
+              </span>
             </button>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      {/* ── Create campaign modal ── */}
-      <CustomModal open={showCreate} onClose={() => setShowCreate(false)} title="New marketing campaign">
-        <div className="space-y-3">
-          <CustomInput label="Campaign name *" value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} />
-          <CustomSelect label="Trigger" value={form.triggerType} onChange={(e: any) => changeTrigger(e.target.value)}
-            options={triggers.map((t) => ({ value: t.code, label: t.label }))} />
-          <div className="grid grid-cols-2 gap-3">
-            <CustomSelect label="Channel" value={(form.channels || ["SMS"])[0]} onChange={(e: any) => setForm({ ...form, channels: [e.target.value] })}
-              options={[{ value: "SMS", label: "SMS" }, { value: "EMAIL", label: "Email" }, { value: "WHATSAPP", label: "WhatsApp" }, { value: "PUSH", label: "Push" }]} />
-            <CustomInput label="Offer valid (days)" type="number" value={form.validDays} onChange={(e: any) => setForm({ ...form, validDays: e.target.value })} />
+      {/* ── TAB CONTENT ── */}
+      <div className="rounded-b-xl border border-t-0 border-slate-200 bg-white p-5 shadow-2xs">
+        {activeTab === "campaigns" && (
+          /* ── CAMPAIGNS TABLE ── */
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div>
+                <h4 className="text-sm font-bold text-slate-800">Trigger-Based Campaigns</h4>
+                <p className="text-xs text-slate-500">
+                  Event-driven and schedule-evaluated rules that generate targeted coupons and queue notifications.
+                </p>
+              </div>
+              <CustomButton
+                variant="primary"
+                size="sm"
+                icon={<Plus className="w-4 h-4" />}
+                onClick={() => openCreateWithTrigger("INACTIVE_30D")}
+              >
+                Create Campaign
+              </CustomButton>
+            </div>
+
+            <CustomTable<Campaign>
+              columns={[
+                {
+                  key: "name",
+                  header: "Campaign Name & Last Run",
+                  render: (row) => (
+                    <div className="space-y-0.5">
+                      <button
+                        onClick={() => openAudienceDetail(row)}
+                        className="font-bold text-xs text-slate-900 hover:text-teal-700 text-left transition"
+                      >
+                        {row.name}
+                      </button>
+                      <p className="text-[10px] text-slate-400">
+                        {row.lastRunAt ? `Last run: ${dateTime(row.lastRunAt)}` : "Never run"}
+                      </p>
+                    </div>
+                  ),
+                },
+                {
+                  key: "triggerType",
+                  header: "Trigger Rule",
+                  render: (row) => {
+                    const TriggerIcon = TRIGGER_ICONS[row.triggerType] || Zap;
+                    return (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-teal-50 border border-teal-100 px-2 py-0.5 text-xs font-bold text-teal-700">
+                        <TriggerIcon className="w-3.5 h-3.5 text-teal-600" />
+                        {row.triggerType.replace(/_/g, " ")}
+                      </span>
+                    );
+                  },
+                },
+                {
+                  key: "couponTemplate",
+                  header: "Offer / Discount",
+                  render: (row) => {
+                    const tpl = row.couponTemplate || {};
+                    if (!tpl?.discountValue) {
+                      return <span className="text-xs text-slate-400 italic">Notification only</span>;
+                    }
+                    return (
+                      <div className="text-xs">
+                        <span className="font-bold font-mono text-teal-700">
+                          {tpl.discountValue}
+                          {tpl.discountType === "PERCENTAGE" ? "%" : " Tk"} OFF
+                        </span>
+                        {tpl.validDays && (
+                          <span className="text-[11px] text-slate-500 block">Valid: {tpl.validDays} days</span>
+                        )}
+                      </div>
+                    );
+                  },
+                },
+                {
+                  key: "channels",
+                  header: "Delivery Channels",
+                  render: (row) => (
+                    <div className="flex flex-wrap gap-1">
+                      {(row.channels || ["SMS"]).map((ch) => (
+                        <span
+                          key={ch}
+                          className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700 uppercase"
+                        >
+                          {ch}
+                        </span>
+                      ))}
+                    </div>
+                  ),
+                },
+                {
+                  key: "totalMatched",
+                  header: "Audience Matched",
+                  render: (row) => (
+                    <div className="text-xs">
+                      <span className="font-bold font-mono text-slate-800">{row.totalMatched || 0}</span>
+                      <span className="text-[10px] text-slate-400 block">{row.totalSent || 0} queued</span>
+                    </div>
+                  ),
+                },
+                {
+                  key: "status",
+                  header: "Status",
+                  render: (row) => {
+                    const sm = STATUS_META[row.status] ?? STATUS_META.DRAFT;
+                    return (
+                      <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${sm.badge}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${sm.dot}`} />
+                        {sm.label}
+                      </span>
+                    );
+                  },
+                },
+                {
+                  key: "actions",
+                  header: "Actions",
+                  render: (row) => (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => runCampaign(row)}
+                        disabled={running}
+                        className="inline-flex items-center gap-1 rounded-md bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700 hover:bg-teal-100 transition cursor-pointer"
+                      >
+                        <Play className="w-3 h-3" /> Run
+                      </button>
+
+                      <button
+                        onClick={() => toggleStatus(row)}
+                        className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                      >
+                        {row.status === "ACTIVE" ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 text-emerald-600" />}
+                      </button>
+
+                      <button
+                        onClick={() => openAudienceDetail(row)}
+                        className="inline-flex items-center rounded-md p-1 text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        onClick={() => setDeleteModalCampaign(row)}
+                        className="inline-flex items-center rounded-md p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ),
+                },
+              ]}
+              data={campaigns}
+              pageSize={10}
+              emptyMessage="No marketing campaigns configured yet."
+            />
           </div>
-          <div className="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
-            <p className="mb-2 text-xs font-semibold text-gray-500"><Ticket size={12} className="mr-1 inline" /> Coupon offer</p>
-            <div className="grid grid-cols-2 gap-3">
-              <CustomSelect label="Type" value={form.discountType} onChange={(e: any) => setForm({ ...form, discountType: e.target.value })}
-                options={[{ value: "PERCENTAGE", label: "% off" }, { value: "FIXED", label: "৳ off" }]} />
-              <CustomInput label={form.discountType === "PERCENTAGE" ? "Percent off" : "Amount off (৳)"} type="number" value={form.discountValue} onChange={(e: any) => setForm({ ...form, discountValue: e.target.value })} />
-              <CustomInput label="Min basket (৳, optional)" type="number" value={form.minAmount} onChange={(e: any) => setForm({ ...form, minAmount: e.target.value })} />
-              <CustomInput label="Max discount (৳, optional)" type="number" value={form.maxDiscount} onChange={(e: any) => setForm({ ...form, maxDiscount: e.target.value })} />
+        )}
+
+        {activeTab === "triggers" && (
+          /* ── TRIGGER CATALOG ── */
+          <div className="space-y-4">
+            <div className="border-b border-slate-100 pb-3">
+              <h4 className="text-sm font-bold text-slate-800">Trigger Recipe Catalog</h4>
+              <p className="text-xs text-slate-500">
+                Pre-configured lifecycle hooks that detect specific customer behaviors and trigger automatic rewards.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {triggers.map((t) => {
+                const Icon = TRIGGER_ICONS[t.code] || Zap;
+                const activeForTrigger = campaigns.filter((c) => c.triggerType === t.code && c.status === "ACTIVE").length;
+
+                return (
+                  <div
+                    key={t.code}
+                    className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs hover:shadow-md transition hover:-translate-y-0.5 space-y-3 flex flex-col justify-between"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600 border border-teal-100">
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+                          {activeForTrigger} Active
+                        </span>
+                      </div>
+
+                      <h5 className="font-bold text-sm text-slate-900">{t.label}</h5>
+                      <p className="text-xs text-slate-500 leading-relaxed">{t.description}</p>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100">
+                      <CustomButton
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-center"
+                        icon={<Sparkles className="w-3.5 h-3.5 text-teal-600" />}
+                        onClick={() => openCreateWithTrigger(t.code)}
+                      >
+                        Use This Trigger
+                      </CustomButton>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-          <div className="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
-            <p className="mb-2 text-xs font-semibold text-gray-500">Trigger conditions</p>
-            <div className="grid grid-cols-2 gap-3">
-              {form.triggerType === "INACTIVE_30D" && <CustomInput label="Inactive days" type="number" value={form.conditions?.daysInactive ?? 30} onChange={(e: any) => setForm({ ...form, conditions: { ...form.conditions, daysInactive: e.target.value } })} />}
-              {form.triggerType === "ABANDONED_CART" && <CustomInput label="Cart age (days)" type="number" value={form.conditions?.daysInactive ?? 1} onChange={(e: any) => setForm({ ...form, conditions: { ...form.conditions, daysInactive: e.target.value } })} />}
-              {form.triggerType === "EXPIRY_REMINDER" && <CustomInput label="Expiring within (days)" type="number" value={form.conditions?.daysInactive ?? 7} onChange={(e: any) => setForm({ ...form, conditions: { ...form.conditions, daysInactive: e.target.value } })} />}
-              {(form.triggerType === "FIRST_PURCHASE" || form.triggerType === "HIGH_VALUE") && <CustomInput label="Lookback (days)" type="number" value={form.conditions?.lookbackDays ?? 30} onChange={(e: any) => setForm({ ...form, conditions: { ...form.conditions, lookbackDays: e.target.value } })} />}
-              {form.triggerType === "HIGH_VALUE" && <CustomInput label="Min order (৳)" type="number" value={form.conditions?.minAmount ?? 10000} onChange={(e: any) => setForm({ ...form, conditions: { ...form.conditions, minAmount: e.target.value } })} />}
-              {form.triggerType === "LOYALTY_MILESTONE" && <CustomInput label="Milestone points" type="number" value={form.conditions?.milestonePoints ?? 500} onChange={(e: any) => setForm({ ...form, conditions: { ...form.conditions, milestonePoints: e.target.value } })} />}
+        )}
+
+        {activeTab === "grants" && (
+          /* ── GRANTED COUPONS & AUDIENCE LOG ── */
+          <div className="space-y-4">
+            <div className="border-b border-slate-100 pb-3">
+              <h4 className="text-sm font-bold text-slate-800">Coupon Grants & Delivery Ledger</h4>
+              <p className="text-xs text-slate-500">
+                Audit history of all unique discount coupons generated for evaluated customers across campaigns.
+              </p>
             </div>
-            <p className="mt-2 text-[11px] text-gray-400">Evaluation happens when you press “Run now” — delivery is queued PENDING for the notification engine.</p>
+
+            <CustomTable<Grant>
+              columns={[
+                {
+                  key: "customerName",
+                  header: "Target Customer",
+                  render: (row) => (
+                    <div className="space-y-0.5">
+                      <p className="font-bold text-xs text-slate-900">{row.customerName}</p>
+                      <p className="text-[10px] text-slate-500">
+                        {row.phone ? `📞 ${row.phone}` : ""} {row.email ? `✉️ ${row.email}` : ""}
+                      </p>
+                    </div>
+                  ),
+                },
+                {
+                  key: "couponCode",
+                  header: "Generated Coupon",
+                  render: (row) =>
+                    row.couponCode ? (
+                      <span className="font-mono text-xs font-bold text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded">
+                        {row.couponCode}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-slate-400">—</span>
+                    ),
+                },
+                {
+                  key: "channel",
+                  header: "Channel",
+                  render: (row) => (
+                    <span className="inline-flex rounded bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">
+                      {row.channel}
+                    </span>
+                  ),
+                },
+                {
+                  key: "reason",
+                  header: "Trigger Reason",
+                  render: (row) => <span className="text-xs text-slate-600">{row.reason || "Automated trigger"}</span>,
+                },
+                {
+                  key: "status",
+                  header: "Status",
+                  render: (row) => (
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                        row.status === "SENT" || row.status === "DELIVERED"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-blue-50 text-blue-700 border border-blue-200"
+                      }`}
+                    >
+                      {row.status === "SENT" ? <Check className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                      {row.status}
+                    </span>
+                  ),
+                },
+                {
+                  key: "createdAt",
+                  header: "Granted Date",
+                  render: (row) => <span className="text-xs text-slate-500">{dateTime(row.createdAt)}</span>,
+                },
+              ]}
+              data={grants}
+              pageSize={15}
+              emptyMessage="No customer grants recorded yet."
+            />
           </div>
-          <div className="flex justify-end gap-2">
-            <CustomButton variant="outline" onClick={() => setShowCreate(false)}>Cancel</CustomButton>
-            <CustomButton onClick={createCampaign} loading={running}><Plus size={15} /> Create campaign</CustomButton>
+        )}
+      </div>
+
+      {/* ─── MODAL: CREATE CAMPAIGN ─── */}
+      <CustomModal
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
+        title="Create Automated Marketing Campaign"
+        size="lg"
+      >
+        <form onSubmit={createCampaign} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Campaign Name *
+            </label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="e.g. Inactive Customer 30-Day Win-Back Offer"
+              className="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              autoFocus
+              required
+            />
           </div>
-        </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Trigger Event
+              </label>
+              <select
+                value={form.triggerType}
+                onChange={(e) => changeTrigger(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              >
+                {triggers.map((t) => (
+                  <option key={t.code} value={t.code}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Notification Channel
+              </label>
+              <select
+                value={(form.channels || ["SMS"])[0]}
+                onChange={(e) => setForm({ ...form, channels: [e.target.value] })}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              >
+                <option value="SMS">📱 SMS Notification</option>
+                <option value="EMAIL">✉️ Email Campaign</option>
+                <option value="WHATSAPP">💬 WhatsApp Message</option>
+                <option value="PUSH">🔔 App Push Notification</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Coupon Offer Engine Section */}
+          <div className="rounded-xl border border-teal-200 bg-teal-50/40 p-4 space-y-3">
+            <span className="flex items-center gap-1.5 text-xs font-bold text-teal-900 uppercase tracking-wider">
+              <Ticket className="w-4 h-4 text-teal-600" /> Automated Coupon Generation
+            </span>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Discount Type</label>
+                <select
+                  value={form.discountType}
+                  onChange={(e) => setForm({ ...form, discountType: e.target.value })}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800"
+                >
+                  <option value="PERCENTAGE">% Percentage</option>
+                  <option value="FIXED">Tk Fixed Amount</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Discount Value ({form.discountType === "PERCENTAGE" ? "%" : "Tk"})
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  step="any"
+                  value={form.discountValue}
+                  onChange={(e) => setForm({ ...form, discountValue: e.target.value })}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 font-mono"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Min Spend (Tk)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.minAmount}
+                  onChange={(e) => setForm({ ...form, minAmount: e.target.value })}
+                  placeholder="Optional"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Validity (Days)</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={form.validDays}
+                  onChange={(e) => setForm({ ...form, validDays: e.target.value })}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 font-mono"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Trigger Condition Parameters */}
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">Trigger Threshold Conditions</span>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {form.triggerType === "INACTIVE_30D" && (
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Inactive Period (Days)</label>
+                  <input
+                    type="number"
+                    value={form.conditions?.daysInactive ?? 30}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        conditions: { ...form.conditions, daysInactive: e.target.value },
+                      })
+                    }
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800"
+                  />
+                </div>
+              )}
+
+              {form.triggerType === "HIGH_VALUE" && (
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Minimum Order Total (Tk)</label>
+                  <input
+                    type="number"
+                    value={form.conditions?.minAmount ?? 10000}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        conditions: { ...form.conditions, minAmount: e.target.value },
+                      })
+                    }
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800"
+                  />
+                </div>
+              )}
+
+              {form.triggerType === "LOYALTY_MILESTONE" && (
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Milestone Points Threshold</label>
+                  <input
+                    type="number"
+                    value={form.conditions?.milestonePoints ?? 500}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        conditions: { ...form.conditions, milestonePoints: e.target.value },
+                      })
+                    }
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800"
+                  />
+                </div>
+              )}
+            </div>
+
+            <p className="text-[11px] text-slate-400">
+              When triggered, personalized single-use coupons are generated and queued for instant SMS/Email delivery.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+            <CustomButton variant="outline" size="sm" onClick={() => setShowCreate(false)} type="button">
+              Cancel
+            </CustomButton>
+            <CustomButton variant="primary" size="sm" icon={<Check className="w-4 h-4" />} type="submit" disabled={running}>
+              {running ? "Creating..." : "Create Campaign"}
+            </CustomButton>
+          </div>
+        </form>
       </CustomModal>
 
-      {/* ── Audience/detail modal ── */}
-      <CustomModal open={!!detail} onClose={() => setDetail(null)} title={`${detail?.name || ""} — audience`}>
+      {/* ─── MODAL: AUDIENCE DETAIL ─── */}
+      <CustomModal
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        title={detail ? `${detail.name} · Audience & Grants` : "Campaign Audience"}
+        size="lg"
+      >
         {detail && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-lg bg-indigo-50 p-2">
-                <p className="text-lg font-bold text-indigo-700">{detail.totalMatched}</p>
-                <p className="text-[10px] text-indigo-400">Matched</p>
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="rounded-lg bg-teal-50 border border-teal-100 p-3">
+                <span className="text-[10px] font-bold uppercase text-teal-600">Matched Customers</span>
+                <p className="text-xl font-bold font-mono text-teal-900 mt-0.5">{detail.totalMatched || 0}</p>
               </div>
-              <div className="rounded-lg bg-amber-50 p-2">
-                <p className="text-lg font-bold text-amber-700">{detail.totalSent}</p>
-                <p className="text-[10px] text-amber-400">Queued</p>
+
+              <div className="rounded-lg bg-blue-50 border border-blue-100 p-3">
+                <span className="text-[10px] font-bold uppercase text-blue-600">Messages Queued</span>
+                <p className="text-xl font-bold font-mono text-blue-900 mt-0.5">{detail.totalSent || 0}</p>
               </div>
-              <div className="rounded-lg bg-emerald-50 p-2">
-                <p className="text-lg font-bold text-emerald-700">{(detail.grants || []).length}</p>
-                <p className="text-[10px] text-emerald-400">Grants</p>
+
+              <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-3">
+                <span className="text-[10px] font-bold uppercase text-emerald-600">Coupons Granted</span>
+                <p className="text-xl font-bold font-mono text-emerald-900 mt-0.5">{(detail.grants || []).length}</p>
               </div>
             </div>
-            <div className="max-h-[45vh] space-y-2 overflow-y-auto">
-              {(detail.grants || []).map((g: any) => (
-                <div key={g.id} className="flex items-center justify-between rounded-lg border border-gray-100 px-3 py-2 text-sm">
-                  <div className="min-w-0">
-                    <p className="font-medium text-gray-800">{g.customerName} <span className="text-[10px] text-gray-400">{g.channel}</span></p>
-                    <p className="truncate text-[11px] text-gray-400">{g.reason} · {g.phone || g.email || ""}</p>
+
+            <div className="space-y-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">Audience Recipients</span>
+              <div className="max-h-60 overflow-y-auto divide-y divide-slate-100 rounded-lg border border-slate-200">
+                {(detail.grants || []).map((g: any) => (
+                  <div key={g.id} className="flex items-center justify-between p-3 text-xs hover:bg-slate-50">
+                    <div>
+                      <p className="font-bold text-slate-900">
+                        {g.customerName} <span className="text-[10px] text-slate-400">({g.channel})</span>
+                      </p>
+                      <p className="text-[11px] text-slate-500">{g.phone || g.email || "No contact info"}</p>
+                    </div>
+                    <div className="text-right">
+                      {g.couponCode && (
+                        <span className="font-mono text-[11px] font-bold bg-teal-50 text-teal-700 px-2 py-0.5 rounded border border-teal-200">
+                          {g.couponCode}
+                        </span>
+                      )}
+                      <p className="text-[10px] text-slate-400 mt-0.5">{g.status}</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    {g.couponCode ? <span className="rounded bg-violet-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-violet-700">{g.couponCode}</span> : <span className="text-[10px] text-gray-300">—</span>}
-                    <p className="mt-0.5 text-[10px] text-gray-400">{g.status}</p>
+                ))}
+                {(detail.grants || []).length === 0 && (
+                  <div className="p-8 text-center text-xs text-slate-400">
+                    No recipients recorded yet. Press &ldquo;Run Now&rdquo; to evaluate the campaign trigger.
                   </div>
-                </div>
-              ))}
-              {(detail.grants || []).length === 0 && <p className="py-8 text-center text-sm text-gray-400">No grants yet — press “Run now” on the campaign.</p>}
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-3 border-t border-slate-100">
+              <CustomButton variant="outline" size="sm" onClick={() => setDetailOpen(false)}>
+                Close
+              </CustomButton>
             </div>
           </div>
         )}
       </CustomModal>
+
+      {/* ─── MODAL: DELETE CONFIRMATION ─── */}
+      <ConfirmModal
+        open={deleteModalCampaign !== null}
+        onClose={() => setDeleteModalCampaign(null)}
+        onConfirm={deleteCampaign}
+        title="Delete Marketing Campaign"
+        message={`Are you sure you want to delete campaign "${deleteModalCampaign?.name}"? All associated trigger rules and grant history will be removed.`}
+        confirmText="Delete Campaign"
+        variant="danger"
+      />
     </div>
   );
 }

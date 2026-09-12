@@ -615,11 +615,15 @@ async def list_sales_orders(
             WHERE {b2b_where}
             ORDER BY so.createdAt DESC LIMIT :lim OFFSET :off
         """), {**params, "lim": lim, "off": off})).fetchall())
-    elif src_norm in ("POS", "RETAIL"):
+    elif src_norm in ("POS", "RETAIL", "RESTAURANT"):
+        if src_norm == "RESTAURANT":
+            pos_where += " AND s.source = 'RESTAURANT'"
+        else:
+            pos_where += " AND (s.source IS NULL OR s.source = 'POS')"
         total = (await db.execute(text(f"SELECT COUNT(*) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_where}"), params)).scalar() or 0
         total_vol = (await db.execute(text(f"SELECT COALESCE(SUM(s.total), 0) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_where}"), params)).scalar() or 0
         rows = rows_to_dicts((await db.execute(text(f"""
-            SELECT s.id, s.invoiceNo AS orderNo, 'POS' AS source, s.status, s.subtotal, s.total,
+            SELECT s.id, s.invoiceNo AS orderNo, COALESCE(s.source, 'POS') AS source, s.status, s.subtotal, s.total,
                    s.discountTotal, s.taxTotal,
                    s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                    s.paymentStatus, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
@@ -657,7 +661,7 @@ async def list_sales_orders(
 
                 UNION ALL
 
-                SELECT s.id, s.invoiceNo AS orderNo, 'POS' AS source, s.status, s.subtotal, s.total,
+                SELECT s.id, s.invoiceNo AS orderNo, COALESCE(s.source, 'POS') AS source, s.status, s.subtotal, s.total,
                        s.discountTotal, s.taxTotal,
                        s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
@@ -673,19 +677,18 @@ async def list_sales_orders(
         """), {**params, "lim": lim, "off": off})).fetchall())
 
     for r in rows:
-        r["total"] = float(r.get("total", 0) or 0)
-        is_pos = (r.get("source") == "POS")
+        r["total"] = round(float(r.get("total", 0) or 0), 2)
+        r["paidTotal"] = round(float(r.get("paidTotal", 0) or 0), 2)
+        r["dueTotal"] = round(float(r.get("dueTotal", 0) or 0), 2)
+        r["changeReturn"] = max(r["paidTotal"] - r["total"], 0.0)
+        r["customer"] = {
+            "id": r.get("customerId"),
+            "name": r.pop("customerName", None) or "",
+            "phone": r.pop("customerPhone", None),
+            "email": r.pop("customerEmail", None),
+        }
+        is_pos = r.get("source") == "POS"
         if is_pos:
-            r["paidTotal"] = max(float(r.get("paidTotal", 0) or 0), r["total"])
-            r["dueTotal"] = 0.0
-            r["paymentStatus"] = "PAID"
-            r["changeReturn"] = max(r["paidTotal"] - r["total"], 0.0)
-            r["customer"] = {
-                "id": r.get("customerId"),
-                "name": r.pop("customerName", None) or "Walk-in Retail Customer",
-                "phone": r.pop("customerPhone", None),
-                "email": r.pop("customerEmail", None),
-            }
             items = rows_to_dicts((await db.execute(text("""
                 SELECT si.id, si.productId, si.name, p.sku, si.qty AS qtyOrdered, si.qty AS qtyDelivered,
                        0 AS qtyReserved, 0 AS qtyBackordered, si.unitPrice, si.lineTotal
@@ -702,14 +705,7 @@ async def list_sales_orders(
                 it["lineTotal"] = float(it.get("lineTotal", 0) or 0)
             r["items"] = items
         else:
-            r["paidTotal"] = float(r.get("paidTotal", 0) or 0)
-            r["dueTotal"] = float(r.get("dueTotal", 0) or r["total"])
-            r["customer"] = {
-                "id": r.get("customerId"),
-                "name": r.pop("customerName", None) or "Corporate Client",
-                "phone": r.pop("customerPhone", None),
-                "email": r.pop("customerEmail", None),
-            }
+            r["customer"]["name"] = r["customer"]["name"] or "Corporate Client"
             items = rows_to_dicts((await db.execute(text("""
                 SELECT soi.id, soi.productId, p.name, p.sku, soi.qtyOrdered, 0 AS qtyDelivered,
                        0 AS qtyReserved, 0 AS qtyBackordered, soi.unitPrice, soi.lineTotal
@@ -1696,6 +1692,50 @@ async def create_promotion(body: dict, user: AuthUser = Depends(require_auth),
     return ok({"created": True}, 201)
 
 
+@router.get("/api/v1/promotions/{id}")
+async def get_promotion(id: str, user: AuthUser = Depends(require_auth),
+                        tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    row = (await db.execute(text("SELECT * FROM promotions WHERE id = :id AND tenantId = :t"),
+                            {"id": id, "t": tenantId})).first()
+    if not row: return err("Promotion not found", 404)
+    return ok(dict(row._mapping))
+
+
+@router.put("/api/v1/promotions/{id}")
+async def update_promotion(id: str, body: dict, user: AuthUser = Depends(require_auth),
+                           tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    exists = (await db.execute(text("SELECT id FROM promotions WHERE id = :id AND tenantId = :t"),
+                               {"id": id, "t": tenantId})).first()
+    if not exists: return err("Promotion not found", 404)
+
+    allowed = ["name", "description", "type", "value", "min_qty", "minAmount", "maxDiscount",
+               "validFrom", "validTo", "priority", "isActive"]
+    sets, params = [], {"id": id, "t": tenantId}
+    for k in allowed:
+        if k in body:
+            sets.append(f"{k} = :{k}")
+            params[k] = body[k]
+        elif k == "min_qty" and "minQty" in body:
+            sets.append("min_qty = :min_qty")
+            params["min_qty"] = body["minQty"]
+
+    if not sets: return err("No fields to update", 400)
+    sets.append("updatedAt = NOW()")
+    await db.execute(text(f"UPDATE promotions SET {', '.join(sets)} WHERE id = :id AND tenantId = :t"), params)
+    await db.commit()
+    return ok({"updated": True})
+
+
+@router.delete("/api/v1/promotions/{id}")
+async def delete_promotion(id: str, user: AuthUser = Depends(require_auth),
+                           tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    res = await db.execute(text("DELETE FROM promotions WHERE id = :id AND tenantId = :t"),
+                           {"id": id, "t": tenantId})
+    await db.commit()
+    if res.rowcount == 0: return err("Promotion not found", 404)
+    return ok({"deleted": True})
+
+
 @router.get("/api/v1/coupons")
 async def list_coupons(
     search: str = "", page: int = Query(1), limit: int = Query(20),
@@ -1732,6 +1772,105 @@ async def create_coupon(body: dict, user: AuthUser = Depends(require_auth),
          "ul": body.get("usageLimit"), "vf": body.get("validFrom"), "vt": body.get("validTo"), "u": user.id})
     await db.commit()
     return ok({"created": True}, 201)
+
+
+@router.get("/api/v1/coupons/{id}")
+async def get_coupon(id: str, user: AuthUser = Depends(require_auth),
+                     tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    row = (await db.execute(text("SELECT * FROM coupons WHERE id = :id AND tenantId = :t"),
+                            {"id": id, "t": tenantId})).first()
+    if not row: return err("Coupon not found", 404)
+    return ok(dict(row._mapping))
+
+
+@router.put("/api/v1/coupons/{id}")
+async def update_coupon(id: str, body: dict, user: AuthUser = Depends(require_auth),
+                        tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    exists = (await db.execute(text("SELECT id FROM coupons WHERE id = :id AND tenantId = :t"),
+                               {"id": id, "t": tenantId})).first()
+    if not exists: return err("Coupon not found", 404)
+
+    allowed = ["code", "description", "discountType", "discountValue", "minAmount", "maxDiscount",
+               "usageLimit", "validFrom", "validTo", "isActive"]
+    sets, params = [], {"id": id, "t": tenantId}
+    for k in allowed:
+        if k in body:
+            sets.append(f"{k} = :{k}")
+            params[k] = body[k]
+
+    if not sets: return err("No fields to update", 400)
+    sets.append("updatedAt = NOW()")
+    await db.execute(text(f"UPDATE coupons SET {', '.join(sets)} WHERE id = :id AND tenantId = :t"), params)
+    await db.commit()
+    return ok({"updated": True})
+
+
+@router.delete("/api/v1/coupons/{id}")
+async def delete_coupon(id: str, user: AuthUser = Depends(require_auth),
+                        tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    res = await db.execute(text("DELETE FROM coupons WHERE id = :id AND tenantId = :t"),
+                           {"id": id, "t": tenantId})
+    await db.commit()
+    if res.rowcount == 0: return err("Coupon not found", 404)
+    return ok({"deleted": True})
+
+
+@router.post("/api/v1/coupons/validate")
+async def validate_coupon(body: dict, user: AuthUser = Depends(require_auth),
+                          tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    code = (body.get("code") or "").strip().upper()
+    subtotal = float(body.get("subtotal", 0) or 0)
+    if not code: return err("Coupon code is required", 400)
+
+    row = (await db.execute(text(
+        "SELECT * FROM coupons WHERE tenantId = :t AND UPPER(code) = :c"
+    ), {"t": tenantId, "c": code})).first()
+
+    if not row:
+        return err(f"Coupon code '{code}' does not exist", 404)
+
+    c = dict(row._mapping)
+    if not c.get("isActive"):
+        return err("This coupon is currently inactive", 400)
+
+    from datetime import date
+    today = date.today()
+    if c.get("validFrom") and c["validFrom"] > today:
+        return err(f"Coupon is not valid until {c['validFrom']}", 400)
+    if c.get("validTo") and c["validTo"] < today:
+        return err(f"Coupon expired on {c['validTo']}", 400)
+
+    usage_limit = c.get("usageLimit")
+    usage_count = c.get("usageCount") or 0
+    if usage_limit is not None and usage_count >= usage_limit:
+        return err("Coupon usage limit has been reached", 400)
+
+    min_amt = float(c.get("minAmount") or 0)
+    if subtotal > 0 and subtotal < min_amt:
+        return err(f"Minimum order amount of ৳{min_amt:,.2f} required for this coupon", 400)
+
+    # Calculate discount
+    disc_type = c.get("discountType") or "PERCENTAGE"
+    disc_val = float(c.get("discountValue") or 0)
+    max_disc = float(c.get("maxDiscount") or 0)
+
+    if disc_type == "PERCENTAGE":
+        discount = (subtotal * disc_val) / 100.0 if subtotal > 0 else 0
+        if max_disc > 0 and discount > max_disc:
+            discount = max_disc
+    else:
+        discount = disc_val
+        if subtotal > 0 and discount > subtotal:
+            discount = subtotal
+
+    return ok({
+        "valid": True,
+        "coupon": c,
+        "discount": round(discount, 2),
+        "discountType": disc_type,
+        "discountValue": disc_val,
+        "message": f"Coupon '{code}' applied successfully!",
+    })
 
 
 # ═════════════════════════ INVENTORY QUERIES (§10.16) ═════════════════════════

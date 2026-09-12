@@ -124,6 +124,39 @@ async def pay_expense(expenseId: str, user: AuthUser = Depends(require_auth),
     return ok({"paid": True})
 
 
+@router.put("/api/v1/expenses/{expenseId}")
+async def update_expense(expenseId: str, body: dict, user: AuthUser = Depends(require_auth),
+                         tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    e = (await db.execute(text("SELECT id, status FROM expenses WHERE id=:id AND tenantId=:t"),
+                          {"id": expenseId, "t": tenantId})).first()
+    if not e: return err("Expense not found", 404)
+    if e[1] == "PAID": return err("Paid expenses cannot be modified", 400)
+    title = body.get("title")
+    amount = float(body.get("amount", 0) or 0)
+    if not title or amount <= 0: return err("Title and positive amount are required", 400)
+    await db.execute(text(
+        "UPDATE expenses SET title=:ti, amount=:a, categoryId=:c, paymentMethod=:m, "
+        "description=:d, expenseDate=COALESCE(:dt, expenseDate), branchId=COALESCE(:b, branchId), "
+        "updatedBy=:u, updatedAt=NOW() WHERE id=:id AND tenantId=:t"),
+        {"id": expenseId, "t": tenantId, "ti": title, "a": amount, "c": body.get("categoryId"),
+         "m": body.get("paymentMethod", "CASH"), "d": body.get("description"), "dt": body.get("expenseDate"),
+         "b": body.get("branchId"), "u": user.id})
+    await db.commit()
+    return ok({"updated": True, "id": expenseId})
+
+
+@router.delete("/api/v1/expenses/{expenseId}")
+async def delete_expense(expenseId: str, user: AuthUser = Depends(require_auth),
+                         tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    e = (await db.execute(text("SELECT id, status FROM expenses WHERE id=:id AND tenantId=:t"),
+                          {"id": expenseId, "t": tenantId})).first()
+    if not e: return err("Expense not found", 404)
+    if e[1] == "PAID": return err("Paid expenses cannot be deleted", 400)
+    await db.execute(text("DELETE FROM expenses WHERE id=:id AND tenantId=:t"), {"id": expenseId, "t": tenantId})
+    await db.commit()
+    return ok({"deleted": True})
+
+
 @router.get("/api/v1/expenses/categories")
 async def expense_categories(user: AuthUser = Depends(require_auth),
                               tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
@@ -147,6 +180,31 @@ async def create_expense_category(body: dict, user: AuthUser = Depends(require_a
         {"t": tenantId, "n": name, "g": body.get("group", "OPERATING"), "d": body.get("description"), "u": user.id},)
     await db.commit()
     return ok({"created": True}, 201)
+
+
+@router.put("/api/v1/expenses/categories/{categoryId}")
+async def update_expense_category(categoryId: str, body: dict, user: AuthUser = Depends(require_auth),
+                                  tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    name = body.get("name")
+    if not name: return err("Name is required", 400)
+    await db.execute(text(
+        "UPDATE expense_categories SET name=:n, `group`=:g, description=:d, updatedAt=NOW() "
+        "WHERE id=:id AND tenantId=:t"),
+        {"id": categoryId, "t": tenantId, "n": name, "g": body.get("group", "OPERATING"), "d": body.get("description")})
+    await db.commit()
+    return ok({"updated": True})
+
+
+@router.delete("/api/v1/expenses/categories/{categoryId}")
+async def delete_expense_category(categoryId: str, user: AuthUser = Depends(require_auth),
+                                  tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    in_use = (await db.execute(text("SELECT COUNT(*) FROM expenses WHERE categoryId=:id AND tenantId=:t"),
+                               {"id": categoryId, "t": tenantId})).scalar() or 0
+    if in_use > 0: return err(f"Cannot delete category: {in_use} expense records are linked to it", 400)
+    await db.execute(text("DELETE FROM expense_categories WHERE id=:id AND tenantId=:t"),
+                     {"id": categoryId, "t": tenantId})
+    await db.commit()
+    return ok({"deleted": True})
 
 
 @router.get("/api/v1/expenses/recurring")
@@ -174,6 +232,42 @@ async def create_recurring(body: dict, user: AuthUser = Depends(require_auth),
          "f": body.get("frequency", "MONTHLY"), "nr": body.get("nextRunDate"), "ed": body.get("endDate"), "u": user.id})
     await db.commit()
     return ok({"created": True}, 201)
+
+
+@router.put("/api/v1/expenses/recurring/{recurringId}")
+async def update_recurring(recurringId: str, body: dict, user: AuthUser = Depends(require_auth),
+                           tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    name, amount = body.get("name"), float(body.get("amount", 0) or 0)
+    if not name or amount <= 0: return err("Name and positive amount are required", 400)
+    await db.execute(text(
+        "UPDATE recurring_expenses SET name=:n, amount=:a, categoryId=:c, branchId=:b, "
+        "frequency=:f, nextRunDate=COALESCE(:nr, nextRunDate), endDate=:ed, updatedAt=NOW() "
+        "WHERE id=:id AND tenantId=:t"),
+        {"id": recurringId, "t": tenantId, "n": name, "a": amount, "c": body.get("categoryId"),
+         "b": body.get("branchId"), "f": body.get("frequency", "MONTHLY"), "nr": body.get("nextRunDate"),
+         "ed": body.get("endDate")})
+    await db.commit()
+    return ok({"updated": True})
+
+
+@router.delete("/api/v1/expenses/recurring/{recurringId}")
+async def delete_recurring(recurringId: str, user: AuthUser = Depends(require_auth),
+                           tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    await db.execute(text("DELETE FROM recurring_expenses WHERE id=:id AND tenantId=:t"),
+                     {"id": recurringId, "t": tenantId})
+    await db.commit()
+    return ok({"deleted": True})
+
+
+@router.post("/api/v1/expenses/recurring/{recurringId}/toggle")
+async def toggle_recurring(recurringId: str, body: dict, user: AuthUser = Depends(require_auth),
+                           tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    is_active = body.get("isActive", True)
+    await db.execute(text(
+        "UPDATE recurring_expenses SET isActive=:a, updatedAt=NOW() WHERE id=:id AND tenantId=:t"),
+        {"id": recurringId, "t": tenantId, "a": 1 if is_active else 0})
+    await db.commit()
+    return ok({"toggled": True, "isActive": is_active})
 
 
 @router.post("/api/v1/expenses/recurring/run")

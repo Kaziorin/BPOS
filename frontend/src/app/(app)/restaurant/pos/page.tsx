@@ -279,6 +279,8 @@ export default function RestaurantPOSPage() {
   });
   const [waiterName, setWaiterName] = useState("Staff 1");
   const [orderType, setOrderType] = useState<"DINE_IN" | "TAKEAWAY" | "DELIVERY">("DINE_IN");
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
 
   const [products, setProducts] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<CategorySidebarItem[]>(DEFAULT_CATEGORIES);
@@ -959,14 +961,15 @@ export default function RestaurantPOSPage() {
   const rawSubtotal = cart.reduce((acc, i) => acc + i.qty * i.unitPrice, 0);
   const discountAmount = (rawSubtotal * discountPercent) / 100;
   const subTotal = Math.max(0, rawSubtotal - discountAmount);
-  const taxAmount = subTotal * 0.08;
-  const serviceCharge = subTotal * 0.04;
-  const grandTotal = subTotal + taxAmount + serviceCharge;
+  const estimateTax = subTotal * 0.15;
+  const estimateService = subTotal * 0.04;
+  const estimateGrandTotal = subTotal + estimateTax + estimateService;
 
   const handlePlaceOrder = async () => {
     if (cart.length === 0) return;
     try {
       // Build payload for the backend POS confirm endpoint
+      // Let the backend calculate tax and totals (server-side tax rules)
       const payload = {
         items: cart.map((i) => ({
           productId: i.productId,
@@ -977,12 +980,12 @@ export default function RestaurantPOSPage() {
           discountAmount: 0,
           lineTotal: i.qty * i.unitPrice,
         })),
-        payments: [{ method: "CASH", amount: grandTotal }],
-        subTotal: subTotal,
-        grandTotal: grandTotal,
+        payments: [{ method: "CASH", amount: estimateGrandTotal }],
         discountTotal: discountAmount,
-        taxTotal: taxAmount,
-        serviceCharge: serviceCharge,
+        serviceCharge: estimateService,
+        source: "RESTAURANT",
+        customerName: customerName || undefined,
+        customerPhone: customerPhone || undefined,
         note: `Restaurant | Table: ${selectedTable?.tableNo || "N/A"} | ${orderType} | Waiter: ${waiterName}`,
       };
 
@@ -997,19 +1000,23 @@ export default function RestaurantPOSPage() {
         guestCount,
         waiterName,
         orderType,
+        customerName: customerName || "",
+        customerPhone: customerPhone || "",
         items: cart,
         rawSubtotal,
         discountAmount,
-        subTotal,
-        taxAmount,
-        serviceCharge,
-        grandTotal,
+        subTotal: saleResult.subtotal || subTotal,
+        taxAmount: saleResult.taxTotal || 0,
+        serviceCharge: saleResult.serviceCharge || 0,
+        grandTotal: saleResult.total || subTotal,
         date: new Date().toISOString(),
       };
 
       setCompletedBill(billData);
       setCart([]);
       setDiscountPercent(0);
+      setCustomerName("");
+      setCustomerPhone("");
       toast.success(`Order #${invNo} placed & synced to system!`);
 
       // ── Booking flow: the table becomes free again once the bill is paid ──
@@ -1235,6 +1242,29 @@ export default function RestaurantPOSPage() {
               <option value="Staff 2">Staff 2</option>
               <option value="Manager">Manager</option>
             </select>
+          </div>
+
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
+            <Users size={15} className="text-gray-500" />
+            <span className="text-xs font-medium text-gray-500">Name:</span>
+            <input
+              type="text"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              placeholder="Optional"
+              className="bg-transparent text-xs font-bold text-gray-600 focus:outline-none w-24 placeholder:text-gray-300"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
+            <span className="text-xs font-medium text-gray-500">Phone:</span>
+            <input
+              type="tel"
+              value={customerPhone}
+              onChange={(e) => setCustomerPhone(e.target.value)}
+              placeholder="Optional"
+              className="bg-transparent text-xs font-bold text-gray-600 focus:outline-none w-24 placeholder:text-gray-300"
+            />
           </div>
 
           {/* ── MEAL SHIFT BADGE / DIALOG TRIGGER (ALWAYS DISPLAYED NEXT TO WAITER) ── */}
@@ -1867,13 +1897,13 @@ export default function RestaurantPOSPage() {
               )}
 
               <div className="flex justify-between text-gray-500">
-                <span>Tax (8%)</span>
-                <span className="font-medium">{fmt(taxAmount)}</span>
+                <span>Tax</span>
+                <span className="font-medium">{fmt(estimateTax)}</span>
               </div>
 
               <div className="flex justify-between text-gray-500">
-                <span>Service Charge (4%)</span>
-                <span className="font-medium">{fmt(serviceCharge)}</span>
+                <span>Service Charge</span>
+                <span className="font-medium">{fmt(estimateService)}</span>
               </div>
 
               <div className="flex justify-between items-baseline pt-2 mt-1 border-t border-dashed border-slate-300">
@@ -1881,7 +1911,7 @@ export default function RestaurantPOSPage() {
                   Total Payable
                 </span>
                 <span className="text-2xl font-black text-orange-600 tabular-nums tracking-tight">
-                  {fmt(grandTotal)}
+                  {fmt(estimateGrandTotal)}
                 </span>
               </div>
             </div>
@@ -1904,7 +1934,7 @@ export default function RestaurantPOSPage() {
                   <ShoppingBag size={15} /> Place Order
                 </span>
                 <div className="flex items-center gap-1.5 bg-white/20 rounded-md px-2 py-0.5">
-                  <span className="tabular-nums font-black">{fmt(grandTotal)}</span>
+                  <span className="tabular-nums font-black">{fmt(estimateGrandTotal)}</span>
                   <ChevronLeft size={14} className="rotate-180" />
                 </div>
               </button>
@@ -2005,7 +2035,7 @@ export default function RestaurantPOSPage() {
         open={!!completedBill}
         onClose={() => setCompletedBill(null)}
         title=""
-        size="sm"
+        size="md"
       >
         {/* ── Custom Orange Header ── */}
         <div className="bg-gradient-to-r from-orange-500 to-amber-500 -mx-6 -mt-5 mb-5 px-6 py-4 flex items-center gap-2.5 rounded-t-md">
@@ -2035,6 +2065,18 @@ export default function RestaurantPOSPage() {
               <span className="text-slate-500">Waiter</span>
               <span className="font-semibold text-slate-700">{completedBill?.waiterName || "N/A"}</span>
             </div>
+            {completedBill?.customerName && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">Customer</span>
+                <span className="font-semibold text-slate-700">{completedBill.customerName}</span>
+              </div>
+            )}
+            {completedBill?.customerPhone && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">Phone</span>
+                <span className="font-semibold text-slate-700">{completedBill.customerPhone}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-slate-500">Date</span>
               <span className="font-semibold text-slate-700">
@@ -2093,9 +2135,15 @@ export default function RestaurantPOSPage() {
               <span>{fmt(completedBill?.subTotal || 0)}</span>
             </div>
             <div className="flex justify-between text-slate-500">
-              <span>Tax (8%)</span>
+              <span>Tax</span>
               <span>{fmt(completedBill?.taxAmount || 0)}</span>
             </div>
+            {(completedBill?.serviceCharge ?? 0) > 0 && (
+              <div className="flex justify-between text-slate-500">
+                <span>Service Charge</span>
+                <span>{fmt(completedBill?.serviceCharge || 0)}</span>
+              </div>
+            )}
             <div className="flex justify-between font-bold text-base text-orange-600 pt-2 border-t border-orange-200">
               <span>Total Payable</span>
               <span>{fmt(completedBill?.grandTotal || 0)}</span>
@@ -2616,7 +2664,7 @@ export default function RestaurantPOSPage() {
 
             <CustomButton
               themeColor="orange"
-              size="md"
+        size="lg"
               onClick={() => setShowShiftDetailsModal(false)}
             >
               Done

@@ -151,15 +151,34 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     delivery = float(body.get("deliveryFee", 0) or 0)
     tips = float(body.get("tips", 0) or 0)
     roundOff = float(body.get("roundOff", 0) or 0)
-    total = max(subtotal - discountTotal + taxTotal + service + delivery + tips + roundOff, 0)
-    paid = sum(float(p.get("amount", 0)) for p in payments)
+    total = round(max(subtotal - discountTotal + taxTotal + service + delivery + tips + roundOff, 0), 2)
+    paid = round(sum(float(p.get("amount", 0)) for p in payments), 2)
     credit_amt = sum(float(p.get("amount", 0)) for p in payments if p.get("method") == "CREDIT")
-    if credit_amt == 0:
-        paid = max(paid, total)
-    due = max(total - paid, 0)
+    due = max(round(total - paid, 2), 0)
 
     # credit limit check for CREDIT payments (§10.13)
     customerId = body.get("customerId")
+    # Auto-create or find customer from name/phone if no customerId provided
+    cust_name = body.get("customerName") or ""
+    cust_phone = body.get("customerPhone") or ""
+    if not customerId and (cust_name or cust_phone):
+        existing = None
+        if cust_phone:
+            existing = (await db.execute(text(
+                "SELECT id FROM customers WHERE phone=:p AND tenantId=:t LIMIT 1"),
+                {"p": cust_phone, "t": tenant})).first()
+        if existing:
+            customerId = existing[0]
+            if cust_name:
+                await db.execute(text("UPDATE customers SET name=:n WHERE id=:id AND tenantId=:t"),
+                    {"n": cust_name, "id": customerId, "t": tenant})
+        else:
+            customerId = _uuid_str()
+            await db.execute(text(
+                "INSERT INTO customers (id, tenantId, name, phone, status, createdBy, updatedAt) "
+                "VALUES (:id, :t, :n, :p, 'ACTIVE', :u, NOW())"),
+                {"id": customerId, "t": tenant, "n": cust_name or "Walk-in", "p": cust_phone or None, "u": user.id})
+        await db.commit()
     credit_amt = sum(float(p["amount"]) for p in payments if p.get("method") == "CREDIT")
     if credit_amt > 0 and customerId:
         c = (await db.execute(text(
@@ -178,13 +197,13 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     async with txn(db):
         await db.execute(text(
             "INSERT INTO sales (id, tenantId, branchId, terminalId, userId, customerId, invoiceNo, subtotal, "
-            "discountTotal, taxTotal, serviceCharge, roundOff, total, paidTotal, dueTotal, paymentStatus, status, shiftId, note, createdBy) "
-            "VALUES (:id, :t, :b, :term, :u, :cust, :inv, :sub, :disc, :tax, :svc, :ro, :total, :paid, :due, :ps, 'CONFIRMED', :shift, :note, :u)"),
+            "discountTotal, taxTotal, serviceCharge, roundOff, total, paidTotal, dueTotal, paymentStatus, status, shiftId, note, source, createdBy) "
+            "VALUES (:id, :t, :b, :term, :u, :cust, :inv, :sub, :disc, :tax, :svc, :ro, :total, :paid, :due, :ps, 'CONFIRMED', :shift, :note, :source, :u)"),
             {"id": saleId, "t": tenant, "b": branchId, "term": body.get("terminalId"), "u": user.id,
              "cust": customerId, "inv": invoiceNo, "sub": subtotal, "disc": discountTotal, "tax": taxTotal,
              "svc": service or None, "ro": roundOff or None, "total": total, "paid": paid, "due": due,
              "ps": "PAID" if due <= 0 else ("PARTIAL" if paid > 0 else "UNPAID"),
-             "shift": shiftId, "note": body.get("note"), })
+             "shift": shiftId, "note": body.get("note"), "source": body.get("source", "POS"), })
         for it in items:
             line = float(it.get("qty", 0)) * float(it.get("unitPrice", 0)) - float(it.get("discountAmount", 0) or 0)
             await db.execute(text(
@@ -394,7 +413,9 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
             pass  # receipts never break a confirmed sale
     cache_mod.invalidate_namespace("products", tenant)
     return ok({"saleId": saleId, "invoiceNo": invoiceNo, "invoiceId": invoiceId,
-               "total": total, "paidTotal": paid, "dueTotal": due, "paymentIds": payment_ids,
+               "total": total, "subtotal": subtotal, "taxTotal": taxTotal,
+               "serviceCharge": service, "discountTotal": discountTotal,
+               "paidTotal": paid, "dueTotal": due, "paymentIds": payment_ids,
                **override_extra})
 
 
