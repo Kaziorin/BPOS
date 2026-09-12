@@ -23,52 +23,266 @@ def _uuid():
 
 # ═════════════════════════ CREDIT (§10.13) ═════════════════════════
 
+@router.get("/api/v1/credit/stats")
+async def get_credit_stats(
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    """Executive KPI stats for credit management & receivables risk."""
+    row = (await db.execute(text("""
+        SELECT 
+            COUNT(*) AS totalCustomers,
+            COALESCE(SUM(creditLimit), 0) AS totalCreditLimit,
+            COALESCE(SUM(currentDue), 0) AS totalUtilizedDue,
+            COALESCE(SUM(GREATEST(0, creditLimit - currentDue)), 0) AS totalAvailableCredit,
+            COALESCE(SUM(CASE WHEN currentDue > creditLimit THEN 1 ELSE 0 END), 0) AS overLimitCount,
+            COALESCE(SUM(CASE WHEN currentDue > creditLimit THEN currentDue - creditLimit ELSE 0 END), 0) AS overLimitAmount,
+            COALESCE(SUM(CASE WHEN status = 'INACTIVE' THEN 1 ELSE 0 END), 0) AS onHoldCount,
+            COALESCE(SUM(CASE WHEN currentDue >= (creditLimit * 0.9) AND creditLimit > 0 THEN 1 ELSE 0 END), 0) AS highRiskCount
+        FROM customers
+        WHERE tenantId = :t AND creditLimit > 0
+    """), {"t": tenantId})).first()
+
+    return ok({
+        "totalCustomers": int(row[0] or 0),
+        "totalCreditLimit": float(row[1] or 0),
+        "totalUtilizedDue": float(row[2] or 0),
+        "totalAvailableCredit": float(row[3] or 0),
+        "overLimitCount": int(row[4] or 0),
+        "overLimitAmount": float(row[5] or 0),
+        "onHoldCount": int(row[6] or 0),
+        "highRiskCount": int(row[7] or 0),
+    })
+
+
 @router.get("/api/v1/credit")
-async def list_credit(search: str = "", onHoldOnly: bool = False, overLimitOnly: bool = False,
-                      page: int = Query(1), limit: int = Query(20),
-                      user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
-                      db: AsyncSession = Depends(get_db)):
-    where = "tenantId=:t AND creditLimit > 0"
+async def list_credit(
+    search: str = "",
+    filterType: str = "ALL",
+    onHoldOnly: bool = False,
+    overLimitOnly: bool = False,
+    sortBy: str = "currentDue",
+    sortDir: str = "desc",
+    page: int = Query(1),
+    limit: int = Query(20),
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    where = "tenantId = :t AND creditLimit > 0"
     params: dict = {"t": tenantId}
+
     if search:
-        where += " AND (name LIKE :s OR phone LIKE :s)"
+        where += " AND (name LIKE :s OR phone LIKE :s OR email LIKE :s)"
         params["s"] = f"%{search}%"
-    if onHoldOnly:
+
+    if filterType == "HOLD" or onHoldOnly:
         where += " AND status = 'INACTIVE'"
-    if overLimitOnly:
+    elif filterType == "OVERLIMIT" or overLimitOnly:
         where += " AND currentDue > creditLimit"
+    elif filterType == "WITH_DUE":
+        where += " AND currentDue > 0"
+    elif filterType == "HEALTHY":
+        where += " AND currentDue <= creditLimit AND status = 'ACTIVE'"
+
+    allowed_sort = {
+        "currentDue": "currentDue",
+        "creditLimit": "creditLimit",
+        "name": "name",
+        "creditPeriodDays": "creditPeriodDays",
+    }
+    col = allowed_sort.get(sortBy, "currentDue")
+    dir_str = "ASC" if sortDir.lower() == "asc" else "DESC"
 
     off, lim = paginate_params(page, limit)
     total = (await db.execute(text(f"SELECT COUNT(*) FROM customers WHERE {where}"), params)).first()[0]
+    
     rows = rows_to_dicts((await db.execute(text(
-        f"SELECT id, name, phone, creditLimit, currentDue, creditPeriodDays, status FROM customers WHERE {where} "
-        f"ORDER BY currentDue DESC LIMIT :lim OFFSET :off"), {**params, "lim": lim, "off": off})).fetchall())
+        f"SELECT id, name, phone, email, address, creditLimit, currentDue, creditPeriodDays, status FROM customers WHERE {where} "
+        f"ORDER BY {col} {dir_str} LIMIT :lim OFFSET :off"), {**params, "lim": lim, "off": off})).fetchall())
+
     out = []
     for r in rows:
-        item = {**r, "availableCredit": float(r["creditLimit"]) - float(r["currentDue"]),
-                "isOverLimit": float(r["currentDue"]) > float(r["creditLimit"])}
+        c_limit = float(r.get("creditLimit") or 0)
+        c_due = float(r.get("currentDue") or 0)
+        isOnHold = r.get("status") == "INACTIVE"
+        isOverLimit = c_due > c_limit
+        avail = max(0.0, c_limit - c_due)
+        utilizationPct = min(100, round((c_due / c_limit) * 100)) if c_limit > 0 else 0
+
+        item = {
+            **r,
+            "creditLimit": c_limit,
+            "currentDue": c_due,
+            "availableCredit": avail,
+            "utilizationPct": utilizationPct,
+            "isOnCreditHold": isOnHold,
+            "isOverLimit": isOverLimit,
+        }
         out.append(item)
+
     return ok(out, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 
 @router.get("/api/v1/credit/aging")
-async def credit_aging(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
-                       db: AsyncSession = Depends(get_db)):
-    rows = (await db.execute(text(
-        "SELECT i.customerId, c.name AS customerName, "
-        "SUM(CASE WHEN i.issueDate >= NOW() - INTERVAL 30 DAY THEN i.total - i.paidTotal ELSE 0 END) b0, "
-        "SUM(CASE WHEN i.issueDate < NOW() - INTERVAL 30 DAY AND i.issueDate >= NOW() - INTERVAL 60 DAY THEN i.total - i.paidTotal ELSE 0 END) b30, "
-        "SUM(CASE WHEN i.issueDate < NOW() - INTERVAL 60 DAY AND i.issueDate >= NOW() - INTERVAL 90 DAY THEN i.total - i.paidTotal ELSE 0 END) b60, "
-        "SUM(CASE WHEN i.issueDate < NOW() - INTERVAL 90 DAY THEN i.total - i.paidTotal ELSE 0 END) b90 "
-        "FROM invoices i JOIN customers c ON c.id = i.customerId "
-        "WHERE i.tenantId=:t AND i.status IN ('ISSUED','PARTIALLY_PAID') "
-        "GROUP BY i.customerId, c.name HAVING (b0+b30+b60+b90) > 0"), {"t": tenantId})).fetchall()
+async def credit_aging(search: str = "", bucket: str = "ALL", user: AuthUser = Depends(require_auth),
+                       tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    # 1. Fetch all customers with credit limit or current due in this tenant
+    cust_rows = (await db.execute(text(
+        "SELECT id, name, phone, email, address, creditLimit, currentDue, status, creditPeriodDays "
+        "FROM customers WHERE tenantId=:t AND (currentDue > 0 OR creditLimit > 0) "
+        "ORDER BY currentDue DESC"), {"t": tenantId})).fetchall()
+    
+    # 2. Fetch all unpaid invoices grouped by customer
+    inv_rows = (await db.execute(text(
+        "SELECT customerId, "
+        "SUM(CASE WHEN DATEDIFF(CURDATE(), COALESCE(dueDate, issueDate)) <= 0 THEN (total - paidTotal) ELSE 0 END) AS b_current, "
+        "SUM(CASE WHEN DATEDIFF(CURDATE(), COALESCE(dueDate, issueDate)) BETWEEN 1 AND 30 THEN (total - paidTotal) ELSE 0 END) AS b_1_30, "
+        "SUM(CASE WHEN DATEDIFF(CURDATE(), COALESCE(dueDate, issueDate)) BETWEEN 31 AND 60 THEN (total - paidTotal) ELSE 0 END) AS b_31_60, "
+        "SUM(CASE WHEN DATEDIFF(CURDATE(), COALESCE(dueDate, issueDate)) BETWEEN 61 AND 90 THEN (total - paidTotal) ELSE 0 END) AS b_61_90, "
+        "SUM(CASE WHEN DATEDIFF(CURDATE(), COALESCE(dueDate, issueDate)) > 90 THEN (total - paidTotal) ELSE 0 END) AS b_90_plus, "
+        "SUM(total - paidTotal) AS b_total, "
+        "COUNT(id) AS openInvoiceCount "
+        "FROM invoices "
+        "WHERE tenantId=:t AND status IN ('ISSUED','PARTIALLY_PAID') AND (total - paidTotal) > 0 AND customerId IS NOT NULL "
+        "GROUP BY customerId"), {"t": tenantId})).fetchall()
+    
+    inv_map = {r[0]: {
+        "current": max(0.0, float(r[1] or 0)),
+        "days1_30": max(0.0, float(r[2] or 0)),
+        "days31_60": max(0.0, float(r[3] or 0)),
+        "days61_90": max(0.0, float(r[4] or 0)),
+        "days90plus": max(0.0, float(r[5] or 0)),
+        "total": max(0.0, float(r[6] or 0)),
+        "openInvoices": int(r[7] or 0)
+    } for r in inv_rows}
+    
     out = []
-    for r in rows:
-        out.append({"customerId": r[0], "customerName": r[1], "current": float(r[2]), "d1_30": float(r[3]),
-                    "d31_60": float(r[4]), "d61_90": float(r[5]), "d90_plus": float(r[6]),
-                    "total": float(r[2]) + float(r[3]) + float(r[4]) + float(r[5])})
-    return ok(out)
+    total_summary = {"current": 0.0, "days1_30": 0.0, "days31_60": 0.0, "days61_90": 0.0, "days90plus": 0.0, "total": 0.0}
+    high_risk_count = 0
+    on_hold_count = 0
+    
+    for c in cust_rows:
+        cid = c[0]
+        cname = c[1] or "Unknown"
+        phone = c[2]
+        email = c[3]
+        address = c[4]
+        limit = float(c[5] or 0)
+        due = float(c[6] or 0)
+        status = c[7] or "ACTIVE"
+        period = int(c[8] or 30)
+        is_on_hold = (status.upper() in ["INACTIVE", "HOLD", "FROZEN"])
+        if is_on_hold:
+            on_hold_count += 1
+            
+        aging = inv_map.get(cid, {
+            "current": 0.0,
+            "days1_30": 0.0,
+            "days31_60": 0.0,
+            "days61_90": 0.0,
+            "days90plus": 0.0,
+            "total": 0.0,
+            "openInvoices": 0
+        })
+        
+        # If customer has recorded currentDue but no individual invoice breakdown, allocate into aging
+        if due > 0 and aging["total"] == 0:
+            aging["days1_30"] = due
+            aging["total"] = due
+        elif due > aging["total"] and aging["total"] > 0:
+            diff = due - aging["total"]
+            aging["days1_30"] += diff
+            aging["total"] = due
+        elif due == 0 and aging["total"] > 0:
+            due = aging["total"]
+            
+        available = max(0.0, limit - due) if limit > 0 else 0.0
+        utilization = (due / limit * 100.0) if limit > 0 else (100.0 if due > 0 else 0.0)
+        is_high_risk = (aging["days61_90"] > 0 or aging["days90plus"] > 0 or due > limit and limit > 0)
+        if is_high_risk:
+            high_risk_count += 1
+            
+        row = {
+            "customerId": cid,
+            "customerName": cname,
+            "phone": phone,
+            "email": email,
+            "address": address,
+            "creditLimit": limit,
+            "currentDue": due,
+            "availableCredit": available,
+            "utilizationPct": round(utilization, 1),
+            "isOnCreditHold": is_on_hold,
+            "creditPeriodDays": period,
+            "openInvoices": aging["openInvoices"],
+            "aging": {
+                "current": round(aging["current"], 2),
+                "days1_30": round(aging["days1_30"], 2),
+                "days31_60": round(aging["days31_60"], 2),
+                "days61_90": round(aging["days61_90"], 2),
+                "days90plus": round(aging["days90plus"], 2),
+                "total": round(aging["total"], 2),
+            },
+            # Flat accessors for legacy/table convenience
+            "current": round(aging["current"], 2),
+            "d1_30": round(aging["days1_30"], 2),
+            "d31_60": round(aging["days31_60"], 2),
+            "d61_90": round(aging["days61_90"], 2),
+            "d90_plus": round(aging["days90plus"], 2),
+            "total": round(aging["total"], 2),
+            "status": status,
+            "isHighRisk": is_high_risk
+        }
+        
+        # Apply search filter
+        if search:
+            q = search.lower()
+            if q not in cname.lower() and (not phone or q not in phone.lower()) and (not email or q not in email.lower()):
+                continue
+                
+        # Apply bucket filter
+        b = bucket.upper()
+        if b == "CURRENT" and row["aging"]["current"] <= 0:
+            continue
+        elif b == "1_30" and row["aging"]["days1_30"] <= 0:
+            continue
+        elif b == "31_60" and row["aging"]["days31_60"] <= 0:
+            continue
+        elif b == "61_90" and row["aging"]["days61_90"] <= 0:
+            continue
+        elif b == "90_PLUS" and row["aging"]["days90plus"] <= 0:
+            continue
+        elif b == "OVERDUE" and (row["aging"]["days1_30"] + row["aging"]["days31_60"] + row["aging"]["days61_90"] + row["aging"]["days90plus"]) <= 0:
+            continue
+        elif b == "HOLD" and not is_on_hold:
+            continue
+        elif b == "HIGH_RISK" and not is_high_risk:
+            continue
+            
+        total_summary["current"] += row["aging"]["current"]
+        total_summary["days1_30"] += row["aging"]["days1_30"]
+        total_summary["days31_60"] += row["aging"]["days31_60"]
+        total_summary["days61_90"] += row["aging"]["days61_90"]
+        total_summary["days90plus"] += row["aging"]["days90plus"]
+        total_summary["total"] += row["aging"]["total"]
+        
+        out.append(row)
+        
+    for k in total_summary:
+        total_summary[k] = round(total_summary[k], 2)
+        
+    stats = {
+        "totalCustomers": len(out),
+        "totalOutstanding": total_summary["total"],
+        "currentAmount": total_summary["current"],
+        "overdueTotal": round(total_summary["days1_30"] + total_summary["days31_60"] + total_summary["days61_90"] + total_summary["days90plus"], 2),
+        "highRiskCount": high_risk_count,
+        "onHoldCount": on_hold_count
+    }
+    
+    return ok(out, extra={"summary": total_summary, "stats": stats})
 
 
 @router.patch("/api/v1/credit/{customerId}/limit")
