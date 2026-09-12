@@ -257,7 +257,7 @@ export default function KDSView() {
           <div className="col-span-full flex flex-col items-center justify-center p-12 bg-white border border-dashed border-slate-200 rounded-md text-gray-500 text-center shadow-2xs w-full">
             <UtensilsCrossed className="w-10 h-10 mb-3 text-gray-400" />
             <p className="font-bold text-gray-600">No active kitchen orders</p>
-            <p className="text-xs text-gray-500 mt-1">Orders sent to KOT from Dining POS will appear here in real-time.</p>
+            <p className="text-xs text-gray-500 mt-1">Orders sent to KOT from Restaurant POS will appear here in real-time.</p>
           </div>
         )}
       </div>

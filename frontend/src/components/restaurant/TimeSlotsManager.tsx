@@ -241,7 +241,7 @@ export default function TimeSlotsManager() {
               )}
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Control when specific foods/menus appear at the Dining POS based on shift schedules.
+              Control when specific foods/menus appear at the Restaurant POS based on shift schedules.
             </p>
           </div>
         </div>

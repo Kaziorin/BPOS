@@ -12,7 +12,6 @@ import {
   Users,
   Clock,
   TrendingUp,
-  RefreshCw,
 } from "lucide-react";
 import FloorPlanView from "@/components/restaurant/FloorPlanView";
 import KDSView from "@/components/restaurant/KDSView";
@@ -118,17 +117,17 @@ function RestaurantPageContent() {
         items={[{ label: "Restaurant", href: "/restaurant" }]}
         actions={
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
-            <button
-              onClick={loadRestaurantStats}
+            <a
+              href="/pos"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-200 bg-slate-50 text-gray-600 text-xs font-semibold hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition shadow-2xs"
             >
-              <RefreshCw size={13} className={loadingStats ? "animate-spin text-orange-600" : ""} /> Refresh Analytics
-            </button>
+              <Users size={13} /> Customer POS
+            </a>
             <a
               href="/restaurant/pos"
               className="flex items-center justify-center gap-2 px-4 py-1.5 rounded-md text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-2xs transition"
             >
-              <ShoppingCart className="w-3.5 h-3.5" /> Open Dining POS
+              <ShoppingCart className="w-3.5 h-3.5" /> Open Restaurant POS
             </a>
           </div>
         }

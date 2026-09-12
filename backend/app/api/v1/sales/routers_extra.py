@@ -615,11 +615,15 @@ async def list_sales_orders(
             WHERE {b2b_where}
             ORDER BY so.createdAt DESC LIMIT :lim OFFSET :off
         """), {**params, "lim": lim, "off": off})).fetchall())
-    elif src_norm in ("POS", "RETAIL"):
+    elif src_norm in ("POS", "RETAIL", "RESTAURANT"):
+        if src_norm == "RESTAURANT":
+            pos_where += " AND s.source = 'RESTAURANT'"
+        else:
+            pos_where += " AND (s.source IS NULL OR s.source = 'POS')"
         total = (await db.execute(text(f"SELECT COUNT(*) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_where}"), params)).scalar() or 0
         total_vol = (await db.execute(text(f"SELECT COALESCE(SUM(s.total), 0) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_where}"), params)).scalar() or 0
         rows = rows_to_dicts((await db.execute(text(f"""
-            SELECT s.id, s.invoiceNo AS orderNo, 'POS' AS source, s.status, s.subtotal, s.total,
+            SELECT s.id, s.invoiceNo AS orderNo, COALESCE(s.source, 'POS') AS source, s.status, s.subtotal, s.total,
                    s.discountTotal, s.taxTotal,
                    s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                    s.paymentStatus, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
@@ -657,7 +661,7 @@ async def list_sales_orders(
 
                 UNION ALL
 
-                SELECT s.id, s.invoiceNo AS orderNo, 'POS' AS source, s.status, s.subtotal, s.total,
+                SELECT s.id, s.invoiceNo AS orderNo, COALESCE(s.source, 'POS') AS source, s.status, s.subtotal, s.total,
                        s.discountTotal, s.taxTotal,
                        s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
@@ -673,19 +677,18 @@ async def list_sales_orders(
         """), {**params, "lim": lim, "off": off})).fetchall())
 
     for r in rows:
-        r["total"] = float(r.get("total", 0) or 0)
-        is_pos = (r.get("source") == "POS")
+        r["total"] = round(float(r.get("total", 0) or 0), 2)
+        r["paidTotal"] = round(float(r.get("paidTotal", 0) or 0), 2)
+        r["dueTotal"] = round(float(r.get("dueTotal", 0) or 0), 2)
+        r["changeReturn"] = max(r["paidTotal"] - r["total"], 0.0)
+        r["customer"] = {
+            "id": r.get("customerId"),
+            "name": r.pop("customerName", None) or "",
+            "phone": r.pop("customerPhone", None),
+            "email": r.pop("customerEmail", None),
+        }
+        is_pos = r.get("source") == "POS"
         if is_pos:
-            r["paidTotal"] = max(float(r.get("paidTotal", 0) or 0), r["total"])
-            r["dueTotal"] = 0.0
-            r["paymentStatus"] = "PAID"
-            r["changeReturn"] = max(r["paidTotal"] - r["total"], 0.0)
-            r["customer"] = {
-                "id": r.get("customerId"),
-                "name": r.pop("customerName", None) or "Walk-in Retail Customer",
-                "phone": r.pop("customerPhone", None),
-                "email": r.pop("customerEmail", None),
-            }
             items = rows_to_dicts((await db.execute(text("""
                 SELECT si.id, si.productId, si.name, p.sku, si.qty AS qtyOrdered, si.qty AS qtyDelivered,
                        0 AS qtyReserved, 0 AS qtyBackordered, si.unitPrice, si.lineTotal
@@ -702,14 +705,7 @@ async def list_sales_orders(
                 it["lineTotal"] = float(it.get("lineTotal", 0) or 0)
             r["items"] = items
         else:
-            r["paidTotal"] = float(r.get("paidTotal", 0) or 0)
-            r["dueTotal"] = float(r.get("dueTotal", 0) or r["total"])
-            r["customer"] = {
-                "id": r.get("customerId"),
-                "name": r.pop("customerName", None) or "Corporate Client",
-                "phone": r.pop("customerPhone", None),
-                "email": r.pop("customerEmail", None),
-            }
+            r["customer"]["name"] = r["customer"]["name"] or "Corporate Client"
             items = rows_to_dicts((await db.execute(text("""
                 SELECT soi.id, soi.productId, p.name, p.sku, soi.qtyOrdered, 0 AS qtyDelivered,
                        0 AS qtyReserved, 0 AS qtyBackordered, soi.unitPrice, soi.lineTotal

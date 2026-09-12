@@ -83,10 +83,7 @@ interface SalesOrder {
 }
 
 const ORDER_TABS = [
-  { id: "ALL", label: "All Sales Orders", icon: Layers },
-  { id: "POS", label: "POS / Retail", icon: Store },
-  { id: "B2B", label: "B2B / Corporate", icon: Building2 },
-  { id: "ONLINE", label: "Online & Delivery", icon: Globe },
+  { id: "RESTAURANT", label: "Restaurant Orders", icon: Store },
 ];
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; border: string }> = {
@@ -106,7 +103,7 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; b
 export default function SalesOrdersPage() {
   const [orders, setOrders] = useState<SalesOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<string>("ALL");
+  const [activeTab, setActiveTab] = useState<string>("RESTAURANT");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [sortBy, setSortBy] = useState("date");
@@ -130,9 +127,9 @@ export default function SalesOrdersPage() {
       const params = new URLSearchParams({
         page: String(page),
         limit: String(limit),
+        source: "RESTAURANT",
       });
       if (search.trim()) params.set("search", search.trim());
-      if (activeTab !== "ALL") params.set("source", activeTab);
       if (statusFilter) params.set("status", statusFilter);
 
       const res: any = await api.get(`/v1/sales/orders?${params.toString()}`);
@@ -169,7 +166,7 @@ export default function SalesOrdersPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, search, activeTab, statusFilter]);
+  }, [page, limit, search, statusFilter]);
 
   useEffect(() => {
     fetchOrders();
@@ -249,17 +246,17 @@ export default function SalesOrdersPage() {
   }
 
   return (
-    <div className="space-y-5 max-w-7xl mx-auto pb-12">
+    <div className="space-y-5 pb-12">
       
       {/* ── Page Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200/70 pb-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
             <PackageCheck size={22} className="text-primary-600" />
-            Sales Orders & Fulfillment
+            Restaurant Sales Orders
           </h1>
           <p className="text-xs text-gray-500 mt-0.5">
-            Manage corporate sales orders, stock reservations, order picking, delivery tracking & dispatch logistics.
+            View and manage all restaurant dine-in, takeaway and delivery orders.
           </p>
         </div>
 
@@ -488,16 +485,16 @@ export default function SalesOrdersPage() {
           <Package size={32} className="mx-auto text-gray-300 mb-3" />
           <h3 className="text-sm font-bold text-gray-900">No Sales Orders Found</h3>
           <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
-            {search || activeTab !== "ALL" || statusFilter
+            {search || statusFilter
               ? "No orders matched your filter criteria."
-              : "Sales orders from POS, Wholesale, and online checkouts will appear here."}
+              : "Restaurant orders will appear here after placing an order."}
           </p>
           <div className="mt-4 flex items-center justify-center gap-2">
             <Link
-              href="/pos"
+              href="/restaurant/pos"
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-primary-700"
             >
-              <Store size={14} /> Create Order via POS
+              <Store size={14} /> Open Restaurant POS
             </Link>
           </div>
         </div>
@@ -509,7 +506,6 @@ export default function SalesOrdersPage() {
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50/75 text-[11px] font-semibold uppercase tracking-wider text-gray-600">
                   <th className="px-4 py-3">Order # & Source</th>
-                  <th className="px-3 py-3">Customer</th>
                   <th className="px-3 py-3">Order Date</th>
                   <th className="px-3 py-3">Line Items</th>
                   <th className="px-3 py-3 text-right">Order Total</th>
@@ -543,35 +539,7 @@ export default function SalesOrdersPage() {
                             >
                               {o.orderNo}
                             </button>
-                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.2 text-[9px] font-bold text-gray-600 mt-0.5">
-                              {o.source || "POS"}
-                            </span>
                           </div>
-                        </div>
-                      </td>
-
-                      {/* Customer */}
-                      <td className="px-3 py-3">
-                        <div>
-                          <p className="font-semibold text-gray-800">{o.customer?.name || "Walk-in Customer"}</p>
-                          {o.customer?.phone ? (
-                            <div className="flex items-center gap-1.5 text-[11px] text-gray-500 mt-0.5">
-                              <a href={`tel:${o.customer.phone}`} className="hover:text-primary-600 transition">
-                                {o.customer.phone}
-                              </a>
-                              <a
-                                href={`https://wa.me/${o.customer.phone.replace(/[^0-9]/g, "")}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-block text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1 rounded hover:bg-emerald-100 transition"
-                                title="WhatsApp"
-                              >
-                                WA
-                              </a>
-                            </div>
-                          ) : (
-                            <span className="text-gray-400 italic text-[10px]">No phone</span>
-                          )}
                         </div>
                       </td>
 
@@ -664,7 +632,7 @@ export default function SalesOrdersPage() {
                         {o.orderNo}
                       </h3>
                       <p className="text-[11px] text-gray-400 mt-0.5">
-                        {o.customer?.name || "Walk-in"} &bull; {o.source || "POS"}
+                        {o.customer?.name && o.customer.name !== "Walk-in" ? o.customer.name : "—"} &bull; {o.source || "POS"}
                       </p>
                     </div>
 
@@ -794,7 +762,7 @@ export default function SalesOrdersPage() {
                 {/* Customer Card */}
                 <div className="rounded-xl border border-gray-200 bg-white p-3.5 space-y-2">
                   <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Customer Details</span>
-                  <p className="font-bold text-sm text-gray-900">{selectedOrderForDrawer.customer?.name || "Walk-in Customer"}</p>
+                  <p className="font-bold text-sm text-gray-900">{selectedOrderForDrawer.customer?.name && selectedOrderForDrawer.customer.name !== "Walk-in" ? selectedOrderForDrawer.customer.name : "—"}</p>
                   {selectedOrderForDrawer.customer?.phone && (
                     <div className="flex items-center gap-2 pt-1">
                       <a
