@@ -118,7 +118,9 @@ function RestaurantPageContent() {
         actions={
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
             <a
-              href="/pos"
+              href="/restaurant/customer-display"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-200 bg-slate-50 text-gray-600 text-xs font-semibold hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition shadow-2xs"
             >
               <Users size={13} /> Customer POS

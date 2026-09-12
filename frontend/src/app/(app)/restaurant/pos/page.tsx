@@ -49,6 +49,7 @@ import { toast } from "react-toastify";
 import { ConfirmModal, CustomModal, CustomPromptModal, CustomInput, CustomButton } from "@/components/custom";
 import { getCategoryIcon } from "@/lib/categoryIcons";
 import { DEFAULT_FLOORS } from "@/components/restaurant/FloorPlanView";
+import { publishRestaurantCart } from "@/lib/customer-display";
 
 interface TableOption {
   id: string;
@@ -680,6 +681,67 @@ export default function RestaurantPOSPage() {
     } catch (_) {}
   }, [selectedTable, guestCount]);
 
+  // ── Customer-facing display: sync live cart to Customer Display in real-time ──
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const rawSub = cart.reduce((acc, i) => acc + i.qty * i.unitPrice, 0);
+    const discAmt = (rawSub * discountPercent) / 100;
+    const sTotal = Math.max(0, rawSub - discAmt);
+    const estTax = sTotal * 0.15;
+    const estService = sTotal * 0.04;
+    const estTotal = sTotal + estTax + estService;
+
+    publishRestaurantCart({
+      updatedAt: Date.now(),
+      source: "RESTAURANT",
+      lines: cart.map((i) => ({
+        name: i.name,
+        qty: i.qty,
+        unitPrice: i.unitPrice,
+        discountAmount: 0,
+        sku: i.id || i.productId,
+        image: i.image,
+        category:
+          i.modifiers && i.modifiers.length > 0
+            ? i.modifiers.map((m) => `${m.label}: ${m.value}`).join(" • ")
+            : undefined,
+        notes: [
+          ...(i.extras || []).map((e) => `+${e.label}`),
+          ...(i.notes ? [i.notes] : []),
+        ].join(", ") || undefined,
+      })),
+      subtotal: rawSub,
+      discountTotal: discAmt,
+      taxTotal: estTax,
+      serviceCharge: estService,
+      total: estTotal,
+      status: cart.length > 0 ? "ACTIVE" : "IDLE",
+      customerName: customerName || undefined,
+      customerTier: "Guest",
+      merchantName: storeName || "BPOS Restaurant",
+      cashierName: waiterName || "Staff",
+      tableNo:
+        selectedTable?.tableNo ||
+        (orderType === "TAKEAWAY"
+          ? "Takeaway"
+          : orderType === "DELIVERY"
+          ? "Delivery"
+          : undefined),
+      orderType,
+      guestCount,
+    });
+  }, [
+    cart,
+    discountPercent,
+    selectedTable,
+    orderType,
+    customerName,
+    customerPhone,
+    guestCount,
+    waiterName,
+    storeName,
+  ]);
+
   // ── Header search: query the API so the search works across ALL restaurant products ──
   useEffect(() => {
     const q = searchFilter.trim();
@@ -1013,6 +1075,35 @@ export default function RestaurantPOSPage() {
       };
 
       setCompletedBill(billData);
+
+      // Publish paid status to Customer Display
+      publishRestaurantCart({
+        updatedAt: Date.now(),
+        source: "RESTAURANT",
+        invoiceNo: invNo,
+        lines: cart.map((i) => ({
+          name: i.name,
+          qty: i.qty,
+          unitPrice: i.unitPrice,
+          discountAmount: 0,
+          sku: i.id || i.productId,
+          image: i.image,
+        })),
+        subtotal: rawSubtotal,
+        discountTotal: discountAmount,
+        taxTotal: saleResult.taxTotal || estimateTax,
+        serviceCharge: saleResult.serviceCharge || estimateService,
+        total: saleResult.total || estimateGrandTotal,
+        paidTotal: saleResult.total || estimateGrandTotal,
+        status: "PAID",
+        customerName: customerName || undefined,
+        merchantName: storeName || "BPOS Restaurant",
+        cashierName: waiterName,
+        tableNo: selectedTable?.tableNo || (orderType === "TAKEAWAY" ? "Takeaway" : orderType === "DELIVERY" ? "Delivery" : undefined),
+        orderType,
+        guestCount,
+      });
+
       setCart([]);
       setDiscountPercent(0);
       setCustomerName("");
