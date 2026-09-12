@@ -59,12 +59,12 @@ export function WholesalePOSFooter({
           "flex items-center gap-2 rounded-[22px] px-3 py-2 backdrop-blur-md transition-all",
           darkMode
             ? "border border-slate-700/80 bg-slate-900/85 shadow-lg"
-            : "border border-primary-100/70 bg-white/95 shadow-sm",
+            : "border border-white bg-white shadow-[0_4px_20px_rgba(37,99,235,0.06)]",
         )}
       >
         <div className="flex min-w-0 flex-1 items-center justify-between gap-1 overflow-x-auto no-scrollbar scroll-smooth">
           {/* 1. Primary Utility Actions */}
-          <div className="flex items-center gap-1.5 pr-3 border-r border-slate-700/30">
+          <div className={cn("flex items-center gap-1.5 pr-3 border-r", darkMode ? "border-slate-700/30" : "border-slate-100")}>
             {UTILITY_ACTIONS.map((a) => (
               <button
                 key={a.id}
@@ -77,10 +77,10 @@ export function WholesalePOSFooter({
                   "flex h-9 items-center gap-2 rounded-xl px-3 text-[11px] font-bold transition-all active:scale-95 whitespace-nowrap",
                   darkMode
                     ? "bg-slate-800/60 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/50"
-                    : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/50",
+                    : "bg-slate-50 text-slate-600 hover:bg-blue-50 hover:text-blue-600 border border-transparent hover:border-blue-100",
                 )}
               >
-                <a.Icon size={14} className="text-primary-500" />
+                <a.Icon size={14} className={cn(darkMode ? "text-primary-500" : "text-blue-600")} />
                 <span className="hidden lg:inline">{a.label}</span>
               </button>
             ))}

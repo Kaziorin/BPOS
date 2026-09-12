@@ -587,16 +587,16 @@ function WholesalePOSInner() {
           </>
         ) : (
           <>
-            <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-[#f7faff] to-primary-100/40" />
-            <div className="absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-primary-400/20 blur-3xl" />
-            <div className="absolute top-1/3 -left-24 h-[360px] w-[360px] rounded-full bg-primary-300/15 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 h-[280px] w-[280px] rounded-full bg-sky-300/20 blur-3xl" />
+            <div className="absolute inset-0 bg-[#F5F9FE]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#EAF2FB] via-[#F5F9FE] to-white opacity-100" />
+            <div className="absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-blue-400/10 blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 h-[280px] w-[280px] rounded-full bg-blue-300/10 blur-3xl" />
           </>
         )}
-        <svg className={cn("absolute inset-0 h-full w-full", darkMode ? "opacity-[0.2]" : "opacity-[0.35]")}>
+        <svg className={cn("absolute inset-0 h-full w-full", darkMode ? "opacity-[0.2]" : "opacity-[0.15]")}>
           <defs>
             <pattern id="ws-grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path d="M32 0H0V32" fill="none" stroke={darkMode ? "rgba(148,163,184,0.12)" : "rgba(0,102,255,0.06)"} strokeWidth="1" />
+              <path d="M32 0H0V32" fill="none" stroke={darkMode ? "rgba(148,163,184,0.12)" : "rgba(37,99,235,0.04)"} strokeWidth="1" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#ws-grid)" />
@@ -610,7 +610,7 @@ function WholesalePOSInner() {
           stats={stats}
           darkMode={darkMode}
           onToggleDarkMode={() => setDarkMode((v) => !v)}
-          onSelectCustomer={() => searchRef.current?.focus()}
+          onSelectCustomer={() => setCustomerModalOpen(true)}
         />
 
         <div className="flex min-h-0 flex-1 gap-2 flex-col md:flex-row overflow-hidden">
@@ -621,7 +621,7 @@ function WholesalePOSInner() {
               "flex min-w-0 flex-1 flex-col rounded-[20px] p-2 backdrop-blur-md transition-all md:min-h-0",
               darkMode
                 ? "border border-slate-700/80 bg-slate-900/70 shadow-lg"
-                : "border border-primary-50 bg-white/80 shadow-sm",
+                : "border border-white bg-white shadow-[0_4px_20px_rgba(37,99,235,0.06)]",
             )}
           >
             {loading ? (
