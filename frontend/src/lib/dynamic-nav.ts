@@ -497,21 +497,30 @@ export function useDynamicNav() {
               }
             }
 
+            // Industry Specific Overrides
+            let moduleRoute = mod.moduleRoute;
+            let moduleChildren: NavChild[] | undefined = children;
+
+            if (mod.moduleCode === "wholesale") {
+              moduleRoute = "/wholesale";
+              moduleChildren = undefined;
+            }
+
             // Single item that matches module route → direct link (no accordion)
             const singleDirect =
               children.length === 1 &&
-              children[0].href === mod.moduleRoute &&
+              children[0].href === moduleRoute &&
               !children[0].children?.length;
 
             // Modules that should be direct links (no sub-menu accordion)
-            const DIRECT_LINK_ROUTES = ["/grocery", "/pharmacy"];
-            const forceDirectLink = DIRECT_LINK_ROUTES.includes(mod.moduleRoute ?? "");
+            const DIRECT_LINK_ROUTES = ["/grocery", "/pharmacy", "/wholesale"];
+            const forceDirectLink = DIRECT_LINK_ROUTES.includes(moduleRoute ?? "");
 
             items.push({
               label: mod.moduleName,
-              href: mod.moduleRoute ?? "#",
+              href: moduleRoute ?? "#",
               icon: ModIcon,
-              children: forceDirectLink || singleDirect || children.length === 0 ? undefined : children,
+              children: forceDirectLink || singleDirect || (moduleChildren?.length === 0) ? undefined : moduleChildren,
             });
           }
 
