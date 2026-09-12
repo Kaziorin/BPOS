@@ -90,10 +90,10 @@ export function WholesalePOSHeader({
               darkMode ? "text-slate-50" : "text-slate-900",
             )}
           >
-            New Sales Order
+            BPOS
           </h1>
-          <p className={cn("mt-0.5 text-[12px] font-medium tracking-wide", darkMode ? "text-slate-500" : "text-slate-400")}>
-            {orderNo}
+          <p className={cn("mt-0.5 text-[12px] font-bold tracking-wide uppercase", darkMode ? "text-blue-400" : "text-blue-600")}>
+            Wholesale & Distribution
           </p>
         </div>
 

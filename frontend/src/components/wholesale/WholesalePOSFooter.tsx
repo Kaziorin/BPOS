@@ -56,15 +56,15 @@ export function WholesalePOSFooter({
     <div className="shrink-0">
       <div
         className={cn(
-          "flex items-center gap-2 rounded-[22px] px-3 py-2 backdrop-blur-md transition-all",
+          "flex items-center gap-1 rounded-[18px] px-2 py-1.5 backdrop-blur-md transition-all",
           darkMode
-            ? "border border-slate-700/80 bg-slate-900/85 shadow-lg"
+            ? "border border-slate-700 bg-slate-900/90 shadow-lg"
             : "border border-white bg-white shadow-[0_4px_20px_rgba(37,99,235,0.06)]",
         )}
       >
-        <div className="flex min-w-0 flex-1 items-center justify-between gap-1 overflow-x-auto no-scrollbar scroll-smooth">
-          {/* 1. Primary Utility Actions */}
-          <div className={cn("flex items-center gap-1.5 pr-3 border-r", darkMode ? "border-slate-700/30" : "border-slate-100")}>
+        <div className="flex w-full items-center gap-1">
+          {/* 1. Primary Utility Actions - Distributed Flex */}
+          <div className="flex flex-[1.2] items-center gap-1">
             {UTILITY_ACTIONS.map((a) => (
               <button
                 key={a.id}
@@ -74,26 +74,32 @@ export function WholesalePOSFooter({
                   else onUtility?.(a.id);
                 }}
                 className={cn(
-                  "flex h-9 items-center gap-2 rounded-xl px-3 text-[11px] font-bold transition-all active:scale-95 whitespace-nowrap",
+                  "flex h-9 flex-1 min-w-0 items-center justify-center gap-2 rounded-xl px-2 text-[10px] font-bold transition-all active:scale-95 border",
                   darkMode
-                    ? "bg-slate-800/60 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/50"
-                    : "bg-slate-50 text-slate-600 hover:bg-blue-50 hover:text-blue-600 border border-transparent hover:border-blue-100",
+                    ? "bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white"
+                    : "bg-slate-50 text-slate-600 border-slate-100 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100",
                 )}
               >
-                <a.Icon size={14} className={cn(darkMode ? "text-primary-500" : "text-blue-600")} />
-                <span className="hidden lg:inline">{a.label}</span>
+                <span className={cn(
+                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-black",
+                  darkMode ? "bg-slate-950 text-primary-500" : "bg-slate-900 text-white"
+                )}>
+                  {a.id === 'customer' ? <UserPlus size={12} /> : a.label.charAt(0)}
+                </span>
+                <span className="truncate">{a.label}</span>
               </button>
             ))}
           </div>
 
-          {/* 2. Metadata Info Chips */}
-          <div className="flex items-center gap-1 pl-2">
-            <MetaChip Icon={Warehouse} label="Warehouse" value={warehouseName} darkMode={darkMode} />
-            <MetaChip Icon={User} label="Rep" value={salesRepName} avatar darkMode={darkMode} />
-            <MetaChip Icon={Calendar} label="Delivery" value={deliveryDate} darkMode={darkMode} />
-            <MetaChip Icon={Truck} label="Method" value={deliveryMethod} darkMode={darkMode} />
-            <MetaChip Icon={CreditCard} label="Term" value={paymentTerm} darkMode={darkMode} />
-            <MetaChip Icon={Percent} label="Comm." value={`${commission}%`} darkMode={darkMode} />
+          <div className={cn("h-6 w-px shrink-0 mx-0.5", darkMode ? "bg-slate-800" : "bg-slate-100")} />
+
+          {/* 2. Metadata Info Chips - Distributed Flex */}
+          <div className="flex flex-1 items-center gap-1">
+            <MetaChip Icon={Warehouse} label="WAREHOUSE" value={warehouseName} darkMode={darkMode} />
+            <MetaChip Icon={User} label="REP" value={salesRepName} avatar darkMode={darkMode} />
+            <MetaChip Icon={Calendar} label="DELIVERY" value={deliveryDate} darkMode={darkMode} />
+            <MetaChip Icon={Truck} label="METHOD" value={deliveryMethod} darkMode={darkMode} />
+            <MetaChip Icon={CreditCard} label="TERM" value={paymentTerm} darkMode={darkMode} />
           </div>
         </div>
       </div>
@@ -105,81 +111,51 @@ function MetaChip({
   Icon,
   label,
   value,
-  sub,
   avatar,
   darkMode = false,
 }: {
   Icon: ElementType;
   label: string;
   value: string;
-  sub?: string;
   avatar?: boolean;
   darkMode?: boolean;
 }) {
   return (
-    <CustomButton
-      type="button"
-      variant="ghost"
+    <div
       className={cn(
-        "!h-auto !items-center !gap-2 !rounded-xl !border !px-2.5 !py-1.5",
+        "flex h-9 flex-1 min-w-0 items-center gap-2 rounded-xl border px-2 transition-all cursor-default",
         darkMode
-          ? "!border-slate-700 !bg-slate-800/80 hover:!border-primary-500/40 hover:!bg-slate-800"
-          : "!border-gray-200 !bg-gray-50/80 hover:!border-primary-200 hover:!bg-white",
+          ? "border-slate-700 bg-slate-800/50"
+          : "border-slate-50 bg-slate-50/50",
       )}
     >
-      {avatar ? (
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white shadow-sm">
-          {value
-            .split(" ")
-            .map((w) => w[0])
-            .join("")
-            .slice(0, 2)
-            .toUpperCase()}
-        </span>
-      ) : (
+      <span
+        className={cn(
+          "flex h-6 w-6 shrink-0 items-center justify-center rounded-md",
+          darkMode ? "bg-slate-950 text-blue-400" : "bg-white text-blue-600 shadow-xs",
+        )}
+      >
+        <Icon size={11} />
+      </span>
+      <div className="flex flex-col leading-tight min-w-0 overflow-hidden">
         <span
           className={cn(
-            "flex h-7 w-7 items-center justify-center rounded-lg border text-primary-500",
-            darkMode
-              ? "border-slate-700 bg-slate-900"
-              : "border-gray-100 bg-white",
-          )}
-        >
-          <Icon size={13} />
-        </span>
-      )}
-      <span className="min-w-0 text-left">
-        <span
-          className={cn(
-            "mb-0.5 block text-[9px] font-semibold uppercase leading-none tracking-wider",
-            darkMode ? "text-slate-500" : "text-gray-400",
+            "text-[7px] font-black uppercase tracking-widest truncate",
+            darkMode ? "text-slate-500" : "text-slate-400",
           )}
         >
           {label}
         </span>
         <span
           className={cn(
-            "flex max-w-[110px] items-center gap-0.5 truncate text-[11px] font-bold leading-tight",
-            darkMode ? "text-slate-100" : "text-gray-800",
+            "text-[10px] font-bold truncate",
+            darkMode ? "text-slate-200" : "text-slate-700",
           )}
         >
           {value}
-          <ChevronDown
-            size={10}
-            className={cn("shrink-0", darkMode ? "text-slate-600" : "text-gray-300")}
-          />
         </span>
-        {sub && (
-          <span
-            className={cn(
-              "block text-[9px] font-medium",
-              darkMode ? "text-slate-500" : "text-gray-400",
-            )}
-          >
-            {sub}
-          </span>
-        )}
-      </span>
-    </CustomButton>
+      </div>
+    </div>
   );
 }
+
