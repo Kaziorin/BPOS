@@ -297,13 +297,11 @@ async def list_sales_orders(
         params["st"] = status
 
     if src_norm in ("B2B", "CORPORATE"):
-        total = (await db.execute(text(f"""
-            SELECT COUNT(*) FROM sales_orders so
-            LEFT JOIN customers c ON c.id = so.customerId
-            WHERE {b2b_where}
-        """), params)).first()[0]
+        total = (await db.execute(text(f"SELECT COUNT(*) FROM sales_orders so LEFT JOIN customers c ON c.id = so.customerId WHERE {b2b_where}"), params)).scalar() or 0
+        total_vol = (await db.execute(text(f"SELECT COALESCE(SUM(so.total), 0) FROM sales_orders so LEFT JOIN customers c ON c.id = so.customerId WHERE {b2b_where}"), params)).scalar() or 0
         rows = rows_to_dicts((await db.execute(text(f"""
             SELECT so.id, so.orderNo, 'B2B' AS source, so.status, so.subtotal, so.total,
+                   so.discountTotal, so.taxTotal,
                    0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
                    c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                    b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName,
@@ -315,13 +313,11 @@ async def list_sales_orders(
             ORDER BY so.createdAt DESC LIMIT :lim OFFSET :off
         """), {**params, "lim": lim, "off": off})).fetchall())
     elif src_norm in ("POS", "RETAIL"):
-        total = (await db.execute(text(f"""
-            SELECT COUNT(*) FROM sales s
-            LEFT JOIN customers c ON c.id = s.customerId
-            WHERE {pos_where}
-        """), params)).first()[0]
+        total = (await db.execute(text(f"SELECT COUNT(*) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_where}"), params)).scalar() or 0
+        total_vol = (await db.execute(text(f"SELECT COALESCE(SUM(s.total), 0) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_where}"), params)).scalar() or 0
         rows = rows_to_dicts((await db.execute(text(f"""
             SELECT s.id, s.invoiceNo AS orderNo, 'POS' AS source, s.status, s.subtotal, s.total,
+                   s.discountTotal, s.taxTotal,
                    s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                    s.paymentStatus, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                    b.name AS branchName,
@@ -335,21 +331,18 @@ async def list_sales_orders(
             ORDER BY s.createdAt DESC LIMIT :lim OFFSET :off
         """), {**params, "lim": lim, "off": off})).fetchall())
     else:
-        b2b_cnt = (await db.execute(text(f"""
-            SELECT COUNT(*) FROM sales_orders so
-            LEFT JOIN customers c ON c.id = so.customerId
-            WHERE {b2b_where}
-        """), params)).first()[0]
-        pos_cnt = (await db.execute(text(f"""
-            SELECT COUNT(*) FROM sales s
-            LEFT JOIN customers c ON c.id = s.customerId
-            WHERE {pos_where}
-        """), params)).first()[0]
+        b2b_cnt = (await db.execute(text(f"SELECT COUNT(*) FROM sales_orders so LEFT JOIN customers c ON c.id = so.customerId WHERE {b2b_where}"), params)).scalar() or 0
+        pos_cnt = (await db.execute(text(f"SELECT COUNT(*) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_where}"), params)).scalar() or 0
         total = b2b_cnt + pos_cnt
+
+        b2b_sum = (await db.execute(text(f"SELECT COALESCE(SUM(so.total), 0) FROM sales_orders so LEFT JOIN customers c ON c.id = so.customerId WHERE {b2b_where}"), params)).scalar() or 0
+        pos_sum = (await db.execute(text(f"SELECT COALESCE(SUM(s.total), 0) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_where}"), params)).scalar() or 0
+        total_vol = float(b2b_sum or 0) + float(pos_sum or 0)
 
         rows = rows_to_dicts((await db.execute(text(f"""
             SELECT * FROM (
                 SELECT so.id, so.orderNo, 'B2B' AS source, so.status, so.subtotal, so.total,
+                       so.discountTotal, so.taxTotal,
                        0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                        b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName,
@@ -362,6 +355,7 @@ async def list_sales_orders(
                 UNION ALL
 
                 SELECT s.id, s.invoiceNo AS orderNo, 'POS' AS source, s.status, s.subtotal, s.total,
+                       s.discountTotal, s.taxTotal,
                        s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                        b.name AS branchName, s.paymentStatus, s.userId AS cashierId, u.name AS cashierName,
