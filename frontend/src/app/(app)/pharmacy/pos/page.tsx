@@ -436,6 +436,7 @@ export default function PharmacyPOSPage() {
         category: i.unitLabel || "Medicine",
         uom: i.batchNo ? `Batch: ${i.batchNo}` : undefined,
         sku: i.sku,
+        image: i.imageUrl || undefined,
       })),
       subtotal,
       discountTotal: totalDiscount,
