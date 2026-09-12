@@ -711,7 +711,7 @@ function WholesalePOSInner() {
                 darkMode ? "bg-slate-900 border border-slate-700" : "bg-white border border-slate-100",
               )}
             >
-              <div className="flex items-center justify-between border-b p-5 transition-colors dark:border-slate-800">
+              <div className={cn("flex items-center justify-between border-b p-5 transition-colors", darkMode ? "border-slate-800" : "border-slate-100")}>
                 <div>
                   <h3 className={cn("text-lg font-bold", darkMode ? "text-white" : "text-slate-900")}>
                     Held Orders / Recent Bills

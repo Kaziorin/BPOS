@@ -509,11 +509,11 @@ function SaaSContent() {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition whitespace-nowrap shrink-0",
                   isAct
-                    ? "bg-slate-900 text-white shadow-md"
+                    ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 )}
               >
-                <Icon size={15} className={isAct ? "text-primary-400" : "text-slate-400"} />
+                <Icon size={15} className={isAct ? "text-white" : "text-slate-400"} />
                 <span>{tab.label}</span>
                 {tab.badge && (
                   <span
@@ -976,7 +976,7 @@ function SaaSContent() {
                       className={cn(
                         "px-3.5 py-1.5 rounded-xl text-xs font-bold transition",
                         selectedEntityType === et.value
-                          ? "bg-slate-900 text-white shadow-xs"
+                          ? "bg-primary-600 text-white shadow-xs"
                           : "text-slate-600 hover:bg-slate-100"
                       )}
                     >

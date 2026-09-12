@@ -355,6 +355,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
       { label: "Audit & Security Logs", href: "/audit-security", icon: Eye },
       { label: "HRM & Staff Members", href: "/hrm", icon: UserCog },
       { label: "AI Business Assistant", href: "/ai", icon: Activity },
+      { label: "API, Webhooks & Integrations", href: "/integrations", icon: Plug, badge: "API" },
       { label: "Business Intelligence Reports", href: "/reports", icon: BarChart3 },
       {
         label: "System & Store Settings",

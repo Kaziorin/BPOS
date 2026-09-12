@@ -1932,9 +1932,9 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
       <div className="flex gap-2 border-b border-slate-200 pb-2">
         <button
           onClick={() => setReportTab("consolidated")}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition ${
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${
             reportTab === "consolidated"
-              ? "bg-slate-900 text-white shadow-xs"
+              ? "bg-primary-600 text-white shadow-xs"
               : "text-slate-600 hover:bg-slate-100"
           }`}
         >
@@ -1942,9 +1942,9 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
         </button>
         <button
           onClick={() => setReportTab("sales")}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition ${
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${
             reportTab === "sales"
-              ? "bg-slate-900 text-white shadow-xs"
+              ? "bg-primary-600 text-white shadow-xs"
               : "text-slate-600 hover:bg-slate-100"
           }`}
         >
@@ -1952,9 +1952,9 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
         </button>
         <button
           onClick={() => setReportTab("purchases")}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition ${
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${
             reportTab === "purchases"
-              ? "bg-slate-900 text-white shadow-xs"
+              ? "bg-primary-600 text-white shadow-xs"
               : "text-slate-600 hover:bg-slate-100"
           }`}
         >
@@ -2040,15 +2040,15 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
               </div>
 
               {/* Net Total Footer */}
-              <div className="mt-8 rounded-2xl bg-slate-900 p-5 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="mt-8 rounded-2xl bg-primary-50 border border-primary-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <p className="text-xs text-slate-400">Final Net Balance for Period</p>
-                  <p className="text-xl font-bold text-white mt-0.5">
+                  <p className="text-xs text-primary-700 font-bold uppercase tracking-wider">Final Net Balance for Period</p>
+                  <p className="text-xl font-black text-slate-900 mt-0.5">
                     {data.status === "PAYABLE" ? "Payable to Treasury / NBR" : data.status === "REFUNDABLE" ? "Refundable Credit Balance" : "Zero Net Liability"}
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className={`text-2xl font-black ${data.netVATPayable > 0 ? "text-amber-400" : "text-emerald-400"}`}>
+                  <span className={`text-2xl font-black ${data.netVATPayable > 0 ? "text-amber-700" : "text-emerald-700"}`}>
                     {money(Math.abs(data.netVATPayable || 0))}
                   </span>
                 </div>

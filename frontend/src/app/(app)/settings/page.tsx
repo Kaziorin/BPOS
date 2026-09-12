@@ -520,7 +520,7 @@ function SettingsContent() {
                             className={cn(
                               "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold transition group text-left",
                               isAct
-                                ? "bg-slate-900 text-white shadow-md"
+                                ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
                                 : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"
                             )}
                           >
@@ -529,7 +529,7 @@ function SettingsContent() {
                                 className={cn(
                                   "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition",
                                   isAct
-                                    ? "bg-primary-500/30 text-primary-300"
+                                    ? "bg-white/20 text-white"
                                     : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-800"
                                 )}
                               >
@@ -1484,9 +1484,9 @@ function TaxSettingsTab({
             <span className="text-[10px] text-slate-400 block">VAT ({defaultVatRate}%)</span>
             <span className="font-mono font-bold text-amber-700">+৳{calcVat.toFixed(2)}</span>
           </div>
-          <div className="p-2.5 rounded-xl bg-slate-900 text-white border border-slate-900">
-            <span className="text-[10px] text-slate-400 block">Final Tender Bill</span>
-            <span className="font-mono font-bold text-emerald-400">৳{calcTotal.toFixed(2)}</span>
+          <div className="p-2.5 rounded-xl bg-primary-50 border border-primary-200">
+            <span className="text-[10px] text-primary-600 block">Final Tender Bill</span>
+            <span className="font-mono font-bold text-primary-900">৳{calcTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>

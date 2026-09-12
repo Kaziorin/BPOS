@@ -370,21 +370,18 @@ function AuditSecurityContent() {
         ]}
       />
 
-      {/* Master Top Banner */}
-      <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-6 text-white shadow-md">
-        <div className="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-primary-500/15 blur-3xl" />
-        <div className="absolute right-1/3 -bottom-12 h-48 w-48 rounded-full bg-emerald-500/10 blur-2xl" />
-
-        <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      {/* Master Top Banner (Clean Light Executive Theme) */}
+      <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
-            <div className="flex items-center gap-2 text-primary-300 text-xs font-bold uppercase tracking-widest">
-              <ShieldCheck size={14} className="text-emerald-400" />
+            <div className="flex items-center gap-2 text-primary-700 text-xs font-bold uppercase tracking-widest">
+              <ShieldCheck size={14} className="text-emerald-600" />
               <span>Enterprise SOC & Audit Trail (§17 Security & Compliance)</span>
             </div>
-            <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+            <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
               Audit Ledger & Threat Intelligence
             </h1>
-            <p className="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
+            <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
               Complete tamper-evident audit history across sales, inventory, accounting, and user sessions combined with automated WAF, SQL injection, and brute-force detection.
             </p>
           </div>
@@ -393,10 +390,10 @@ function AuditSecurityContent() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => switchTab("audit")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all shadow-xs cursor-pointer ${
                 activeTab === "audit"
-                  ? "bg-primary-500 text-white ring-2 ring-primary-300/40"
-                  : "bg-white/10 text-slate-200 hover:bg-white/20 backdrop-blur-md"
+                  ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
               <FileText size={15} />
@@ -405,10 +402,10 @@ function AuditSecurityContent() {
 
             <button
               onClick={() => switchTab("security")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all shadow-xs cursor-pointer ${
                 activeTab === "security"
-                  ? "bg-primary-500 text-white ring-2 ring-primary-300/40"
-                  : "bg-white/10 text-slate-200 hover:bg-white/20 backdrop-blur-md"
+                  ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
               <ShieldAlert size={15} />
@@ -417,10 +414,10 @@ function AuditSecurityContent() {
 
             <button
               onClick={() => switchTab("health")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all shadow-xs cursor-pointer ${
                 activeTab === "health"
-                  ? "bg-primary-500 text-white ring-2 ring-primary-300/40"
-                  : "bg-white/10 text-slate-200 hover:bg-white/20 backdrop-blur-md"
+                  ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
               <Activity size={15} />
@@ -435,9 +432,9 @@ function AuditSecurityContent() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => switchTab("audit")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
               activeTab === "audit"
-                ? "bg-slate-900 text-white shadow-xs"
+                ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
                 : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
             }`}
           >
@@ -447,9 +444,9 @@ function AuditSecurityContent() {
 
           <button
             onClick={() => switchTab("security")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
               activeTab === "security"
-                ? "bg-slate-900 text-white shadow-xs"
+                ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
                 : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
             }`}
           >
@@ -459,9 +456,9 @@ function AuditSecurityContent() {
 
           <button
             onClick={() => switchTab("health")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
               activeTab === "health"
-                ? "bg-slate-900 text-white shadow-xs"
+                ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
                 : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
             }`}
           >
@@ -471,9 +468,9 @@ function AuditSecurityContent() {
 
           <button
             onClick={() => switchTab("policies")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
               activeTab === "policies"
-                ? "bg-slate-900 text-white shadow-xs"
+                ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
                 : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
             }`}
           >

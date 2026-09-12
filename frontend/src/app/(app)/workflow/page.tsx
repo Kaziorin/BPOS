@@ -140,9 +140,9 @@ function WorkflowContent() {
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
         <button
           onClick={() => switchTab("inbox")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
             activeTab === "inbox"
-              ? "bg-slate-900 text-white shadow-xs"
+              ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
               : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
           }`}
         >
@@ -152,9 +152,9 @@ function WorkflowContent() {
 
         <button
           onClick={() => switchTab("rules")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
             activeTab === "rules"
-              ? "bg-slate-900 text-white shadow-xs"
+              ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
               : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
           }`}
         >
@@ -164,9 +164,9 @@ function WorkflowContent() {
 
         <button
           onClick={() => switchTab("business-rules")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
             activeTab === "business-rules"
-              ? "bg-slate-900 text-white shadow-xs"
+              ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
               : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
           }`}
         >
