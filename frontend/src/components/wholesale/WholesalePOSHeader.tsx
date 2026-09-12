@@ -200,7 +200,7 @@ export function WholesalePOSHeader({
         </div>
       </motion.header>
 
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         {metricCards.map((m, i) => (
           <motion.div
             key={m.label}
@@ -208,18 +208,29 @@ export function WholesalePOSHeader({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 + i * 0.04, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           >
-            <CustomStatCard
-              label={m.label}
-              value={m.value}
-              icon={m.Icon}
-              tone={m.tone}
+            <div
               className={cn(
-                "!rounded-2xl !p-3.5 transition-colors",
+                "flex items-center gap-2.5 rounded-xl border p-2 transition-colors",
                 darkMode
-                  ? "!border-slate-700 !bg-slate-900/90 !text-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.25)] [&_p]:!text-slate-400 [&_p.text-2xl]:!text-slate-50"
-                  : "!border-primary-50 !shadow-[0_2px_12px_rgba(0,102,255,0.06)]",
+                  ? "border-slate-700 bg-slate-900/60 shadow-sm"
+                  : "border-primary-50 bg-white shadow-[0_2px_8px_rgba(0,102,255,0.04)]",
               )}
-            />
+            >
+              <div className={cn(
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+                darkMode ? "bg-slate-800 text-slate-400" : "bg-primary-50 text-primary-600"
+              )}>
+                <m.Icon size={16} strokeWidth={2.2} />
+              </div>
+              <div className="min-w-0 overflow-hidden leading-tight">
+                <p className={cn("truncate text-[9px] font-bold uppercase tracking-wider", darkMode ? "text-slate-500" : "text-slate-400")}>
+                  {m.label}
+                </p>
+                <p className={cn("truncate text-[13px] font-black tabular-nums", darkMode ? "text-slate-100" : "text-slate-900")}>
+                  {m.value}
+                </p>
+              </div>
+            </div>
           </motion.div>
         ))}
       </div>

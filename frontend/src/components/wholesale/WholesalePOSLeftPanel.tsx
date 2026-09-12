@@ -168,62 +168,55 @@ export function WholesalePOSLeftPanel({
     "!bg-slate-800 !border-slate-700 !text-slate-100 placeholder:!text-slate-500";
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3">
+    <div className="flex h-full min-h-0 flex-col gap-2">
       {/* Search + quick actions */}
-      <div className="flex flex-wrap items-center gap-2.5">
-        <div className="relative min-w-[220px] flex-1">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative min-w-[200px] flex-1">
           <CustomInput
             ref={searchRef}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search products by name, SKU or barcode..."
-            leftIcon={<Search size={16} />}
+            placeholder="Search by name, SKU..."
+            leftIcon={<Search size={15} />}
             rightIcon={
               <button
                 type="button"
                 onClick={onScan}
                 className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-lg text-primary-600",
+                  "flex h-6 w-6 items-center justify-center rounded-lg text-primary-600",
                   darkMode ? "hover:bg-primary-500/15" : "hover:bg-primary-50",
                 )}
-                title="Scan barcode"
               >
-                <ScanLine size={16} />
+                <ScanLine size={14} />
               </button>
             }
             className={cn(
-              "!h-11 !rounded-2xl !py-2.5",
+              "!h-9 !rounded-xl !py-1.5",
               darkMode
-                ? cn(darkField, "shadow-[0_4px_18px_rgba(0,0,0,0.25)]")
-                : "!border-primary-100 shadow-[0_4px_18px_rgba(0,102,255,0.05)]",
+                ? cn(darkField, "shadow-sm")
+                : "!border-primary-100 shadow-xs",
             )}
             containerClassName="flex-1"
           />
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           {QUICK_ACTIONS.map((a) => (
             <CustomButton
               key={a.id}
               type="button"
               variant="outline"
+              size="sm"
               onClick={() => onQuickAction?.(a.id)}
               className={cn(
-                "!h-[64px] !w-[68px] !flex-col !gap-1 !rounded-2xl !px-1 !py-1.5",
+                "!h-9 !gap-1.5 !rounded-xl !px-2.5",
                 darkMode
-                  ? "!border-slate-700 !bg-slate-800 shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:!border-primary-500/40 hover:!bg-slate-700"
-                  : "!border-primary-50 shadow-[0_4px_14px_rgba(0,102,255,0.06)] hover:!border-primary-200 hover:!bg-primary-50/40",
+                  ? "!border-slate-700 !bg-slate-800 shadow-sm hover:!bg-slate-700"
+                  : "!border-primary-50 shadow-xs hover:!bg-primary-50/40",
               )}
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-600 text-white shadow-md shadow-primary-600/25">
-                <a.Icon size={15} strokeWidth={2.2} />
-              </span>
-              <span
-                className={cn(
-                  "text-[9px] font-bold leading-tight",
-                  darkMode ? "text-slate-400" : "text-gray-600",
-                )}
-              >
+              <a.Icon size={14} className="text-primary-500" />
+              <span className={cn("text-[10px] font-bold", darkMode ? "text-slate-400" : "text-gray-600")}>
                 {a.label}
               </span>
             </CustomButton>
@@ -238,25 +231,25 @@ export function WholesalePOSLeftPanel({
         onChange={(id) => setCategory(id as WsCategory)}
         themeColor="primary"
         className={cn(
-          "!rounded-2xl !p-1.5 shadow-sm",
+          "!rounded-xl !p-1 shadow-xs",
           darkMode
-            ? "!border-slate-700 !bg-slate-900/90"
-            : "!border-primary-50 !bg-white/90",
+            ? "!border-slate-700/50 !bg-slate-900/60"
+            : "!border-primary-50 !bg-white/80",
         )}
       />
 
       {/* Filters row */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
           <CustomButton
             type="button"
             variant="outline"
-            size="sm"
+            size="xs"
             onClick={onOpenFilters}
             leftIcon={<Filter size={13} />}
             className={cn(
-              "!rounded-xl",
-              darkMode && "!border-slate-700 !bg-slate-800 !text-slate-100 hover:!bg-slate-700",
+              "!h-9 !rounded-xl !px-3 !text-[11px] font-bold",
+              darkMode ? "!border-slate-700 !bg-slate-800 !text-slate-200" : "!border-gray-200 !bg-white !text-slate-600",
             )}
           >
             Filters
@@ -266,20 +259,20 @@ export function WholesalePOSLeftPanel({
             value="all"
             options={[{ value: "all", label: warehouseName }]}
             className={cn(
-              "!h-9 !rounded-xl !py-1.5 !text-xs !font-semibold",
+              "!h-9 !rounded-xl !py-1.5 !text-[11px] !font-bold",
               darkMode && darkField,
             )}
-            containerClassName="w-[160px]"
+            containerClassName="w-[150px]"
           />
 
           <div
             className={cn(
-              "inline-flex h-9 items-center rounded-xl border px-3",
+              "inline-flex h-9 items-center rounded-xl border px-3 transition-colors",
               darkMode ? "border-slate-700 bg-slate-800" : "border-gray-200 bg-white",
             )}
           >
             <CustomCheckbox
-              label="Low Stock Only"
+              label={<span className="text-[11px] font-bold text-slate-500 whitespace-nowrap">Low Stock Only</span>}
               checked={lowStockOnly}
               onChange={(e) => setLowStockOnly(e.target.checked)}
               themeColor="primary"
@@ -292,50 +285,48 @@ export function WholesalePOSLeftPanel({
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as WsSortBy)}
             options={[
-              { value: "name-asc", label: "Sort by: Name A–Z" },
-              { value: "name-desc", label: "Sort by: Name Z–A" },
+              { value: "name-asc", label: "Sort by: Name A-Z" },
+              { value: "name-desc", label: "Sort by: Name Z-A" },
               { value: "price-asc", label: "Sort by: Price ↑" },
               { value: "price-desc", label: "Sort by: Price ↓" },
               { value: "stock", label: "Sort by: Stock" },
             ]}
             className={cn(
-              "!h-9 !rounded-xl !py-1.5 !text-xs !font-semibold",
+              "!h-9 !rounded-xl !py-1.5 !text-[11px] !font-bold",
               darkMode && darkField,
             )}
-            containerClassName="w-[170px]"
+            containerClassName="w-[140px]"
           />
 
           <div
             className={cn(
-              "flex rounded-xl border p-0.5",
+              "flex rounded-lg border p-0.5",
               darkMode ? "border-slate-700 bg-slate-800" : "border-gray-200 bg-white",
             )}
           >
             <CustomButton
               type="button"
               variant={viewMode === "grid" ? "primary" : "ghost"}
-              size="sm"
+              size="xs"
               onClick={() => setViewMode("grid")}
               className={cn(
-                "!h-8 !w-8 !rounded-lg !px-0",
-                darkMode && viewMode !== "grid" && "!text-slate-400 hover:!bg-slate-700 hover:!text-slate-100",
+                "!h-7 !w-7 !rounded-md !px-0",
+                darkMode && viewMode !== "grid" && "!text-slate-400 hover:!bg-slate-700",
               )}
-              aria-label="Grid view"
             >
-              <Grid2X2 size={14} />
+              <Grid2X2 size={13} />
             </CustomButton>
             <CustomButton
               type="button"
               variant={viewMode === "list" ? "primary" : "ghost"}
-              size="sm"
+              size="xs"
               onClick={() => setViewMode("list")}
               className={cn(
-                "!h-8 !w-8 !rounded-lg !px-0",
-                darkMode && viewMode !== "list" && "!text-slate-400 hover:!bg-slate-700 hover:!text-slate-100",
+                "!h-7 !w-7 !rounded-md !px-0",
+                darkMode && viewMode !== "list" && "!text-slate-400 hover:!bg-slate-700",
               )}
-              aria-label="List view"
             >
-              <List size={14} />
+              <List size={13} />
             </CustomButton>
           </div>
         </div>

@@ -95,69 +95,61 @@ export function WholesalePOSFooter({
 
       <div
         className={cn(
-          "flex flex-wrap items-end justify-between gap-3 rounded-2xl px-3.5 py-3 backdrop-blur-md",
+          "flex flex-wrap items-center justify-between gap-3 rounded-2xl px-3 py-2 backdrop-blur-md",
           darkMode
-            ? "border border-slate-700/80 bg-slate-900/75 shadow-[0_4px_24px_rgba(0,0,0,0.35)]"
-            : "border border-primary-100/70 bg-white/90 shadow-[0_4px_24px_rgba(0,102,255,0.06)]",
+            ? "border border-slate-700/80 bg-slate-900/75 shadow-sm"
+            : "border-primary-100/70 bg-white/90 shadow-sm",
         )}
       >
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
           <MetaChip Icon={Warehouse} label="Warehouse" value={warehouseName} darkMode={darkMode} />
           <MetaChip
             Icon={User}
-            label="Sales Rep"
+            label="Rep"
             value={salesRepName}
-            sub={salesRepId}
             avatar
             darkMode={darkMode}
           />
-          <MetaChip Icon={Calendar} label="Delivery Date" value={deliveryDate} darkMode={darkMode} />
+          <MetaChip Icon={Calendar} label="Delivery" value={deliveryDate} darkMode={darkMode} />
           <MetaChip Icon={Truck} label="Method" value={deliveryMethod} darkMode={darkMode} />
-          <MetaChip Icon={CreditCard} label="Payment Term" value={paymentTerm} darkMode={darkMode} />
-          <MetaChip Icon={Percent} label="Commission" value={`${commission}%`} darkMode={darkMode} />
+          <MetaChip Icon={CreditCard} label="Term" value={paymentTerm} darkMode={darkMode} />
+          <MetaChip Icon={Percent} label="Comm." value={`${commission}%`} darkMode={darkMode} />
           <MetaChip
             Icon={StickyNote}
             label="Notes"
             value={noteCount ? `${noteCount}` : "Add"}
             darkMode={darkMode}
           />
-          <MetaChip
-            Icon={Paperclip}
-            label="Attachments"
-            value={attachmentCount ? `${attachmentCount}` : "0"}
-            darkMode={darkMode}
-          />
         </div>
 
-        <div className="flex shrink-0 items-center gap-2.5">
+        <div className="flex shrink-0 items-center gap-2">
           <CustomButton
             type="button"
             variant="outline"
-            size="lg"
+            size="sm"
             onClick={onHold}
-            leftIcon={<PauseCircle size={16} />}
+            leftIcon={<PauseCircle size={15} />}
             className={cn(
-              "!h-12 !rounded-2xl !border-2 !border-primary-500 !px-5 !text-[13px] !font-bold !text-primary-600",
+              "!h-10 !rounded-xl !border-2 !border-primary-500 !px-4 !text-[12px] !font-bold !text-primary-600",
               darkMode
                 ? "!bg-slate-900 hover:!bg-slate-800 !text-primary-400"
                 : "!bg-white hover:!bg-primary-50",
             )}
           >
-            Hold Order
+            Hold
           </CustomButton>
 
-          <motion.div whileHover={canProceed && !submitting ? { y: -2 } : undefined}>
+          <motion.div whileHover={canProceed && !submitting ? { y: -1 } : undefined}>
             <CustomButton
               type="button"
-              size="lg"
+              size="sm"
               disabled={!canProceed || submitting}
               loading={submitting}
               onClick={onProceed}
-              leftIcon={<Truck size={16} />}
-              rightIcon={<ArrowRight size={16} strokeWidth={2.5} />}
-              className="!h-12 !rounded-2xl !px-6 !text-[13px] !font-bold shadow-lg shadow-primary-600/30"
+              leftIcon={<Truck size={15} />}
+              className="!h-10 !rounded-xl !px-5 !text-[12px] !font-bold shadow-md shadow-primary-600/20"
             >
-              {submitting ? "Processing…" : "Proceed to Delivery"}
+              {submitting ? "Wait…" : "Proceed to Delivery"}
             </CustomButton>
           </motion.div>
         </div>
