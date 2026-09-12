@@ -554,7 +554,7 @@ export default function RetailCustomerDisplayPage() {
                   )}
                   {tax > 0 && (
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-500 font-medium">Tax (5%)</span>
+                      <span className="text-gray-500 font-medium">Tax (15%)</span>
                       <span className="font-bold text-gray-800 tabular-nums">{fmt(tax)}</span>
                     </div>
                   )}
