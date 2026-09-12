@@ -63,6 +63,17 @@ import {
   GitMerge,
   GitBranch,
   Zap,
+  Database,
+  Cpu,
+  HeartHandshake,
+  ShoppingBag,
+  Globe,
+  BarChart2,
+  ListTodo,
+  ShieldAlert,
+  Repeat,
+  Printer,
+  UserCheck,
   type LucideIcon,
 } from "lucide-react";
 import { api } from "./api";
@@ -164,15 +175,23 @@ const iconMap: Record<string, LucideIcon> = {
   Server: Warehouse,
   Ban: Shield,
   Palette: Settings,
-  Globe: Settings,
   Play: DollarSign,
-  Printer: Tags,
   User: Users,
   Upload: FileText,
   Plus: Settings,
-  ShoppingBag: ShoppingCart,
   GitMerge: RefreshCw,
   Book: BookOpen,
+  Database,
+  Cpu,
+  HeartHandshake,
+  ShoppingBag,
+  Globe,
+  BarChart2,
+  ListTodo,
+  ShieldAlert,
+  Repeat,
+  Printer,
+  UserCheck,
 };
 
 function getIcon(name: string | null | undefined): LucideIcon {
@@ -214,6 +233,9 @@ export interface NavGroup {
 
 // ─── 5-Workspace Master Navigation Architecture ───────────────────────
 export const DEFAULT_MASTER_NAV: NavGroup[] = [
+  // ──────────────────────────────────────────────────────────────────────
+  // 1. POS & RETAIL COUNTER
+  // ──────────────────────────────────────────────────────────────────────
   {
     title: "1. POS & Retail Counter",
     items: [
@@ -227,13 +249,45 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
           { label: "Held Carts / Orders", href: "/pos/holds", icon: PauseCircle },
           { label: "Price & Barcode Checker", href: "/pos/price-checker", icon: Search },
           { label: "Self-Checkout Kiosk", href: "/pos/self-checkout", icon: Monitor },
-          { label: "Customer Facing Display", href: "/customer-display", icon: Monitor },
+          { label: "Customer Display (POS)", href: "/pos/customer-display", icon: Monitor },
+          { label: "Customer Display (Full Screen)", href: "/customer-display", icon: Monitor },
         ],
       },
       { label: "Cash Register & Shifts", href: "/cash-register", icon: DollarSign },
-      { label: "Customers & Loyalty", href: "/customers", icon: Users },
+      {
+        label: "Customers & Loyalty",
+        href: "/customers",
+        icon: Users,
+        children: [
+          { label: "Customer Directory", href: "/customers", icon: Users },
+          { label: "Loyalty Programme", href: "/loyalty", icon: Star },
+        ],
+      },
+      {
+        label: "Payments & Transactions",
+        href: "/payments",
+        icon: CreditCard,
+      },
+      {
+        label: "Invoices & Billing",
+        href: "/invoices",
+        icon: Receipt,
+        children: [
+          { label: "All Invoices", href: "/invoices", icon: Receipt },
+          { label: "Collection & Due Invoices", href: "/invoices/collection", icon: Wallet },
+        ],
+      },
+      {
+        label: "Appointments & Bookings",
+        href: "/appointments",
+        icon: Calendar,
+      },
     ],
   },
+
+  // ──────────────────────────────────────────────────────────────────────
+  // 2. INVENTORY & PROCUREMENT
+  // ──────────────────────────────────────────────────────────────────────
   {
     title: "2. Inventory & Procurement",
     items: [
@@ -253,10 +307,11 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
       },
       {
         label: "Inventory Operations",
-        href: "/inventory/stock",
+        href: "/inventory",
         icon: Warehouse,
         children: [
-          { label: "Stock Overview", href: "/inventory/stock", icon: Package },
+          { label: "Inventory Overview", href: "/inventory", icon: BarChart3 },
+          { label: "Stock Levels", href: "/inventory/stock", icon: Package },
           { label: "Warehouses & Storage", href: "/warehouses", icon: Warehouse },
           { label: "Stock Movements", href: "/inventory/movements", icon: ArrowLeftRight },
           { label: "Inter-Branch Transfers", href: "/inventory/transfers", icon: RefreshCw },
@@ -280,36 +335,57 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
           { label: "Supplier Directory", href: "/suppliers", icon: Truck },
         ],
       },
-      { label: "Warehouses & Storage", href: "/warehouses", icon: Warehouse },
+      { label: "Warranty Management", href: "/warranty", icon: ShieldAlert },
+      { label: "Hardware & Devices", href: "/hardware", icon: Cpu },
     ],
   },
+
+  // ──────────────────────────────────────────────────────────────────────
+  // 3. SALES & OMNICHANNEL
+  // ──────────────────────────────────────────────────────────────────────
   {
     title: "3. Sales & Omnichannel",
     items: [
       { label: "Sales Invoices & History", href: "/sales", icon: Receipt },
       { label: "Sales Orders", href: "/sales/orders", icon: ClipboardList },
       { label: "Quotations & Estimates", href: "/sales/quotations", icon: FileText },
-      { label: "Customer Credit & Dues", href: "/credit", icon: Wallet },
-      { label: "Installments & EMI", href: "/installments", icon: Calendar },
-      { label: "Customer Returns & RMA", href: "/returns", icon: RotateCcw },
-      { label: "Promotions & Coupons", href: "/promotions", icon: Gift },
-      { label: "Delivery & Logistics", href: "/delivery", icon: Truck },
-    ],
-  },
-  {
-    title: "Industry Verticals",
-    items: [
       {
-        label: "Restaurant",
-        href: "/restaurant",
-        icon: UtensilsCrossed,
+        label: "Customer Credit & Dues",
+        href: "/credit",
+        icon: Wallet,
         children: [
-          { label: "Restaurant Dashboard", href: "/restaurant", icon: UtensilsCrossed },
-          { label: "Restaurant POS", href: "/restaurant/pos", icon: Monitor },
+          { label: "Credit Overview", href: "/credit", icon: Wallet },
+          { label: "Aging Report", href: "/credit/aging", icon: Clock },
         ],
       },
+      { label: "Installments & EMI", href: "/installments", icon: Calendar },
+      {
+        label: "Returns & RMA",
+        href: "/returns",
+        icon: RotateCcw,
+        children: [
+          { label: "Customer Returns", href: "/returns", icon: RotateCcw },
+          { label: "RMA Management", href: "/rma", icon: Repeat },
+        ],
+      },
+      {
+        label: "Promotions & Coupons",
+        href: "/promotions",
+        icon: Gift,
+        children: [
+          { label: "Promotions Overview", href: "/promotions", icon: Gift },
+          { label: "Coupon Codes", href: "/promotions/coupons", icon: Tag },
+        ],
+      },
+      { label: "Delivery & Logistics", href: "/delivery", icon: Truck },
+      { label: "Omnichannel Hub", href: "/omnichannel", icon: Globe },
+      { label: "Marketing Campaigns", href: "/marketing", icon: Megaphone },
     ],
   },
+
+  // ──────────────────────────────────────────────────────────────────────
+  // 4. FINANCE & ACCOUNTING
+  // ──────────────────────────────────────────────────────────────────────
   {
     title: "4. Finance & Accounting",
     items: [
@@ -328,14 +404,47 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         ],
       },
       { label: "Tax & NBR VAT (Mushak)", href: "/tax", icon: DollarSign },
-      { label: "Expenses & Petty Cash", href: "/expenses", icon: DollarSign },
-      { label: "Sales Commission", href: "/commission", icon: Percent },
+      {
+        label: "Expenses & Petty Cash",
+        href: "/expenses",
+        icon: DollarSign,
+        children: [
+          { label: "All Expenses", href: "/expenses", icon: DollarSign },
+          { label: "Expense Categories", href: "/expenses/categories", icon: Tags },
+          { label: "Petty Cash Fund", href: "/expenses/petty-cash", icon: Wallet },
+          { label: "Recurring Expenses", href: "/expenses/recurring", icon: Repeat },
+          { label: "Expenses Report", href: "/expenses/report", icon: BarChart3 },
+        ],
+      },
+      {
+        label: "Sales Commission",
+        href: "/commission",
+        icon: Percent,
+        children: [
+          { label: "Commission Overview", href: "/commission", icon: Percent },
+          { label: "Commission Agents", href: "/commission/agents", icon: UserCheck },
+          { label: "Commission Rules", href: "/commission/rules", icon: Zap },
+        ],
+      },
+      { label: "Sales Targets & KPIs", href: "/targets", icon: Target },
     ],
   },
+
+  // ──────────────────────────────────────────────────────────────────────
+  // 5. ADMINISTRATION & INTELLIGENCE
+  // ──────────────────────────────────────────────────────────────────────
   {
     title: "5. Administration & Intelligence",
     items: [
-      { label: "Executive Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      {
+        label: "Executive Dashboard",
+        href: "/dashboard",
+        icon: LayoutDashboard,
+        children: [
+          { label: "Dashboard Overview", href: "/dashboard", icon: LayoutDashboard },
+          { label: "Dashboard Builder", href: "/dashboard/builder", icon: Layers },
+        ],
+      },
       { label: "Platform & SaaS Management", href: "/saas", icon: Shield, badge: "SaaS" },
       { label: "Onboarding Wizard", href: "/onboarding", icon: Sparkles },
       { label: "Multi-Branch Outlets", href: "/branches", icon: Building2 },
@@ -347,8 +456,9 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         children: [
           { label: "Approval Center", href: "/workflow", icon: GitMerge },
           { label: "Pending Approvals", href: "/workflow/pending", icon: Clock },
+          { label: "My Pending Approvals", href: "/workflow/pending/mine", icon: UserCheck },
           { label: "Approval Chains & Rules", href: "/workflow/rules", icon: GitBranch },
-          { label: "Business Rules (§10.27)", href: "/business-rules", icon: Zap },
+          { label: "Business Rules Engine", href: "/business-rules", icon: Zap },
         ],
       },
       { label: "Roles & Permissions (RBAC)", href: "/rbac", icon: Shield },
@@ -358,6 +468,19 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
       { label: "API, Webhooks & Integrations", href: "/integrations", icon: Plug, badge: "API" },
       { label: "Business Intelligence Reports", href: "/reports", icon: BarChart3 },
       {
+        label: "Notifications & Alerts",
+        href: "/notifications",
+        icon: Bell,
+        children: [
+          { label: "Notification Center", href: "/notifications", icon: Bell },
+          { label: "Channels & Delivery", href: "/notifications/channels", icon: Plug },
+          { label: "Message Templates", href: "/notifications/templates", icon: FileText },
+        ],
+      },
+      { label: "Tasks & To-Dos", href: "/tasks", icon: ListTodo },
+      { label: "Data & Import/Export", href: "/data", icon: Database },
+      { label: "System Performance", href: "/system/performance", icon: Cpu },
+      {
         label: "System & Store Settings",
         href: "/settings",
         icon: Settings,
@@ -366,7 +489,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
           { label: "Company & Identity", href: "/settings?tab=company", icon: Building },
           { label: "Branches & Outlets", href: "/settings?tab=branch", icon: Store },
           { label: "POS Terminal Settings", href: "/settings?tab=pos", icon: Monitor },
-          { label: "Offline Sync Engine (§13)", href: "/settings?tab=sync", icon: HardDrive },
+          { label: "Offline Sync Engine", href: "/settings?tab=sync", icon: HardDrive },
           { label: "Tax & NBR VAT", href: "/settings?tab=tax", icon: DollarSign },
           { label: "Invoice & Print Layout", href: "/settings?tab=invoice", icon: FileText },
           { label: "Payment Gateways", href: "/settings?tab=payment", icon: CreditCard },
@@ -375,6 +498,10 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
       },
     ],
   },
+
+  // ──────────────────────────────────────────────────────────────────────
+  // 6. INDUSTRY VERTICALS
+  // ──────────────────────────────────────────────────────────────────────
   {
     title: "6. Industry Verticals",
     items: [
@@ -383,8 +510,10 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         href: "/restaurant",
         icon: UtensilsCrossed,
         children: [
-          { label: "Floor & Table Map POS", href: "/restaurant/pos", icon: UtensilsCrossed },
           { label: "Restaurant Management", href: "/restaurant", icon: LayoutDashboard },
+          { label: "Floor & Table Map POS", href: "/restaurant/pos", icon: UtensilsCrossed },
+          { label: "Customer Display Screen", href: "/restaurant/customer-display", icon: Monitor },
+          { label: "Slots & Reservation Matrix", href: "/restaurant/slots-matrix", icon: Calendar },
         ],
       },
       {
@@ -392,23 +521,27 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         href: "/pharmacy",
         icon: Pill,
         children: [
+          { label: "Pharmacy Operations", href: "/pharmacy", icon: FlaskConical },
           { label: "FEFO Batch & Expiry POS", href: "/pharmacy/pos", icon: Pill },
           { label: "Patient Display Screen", href: "/pharmacy/patient-display", icon: Monitor },
-          { label: "Pharmacy Operations", href: "/pharmacy", icon: FlaskConical },
         ],
       },
       {
         label: "Grocery & Supermarket",
         href: "/grocery",
         icon: Scale,
+        children: [
+          { label: "Grocery Hub", href: "/grocery", icon: Scale },
+          { label: "Grocery POS", href: "/grocery/pos", icon: ShoppingCart },
+        ],
       },
       {
         label: "Wholesale & B2B",
         href: "/wholesale",
         icon: Truck,
         children: [
-          { label: "B2B Credit & Tier POS", href: "/wholesale/pos", icon: FileText },
           { label: "Wholesale Commercial Hub", href: "/wholesale", icon: Building2 },
+          { label: "B2B Credit & Tier POS", href: "/wholesale/pos", icon: FileText },
         ],
       },
       {
@@ -416,8 +549,8 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         href: "/manufacturing",
         icon: Factory,
         children: [
-          { label: "Recipe & Batch POS", href: "/manufacturing/pos", icon: Factory },
           { label: "Production & BOM Hub", href: "/manufacturing", icon: Layers },
+          { label: "Recipe & Batch POS", href: "/manufacturing/pos", icon: Factory },
         ],
       },
       {
@@ -425,8 +558,8 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         href: "/salon",
         icon: Scissors,
         children: [
-          { label: "Stylist & Service POS", href: "/salon/pos", icon: Scissors },
           { label: "Salon & Booking Hub", href: "/salon", icon: Calendar },
+          { label: "Stylist & Service POS", href: "/salon/pos", icon: Scissors },
         ],
       },
       {
@@ -434,8 +567,9 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         href: "/repair",
         icon: Wrench,
         children: [
-          { label: "Device Intake & Job POS", href: "/repair/pos", icon: Wrench },
           { label: "Repair Service Center", href: "/repair", icon: CheckSquare },
+          { label: "Device Intake & Job POS", href: "/repair/pos", icon: Wrench },
+          { label: "Devices & Inventory", href: "/devices", icon: Cpu },
         ],
       },
       {
@@ -443,8 +577,8 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         href: "/franchise",
         icon: Store,
         children: [
-          { label: "Multi-Outlet Store POS", href: "/franchise/pos", icon: Store },
           { label: "Franchise HQ Hub", href: "/franchise", icon: Building2 },
+          { label: "Multi-Outlet Store POS", href: "/franchise/pos", icon: Store },
         ],
       },
     ],
