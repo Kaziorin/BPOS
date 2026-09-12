@@ -43,9 +43,9 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
     ? cart.reduce((sum, item) => sum + item.lineTotal, 0)
     : result.total;
 
-  const rawVat = result.total > subtotal ? result.total - subtotal : subtotal * 0.05;
+  const rawVat = result.total > subtotal ? result.total - subtotal : 0;
   const vatAmount = Math.max(0, rawVat);
-  const vatRatePct = subtotal > 0 && vatAmount > 0 ? Math.round((vatAmount / subtotal) * 100) : 5;
+  const vatRatePct = subtotal > 0 && vatAmount > 0 ? Math.round((vatAmount / subtotal) * 100) : 15;
   const netPayable = result.total;
 
   // Primary payment method text

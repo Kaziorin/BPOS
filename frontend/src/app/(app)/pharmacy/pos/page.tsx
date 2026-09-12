@@ -414,7 +414,7 @@ export default function PharmacyPOSPage() {
   const lineDiscountSum = useMemo(() => cart.reduce((s, i) => s + i.discountAmount, 0), [cart]);
   const totalDiscount = lineDiscountSum + discountTotal;
   const afterDiscount = Math.max(subtotal - totalDiscount, 0);
-  const vatAmount = +(afterDiscount * 0.05).toFixed(2);
+  const vatAmount = +(afterDiscount * 0.15).toFixed(2);
   const total = Math.max(afterDiscount + vatAmount, 0);
   const itemCount = cart.reduce((s, i) => s + i.qty, 0);
 

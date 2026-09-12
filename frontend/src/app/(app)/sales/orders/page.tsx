@@ -117,6 +117,7 @@ export default function SalesOrdersPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [total, setTotal] = useState(0);
+  const [totalVolume, setTotalVolume] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
   // Selected Order for Line Items / Invoice Modal
@@ -144,23 +145,27 @@ export default function SalesOrdersPage() {
         ? res
         : [];
       
-      const totalRecords = typeof res?.pagination?.total === "number"
-        ? res.pagination.total
-        : typeof res?.data?.total === "number"
-        ? res.data.total
+      const pagination = res?.pagination || res?.extra?.pagination || res?.data?.pagination;
+
+      const totalRecords = typeof pagination?.total === "number"
+        ? pagination.total
         : list.length;
       
-      const totalPageCount = typeof res?.pagination?.totalPages === "number"
-        ? res.pagination.totalPages
+      const totalPageCount = typeof pagination?.totalPages === "number"
+        ? pagination.totalPages
         : Math.max(1, Math.ceil(totalRecords / limit));
+
+      const vol = typeof pagination?.totalVolume === "number" ? pagination.totalVolume : 0;
 
       setOrders(list);
       setTotal(totalRecords);
       setTotalPages(totalPageCount);
+      setTotalVolume(vol);
     } catch (err) {
       console.error("Failed to load sales orders:", err);
       setOrders([]);
       setTotal(0);
+      setTotalVolume(0);
     } finally {
       setLoading(false);
     }
@@ -172,7 +177,7 @@ export default function SalesOrdersPage() {
 
   // Overall KPI Metrics
   const totalOrdersCount = total || orders.length;
-  const totalOrderValue = orders.reduce((acc, o) => acc + Number(o.total || 0), 0);
+  const totalOrderValue = totalVolume || orders.reduce((acc, o) => acc + Number(o.total || 0), 0);
   const fulfilledOrders = orders.filter((o) => o.status === "DELIVERED" || o.status === "COMPLETED");
   const fulfillmentRate = orders.length > 0 ? Math.round((fulfilledOrders.length / orders.length) * 100) : 94;
   const pendingPickingCount = orders.filter((o) => o.status === "PICKING" || o.status === "STOCK_RESERVED" || o.status === "CONFIRMED").length;
