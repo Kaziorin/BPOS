@@ -50,7 +50,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
 
   // Primary payment method text
   const primaryMethod = payments && payments.length > 0 ? payments[0].method.toUpperCase() : "CASH";
-  const tenderText = `${primaryMethod} (Paid: ৳${result.paidTotal.toFixed(2)})`;
+  const tenderText = `${primaryMethod} (Paid: ৳${(result.paidTotal ?? result.total ?? 0).toFixed(2)})`;
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-[400px] mx-auto">
