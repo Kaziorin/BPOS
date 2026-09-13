@@ -38,6 +38,8 @@ import {
   Gift,
   DollarSign,
   Printer,
+  ChevronRight,
+  UserPlus,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -87,6 +89,7 @@ const DEFAULT_STAFF: Staff[] = [
   { id: "st-3", name: "Tania Akter", role: "Skin Expert" },
   { id: "st-4", name: "Farhana", role: "Nail Artist" },
 ];
+
 const CATEGORIES = [
   { id: "all", label: "All Services", icon: LayoutGrid },
   { id: "hair", label: "Hair Care", icon: Scissors },
@@ -169,16 +172,6 @@ export default function SalonPOSPage() {
     }).catch(() => {});
   }, []);
 
-  // Sync Tab with Category
-  const handleCategoryClick = (catId: string) => {
-    setActiveCategory(catId);
-    if (catId === "products") {
-      setActiveTab("products");
-    } else {
-      setActiveTab("services");
-    }
-  };
-
   // --- Computed ---
   const selectedCustomer = useMemo(() => customers.find(c => (c.id || c._id) === customerId), [customers, customerId]);
   const selectedGlobalStylist = useMemo(() => DEFAULT_STAFF.find(s => s.id === globalStylistId), [globalStylistId]);
@@ -232,7 +225,6 @@ export default function SalonPOSPage() {
 
   const loyaltyValue = useMemo(() => {
     if (!useLoyaltyPoints || !selectedCustomer) return 0;
-    // Assuming 10 points = ৳1 for demo
     return Math.min(subtotal - discountValue, (selectedCustomer.loyalty_points || 0) / 10);
   }, [useLoyaltyPoints, selectedCustomer, subtotal, discountValue]);
 
@@ -240,6 +232,15 @@ export default function SalonPOSPage() {
   const total = Math.max(0, subtotal - discountValue - loyaltyValue + tax + tipValue);
 
   // --- Handlers ---
+  const handleCategoryClick = (catId: string) => {
+    setActiveCategory(catId);
+    if (catId === "products") {
+      setActiveTab("products");
+    } else {
+      setActiveTab("services");
+    }
+  };
+
   const addToCart = (item: SalonItem) => {
     const staff = DEFAULT_STAFF.find(s => s.id === globalStylistId) || DEFAULT_STAFF[0];
     setCart(prev => {
@@ -285,6 +286,8 @@ export default function SalonPOSPage() {
     setCart([]);
     setSelectedAddOnIds([]);
     setOrderNote("");
+    setDiscountInput("");
+    setTipInput("");
     toast.info("Cart cleared");
   };
 
@@ -388,130 +391,107 @@ export default function SalonPOSPage() {
 
   return (
     <>
-    <div className="h-screen w-screen flex flex-col bg-[#F3F4FF] overflow-hidden text-slate-800" style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}>
+    <div className="h-screen w-screen flex flex-col bg-[#F8F9FE] overflow-hidden text-slate-800" style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}>
       
+      {/* Premium Background Elements */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-100/50 blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-violet-100/50 blur-[100px]" />
+      </div>
+
       {/* --- TOP HEADER --- */}
-      <header className="flex-none h-16 px-6 flex items-center justify-between gap-6 bg-white/40 backdrop-blur-md border-b border-white/20 z-30">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 rotate-3">
-            <Smile size={24} strokeWidth={2.5} />
+      <header className="flex-none h-[72px] px-8 flex items-center justify-between gap-8 bg-white/70 backdrop-blur-xl border-b border-indigo-50 z-30 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-xl shadow-indigo-200 rotate-3 transform transition hover:rotate-0">
+            <Smile size={28} strokeWidth={2.5} />
           </div>
           <div>
-            <h1 className="text-lg font-black tracking-tight leading-none text-indigo-950">Glow & Style</h1>
-            <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mt-1">Beauty Salon & Spa</p>
+            <h1 className="text-xl font-black tracking-tight leading-none text-indigo-950">Glow & Style</h1>
+            <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Beauty Salon & Spa
+            </p>
           </div>
         </div>
 
-        <div className="flex-1 max-w-lg relative group">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+        <div className="flex-1 max-w-xl relative group">
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search service or product..."
-            className="w-full h-11 rounded-2xl bg-white border border-transparent px-11 text-sm font-medium focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100 transition-all outline-none shadow-sm"
+            placeholder="Search premium services or luxury products..."
+            className="w-full h-[46px] rounded-2xl bg-white/80 border border-indigo-50/50 px-12 text-sm font-semibold text-slate-700 focus:border-indigo-400 focus:ring-8 focus:ring-indigo-50/50 transition-all outline-none shadow-sm"
           />
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-3 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100">
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+        <div className="flex items-center gap-5">
+          <div className="hidden xl:flex items-center gap-4 bg-white/80 px-5 py-2.5 rounded-2xl shadow-sm border border-indigo-50/50">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
               <Calendar size={18} />
             </div>
-            <div className="text-right leading-none">
-              <p className="text-xs font-black text-slate-900">20 May, 2025</p>
-              <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Tue, 10:30 AM</p>
+            <div className="text-right leading-tight">
+              <p className="text-xs font-black text-slate-900 tracking-tight">20 May, 2025</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Tue, 10:30 AM</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-9 h-9 rounded-full bg-slate-200 border-2 border-white shadow-sm flex items-center justify-center overflow-hidden">
+          <div className="flex items-center gap-3.5 bg-white/80 pl-2 pr-5 py-1.5 rounded-full border border-indigo-50/50 shadow-sm">
+            <div className="w-9 h-9 rounded-full bg-slate-100 border-2 border-white shadow-sm flex items-center justify-center overflow-hidden ring-1 ring-indigo-50">
               <User size={20} className="text-slate-500" />
             </div>
             <div className="hidden sm:block leading-none">
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">Cashier</p>
-              <p className="text-xs font-black text-slate-900 mt-0.5">Rahat</p>
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Operator</p>
+              <p className="text-xs font-black text-indigo-950 mt-1 uppercase tracking-tight">Rahat</p>
             </div>
           </div>
 
-          <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500">
-            <Wifi size={18} />
+          <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100/50">
+            <Wifi size={20} />
           </div>
-
-          <button
-            onClick={() => setCustomerOpen(true)}
-            className="flex items-center gap-3 pl-4 pr-3 py-2 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 active:scale-95 transition-all group"
-          >
-            <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center">
-              <User size={14} />
-            </div>
-            <span className="text-xs font-black">{selectedCustomer?.name || "Walk-in"}</span>
-            <ChevronLeft size={16} className="rotate-270 group-hover:translate-y-0.5 transition-transform" />
-          </button>
         </div>
       </header>
 
       <div className="flex-1 flex min-h-0 relative">
+
         {/* --- LEFT NAVIGATION --- */}
-        <aside className="w-24 lg:w-40 flex-none flex flex-col gap-2 p-3 bg-white/40 border-r border-white/20 z-20">
+        <aside className="w-[100px] lg:w-44 flex-none flex flex-col gap-2 p-4 bg-white/50 backdrop-blur-md border-r border-indigo-50 z-20 overflow-y-auto no-scrollbar">
           {CATEGORIES.map((cat) => {
             const active = activeCategory === cat.id;
             const Icon = cat.icon;
-            const handleAddCustomer = async () => {
-    if (!newCustomer.name || !newCustomer.phone) {
-      toast.error("Name and Phone are required");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const res: any = await api.post("/api/v1/customers", newCustomer);
-      const saved = res?.data || res;
-      setCustomers(prev => [saved, ...prev]);
-      setCustomerId(saved.id || saved._id);
-      setNewCustomer({ name: "", phone: "", email: "", address: "" });
-      setCustomerModalTab("view");
-      setCustomerOpen(false);
-      toast.success("Customer added successfully");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to add customer");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
+            return (
               <button
                 key={cat.id}
                 onClick={() => handleCategoryClick(cat.id)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all duration-300 group",
+                  "flex flex-col items-center justify-center gap-2.5 p-4 rounded-[2rem] transition-all duration-300 group relative",
                   active
-                    ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30 -translate-y-1 active:translate-y-0"
-                    : "text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-md"
+                    ? "bg-indigo-600 text-white shadow-[0_15px_30px_-5px_rgba(79,70,229,0.3)] -translate-y-1"
+                    : "text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-xl hover:shadow-indigo-100/50"
                 )}
               >
                 <div className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
-                  active ? "bg-white/20" : "bg-slate-100 group-hover:bg-indigo-50"
+                  "w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-500",
+                  active ? "bg-white/20 rotate-12" : "bg-slate-100 group-hover:bg-indigo-50 group-hover:rotate-6"
                 )}>
-                  <Icon size={20} strokeWidth={active ? 2.5 : 2} className={active ? "text-white" : "text-slate-500 group-hover:text-indigo-600"} />
+                  <Icon size={22} strokeWidth={active ? 2.5 : 2} className={cn(active ? "text-white" : "text-slate-500 group-hover:text-indigo-600")} />
                 </div>
-                <span className="text-[10px] font-black text-center leading-tight">{cat.label}</span>
+                <span className="text-[10px] font-black text-center leading-tight tracking-wider uppercase">{cat.label.split(' ')[0]}</span>
+                {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full shadow-lg" />}
               </button>
             );
           })}
         </aside>
 
         {/* --- CENTER AREA --- */}
-        <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <main className="flex-1 flex flex-col min-w-0 overflow-hidden bg-white/20 backdrop-blur-sm">
           {/* Section Header with Mode Toggles */}
-          <div className="flex-none p-6 pb-2 flex items-center justify-between">
-            <div className="flex items-center gap-2 bg-white/50 p-1.5 rounded-[2rem] border border-white shadow-sm">
+          <div className="flex-none px-8 py-8 flex items-center justify-between">
+            <div className="flex items-center gap-3 bg-white/80 p-1.5 rounded-[2.5rem] border border-indigo-50/50 shadow-xl shadow-indigo-100/20 backdrop-blur-md">
               <button
                 onClick={() => setActiveTab("services")}
                 className={cn(
-                  "px-6 py-2 rounded-3xl text-xs font-black uppercase tracking-widest transition-all",
-                  activeTab === "services" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" : "text-slate-400 hover:text-indigo-600 hover:bg-white"
+                  "px-8 py-2.5 rounded-[2rem] text-xs font-black uppercase tracking-widest transition-all duration-500",
+                  activeTab === "services" ? "bg-indigo-600 text-white shadow-xl shadow-indigo-200" : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
                 )}
               >
                 Services
@@ -519,87 +499,94 @@ export default function SalonPOSPage() {
               <button
                 onClick={() => setActiveTab("products")}
                 className={cn(
-                  "px-6 py-2 rounded-3xl text-xs font-black uppercase tracking-widest transition-all",
-                  activeTab === "products" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" : "text-slate-400 hover:text-indigo-600 hover:bg-white"
+                  "px-8 py-2.5 rounded-[2rem] text-xs font-black uppercase tracking-widest transition-all duration-500",
+                  activeTab === "products" ? "bg-indigo-600 text-white shadow-xl shadow-indigo-200" : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
                 )}
               >
-                Products
+                Retail Store
               </button>
             </div>
 
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">View Mode:</span>
-              <div className="flex items-center gap-1 bg-white p-1 rounded-xl shadow-sm border border-slate-100">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3 bg-white/60 p-1 rounded-2xl border border-indigo-50/50">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={cn("p-1.5 rounded-lg transition-all", viewMode === "grid" ? "bg-indigo-600 text-white shadow-md" : "text-slate-400 hover:bg-slate-50")}
+                  className={cn("p-2 rounded-xl transition-all duration-300", viewMode === "grid" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-400 hover:text-indigo-600")}
                 >
-                  <LayoutGrid size={14} strokeWidth={2.5} />
+                  <LayoutGrid size={16} strokeWidth={2.5} />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={cn("p-1.5 rounded-lg transition-all", viewMode === "list" ? "bg-indigo-600 text-white shadow-md" : "text-slate-400 hover:bg-slate-50")}
+                  className={cn("p-2 rounded-xl transition-all duration-300", viewMode === "list" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-400 hover:text-indigo-600")}
                 >
-                  <List size={14} strokeWidth={2.5} />
+                  <List size={16} strokeWidth={2.5} />
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-6 py-6 space-y-10">
-            {/* --- Content Sections --- */}
+          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-8 pb-10 space-y-12">
+
             {activeTab === "services" ? (
               <section className="animate-fade-in-up">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <span className="w-2 h-8 rounded-full bg-indigo-600" />
-                    <h3 className="text-xl font-black text-indigo-950 uppercase tracking-tight">
-                      {CATEGORIES.find(c => c.id === activeCategory)?.label || "All Services"}
+                <div className="flex items-center justify-between mb-8 px-2">
+                  <div className="flex items-center gap-4">
+                    <div className="w-2.5 h-10 rounded-full bg-indigo-600 shadow-lg shadow-indigo-200" />
+                    <h3 className="text-2xl font-black text-indigo-950 uppercase tracking-tight">
+                      {CATEGORIES.find(c => c.id === activeCategory)?.label || "Selection Catalog"}
                     </h3>
                   </div>
-                  <button className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 flex items-center gap-1 group uppercase tracking-widest">
-                    View All <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+                  <button className="flex items-center gap-2 group">
+                    <span className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em]">Full List</span>
+                    <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all transform group-hover:translate-x-1">
+                      <ChevronRight size={16} strokeWidth={3} />
+                    </div>
                   </button>
                 </div>
 
                 <div className={cn(
                   viewMode === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
-                    : "space-y-4"
+                    ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8"
+                    : "space-y-5"
                 )}>
                   {filteredServices.map((s) => (
                     <div
                       key={s.id}
                       onClick={() => addToCart(s)}
                       className={cn(
-                        "group relative bg-white rounded-[2.5rem] border border-white p-4 shadow-[0_10px_40px_rgba(0,0,0,0.03)] hover:shadow-2xl hover:shadow-indigo-200/40 hover:-translate-y-2 transition-all duration-500 cursor-pointer flex",
-                        viewMode === "grid" ? "flex-col" : "flex-row items-center gap-6"
+                        "group relative bg-white rounded-[3rem] border border-white p-5 shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_40px_80px_rgba(79,70,229,0.15)] hover:-translate-y-3 transition-all duration-700 cursor-pointer flex overflow-hidden",
+                        viewMode === "grid" ? "flex-col" : "flex-row items-center gap-8"
                       )}
                     >
                       <div className={cn(
-                        "relative rounded-[2rem] overflow-hidden bg-slate-100 shrink-0",
-                        viewMode === "grid" ? "aspect-[4/3] w-full mb-4" : "h-24 w-32"
+                        "relative rounded-[2.5rem] overflow-hidden bg-slate-50 shrink-0",
+                        viewMode === "grid" ? "aspect-[4/3] w-full mb-6" : "h-32 w-44"
                       )}>
-                        <img src={s.image} alt={s.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                        {s.badge && viewMode === "grid" && (
-                          <div className={cn(
-                            "absolute top-4 left-4 px-3 py-1 rounded-full text-[9px] font-black text-white shadow-lg",
-                            s.badge === "Popular" ? "bg-indigo-600" : s.badge === "Best Seller" ? "bg-rose-500" : "bg-emerald-500"
-                          )}>
+                        <img src={s.image} alt={s.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+                        {s.badge && (
+                          <div className="absolute top-5 left-5 px-4 py-1.5 rounded-full text-[9px] font-black text-white shadow-xl backdrop-blur-md bg-indigo-600/90 tracking-widest uppercase animate-pulse">
                             {s.badge}
                           </div>
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-black text-sm text-slate-800 truncate mb-1 uppercase tracking-tight">{s.name}</h3>
-                        <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold mb-4 uppercase">
-                          <Clock size={12} strokeWidth={2.5} /> {s.duration}
+                        <div className="flex items-center justify-between gap-3 mb-2">
+                           <h3 className="font-black text-base text-indigo-950 truncate uppercase tracking-tight">{s.name}</h3>
+                           <div className="flex items-center gap-1.5 text-slate-400 font-bold text-[10px] uppercase bg-slate-50 px-3 py-1 rounded-full">
+                              <Clock size={12} strokeWidth={2.5} /> {s.duration}
+                           </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <p className="text-lg font-black text-indigo-950">৳ {s.price.toLocaleString()}</p>
-                          <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/30 group-hover:scale-110 transition-all">
-                            <Plus size={20} strokeWidth={3} />
+
+                        <div className="flex items-center justify-between mt-6 pt-5 border-t border-indigo-50/50">
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Fee</p>
+                            <p className="text-2xl font-black text-indigo-600 tracking-tight">৳{s.price.toLocaleString()}</p>
+                          </div>
+                          <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-xl shadow-indigo-100 group-hover:scale-110 group-hover:rotate-[360deg] transition-all duration-700">
+                            <Plus size={24} strokeWidth={3.5} />
                           </div>
                         </div>
                       </div>
@@ -609,36 +596,40 @@ export default function SalonPOSPage() {
               </section>
             ) : (
               <section className="animate-fade-in-up pb-12">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <span className="w-2 h-8 rounded-full bg-indigo-600" />
-                    <h3 className="text-xl font-black text-indigo-950 uppercase tracking-tight">Beauty Products</h3>
+                 <div className="flex items-center justify-between mb-8 px-2">
+                  <div className="flex items-center gap-4">
+                    <div className="w-2.5 h-10 rounded-full bg-violet-600 shadow-lg shadow-violet-200" />
+                    <h3 className="text-2xl font-black text-indigo-950 uppercase tracking-tight">Retail Boutique</h3>
                   </div>
-                  <button className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 flex items-center gap-1 group uppercase tracking-widest">
-                    View All <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+                  <button className="flex items-center gap-2 group">
+                    <span className="text-xs font-black text-violet-600 uppercase tracking-[0.2em]">View Shop</span>
+                    <div className="w-8 h-8 rounded-full bg-violet-50 text-violet-600 flex items-center justify-center group-hover:bg-violet-600 group-hover:text-white transition-all transform group-hover:translate-x-1">
+                      <ChevronRight size={16} strokeWidth={3} />
+                    </div>
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
                   {filteredProducts.map((p) => (
                     <div
                       key={p.id}
                       onClick={() => addToCart(p)}
-                      className="group bg-white rounded-[1.5rem] border border-white p-3 shadow-sm hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-start"
+                      className="group bg-white rounded-[2.5rem] border border-white p-4 shadow-[0_15px_40px_rgba(0,0,0,0.03)] hover:shadow-2xl hover:shadow-violet-100 hover:-translate-y-3 transition-all duration-700 cursor-pointer flex flex-col items-start relative overflow-hidden"
                     >
-                      <div className="aspect-[4/3] w-full rounded-xl bg-[#F8F9FF] flex items-center justify-center p-4 mb-3 overflow-hidden">
+                      <div className="aspect-[5/4] w-full rounded-[2rem] bg-[#F8F9FF] flex items-center justify-center p-6 mb-4 overflow-hidden shadow-inner">
                         <img
                           src={p.image}
                           alt={p.name}
-                          className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply"
+                          className="max-h-full max-w-full object-contain group-hover:scale-125 transition-transform duration-1000 mix-blend-multiply"
                         />
                       </div>
                       <div className="px-1 w-full flex-1 flex flex-col">
-                        <h3 className="font-black text-[11px] text-indigo-950 line-clamp-1 mb-3 uppercase tracking-tight">{p.name}</h3>
-                        <div className="mt-auto flex items-center justify-between pt-2 border-t border-slate-50 w-full">
-                          <p className="font-black text-sm text-indigo-600 tabular-nums">৳ {p.price.toLocaleString()}</p>
-                          <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-xs active:scale-95">
-                            <Plus size={16} strokeWidth={3} />
+                        <span className="text-[9px] font-bold text-slate-300 uppercase tracking-[0.3em] mb-1.5">SKU: {p.id.toUpperCase()}</span>
+                        <h3 className="font-black text-xs text-indigo-950 line-clamp-1 mb-4 uppercase tracking-wider leading-tight">{p.name}</h3>
+                        <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-50 w-full">
+                          <p className="font-black text-lg text-indigo-600 tabular-nums">৳{p.price.toLocaleString()}</p>
+                          <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center group-hover:bg-violet-600 group-hover:text-white transition-all duration-500 shadow-sm active:scale-90">
+                            <Plus size={18} strokeWidth={3.5} />
                           </div>
                         </div>
                       </div>
@@ -651,144 +642,136 @@ export default function SalonPOSPage() {
         </main>
 
         {/* --- RIGHT ORDER PANEL --- */}
-        <aside className="w-80 lg:w-[420px] flex-none bg-white border-l border-indigo-100/50 flex flex-col p-5 lg:p-6 z-20 shadow-[-10px_0_30px_rgba(79,70,229,0.02)]">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3 text-indigo-950">
-              <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm">
-                <ShoppingCart size={20} strokeWidth={2.5} />
+        <aside className="w-80 lg:w-[460px] flex-none bg-white border-l border-indigo-50 flex flex-col z-20 shadow-[-30px_0_60px_rgba(79,70,229,0.03)]">
+          {/* Cart Header */}
+          <div className="p-8 pb-6 border-b border-indigo-50/50">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm ring-4 ring-indigo-50/50">
+                  <ShoppingCart size={22} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black tracking-tight text-indigo-950">Active Basket</h2>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Order ID: {orderSeq}</p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-black tracking-tight uppercase">Current Order</h2>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No. {orderSeq}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={holdOrder} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all group">
-                <PauseCircle size={14} className="group-hover:scale-110 transition-transform" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Hold</span>
-              </button>
-              <button onClick={onClearCart} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all group">
-                <Trash2 size={14} className="group-hover:scale-110 transition-transform" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Clear</span>
+              <button
+                onClick={onClearCart}
+                className="w-10 h-10 flex items-center justify-center rounded-2xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all duration-500 active:scale-90 shadow-sm"
+              >
+                <Trash2 size={18} />
               </button>
             </div>
           </div>
 
-          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-8 pr-1">
-            <div className="space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-10 p-8 pt-6">
+
+            {/* Cart Items List */}
+            <div className="space-y-5">
               {cart.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 opacity-30 text-center">
-                  <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-4 border border-slate-100 shadow-inner">
-                    <ShoppingCart size={40} className="text-slate-300" />
+                <div className="py-24 text-center">
+                  <div className="relative inline-block">
+                     <div className="w-24 h-24 rounded-full bg-indigo-50 flex items-center justify-center border-2 border-dashed border-indigo-200 animate-[spin_10s_linear_infinite]">
+                        <ShoppingCart size={44} className="text-indigo-200" />
+                     </div>
+                     <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center text-white text-[10px] font-black border-2 border-white shadow-lg">0</div>
                   </div>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Cart is empty</p>
-                  <p className="text-[10px] text-slate-300 mt-2 uppercase font-medium">Select a service to begin</p>
+                  <p className="text-sm font-black uppercase tracking-[0.25em] text-slate-300 mt-8">Basket is Empty</p>
+                  <p className="text-[10px] font-bold text-slate-300 mt-2.5 uppercase tracking-widest leading-loose">Pick luxury services or<br/>treatments to begin</p>
                 </div>
-              ) : cart.map((item) => (
-                <div key={item.id} className="flex gap-4 p-3 rounded-[2rem] bg-white border border-slate-50 shadow-sm hover:shadow-md transition-all group animate-fade-in-up">
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-100 flex-none">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              ) : cart.map((item, idx) => (
+                <div key={item.id} className="group relative flex gap-5 p-5 rounded-[2.5rem] bg-white border border-indigo-50 shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-xl hover:shadow-indigo-100/40 hover:-translate-x-1 transition-all duration-500 border-l-[6px] border-l-indigo-600/0 hover:border-l-indigo-600 animate-fade-in-up">
+                  <div className="w-20 h-20 rounded-[1.75rem] overflow-hidden bg-slate-100 flex-none shadow-sm ring-1 ring-slate-100">
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-1">
-                      <h4 className="text-[13px] font-black text-indigo-950 truncate leading-tight uppercase tracking-tight">{item.name}</h4>
-                      <button onClick={() => removeFromCart(item.id)} className="w-6 h-6 rounded-full flex items-center justify-center text-slate-300 hover:text-rose-500 transition-colors bg-white shadow-sm border border-slate-50">
-                        <X size={12} strokeWidth={3} />
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="min-w-0">
+                        <h4 className="text-[13px] font-black text-indigo-950 truncate leading-tight uppercase tracking-tight">{item.name}</h4>
+                        <div className="flex items-center gap-2 mt-1.5">
+                           <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{item.duration}</span>
+                        </div>
+                      </div>
+                      <button onClick={() => removeFromCart(item.id)} className="w-8 h-8 rounded-full flex items-center justify-center text-slate-200 hover:text-rose-500 transition-all hover:bg-rose-50 active:scale-75 bg-white border border-slate-50 shadow-xs">
+                        <X size={14} strokeWidth={3.5} />
                       </button>
                     </div>
 
-                    {/* Staff Badge */}
-                    {item.type === "service" && (
-                      <button
-                        onClick={() => { setSelectedCartIdx(idx); setStaffOpen(true); }}
-                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors mb-2 group/staff"
-                      >
-                        <User size={10} strokeWidth={3} />
-                        <span className="text-[9px] font-black uppercase tracking-widest">{item.stylistName || "Assign Stylist"}</span>
-                      </button>
-                    )}
-
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.duration}</p>
-                    <div className="mt-3 flex items-center justify-between">
-                      <div className="flex items-center bg-slate-50 rounded-xl p-0.5 border border-slate-100">
-                        <button onClick={() => updateQty(item.id, -1)} className="w-7 h-7 rounded-lg flex items-center justify-center text-indigo-600 hover:bg-white hover:shadow-sm transition-all active:scale-90">
-                          <Minus size={14} strokeWidth={3} />
+                    <div className="flex items-center gap-2 mb-4">
+                      {item.type === "service" && (
+                        <button
+                          onClick={() => { setSelectedCartIdx(idx); setStaffOpen(true); }}
+                          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-xs ring-1 ring-indigo-100"
+                        >
+                          <User size={10} strokeWidth={3} className="animate-bounce" />
+                          <span className="text-[9px] font-black uppercase tracking-[0.1em]">{item.stylistName || "Assign Specialist"}</span>
                         </button>
-                        <span className="w-8 text-center text-sm font-black text-indigo-950">{item.qty}</span>
-                        <button onClick={() => updateQty(item.id, 1)} className="w-7 h-7 rounded-lg flex items-center justify-center text-indigo-600 hover:bg-white hover:shadow-sm transition-all active:scale-90">
-                          <Plus size={14} strokeWidth={3} />
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between mt-3 pt-4 border-t border-slate-50">
+                      <div className="flex items-center bg-slate-50 rounded-[1.25rem] p-1 border border-slate-100 shadow-inner">
+                        <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 rounded-xl flex items-center justify-center text-indigo-600 hover:bg-white hover:shadow-sm transition-all active:scale-75">
+                          <Minus size={16} strokeWidth={3.5} />
+                        </button>
+                        <span className="w-10 text-center text-sm font-black text-indigo-950 tabular-nums">{item.qty}</span>
+                        <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 rounded-xl flex items-center justify-center text-indigo-600 hover:bg-white hover:shadow-sm transition-all active:scale-75">
+                          <Plus size={16} strokeWidth={3.5} />
                         </button>
                       </div>
-                      <span className="text-[15px] font-black text-indigo-900 tabular-nums">৳{(item.price * item.qty).toLocaleString()}</span>
+                      <p className="text-[17px] font-black text-indigo-900 tabular-nums">৳{(item.price * item.qty).toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
+            {/* Stylish Add-ons Panel */}
             <div className="pt-2">
-              <div className="flex items-center justify-between mb-4 bg-gradient-to-br from-indigo-600 to-violet-50 p-4 rounded-[2rem] text-white shadow-xl shadow-indigo-200 group cursor-pointer hover:shadow-2xl transition-all">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner">
-                    <Sparkles size={20} strokeWidth={2.5} className="text-white" />
+              <div className="flex items-center justify-between mb-5 bg-gradient-to-br from-indigo-600 via-indigo-600 to-violet-500 p-5 rounded-[2.5rem] text-white shadow-2xl shadow-indigo-200 group cursor-pointer hover:shadow-indigo-300 hover:scale-[1.02] transition-all duration-500">
+                <div className="flex items-center gap-4">
+                  <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner group-hover:rotate-12 transition-transform duration-700">
+                    <Sparkles size={22} strokeWidth={2.5} className="text-white" />
                   </div>
                   <div>
-                    <h4 className="text-[13px] font-black leading-tight">Stylish Add-ons</h4>
-                    <p className="text-[10px] font-bold text-indigo-100/70 uppercase tracking-widest mt-0.5">Enhance your service</p>
+                    <h4 className="text-sm font-black leading-tight tracking-tight">Luxury Add-ons</h4>
+                    <p className="text-[10px] font-black text-indigo-100/70 uppercase tracking-widest mt-1">Refine your look</p>
                   </div>
                 </div>
-                <ChevronLeft size={18} className="rotate-180 text-white group-hover:translate-x-1 transition-transform" />
+                <ChevronRight size={20} strokeWidth={3} className="text-white group-hover:translate-x-1 transition-transform" />
               </div>
-              <div className="space-y-3">
+
+              <div className="space-y-4 px-1">
                 {DEMO_ADDONS.map((ao) => {
                   const isSelected = selectedAddOnIds.includes(ao.id);
-                  const handleAddCustomer = async () => {
-    if (!newCustomer.name || !newCustomer.phone) {
-      toast.error("Name and Phone are required");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const res: any = await api.post("/api/v1/customers", newCustomer);
-      const saved = res?.data || res;
-      setCustomers(prev => [saved, ...prev]);
-      setCustomerId(saved.id || saved._id);
-      setNewCustomer({ name: "", phone: "", email: "", address: "" });
-      setCustomerModalTab("view");
-      setCustomerOpen(false);
-      toast.success("Customer added successfully");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to add customer");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
+                  return (
                     <div
                       key={ao.id}
                       onClick={() => toggleAddOn(ao.id)}
                       className={cn(
-                        "flex items-center gap-4 p-3 rounded-[1.5rem] transition-all cursor-pointer border-2",
+                        "flex items-center gap-4 p-4 rounded-[2rem] transition-all duration-500 cursor-pointer border-2 group/ao",
                         isSelected
-                          ? "bg-white border-indigo-500 shadow-xl shadow-indigo-100 scale-[1.02]"
-                          : "bg-white border-transparent hover:border-slate-100 hover:shadow-md"
+                          ? "bg-white border-indigo-600 shadow-2xl shadow-indigo-100 scale-[1.03] -translate-x-1"
+                          : "bg-white border-transparent hover:border-indigo-50 hover:bg-slate-50/50"
                       )}
                     >
                       <div className={cn(
-                        "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
-                        isSelected ? "bg-indigo-600 border-indigo-600 shadow-lg" : "border-slate-200 bg-white"
+                        "w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-all duration-500",
+                        isSelected ? "bg-indigo-600 border-indigo-600 shadow-lg scale-110" : "border-slate-100 bg-slate-50 group-hover/ao:border-indigo-200"
                       )}>
-                        {isSelected && <CheckCircle2 size={14} strokeWidth={3} className="text-white" />}
+                        {isSelected && <CheckCircle2 size={16} strokeWidth={3.5} className="text-white" />}
                       </div>
-                      <div className="w-12 h-12 rounded-2xl overflow-hidden bg-slate-100 flex-none shadow-sm">
-                        <img src={ao.image} alt={ao.name} className="w-full h-full object-cover" />
+                      <div className="w-12 h-12 rounded-2xl overflow-hidden bg-slate-100 flex-none shadow-sm ring-1 ring-slate-100">
+                        <img src={ao.image} alt={ao.name} className="w-full h-full object-cover group-hover/ao:scale-125 transition-transform duration-700" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[12px] font-black text-slate-800 leading-tight truncate uppercase tracking-tight">{ao.name}</p>
-                        <p className="text-[9px] font-black text-slate-400 uppercase mt-0.5">{ao.duration}</p>
+                        <p className="text-[12px] font-black text-slate-800 leading-tight truncate uppercase tracking-tight mb-1">{ao.name}</p>
+                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{ao.duration}</p>
                       </div>
-                      <span className="text-[13px] font-black text-indigo-600 tabular-nums">+ ৳{ao.price}</span>
+                      <span className="text-[14px] font-black text-indigo-600 tabular-nums">+৳{ao.price}</span>
                     </div>
                   );
                 })}
@@ -796,282 +779,325 @@ export default function SalonPOSPage() {
             </div>
           </div>
 
-          <div className="flex-none pt-6 border-t border-slate-100 bg-white space-y-6">
-            {/* Info Badges */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsAppointment(!isAppointment)}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all",
-                  isAppointment ? "bg-indigo-600 text-white border-indigo-600 shadow-md" : "bg-slate-50 text-slate-400 border-slate-100 hover:bg-slate-100"
-                )}
-              >
-                <Calendar size={12} />
-                {isAppointment ? "Appointment" : "Walk-in"}
-              </button>
-              {selectedCustomer && (
-                <button
-                  onClick={() => setUseLoyaltyPoints(!useLoyaltyPoints)}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all",
-                    useLoyaltyPoints ? "bg-emerald-600 text-white border-emerald-600 shadow-md" : "bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100"
+          {/* Luxury Order Summary Footnote */}
+          <div className="flex-none p-10 bg-white border-t border-indigo-50 space-y-8 z-20">
+            <div className="space-y-4">
+               {/* Mode & Points Badge Bar */}
+               <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setIsAppointment(!isAppointment)}
+                    className={cn(
+                      "flex items-center gap-2.5 px-5 py-2.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+                      isAppointment ? "bg-indigo-600 text-white shadow-xl shadow-indigo-100" : "bg-slate-50 text-slate-400 hover:bg-slate-100"
+                    )}
+                  >
+                    <Monitor size={14} strokeWidth={2.5} /> {isAppointment ? "Reserved" : "Direct"}
+                  </button>
+                  {selectedCustomer && (
+                    <button
+                      onClick={() => setUseLoyaltyPoints(!useLoyaltyPoints)}
+                      className={cn(
+                        "flex items-center gap-2.5 px-5 py-2.5 rounded-[1.25rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+                        useLoyaltyPoints ? "bg-emerald-600 text-white shadow-xl shadow-emerald-100" : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                      )}
+                    >
+                      <Gift size={14} strokeWidth={2.5} /> Use {selectedCustomer.loyalty_points || 0} Pts
+                    </button>
                   )}
-                >
-                  <Gift size={12} />
-                  Redeem Pts
-                </button>
-              )}
-            </div>
+               </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between text-[11px] font-black text-slate-400 uppercase tracking-widest">
-                <span>Subtotal</span>
-                <span className="text-slate-800 tracking-tight font-black tabular-nums text-sm">৳{baseSubtotal.toLocaleString()}</span>
-              </div>
-
-              {selectedAddOnIds.length > 0 && (
-                <div className="flex justify-between text-[11px] font-black text-emerald-500 uppercase tracking-widest">
-                  <span>Add-ons ({selectedAddOnIds.length})</span>
-                  <span className="font-black tracking-tight tabular-nums text-sm">+ ৳{addonsTotal.toLocaleString()}</span>
+              <div className="space-y-3 px-1">
+                <div className="flex justify-between text-[11px] font-black text-slate-400 uppercase tracking-[0.25em]">
+                  <span>Subtotal</span>
+                  <span className="text-indigo-950 font-black tabular-nums">৳{baseSubtotal.toLocaleString()}</span>
                 </div>
-              )}
-
-              <div className="flex justify-between text-[11px] font-black text-slate-400 uppercase tracking-widest">
-                <span>Service Tax (5%)</span>
-                <span className="text-slate-800 tracking-tight font-black tabular-nums text-sm">৳{tax.toFixed(0)}</span>
-              </div>
-
-              {/* Tips Section */}
-              <div className="pt-2 flex flex-col gap-2 border-t border-slate-50">
-                <div className="flex justify-between items-center text-[10px] font-black text-indigo-400 uppercase tracking-widest">
-                  <span>Add Tips</span>
-                  <div className="flex items-center gap-1">
-                    {[10, 50, 100].map(amt => (
-                      <button
-                        key={amt}
-                        onClick={() => setTipInput(amt.toString())}
-                        className="px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all"
-                      >
-                        +৳{amt}
-                      </button>
-                    ))}
+                {selectedAddOnIds.length > 0 && (
+                  <div className="flex justify-between text-[11px] font-black text-emerald-500 uppercase tracking-[0.25em]">
+                    <span>Enhancements</span>
+                    <span className="font-black tabular-nums">+৳{addonsTotal.toLocaleString()}</span>
                   </div>
-                </div>
-                <div className="relative group">
-                  <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
-                  <input
-                    type="number"
-                    value={tipInput}
-                    onChange={(e) => setTipInput(e.target.value)}
-                    placeholder="Enter tip amount..."
-                    className="w-full h-9 pl-9 pr-4 rounded-xl bg-slate-50 border border-transparent text-xs font-bold text-slate-700 outline-none focus:border-indigo-200 transition-all placeholder:text-slate-300 shadow-inner"
-                  />
+                )}
+                <div className="flex justify-between text-[11px] font-black text-slate-400 uppercase tracking-[0.25em]">
+                  <span>V.A.Tax (5%)</span>
+                  <span className="text-indigo-950 font-black tabular-nums">৳{tax.toFixed(0)}</span>
                 </div>
               </div>
 
-              {/* Discount Section */}
-              <div className="pt-1 flex flex-col gap-2">
-                <div className="flex justify-between items-center text-[10px] font-black text-rose-400 uppercase tracking-widest px-1">
-                  <span>Discount</span>
-                  <div className="flex items-center gap-1 bg-slate-50 p-0.5 rounded-lg border border-slate-100">
-                    <button onClick={() => setDiscountType("flat")} className={cn("px-2 py-0.5 rounded-md text-[8px]", discountType === "flat" ? "bg-white text-indigo-600 shadow-xs" : "text-slate-400")}>৳</button>
-                    <button onClick={() => setDiscountType("percent")} className={cn("px-2 py-0.5 rounded-md text-[8px]", discountType === "percent" ? "bg-white text-indigo-600 shadow-xs" : "text-slate-400")}>%</button>
-                  </div>
-                </div>
-                <div className="relative group">
-                  <X
-                    size={14}
-                    onClick={() => setDiscountInput("")}
-                    className={cn("absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 cursor-pointer hover:text-rose-500 transition-all", !discountInput && "hidden")}
-                  />
-                  <input
-                    type="number"
-                    value={discountInput}
-                    onChange={(e) => setDiscountInput(e.target.value)}
-                    placeholder={`Enter discount ${discountType === "flat" ? "(৳)" : "(%)"}...`}
-                    className="w-full h-9 px-4 pr-9 rounded-xl bg-slate-50 border border-transparent text-xs font-bold text-slate-700 outline-none focus:border-indigo-200 transition-all placeholder:text-slate-300 shadow-inner"
-                  />
-                </div>
+              {/* Financial Inputs Strip */}
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-indigo-50/50">
+                 <div className="space-y-2">
+                    <div className="flex items-center justify-between px-1">
+                       <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">Tips</span>
+                       {tipValue > 0 && <span className="text-[10px] font-black text-indigo-600 tabular-nums">৳{tipValue}</span>}
+                    </div>
+                    <div className="relative group">
+                       <DollarSign size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                       <input
+                          type="number"
+                          value={tipInput}
+                          onChange={(e) => setTipInput(e.target.value)}
+                          placeholder="Special Reward..."
+                          className="w-full h-11 pl-11 pr-4 rounded-2xl bg-slate-50/50 border border-transparent text-xs font-black text-slate-700 outline-none focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition-all placeholder:text-slate-300 shadow-inner"
+                       />
+                    </div>
+                 </div>
+                 <div className="space-y-2">
+                    <div className="flex items-center justify-between px-1">
+                        <span className="text-[9px] font-black text-rose-300 uppercase tracking-[0.3em]">Discount</span>
+                        <div className="flex items-center gap-2">
+                           <button onClick={() => setDiscountType("flat")} className={cn("text-[9px] font-black", discountType === "flat" ? "text-indigo-600 underline" : "text-slate-300")}>৳</button>
+                           <button onClick={() => setDiscountType("percent")} className={cn("text-[9px] font-black", discountType === "percent" ? "text-indigo-600 underline" : "text-slate-300")}>%</button>
+                        </div>
+                    </div>
+                    <div className="relative group">
+                       <X size={14} onClick={() => setDiscountInput("")} className={cn("absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 cursor-pointer hover:text-rose-500 z-10 transition-all", !discountInput && "hidden")} />
+                       <input
+                          type="number"
+                          value={discountInput}
+                          onChange={(e) => setDiscountInput(e.target.value)}
+                          placeholder={discountType === "flat" ? "Flat Value..." : "Percentage..."}
+                          className="w-full h-11 px-4 pr-11 rounded-2xl bg-slate-50/50 border border-transparent text-xs font-black text-slate-700 outline-none focus:bg-white focus:border-rose-300 focus:ring-4 focus:ring-rose-50 transition-all placeholder:text-slate-300 shadow-inner"
+                       />
+                    </div>
+                 </div>
               </div>
             </div>
 
-            <div className="flex justify-between items-center py-2 border-t border-dashed border-slate-200">
-              <span className="text-lg font-black text-indigo-950 uppercase tracking-widest">Total</span>
-              <span className="text-[42px] font-black text-indigo-600 tabular-nums leading-none tracking-tighter drop-shadow-sm">৳{total.toFixed(0)}</span>
+            <div className="flex justify-between items-center py-4 border-y border-dashed border-indigo-100">
+              <span className="text-xl font-black text-indigo-950 uppercase tracking-widest">Grand Total</span>
+              <span className="text-[54px] font-black text-indigo-600 tabular-nums leading-none tracking-tighter drop-shadow-xl animate-pulse-slow">৳{total.toFixed(0)}</span>
             </div>
 
             <button
               onClick={() => setCheckoutOpen(true)}
               disabled={cart.length === 0 || submitting}
-              className="w-full h-16 rounded-[2rem] bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-[0_20px_40px_-10px_rgba(79,70,229,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-4 group disabled:opacity-50 disabled:grayscale disabled:pointer-events-none"
+              className="w-full h-20 rounded-[2.5rem] bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-[0_25px_50px_-10px_rgba(79,70,229,0.4)] hover:shadow-indigo-400/50 active:scale-[0.97] transition-all duration-500 flex items-center justify-center gap-6 group disabled:opacity-50 disabled:grayscale disabled:pointer-events-none overflow-hidden relative"
             >
-              <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center group-hover:rotate-12 transition-transform duration-500">
-                <CreditCard size={22} strokeWidth={2.5} />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+              <div className="w-12 h-12 rounded-[1.25rem] bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:rotate-[360deg] transition-transform duration-1000 shadow-inner">
+                <CreditCard size={26} strokeWidth={2.5} />
               </div>
-              <span className="uppercase tracking-[0.2em] text-base">Proceed to Payment</span>
-              <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform duration-300" />
+              <span className="uppercase tracking-[0.3em] text-lg">Finalize Session</span>
+              <ArrowRight size={26} className="group-hover:translate-x-2 transition-transform duration-500" />
             </button>
           </div>
         </aside>
       </div>
 
-      {/* Modals */}
+      {/* Luxury Bottom Toolbar */}
+      <footer className="flex-none h-[80px] bg-white/80 backdrop-blur-2xl border-t border-indigo-50 flex items-center justify-between px-10 z-30 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
+        <div className="flex items-center gap-12">
+          <button onClick={() => setCustomerOpen(true)} className="flex items-center gap-4 group transition-all">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm group-active:scale-90 group-hover:-translate-y-1 duration-500 ring-4 ring-indigo-50/50">
+              <UserPlus size={22} strokeWidth={2.5} />
+            </div>
+            <div className="text-left leading-tight">
+              <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.25em] mb-1">Active Client</p>
+              <p className="text-sm font-black text-indigo-950 uppercase tracking-tight group-hover:text-indigo-600 transition-colors">{selectedCustomer?.name || "Walk-in Session"}</p>
+            </div>
+          </button>
 
-      {/* Staff Assignment Modal */}
-      <CustomModal open={isStaffOpen} onClose={() => setStaffOpen(false)} title="Assign Stylist" size="md">
-        <div className="grid grid-cols-2 gap-4">
+          <div className="w-px h-10 bg-indigo-100/50" />
+
+          <button onClick={() => { setSelectedCartIdx(null); setStaffOpen(true); }} className="flex items-center gap-4 group transition-all">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm group-active:scale-90 group-hover:-translate-y-1 duration-500 ring-4 ring-emerald-50/50">
+              <Sparkles size={22} strokeWidth={2.5} />
+            </div>
+            <div className="text-left leading-tight">
+              <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.25em] mb-1">Assigned Stylist</p>
+              <p className="text-sm font-black text-emerald-600 uppercase tracking-tight group-hover:text-emerald-700 transition-colors">{selectedGlobalStylist?.name || "Ready for Pickup"}</p>
+            </div>
+          </button>
+
+          <div className="w-px h-10 bg-indigo-100/50 hidden lg:block" />
+
+          <div className="flex items-center gap-3 bg-slate-50/50 p-1.5 rounded-[1.5rem] border border-indigo-50/50">
+            {[
+              { label: "Hold", icon: PauseCircle, onClick: () => setHeldOrdersOpen(true), color: "text-amber-500", bg: "bg-amber-50" },
+              { label: "History", icon: History, onClick: () => setHistoryOpen(true), color: "text-blue-500", bg: "bg-blue-50" },
+              { label: "Report", icon: TrendingUp, onClick: () => window.open("/reports", "_blank"), color: "text-indigo-500", bg: "bg-indigo-50" },
+              { label: "Settings", icon: Settings, onClick: () => window.open("/settings", "_blank"), color: "text-slate-500", bg: "bg-slate-100" },
+            ].map((tool) => (
+              <button
+                key={tool.label}
+                onClick={tool.onClick}
+                className={cn(
+                  "flex items-center gap-3 px-6 py-2.5 rounded-2xl font-black transition-all duration-500 hover:scale-105 active:scale-95 group shadow-sm",
+                  tool.color, tool.bg, "hover:bg-white ring-1 ring-transparent hover:ring-indigo-100"
+                )}
+              >
+                <tool.icon size={16} strokeWidth={3} className="group-hover:rotate-12 transition-transform duration-700" />
+                <span className="text-[10px] uppercase tracking-[0.2em] hidden xl:block">{tool.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button onClick={() => setNotesOpen(true)} className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-500 group relative active:scale-95 shadow-sm ring-1 ring-indigo-100">
+            <Bell size={18} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform duration-700" />
+            <span className="text-[10px] font-black uppercase tracking-[0.25em]">Notes</span>
+            <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-rose-500 border-[3px] border-white text-white text-[10px] font-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-rose-200">3</div>
+          </button>
+          <button className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all duration-500 group relative active:scale-95 shadow-sm ring-1 ring-rose-100">
+            <Gift size={18} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform duration-700" />
+            <span className="text-[10px] font-black uppercase tracking-[0.25em]">Rewards</span>
+            <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-indigo-600 border-[3px] border-white text-white text-[10px] font-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-indigo-200">2</div>
+          </button>
+        </div>
+      </footer>
+
+      {/* --- MODALS --- */}
+
+      {/* Staff Selection */}
+      <CustomModal open={isStaffOpen} onClose={() => setStaffOpen(false)} title="Assign Luxury Specialist" size="md">
+        <div className="grid grid-cols-2 gap-6 p-2">
           {DEFAULT_STAFF.map(s => (
             <button
               key={s.id}
               onClick={() => assignStaff(s)}
-              className="flex items-center gap-4 p-4 rounded-[1.5rem] border-2 border-slate-50 bg-white hover:border-indigo-500 hover:bg-indigo-50 transition-all group"
+              className="flex items-center gap-5 p-6 rounded-[2.5rem] border-2 border-slate-50 bg-white hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-500 group shadow-sm hover:shadow-2xl hover:shadow-indigo-100"
             >
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black uppercase shadow-lg shadow-indigo-100">{s.name.charAt(0)}</div>
+              <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-indigo-600 to-violet-500 text-white flex items-center justify-center text-xl font-black uppercase shadow-xl shadow-indigo-100 group-hover:rotate-6 transition-transform">{s.name.charAt(0)}</div>
               <div className="text-left">
-                <p className="text-sm font-black text-slate-800 uppercase tracking-tight">{s.name}</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{s.role}</p>
+                <p className="text-base font-black text-slate-800 uppercase tracking-tight">{s.name}</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">{s.role}</p>
               </div>
             </button>
           ))}
         </div>
       </CustomModal>
 
-      {/* Checkout Modal */}
-      <CustomModal open={isCheckoutOpen} onClose={() => setCheckoutOpen(false)} title="Checkout & Payment" size="md">
-        <div className="space-y-6 p-2">
-          <div className="p-5 rounded-[2rem] bg-indigo-50 border border-indigo-100 flex items-center justify-between shadow-inner">
-            <span className="text-sm font-black text-indigo-900 uppercase tracking-widest">Total Amount</span>
-            <span className="text-3xl font-black text-indigo-600 tabular-nums">৳ {total.toFixed(0)}</span>
-          </div>
-          <div className="space-y-4">
-            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Select Payment Method</p>
-            <div className="grid grid-cols-3 gap-4">
-              {["CASH", "CARD", "MOBILE"].map(m => (
-                <button
-                  key={m}
-                  onClick={() => confirmSale(m)}
-                  disabled={submitting}
-                  className="flex flex-col items-center justify-center p-6 rounded-[2rem] border-2 border-slate-50 hover:border-indigo-500 hover:bg-indigo-50 transition-all group shadow-sm active:scale-95"
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3 group-hover:bg-white transition-all shadow-sm">
-                    {m === "CASH" ? <DollarSign size={24} strokeWidth={2.5} className="text-indigo-600" /> : m === "CARD" ? <CreditCard size={24} strokeWidth={2.5} className="text-indigo-600" /> : <Monitor size={24} strokeWidth={2.5} className="text-indigo-600" />}
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">{m}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="pt-4">
-            <CustomButton fullWidth size="lg" themeColor="indigo" loading={submitting} onClick={() => confirmSale("CASH")} className="!rounded-[1.5rem] !h-14 font-black uppercase tracking-widest">Complete Sale</CustomButton>
-          </div>
-        </div>
-      </CustomModal>
-
-      <CustomModal open={isCustomerOpen} onClose={() => setCustomerOpen(false)} title="Customer Management" size="md">
-        <div className="space-y-6">
-          <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl">
+      {/* Customer Management */}
+      <CustomModal open={isCustomerOpen} onClose={() => setCustomerOpen(false)} title="Client Relationship Hub" size="md">
+        <div className="space-y-8 p-2">
+          <div className="flex items-center gap-3 bg-slate-100 p-1.5 rounded-[2rem]">
             <button
               onClick={() => setCustomerModalTab("view")}
-              className={cn("flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", customerModalTab === "view" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500")}
+              className={cn("flex-1 py-3 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500", customerModalTab === "view" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-500 hover:text-indigo-600")}
             >
-              View Customer
+              Find Client
             </button>
             <button
               onClick={() => setCustomerModalTab("add")}
-              className={cn("flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", customerModalTab === "add" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500")}
+              className={cn("flex-1 py-3 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500", customerModalTab === "add" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-500 hover:text-indigo-600")}
             >
-              Add Customer
+              New Profile
             </button>
           </div>
 
           {customerModalTab === "view" ? (
-            <div className="space-y-4">
+            <div className="space-y-6 animate-fade-in-up">
               <CustomInput
-                placeholder="Search by name or phone..."
-                leftIcon={<Search size={16} />}
+                placeholder="Search by full name or active phone..."
+                leftIcon={<Search size={18} className="text-indigo-400" />}
                 value={customerSearch}
                 onChange={(e) => setCustomerSearch(e.target.value)}
+                className="!h-14 !rounded-[1.5rem] !text-base"
               />
-              <div className="max-h-80 overflow-y-auto space-y-2 pr-1 no-scrollbar">
+              <div className="max-h-96 overflow-y-auto space-y-3 pr-2 no-scrollbar">
                 {filteredCustomers.length === 0 ? (
-                  <p className="text-center py-8 text-xs font-bold text-slate-400 uppercase tracking-widest">No customers found</p>
+                  <div className="py-20 text-center opacity-40">
+                     <User size={48} className="mx-auto mb-4 text-slate-300" />
+                     <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">No Match Found</p>
+                  </div>
                 ) : filteredCustomers.map((c, idx) => (
                   <button
                     key={c.id || c._id || `cust-${idx}`}
                     onClick={() => { setCustomerId(c.id || c._id); setCustomerOpen(false); }}
                     className={cn(
-                      "w-full flex items-center justify-between p-4 rounded-[1.5rem] border transition-all",
-                      customerId === (c.id || c._id) ? "bg-indigo-50 border-indigo-200 shadow-sm" : "bg-white border-slate-100 hover:border-indigo-100"
+                      "w-full flex items-center justify-between p-5 rounded-[2rem] border transition-all duration-500 shadow-sm",
+                      customerId === (c.id || c._id) ? "bg-indigo-50 border-indigo-300 shadow-indigo-100" : "bg-white border-slate-50 hover:border-indigo-100 hover:shadow-xl"
                     )}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-black uppercase border border-white shadow-sm">{c.name.charAt(0)}</div>
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-lg uppercase border-2 border-white shadow-md">{c.name.charAt(0)}</div>
                       <div className="text-left">
-                        <p className="text-sm font-black text-slate-800 uppercase tracking-tight">{c.name}</p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase">{c.phone || "No phone"}</p>
+                        <p className="text-base font-black text-slate-800 uppercase tracking-tight">{c.name}</p>
+                        <p className="text-[10px] text-indigo-400 font-black uppercase tracking-widest mt-1">{c.phone || "Privacy Shielded"}</p>
                       </div>
                     </div>
-                    {customerId === c.id && <CheckCircle2 size={20} strokeWidth={3} className="text-indigo-600" />}
+                    {customerId === (c.id || c._id) ? <CheckCircle2 size={24} strokeWidth={3.5} className="text-indigo-600" /> : <ChevronRight size={20} className="text-slate-200" />}
                   </button>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="space-y-4 animate-fade-in-up">
-              <div className="grid grid-cols-2 gap-4">
-                <CustomInput
-                  label="Customer Name"
-                  placeholder="Full name..."
-                  value={newCustomer.name}
-                  onChange={(e) => setNewCustomer(prev => ({ ...prev, name: e.target.value }))}
-                />
-                <CustomInput
-                  label="Phone Number"
-                  placeholder="017..."
-                  value={newCustomer.phone}
-                  onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))}
-                />
+            <div className="space-y-6 animate-fade-in-up">
+              <div className="grid grid-cols-2 gap-5">
+                <CustomInput label="Full Name" placeholder="First Last..." value={newCustomer.name} onChange={(e) => setNewCustomer(prev => ({ ...prev, name: e.target.value }))} className="!h-12 !rounded-2xl" />
+                <CustomInput label="Direct Line" placeholder="01XXX-XXXXXX" value={newCustomer.phone} onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))} className="!h-12 !rounded-2xl" />
               </div>
-              <CustomInput
-                label="Email Address"
-                placeholder="example@mail.com"
-                value={newCustomer.email}
-                onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value }))}
-              />
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Address</label>
+              <CustomInput label="Digital Email" placeholder="client@luxury.com" value={newCustomer.email} onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value }))} className="!h-12 !rounded-2xl" />
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] px-1">Residency Address</label>
                 <textarea
-                  placeholder="Street, City..."
-                  className="w-full h-24 p-4 rounded-2xl bg-slate-50 border-none text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-100 resize-none shadow-inner"
+                  placeholder="Street details, Landmark, City..."
+                  className="w-full h-28 p-5 rounded-[1.75rem] bg-slate-50 border border-transparent text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-400 focus:ring-8 focus:ring-indigo-50 transition-all resize-none shadow-inner"
                   value={newCustomer.address}
                   onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value }))}
                 />
               </div>
-              <CustomButton fullWidth themeColor="indigo" size="lg" onClick={handleAddCustomer} loading={submitting}>
-                Save Customer
-              </CustomButton>
+              <CustomButton fullWidth themeColor="indigo" size="lg" onClick={handleAddCustomer} loading={submitting} className="!h-16 !rounded-[1.75rem] font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo-100 mt-4">Create Membership</CustomButton>
             </div>
           )}
         </div>
       </CustomModal>
 
-      <CustomModal open={isHeldOrdersOpen} onClose={() => setHeldOrdersOpen(false)} title="Held Orders" size="md">
-        <div className="space-y-3">
+      {/* Checkout Interface */}
+      <CustomModal open={isCheckoutOpen} onClose={() => setCheckoutOpen(false)} title="Luxury Settle & Finalize" size="md">
+        <div className="space-y-8 p-4">
+          <div className="p-8 rounded-[3rem] bg-gradient-to-br from-indigo-50 to-indigo-100/50 border border-white flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-4 opacity-10"><Monitor size={100} /></div>
+             <span className="text-xs font-black text-indigo-400 uppercase tracking-[0.4em] mb-4">Total Amount Payable</span>
+             <span className="text-[64px] font-black text-indigo-600 tabular-nums leading-none tracking-tighter drop-shadow-sm">৳{total.toFixed(0)}</span>
+          </div>
+
+          <div className="space-y-5">
+            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] text-center">Authorization Method</p>
+            <div className="grid grid-cols-3 gap-5">
+              {["CASH", "CARD", "MOBILE"].map(m => (
+                <button
+                  key={m}
+                  onClick={() => confirmSale(m)}
+                  disabled={submitting}
+                  className="flex flex-col items-center justify-center p-8 rounded-[2.5rem] border-2 border-slate-50 hover:border-indigo-500 hover:bg-indigo-50/50 transition-all group shadow-sm active:scale-95 duration-500"
+                >
+                  <div className="w-16 h-16 rounded-[1.5rem] bg-white flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all shadow-md border border-slate-50">
+                    {m === "CASH" ? <DollarSign size={28} strokeWidth={2.5} className="text-indigo-600" /> : m === "CARD" ? <CreditCard size={28} strokeWidth={2.5} className="text-indigo-600" /> : <Monitor size={28} strokeWidth={2.5} className="text-indigo-600" />}
+                  </div>
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 group-hover:text-indigo-600">{m}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="pt-6">
+            <CustomButton fullWidth size="lg" themeColor="indigo" loading={submitting} onClick={() => confirmSale("CASH")} className="!rounded-[2rem] !h-20 font-black uppercase tracking-[0.3em] text-lg shadow-2xl shadow-indigo-100">Finalize Payment</CustomButton>
+          </div>
+        </div>
+      </CustomModal>
+
+      {/* Held Sessions */}
+      <CustomModal open={isHeldOrdersOpen} onClose={() => setHeldOrdersOpen(false)} title="Suspended Sessions" size="md">
+        <div className="space-y-4 p-2">
           {heldOrders.length === 0 ? (
-            <div className="py-16 text-center opacity-30">
-              <PauseCircle size={64} className="mx-auto mb-4 text-slate-300" />
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">No held orders</p>
+            <div className="py-24 text-center opacity-30">
+              <PauseCircle size={80} className="mx-auto mb-6 text-slate-300 animate-pulse" />
+              <p className="text-sm font-black uppercase tracking-[0.3em] text-slate-400">Queue is Empty</p>
             </div>
           ) : (
             heldOrders.map((held, idx) => (
-              <div key={held.id || `held-${idx}`} className="p-4 rounded-[1.5rem] border border-slate-100 bg-slate-50 flex items-center justify-between shadow-sm">
-                <div>
-                  <p className="text-xs font-black text-indigo-950 uppercase tracking-tight">{held.id}</p>
-                  <p className="text-[10px] text-slate-400 uppercase font-black">{held.time} • {held.items.length} items</p>
+              <div key={held.id || `held-${idx}`} className="p-6 rounded-[2.5rem] border border-slate-50 bg-white hover:border-indigo-100 transition-all duration-700 shadow-sm flex items-center justify-between group">
+                <div className="flex items-center gap-5">
+                   <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center border border-amber-100 group-hover:rotate-12 transition-transform duration-700"><PauseCircle size={26} strokeWidth={2.5} /></div>
+                   <div>
+                    <p className="text-sm font-black text-indigo-950 uppercase tracking-tight mb-1">{held.id}</p>
+                    <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{held.time} • {held.items.length} sessions</p>
+                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm font-black text-indigo-600 tabular-nums">৳{held.total.toFixed(0)}</span>
-                  <button onClick={() => recallOrder(held)} className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all">Recall</button>
+                <div className="flex items-center gap-6">
+                  <span className="text-lg font-black text-indigo-600 tabular-nums">৳{held.total.toFixed(0)}</span>
+                  <button onClick={() => recallOrder(held)} className="px-6 py-3 rounded-2xl bg-indigo-600 text-white text-[11px] font-black uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-90">Recall</button>
                 </div>
               </div>
             ))
@@ -1079,32 +1105,33 @@ export default function SalonPOSPage() {
         </div>
       </CustomModal>
 
-      <CustomModal open={isHistoryOpen} onClose={() => setHistoryOpen(false)} title="Sales History" size="lg">
-        <div className="space-y-4">
+      {/* Session History */}
+      <CustomModal open={isHistoryOpen} onClose={() => setHistoryOpen(false)} title="Order Vault" size="lg">
+        <div className="space-y-6 p-2">
           {salesHistory.length === 0 ? (
-            <div className="py-20 text-center opacity-30">
-              <History size={64} className="mx-auto mb-4 text-slate-300" />
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">No sales history yet</p>
+            <div className="py-28 text-center opacity-30">
+              <History size={80} className="mx-auto mb-6 text-slate-300" />
+              <p className="text-sm font-black uppercase tracking-[0.3em] text-slate-400">Vault is Empty</p>
             </div>
           ) : (
-            <div className="overflow-hidden border border-slate-100 rounded-[1.5rem] shadow-sm">
+            <div className="overflow-hidden border border-slate-50 rounded-[3rem] shadow-xl shadow-indigo-100/10">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <thead className="bg-slate-50/50 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-50">
                   <tr>
-                    <th className="px-6 py-4">Invoice</th>
-                    <th className="px-6 py-4">Customer</th>
-                    <th className="px-6 py-4 text-right">Total</th>
-                    <th className="px-6 py-4 text-center">Action</th>
+                    <th className="px-8 py-5">Invoice ID</th>
+                    <th className="px-8 py-5">Guest Profile</th>
+                    <th className="px-8 py-5 text-right">Value</th>
+                    <th className="px-8 py-5 text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 bg-white">
                   {salesHistory.map((sale, idx) => (
-                    <tr key={sale.id || `sale-${idx}`} className="text-xs hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4 font-mono font-black text-indigo-600 tracking-widest">{sale.invoiceNo}</td>
-                      <td className="px-6 py-4 font-black uppercase tracking-tight text-slate-700">{sale.customerName}</td>
-                      <td className="px-6 py-4 text-right font-black text-indigo-600 tabular-nums text-sm">৳{sale.total.toFixed(0)}</td>
-                      <td className="px-6 py-4 text-center">
-                        <button className="p-2.5 hover:bg-indigo-50 rounded-xl text-indigo-600 transition-all active:scale-90">
+                    <tr key={sale.id || `sale-${idx}`} className="text-xs hover:bg-indigo-50/30 transition-all duration-500 group">
+                      <td className="px-8 py-5 font-mono font-black text-indigo-600 tracking-[0.2em]">{sale.invoiceNo}</td>
+                      <td className="px-8 py-5 font-black uppercase tracking-tight text-slate-700">{sale.customerName}</td>
+                      <td className="px-8 py-5 text-right font-black text-indigo-600 tabular-nums text-sm">৳{sale.total.toFixed(0)}</td>
+                      <td className="px-8 py-5 text-center">
+                        <button className="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 active:scale-75 shadow-sm">
                           <Printer size={16} strokeWidth={2.5} />
                         </button>
                       </td>
@@ -1117,89 +1144,45 @@ export default function SalonPOSPage() {
         </div>
       </CustomModal>
 
-      <CustomModal open={isNotesOpen} onClose={() => setNotesOpen(false)} title="Order Notes" size="sm">
-        <div className="space-y-5">
+      {/* Internal Notes */}
+      <CustomModal open={isNotesOpen} onClose={() => setNotesOpen(false)} title="Order Directives" size="sm">
+        <div className="space-y-6 p-2">
           <textarea
             value={orderNote}
             onChange={(e) => setOrderNote(e.target.value)}
-            placeholder="Add special instructions for this order..."
-            className="w-full h-40 p-5 rounded-[1.5rem] bg-slate-50 border-none text-sm font-bold text-slate-700 focus:ring-4 focus:ring-indigo-100 outline-none resize-none placeholder:text-slate-300 transition-all shadow-inner"
+            placeholder="Document special instructions, allergies, or stylistic requests..."
+            className="w-full h-48 p-7 rounded-[2.5rem] bg-slate-50/50 border border-transparent text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-400 focus:ring-[12px] focus:ring-indigo-50/50 transition-all resize-none placeholder:text-slate-300 shadow-inner leading-relaxed"
           />
-          <CustomButton fullWidth themeColor="indigo" onClick={() => setNotesOpen(false)} className="!rounded-2xl !h-12 font-black uppercase tracking-widest shadow-lg shadow-indigo-100">Save Note</CustomButton>
+          <CustomButton fullWidth themeColor="indigo" onClick={() => setNotesOpen(false)} className="!rounded-[1.75rem] !h-16 font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo-100">Save Directive</CustomButton>
         </div>
       </CustomModal>
 
+      {/* Global Receipt */}
       {result && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-500">
           <div className="w-full max-w-sm"><ReceiptModal result={result} onNewSale={() => setResult(null)} /></div>
         </div>
       )}
 
-      {/* --- FOOTER --- */}
-      <footer className="flex-none h-16 bg-white border-t border-slate-100 flex items-center justify-between px-6 z-30">
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-6">
-            <button onClick={() => setCustomerOpen(true)} className="flex items-center gap-3 group transition-all">
-              <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all shadow-sm group-active:scale-95 group-hover:-translate-y-0.5">
-                <User size={18} strokeWidth={2.5} />
-              </div>
-              <div className="text-left leading-none">
-                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Client</p>
-                <p className="text-xs font-black text-slate-800 mt-1 uppercase tracking-tight">{selectedCustomer?.name || "Walk-in Client"}</p>
-              </div>
-            </button>
-
-            <div className="w-px h-8 bg-slate-100" />
-
-            <button onClick={() => { setSelectedCartIdx(null); setStaffOpen(true); }} className="flex items-center gap-3 group transition-all">
-              <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm group-active:scale-95 group-hover:-translate-y-0.5">
-                <Sparkles size={18} strokeWidth={2.5} />
-              </div>
-              <div className="text-left leading-none">
-                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Stylist</p>
-                <p className="text-xs font-black text-indigo-600 mt-1 uppercase tracking-tight">{selectedGlobalStylist?.name || "Assign Stylist"}</p>
-              </div>
-            </button>
-          </div>
-
-          <div className="h-8 w-px bg-slate-100" />
-          <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl shadow-sm border border-slate-100">
-            {[
-              { label: "Hold", icon: PauseCircle, onClick: () => setHeldOrdersOpen(true), color: "text-amber-500", bg: "bg-amber-50" },
-              { label: "History", icon: History, onClick: () => setHistoryOpen(true), color: "text-blue-500", bg: "bg-blue-50" },
-              { label: "Report", icon: TrendingUp, onClick: () => window.open("/reports", "_blank"), color: "text-emerald-500", bg: "bg-emerald-50" },
-              { label: "Settings", icon: Settings, onClick: () => window.open("/settings", "_blank"), color: "text-slate-500", bg: "bg-slate-50" },
-            ].map((tool) => (
-              <button key={tool.label} onClick={tool.onClick} className={cn("flex items-center gap-2 px-3 py-2 rounded-xl font-black transition-all hover:scale-105 active:scale-95 group shadow-xs", tool.color, tool.bg)}>
-                <tool.icon size={15} strokeWidth={3} className="group-hover:rotate-12 transition-transform" />
-                <span className="text-[9px] uppercase tracking-widest hidden lg:block">{tool.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={() => setNotesOpen(true)} className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-all group relative active:scale-95 shadow-sm">
-            <Bell size={18} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Notes</span>
-            <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-500 border-2 border-white text-white text-[9px] font-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">3</div>
-          </button>
-          <button className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all group relative active:scale-95 shadow-sm">
-            <Gift size={18} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Loyalty Points</span>
-            <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-500 border-2 border-white text-white text-[9px] font-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">2</div>
-          </button>
-        </div>
-      </footer>
-
+      {/* Global Styles */}
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
         @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(10px); }
+          from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in-up {
-          animation: fade-in-up 0.4s ease-out forwards;
+          animation: fade-in-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.9; transform: scale(1.02); }
+        }
+        .animate-pulse-slow {
+          animation: pulse-slow 3s ease-in-out infinite;
         }
       `}</style>
     </div>
