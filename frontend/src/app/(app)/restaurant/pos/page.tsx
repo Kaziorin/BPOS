@@ -1400,29 +1400,6 @@ export default function RestaurantPOSPage() {
             </span>
           </button>
 
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
-            <Users size={15} className="text-gray-500" />
-            <span className="text-xs font-medium text-gray-500">Name:</span>
-            <input
-              type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Optional"
-              className="bg-transparent text-xs font-bold text-gray-600 focus:outline-none w-24 placeholder:text-gray-300"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
-            <span className="text-xs font-medium text-gray-500">Phone:</span>
-            <input
-              type="tel"
-              value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
-              placeholder="Optional"
-              className="bg-transparent text-xs font-bold text-gray-600 focus:outline-none w-24 placeholder:text-gray-300"
-            />
-          </div>
-
           {/* ── MEAL SHIFT BADGE / DIALOG TRIGGER (ALWAYS DISPLAYED NEXT TO WAITER) ── */}
           {restaurantPosShiftVisible && (
           <button
