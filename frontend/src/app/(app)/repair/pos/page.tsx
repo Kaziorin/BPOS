@@ -774,21 +774,20 @@ export default function RepairPOSPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="field-label">Service / Labor Description</label>
-                    <input
-                      ref={laborNameRef}
-                      type="text"
-                      className="field-input"
-                      placeholder="e.g. Screen Replacement Labor, IC Chip Reballing..."
-                      value={laborName}
-                      onChange={(e) => setLaborName(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && addLabor()}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
+                  <div className="grid grid-cols-12 gap-3">
+                    <div className="col-span-12 xl:col-span-6">
+                      <label className="field-label">Service / Labor Description</label>
+                      <input
+                        ref={laborNameRef}
+                        type="text"
+                        className="field-input"
+                        placeholder="e.g. Screen Replacement Labor..."
+                        value={laborName}
+                        onChange={(e) => setLaborName(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && addLabor()}
+                      />
+                    </div>
+                    <div className="col-span-6 xl:col-span-3">
                       <label className="field-label">Service Charge (৳)</label>
                       <input
                         type="number"
@@ -799,7 +798,7 @@ export default function RepairPOSPage() {
                         onKeyDown={(e) => e.key === "Enter" && addLabor()}
                       />
                     </div>
-                    <div>
+                    <div className="col-span-6 xl:col-span-3">
                       <label className="field-label">Warranty (Months)</label>
                       <select
                         value={laborWarranty}
@@ -873,10 +872,10 @@ export default function RepairPOSPage() {
           </div>
 
           {/* RIGHT PANEL – Job Ticket Builder */}
-          <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-3 min-h-0">
+          <div className="lg:col-span-5 xl:col-span-4 flex flex-col min-h-0 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
 
             {/* Customer selector */}
-            <div className="flex-none bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+            <div className="flex-none p-4 border-b border-slate-50">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                   <User size={12} className="text-indigo-500" /> Customer
@@ -987,7 +986,7 @@ export default function RepairPOSPage() {
             </div>
 
             {/* Device Info */}
-            <div className="flex-none bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
+            <div className="flex-none p-4 border-b border-slate-100 bg-slate-50/50 space-y-3">
               <p className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                 <Smartphone size={12} className="text-indigo-500" /> Device Information
               </p>
@@ -1015,9 +1014,9 @@ export default function RepairPOSPage() {
               </div>
               <div>
                 <label className="field-label">Problem / Diagnosis</label>
-                <textarea
-                  className="field-input resize-none"
-                  rows={2}
+                <input
+                  type="text"
+                  className="field-input"
                   placeholder="Describe the device problem and findings..."
                   value={diagnosisProblem}
                   onChange={(e) => setDiagnosisProblem(e.target.value)}
@@ -1026,7 +1025,7 @@ export default function RepairPOSPage() {
             </div>
 
             {/* Cart / Job Ticket */}
-            <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
               <div className="flex-none px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Receipt size={14} className="text-indigo-500" />
@@ -1123,7 +1122,7 @@ export default function RepairPOSPage() {
             </div>
 
             {/* Payment Method + Complete */}
-            <div className="flex-none bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
+            <div className="flex-none p-4 bg-slate-50 border-t border-slate-100 space-y-3">
               <p className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                 <CreditCard size={12} className="text-indigo-500" /> Payment Method
               </p>
