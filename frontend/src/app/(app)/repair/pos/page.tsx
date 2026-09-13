@@ -165,7 +165,7 @@ export default function RepairPOSPage() {
       ]);
 
       if (partsRes.status === "fulfilled") {
-        const pData = (partsRes.value.data as any)?.data ?? (partsRes.value.data as any) ?? [];
+        const pData = ((partsRes as any).value.data as any)?.data ?? ((partsRes as any).value.data as any) ?? [];
         setParts(
           Array.isArray(pData)
             ? pData.map((p: any) => ({
@@ -181,12 +181,12 @@ export default function RepairPOSPage() {
       }
 
       if (cusRes.status === "fulfilled") {
-        const cData = (cusRes.value.data as any)?.data ?? (cusRes.value.data as any) ?? [];
+        const cData = ((cusRes as any).value.data as any)?.data ?? ((cusRes as any).value.data as any) ?? [];
         setCustomers(Array.isArray(cData) ? cData : []);
       }
 
       if (techRes.status === "fulfilled") {
-        const tData = (techRes.value.data as any) ?? [];
+        const tData = ((techRes as any).value.data as any) ?? [];
         setTechnicians(
           Array.isArray(tData)
             ? tData.map((t: any) => ({ id: t.id, name: t.name }))
@@ -312,7 +312,7 @@ export default function RepairPOSPage() {
     setSavingCustomer(true);
     try {
       const res = await api.post("/customers", newCust);
-      const created = (res.data as any)?.data ?? (res.data as any);
+      const created = ((res as any).data as any)?.data ?? ((res as any).data as any);
       if (created?.id) {
         setCustomers((prev) => [created, ...prev]);
         setCustomerId(created.id);
@@ -346,7 +346,7 @@ export default function RepairPOSPage() {
         notes: notes || undefined,
       });
 
-      const ticketData = (ticketRes.data as any);
+      const ticketData = ((ticketRes as any).data as any)?.data ?? ((ticketRes as any).data as any);
       const ticketId = ticketData?.id;
 
       if (!ticketId) throw new Error("Failed to create ticket");
@@ -368,7 +368,7 @@ export default function RepairPOSPage() {
         paymentMethod,
       });
 
-      const deliverData = (deliverRes.data as any);
+      const deliverData = ((deliverRes as any).data as any)?.data ?? ((deliverRes as any).data as any);
       const custName = selectedCustomer?.name || "Customer";
       const techName = selectedTechnician?.name || "Technician";
 
@@ -517,28 +517,80 @@ export default function RepairPOSPage() {
           margin-bottom: 4px;
         }
 
+        .mesh-bg {
+          background: linear-gradient(-45deg, #e0e7ff, #f8fafc, #ede9fe, #f1f5f9);
+          background-size: 400% 400%;
+          animation: gradientBg 15s ease infinite;
+        }
+        @keyframes gradientBg {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        .btn-sweep {
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .btn-sweep::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+          transform: skewX(-20deg);
+          animation: sweep 3s infinite;
+        }
+        @keyframes sweep {
+          0% { left: -100%; }
+          20% { left: 200%; }
+          100% { left: 200%; }
+        }
+
+        .glass-panel {
+          background: rgba(255, 255, 255, 0.65);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.8);
+          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
         .field-input {
           width: 100%;
-          border-radius: 10px;
-          border: 1.5px solid #e2e8f0;
-          background: #ffffff;
+          border-radius: 12px;
+          border: 1.5px solid rgba(226, 232, 240, 0.8);
+          background: rgba(255, 255, 255, 0.8);
           padding: 8px 12px;
           font-size: 13px;
           color: #0f172a;
           outline: none;
-          transition: all 0.15s;
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .field-input:focus {
-          border-color: #6366f1;
-          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+          border-color: #8b5cf6;
+          background: #ffffff;
+          box-shadow: inset 0 1px 2px rgba(0,0,0,0.01), 0 0 0 4px rgba(139, 92, 246, 0.15);
         }
         .field-input::placeholder { color: #94a3b8; }
+        
+        .card-3d {
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .card-3d:hover {
+          transform: translateY(-4px) scale(1.01);
+          box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.2);
+          border-color: rgba(99, 102, 241, 0.3);
+        }
       `}</style>
 
-      <div className="repair-pos h-screen w-screen flex flex-col bg-gradient-to-br from-indigo-50/80 via-white to-purple-50/80 select-none overflow-hidden">
+      <div className="repair-pos h-screen w-screen flex flex-col mesh-bg select-none overflow-hidden">
 
         {/* ── TOP NAV BAR ───────────────────────────────────────────────── */}
-        <header className="flex-none flex items-center justify-between px-5 py-3 mx-3 mt-3 rounded-3xl bg-gradient-to-r from-indigo-100/60 via-white/80 to-purple-100/60 backdrop-blur-md border border-white/80 shadow-sm z-20">
+        <header className="flex-none flex items-center justify-between px-5 py-3 mx-3 mt-3 rounded-3xl glass-panel z-20">
           <div className="flex items-center gap-3">
             <Link
               href="/repair"
@@ -606,7 +658,7 @@ export default function RepairPOSPage() {
           <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-3 min-h-0">
 
             {/* Stats Row */}
-            <div className="flex-none grid grid-cols-4 gap-2">
+            <div className="flex-none grid grid-cols-4 gap-3">
               {[
                 { label: "Parts in Catalog", value: parts.length, icon: Package, color: "text-indigo-600", bg: "bg-indigo-50" },
                 { label: "Items in Ticket", value: cart.length, icon: ShoppingBag, color: "text-violet-600", bg: "bg-violet-50" },
@@ -625,8 +677,8 @@ export default function RepairPOSPage() {
               ))}
             </div>
 
-            {/* Tabs: Parts / Add Labor */}
-            <div className="flex-none flex items-center gap-2 bg-white rounded-2xl p-1.5 shadow-sm border border-slate-100">
+            {/* Tab Bar */}
+            <div className="flex-none flex items-center p-1 rounded-2xl glass-panel shadow-sm">
               {(["parts", "labor"] as const).map((tab) => (
                 <button
                   key={tab}
@@ -643,7 +695,7 @@ export default function RepairPOSPage() {
 
             {/* Parts Panel */}
             {activeTab === "parts" && (
-              <div className="flex-1 min-h-0 flex flex-col gap-2 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <div className="flex-1 min-h-0 glass-panel rounded-3xl p-4 flex flex-col">
                 {/* Search + view toggle */}
                 <div className="flex-none p-3 border-b border-slate-100 flex items-center gap-2">
                   <div className="relative flex-1">
@@ -683,7 +735,7 @@ export default function RepairPOSPage() {
                 {/* Parts list */}
                 <div className={cn(
                   "flex-1 min-h-0 overflow-y-auto p-3",
-                  partsViewMode === "grid" ? "grid grid-cols-2 gap-2 content-start" : "space-y-1.5"
+                  partsViewMode === "grid" ? "grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-3 content-start" : "space-y-2"
                 )}>
                   {loadingParts ? (
                     Array.from({ length: 6 }).map((_, i) => (
@@ -699,33 +751,45 @@ export default function RepairPOSPage() {
                     filteredParts.map((part) => (
                       <div
                         key={part.id}
-                        className="part-card group flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-100 hover:border-indigo-200 cursor-pointer"
+                        className="group card-3d flex items-center p-3 rounded-2xl bg-gradient-to-r from-white/80 to-white/50 backdrop-blur-xl border border-white hover:bg-white hover:shadow-[0_12px_40px_-10px_rgba(99,102,241,0.2)] cursor-pointer transition-all duration-300 relative overflow-hidden"
                         onClick={() => addPart(part)}
                       >
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-50 to-violet-50 border border-indigo-100 flex items-center justify-center flex-shrink-0 group-hover:from-indigo-100 transition">
-                          <HardDrive size={15} className="text-indigo-500" />
+                        {/* Hover Glow */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-50/0 via-indigo-50/0 to-indigo-50/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                        {/* Premium Icon Block */}
+                        <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30 flex-shrink-0 group-hover:scale-105 transition-transform duration-300 z-10">
+                          <Package size={20} className="drop-shadow-sm" />
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold text-slate-800 truncate">{part.name}</p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[10px] text-slate-400 font-mono">{part.sku}</span>
-                            {part.categoryName && (
-                              <span className="text-[10px] bg-slate-100 text-slate-500 rounded px-1.5 py-0.5">{part.categoryName}</span>
-                            )}
-                            {part.stockQty !== undefined && (
-                              <span className={cn(
-                                "text-[10px] rounded px-1.5 py-0.5 font-semibold",
-                                part.stockQty > 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"
-                              )}>
-                                {part.stockQty > 0 ? `${part.stockQty} in stock` : "Out of stock"}
-                              </span>
-                            )}
+                        
+                        {/* Content Area */}
+                        <div className="ml-4 flex-1 min-w-0 z-10">
+                          <div className="flex justify-between items-start mb-1.5">
+                             <p className="text-[14px] font-black text-slate-800 truncate group-hover:text-indigo-700 transition-colors">{part.name}</p>
+                             <span className="text-[15px] font-black text-indigo-700 ml-4 flex-shrink-0 group-hover:scale-105 transition-transform origin-right">{fmt(part.sellingPrice)}</span>
+                          </div>
+                          
+                          <div className="flex flex-wrap items-center gap-2">
+                             <span className="text-[10px] text-slate-500 font-mono bg-white/80 px-2 py-0.5 rounded-md border border-slate-200/60 shadow-sm">{part.sku}</span>
+                             {part.categoryName && (
+                               <span className="text-[10px] text-indigo-700 bg-indigo-50/80 px-2 py-0.5 rounded-md font-bold shadow-sm">{part.categoryName}</span>
+                             )}
+                             {part.stockQty !== undefined && (
+                                <span className={cn(
+                                  "text-[10px] rounded-md px-2 py-0.5 font-extrabold flex items-center gap-1.5 shadow-sm", 
+                                  part.stockQty > 0 ? "bg-emerald-50 text-emerald-700 border border-emerald-100/50" : "bg-red-50 text-red-700 border border-red-100/50"
+                                )}>
+                                  <span className={cn("w-1.5 h-1.5 rounded-full shadow-sm", part.stockQty > 0 ? "bg-emerald-500 animate-pulse" : "bg-red-500")} />
+                                  {part.stockQty > 0 ? `${part.stockQty} in stock` : "Out of stock"}
+                                </span>
+                             )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="text-sm font-extrabold text-indigo-700">{fmt(part.sellingPrice)}</span>
-                          <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all group-hover:scale-110">
-                            <Plus size={13} />
+
+                        {/* Add Button Action Area */}
+                        <div className="ml-3 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-x-4 group-hover:translate-x-0 z-10">
+                          <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 group-active:scale-95 transition-all">
+                            <Plus size={20} strokeWidth={3} />
                           </div>
                         </div>
                       </div>
@@ -734,25 +798,39 @@ export default function RepairPOSPage() {
                     filteredParts.map((part) => (
                       <div
                         key={part.id}
-                        className="part-card p-3 rounded-xl bg-white border border-slate-100 hover:border-indigo-200 cursor-pointer flex flex-col gap-2"
+                        className="group card-3d w-full text-left p-3 rounded-2xl bg-gradient-to-br from-white/90 to-white/60 backdrop-blur-xl border border-white hover:bg-white hover:shadow-[0_8px_30px_-10px_rgba(99,102,241,0.2)] cursor-pointer transition-all duration-300 relative overflow-hidden flex flex-col gap-2"
                         onClick={() => addPart(part)}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-                            <HardDrive size={14} className="text-indigo-500" />
+                        {/* Hover Background Glow */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/0 via-indigo-50/0 to-indigo-100/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                        <div className="flex items-center justify-between z-10 relative">
+                          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/30 group-hover:scale-110 transition-transform duration-300">
+                            <Package size={14} className="drop-shadow-sm" />
                           </div>
-                          <Plus size={13} className="text-indigo-400" />
+                          
+                          <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+                             <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/40">
+                                <Plus size={14} strokeWidth={3} />
+                             </div>
+                          </div>
                         </div>
-                        <p className="text-xs font-bold text-slate-800 leading-tight line-clamp-2">{part.name}</p>
-                        <p className="text-sm font-extrabold text-indigo-700">{fmt(part.sellingPrice)}</p>
-                        {part.stockQty !== undefined && (
-                          <span className={cn(
-                            "text-[10px] rounded px-1.5 py-0.5 font-semibold self-start",
-                            part.stockQty > 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"
-                          )}>
-                            {part.stockQty > 0 ? `Stock: ${part.stockQty}` : "Out of stock"}
-                          </span>
-                        )}
+
+                        <div className="z-10 relative">
+                          <p className="text-xs font-black text-slate-800 leading-snug line-clamp-2 group-hover:text-indigo-700 transition-colors">{part.name}</p>
+                          <div className="flex items-end justify-between mt-1.5">
+                             {part.stockQty !== undefined && (
+                                <span className={cn(
+                                  "text-[9px] rounded-md px-1.5 py-0.5 font-extrabold flex items-center gap-1 shadow-sm", 
+                                  part.stockQty > 0 ? "bg-emerald-50 text-emerald-700 border border-emerald-100/50" : "bg-red-50 text-red-700 border border-red-100/50"
+                                )}>
+                                  <span className={cn("w-1 h-1 rounded-full shadow-sm", part.stockQty > 0 ? "bg-emerald-500 animate-pulse" : "bg-red-500")} />
+                                  {part.stockQty > 0 ? part.stockQty : "Out"}
+                                </span>
+                             )}
+                             <p className="text-sm font-black text-indigo-700">{fmt(part.sellingPrice)}</p>
+                          </div>
+                        </div>
                       </div>
                     ))
                   )}
@@ -763,7 +841,7 @@ export default function RepairPOSPage() {
             {/* Labor Panel */}
             {activeTab === "labor" && (
               <div className="flex-1 flex flex-col gap-3 min-h-0">
-                <div className="flex-none bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-4">
+                <div className="flex-none glass-panel rounded-3xl p-5 flex flex-col gap-4">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm shadow-amber-200">
                       <Hammer size={15} className="text-white" />
@@ -822,7 +900,7 @@ export default function RepairPOSPage() {
                 </div>
 
                 {/* Common labor presets */}
-                <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col">
+                <div className="flex-1 min-h-0 glass-panel rounded-3xl p-4 flex flex-col">
                   <div className="flex-none flex items-center justify-between mb-3">
                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Quick Labor Presets</p>
                     <span className="text-[10px] text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">Most Used</span>
@@ -849,7 +927,7 @@ export default function RepairPOSPage() {
                             addLabor();
                             toast.info(`Added ${preset.name}`, { autoClose: 1000, position: "bottom-right" });
                           }}
-                          className="group text-left p-3 rounded-xl bg-white border border-slate-100 hover:border-indigo-300 hover:shadow-md transition-all duration-200 flex flex-col gap-2 relative overflow-hidden"
+                          className="group text-left p-3 rounded-xl bg-white/60 border border-white/60 card-3d flex flex-col gap-2 relative overflow-hidden"
                         >
                           <div className="absolute -right-4 -top-4 w-12 h-12 rounded-full opacity-10 group-hover:scale-150 transition-transform duration-500" style={{ backgroundColor: "currentColor" }} />
                           <div className={`w-8 h-8 rounded-lg ${preset.bg} ${preset.border} border flex items-center justify-center`}>
@@ -872,7 +950,7 @@ export default function RepairPOSPage() {
           </div>
 
           {/* RIGHT PANEL – Job Ticket Builder */}
-          <div className="lg:col-span-5 xl:col-span-4 flex flex-col min-h-0 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="lg:col-span-5 xl:col-span-4 flex flex-col min-h-0 glass-panel rounded-3xl overflow-hidden shadow-lg">
 
             {/* Customer selector */}
             <div className="flex-none p-4 border-b border-slate-50">
@@ -986,7 +1064,7 @@ export default function RepairPOSPage() {
             </div>
 
             {/* Device Info */}
-            <div className="flex-none p-4 border-b border-slate-100 bg-slate-50/50 space-y-3">
+            <div className="flex-none p-4 border-b border-white/40 bg-white/20 space-y-3">
               <p className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                 <Smartphone size={12} className="text-indigo-500" /> Device Information
               </p>
@@ -1025,8 +1103,8 @@ export default function RepairPOSPage() {
             </div>
 
             {/* Cart / Job Ticket */}
-            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-              <div className="flex-none px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-white/10">
+              <div className="flex-none px-4 py-3 border-b border-white/40 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Receipt size={14} className="text-indigo-500" />
                   <span className="text-xs font-extrabold text-slate-700">Job Ticket</span>
@@ -1122,7 +1200,7 @@ export default function RepairPOSPage() {
             </div>
 
             {/* Payment Method + Complete */}
-            <div className="flex-none p-4 bg-slate-50 border-t border-slate-100 space-y-3">
+            <div className="flex-none p-4 bg-white/30 border-t border-white/40 space-y-3">
               <p className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                 <CreditCard size={12} className="text-indigo-500" /> Payment Method
               </p>
@@ -1147,7 +1225,7 @@ export default function RepairPOSPage() {
               <button
                 onClick={handleCompleteTicket}
                 disabled={cart.length === 0 || !customerId || !deviceModel.trim() || submitting}
-                className="btn-glow w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-extrabold text-sm shadow-lg shadow-indigo-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:from-indigo-500 hover:to-violet-500 flex items-center justify-center gap-2.5"
+                className="btn-glow btn-sweep w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-extrabold text-sm shadow-[0_10px_25px_-5px_rgba(99,102,241,0.5)] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 transition-all flex items-center justify-center gap-2.5"
               >
                 {submitting ? (
                   <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Processing...</>
@@ -1166,7 +1244,7 @@ export default function RepairPOSPage() {
         </div>
 
         {/* ── FOOTER ────────────────────────────────────────────────────── */}
-        <footer className="flex-none flex items-center justify-between px-5 py-2 mx-3 mb-3 rounded-full bg-gradient-to-r from-purple-100/60 via-white/80 to-indigo-100/60 backdrop-blur-md border border-white/80 shadow-sm z-20 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+        <footer className="flex-none flex items-center justify-between px-5 py-2 mx-3 mb-3 rounded-full glass-panel z-20 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
           <div className="flex items-center gap-2">
             <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> All Systems Operational
           </div>
