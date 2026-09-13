@@ -1,11 +1,11 @@
 "use client";
 
-import { InputHTMLAttributes, forwardRef, useId } from "react";
+import { InputHTMLAttributes, ReactNode, forwardRef, useId } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 export interface CustomCheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
-  label?: string;
+  label?: ReactNode;
   description?: string;
   containerClassName?: string;
   themeColor?: "primary" | "teal" | "orange" | "indigo" | "emerald" | "amber" | "rose" | "purple" | "blue";
