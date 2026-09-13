@@ -363,6 +363,7 @@ export default function RestaurantPOSPage() {
 
   // Time Slots / Meal Shifts State (Always active with automatic live clock matching)
   const [timeSlotFilterEnabled, setTimeSlotFilterEnabled] = useState<boolean>(true);
+  const [restaurantPosShiftVisible, setRestaurantPosShiftVisible] = useState<boolean>(true);
   const [timeSlots, setTimeSlots] = useState<any[]>(DEFAULT_PRESET_SLOTS);
   const [todayOverrides, setTodayOverrides] = useState<Record<string, any>>({});
   const initialActive = computeActiveShiftsFromClock(DEFAULT_PRESET_SLOTS);
@@ -523,9 +524,10 @@ export default function RestaurantPOSPage() {
 
       // 3. Load Time Slots and Settings
       try {
-        const [resSlots, resSettings] = await Promise.allSettled([
+        const [resSlots, resSettings, resPosShiftSettings] = await Promise.allSettled([
           api.get("/v1/restaurant/time-slots"),
           api.get("/v1/restaurant/time-slots/settings"),
+          api.get("/v1/restaurant/pos-shift/settings"),
         ]);
 
         let isFilterOn = false;
@@ -538,6 +540,14 @@ export default function RestaurantPOSPage() {
           const sData = (resSettings.value as any)?.data ?? resSettings.value ?? {};
           if (sData?.timeSlotFilterEnabled !== undefined) {
             isFilterOn = Boolean(sData.timeSlotFilterEnabled);
+          }
+        }
+
+        if (resPosShiftSettings.status === "fulfilled") {
+          const shiftSetting =
+            (resPosShiftSettings.value as any)?.data ?? resPosShiftSettings.value ?? {};
+          if (shiftSetting?.restaurantPosShiftVisible !== undefined) {
+            setRestaurantPosShiftVisible(Boolean(shiftSetting.restaurantPosShiftVisible));
           }
         }
 
@@ -1390,30 +1400,8 @@ export default function RestaurantPOSPage() {
             </span>
           </button>
 
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
-            <Users size={15} className="text-gray-500" />
-            <span className="text-xs font-medium text-gray-500">Name:</span>
-            <input
-              type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Optional"
-              className="bg-transparent text-xs font-bold text-gray-600 focus:outline-none w-24 placeholder:text-gray-300"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
-            <span className="text-xs font-medium text-gray-500">Phone:</span>
-            <input
-              type="tel"
-              value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
-              placeholder="Optional"
-              className="bg-transparent text-xs font-bold text-gray-600 focus:outline-none w-24 placeholder:text-gray-300"
-            />
-          </div>
-
           {/* ── MEAL SHIFT BADGE / DIALOG TRIGGER (ALWAYS DISPLAYED NEXT TO WAITER) ── */}
+          {restaurantPosShiftVisible && (
           <button
             type="button"
             onClick={() => setShowShiftDetailsModal(true)}
@@ -1451,6 +1439,7 @@ export default function RestaurantPOSPage() {
               <Info size={11} />
             </span>
           </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -1558,7 +1547,7 @@ export default function RestaurantPOSPage() {
         {/* ── CENTER MENU ITEMS GRID ── */}
         <main className="flex-1 flex flex-col rounded-xl bg-white border border-slate-200 shadow-2xs overflow-hidden">
           {/* ── ACTIVE SHIFT BANNER (DISPLAYED WHEN SHIFT FILTER IS ON) ── */}
-          {timeSlotFilterEnabled && (
+          {restaurantPosShiftVisible && timeSlotFilterEnabled && (
             <div className="flex-none p-2.5 px-3 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 border-b border-amber-300/80 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500 text-white shadow-xs shrink-0">
@@ -2785,7 +2774,7 @@ export default function RestaurantPOSPage() {
 
       {/* ══════════════ MEAL SHIFT DETAILS MODAL ══════════════ */}
       <CustomModal
-        open={showShiftDetailsModal}
+        open={restaurantPosShiftVisible && showShiftDetailsModal}
         onClose={() => setShowShiftDetailsModal(false)}
         title="Restaurant Meal Shifts Schedule"
         size="5xl"

@@ -734,6 +734,8 @@ function CompanySettingsTab({
   const [currency, setCurrency] = useState(tenant.currency || "BDT");
   const [timezone, setTimezone] = useState(tenant.timezone || "Asia/Dhaka");
   const [website, setWebsite] = useState(company.website || "https://blueoceans.io");
+  const [restaurantPosShiftVisible, setRestaurantPosShiftVisible] = useState(true);
+  const [restaurantSettingLoading, setRestaurantSettingLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -748,6 +750,26 @@ function CompanySettingsTab({
     if (tenant.timezone) setTimezone(tenant.timezone);
     if (company.website) setWebsite(company.website);
   }, [tenant, company]);
+
+  useEffect(() => {
+    if ((tenant.businessType || "").toUpperCase() !== "RESTAURANT") return;
+    let active = true;
+    setRestaurantSettingLoading(true);
+    api.get("/v1/restaurant/pos-shift/settings")
+      .then((res: any) => {
+        const setting = res?.data ?? res;
+        if (active && setting?.restaurantPosShiftVisible !== undefined) {
+          setRestaurantPosShiftVisible(Boolean(setting.restaurantPosShiftVisible));
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setRestaurantSettingLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [tenant.businessType]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -765,6 +787,12 @@ function CompanySettingsTab({
         timezone,
         website,
       });
+
+      if (businessType === "RESTAURANT") {
+        await api.put("/v1/restaurant/pos-shift/settings", {
+          restaurantPosShiftVisible,
+        });
+      }
 
       // Update local storage so rest of UI immediately reflects new businessType & name
       const mappedBt = res?.data?.businessType || res?.businessType || businessType;
@@ -954,6 +982,28 @@ function CompanySettingsTab({
           })}
         </div>
       </div>
+
+      {businessType === "RESTAURANT" && (
+        <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={restaurantPosShiftVisible}
+              onChange={(e) => setRestaurantPosShiftVisible(e.target.checked)}
+              disabled={restaurantSettingLoading}
+              className="mt-0.5 w-4 h-4 rounded text-amber-600 focus:ring-0"
+            />
+            <div>
+              <span className="font-bold text-slate-900 block">
+                Show Restaurant POS Shift Control
+              </span>
+              <p className="text-slate-500 text-[11px] mt-0.5">
+                When enabled, Restaurant POS shows the shift control and opens the shift schedule modal on click. When disabled, the shift control is hidden.
+              </p>
+            </div>
+          </label>
+        </div>
+      )}
 
       <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
         <span className="text-[11px] text-slate-400">
