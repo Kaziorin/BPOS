@@ -1127,6 +1127,51 @@ async def update_time_slot_settings(
     return ok({"timeSlotFilterEnabled": enabled})
 
 
+@router.get("/api/v1/restaurant/pos-shift/settings")
+async def get_pos_shift_settings(
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    await _ensure_time_slots_table(db)
+    row = (await db.execute(
+        text("SELECT value FROM tenant_settings WHERE tenantId = :t AND settingKey = 'restaurant_pos_shift_visible'"),
+        {"t": tenantId},
+    )).first()
+    visible = str(row[0]).lower() in ("true", "1", "yes", "on") if row else True
+    return ok({"restaurantPosShiftVisible": visible})
+
+
+@router.put("/api/v1/restaurant/pos-shift/settings")
+async def update_pos_shift_settings(
+    body: dict,
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    raw_visible = body.get("restaurantPosShiftVisible", True)
+    visible = raw_visible if isinstance(raw_visible, bool) else str(raw_visible).lower() in ("true", "1", "yes", "on")
+    val = "true" if visible else "false"
+
+    async with txn(db):
+        existing = (await db.execute(
+            text("SELECT id FROM tenant_settings WHERE tenantId = :t AND settingKey = 'restaurant_pos_shift_visible'"),
+            {"t": tenantId},
+        )).first()
+        if existing:
+            await db.execute(
+                text("UPDATE tenant_settings SET value = :v, updatedAt = CURRENT_TIMESTAMP WHERE tenantId = :t AND settingKey = 'restaurant_pos_shift_visible'"),
+                {"t": tenantId, "v": val},
+            )
+        else:
+            await db.execute(
+                text("INSERT INTO tenant_settings (id, tenantId, settingKey, value) VALUES (:id, :t, 'restaurant_pos_shift_visible', :v)"),
+                {"id": _uuid(), "t": tenantId, "v": val},
+            )
+
+    return ok({"restaurantPosShiftVisible": visible})
+
+
 @router.get("/api/v1/restaurant/time-slots/matrix")
 async def get_time_slot_matrix(
     user: AuthUser = Depends(require_auth),
