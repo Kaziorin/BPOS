@@ -642,27 +642,27 @@ export default function SalonPOSPage() {
         </main>
 
         {/* --- RIGHT ORDER PANEL --- */}
-        <aside className="w-80 lg:w-[420px] flex-none bg-white border-l border-indigo-50 flex flex-col z-20 shadow-[-20px_0_50px_rgba(79,70,229,0.02)]">
+        <aside className="w-80 lg:w-[540px] flex-none bg-white border-l border-indigo-50 flex flex-col z-20 shadow-[-20px_0_50px_rgba(79,70,229,0.02)]">
           {/* Compact Cart Header */}
-          <div className="p-6 pb-4 border-b border-indigo-50/50">
-            <div className="flex items-center justify-between mb-1">
+          <div className="p-3 px-6 border-b border-indigo-50/50 bg-slate-50/30">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm ring-2 ring-indigo-50/50">
-                  <ShoppingCart size={20} strokeWidth={2.5} />
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-xs ring-1 ring-indigo-100">
+                  <ShoppingCart size={16} strokeWidth={2.5} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-black tracking-tight text-indigo-950 uppercase">Basket</h2>
+                  <h2 className="text-[13px] font-black tracking-tight text-indigo-950 uppercase">Basket</h2>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{orderSeq}</p>
+                    <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-none">{orderSeq}</p>
                   </div>
                 </div>
               </div>
               <button
                 onClick={onClearCart}
-                className="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all duration-300 active:scale-90 shadow-xs"
+                className="w-7 h-7 flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all duration-300 active:scale-90 shadow-xs"
               >
-                <Trash2 size={16} />
+                <Trash2 size={14} />
               </button>
             </div>
           </div>
@@ -681,45 +681,45 @@ export default function SalonPOSPage() {
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 mt-6">Empty Basket</p>
                 </div>
               ) : cart.map((item, idx) => (
-                <div key={item.id} className="group relative flex gap-4 p-4 rounded-[2rem] bg-white border border-indigo-50 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-lg transition-all duration-500 border-l-4 border-l-indigo-600/0 hover:border-l-indigo-600 animate-fade-in-up">
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 flex-none shadow-xs">
+                <div key={item.id} className="group relative flex items-center gap-4 p-3 rounded-3xl bg-white border border-indigo-50 shadow-sm hover:shadow-md transition-all duration-500 border-l-4 border-l-indigo-600/0 hover:border-l-indigo-600 animate-fade-in-up">
+                  <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-50 flex-none shadow-xs">
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   </div>
+
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <div className="min-w-0">
-                        <h4 className="text-[12px] font-black text-indigo-950 truncate leading-tight uppercase tracking-tight">{item.name}</h4>
-                      </div>
-                      <button onClick={() => removeFromCart(item.id)} className="w-6 h-6 rounded-full flex items-center justify-center text-slate-200 hover:text-rose-500 transition-all hover:bg-rose-50 active:scale-75 bg-white shadow-xs">
-                        <X size={12} strokeWidth={3.5} />
-                      </button>
+                    <h4 className="text-[11px] font-black text-indigo-950 truncate leading-tight uppercase tracking-tight leading-tight">{item.name}</h4>
+                    <div className="flex items-center gap-2 mt-1">
+                       {item.type === "service" && (
+                          <button
+                            onClick={() => { setSelectedCartIdx(idx); setStaffOpen(true); }}
+                            className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-xs"
+                          >
+                            <User size={8} strokeWidth={3} />
+                            <span className="text-[7px] font-black uppercase tracking-widest truncate max-w-[60px]">{item.stylistName || "Staff"}</span>
+                          </button>
+                       )}
+                       <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{item.duration}</span>
                     </div>
+                  </div>
 
-                    <div className="flex items-center gap-2 mb-2">
-                      {item.type === "service" && (
-                        <button
-                          onClick={() => { setSelectedCartIdx(idx); setStaffOpen(true); }}
-                          className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-xs"
-                        >
-                          <User size={10} strokeWidth={3} />
-                          <span className="text-[8px] font-black uppercase tracking-widest">{item.stylistName || "Add Staff"}</span>
-                        </button>
-                      )}
-                      <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{item.duration}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-2 pt-3 border-t border-slate-50">
-                      <div className="flex items-center bg-slate-50 rounded-xl p-0.5 border border-slate-100 shadow-inner">
-                        <button onClick={() => updateQty(item.id, -1)} className="w-6 h-6 rounded-lg flex items-center justify-center text-indigo-600 hover:bg-white transition-all">
+                  <div className="flex items-center gap-4 shrink-0">
+                      <div className="flex items-center bg-slate-50 rounded-xl p-0.5 border border-slate-100 shadow-inner scale-90">
+                        <button onClick={() => updateQty(item.id, -1)} className="w-6 h-6 rounded-lg flex items-center justify-center text-indigo-600 hover:bg-white transition-all active:scale-75">
                           <Minus size={12} strokeWidth={3.5} />
                         </button>
-                        <span className="w-8 text-center text-xs font-black text-indigo-950 tabular-nums">{item.qty}</span>
-                        <button onClick={() => updateQty(item.id, 1)} className="w-6 h-6 rounded-lg flex items-center justify-center text-indigo-600 hover:bg-white transition-all">
+                        <span className="w-6 text-center text-[10px] font-black text-indigo-950 tabular-nums">{item.qty}</span>
+                        <button onClick={() => updateQty(item.id, 1)} className="w-6 h-6 rounded-lg flex items-center justify-center text-indigo-600 hover:bg-white transition-all active:scale-75">
                           <Plus size={12} strokeWidth={3.5} />
                         </button>
                       </div>
-                      <p className="text-[14px] font-black text-indigo-900 tabular-nums">৳{(item.price * item.qty).toLocaleString()}</p>
-                    </div>
+
+                      <div className="text-right min-w-[70px]">
+                        <p className="text-sm font-black text-indigo-900 tabular-nums">৳{(item.price * item.qty).toLocaleString()}</p>
+                      </div>
+
+                      <button onClick={() => removeFromCart(item.id)} className="w-8 h-8 rounded-full flex items-center justify-center text-slate-200 hover:text-rose-500 transition-all hover:bg-rose-50 active:scale-75 bg-white shadow-xs border border-slate-50">
+                        <X size={14} strokeWidth={3.5} />
+                      </button>
                   </div>
                 </div>
               ))}
