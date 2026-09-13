@@ -538,7 +538,7 @@ export default function RepairPOSPage() {
       <div className="repair-pos h-screen w-screen flex flex-col bg-gradient-to-br from-indigo-50/80 via-white to-purple-50/80 select-none overflow-hidden">
 
         {/* ── TOP NAV BAR ───────────────────────────────────────────────── */}
-        <header className="flex-none flex items-center justify-between px-4 py-3 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-sm z-20">
+        <header className="flex-none flex items-center justify-between px-5 py-3 mx-3 mt-3 rounded-3xl bg-gradient-to-r from-indigo-100/60 via-white/80 to-purple-100/60 backdrop-blur-md border border-white/80 shadow-sm z-20">
           <div className="flex items-center gap-3">
             <Link
               href="/repair"
@@ -1165,6 +1165,18 @@ export default function RepairPOSPage() {
             </div>
           </div>
         </div>
+
+        {/* ── FOOTER ────────────────────────────────────────────────────── */}
+        <footer className="flex-none flex items-center justify-between px-5 py-2 mx-3 mb-3 rounded-full bg-gradient-to-r from-purple-100/60 via-white/80 to-indigo-100/60 backdrop-blur-md border border-white/80 shadow-sm z-20 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-2">
+            <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> All Systems Operational
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1"><Monitor size={12} className="text-indigo-400" /> BPOS Repair Engine</span>
+            <span className="text-slate-300">|</span>
+            <span className="flex items-center gap-1"><ShieldCheck size={12} className="text-emerald-400" /> Secured Connection</span>
+          </div>
+        </footer>
       </div>
 
       {/* ── COMPLETED TICKET MODAL ───────────────────────────────────────── */}
