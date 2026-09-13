@@ -67,11 +67,26 @@ interface AddOn {
   image: string;
 }
 
+interface Staff {
+  id: string;
+  name: string;
+  role: string;
+  avatar?: string;
+}
+
 interface CartItem extends SalonItem {
   qty: number;
+  stylistId?: string;
+  stylistName?: string;
 }
 
 // --- Constants & Demo Data ---
+const DEFAULT_STAFF: Staff[] = [
+  { id: "st-1", name: "Sara Khan", role: "Master Stylist" },
+  { id: "st-2", name: "Rahat", role: "Senior Barber" },
+  { id: "st-3", name: "Tania Akter", role: "Skin Expert" },
+  { id: "st-4", name: "Farhana", role: "Nail Artist" },
+];
 const CATEGORIES = [
   { id: "all", label: "All Services", icon: LayoutGrid },
   { id: "hair", label: "Hair Care", icon: Scissors },
@@ -112,6 +127,7 @@ const DEMO_ADDONS: AddOn[] = [
 
 export default function SalonPOSPage() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<"services" | "products">("services");
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -123,16 +139,27 @@ export default function SalonPOSPage() {
   const [isHeldOrdersOpen, setHeldOrdersOpen] = useState(false);
   const [isHistoryOpen, setHistoryOpen] = useState(false);
   const [isCustomerOpen, setCustomerOpen] = useState(false);
+  const [customerModalTab, setCustomerModalTab] = useState<"view" | "add">("view");
   const [isNotesOpen, setNotesOpen] = useState(false);
+  const [isStaffOpen, setStaffOpen] = useState(false);
+  const [selectedCartIdx, setSelectedCartIdx] = useState<number | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SaleResult | null>(null);
 
   const [customerId, setCustomerId] = useState("");
   const [customers, setCustomers] = useState<any[]>([]);
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [newCustomer, setNewCustomer] = useState({ name: "", phone: "", email: "", address: "" });
+  const [globalStylistId, setGlobalStylistId] = useState(DEFAULT_STAFF[0].id);
   const [heldOrders, setHeldOrders] = useState<any[]>([]);
   const [salesHistory, setSalesHistory] = useState<any[]>([]);
   const [orderNote, setOrderNote] = useState("");
+  const [discountInput, setDiscountInput] = useState("");
+  const [discountType, setDiscountType] = useState<"flat" | "percent">("flat");
+  const [tipInput, setTipInput] = useState("");
+  const [isAppointment, setIsAppointment] = useState(false);
+  const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
   const [orderSeq] = useState(() => `ORD-${Math.floor(Math.random() * 9000) + 1000}`);
 
   // Load Customers
@@ -142,7 +169,29 @@ export default function SalonPOSPage() {
     }).catch(() => {});
   }, []);
 
+  // Sync Tab with Category
+  const handleCategoryClick = (catId: string) => {
+    setActiveCategory(catId);
+    if (catId === "products") {
+      setActiveTab("products");
+    } else {
+      setActiveTab("services");
+    }
+  };
+
   // --- Computed ---
+  const selectedCustomer = useMemo(() => customers.find(c => (c.id || c._id) === customerId), [customers, customerId]);
+  const selectedGlobalStylist = useMemo(() => DEFAULT_STAFF.find(s => s.id === globalStylistId), [globalStylistId]);
+
+  const filteredCustomers = useMemo(() => {
+    const q = customerSearch.toLowerCase().trim();
+    if (!q) return customers;
+    return customers.filter(c =>
+      c.name.toLowerCase().includes(q) ||
+      (c.phone && c.phone.includes(q))
+    );
+  }, [customers, customerSearch]);
+
   const filteredServices = useMemo(() => {
     return DEMO_SERVICES.filter(s => {
       const matchesCat = activeCategory === "all" || s.category === activeCategory;
@@ -153,11 +202,10 @@ export default function SalonPOSPage() {
 
   const filteredProducts = useMemo(() => {
     return DEMO_PRODUCTS.filter(p => {
-      const matchesCat = activeCategory === "all" || activeCategory === "products";
       const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCat && matchesSearch;
+      return matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [searchQuery]);
 
   const baseSubtotal = useMemo(() => {
     return cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
@@ -171,18 +219,52 @@ export default function SalonPOSPage() {
   }, [selectedAddOnIds]);
 
   const subtotal = baseSubtotal + addonsTotal;
-  const tax = subtotal * 0.05;
-  const total = subtotal + tax;
+
+  const discountValue = useMemo(() => {
+    const val = parseFloat(discountInput) || 0;
+    if (discountType === "percent") return (subtotal * val) / 100;
+    return val;
+  }, [subtotal, discountInput, discountType]);
+
+  const tipValue = useMemo(() => {
+    return parseFloat(tipInput) || 0;
+  }, [tipInput]);
+
+  const loyaltyValue = useMemo(() => {
+    if (!useLoyaltyPoints || !selectedCustomer) return 0;
+    // Assuming 10 points = ৳1 for demo
+    return Math.min(subtotal - discountValue, (selectedCustomer.loyalty_points || 0) / 10);
+  }, [useLoyaltyPoints, selectedCustomer, subtotal, discountValue]);
+
+  const tax = Math.max(0, subtotal - discountValue - loyaltyValue) * 0.05;
+  const total = Math.max(0, subtotal - discountValue - loyaltyValue + tax + tipValue);
 
   // --- Handlers ---
   const addToCart = (item: SalonItem) => {
+    const staff = DEFAULT_STAFF.find(s => s.id === globalStylistId) || DEFAULT_STAFF[0];
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
         return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i);
       }
-      return [...prev, { ...item, qty: 1 }];
+      return [...prev, { ...item, qty: 1, stylistId: staff.id, stylistName: staff.name }];
     });
+  };
+
+  const assignStaff = (staff: Staff) => {
+    if (selectedCartIdx !== null) {
+      setCart(prev => {
+        const next = [...prev];
+        next[selectedCartIdx] = { ...next[selectedCartIdx], stylistId: staff.id, stylistName: staff.name };
+        return next;
+      });
+      setSelectedCartIdx(null);
+      toast.success(`Service assigned to ${staff.name}`);
+    } else {
+      setGlobalStylistId(staff.id);
+      toast.success(`Default stylist set to ${staff.name}`);
+    }
+    setStaffOpen(false);
   };
 
   const updateQty = (id: string, delta: number) => {
@@ -262,9 +344,11 @@ export default function SalonPOSPage() {
         items,
         payments: [{ method: paymentMethod, amount: total }],
         subTotal: baseSubtotal + addonsTotal,
+        discountTotal: discountValue + loyaltyValue,
         taxTotal: tax,
+        tipTotal: tipValue,
         grandTotal: total,
-        note: orderNote,
+        note: orderNote || (isAppointment ? "[Pre-booked Appointment]" : "[Walk-in Client]"),
       };
 
       const res: any = await api.post("/api/v1/pos/confirm", payload);
@@ -280,7 +364,27 @@ export default function SalonPOSPage() {
     }
   };
 
-  const selectedCustomer = useMemo(() => customers.find(c => c.id === customerId), [customers, customerId]);
+  const handleAddCustomer = async () => {
+    if (!newCustomer.name || !newCustomer.phone) {
+      toast.error("Name and Phone are required");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res: any = await api.post("/api/v1/customers", newCustomer);
+      const saved = res?.data || res;
+      setCustomers(prev => [saved, ...prev]);
+      setCustomerId(saved.id || saved._id);
+      setNewCustomer({ name: "", phone: "", email: "", address: "" });
+      setCustomerModalTab("view");
+      setCustomerOpen(false);
+      toast.success("Customer added successfully");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to add customer");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -353,10 +457,32 @@ export default function SalonPOSPage() {
           {CATEGORIES.map((cat) => {
             const active = activeCategory === cat.id;
             const Icon = cat.icon;
-            return (
+            const handleAddCustomer = async () => {
+    if (!newCustomer.name || !newCustomer.phone) {
+      toast.error("Name and Phone are required");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res: any = await api.post("/api/v1/customers", newCustomer);
+      const saved = res?.data || res;
+      setCustomers(prev => [saved, ...prev]);
+      setCustomerId(saved.id || saved._id);
+      setNewCustomer({ name: "", phone: "", email: "", address: "" });
+      setCustomerModalTab("view");
+      setCustomerOpen(false);
+      toast.success("Customer added successfully");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to add customer");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
               <button
                 key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
+                onClick={() => handleCategoryClick(cat.id)}
                 className={cn(
                   "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all duration-300 group",
                   active
@@ -378,12 +504,29 @@ export default function SalonPOSPage() {
 
         {/* --- CENTER AREA --- */}
         <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          {/* Section Header */}
+          {/* Section Header with Mode Toggles */}
           <div className="flex-none p-6 pb-2 flex items-center justify-between">
-            <h2 className="text-2xl font-black text-indigo-950 tracking-tight flex items-center gap-3 uppercase">
-              <span className="w-2 h-8 rounded-full bg-indigo-600" />
-              {CATEGORIES.find(c => c.id === activeCategory)?.label || "Services"}
-            </h2>
+            <div className="flex items-center gap-2 bg-white/50 p-1.5 rounded-[2rem] border border-white shadow-sm">
+              <button
+                onClick={() => setActiveTab("services")}
+                className={cn(
+                  "px-6 py-2 rounded-3xl text-xs font-black uppercase tracking-widest transition-all",
+                  activeTab === "services" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" : "text-slate-400 hover:text-indigo-600 hover:bg-white"
+                )}
+              >
+                Services
+              </button>
+              <button
+                onClick={() => setActiveTab("products")}
+                className={cn(
+                  "px-6 py-2 rounded-3xl text-xs font-black uppercase tracking-widest transition-all",
+                  activeTab === "products" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" : "text-slate-400 hover:text-indigo-600 hover:bg-white"
+                )}
+              >
+                Products
+              </button>
+            </div>
+
             <div className="flex items-center gap-3">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">View Mode:</span>
               <div className="flex items-center gap-1 bg-white p-1 rounded-xl shadow-sm border border-slate-100">
@@ -404,11 +547,16 @@ export default function SalonPOSPage() {
           </div>
 
           <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-6 py-6 space-y-10">
-            {/* --- Popular Services Section --- */}
-            {(activeCategory === "all" || activeCategory !== "products") && (
-              <section>
+            {/* --- Content Sections --- */}
+            {activeTab === "services" ? (
+              <section className="animate-fade-in-up">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Popular Services</h3>
+                  <div className="flex items-center gap-3">
+                    <span className="w-2 h-8 rounded-full bg-indigo-600" />
+                    <h3 className="text-xl font-black text-indigo-950 uppercase tracking-tight">
+                      {CATEGORIES.find(c => c.id === activeCategory)?.label || "All Services"}
+                    </h3>
+                  </div>
                   <button className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 flex items-center gap-1 group uppercase tracking-widest">
                     View All <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
                   </button>
@@ -459,13 +607,13 @@ export default function SalonPOSPage() {
                   ))}
                 </div>
               </section>
-            )}
-
-            {/* --- Featured Products Section --- */}
-            {(activeCategory === "all" || activeCategory === "products") && (
-              <section className="pb-12">
+            ) : (
+              <section className="animate-fade-in-up pb-12">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Featured Products</h3>
+                  <div className="flex items-center gap-3">
+                    <span className="w-2 h-8 rounded-full bg-indigo-600" />
+                    <h3 className="text-xl font-black text-indigo-950 uppercase tracking-tight">Beauty Products</h3>
+                  </div>
                   <button className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 flex items-center gap-1 group uppercase tracking-widest">
                     View All <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
                   </button>
@@ -476,16 +624,22 @@ export default function SalonPOSPage() {
                     <div
                       key={p.id}
                       onClick={() => addToCart(p)}
-                      className="group bg-white rounded-[2rem] border border-white p-4 shadow-sm hover:shadow-2xl hover:shadow-indigo-100 hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center text-center"
+                      className="group bg-white rounded-[1.5rem] border border-white p-3 shadow-sm hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-start"
                     >
-                      <div className="aspect-square w-full rounded-2xl bg-[#F8F9FF] flex items-center justify-center p-4 mb-4">
-                        <img src={p.image} alt={p.name} className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500" />
+                      <div className="aspect-[4/3] w-full rounded-xl bg-[#F8F9FF] flex items-center justify-center p-4 mb-3 overflow-hidden">
+                        <img
+                          src={p.image}
+                          alt={p.name}
+                          className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply"
+                        />
                       </div>
-                      <h3 className="font-black text-[11px] text-slate-700 line-clamp-1 mb-2 uppercase tracking-tight">{p.name}</h3>
-                      <div className="mt-auto w-full flex items-center justify-between pt-2 border-t border-slate-50">
-                        <p className="font-black text-sm text-indigo-950">৳ {p.price.toLocaleString()}</p>
-                        <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                          <Plus size={16} strokeWidth={3} />
+                      <div className="px-1 w-full flex-1 flex flex-col">
+                        <h3 className="font-black text-[11px] text-indigo-950 line-clamp-1 mb-3 uppercase tracking-tight">{p.name}</h3>
+                        <div className="mt-auto flex items-center justify-between pt-2 border-t border-slate-50 w-full">
+                          <p className="font-black text-sm text-indigo-600 tabular-nums">৳ {p.price.toLocaleString()}</p>
+                          <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-xs active:scale-95">
+                            <Plus size={16} strokeWidth={3} />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -542,6 +696,18 @@ export default function SalonPOSPage() {
                         <X size={12} strokeWidth={3} />
                       </button>
                     </div>
+
+                    {/* Staff Badge */}
+                    {item.type === "service" && (
+                      <button
+                        onClick={() => { setSelectedCartIdx(idx); setStaffOpen(true); }}
+                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors mb-2 group/staff"
+                      >
+                        <User size={10} strokeWidth={3} />
+                        <span className="text-[9px] font-black uppercase tracking-widest">{item.stylistName || "Assign Stylist"}</span>
+                      </button>
+                    )}
+
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.duration}</p>
                     <div className="mt-3 flex items-center justify-between">
                       <div className="flex items-center bg-slate-50 rounded-xl p-0.5 border border-slate-100">
@@ -576,7 +742,29 @@ export default function SalonPOSPage() {
               <div className="space-y-3">
                 {DEMO_ADDONS.map((ao) => {
                   const isSelected = selectedAddOnIds.includes(ao.id);
-                  return (
+                  const handleAddCustomer = async () => {
+    if (!newCustomer.name || !newCustomer.phone) {
+      toast.error("Name and Phone are required");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res: any = await api.post("/api/v1/customers", newCustomer);
+      const saved = res?.data || res;
+      setCustomers(prev => [saved, ...prev]);
+      setCustomerId(saved.id || saved._id);
+      setNewCustomer({ name: "", phone: "", email: "", address: "" });
+      setCustomerModalTab("view");
+      setCustomerOpen(false);
+      toast.success("Customer added successfully");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to add customer");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
                     <div
                       key={ao.id}
                       onClick={() => toggleAddOn(ao.id)}
@@ -608,27 +796,110 @@ export default function SalonPOSPage() {
             </div>
           </div>
 
-          <div className="flex-none pt-6 border-t border-slate-100 bg-white space-y-5">
-            <div className="space-y-2.5">
+          <div className="flex-none pt-6 border-t border-slate-100 bg-white space-y-6">
+            {/* Info Badges */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsAppointment(!isAppointment)}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all",
+                  isAppointment ? "bg-indigo-600 text-white border-indigo-600 shadow-md" : "bg-slate-50 text-slate-400 border-slate-100 hover:bg-slate-100"
+                )}
+              >
+                <Calendar size={12} />
+                {isAppointment ? "Appointment" : "Walk-in"}
+              </button>
+              {selectedCustomer && (
+                <button
+                  onClick={() => setUseLoyaltyPoints(!useLoyaltyPoints)}
+                  className={cn(
+                    "flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all",
+                    useLoyaltyPoints ? "bg-emerald-600 text-white border-emerald-600 shadow-md" : "bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100"
+                  )}
+                >
+                  <Gift size={12} />
+                  Redeem Pts
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-3">
               <div className="flex justify-between text-[11px] font-black text-slate-400 uppercase tracking-widest">
                 <span>Subtotal</span>
                 <span className="text-slate-800 tracking-tight font-black tabular-nums text-sm">৳{baseSubtotal.toLocaleString()}</span>
               </div>
+
               {selectedAddOnIds.length > 0 && (
                 <div className="flex justify-between text-[11px] font-black text-emerald-500 uppercase tracking-widest">
                   <span>Add-ons ({selectedAddOnIds.length})</span>
                   <span className="font-black tracking-tight tabular-nums text-sm">+ ৳{addonsTotal.toLocaleString()}</span>
                 </div>
               )}
+
               <div className="flex justify-between text-[11px] font-black text-slate-400 uppercase tracking-widest">
                 <span>Service Tax (5%)</span>
                 <span className="text-slate-800 tracking-tight font-black tabular-nums text-sm">৳{tax.toFixed(0)}</span>
               </div>
+
+              {/* Tips Section */}
+              <div className="pt-2 flex flex-col gap-2 border-t border-slate-50">
+                <div className="flex justify-between items-center text-[10px] font-black text-indigo-400 uppercase tracking-widest">
+                  <span>Add Tips</span>
+                  <div className="flex items-center gap-1">
+                    {[10, 50, 100].map(amt => (
+                      <button
+                        key={amt}
+                        onClick={() => setTipInput(amt.toString())}
+                        className="px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all"
+                      >
+                        +৳{amt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="relative group">
+                  <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
+                  <input
+                    type="number"
+                    value={tipInput}
+                    onChange={(e) => setTipInput(e.target.value)}
+                    placeholder="Enter tip amount..."
+                    className="w-full h-9 pl-9 pr-4 rounded-xl bg-slate-50 border border-transparent text-xs font-bold text-slate-700 outline-none focus:border-indigo-200 transition-all placeholder:text-slate-300 shadow-inner"
+                  />
+                </div>
+              </div>
+
+              {/* Discount Section */}
+              <div className="pt-1 flex flex-col gap-2">
+                <div className="flex justify-between items-center text-[10px] font-black text-rose-400 uppercase tracking-widest px-1">
+                  <span>Discount</span>
+                  <div className="flex items-center gap-1 bg-slate-50 p-0.5 rounded-lg border border-slate-100">
+                    <button onClick={() => setDiscountType("flat")} className={cn("px-2 py-0.5 rounded-md text-[8px]", discountType === "flat" ? "bg-white text-indigo-600 shadow-xs" : "text-slate-400")}>৳</button>
+                    <button onClick={() => setDiscountType("percent")} className={cn("px-2 py-0.5 rounded-md text-[8px]", discountType === "percent" ? "bg-white text-indigo-600 shadow-xs" : "text-slate-400")}>%</button>
+                  </div>
+                </div>
+                <div className="relative group">
+                  <X
+                    size={14}
+                    onClick={() => setDiscountInput("")}
+                    className={cn("absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 cursor-pointer hover:text-rose-500 transition-all", !discountInput && "hidden")}
+                  />
+                  <input
+                    type="number"
+                    value={discountInput}
+                    onChange={(e) => setDiscountInput(e.target.value)}
+                    placeholder={`Enter discount ${discountType === "flat" ? "(৳)" : "(%)"}...`}
+                    className="w-full h-9 px-4 pr-9 rounded-xl bg-slate-50 border border-transparent text-xs font-bold text-slate-700 outline-none focus:border-indigo-200 transition-all placeholder:text-slate-300 shadow-inner"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between items-center py-2">
+
+            <div className="flex justify-between items-center py-2 border-t border-dashed border-slate-200">
               <span className="text-lg font-black text-indigo-950 uppercase tracking-widest">Total</span>
               <span className="text-[42px] font-black text-indigo-600 tabular-nums leading-none tracking-tighter drop-shadow-sm">৳{total.toFixed(0)}</span>
             </div>
+
             <button
               onClick={() => setCheckoutOpen(true)}
               disabled={cart.length === 0 || submitting}
@@ -645,6 +916,27 @@ export default function SalonPOSPage() {
       </div>
 
       {/* Modals */}
+
+      {/* Staff Assignment Modal */}
+      <CustomModal open={isStaffOpen} onClose={() => setStaffOpen(false)} title="Assign Stylist" size="md">
+        <div className="grid grid-cols-2 gap-4">
+          {DEFAULT_STAFF.map(s => (
+            <button
+              key={s.id}
+              onClick={() => assignStaff(s)}
+              className="flex items-center gap-4 p-4 rounded-[1.5rem] border-2 border-slate-50 bg-white hover:border-indigo-500 hover:bg-indigo-50 transition-all group"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black uppercase shadow-lg shadow-indigo-100">{s.name.charAt(0)}</div>
+              <div className="text-left">
+                <p className="text-sm font-black text-slate-800 uppercase tracking-tight">{s.name}</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{s.role}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </CustomModal>
+
+      {/* Checkout Modal */}
       <CustomModal open={isCheckoutOpen} onClose={() => setCheckoutOpen(false)} title="Checkout & Payment" size="md">
         <div className="space-y-6 p-2">
           <div className="p-5 rounded-[2rem] bg-indigo-50 border border-indigo-100 flex items-center justify-between shadow-inner">
@@ -675,30 +967,91 @@ export default function SalonPOSPage() {
         </div>
       </CustomModal>
 
-      <CustomModal open={isCustomerOpen} onClose={() => setCustomerOpen(false)} title="Select Customer" size="md">
-        <div className="space-y-4">
-          <CustomInput placeholder="Search by name or phone..." leftIcon={<Search size={16} />} />
-          <div className="max-h-80 overflow-y-auto space-y-2 pr-1 no-scrollbar">
-            {customers.map(c => (
-              <button
-                key={c.id}
-                onClick={() => { setCustomerId(c.id); setCustomerOpen(false); }}
-                className={cn(
-                  "w-full flex items-center justify-between p-4 rounded-[1.5rem] border transition-all",
-                  customerId === c.id ? "bg-indigo-50 border-indigo-200 shadow-sm" : "bg-white border-slate-100 hover:border-indigo-100"
-                )}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-black uppercase border border-white shadow-sm">{c.name.charAt(0)}</div>
-                  <div className="text-left">
-                    <p className="text-sm font-black text-slate-800 uppercase tracking-tight">{c.name}</p>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase">{c.phone || "No phone"}</p>
-                  </div>
-                </div>
-                {customerId === c.id && <CheckCircle2 size={20} strokeWidth={3} className="text-indigo-600" />}
-              </button>
-            ))}
+      <CustomModal open={isCustomerOpen} onClose={() => setCustomerOpen(false)} title="Customer Management" size="md">
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl">
+            <button
+              onClick={() => setCustomerModalTab("view")}
+              className={cn("flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", customerModalTab === "view" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500")}
+            >
+              View Customer
+            </button>
+            <button
+              onClick={() => setCustomerModalTab("add")}
+              className={cn("flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", customerModalTab === "add" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500")}
+            >
+              Add Customer
+            </button>
           </div>
+
+          {customerModalTab === "view" ? (
+            <div className="space-y-4">
+              <CustomInput
+                placeholder="Search by name or phone..."
+                leftIcon={<Search size={16} />}
+                value={customerSearch}
+                onChange={(e) => setCustomerSearch(e.target.value)}
+              />
+              <div className="max-h-80 overflow-y-auto space-y-2 pr-1 no-scrollbar">
+                {filteredCustomers.length === 0 ? (
+                  <p className="text-center py-8 text-xs font-bold text-slate-400 uppercase tracking-widest">No customers found</p>
+                ) : filteredCustomers.map((c, idx) => (
+                  <button
+                    key={c.id || c._id || `cust-${idx}`}
+                    onClick={() => { setCustomerId(c.id || c._id); setCustomerOpen(false); }}
+                    className={cn(
+                      "w-full flex items-center justify-between p-4 rounded-[1.5rem] border transition-all",
+                      customerId === (c.id || c._id) ? "bg-indigo-50 border-indigo-200 shadow-sm" : "bg-white border-slate-100 hover:border-indigo-100"
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-black uppercase border border-white shadow-sm">{c.name.charAt(0)}</div>
+                      <div className="text-left">
+                        <p className="text-sm font-black text-slate-800 uppercase tracking-tight">{c.name}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">{c.phone || "No phone"}</p>
+                      </div>
+                    </div>
+                    {customerId === c.id && <CheckCircle2 size={20} strokeWidth={3} className="text-indigo-600" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 animate-fade-in-up">
+              <div className="grid grid-cols-2 gap-4">
+                <CustomInput
+                  label="Customer Name"
+                  placeholder="Full name..."
+                  value={newCustomer.name}
+                  onChange={(e) => setNewCustomer(prev => ({ ...prev, name: e.target.value }))}
+                />
+                <CustomInput
+                  label="Phone Number"
+                  placeholder="017..."
+                  value={newCustomer.phone}
+                  onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))}
+                />
+              </div>
+              <CustomInput
+                label="Email Address"
+                placeholder="example@mail.com"
+                value={newCustomer.email}
+                onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value }))}
+              />
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Address</label>
+                <textarea
+                  placeholder="Street, City..."
+                  className="w-full h-24 p-4 rounded-2xl bg-slate-50 border-none text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-100 resize-none shadow-inner"
+                  value={newCustomer.address}
+                  onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value }))}
+                />
+              </div>
+              <CustomButton fullWidth themeColor="indigo" size="lg" onClick={handleAddCustomer} loading={submitting}>
+                Save Customer
+              </CustomButton>
+            </div>
+          )}
         </div>
       </CustomModal>
 
@@ -710,8 +1063,8 @@ export default function SalonPOSPage() {
               <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">No held orders</p>
             </div>
           ) : (
-            heldOrders.map(held => (
-              <div key={held.id} className="p-4 rounded-[1.5rem] border border-slate-100 bg-slate-50 flex items-center justify-between shadow-sm">
+            heldOrders.map((held, idx) => (
+              <div key={held.id || `held-${idx}`} className="p-4 rounded-[1.5rem] border border-slate-100 bg-slate-50 flex items-center justify-between shadow-sm">
                 <div>
                   <p className="text-xs font-black text-indigo-950 uppercase tracking-tight">{held.id}</p>
                   <p className="text-[10px] text-slate-400 uppercase font-black">{held.time} • {held.items.length} items</p>
@@ -745,8 +1098,8 @@ export default function SalonPOSPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 bg-white">
-                  {salesHistory.map(sale => (
-                    <tr key={sale.id} className="text-xs hover:bg-slate-50 transition-colors">
+                  {salesHistory.map((sale, idx) => (
+                    <tr key={sale.id || `sale-${idx}`} className="text-xs hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4 font-mono font-black text-indigo-600 tracking-widest">{sale.invoiceNo}</td>
                       <td className="px-6 py-4 font-black uppercase tracking-tight text-slate-700">{sale.customerName}</td>
                       <td className="px-6 py-4 text-right font-black text-indigo-600 tabular-nums text-sm">৳{sale.total.toFixed(0)}</td>
@@ -785,15 +1138,30 @@ export default function SalonPOSPage() {
       {/* --- FOOTER --- */}
       <footer className="flex-none h-16 bg-white border-t border-slate-100 flex items-center justify-between px-6 z-30">
         <div className="flex items-center gap-8">
-          <button onClick={() => setCustomerOpen(true)} className="flex items-center gap-3 group transition-all">
-            <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all shadow-sm group-active:scale-95 group-hover:-translate-y-0.5">
-              <User size={18} strokeWidth={2.5} />
-            </div>
-            <div className="text-left leading-none">
-              <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Customer</p>
-              <p className="text-xs font-black text-slate-800 mt-1 uppercase tracking-tight">{selectedCustomer?.name || "Walk-in Client"}</p>
-            </div>
-          </button>
+          <div className="flex items-center gap-6">
+            <button onClick={() => setCustomerOpen(true)} className="flex items-center gap-3 group transition-all">
+              <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all shadow-sm group-active:scale-95 group-hover:-translate-y-0.5">
+                <User size={18} strokeWidth={2.5} />
+              </div>
+              <div className="text-left leading-none">
+                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Client</p>
+                <p className="text-xs font-black text-slate-800 mt-1 uppercase tracking-tight">{selectedCustomer?.name || "Walk-in Client"}</p>
+              </div>
+            </button>
+
+            <div className="w-px h-8 bg-slate-100" />
+
+            <button onClick={() => { setSelectedCartIdx(null); setStaffOpen(true); }} className="flex items-center gap-3 group transition-all">
+              <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm group-active:scale-95 group-hover:-translate-y-0.5">
+                <Sparkles size={18} strokeWidth={2.5} />
+              </div>
+              <div className="text-left leading-none">
+                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Stylist</p>
+                <p className="text-xs font-black text-indigo-600 mt-1 uppercase tracking-tight">{selectedGlobalStylist?.name || "Assign Stylist"}</p>
+              </div>
+            </button>
+          </div>
+
           <div className="h-8 w-px bg-slate-100" />
           <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl shadow-sm border border-slate-100">
             {[
