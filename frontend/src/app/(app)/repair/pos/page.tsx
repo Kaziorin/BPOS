@@ -535,7 +535,7 @@ export default function RepairPOSPage() {
         .field-input::placeholder { color: #94a3b8; }
       `}</style>
 
-      <div className="repair-pos h-screen w-screen flex flex-col bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/40 select-none overflow-hidden">
+      <div className="repair-pos h-screen w-screen flex flex-col bg-gradient-to-br from-indigo-50/80 via-white to-purple-50/80 select-none overflow-hidden">
 
         {/* ── TOP NAV BAR ───────────────────────────────────────────────── */}
         <header className="flex-none flex items-center justify-between px-4 py-3 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-sm z-20">
