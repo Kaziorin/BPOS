@@ -362,13 +362,17 @@ export default function RepairPOSPage() {
         });
       }
 
-      // Step 3: Move ticket to DELIVERED (finalizes sale + stock deduction)
-      const deliverRes = await api.post(`/v1/repair/tickets/${ticketId}/status`, {
-        status: "DELIVERED",
-        paymentMethod,
-      });
-
-      const deliverData = ((deliverRes as any).data as any)?.data ?? ((deliverRes as any).data as any);
+      // Step 3: Fast-track ticket through lifecycle to DELIVERED (finalizes sale + stock deduction)
+      const statuses = ["INSPECTION", "ESTIMATE", "APPROVED", "REPAIRING", "QUALITY_CHECK", "READY", "DELIVERED"];
+      let deliverData = null;
+      for (const st of statuses) {
+        const payload: any = { status: st };
+        if (st === "DELIVERED") payload.paymentMethod = paymentMethod;
+        const sRes = await api.post(`/v1/repair/tickets/${ticketId}/status`, payload);
+        if (st === "DELIVERED") {
+           deliverData = ((sRes as any).data as any)?.data ?? ((sRes as any).data as any);
+        }
+      }
       const custName = selectedCustomer?.name || "Customer";
       const techName = selectedTechnician?.name || "Technician";
 
@@ -1256,25 +1260,25 @@ export default function RepairPOSPage() {
         </footer>
       </div>
 
-      {/* ── COMPLETED TICKET MODAL ───────────────────────────────────────── */}
+      {/* ── COMPLETED TICKET MODAL (Monochrome) ────────────────────────── */}
       {completedTicket && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-4">
           <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
             {/* Header */}
-            <div className="bg-gradient-to-br from-indigo-600 to-violet-600 p-6 text-white text-center relative overflow-hidden">
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-2 left-4 w-24 h-24 rounded-full bg-white/30" />
-                <div className="absolute -bottom-4 right-4 w-32 h-32 rounded-full bg-white/20" />
+            <div className="bg-white p-6 text-center relative overflow-hidden border-b border-slate-100">
+              <div className="absolute inset-0 opacity-40">
+                <div className="absolute top-2 left-4 w-24 h-24 rounded-full bg-slate-50" />
+                <div className="absolute -bottom-4 right-4 w-32 h-32 rounded-full bg-slate-50" />
               </div>
               <div className="relative z-10">
-                <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center mx-auto mb-3 shadow-lg">
-                  <CheckCircle2 size={28} className="text-white" />
+                <div className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center mx-auto mb-3 shadow-lg shadow-black/10">
+                  <CheckCircle2 size={26} className="text-white" />
                 </div>
-                <h2 className="text-lg font-extrabold">Ticket Completed!</h2>
-                <p className="text-indigo-200 text-xs mt-1">Device delivered & payment recorded</p>
-                <div className="mt-3 bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 inline-block border border-white/30">
-                  <p className="text-[10px] text-indigo-200 font-semibold">Ticket No.</p>
-                  <p className="text-base font-extrabold font-mono">{completedTicket.ticketNo}</p>
+                <h2 className="text-lg font-black tracking-tight text-slate-900">Ticket Completed!</h2>
+                <p className="text-slate-500 text-xs mt-1 font-medium">Device delivered & payment recorded</p>
+                <div className="mt-4 bg-slate-50 rounded-xl px-4 py-2 inline-block border border-slate-200 shadow-sm">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Ticket No.</p>
+                  <p className="text-base font-extrabold font-mono tracking-tight text-slate-800">{completedTicket.ticketNo}</p>
                 </div>
               </div>
             </div>
@@ -1283,97 +1287,97 @@ export default function RepairPOSPage() {
             <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto">
               {/* Device / Customer Info */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-50 rounded-xl p-3">
+                <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Device</p>
                   <p className="text-sm font-extrabold text-slate-800">{completedTicket.deviceModel}</p>
                   {completedTicket.imeiSerial && (
-                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">{completedTicket.imeiSerial}</p>
+                    <p className="text-[10px] text-slate-500 font-mono mt-0.5">{completedTicket.imeiSerial}</p>
                   )}
                 </div>
-                <div className="bg-slate-50 rounded-xl p-3">
+                <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Customer</p>
                   <p className="text-sm font-extrabold text-slate-800">{completedTicket.customerName}</p>
                   {completedTicket.customerPhone && (
-                    <p className="text-[10px] text-slate-400 mt-0.5">{completedTicket.customerPhone}</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">{completedTicket.customerPhone}</p>
                   )}
                 </div>
               </div>
 
               {completedTicket.diagnosisProblem && (
-                <div className="bg-amber-50 border border-amber-100 rounded-xl p-3">
-                  <p className="text-[10px] text-amber-600 font-bold uppercase tracking-wider mb-1">Problem / Diagnosis</p>
-                  <p className="text-xs text-amber-900 font-medium">{completedTicket.diagnosisProblem}</p>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Problem / Diagnosis</p>
+                  <p className="text-xs text-slate-800 font-medium">{completedTicket.diagnosisProblem}</p>
                 </div>
               )}
 
               {/* Line Items */}
               <div>
                 <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider mb-2">Work Done</p>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {completedTicket.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+                    <div key={idx} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
                       <div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-2">
                           <span className={cn(
-                            "text-[9px] font-extrabold rounded px-1 py-0.5",
-                            item.type === "PART" ? "bg-indigo-100 text-indigo-600" : "bg-amber-100 text-amber-700"
+                            "text-[9px] font-black uppercase tracking-wider rounded-md px-1.5 py-0.5",
+                            item.type === "PART" ? "bg-black text-white" : "bg-slate-200 text-slate-700"
                           )}>
                             {item.type}
                           </span>
                           <p className="text-xs font-bold text-slate-800">{item.name}</p>
                         </div>
                         {item.warrantyMonths > 0 && (
-                          <p className="text-[10px] text-emerald-600 mt-0.5 flex items-center gap-1">
-                            <ShieldCheck size={9} /> {item.warrantyMonths} month warranty
+                          <p className="text-[10px] text-slate-500 mt-1 flex items-center gap-1 font-medium">
+                            <ShieldCheck size={10} /> {item.warrantyMonths} month warranty
                           </p>
                         )}
                       </div>
-                      <span className="text-sm font-extrabold text-slate-800 tabular-nums">{fmt(item.lineTotal)}</span>
+                      <span className="text-sm font-black text-slate-800 tabular-nums">{fmt(item.lineTotal)}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Totals */}
-              <div className="bg-gradient-to-br from-indigo-50 to-violet-50 border border-indigo-100 rounded-2xl p-4 space-y-2">
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2">
                 <div className="flex justify-between text-xs text-slate-500">
                   <span>Parts Total</span>
-                  <span className="font-bold tabular-nums">{fmt(completedTicket.partsTotal)}</span>
+                  <span className="font-bold text-slate-700 tabular-nums">{fmt(completedTicket.partsTotal)}</span>
                 </div>
                 <div className="flex justify-between text-xs text-slate-500">
                   <span>Labor Total</span>
-                  <span className="font-bold tabular-nums">{fmt(completedTicket.laborTotal)}</span>
+                  <span className="font-bold text-slate-700 tabular-nums">{fmt(completedTicket.laborTotal)}</span>
                 </div>
-                <div className="flex justify-between items-center pt-2 border-t border-indigo-200">
-                  <span className="text-sm font-extrabold text-indigo-900">Total Paid</span>
-                  <span className="text-2xl font-black text-indigo-700 tabular-nums">{fmt(completedTicket.grandTotal)}</span>
+                <div className="flex justify-between items-center pt-3 mt-1 border-t border-slate-200">
+                  <span className="text-sm font-extrabold text-slate-800">Total Paid</span>
+                  <span className="text-2xl font-black text-black tabular-nums tracking-tight">{fmt(completedTicket.grandTotal)}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-slate-400">Payment Method</span>
-                  <span className="text-[11px] font-bold text-slate-600 bg-white rounded-lg px-2 py-0.5 border border-slate-200">{completedTicket.paymentMethod}</span>
+                <div className="flex justify-between items-center mt-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Payment Method</span>
+                  <span className="text-[10px] font-black text-slate-700 bg-white rounded px-2 py-0.5 border border-slate-200 shadow-sm">{completedTicket.paymentMethod}</span>
                 </div>
               </div>
 
               {completedTicket.invoiceNo && (
-                <p className="text-center text-xs text-slate-400">
-                  Invoice: <span className="font-bold font-mono text-slate-600">{completedTicket.invoiceNo}</span>
+                <p className="text-center text-[11px] text-slate-400">
+                  Invoice No: <span className="font-bold font-mono text-slate-700">{completedTicket.invoiceNo}</span>
                 </p>
               )}
             </div>
 
             {/* Actions */}
-            <div className="p-4 border-t border-slate-100 flex gap-2">
+            <div className="p-4 border-t border-slate-100 flex gap-3 bg-slate-50">
               <button
                 onClick={() => window.print()}
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-700 transition"
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 hover:text-black transition shadow-sm"
               >
-                <Printer size={14} /> Print Job Card
+                <Printer size={16} /> Print Job Card
               </button>
               <button
                 onClick={() => setCompletedTicket(null)}
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-bold hover:from-indigo-500 hover:to-violet-500 transition shadow-md shadow-indigo-200"
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-black text-white text-xs font-bold hover:bg-slate-800 transition shadow-lg shadow-black/20"
               >
-                <Plus size={14} /> New Ticket
+                <Plus size={16} /> New Ticket
               </button>
             </div>
           </div>

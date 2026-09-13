@@ -413,20 +413,27 @@ export default function RepairPage() {
                   <p className="rounded-lg border-2 border-dashed border-gray-100 p-6 text-center text-xs text-gray-400">No parts or labour lines yet</p>
                 ) : (
                   <div className="overflow-hidden rounded-lg border border-gray-100">
-                    <table className="w-full text-left text-sm">
+                    <table className="w-full text-left text-sm table-auto">
                       <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-                        <tr><th className="px-3 py-2">Type</th><th className="px-3 py-2">Item</th><th className="px-3 py-2">Qty</th><th className="px-3 py-2">Unit</th><th className="px-3 py-2 text-right">Total</th>{detail.status !== "DELIVERED" && detail.status !== "CANCELLED" ? <th className="px-3 py-2" /> : null}</tr>
+                        <tr>
+                          <th className="px-3 py-2 w-1 whitespace-nowrap">Type</th>
+                          <th className="px-3 py-2 w-full">Item</th>
+                          <th className="px-3 py-2 w-1 whitespace-nowrap">Qty</th>
+                          <th className="px-3 py-2 w-1 whitespace-nowrap">Unit</th>
+                          <th className="px-3 py-2 w-1 whitespace-nowrap text-right">Total</th>
+                          {detail.status !== "DELIVERED" && detail.status !== "CANCELLED" ? <th className="px-3 py-2 w-1 whitespace-nowrap" /> : null}
+                        </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-50">
                         {(detail.items ?? []).map((i) => (
                           <tr key={i.id}>
-                            <td className="px-3 py-2"><span className={`rounded px-1.5 py-px text-[10px] font-semibold ${i.lineType === "PART" ? "bg-indigo-50 text-indigo-600" : i.lineType === "LABOR" ? "bg-amber-50 text-amber-600" : "bg-gray-100 text-gray-500"}`}>{i.lineType}</span></td>
-                            <td className="px-3 py-2 font-medium">{i.name}</td>
-                            <td className="px-3 py-2 tabular-nums">{i.qty}</td>
-                            <td className="px-3 py-2 tabular-nums">{currency(Number(i.unitPrice))}</td>
-                            <td className="px-3 py-2 text-right font-semibold tabular-nums">{currency(Number(i.lineTotal))}</td>
+                            <td className="px-3 py-2 whitespace-nowrap"><span className={`rounded px-1.5 py-px text-[10px] font-semibold ${i.lineType === "PART" ? "bg-indigo-50 text-indigo-600" : i.lineType === "LABOR" ? "bg-amber-50 text-amber-600" : "bg-gray-100 text-gray-500"}`}>{i.lineType}</span></td>
+                            <td className="px-3 py-2 font-medium break-words max-w-[200px] sm:max-w-none">{i.name}</td>
+                            <td className="px-3 py-2 tabular-nums whitespace-nowrap">{i.qty}</td>
+                            <td className="px-3 py-2 tabular-nums whitespace-nowrap">{currency(Number(i.unitPrice))}</td>
+                            <td className="px-3 py-2 text-right font-semibold tabular-nums whitespace-nowrap">{currency(Number(i.lineTotal))}</td>
                             {detail.status !== "DELIVERED" && detail.status !== "CANCELLED" && (
-                              <td className="px-3 py-2 text-right"><button onClick={() => removeItem(i.id)} className="text-gray-300 hover:text-rose-500"><Trash2 size={13} /></button></td>
+                              <td className="px-3 py-2 text-right whitespace-nowrap"><button onClick={() => removeItem(i.id)} className="text-gray-300 hover:text-rose-500"><Trash2 size={13} /></button></td>
                             )}
                           </tr>
                         ))}
