@@ -47,7 +47,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   // POS & Customer/Patient Display screens are dedicated full-screen applications without sidebar/header layout chrome
-  const isPosPage = pathname?.endsWith("/pos") || pathname?.includes("/pos/") || pathname?.includes("/customer-display") || pathname?.includes("/patient-display");
+  const isPosPage = pathname?.endsWith("/pos") || pathname?.endsWith("/retail-pos") || pathname?.includes("/retail-pos/") || pathname?.includes("/customer-display") || pathname?.includes("/patient-display");
 
   if (isPosPage) {
     return (

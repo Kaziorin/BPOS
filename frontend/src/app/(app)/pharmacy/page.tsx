@@ -31,7 +31,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { ReceiptModal } from "../pos/ReceiptModal";
+import { ReceiptModal } from "../retail-pos/ReceiptModal";
 import {
   fetchAllProducts,
   fetchBatches,

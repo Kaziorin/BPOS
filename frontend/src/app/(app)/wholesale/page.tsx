@@ -28,6 +28,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { ReceiptModal } from "../retail-pos/ReceiptModal";
 import { SaleReceiptViewModal } from "@/components/pos/SaleReceiptViewModal";
 import {
   fetchAllProducts,

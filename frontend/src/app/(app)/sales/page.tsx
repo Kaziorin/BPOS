@@ -338,7 +338,7 @@ export default function SalesPage() {
           </button>
 
           <Link
-            href="/pos"
+            href="/retail-pos"
             className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-primary-700 transition"
           >
             <Store size={14} />
@@ -593,7 +593,7 @@ export default function SalesPage() {
               </button>
             )}
             <Link
-              href="/pos"
+              href="/retail-pos"
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-primary-700"
             >
               <Store size={14} /> Open POS Checkout

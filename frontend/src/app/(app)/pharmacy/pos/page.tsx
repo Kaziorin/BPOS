@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { ReceiptModal } from "../../pos/ReceiptModal";
+import { ReceiptModal } from "../../retail-pos/ReceiptModal";
 import { UniversalInvoiceModal } from "@/components/invoices/UniversalInvoiceModal";
-import type { PaymentLine, SaleResult } from "../../pos/pos-types";
+import type { PaymentLine, SaleResult } from "../../retail-pos/pos-types";
 import { isOnline } from "@/lib/offline/db";
 import { syncManager } from "@/lib/offline/sync";
 import { publishCart } from "@/lib/customer-display";

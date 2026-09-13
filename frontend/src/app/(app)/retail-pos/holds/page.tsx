@@ -34,7 +34,7 @@ export default function HoldsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Held Sales</h1>
           <p className="mt-1 text-sm text-gray-500">Parked carts — resume from any terminal</p>
         </div>
-        <CustomButton onClick={() => router.push("/pos")}>
+        <CustomButton onClick={() => router.push("/retail-pos")}>
           Go to POS
         </CustomButton>
       </div>
@@ -92,7 +92,7 @@ export default function HoldsPage() {
                 size="sm"
                 fullWidth
                 leftIcon={<PlayCircle size={13} />}
-                onClick={() => router.push("/pos")}
+                onClick={() => router.push("/retail-pos")}
               >
                 Resume
               </CustomButton>
