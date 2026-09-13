@@ -39,16 +39,14 @@ import {
   ShieldAlert
 } from "lucide-react";
 import { api } from "@/lib/api";
-import {
-  UniversalInvoiceModal,
-  type InvoiceData
-} from "@/components/invoices/UniversalInvoiceModal";
+import { SaleReceiptViewModal, type ReceiptViewData } from "@/components/pos/SaleReceiptViewModal";
 
 interface OrderItem {
   id?: string;
   productId: string;
   name?: string;
   sku?: string;
+  qty?: number;
   qtyOrdered: number;
   qtyReserved?: number;
   qtyDelivered?: number;
@@ -83,7 +81,10 @@ interface SalesOrder {
 }
 
 const ORDER_TABS = [
-  { id: "RESTAURANT", label: "Restaurant Orders", icon: Store },
+  { id: "ALL", label: "All Sales Orders", icon: Layers },
+  { id: "B2B", label: "Wholesale & B2B", icon: Truck },
+  { id: "POS", label: "Retail POS", icon: Store },
+  { id: "RESTAURANT", label: "Restaurant Orders", icon: ShoppingCart },
 ];
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; border: string }> = {
@@ -103,7 +104,7 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; b
 export default function SalesOrdersPage() {
   const [orders, setOrders] = useState<SalesOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<string>("RESTAURANT");
+  const [activeTab, setActiveTab] = useState<string>("ALL");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [sortBy, setSortBy] = useState("date");
@@ -117,9 +118,9 @@ export default function SalesOrdersPage() {
   const [totalVolume, setTotalVolume] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Selected Order for Line Items / Invoice Modal
+  // Selected Order for Invoice Modal
   const [selectedOrderForDrawer, setSelectedOrderForDrawer] = useState<SalesOrder | null>(null);
-  const [activeInvoice, setActiveInvoice] = useState<InvoiceData | null>(null);
+  const [activeInvoice, setActiveInvoice] = useState<ReceiptViewData | null>(null);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -127,8 +128,8 @@ export default function SalesOrdersPage() {
       const params = new URLSearchParams({
         page: String(page),
         limit: String(limit),
-        source: "RESTAURANT",
       });
+      if (activeTab && activeTab !== "ALL") params.set("source", activeTab);
       if (search.trim()) params.set("search", search.trim());
       if (statusFilter) params.set("status", statusFilter);
 
@@ -166,7 +167,7 @@ export default function SalesOrdersPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, search, statusFilter]);
+  }, [page, limit, search, statusFilter, activeTab]);
 
   useEffect(() => {
     fetchOrders();
@@ -181,38 +182,30 @@ export default function SalesOrdersPage() {
 
   function handleOpenInvoice(order: SalesOrder) {
     setActiveInvoice({
-      id: order.id || order.orderNo,
       invoiceNo: order.orderNo,
-      date: order.orderDate || order.createdAt || new Date().toISOString(),
-      customer: {
-        name: order.customer?.name || "Customer",
-        phone: order.customer?.phone || undefined,
-        address: order.customer?.address || undefined,
-      },
-      items: order.items && order.items.length > 0 ? order.items.map((it) => ({
-        name: it.name || "Item",
-        qty: it.qtyOrdered || 1,
-        unitPrice: it.unitPrice || 0,
-        total: it.lineTotal || ((it.qtyOrdered || 1) * (it.unitPrice || 0)),
-      })) : [
-        {
-          name: "Sales Order Summary",
-          qty: 1,
-          unitPrice: Number(order.total || 0),
-          total: Number(order.total || 0),
-        }
-      ],
-      subTotal: Number(order.subtotal || order.total || 0),
-      discountTotal: 0,
-      taxTotal: 0,
-      grandTotal: Number(order.total || 0),
+      createdAt: order.createdAt || order.orderDate || new Date().toISOString(),
+      customerName: order.customer?.name || "Customer",
+      cashierName: order.cashierName || "Admin",
+      items: order.items && order.items.length > 0
+        ? order.items.map((it) => ({
+            id: it.id,
+            name: it.name || "Item",
+            sku: it.sku,
+            productId: it.productId,
+            qty: Number(it.qtyOrdered || it.qty || 1),
+            unitPrice: Number(it.unitPrice || 0),
+            lineTotal: Number(it.lineTotal || ((Number(it.qtyOrdered || 1)) * Number(it.unitPrice || 0))),
+          }))
+        : [{
+            name: "Sales Order Summary",
+            qty: 1,
+            unitPrice: Number(order.total || 0),
+            lineTotal: Number(order.total || 0),
+          }],
+      total: Number(order.total || 0),
       paidTotal: Number(order.paidTotal || order.total || 0),
       dueTotal: Number(order.dueTotal || 0),
       paymentMethod: (order as any).paymentMethod || "CASH",
-      cashier: {
-        name: order.cashierName || "Admin",
-      },
-      vertical: order.source === "B2B" ? "wholesale" : "retail",
     });
   }
 
@@ -836,11 +829,11 @@ export default function SalesOrdersPage() {
         </div>
       )}
 
-      {/* ── Universal Invoice Print Modal ── */}
-      <UniversalInvoiceModal
+      {/* ── POS-style Receipt View Modal ── */}
+      <SaleReceiptViewModal
         open={Boolean(activeInvoice)}
+        data={activeInvoice}
         onClose={() => setActiveInvoice(null)}
-        invoice={activeInvoice || undefined}
       />
 
     </div>

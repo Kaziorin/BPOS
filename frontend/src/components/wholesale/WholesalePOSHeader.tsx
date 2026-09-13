@@ -69,26 +69,37 @@ export function WholesalePOSHeader({
     { label: "Low Stock Alerts", value: String(stats.lowStockAlerts), Icon: AlertTriangle, tone: "red" },
   ];
 
+  // Ice Blue theme colors (inline styles for precision)
+  const iceBorder = "#DCE8F2";
+  const iceCard = "#FFFFFF";
+  const iceBlue = "#146EF5";
+  const darkText = "#10213D";
+  const mutedText = "#64748B";
+
   return (
     <div className="shrink-0 space-y-2.5">
       <header
         className={cn(
-          "flex items-center gap-4 rounded-[20px] px-5 py-3.5 backdrop-blur-xl transition-all",
+          "flex items-center gap-4 rounded-2xl px-5 py-3 backdrop-blur-xl transition-all",
           darkMode
             ? "border border-slate-700/80 bg-slate-900/75 shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
-            : "border border-slate-200/90 bg-white/95 shadow-md shadow-slate-200/50",
+            : "shadow-[0_2px_12px_rgba(20,110,245,0.08)]",
         )}
+        style={darkMode ? undefined : { background: iceCard, border: `1px solid ${iceBorder}` }}
       >
         <div className="min-w-0 shrink-0 pr-2">
           <h1
             className={cn(
               "text-[20px] font-extrabold leading-tight tracking-tight sm:text-[22px]",
-              darkMode ? "text-slate-50" : "text-slate-900",
+              darkMode ? "text-slate-50" : "",
             )}
+            style={darkMode ? undefined : { color: darkText }}
           >
             BPOS
           </h1>
-          <p className={cn("mt-0.5 text-[11px] font-black tracking-wide uppercase", darkMode ? "text-blue-400" : "text-blue-600")}>
+          <p className={cn("mt-0.5 text-[11px] font-black tracking-wide uppercase", darkMode ? "text-blue-400" : "")}
+            style={darkMode ? undefined : { color: iceBlue }}
+          >
             Wholesale & Distribution
           </p>
         </div>
@@ -102,25 +113,33 @@ export function WholesalePOSHeader({
             "flex min-w-0 max-w-full flex-1 items-center gap-0 overflow-hidden rounded-2xl px-4 py-2 text-left transition-all md:flex-none md:max-w-none cursor-pointer",
             darkMode
               ? "border border-slate-700 bg-slate-800/90 shadow-[0_2px_12px_rgba(0,0,0,0.25)] hover:border-slate-600"
-              : "border border-slate-200 bg-slate-50/90 hover:bg-white hover:border-blue-400 hover:shadow-md shadow-sm",
+              : "hover:shadow-md",
           )}
+          style={darkMode ? undefined : { background: "#F5FAFE", border: `1px solid ${iceBorder}` }}
         >
           <div className="min-w-0 shrink pr-4 sm:pr-5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={cn("truncate text-[14px] font-extrabold", darkMode ? "text-slate-100" : "text-slate-900")}>
+              <span
+                className={cn("truncate text-[14px] font-extrabold", darkMode ? "text-slate-100" : "")}
+                style={darkMode ? undefined : { color: darkText }}
+              >
                 {customer.name}
               </span>
               <CustomBadge
                 tone="primary"
                 className={cn(
                   "!shrink-0 !px-2 !py-0.5 !text-[10px] !font-black uppercase tracking-tighter",
-                  darkMode ? "!bg-primary-500/15 !text-primary-300" : "!bg-blue-100 !text-blue-800 !border !border-blue-200",
+                  darkMode ? "!bg-primary-500/15 !text-primary-300" : "",
                 )}
+                style={darkMode ? undefined : { background: "#EBF3FE", color: iceBlue, border: `1px solid #BEDCFD` }}
               >
                 {customer.tier} Customer
               </CustomBadge>
             </div>
-            <p className={cn("mt-0.5 truncate text-[11px] font-semibold", darkMode ? "text-slate-400" : "text-slate-500")}>
+            <p
+              className={cn("mt-0.5 truncate text-[11px] font-semibold", darkMode ? "text-slate-400" : "")}
+              style={darkMode ? undefined : { color: mutedText }}
+            >
               {customer.id} <span className={cn("mx-0.5", darkMode ? "text-slate-600" : "text-slate-300")}>•</span>{" "}
               {customer.phone}
             </p>
@@ -183,25 +202,33 @@ export function WholesalePOSHeader({
           <div key={m.label}>
             <div
               className={cn(
-                "flex items-center gap-2.5 rounded-xl border p-2.5 transition-all shadow-sm",
+                "flex items-center gap-2.5 rounded-xl p-2.5 transition-all shadow-sm cursor-default",
                 darkMode
-                  ? "border-slate-700/80 bg-slate-900/60 shadow-sm"
-                  : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md",
+                  ? "border border-slate-700/80 bg-slate-900/60"
+                  : "hover:shadow-md",
               )}
+              style={darkMode ? undefined : { background: iceCard, border: `1px solid ${iceBorder}` }}
             >
-              <div className={cn(
-                "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border",
-                darkMode
-                  ? "bg-slate-800 border-slate-700 text-slate-300"
-                  : "bg-blue-50/80 border-blue-100 text-blue-600"
-              )}>
+              <div
+                className={cn(
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
+                  darkMode ? "bg-slate-800 border border-slate-700 text-slate-300" : "",
+                )}
+                style={darkMode ? undefined : { background: "#EBF3FE", color: iceBlue }}
+              >
                 <m.Icon size={17} strokeWidth={2.2} />
               </div>
               <div className="min-w-0 overflow-hidden leading-tight">
-                <p className={cn("truncate text-[10px] font-bold uppercase tracking-wider", darkMode ? "text-slate-400" : "text-slate-500")}>
+                <p
+                  className={cn("truncate text-[10px] font-bold uppercase tracking-wider", darkMode ? "text-slate-400" : "")}
+                  style={darkMode ? undefined : { color: mutedText }}
+                >
                   {m.label}
                 </p>
-                <p className={cn("truncate text-[14px] font-extrabold tabular-nums mt-0.5", darkMode ? "text-slate-100" : "text-slate-900")}>
+                <p
+                  className={cn("truncate text-[14px] font-extrabold tabular-nums mt-0.5", darkMode ? "text-slate-100" : "")}
+                  style={darkMode ? undefined : { color: darkText }}
+                >
                   {m.value}
                 </p>
               </div>

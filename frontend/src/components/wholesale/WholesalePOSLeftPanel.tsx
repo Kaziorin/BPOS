@@ -163,6 +163,13 @@ export function WholesalePOSLeftPanel({
     icon: <c.Icon size={14} strokeWidth={2.2} />,
   }));
 
+  const iceBlue = "#146EF5";
+  const darkText = "#10213D";
+  const mutedText = "#64748B";
+  const iceBorder = "#DCE8F2";
+  const iceCard = "#FFFFFF";
+  const iceInputBg = "#F5FAFE";
+
   const darkField =
     "!bg-slate-800 !border-slate-700 !text-slate-100 placeholder:!text-slate-500";
 
@@ -175,50 +182,57 @@ export function WholesalePOSLeftPanel({
             ref={searchRef}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, SKU..."
-            leftIcon={<Search size={15} className={darkMode ? "text-slate-400" : "text-slate-500"} />}
+            placeholder="Search by product name, SKU, barcode..."
+            leftIcon={<Search size={15} className={darkMode ? "text-slate-400" : ""} style={darkMode ? undefined : { color: mutedText }} />}
             rightIcon={
               <button
                 type="button"
                 onClick={onScan}
                 className={cn(
-                  "flex h-6 w-6 items-center justify-center rounded-lg text-primary-600 transition-colors cursor-pointer",
-                  darkMode ? "hover:bg-primary-500/15" : "hover:bg-blue-100 text-blue-600",
+                  "flex h-6 w-6 items-center justify-center rounded-lg transition-colors cursor-pointer",
+                  darkMode ? "hover:bg-primary-500/15 text-primary-400" : "",
                 )}
+                style={darkMode ? undefined : { color: iceBlue }}
               >
                 <ScanLine size={14} />
               </button>
             }
             className={cn(
               "!h-9 !rounded-xl !py-1.5",
-              darkMode
-                ? cn(darkField, "shadow-sm")
-                : "!border-slate-300 !bg-white !text-slate-900 placeholder:!text-slate-400 shadow-sm focus:!border-blue-500",
+              darkMode ? cn(darkField, "shadow-sm") : "",
             )}
+            style={darkMode ? undefined : {
+              background: iceInputBg,
+              border: `1px solid ${iceBorder}`,
+              color: darkText,
+            }}
             containerClassName="flex-1"
           />
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
           {QUICK_ACTIONS.map((a) => (
-            <CustomButton
+            <button
               key={a.id}
               type="button"
-              variant="outline"
-              size="sm"
               onClick={() => onQuickAction?.(a.id)}
               className={cn(
-                "!h-9 !gap-1.5 !rounded-xl !px-3 font-semibold transition-all cursor-pointer",
+                "flex h-9 items-center gap-1.5 rounded-xl px-3 text-[11px] font-bold transition-all cursor-pointer hover:shadow-sm",
                 darkMode
-                  ? "!border-slate-700 !bg-slate-800 shadow-sm hover:!bg-slate-700 !text-slate-200"
-                  : "!border-slate-200 !bg-slate-50/90 shadow-xs hover:!bg-blue-600 hover:!border-blue-600 hover:!text-white hover:[&>svg]:!text-white group",
+                  ? "border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+                  : "",
               )}
+              style={darkMode ? undefined : {
+                background: iceCard,
+                border: `1px solid ${iceBorder}`,
+                color: darkText,
+              }}
+              onMouseEnter={e => { if (!darkMode) { (e.currentTarget as HTMLButtonElement).style.background = "#EBF3FE"; (e.currentTarget as HTMLButtonElement).style.borderColor = "#BEDCFD"; (e.currentTarget as HTMLButtonElement).style.color = iceBlue; } }}
+              onMouseLeave={e => { if (!darkMode) { (e.currentTarget as HTMLButtonElement).style.background = iceCard; (e.currentTarget as HTMLButtonElement).style.borderColor = iceBorder; (e.currentTarget as HTMLButtonElement).style.color = darkText; } }}
             >
-              <a.Icon size={14} className={cn("shrink-0 transition-colors", darkMode ? "text-blue-400" : "text-blue-600")} />
-              <span className={cn("text-[11px] font-bold whitespace-nowrap", darkMode ? "text-slate-300" : "text-slate-700 group-hover:text-white")}>
-                {a.label}
-              </span>
-            </CustomButton>
+              <a.Icon size={14} style={{ color: iceBlue }} className={darkMode ? "text-blue-400" : ""} />
+              <span className="whitespace-nowrap">{a.label}</span>
+            </button>
           ))}
         </div>
       </div>
@@ -232,28 +246,26 @@ export function WholesalePOSLeftPanel({
         darkMode={darkMode}
         className={cn(
           "!rounded-xl !p-1 shadow-sm transition-all border",
-          darkMode
-            ? "!border-slate-700/50 !bg-slate-900/60"
-            : "!border-slate-200 !bg-slate-100/80",
+          darkMode ? "!border-slate-700/50 !bg-slate-900/60" : "",
         )}
+        style={darkMode ? undefined : { background: iceInputBg, border: `1px solid ${iceBorder}` } as React.CSSProperties}
       />
 
       {/* Filters row */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <CustomButton
+          <button
             type="button"
-            variant="outline"
-            size="xs"
             onClick={onOpenFilters}
-            leftIcon={<Filter size={13} />}
             className={cn(
-              "!h-9 !rounded-xl !px-3 !text-[11px] font-bold shadow-sm transition-all cursor-pointer",
-              darkMode ? "!border-slate-700 !bg-slate-800 !text-slate-200" : "!border-slate-300 !bg-white !text-slate-700 hover:!border-blue-500 hover:!text-blue-600",
+              "flex h-9 items-center gap-1.5 rounded-xl px-3 text-[11px] font-bold transition-all cursor-pointer",
+              darkMode ? "border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700" : "",
             )}
+            style={darkMode ? undefined : { background: iceCard, border: `1px solid ${iceBorder}`, color: darkText }}
           >
+            <Filter size={13} style={darkMode ? undefined : { color: iceBlue }} />
             Filters
-          </CustomButton>
+          </button>
 
           <CustomSelect
             value="all"
@@ -261,19 +273,32 @@ export function WholesalePOSLeftPanel({
             options={[{ value: "all", label: warehouseName }]}
             className={cn(
               "!h-9 !rounded-xl !py-1.5 !text-[11px] !font-bold shadow-sm transition-all",
-              darkMode ? darkField : "!border-slate-300 !bg-white !text-slate-800 hover:!border-blue-500",
+              darkMode ? darkField : "",
             )}
+            style={darkMode ? undefined : {
+              background: iceCard,
+              border: `1px solid ${iceBorder}`,
+              color: darkText,
+            } as React.CSSProperties}
             containerClassName="w-[150px]"
           />
 
           <div
             className={cn(
               "inline-flex h-9 items-center rounded-xl border px-3 transition-colors shadow-sm",
-              darkMode ? "border-slate-700 bg-slate-800" : "border-slate-300 bg-white",
+              darkMode ? "border-slate-700 bg-slate-800" : "",
             )}
+            style={darkMode ? undefined : { background: iceCard, border: `1px solid ${iceBorder}` }}
           >
             <CustomCheckbox
-              label={<span className="text-[11px] font-bold text-slate-700 whitespace-nowrap">Low Stock Only</span>}
+              label={
+                <span
+                  className="text-[11px] font-bold whitespace-nowrap"
+                  style={{ color: darkText }}
+                >
+                  Low Stock Only
+                </span>
+              }
               checked={lowStockOnly}
               onChange={(e) => setLowStockOnly(e.target.checked)}
               themeColor="blue"
@@ -294,16 +319,22 @@ export function WholesalePOSLeftPanel({
             ]}
             className={cn(
               "!h-9 !rounded-xl !py-1.5 !text-[11px] !font-bold shadow-sm transition-all",
-              darkMode ? darkField : "!border-slate-300 !bg-white !text-slate-800 hover:!border-blue-500",
+              darkMode ? darkField : "",
             )}
-            containerClassName="w-[140px]"
+            style={darkMode ? undefined : {
+              background: iceCard,
+              border: `1px solid ${iceBorder}`,
+              color: darkText,
+            } as React.CSSProperties}
+            containerClassName="w-[155px]"
           />
 
           <div
             className={cn(
               "flex rounded-xl border p-0.5 shadow-sm transition-all",
-              darkMode ? "border-slate-700 bg-slate-800" : "border-slate-300 bg-white",
+              darkMode ? "border-slate-700 bg-slate-800" : "",
             )}
+            style={darkMode ? undefined : { background: iceCard, border: `1px solid ${iceBorder}` }}
           >
             <CustomButton
               type="button"
@@ -342,18 +373,33 @@ export function WholesalePOSLeftPanel({
         {pageItems.length === 0 ? (
           <div
             className={cn(
-              "flex h-full min-h-[220px] flex-col items-center justify-center gap-2.5 rounded-2xl border border-dashed py-12 text-center transition-colors",
-              darkMode
-                ? "border-slate-800 bg-slate-900/30 text-slate-500"
-                : "border-slate-200 bg-slate-50/50 text-slate-500",
+              "flex h-full min-h-[220px] flex-col items-center justify-center gap-2.5 rounded-2xl border-dashed py-12 text-center transition-colors border",
+              darkMode ? "border-slate-800 bg-slate-900/30" : "",
             )}
+            style={darkMode ? undefined : { background: "#F5FAFE", borderColor: iceBorder }}
           >
-            <div className={cn("flex h-14 w-14 items-center justify-center rounded-2xl border shadow-sm", darkMode ? "bg-slate-800 border-slate-700 text-slate-400" : "bg-white border-slate-200 text-blue-600")}>
+            <div
+              className={cn(
+                "flex h-14 w-14 items-center justify-center rounded-2xl border shadow-sm",
+                darkMode ? "bg-slate-800 border-slate-700 text-slate-400" : "",
+              )}
+              style={darkMode ? undefined : { background: "#EBF3FE", color: iceBlue, border: `1px solid #BEDCFD` }}
+            >
               <Package size={28} />
             </div>
             <div>
-              <p className={cn("text-sm font-extrabold tracking-wide uppercase", darkMode ? "text-slate-300" : "text-slate-700")}>No products found</p>
-              <p className={cn("text-xs font-medium mt-0.5", darkMode ? "text-slate-500" : "text-slate-400")}>Try adjusting your search query or filters</p>
+              <p
+                className={cn("text-sm font-extrabold tracking-wide uppercase", darkMode ? "text-slate-300" : "")}
+                style={darkMode ? undefined : { color: darkText }}
+              >
+                No products found
+              </p>
+              <p
+                className={cn("text-xs font-medium mt-0.5", darkMode ? "text-slate-500" : "")}
+                style={darkMode ? undefined : { color: mutedText }}
+              >
+                Try adjusting your search query or filters
+              </p>
             </div>
           </div>
         ) : viewMode === "grid" ? (
@@ -419,22 +465,31 @@ function ProductCard({
   darkMode?: boolean;
 }) {
   const disabled = (product.stockQty ?? 0) <= 0;
+  const lowStock = (product.stockQty ?? 0) <= 10;
+  const iceBlue = "#146EF5";
+  const darkText = "#10213D";
+  const mutedText = "#64748B";
+  const iceBorder = "#DCE8F2";
 
   return (
     <div
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-xl border transition-all text-left cursor-pointer",
+        "group relative flex flex-col overflow-hidden rounded-xl transition-all text-left cursor-pointer",
         darkMode
-          ? "border-slate-700 bg-slate-800 shadow-lg hover:border-blue-500/50"
-          : "border-slate-200 bg-white hover:border-blue-500 shadow-xs hover:shadow-md",
+          ? "border border-slate-700 bg-slate-800 shadow-lg hover:border-blue-500/50"
+          : "hover:shadow-[0_4px_20px_rgba(20,110,245,0.12)]",
         disabled && "opacity-60",
       )}
+      style={darkMode ? undefined : { background: "#FFFFFF", border: `1px solid ${iceBorder}` }}
       onClick={() => !disabled && onAdd()}
     >
-      <div className={cn(
-        "relative aspect-square w-full overflow-hidden border-b",
-        darkMode ? "bg-slate-950/50 border-slate-700/60" : "bg-slate-100/60 border-slate-100"
-      )}>
+      <div
+        className={cn(
+          "relative aspect-square w-full overflow-hidden border-b",
+          darkMode ? "bg-slate-950/50 border-slate-700/60" : "",
+        )}
+        style={darkMode ? undefined : { background: "#F5FAFE", borderBottom: `1px solid ${iceBorder}` }}
+      >
         {product.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -444,48 +499,51 @@ function ProductCard({
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <Package size={22} className={darkMode ? "text-slate-600" : "text-slate-300"} />
+            <Package size={22} className={darkMode ? "text-slate-600" : ""} style={darkMode ? undefined : { color: "#C1D8F0" }} />
           </div>
         )}
 
         <div className="absolute top-1.5 left-1.5">
-          <span className={cn(
-            "flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter shadow-xs border",
-            (product.stockQty ?? 0) <= 10
-              ? "bg-amber-100 text-amber-800 border-amber-200"
-              : "bg-emerald-100 text-emerald-800 border-emerald-200"
-          )}>
-            <div className={cn("w-1 h-1 rounded-full animate-pulse", (product.stockQty ?? 0) <= 10 ? "bg-amber-500" : "bg-emerald-500")} />
-            {(product.stockQty ?? 0) <= 10 ? "Low" : "In Stock"}
+          <span
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter shadow-xs"
+            style={lowStock
+              ? { background: "#FFF3E0", color: "#E65100", border: "1px solid #FFCC80" }
+              : { background: "#E8F5E9", color: "#1B5E20", border: "1px solid #A5D6A7" }
+            }
+          >
+            <div className={cn("w-1 h-1 rounded-full animate-pulse", lowStock ? "bg-orange-500" : "bg-green-500")} />
+            {lowStock ? "Low" : "In Stock"}
           </span>
         </div>
       </div>
 
       <div className="flex flex-1 flex-col p-2.5">
-        <h3 className={cn("line-clamp-2 min-h-[2.6em] text-[11px] font-bold leading-snug", darkMode ? "text-slate-100" : "text-slate-900")}>
+        <h3
+          className={cn("line-clamp-2 min-h-[2.6em] text-[11px] font-bold leading-snug", darkMode ? "text-slate-100" : "")}
+          style={darkMode ? undefined : { color: darkText }}
+        >
           {product.name}
         </h3>
-        <p className={cn("mt-0.5 text-[9px] font-semibold", darkMode ? "text-slate-400" : "text-slate-500")}>
+        <p
+          className={cn("mt-0.5 text-[9px] font-semibold", darkMode ? "text-slate-400" : "")}
+          style={darkMode ? undefined : { color: mutedText }}
+        >
           {product.sku}
         </p>
 
         <div className="mt-auto flex items-end justify-between pt-2">
-          <p className="text-[13px] font-extrabold text-blue-600 tabular-nums leading-none">
+          <p
+            className="text-[13px] font-extrabold tabular-nums leading-none"
+            style={{ color: iceBlue }}
+          >
             {fmt(product.sellingPrice)}
           </p>
           <button
             type="button"
             disabled={disabled}
-            onClick={(e) => {
-              e.stopPropagation();
-              onAdd();
-            }}
-            className={cn(
-              "flex h-6 w-6 items-center justify-center rounded-lg transition-all active:scale-90 shadow-sm cursor-pointer",
-              darkMode
-                ? "bg-blue-600 text-white shadow-blue-600/20"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            )}
+            onClick={(e) => { e.stopPropagation(); onAdd(); }}
+            className="flex h-7 w-7 items-center justify-center rounded-full transition-all active:scale-90 shadow-sm cursor-pointer hover:opacity-80"
+            style={{ background: iceBlue, color: "#FFFFFF" }}
           >
             <Plus size={13} strokeWidth={3} />
           </button>
@@ -508,36 +566,39 @@ function ProductListRow({
 }) {
   const status = stockStatus(product.stockQty);
   const disabled = (product.stockQty ?? 0) <= 0;
+  const iceBlue = "#146EF5";
+  const darkText = "#10213D";
+  const mutedText = "#64748B";
+  const iceBorder = "#DCE8F2";
 
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-xl border px-3.5 py-2.5 shadow-xs transition-all",
-        darkMode
-          ? "border-slate-700 bg-slate-800 hover:border-blue-500/40 hover:shadow-md"
-          : "border-slate-200 bg-white hover:border-blue-400 hover:shadow-md",
+        "flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-all cursor-pointer",
+        darkMode ? "border border-slate-700 bg-slate-800 hover:border-blue-500/40 hover:shadow-md" : "hover:shadow-md",
       )}
+      style={darkMode ? undefined : { background: "#FFFFFF", border: `1px solid ${iceBorder}` }}
+      onClick={() => !disabled && onAdd()}
     >
       <div
         className={cn(
           "flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border",
-          darkMode ? "bg-slate-900 border-slate-700" : "bg-slate-100/80 border-slate-200",
+          darkMode ? "bg-slate-900 border-slate-700" : "",
         )}
+        style={darkMode ? undefined : { background: "#F5FAFE", border: `1px solid ${iceBorder}` }}
       >
         {product.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={product.imageUrl} alt="" className="h-full w-full object-contain p-1" />
         ) : (
-          <Package size={22} className={darkMode ? "text-slate-500" : "text-slate-400"} />
+          <Package size={22} className={darkMode ? "text-slate-500" : ""} style={darkMode ? undefined : { color: "#C1D8F0" }} />
         )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <h3
-            className={cn(
-              "truncate text-[13px] font-bold",
-              darkMode ? "text-slate-100" : "text-slate-900",
-            )}
+            className={cn("truncate text-[13px] font-bold", darkMode ? "text-slate-100" : "")}
+            style={darkMode ? undefined : { color: darkText }}
           >
             {product.name}
           </h3>
@@ -546,26 +607,28 @@ function ProductListRow({
             {status.label}
           </CustomBadge>
         </div>
-        <p className={cn("text-[11px] font-medium mt-0.5", darkMode ? "text-slate-400" : "text-slate-500")}>
+        <p
+          className={cn("text-[11px] font-medium mt-0.5", darkMode ? "text-slate-400" : "")}
+          style={darkMode ? undefined : { color: mutedText }}
+        >
           {product.sku}
         </p>
       </div>
       <p
-        className={cn(
-          "text-[15px] font-extrabold tabular-nums text-blue-600",
-        )}
+        className="text-[15px] font-extrabold tabular-nums"
+        style={{ color: iceBlue }}
       >
         {fmt(product.sellingPrice)}
       </p>
-      <CustomButton
+      <button
         type="button"
         disabled={disabled}
-        onClick={onAdd}
-        themeColor="blue"
-        className="!h-9 !w-9 !rounded-full !px-0"
+        onClick={(e) => { e.stopPropagation(); onAdd(); }}
+        className="flex h-9 w-9 items-center justify-center rounded-full transition-all active:scale-95 shadow-sm cursor-pointer hover:opacity-80"
+        style={{ background: iceBlue, color: "#FFFFFF" }}
       >
         <Plus size={16} />
-      </CustomButton>
+      </button>
     </div>
   );
 }

@@ -28,7 +28,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { ReceiptModal } from "../pos/ReceiptModal";
+import { SaleReceiptViewModal } from "@/components/pos/SaleReceiptViewModal";
 import {
   fetchAllProducts,
   fetchBatches,
@@ -327,6 +327,30 @@ export default function WholesaleHubPage() {
           </div>
         </div>
       </div>
+
+      <SaleReceiptViewModal
+        open={!!selectedSale}
+        data={selectedSale ? {
+          invoiceNo: selectedSale.orderNo || selectedSale.invoiceNo || `INV-${(selectedSale.id || "").slice(0, 8).toUpperCase()}`,
+          createdAt: selectedSale.createdAt || selectedSale.orderDate,
+          customerName: selectedSale.customerName || selectedSale.customer?.name || "B2B Client",
+          cashierName: selectedSale.cashierName || user?.name || "Wholesale Manager",
+          items: (selectedSale.items || []).map((it: any) => ({
+            id: it.id,
+            name: it.productName || it.name || "Commercial Product",
+            sku: it.sku,
+            productId: it.productId,
+            qty: Number(it.qty || it.qtyOrdered || 1),
+            unitPrice: Number(it.unitPrice || 0),
+            lineTotal: Number(it.lineTotal || (Number(it.qty || it.qtyOrdered || 1) * Number(it.unitPrice || 0))),
+          })),
+          total: Number(selectedSale.total || 0),
+          paidTotal: Number(selectedSale.paidTotal || selectedSale.total || 0),
+          dueTotal: Number(selectedSale.dueTotal || 0),
+          paymentMethod: selectedSale.paymentMethod || "CREDIT",
+        } : null}
+        onClose={() => setSelectedSale(null)}
+      />
     </div>
   );
 }

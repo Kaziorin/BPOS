@@ -89,6 +89,9 @@ function WholesalePOSInner() {
     customerName: string;
   } | null>(null);
   const [recentOrdersOpen, setRecentOrdersOpen] = useState(false);
+  const [recentTab, setRecentTab] = useState<"HISTORY" | "HELD">("HISTORY");
+  const [recentSales, setRecentSales] = useState<any[]>([]);
+  const [loadingRecent, setLoadingRecent] = useState(false);
   const [orderSeq] = useState(() => {
     const d = new Date();
     const y = d.getFullYear().toString().slice(2);
@@ -172,31 +175,58 @@ function WholesalePOSInner() {
     };
   }, []);
 
+  const fetchRecentSales = useCallback(async () => {
+    setLoadingRecent(true);
+    try {
+      const res: any = await api.get("/api/v1/pos/sales?limit=20");
+      const list = res?.data?.data || res?.data || (Array.isArray(res) ? res : []);
+      setRecentSales(Array.isArray(list) ? list : []);
+    } catch (err) {
+      console.error("Failed to fetch recent sales:", err);
+    } finally {
+      setLoadingRecent(false);
+    }
+  }, []);
+
+  const loadProductsAndStats = useCallback(async () => {
+    try {
+      const [prods, batches] = await Promise.allSettled([
+        fetchAllProducts(),
+        fetchBatches(),
+      ]);
+      let list: RegisterProduct[] = [];
+      if (prods.status === "fulfilled" && prods.value.length > 0) {
+        list = prods.value;
+        if (batches.status === "fulfilled") {
+          list = applyBatchStock(list, batches.value);
+        }
+        list = list.map((p) => (p.imageUrl ? p : { ...p, imageUrl: null }));
+      }
+      setProducts(list);
+
+      try {
+        const statsRes: any = await api.get("/api/v1/pos/stats/today");
+        if (statsRes?.data) {
+          setTodaySales(statsRes.data.totalSales || statsRes.data.revenue || 0);
+          setTodayOrders(statsRes.data.transactionCount || statsRes.data.count || 0);
+        }
+      } catch { /* ignore */ }
+    } catch (err) {
+      console.error("Failed to reload products:", err);
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       try {
-        const [ctxRes, prods, batches, custRes] = await Promise.allSettled([
+        const [ctxRes, custRes] = await Promise.allSettled([
           fetchRegisterContext(),
-          fetchAllProducts(),
-          fetchBatches(),
           api.get("/v1/customers?limit=500"),
         ]);
         if (cancelled) return;
         if (ctxRes.status === "fulfilled") setCtx(ctxRes.value);
-
-        let list: RegisterProduct[] = [];
-        if (prods.status === "fulfilled" && prods.value.length > 0) {
-          list = prods.value;
-          if (batches.status === "fulfilled") {
-            list = applyBatchStock(list, batches.value);
-          }
-          list = list.map((p, i) =>
-            p.imageUrl ? p : { ...p, imageUrl: null },
-          );
-        }
-        setProducts(list);
 
         if (custRes.status === "fulfilled") {
           const rows = (custRes.value as any)?.data?.data ?? (custRes.value as any)?.data ?? custRes.value ?? [];
@@ -205,20 +235,13 @@ function WholesalePOSInner() {
           }
         }
 
-        // Fetch today's stats
-        try {
-          const statsRes: any = await api.get("/api/v1/pos/stats/today");
-          if (statsRes?.data) {
-            setTodaySales(statsRes.data.totalSales || statsRes.data.revenue || 0);
-            setTodayOrders(statsRes.data.transactionCount || statsRes.data.count || 0);
-          }
-        } catch { /* ignore */ }
+        await loadProductsAndStats();
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [loadProductsAndStats]);
 
   const handleAddCustomer = async (newCust: any) => {
     try {
@@ -432,12 +455,14 @@ function WholesalePOSInner() {
               paymentIds: apiData.paymentIds ?? [],
             };
           }
-        } catch (apiErr) {
-          console.warn("Wholesale confirm failed, using local result", apiErr);
+        } catch (apiErr: any) {
+          console.error("Wholesale confirm failed:", apiErr);
+          const detail = apiErr?.response?.data?.detail || apiErr?.message || "Wholesale confirm failed";
+          setError(typeof detail === "string" ? detail : JSON.stringify(detail));
+          setSubmitting(false);
+          return;
         }
-      }
-
-      if (!saleRes) {
+      } else {
         const saleId = crypto.randomUUID();
         if (ctx.branch?.id) {
           await syncManager.createOfflineTransaction({
@@ -479,6 +504,7 @@ function WholesalePOSInner() {
         customerName: selectedCustomer?.name || "Walk-in Customer",
       });
       setResult(saleRes);
+      loadProductsAndStats();
     } catch (err: any) {
       setError(err?.message || "Sale failed");
     } finally {
@@ -493,6 +519,7 @@ function WholesalePOSInner() {
     setError(null);
     setCheckoutOpen(false);
     setWsPayMethod("CREDIT");
+    loadProductsAndStats();
   }
 
   const deliveryDate = useMemo(() => {
@@ -534,35 +561,33 @@ function WholesalePOSInner() {
       data-theme="wholesale"
       className={cn(
         "relative flex h-screen w-screen flex-col overflow-hidden transition-colors duration-300",
-        darkMode ? "dark bg-slate-950" : "bg-slate-100/80",
+        darkMode ? "dark bg-slate-950" : "",
       )}
-      style={{ fontFamily: "var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif" }}
+      style={{
+        fontFamily: "var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif",
+        background: darkMode ? undefined : "linear-gradient(180deg, #D8EEFC 0%, #E8F4FC 30%, #F5FAFE 70%, #C9E8FD 100%)",
+      }}
     >
-      {/* ... background nodes ... */}
+      {/* Background layer */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         {darkMode ? (
           <>
             <div className="absolute inset-0 bg-slate-950" />
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900/50 to-slate-950 opacity-100" />
-            <div className="absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-primary-600/10 blur-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900/50 to-slate-950" />
+            <div className="absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-blue-600/10 blur-3xl" />
             <div className="absolute top-1/3 -left-24 h-[360px] w-[360px] rounded-full bg-indigo-500/5 blur-3xl" />
           </>
         ) : (
           <>
-            <div className="absolute inset-0 bg-[#EEF4FB]" />
-            <div className="absolute inset-0 bg-gradient-to-br from-[#E2EDF9] via-[#EEF4FB] to-[#F8FAFC] opacity-100" />
-            <div className="absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-blue-500/10 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 h-[280px] w-[280px] rounded-full bg-blue-400/10 blur-3xl" />
+            {/* Soft ambient blue glows */}
+            <div className="absolute -top-40 -right-32 h-[500px] w-[500px] rounded-full opacity-60"
+              style={{ background: "radial-gradient(circle, #B7E0FC 0%, transparent 70%)" }} />
+            <div className="absolute bottom-0 -left-20 h-[400px] w-[400px] rounded-full opacity-40"
+              style={{ background: "radial-gradient(circle, #C9E8FD 0%, transparent 70%)" }} />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full opacity-20"
+              style={{ background: "radial-gradient(circle, #B7E0FC 0%, transparent 70%)" }} />
           </>
         )}
-        <svg className={cn("absolute inset-0 h-full w-full", darkMode ? "opacity-[0.2]" : "opacity-[0.25]")}>
-          <defs>
-            <pattern id="ws-grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path d="M32 0H0V32" fill="none" stroke={darkMode ? "rgba(148,163,184,0.12)" : "rgba(148,163,184,0.18)"} strokeWidth="1" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#ws-grid)" />
-        </svg>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-2 p-2 sm:p-2.5">
@@ -583,14 +608,18 @@ function WholesalePOSInner() {
           onSelectCustomer={() => setCustomerModalOpen(true)}
         />
 
-        <div className="flex min-h-0 flex-1 gap-2 flex-col md:flex-row overflow-hidden">
+        <div className="flex min-h-0 flex-1 gap-2.5 flex-col md:flex-row overflow-hidden">
           <div
             className={cn(
-              "flex min-w-0 flex-1 flex-col rounded-[20px] p-2.5 backdrop-blur-md transition-all md:min-h-0",
+              "flex min-w-0 flex-1 flex-col rounded-[20px] p-3 backdrop-blur-md transition-all md:min-h-0",
               darkMode
                 ? "border border-slate-700/80 bg-slate-900/70 shadow-lg"
-                : "border border-slate-200/90 bg-white shadow-md shadow-slate-200/50",
+                : "shadow-[0_2px_16px_rgba(20,110,245,0.08)]",
             )}
+            style={darkMode ? undefined : {
+              background: "#FFFFFF",
+              border: "1px solid #DCE8F2",
+            }}
           >
             {loading ? (
               <div className="flex flex-1 items-center justify-center">
@@ -663,7 +692,11 @@ function WholesalePOSInner() {
           onUtility={(id) => {
             if (id === "customer") setCustomerModalOpen(true);
             else if (id === "hold") holdOrder();
-            else if (id === "recent") setRecentOrdersOpen(true);
+            else if (id === "recent" || id === "history") {
+              setRecentTab(id === "history" ? "HISTORY" : "HELD");
+              setRecentOrdersOpen(true);
+              fetchRecentSales();
+            }
           }}
           onHold={holdOrder}
           darkMode={darkMode}
@@ -701,17 +734,17 @@ function WholesalePOSInner() {
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4">
             <div
               className={cn(
-                "flex h-[500px] w-full max-w-2xl flex-col rounded-[24px] overflow-hidden shadow-2xl transition-colors",
+                "flex h-[520px] w-full max-w-2xl flex-col rounded-[24px] overflow-hidden shadow-2xl transition-colors",
                 darkMode ? "bg-slate-900 border border-slate-700" : "bg-white border border-slate-100",
               )}
             >
               <div className={cn("flex items-center justify-between border-b p-5 transition-colors", darkMode ? "border-slate-800" : "border-slate-100")}>
                 <div>
                   <h3 className={cn("text-lg font-bold", darkMode ? "text-white" : "text-slate-900")}>
-                    Held Orders / Recent Bills
+                    Sales History & Held Orders
                   </h3>
                   <p className={cn("text-xs font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>
-                    Restore any suspended sale to the active cart
+                    View completed sales or recall suspended orders
                   </p>
                 </div>
                 <button
@@ -725,9 +758,98 @@ function WholesalePOSInner() {
                 </button>
               </div>
 
+              {/* Tabs */}
+              <div className={cn("flex border-b px-5 pt-2 gap-4", darkMode ? "border-slate-800" : "border-slate-100")}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRecentTab("HISTORY");
+                    fetchRecentSales();
+                  }}
+                  className={cn(
+                    "pb-3 text-xs font-bold transition-colors border-b-2 cursor-pointer",
+                    recentTab === "HISTORY"
+                      ? "border-blue-600 text-blue-600"
+                      : "border-transparent text-slate-400 hover:text-slate-600",
+                  )}
+                >
+                  Sales History ({recentSales.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRecentTab("HELD")}
+                  className={cn(
+                    "pb-3 text-xs font-bold transition-colors border-b-2 cursor-pointer",
+                    recentTab === "HELD"
+                      ? "border-blue-600 text-blue-600"
+                      : "border-transparent text-slate-400 hover:text-slate-600",
+                  )}
+                >
+                  Held Orders ({heldBills.length})
+                </button>
+              </div>
+
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {heldBills.length === 0 ? (
-                  <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+                {recentTab === "HISTORY" ? (
+                  loadingRecent ? (
+                    <div className="flex h-full items-center justify-center py-12">
+                      <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  ) : recentSales.length === 0 ? (
+                    <div className="flex h-full flex-col items-center justify-center gap-3 text-center py-12">
+                      <div className={cn("h-16 w-16 rounded-full flex items-center justify-center", darkMode ? "bg-slate-800" : "bg-slate-50")}>
+                        <ShoppingBag className={cn("opacity-20", darkMode ? "text-white" : "text-slate-900")} size={32} />
+                      </div>
+                      <p className={cn("text-sm font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>
+                        No sales history found
+                      </p>
+                    </div>
+                  ) : (
+                    recentSales.map((s) => (
+                      <div
+                        key={s.id || s.invoiceNo}
+                        className={cn(
+                          "flex items-center justify-between rounded-[18px] border p-4 transition-all",
+                          darkMode
+                            ? "border-slate-800 bg-slate-800/40"
+                            : "border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-200 hover:shadow-md",
+                        )}
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={cn("text-sm font-bold", darkMode ? "text-white" : "text-slate-900")}>
+                              {s.invoiceNo || s.orderNo || "INV-POS"}
+                            </span>
+                            <span className={cn("text-[10px] font-black uppercase px-2 py-0.5 rounded-full",
+                              s.status === "COMPLETED" ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"
+                            )}>
+                              {s.status || "COMPLETED"}
+                            </span>
+                            {s.source && (
+                              <span className="text-[10px] font-bold uppercase bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">
+                                {s.source}
+                              </span>
+                            )}
+                          </div>
+                          <p className={cn("mt-1 truncate text-xs font-medium", darkMode ? "text-slate-400" : "text-slate-600")}>
+                            Customer: {s.customerName || s.customer?.name || "Walk-in Customer"} • {s.createdAt ? new Date(s.createdAt).toLocaleString() : ""}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <p className={cn("text-sm font-black", darkMode ? "text-white" : "text-slate-900")}>
+                              ৳{Number(s.total || 0).toFixed(2)}
+                            </p>
+                            <p className={cn("text-[10px] font-bold uppercase", darkMode ? "text-slate-500" : "text-slate-400")}>
+                              {s.paymentStatus || "PAID"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )
+                ) : heldBills.length === 0 ? (
+                  <div className="flex h-full flex-col items-center justify-center gap-3 text-center py-12">
                     <div className={cn("h-16 w-16 rounded-full flex items-center justify-center", darkMode ? "bg-slate-800" : "bg-slate-50")}>
                       <ShoppingBag className={cn("opacity-20", darkMode ? "text-white" : "text-slate-900")} size={32} />
                     </div>

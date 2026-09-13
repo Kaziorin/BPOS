@@ -52,6 +52,11 @@ export function WholesalePOSFooter({
   onHold,
   darkMode = false,
 }: WholesalePOSFooterProps) {
+  const iceBlue = "#146EF5";
+  const darkText = "#10213D";
+  const iceBorder = "#DCE8F2";
+  const iceCard = "#FFFFFF";
+
   return (
     <div className="shrink-0">
       <div
@@ -59,8 +64,9 @@ export function WholesalePOSFooter({
           "flex items-center gap-1 rounded-[18px] px-2.5 py-2 backdrop-blur-md transition-all",
           darkMode
             ? "border border-slate-700 bg-slate-900/90 shadow-lg"
-            : "border border-slate-200/90 bg-white/95 shadow-md shadow-slate-200/50",
+            : "shadow-[0_2px_12px_rgba(20,110,245,0.08)]",
         )}
+        style={darkMode ? undefined : { background: iceCard, border: `1px solid ${iceBorder}` }}
       >
         <div className="flex w-full items-center gap-1.5">
           {/* 1. Primary Utility Actions - Distributed Flex */}
@@ -77,15 +83,22 @@ export function WholesalePOSFooter({
                   "flex h-9 flex-1 min-w-0 items-center justify-center gap-2 rounded-xl px-2.5 text-[11px] font-bold transition-all active:scale-95 border cursor-pointer",
                   darkMode
                     ? "bg-slate-800/80 text-slate-200 border-slate-700 hover:bg-slate-700 hover:text-white"
-                    : "bg-slate-100/90 text-slate-800 border-slate-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 shadow-2xs group",
+                    : "group hover:shadow-sm",
                 )}
+                style={darkMode ? undefined : {
+                  background: "#F5FAFE",
+                  border: `1px solid ${iceBorder}`,
+                  color: darkText,
+                }}
+                onMouseEnter={e => { if (!darkMode) { const t = e.currentTarget as HTMLButtonElement; t.style.background = iceBlue; t.style.borderColor = iceBlue; t.style.color = "#FFFFFF"; } }}
+                onMouseLeave={e => { if (!darkMode) { const t = e.currentTarget as HTMLButtonElement; t.style.background = "#F5FAFE"; t.style.borderColor = iceBorder; t.style.color = darkText; } }}
               >
                 <span className={cn(
                   "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-black transition-colors",
-                  darkMode
-                    ? "bg-slate-950 text-blue-400"
-                    : "bg-slate-800 text-white group-hover:bg-white group-hover:text-blue-600"
-                )}>
+                  darkMode ? "bg-slate-950 text-blue-400" : "",
+                )}
+                style={darkMode ? undefined : { background: "#EBF3FE", color: iceBlue }}
+                >
                   {a.id === 'customer' ? <UserPlus size={12} /> : a.label.charAt(0)}
                 </span>
                 <span className="truncate">{a.label}</span>
@@ -126,16 +139,16 @@ function MetaChip({
     <div
       className={cn(
         "flex h-9 flex-1 min-w-0 items-center gap-2 rounded-xl border px-2.5 transition-all cursor-default",
-        darkMode
-          ? "border-slate-700 bg-slate-800/50"
-          : "border-slate-300 bg-slate-100/70 shadow-2xs",
+        darkMode ? "border-slate-700 bg-slate-800/50" : "",
       )}
+      style={darkMode ? undefined : { background: "#F5FAFE", border: "1px solid #DCE8F2" }}
     >
       <span
         className={cn(
           "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border",
-          darkMode ? "bg-slate-950 border-slate-700 text-blue-400" : "bg-white border-slate-200 text-blue-600 shadow-xs",
+          darkMode ? "bg-slate-950 border-slate-700 text-blue-400" : "",
         )}
+        style={darkMode ? undefined : { background: "#EBF3FE", border: "1px solid #BEDCFD", color: "#146EF5" }}
       >
         <Icon size={11} />
       </span>
@@ -151,8 +164,9 @@ function MetaChip({
         <span
           className={cn(
             "text-[10px] font-extrabold truncate",
-            darkMode ? "text-slate-200" : "text-slate-900",
+            darkMode ? "text-slate-200" : "",
           )}
+          style={darkMode ? undefined : { color: "#10213D" }}
         >
           {value}
         </span>

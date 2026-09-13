@@ -600,20 +600,48 @@ async def list_sales_orders(
         params["st"] = status
 
     if src_norm in ("B2B", "CORPORATE"):
-        total = (await db.execute(text(f"SELECT COUNT(*) FROM sales_orders so LEFT JOIN customers c ON c.id = so.customerId WHERE {b2b_where}"), params)).scalar() or 0
-        total_vol = (await db.execute(text(f"SELECT COALESCE(SUM(so.total), 0) FROM sales_orders so LEFT JOIN customers c ON c.id = so.customerId WHERE {b2b_where}"), params)).scalar() or 0
+        pos_b2b_where = "s.tenantId = :t AND (s.source = 'B2B' OR s.source = 'CORPORATE')"
+        if search:
+            pos_b2b_where += " AND (s.invoiceNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s)"
+        if status:
+            pos_b2b_where += " AND s.status = :st"
+
+        b2b_cnt = (await db.execute(text(f"SELECT COUNT(*) FROM sales_orders so LEFT JOIN customers c ON c.id = so.customerId WHERE {b2b_where}"), params)).scalar() or 0
+        pos_cnt = (await db.execute(text(f"SELECT COUNT(*) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_b2b_where}"), params)).scalar() or 0
+        total = b2b_cnt + pos_cnt
+
+        b2b_sum = (await db.execute(text(f"SELECT COALESCE(SUM(so.total), 0) FROM sales_orders so LEFT JOIN customers c ON c.id = so.customerId WHERE {b2b_where}"), params)).scalar() or 0
+        pos_sum = (await db.execute(text(f"SELECT COALESCE(SUM(s.total), 0) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_b2b_where}"), params)).scalar() or 0
+        total_vol = float(b2b_sum or 0) + float(pos_sum or 0)
+
         rows = rows_to_dicts((await db.execute(text(f"""
-            SELECT so.id, so.orderNo, 'B2B' AS source, so.status, so.subtotal, so.total,
-                   so.discountTotal, so.taxTotal,
-                   0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
-                   c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
-                   b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName,
-                   NULL AS paymentMethod
-            FROM sales_orders so
-            LEFT JOIN customers c ON c.id = so.customerId
-            LEFT JOIN branches b ON b.id = so.branchId
-            WHERE {b2b_where}
-            ORDER BY so.createdAt DESC LIMIT :lim OFFSET :off
+            SELECT * FROM (
+                SELECT so.id, so.orderNo, 'B2B' AS source, so.status, so.subtotal, so.total,
+                       so.discountTotal, so.taxTotal,
+                       0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
+                       c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
+                       b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName,
+                       NULL AS paymentMethod
+                FROM sales_orders so
+                LEFT JOIN customers c ON c.id = so.customerId
+                LEFT JOIN branches b ON b.id = so.branchId
+                WHERE {b2b_where}
+
+                UNION ALL
+
+                SELECT s.id, s.invoiceNo AS orderNo, COALESCE(s.source, 'B2B') AS source, s.status, s.subtotal, s.total,
+                       s.discountTotal, s.taxTotal,
+                       s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
+                       c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
+                       b.name AS branchName, s.paymentStatus, s.userId AS cashierId, u.name AS cashierName,
+                       (SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod
+                FROM sales s
+                LEFT JOIN customers c ON c.id = s.customerId
+                LEFT JOIN branches b ON b.id = s.branchId
+                LEFT JOIN users u ON u.id = s.userId
+                WHERE {pos_b2b_where}
+            ) AS combined_b2b_orders
+            ORDER BY createdAt DESC LIMIT :lim OFFSET :off
         """), {**params, "lim": lim, "off": off})).fetchall())
     elif src_norm in ("POS", "RETAIL", "RESTAURANT"):
         if src_norm == "RESTAURANT":
@@ -687,41 +715,33 @@ async def list_sales_orders(
             "phone": r.pop("customerPhone", None),
             "email": r.pop("customerEmail", None),
         }
-        is_pos = r.get("source") == "POS"
-        if is_pos:
+        items = rows_to_dicts((await db.execute(text("""
+            SELECT si.id, si.productId, si.name AS productName, si.name, p.sku, si.qty AS qtyOrdered, si.qty AS qty, si.qty AS qtyDelivered,
+                   0 AS qtyReserved, 0 AS qtyBackordered, si.unitPrice, si.lineTotal
+            FROM sale_items si
+            LEFT JOIN products p ON p.id = si.productId
+            WHERE si.saleId = :id
+        """), {"id": r["id"]})).fetchall())
+
+        if not items:
             items = rows_to_dicts((await db.execute(text("""
-                SELECT si.id, si.productId, si.name, p.sku, si.qty AS qtyOrdered, si.qty AS qtyDelivered,
-                       0 AS qtyReserved, 0 AS qtyBackordered, si.unitPrice, si.lineTotal
-                FROM sale_items si
-                LEFT JOIN products p ON p.id = si.productId
-                WHERE si.saleId = :id
-            """), {"id": r["id"]})).fetchall())
-            for it in items:
-                it["qtyOrdered"] = float(it.get("qtyOrdered", 0) or 0)
-                it["qtyDelivered"] = float(it.get("qtyDelivered", 0) or 0)
-                it["qtyReserved"] = 0
-                it["qtyBackordered"] = 0
-                it["unitPrice"] = float(it.get("unitPrice", 0) or 0)
-                it["lineTotal"] = float(it.get("lineTotal", 0) or 0)
-            r["items"] = items
-        else:
-            r["customer"]["name"] = r["customer"]["name"] or "Corporate Client"
-            items = rows_to_dicts((await db.execute(text("""
-                SELECT soi.id, soi.productId, p.name, p.sku, soi.qtyOrdered, 0 AS qtyDelivered,
+                SELECT soi.id, soi.productId, p.name AS productName, p.name, p.sku, soi.qtyOrdered, soi.qtyOrdered AS qty, 0 AS qtyDelivered,
                        0 AS qtyReserved, 0 AS qtyBackordered, soi.unitPrice, soi.lineTotal
                 FROM sales_order_items soi
                 LEFT JOIN products p ON p.id = soi.productId
                 WHERE soi.salesOrderId = :id
             """), {"id": r["id"]})).fetchall())
-            for it in items:
-                it["name"] = it.pop("name", None) or it.get("productName") or "Item"
-                it["qtyOrdered"] = float(it.get("qtyOrdered", 0) or 0)
-                it["qtyDelivered"] = float(it.get("qtyDelivered", 0) or 0)
-                it["qtyReserved"] = float(it.get("qtyReserved", 0) or 0)
-                it["qtyBackordered"] = float(it.get("qtyBackordered", 0) or 0)
-                it["unitPrice"] = float(it.get("unitPrice", 0) or 0)
-                it["lineTotal"] = float(it.get("lineTotal", 0) or 0)
-            r["items"] = items
+
+        for it in items:
+            it["name"] = it.get("productName") or it.get("name") or "Item"
+            it["qty"] = float(it.get("qty", 0) or it.get("qtyOrdered", 0) or 0)
+            it["qtyOrdered"] = float(it.get("qtyOrdered", 0) or 0)
+            it["qtyDelivered"] = float(it.get("qtyDelivered", 0) or 0)
+            it["qtyReserved"] = float(it.get("qtyReserved", 0) or 0)
+            it["qtyBackordered"] = float(it.get("qtyBackordered", 0) or 0)
+            it["unitPrice"] = float(it.get("unitPrice", 0) or 0)
+            it["lineTotal"] = float(it.get("lineTotal", 0) or 0)
+        r["items"] = items
 
     return ok(rows, extra={
         "pagination": {
