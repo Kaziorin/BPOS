@@ -34,7 +34,7 @@ function isRouteActive(href: string, pathname: string, allHrefs: Set<string>): b
   const currentNorm = normalizeRoute(currentFull);
   const hrefNorm = normalizeRoute(href);
 
-  // 1. Route specifies query parameter (e.g. /omnichannel?mode=retail)
+  // 1. Route specifies a query parameter (e.g. /documents?type=invoice)
   if (hrefNorm.query) {
     return currentNorm.path === hrefNorm.path && currentNorm.query === hrefNorm.query;
   }

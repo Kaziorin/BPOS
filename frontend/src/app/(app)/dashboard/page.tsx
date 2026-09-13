@@ -66,7 +66,7 @@ export default function DashboardPage() {
           <p className="mt-1 text-sm text-ink-400">Here&apos;s what&apos;s happening in your store today.</p>
         </div>
         <Link
-          href="/pos"
+          href="/retail-pos"
           className="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-primary-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-600"
         >
           New Sale

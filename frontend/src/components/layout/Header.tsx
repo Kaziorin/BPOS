@@ -58,8 +58,8 @@ export function Header() {
   const cleanTitle =
     pathname === "/" || pathname === "/dashboard"
       ? "Executive Dashboard"
-      : pathname === "/pos"
-      ? "POS / Retail Counter"
+      : pathname === "/retail-pos"
+      ? "Retail POS"
       : pathname
           .split("/")
           .filter(Boolean)
@@ -134,9 +134,9 @@ export function Header() {
           </div>
 
           {/* Quick POS action button if not already on POS screen */}
-          {pathname !== "/pos" && (
+          {pathname !== "/retail-pos" && (
             <Link
-              href="/pos"
+              href="/retail-pos"
               className="hidden items-center gap-1.5 rounded-xl bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-primary-700 sm:flex"
             >
               <ShoppingCart size={13} />

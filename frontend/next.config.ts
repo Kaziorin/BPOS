@@ -18,6 +18,16 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      { source: "/pos", destination: "/retail-pos", permanent: true },
+      { source: "/pos/:path*", destination: "/retail-pos/:path*", permanent: true },
+      { source: "/retail/retail-pos", destination: "/retail-pos", permanent: true },
+      { source: "/retail/retail-pos/:path*", destination: "/retail-pos/:path*", permanent: true },
+      { source: "/omnichannel", destination: "/retail", permanent: true },
+      { source: "/omnichannel", has: [{ type: "query", key: "mode", value: "retail" }], destination: "/retail", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

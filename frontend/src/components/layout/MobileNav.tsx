@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 
 const PRIMARY: { label: string; href: string; icon: typeof LayoutDashboard }[] = [
   { label: "Home", href: "/dashboard", icon: LayoutDashboard },
-  { label: "POS", href: "/pos", icon: ShoppingCart },
+  { label: "Retail", href: "/retail", icon: ShoppingCart },
   { label: "Pharmacy", href: "/pharmacy", icon: Pill },
   { label: "Stock", href: "/inventory/stock", icon: Package },
 ];

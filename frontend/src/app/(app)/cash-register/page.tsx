@@ -367,7 +367,7 @@ export default function CashRegisterPage() {
         subtitle={`Branch: ${selectedBranchName} · Daily Cash Drawer Reconciliation & Audit Ledger`}
         icon={<Wallet className="w-5 h-5" />}
         items={[
-          { label: "POS", href: "/pos" },
+          { label: "POS", href: "/retail-pos" },
           { label: "Cash Register" },
         ]}
         actions={

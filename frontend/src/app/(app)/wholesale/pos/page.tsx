@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { ShoppingBag } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/cn";
@@ -16,8 +17,8 @@ import {
   type RegisterProduct,
   type RegisterContext,
 } from "@/lib/catalog";
-import { ReceiptModal } from "../../pos/ReceiptModal";
-import type { PaymentLine, SaleResult } from "../../pos/pos-types";
+import { ReceiptModal } from "../../retail-pos/ReceiptModal";
+import type { PaymentLine, SaleResult } from "../../retail-pos/pos-types";
 import { WholesalePOSHeader } from "@/components/wholesale/WholesalePOSHeader";
 import { WholesalePOSLeftPanel } from "@/components/wholesale/WholesalePOSLeftPanel";
 import { WholesalePOSRightPanel } from "@/components/wholesale/WholesalePOSRightPanel";

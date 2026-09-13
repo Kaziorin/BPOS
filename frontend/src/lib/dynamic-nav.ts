@@ -260,15 +260,15 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
     items: [
       {
         label: "POS Terminal",
-        href: "/pos",
+        href: "/retail-pos",
         icon: ShoppingCart,
         badge: "Live",
         children: [
-          { label: "Standard POS Checkout",       href: "/pos",                   icon: ShoppingCart },
-          { label: "Held Carts / Orders",          href: "/pos/holds",             icon: PauseCircle  },
-          { label: "Price & Barcode Checker",      href: "/pos/price-checker",     icon: Search       },
-          { label: "Self-Checkout Kiosk",          href: "/pos/self-checkout",     icon: Monitor      },
-          { label: "Customer Display (POS)",       href: "/pos/customer-display",  icon: Monitor      },
+          { label: "Standard POS Checkout",       href: "/retail-pos",                   icon: ShoppingCart },
+          { label: "Held Carts / Orders",          href: "/retail-pos/holds",             icon: PauseCircle  },
+          { label: "Price & Barcode Checker",      href: "/retail-pos/price-checker",     icon: Search       },
+          { label: "Self-Checkout Kiosk",          href: "/retail-pos/self-checkout",     icon: Monitor      },
+          { label: "Customer Display (POS)",       href: "/retail-pos/customer-display",  icon: Monitor      },
           { label: "Customer Display (Full Screen)",href: "/customer-display",     icon: Monitor      },
         ],
       },
@@ -389,7 +389,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         ],
       },
       { label: "Delivery & Logistics",   href: "/delivery",    icon: Truck    },
-      { label: "Omnichannel Hub",         href: "/omnichannel", icon: Globe    },
       { label: "Marketing Campaigns",     href: "/marketing",   icon: Megaphone},
     ],
   },
@@ -528,6 +527,11 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
           { label: "FEFO Batch & Expiry POS",  href: "/pharmacy/pos",             icon: Pill         },
           { label: "Patient Display Screen",   href: "/pharmacy/patient-display", icon: Monitor      },
         ],
+      },
+      {
+        label: "Retail",
+        href: "/retail",
+        icon: ShoppingBag,
       },
       {
         label: "Grocery & Supermarket",

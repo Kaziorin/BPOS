@@ -33,16 +33,16 @@ interface CommandItem {
 
 const COMMANDS: CommandItem[] = [
   // Quick Actions
-  { id: "new-sale", title: "New POS Sale", subtitle: "Open terminal and start instant checkout", category: "Quick Actions", icon: ShoppingCart, href: "/pos", keywords: ["pos", "sell", "checkout", "cart", "barcode"] },
+  { id: "new-sale", title: "New POS Sale", subtitle: "Open terminal and start instant checkout", category: "Quick Actions", icon: ShoppingCart, href: "/retail-pos", keywords: ["pos", "sell", "checkout", "cart", "barcode"] },
   { id: "add-product", title: "Add New Product", subtitle: "Create item with barcode, pricing and stock", category: "Quick Actions", icon: PlusCircle, href: "/products/create", keywords: ["product", "item", "create", "new"] },
   { id: "new-po", title: "Create Purchase Order (PO)", subtitle: "Order inventory from vendor", category: "Quick Actions", icon: FileText, href: "/purchasing/orders", keywords: ["po", "purchase", "vendor", "supplier", "buy"] },
   { id: "new-customer", title: "Add New Customer", subtitle: "Register customer profile & phone", category: "Quick Actions", icon: Users, href: "/customers/create", keywords: ["customer", "client", "buyer"] },
 
   // POS & Retail
-  { id: "pos-terminal", title: "POS Counter Checkout", subtitle: "Express retail checkout interface", category: "POS & Retail", icon: ShoppingCart, href: "/pos" },
+  { id: "pos-terminal", title: "POS Counter Checkout", subtitle: "Express retail checkout interface", category: "POS & Retail", icon: ShoppingCart, href: "/retail-pos" },
   { id: "cash-register", title: "Cash Register & Shifts", subtitle: "Drawer balance, cash in/out, Z-report", category: "POS & Retail", icon: DollarSign, href: "/cash-register" },
-  { id: "held-orders", title: "Held Sales / Carts", subtitle: "Resume paused transactions", category: "POS & Retail", icon: ShoppingCart, href: "/pos/holds" },
-  { id: "price-checker", title: "Price & Barcode Checker", subtitle: "Fast kiosk price scanner", category: "POS & Retail", icon: Search, href: "/pos/price-checker" },
+  { id: "held-orders", title: "Held Sales / Carts", subtitle: "Resume paused transactions", category: "POS & Retail", icon: ShoppingCart, href: "/retail-pos/holds" },
+  { id: "price-checker", title: "Price & Barcode Checker", subtitle: "Fast kiosk price scanner", category: "POS & Retail", icon: Search, href: "/retail-pos/price-checker" },
 
   // Inventory
   { id: "products-list", title: "Products Catalog", subtitle: "Manage stock items, prices and barcodes", category: "Inventory", icon: Package, href: "/products" },

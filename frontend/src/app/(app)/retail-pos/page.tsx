@@ -1070,7 +1070,7 @@ export default function PosPage() {
           { icon: RotateCcw, label: "Return", shortcut: null, onClick: () => setShowReturn(true) },
           { icon: Tag, label: "Discount", shortcut: null, onClick: () => setShowExtras(true) },
           { icon: Keyboard, label: "Shortcuts", shortcut: null, onClick: () => { setDraftShortcuts(shortcuts); setShowShortcutSettings(true); } },
-          { icon: Monitor, label: "Customer Display", shortcut: null, onClick: () => window.open("/pos/customer-display", "_blank", "width=1024,height=768") },
+          { icon: Monitor, label: "Customer Display", shortcut: null, onClick: () => window.open("/retail-pos/customer-display", "_blank", "width=1024,height=768") },
         ].map((action) => (
           <button
             key={action.label}

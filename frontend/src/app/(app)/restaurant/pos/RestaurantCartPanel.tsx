@@ -2,7 +2,7 @@
 
 import { Minus, Plus, Trash2, Tag, CheckCircle2 } from "lucide-react";
 import { CustomInput } from "@/components/custom/CustomInput";
-import type { CartItem } from "../../pos/pos-types";
+import type { CartItem } from "../../retail-pos/pos-types";
 
 export interface KOTItem {
   id: string;
