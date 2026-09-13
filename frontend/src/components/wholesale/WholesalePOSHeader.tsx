@@ -2,7 +2,6 @@
 
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import {
   Settings2,
   Sun,
@@ -72,10 +71,7 @@ export function WholesalePOSHeader({
 
   return (
     <div className="shrink-0 space-y-3">
-      <motion.header
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      <header
         className={cn(
           "flex items-center gap-4 rounded-[20px] px-5 py-3.5 backdrop-blur-xl transition-colors",
           darkMode
@@ -99,11 +95,9 @@ export function WholesalePOSHeader({
 
         <div className="hidden flex-1 md:block" />
 
-        <motion.button
+        <button
           type="button"
           onClick={onSelectCustomer}
-          whileHover={{ y: -1 }}
-          whileTap={{ scale: 0.995 }}
           className={cn(
             "flex min-w-0 max-w-full flex-1 items-center gap-0 overflow-hidden rounded-2xl px-4 py-2.5 text-left transition-colors md:flex-none md:max-w-none",
             darkMode
@@ -138,7 +132,7 @@ export function WholesalePOSHeader({
           <Metric label="Available Credit" value={fmt(customer.availableCredit)} valueClass="text-emerald-600" darkMode={darkMode} />
           <Divider darkMode={darkMode} />
           <Metric label="Outstanding" value={fmt(customer.outstanding)} valueClass="text-rose-500" darkMode={darkMode} />
-        </motion.button>
+        </button>
 
         <div className="flex shrink-0 items-center gap-2.5 pl-1">
           <div className="hidden text-right sm:block">
@@ -182,15 +176,12 @@ export function WholesalePOSHeader({
             </span>
           </button>
         </div>
-      </motion.header>
+      </header>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         {metricCards.map((m, i) => (
-          <motion.div
+          <div
             key={m.label}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 + i * 0.04, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           >
             <div
               className={cn(
@@ -215,7 +206,7 @@ export function WholesalePOSHeader({
                 </p>
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import { ScanLine, Trash2, Settings2, Plus, Minus, X, Package, PauseCircle, Truck } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { CustomButton, CustomInput, CustomSelect } from "@/components/custom";
@@ -106,97 +105,88 @@ export function WholesalePOSRightPanel({
       </div>
 
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-2 no-scrollbar">
-        {/* ... AnimatePresence items ... */}
-        <AnimatePresence initial={false}>
-          {cart.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+        {cart.length === 0 ? (
+          <div
+            className={cn(
+              "flex h-full min-h-[160px] flex-col items-center justify-center gap-2",
+              darkMode ? "text-slate-500" : "text-slate-300",
+            )}
+          >
+            <Package size={32} className="opacity-35" />
+            <p className="text-[13px] font-semibold">No items yet</p>
+          </div>
+        ) : (
+          cart.map((item, idx) => (
+            <div
+              key={`${item.productId}-${idx}`}
               className={cn(
-                "flex h-full min-h-[160px] flex-col items-center justify-center gap-2",
-                darkMode ? "text-slate-500" : "text-slate-300",
+                "group relative flex gap-2.5 rounded-2xl border p-2.5 transition-all",
+                darkMode
+                  ? "border-slate-700 bg-slate-900/60"
+                  : "border-slate-50 bg-slate-50/40 hover:border-blue-100 hover:bg-white hover:shadow-sm",
               )}
             >
-              <Package size={32} className="opacity-35" />
-              <p className="text-[13px] font-semibold">No items yet</p>
-            </motion.div>
-          ) : (
-            cart.map((item, idx) => (
-              <motion.div
-                key={`${item.productId}-${idx}`}
-                layout
-                initial={{ opacity: 0, x: 24, scale: 0.96 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: 40, height: 0, marginBottom: 0 }}
+              {/* ... item content ... */}
+              <div
                 className={cn(
-                  "group relative flex gap-2.5 rounded-2xl border p-2.5 transition-all",
+                  "flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border shadow-inner",
                   darkMode
-                    ? "border-slate-700 bg-slate-900/60"
-                    : "border-slate-50 bg-slate-50/40 hover:border-blue-100 hover:bg-white hover:shadow-sm",
+                    ? "border-slate-700 bg-slate-900"
+                    : "border-slate-100 bg-white",
                 )}
               >
-                {/* ... item content ... */}
-                <div
-                  className={cn(
-                    "flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border shadow-inner",
-                    darkMode
-                      ? "border-slate-700 bg-slate-900"
-                      : "border-slate-100 bg-white",
-                  )}
-                >
-                  {item.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.imageUrl} alt="" className="h-full w-full object-contain p-0.5" />
-                  ) : (
-                    <Package
-                      size={18}
-                      className={darkMode ? "text-slate-500" : "text-slate-200"}
-                    />
-                  )}
-                </div>
+                {item.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.imageUrl} alt="" className="h-full w-full object-contain p-0.5" />
+                ) : (
+                  <Package
+                    size={18}
+                    className={darkMode ? "text-slate-500" : "text-slate-200"}
+                  />
+                )}
+              </div>
 
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-1">
-                    <div className="min-w-0">
-                      <p
-                        className={cn(
-                          "line-clamp-1 text-[12px] font-bold leading-snug",
-                          darkMode ? "text-slate-100" : "text-slate-900",
-                        )}
-                      >
-                        {item.name}
-                      </p>
-                      <p className="mt-0.5 text-[10px] font-medium text-slate-400">
-                        {item.sku}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => onRemove(idx)}
-                      className="text-slate-300 hover:text-rose-500 transition-colors"
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-1">
+                  <div className="min-w-0">
+                    <p
+                      className={cn(
+                        "line-clamp-1 text-[12px] font-bold leading-snug",
+                        darkMode ? "text-slate-100" : "text-slate-900",
+                      )}
                     >
-                      <X size={14} />
-                    </button>
-                  </div>
-
-                  <div className="mt-2 flex items-center justify-between gap-2">
-                    <div className={cn(
-                      "flex items-center rounded-lg border",
-                      darkMode ? "border-slate-700 bg-slate-950" : "border-slate-100 bg-white"
-                    )}>
-                      <button onClick={() => onQty(idx, item.qty - 1)} className="p-1 px-2 hover:bg-slate-50 text-slate-400"><Minus size={12} /></button>
-                      <span className="px-1 text-[12px] font-black text-blue-600">{item.qty}</span>
-                      <button onClick={() => onQty(idx, item.qty + 1)} className="p-1 px-2 hover:bg-slate-50 text-slate-400"><Plus size={12} /></button>
-                    </div>
-                    <p className={cn("text-[13px] font-black tabular-nums", darkMode ? "text-slate-100" : "text-slate-900")}>
-                      {fmt(item.lineTotal)}
+                      {item.name}
+                    </p>
+                    <p className="mt-0.5 text-[10px] font-medium text-slate-400">
+                      {item.sku}
                     </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => onRemove(idx)}
+                    className="text-slate-300 hover:text-rose-500 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
                 </div>
-              </motion.div>
-            ))
-          )}
-        </AnimatePresence>
+
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <div className={cn(
+                    "flex items-center rounded-lg border",
+                    darkMode ? "border-slate-700 bg-slate-950" : "border-slate-100 bg-white"
+                  )}>
+                    <button onClick={() => onQty(idx, item.qty - 1)} className="p-1 px-2 hover:bg-slate-50 text-slate-400"><Minus size={12} /></button>
+                    <span className="px-1 text-[12px] font-black text-blue-600">{item.qty}</span>
+                    <button onClick={() => onQty(idx, item.qty + 1)} className="p-1 px-2 hover:bg-slate-50 text-slate-400"><Plus size={12} /></button>
+                  </div>
+                  <p className={cn("text-[13px] font-black tabular-nums", darkMode ? "text-slate-100" : "text-slate-900")}>
+                    {fmt(item.lineTotal)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       <div

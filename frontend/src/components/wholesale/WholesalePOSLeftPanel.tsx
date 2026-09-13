@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   Search,
   ScanLine,
@@ -340,45 +339,41 @@ export function WholesalePOSLeftPanel({
 
       {/* Product grid */}
       <div className="min-h-0 flex-1 overflow-y-auto pr-1 -mr-1 no-scrollbar">
-        <AnimatePresence mode="popLayout">
-          {pageItems.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className={cn(
-                "flex h-full min-h-[220px] flex-col items-center justify-center gap-2",
-                darkMode ? "text-slate-500" : "text-slate-400",
-              )}
-            >
-              <Package size={36} className="opacity-40" />
-              <p className="text-sm font-bold uppercase tracking-widest">No products found</p>
-            </motion.div>
-          ) : viewMode === "grid" ? (
-            <div className="grid grid-cols-3 gap-2 pb-2 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
-              {pageItems.map((p, i) => (
-                <ProductCard
-                  key={p.id}
-                  product={p}
-                  index={i}
-                  onAdd={() => onTapProduct(p)}
-                  darkMode={darkMode}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-2 pb-2">
-              {pageItems.map((p, i) => (
-                <ProductListRow
-                  key={p.id}
-                  product={p}
-                  index={i}
-                  onAdd={() => onTapProduct(p)}
-                  darkMode={darkMode}
-                />
-              ))}
-            </div>
-          )}
-        </AnimatePresence>
+        {pageItems.length === 0 ? (
+          <div
+            className={cn(
+              "flex h-full min-h-[220px] flex-col items-center justify-center gap-2",
+              darkMode ? "text-slate-500" : "text-slate-400",
+            )}
+          >
+            <Package size={36} className="opacity-40" />
+            <p className="text-sm font-bold uppercase tracking-widest">No products found</p>
+          </div>
+        ) : viewMode === "grid" ? (
+          <div className="grid grid-cols-3 gap-2 pb-2 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+            {pageItems.map((p, i) => (
+              <ProductCard
+                key={p.id}
+                product={p}
+                index={i}
+                onAdd={() => onTapProduct(p)}
+                darkMode={darkMode}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-2 pb-2">
+            {pageItems.map((p, i) => (
+              <ProductListRow
+                key={p.id}
+                product={p}
+                index={i}
+                onAdd={() => onTapProduct(p)}
+                darkMode={darkMode}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {pageCount > 1 && (
@@ -420,13 +415,7 @@ function ProductCard({
   const disabled = (product.stockQty ?? 0) <= 0;
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ delay: index * 0.015, duration: 0.35 }}
-      whileHover={disabled ? undefined : { y: -3 }}
+    <div
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-xl border transition-all text-left",
         darkMode
@@ -492,7 +481,7 @@ function ProductCard({
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -511,10 +500,7 @@ function ProductListRow({
   const disabled = (product.stockQty ?? 0) <= 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -8 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.03 }}
+    <div
       className={cn(
         "flex items-center gap-3 rounded-2xl border px-3 py-2.5 shadow-sm transition-all",
         darkMode
@@ -570,6 +556,6 @@ function ProductListRow({
       >
         <Plus size={16} />
       </CustomButton>
-    </motion.div>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { ShoppingBag } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/cn";
@@ -584,9 +584,7 @@ function WholesalePOSInner() {
         />
 
         <div className="flex min-h-0 flex-1 gap-2 flex-col md:flex-row overflow-hidden">
-          <motion.div
-            initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
+          <div
             className={cn(
               "flex min-w-0 flex-1 flex-col rounded-[20px] p-2 backdrop-blur-md transition-all md:min-h-0",
               darkMode
@@ -623,11 +621,9 @@ function WholesalePOSInner() {
                 darkMode={darkMode}
               />
             )}
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 16 }}
-            animate={{ opacity: 1, x: 0 }}
+          <div
             className="flex w-full shrink-0 md:w-[340px] lg:w-[380px] xl:w-[400px]"
           >
             <WholesalePOSRightPanel
@@ -654,7 +650,7 @@ function WholesalePOSInner() {
               submitting={submitting}
               darkMode={darkMode}
             />
-          </motion.div>
+          </div>
         </div>
 
         <WholesalePOSFooter
@@ -703,9 +699,7 @@ function WholesalePOSInner() {
         {/* Recent Orders Modal */}
         {recentOrdersOpen && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+            <div
               className={cn(
                 "flex h-[500px] w-full max-w-2xl flex-col rounded-[24px] overflow-hidden shadow-2xl transition-colors",
                 darkMode ? "bg-slate-900 border border-slate-700" : "bg-white border border-slate-100",
@@ -790,7 +784,7 @@ function WholesalePOSInner() {
                   ))
                 )}
               </div>
-            </motion.div>
+            </div>
           </div>
         )}
       </div>

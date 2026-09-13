@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
-export type ButtonSize = "sm" | "md" | "lg";
+export type ButtonSize = "xs" | "sm" | "md" | "lg";
 export type ThemeColor = "primary" | "teal" | "orange" | "indigo" | "emerald" | "amber" | "rose" | "purple" | "blue";
 
 export interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -16,6 +16,7 @@ export interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElemen
   fullWidth?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
+  icon?: ReactNode;
   darkMode?: boolean;
 }
 
@@ -47,6 +48,7 @@ const VARIANT_CLASSES = (darkMode: boolean): Record<ButtonVariant, string> => ({
 });
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
+  xs: "h-7 px-2 text-[11px] gap-1",
   sm: "h-8 px-3 text-xs gap-1.5",
   md: "h-9 px-4 text-xs font-semibold gap-2",
   lg: "h-11 px-5 text-sm font-semibold gap-2",
@@ -62,6 +64,7 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
       fullWidth = false,
       leftIcon,
       rightIcon,
+      icon,
       disabled,
       className,
       children,
@@ -74,6 +77,8 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
       variant === "primary" && themeColor
         ? THEME_PRIMARY_CLASSES[themeColor]
         : VARIANT_CLASSES(darkMode)[variant];
+
+    const effectiveLeftIcon = leftIcon ?? icon;
 
     return (
       <button
@@ -91,9 +96,9 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
         {...props}
       >
         {loading ? (
-          <Loader2 size={size === "sm" ? 14 : 16} className="animate-spin" />
+          <Loader2 size={size === "xs" || size === "sm" ? 14 : 16} className="animate-spin" />
         ) : (
-          leftIcon
+          effectiveLeftIcon
         )}
         {children}
         {!loading && rightIcon}
