@@ -48,6 +48,7 @@ import { CustomModal, CustomInput, CustomButton, CustomSelect } from "@/componen
 import { toast } from "react-toastify";
 import { ReceiptModal } from "../../pos/ReceiptModal";
 import type { SaleResult, PaymentLine } from "../../pos/pos-types";
+import { fetchAllProducts } from "@/lib/catalog";
 
 // --- Types ---
 interface SalonItem {
@@ -83,13 +84,6 @@ interface CartItem extends SalonItem {
 }
 
 // --- Constants & Demo Data ---
-const DEFAULT_STAFF: Staff[] = [
-  { id: "st-1", name: "Sara Khan", role: "Master Stylist" },
-  { id: "st-2", name: "Rahat", role: "Senior Barber" },
-  { id: "st-3", name: "Tania Akter", role: "Skin Expert" },
-  { id: "st-4", name: "Farhana", role: "Nail Artist" },
-];
-
 const CATEGORIES = [
   { id: "all", label: "All Services", icon: LayoutGrid },
   { id: "hair", label: "Hair Care", icon: Scissors },
@@ -102,31 +96,22 @@ const CATEGORIES = [
   { id: "products", label: "Products", icon: Package },
 ];
 
-const DEMO_SERVICES: SalonItem[] = [
-  { id: "s1", name: "Hair Cut & Styling", category: "hair", price: 800, duration: "45 min", image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=400&auto=format&fit=crop", badge: "Popular", type: "service" },
-  { id: "s2", name: "Facial Treatment", category: "facial", price: 1500, duration: "60 min", image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=400&auto=format&fit=crop", badge: "Best Seller", type: "service" },
-  { id: "s3", name: "Manicure", category: "nail", price: 700, duration: "30 min", image: "https://images.unsplash.com/photo-1604654894610-df490601f626?q=80&w=400&auto=format&fit=crop", type: "service" },
-  { id: "s4", name: "Pedicure", category: "nail", price: 800, duration: "45 min", image: "https://images.unsplash.com/photo-1519415510236-855906a2082f?q=80&w=400&auto=format&fit=crop", type: "service" },
-  { id: "s5", name: "Eyelash Extension", category: "makeup", price: 1200, duration: "60 min", image: "https://images.unsplash.com/photo-1583001931096-959e9a1a6223?q=80&w=400&auto=format&fit=crop", type: "service" },
-  { id: "s6", name: "Body Massage", category: "massage", price: 1500, duration: "60 min", image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=400&auto=format&fit=crop", type: "service" },
-  { id: "s7", name: "Hair Color", category: "hair", price: 2000, duration: "90 min", image: "https://images.unsplash.com/photo-1620331311520-246422fd82f9?q=80&w=400&auto=format&fit=crop", type: "service" },
-  { id: "s8", name: "Makeup Service", category: "makeup", price: 1800, duration: "75 min", image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=400&auto=format&fit=crop", badge: "New", type: "service" },
-];
-
-const DEMO_PRODUCTS: SalonItem[] = [
-  { id: "p1", name: "Keratin Shampoo", category: "products", price: 1200, duration: "250ml", image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?q=80&w=200&auto=format&fit=crop", type: "product" },
-  { id: "p2", name: "Hair Mask", category: "products", price: 1000, duration: "100g", image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=200&auto=format&fit=crop", type: "product" },
-  { id: "p3", name: "Face Cream", category: "products", price: 1500, duration: "50ml", image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=200&auto=format&fit=crop", type: "product" },
-  { id: "p4", name: "Nail Polish", category: "products", price: 650, duration: "15ml", image: "https://images.unsplash.com/photo-1634712282287-14ed57b9cc89?q=80&w=200&auto=format&fit=crop", type: "product" },
-  { id: "p5", name: "Sunscreen SPF 50", category: "products", price: 1800, duration: "100ml", image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=200&auto=format&fit=crop", type: "product" },
-];
-
 const DEMO_ADDONS: AddOn[] = [
   { id: "a1", name: "Hair Wash & Blow Dry", duration: "20 min", price: 300, image: "https://images.unsplash.com/photo-1560869713-7d0a29430039?q=80&w=100&auto=format&fit=crop" },
   { id: "a2", name: "Hair Serum Treatment", duration: "15 min", price: 400, image: "https://images.unsplash.com/photo-1527799822341-47100b3d746d?q=80&w=100&auto=format&fit=crop" },
   { id: "a3", name: "Nail Art Design", duration: "15 min", price: 300, image: "https://images.unsplash.com/photo-1604654894610-df490601f626?q=80&w=100&auto=format&fit=crop" },
   { id: "a4", name: "Premium Face Mask", duration: "15 min", price: 350, image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=100&auto=format&fit=crop" },
 ];
+
+const CHECKOUT_METHODS = [
+  { id: "CASH", label: "Cash", icon: <DollarSign size={20} /> },
+  { id: "CARD", label: "Card", icon: <CreditCard size={20} /> },
+  { id: "MOBILE", label: "Mobile", icon: <Monitor size={20} /> },
+  { id: "BANK", label: "Bank", icon: <TrendingUp size={20} /> },
+  { id: "CREDIT", label: "Credit", icon: <Gift size={20} /> },
+] as const;
+
+const CASH_DENOMINATIONS = [10, 20, 50, 100, 200, 500, 1000, 2000];
 
 export default function SalonPOSPage() {
   const { user } = useAuth();
@@ -149,12 +134,20 @@ export default function SalonPOSPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SaleResult | null>(null);
+  const [completedSale, setCompletedSale] = useState<{ result: SaleResult, cart: any[], payments: any[], cashierName: string, customerName: string } | null>(null);
+
+  const [cashTenderedInput, setCashTenderedInput] = useState("");
+  const [printReceipt, setPrintReceipt] = useState(true);
+  const [checkoutPayMethod, setCheckoutPayMethod] = useState<"CASH" | "CARD" | "MOBILE" | "BANK" | "CREDIT">("CASH");
 
   const [customerId, setCustomerId] = useState("");
   const [customers, setCustomers] = useState<any[]>([]);
   const [customerSearch, setCustomerSearch] = useState("");
   const [newCustomer, setNewCustomer] = useState({ name: "", phone: "", email: "", address: "" });
-  const [globalStylistId, setGlobalStylistId] = useState(DEFAULT_STAFF[0].id);
+  const [globalStylistId, setGlobalStylistId] = useState("");
+  const [staffList, setStaffList] = useState<Staff[]>([]);
+  const [servicesList, setServicesList] = useState<SalonItem[]>([]);
+  const [productsList, setProductsList] = useState<SalonItem[]>([]);
   const [heldOrders, setHeldOrders] = useState<any[]>([]);
   const [salesHistory, setSalesHistory] = useState<any[]>([]);
   const [orderNote, setOrderNote] = useState("");
@@ -165,16 +158,58 @@ export default function SalonPOSPage() {
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
   const [orderSeq] = useState(() => `ORD-${Math.floor(Math.random() * 9000) + 1000}`);
 
-  // Load Customers
+  // Load Data
   useEffect(() => {
+    // Load Customers
     api.get("/customers").then((res: any) => {
       setCustomers(res?.data?.data || res?.data || []);
     }).catch(() => {});
+
+    // Load Services
+    api.get("/v1/salon/services?activeOnly=true").then((res: any) => {
+      const data = res?.data || [];
+      setServicesList(data.map((s: any) => ({
+        id: s.productId, // Use productId for cart/checkout compatibility
+        name: s.name,
+        category: s.category?.toLowerCase() || "hair",
+        price: Number(s.price),
+        duration: `${s.durationMin} min`,
+        image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=400&auto=format&fit=crop", // placeholder
+        type: "service" as const
+      })));
+    }).catch(() => {});
+
+    // Load Products
+    fetchAllProducts().then(prods => {
+      // Filter out non-sellable products if needed, or just map them
+      setProductsList(prods.map(p => ({
+        id: p.id,
+        name: p.name,
+        category: "products",
+        price: Number(p.sellingPrice),
+        duration: p.unit || "unit",
+        image: p.imageUrl || "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?q=80&w=200&auto=format&fit=crop",
+        type: "product" as const
+      })));
+    }).catch(() => {});
+
+    // Load Staff
+    api.get("/v1/salon/staff").then((res: any) => {
+      const data = res?.data || [];
+      const st = data.map((s: any) => ({
+        id: s.id, // Using employee ID, or we can use userId (s.userId) if we need to link to sales user. The backend expects staffId (which is employeeId) or userId? Wait, backend commission uses employeeId (s.id).
+        name: s.name,
+        role: s.designationName || s.departmentName || "Staff"
+      }));
+      setStaffList(st);
+      if (st.length > 0) setGlobalStylistId(st[0].id);
+    }).catch(() => {});
+
   }, []);
 
   // --- Computed ---
   const selectedCustomer = useMemo(() => customers.find(c => (c.id || c._id) === customerId), [customers, customerId]);
-  const selectedGlobalStylist = useMemo(() => DEFAULT_STAFF.find(s => s.id === globalStylistId), [globalStylistId]);
+  const selectedGlobalStylist = useMemo(() => staffList.find(s => s.id === globalStylistId), [globalStylistId, staffList]);
 
   const filteredCustomers = useMemo(() => {
     const q = customerSearch.toLowerCase().trim();
@@ -186,19 +221,19 @@ export default function SalonPOSPage() {
   }, [customers, customerSearch]);
 
   const filteredServices = useMemo(() => {
-    return DEMO_SERVICES.filter(s => {
+    return servicesList.filter(s => {
       const matchesCat = activeCategory === "all" || s.category === activeCategory;
       const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCat && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [servicesList, activeCategory, searchQuery]);
 
   const filteredProducts = useMemo(() => {
-    return DEMO_PRODUCTS.filter(p => {
+    return productsList.filter(p => {
       const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesSearch;
     });
-  }, [searchQuery]);
+  }, [productsList, searchQuery]);
 
   const baseSubtotal = useMemo(() => {
     return cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
@@ -228,7 +263,7 @@ export default function SalonPOSPage() {
     return Math.min(subtotal - discountValue, (selectedCustomer.loyalty_points || 0) / 10);
   }, [useLoyaltyPoints, selectedCustomer, subtotal, discountValue]);
 
-  const tax = Math.max(0, subtotal - discountValue - loyaltyValue) * 0.05;
+  const tax = Math.max(0, subtotal - discountValue - loyaltyValue) * 0.15;
   const total = Math.max(0, subtotal - discountValue - loyaltyValue + tax + tipValue);
 
   // --- Handlers ---
@@ -242,7 +277,7 @@ export default function SalonPOSPage() {
   };
 
   const addToCart = (item: SalonItem) => {
-    const staff = DEFAULT_STAFF.find(s => s.id === globalStylistId) || DEFAULT_STAFF[0];
+    const staff = staffList.find(s => s.id === globalStylistId) || staffList[0] || { id: "none", name: "No Staff", role: "N/A" };
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
@@ -319,6 +354,8 @@ export default function SalonPOSPage() {
     if (cart.length === 0) return;
     setSubmitting(true);
     try {
+      const tendered = parseFloat(cashTenderedInput) || total;
+
       const items = cart.map(item => ({
         productId: item.id,
         variantId: null,
@@ -345,7 +382,7 @@ export default function SalonPOSPage() {
       const payload = {
         customerId: customerId || null,
         items,
-        payments: [{ method: paymentMethod, amount: total }],
+        payments: [{ method: paymentMethod, amount: paymentMethod === "CASH" ? tendered : total }],
         subTotal: baseSubtotal + addonsTotal,
         discountTotal: discountValue + loyaltyValue,
         taxTotal: tax,
@@ -355,9 +392,16 @@ export default function SalonPOSPage() {
       };
 
       const res: any = await api.post("/api/v1/pos/confirm", payload);
-      setResult(res?.data || res);
-      setSalesHistory(prev => [{ ...res?.data, customerName: selectedCustomer?.name || "Walk-in" }, ...prev]);
-      onClearCart();
+      const saleResult = res?.data || res;
+      setResult(saleResult);
+      setCompletedSale({
+        result: saleResult,
+        cart: items,
+        payments: payload.payments,
+        customerName: selectedCustomer?.name || "Walk-in",
+        cashierName: user?.name || "Staff",
+      });
+      setSalesHistory(prev => [{ ...saleResult, customerName: selectedCustomer?.name || "Walk-in" }, ...prev]);
       setCheckoutOpen(false);
       toast.success("Sale confirmed!");
     } catch (err: any) {
@@ -813,7 +857,7 @@ export default function SalonPOSPage() {
                   </div>
                 )}
                 <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  <span>V.A.Tax (5%)</span>
+                  <span>V.A.Tax (15%)</span>
                   <span className="text-indigo-950 tabular-nums">৳{tax.toFixed(0)}</span>
                 </div>
               </div>
@@ -943,7 +987,7 @@ export default function SalonPOSPage() {
       {/* Staff Selection */}
       <CustomModal open={isStaffOpen} onClose={() => setStaffOpen(false)} title="Assign Luxury Specialist" size="md">
         <div className="grid grid-cols-2 gap-6 p-2">
-          {DEFAULT_STAFF.map(s => (
+          {staffList.map(s => (
             <button
               key={s.id}
               onClick={() => assignStaff(s)}
@@ -1036,37 +1080,166 @@ export default function SalonPOSPage() {
       </CustomModal>
 
       {/* Checkout Interface */}
-      <CustomModal open={isCheckoutOpen} onClose={() => setCheckoutOpen(false)} title="Luxury Settle & Finalize" size="md">
-        <div className="space-y-8 p-4">
-          <div className="p-8 rounded-[3rem] bg-gradient-to-br from-indigo-50 to-indigo-100/50 border border-white flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-4 opacity-10"><Monitor size={100} /></div>
-             <span className="text-xs font-black text-indigo-400 uppercase tracking-[0.4em] mb-4">Total Amount Payable</span>
-             <span className="text-[64px] font-black text-indigo-600 tabular-nums leading-none tracking-tighter drop-shadow-sm">৳{total.toFixed(0)}</span>
-          </div>
-
-          <div className="space-y-5">
-            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] text-center">Authorization Method</p>
-            <div className="grid grid-cols-3 gap-5">
-              {["CASH", "CARD", "MOBILE"].map(m => (
-                <button
-                  key={m}
-                  onClick={() => confirmSale(m)}
-                  disabled={submitting}
-                  className="flex flex-col items-center justify-center p-8 rounded-[2.5rem] border-2 border-slate-50 hover:border-indigo-500 hover:bg-indigo-50/50 transition-all group shadow-sm active:scale-95 duration-500"
-                >
-                  <div className="w-16 h-16 rounded-[1.5rem] bg-white flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all shadow-md border border-slate-50">
-                    {m === "CASH" ? <DollarSign size={28} strokeWidth={2.5} className="text-indigo-600" /> : m === "CARD" ? <CreditCard size={28} strokeWidth={2.5} className="text-indigo-600" /> : <Monitor size={28} strokeWidth={2.5} className="text-indigo-600" />}
-                  </div>
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 group-hover:text-indigo-600">{m}</span>
-                </button>
-              ))}
+      <CustomModal open={isCheckoutOpen} onClose={() => setCheckoutOpen(false)} title="Luxury Settle & Finalize" size="xl" className="!rounded-[2.5rem] !overflow-hidden">
+        <div className="-mx-6 -mt-5 flex flex-col">
+          {/* ── TOTAL DUE STRIP ── */}
+          <div className="flex items-center justify-between gap-4 p-7 border-b border-indigo-50 bg-indigo-50/30">
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-400 mb-1">Total Due</p>
+              <p className="text-[38px] font-black tabular-nums text-indigo-600 leading-none tracking-tighter">
+                ৳{total.toFixed(0)}
+              </p>
+            </div>
+            <div className="text-[10px] font-black space-y-1 text-right shrink-0 text-slate-400 uppercase tracking-widest">
+              <div className="flex justify-between gap-6">
+                <span>Subtotal</span>
+                <span className="text-slate-600">৳{subtotal.toFixed(0)}</span>
+              </div>
+              {(discountValue + loyaltyValue) > 0 && (
+                <div className="flex justify-between gap-6">
+                  <span>Benefit</span>
+                  <span className="text-emerald-500">−৳{(discountValue + loyaltyValue).toFixed(0)}</span>
+                </div>
+              )}
+              <div className="flex justify-between gap-6">
+                <span>VAT (15%)</span>
+                <span className="text-slate-600">৳{tax.toFixed(0)}</span>
+              </div>
+              {tipValue > 0 && (
+                <div className="flex justify-between gap-6">
+                  <span>Tip</span>
+                  <span className="text-indigo-500">+৳{tipValue.toFixed(0)}</span>
+                </div>
+              )}
             </div>
           </div>
-          <div className="pt-6">
-            <CustomButton fullWidth size="lg" themeColor="indigo" loading={submitting} onClick={() => confirmSale("CASH")} className="!rounded-[2rem] !h-20 font-black uppercase tracking-[0.3em] text-lg shadow-2xl shadow-indigo-100">Finalize Payment</CustomButton>
+
+          <div className="px-8 py-6 space-y-6 max-h-[50vh] overflow-y-auto no-scrollbar bg-white">
+            {/* PAYMENT METHODS */}
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 text-center">Authorization Method</p>
+              <div className="grid grid-cols-5 gap-3">
+                {CHECKOUT_METHODS.map((m) => {
+                  const active = checkoutPayMethod === m.id;
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setCheckoutPayMethod(m.id)}
+                      className={cn(
+                        "flex flex-col items-center justify-center gap-2 rounded-2xl border-2 py-4 text-center transition-all duration-500",
+                        active
+                          ? "border-indigo-600 bg-indigo-600 text-white shadow-lg scale-[1.03]"
+                          : "border-slate-50 bg-white text-slate-400 hover:border-indigo-100 hover:bg-indigo-50/30 hover:text-indigo-600"
+                      )}
+                    >
+                      <div className={cn("transition-transform duration-500", active ? "scale-110" : "")}>{m.icon}</div>
+                      <span className="text-[8px] font-black uppercase tracking-widest">{m.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* CASH TENDERING */}
+            {checkoutPayMethod === "CASH" && (
+              <div className="space-y-4 animate-fade-in-up">
+                <div className="flex items-center justify-between px-1">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Received</p>
+                  <button
+                    type="button"
+                    onClick={() => setCashTenderedInput(total.toString())}
+                    className="text-[9px] font-black text-indigo-600 uppercase tracking-widest hover:underline"
+                  >
+                    Exact Amount
+                  </button>
+                </div>
+
+                <div className="relative group">
+                  <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl font-black text-indigo-200">৳</span>
+                  <input
+                    autoFocus
+                    type="number"
+                    value={cashTenderedInput}
+                    onChange={(e) => setCashTenderedInput(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full h-16 rounded-2xl border-2 border-slate-50 bg-slate-50/50 pl-12 pr-6 text-[28px] font-black text-right tabular-nums focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 outline-none transition-all duration-500 shadow-inner"
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 gap-2">
+                  {CASH_DENOMINATIONS.map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => {
+                        const cur = parseFloat(cashTenderedInput) || 0;
+                        setCashTenderedInput((cur + d).toString());
+                      }}
+                      className="rounded-xl border-2 border-slate-50 py-2.5 text-[11px] font-black text-slate-600 hover:border-indigo-200 hover:bg-indigo-50/50 hover:text-indigo-600 transition-all duration-300"
+                    >
+                      +৳{d >= 1000 ? `${d / 1000}k` : d}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Change */}
+                {(parseFloat(cashTenderedInput) || 0) > total && (
+                  <div className="flex items-center justify-between p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-100 animate-bounce-in">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">Change</span>
+                    <span className="text-2xl font-black text-emerald-600 tabular-nums">৳{(parseFloat(cashTenderedInput) - total).toFixed(0)}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* PRINT TOGGLE */}
+            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 bg-white">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                  <Printer size={16} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <p className="text-[11px] font-black text-slate-700 uppercase tracking-tight">Print Receipt</p>
+                  <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Thermal printer</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPrintReceipt(!printReceipt)}
+                className={cn(
+                  "relative w-10 h-5 rounded-full transition-all duration-500",
+                  printReceipt ? "bg-indigo-600" : "bg-slate-200"
+                )}
+              >
+                <div className={cn(
+                  "absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all duration-500 shadow-sm",
+                  printReceipt ? "left-5.5" : "left-0.5"
+                )} />
+              </button>
+            </div>
+          </div>
+
+          {/* ── FOOTER ACTIONS ── */}
+          <div className="px-8 pb-8 pt-2 bg-white rounded-b-[2.5rem]">
+            <CustomButton
+              fullWidth
+              size="lg"
+              themeColor="indigo"
+              loading={submitting}
+              disabled={checkoutPayMethod === "CASH" && (parseFloat(cashTenderedInput) || 0) < total}
+              onClick={() => confirmSale(checkoutPayMethod)}
+              className="!rounded-2xl !h-16 font-black uppercase tracking-[0.3em] text-base shadow-xl shadow-indigo-100 flex items-center justify-center group whitespace-nowrap"
+            >
+              <div className="flex items-center gap-3">
+                <CheckCircle2 size={24} strokeWidth={3} className="group-hover:rotate-12 transition-transform duration-500 shrink-0" />
+                <span>Finalize Session</span>
+              </div>
+            </CustomButton>
           </div>
         </div>
       </CustomModal>
+
 
       {/* Held Sessions */}
       <CustomModal open={isHeldOrdersOpen} onClose={() => setHeldOrdersOpen(false)} title="Suspended Sessions" size="md">
@@ -1149,9 +1322,22 @@ export default function SalonPOSPage() {
       </CustomModal>
 
       {/* Global Receipt */}
-      {result && (
+      {completedSale && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-500">
-          <div className="w-full max-w-sm"><ReceiptModal result={result} onNewSale={() => setResult(null)} /></div>
+          <div className="w-full max-w-sm">
+            <ReceiptModal 
+              result={completedSale.result} 
+              cart={completedSale.cart}
+              payments={completedSale.payments}
+              cashierName={completedSale.cashierName}
+              customerName={completedSale.customerName}
+              onNewSale={() => { 
+                setCompletedSale(null); 
+                setResult(null); 
+                onClearCart(); 
+              }} 
+            />
+          </div>
         </div>
       )}
 

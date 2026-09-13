@@ -121,6 +121,22 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
         tot_amt = float(body.get("grandTotal") or body.get("total") or calc_sub)
         payments = [{"method": pm, "amount": tot_amt}]
 
+    # Auto-create missing products for demo/frontend resilience
+    for it in items:
+        p_id = it.get("productId")
+        if p_id:
+            p_exist = (await db.execute(text("SELECT id FROM products WHERE id=:p AND tenantId=:t"), {"p": p_id, "t": tenant})).first()
+            if not p_exist:
+                u_val = getattr(user, "id", None)
+                if not u_val:
+                    u_row = (await db.execute(text("SELECT id FROM users LIMIT 1"))).first()
+                    u_val = u_row[0] if u_row else "system"
+                await db.execute(text(
+                    "INSERT INTO products (id, tenantId, name, type, status, sellingPrice, createdBy, updatedAt) "
+                    "VALUES (:id, :t, :n, 'SERVICE', 'ACTIVE', :sp, :u, NOW())"),
+                    {"id": p_id, "t": tenant, "n": it.get("name", "Demo Item"), "sp": float(it.get("unitPrice", 0)), "u": u_val})
+                await db.commit()
+
     # stock check
     cfg = (await db.execute(text("SELECT allowNegativeStock FROM tenant_inventory_configs WHERE tenantId=:t"), {"t": tenant})).first()
     allow_negative = bool(cfg[0]) if cfg else True
