@@ -20,7 +20,7 @@ const METHOD_PRESETS = [
   { id: "CASH", label: "Cash", icon: Banknote, color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
   { id: "BKASH", label: "bKash", icon: Smartphone, color: "text-pink-600 bg-pink-50 border-pink-200" },
   { id: "NAGAD", label: "Nagad", icon: Smartphone, color: "text-orange-600 bg-orange-50 border-orange-200" },
-  { id: "CARD", label: "Card", icon: CreditCard, color: "text-blue-600 bg-blue-50 border-blue-200" },
+  { id: "CARD", label: "Card", icon: CreditCard, color: "text-teal-600 bg-teal-50 border-teal-200" },
   { id: "CREDIT", label: "Due", icon: Clock, color: "text-purple-600 bg-purple-50 border-purple-200" },
 ];
 

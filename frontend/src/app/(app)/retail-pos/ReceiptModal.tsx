@@ -202,7 +202,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
         <button
           type="button"
           onClick={() => window.print()}
-          className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition"
+          className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2.5 text-xs font-bold text-gray-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
         >
           <Printer size={15} />
           Print Thermal (80mm)
@@ -210,10 +210,10 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
         <button
           type="button"
           onClick={onNewSale}
-          className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-primary-600 px-3 py-2.5 text-xs font-bold text-white shadow-sm shadow-primary-600/30 hover:bg-primary-700 transition"
+          className="flex-1 flex items-center justify-center gap-1.5 rounded-md bg-teal-600 px-3 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-teal-700 transition cursor-pointer"
         >
           <RotateCcw size={15} />
-          New Sale (F1)
+          New Sale
         </button>
       </div>
     </div>

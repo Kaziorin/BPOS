@@ -19,6 +19,7 @@ export interface CustomTabsProps {
   themeColor?: "primary" | "orange" | "teal" | "emerald" | "indigo" | "amber" | "rose" | "purple" | "blue";
   variant?: "solid" | "pills" | "underline";
   darkMode?: boolean;
+  inactiveClassName?: string;
 }
 
 const THEME_ACTIVE_STYLES: Record<string, string> = {
@@ -53,6 +54,7 @@ export function CustomTabs({
   themeColor = "orange",
   variant = "solid",
   darkMode = false,
+  inactiveClassName,
 }: CustomTabsProps) {
   const activeStyle = THEME_ACTIVE_STYLES[themeColor] || THEME_ACTIVE_STYLES.orange;
   const hoverStyle = THEME_HOVER_STYLES(darkMode)[themeColor] || THEME_HOVER_STYLES(darkMode).orange;
@@ -77,13 +79,15 @@ export function CustomTabs({
             type="button"
             onClick={() => onChange(tab.id)}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold rounded-md transition-all duration-200 whitespace-nowrap cursor-pointer select-none",
+              "flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-md transition-all duration-200 whitespace-nowrap cursor-pointer select-none border",
               isActive
-                ? activeStyle
-                : cn(
-                    darkMode ? "text-slate-400 bg-transparent" : "text-gray-600 bg-transparent",
-                    hoverStyle
-                  )
+                ? cn(activeStyle, "border-transparent")
+                : inactiveClassName
+                  ? inactiveClassName
+                  : cn(
+                      darkMode ? "text-slate-400 bg-transparent border-transparent" : "text-gray-600 bg-transparent border-transparent",
+                      hoverStyle
+                    )
             )}
           >
             {tab.icon && (
