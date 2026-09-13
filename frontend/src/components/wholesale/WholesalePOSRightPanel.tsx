@@ -64,21 +64,21 @@ export function WholesalePOSRightPanel({
   return (
     <aside
       className={cn(
-        "flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[22px] backdrop-blur-xl",
+        "flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[22px] backdrop-blur-xl transition-all",
         darkMode
           ? "border border-slate-700 bg-slate-900/95 shadow-[0_8px_40px_rgba(0,0,0,0.4)]"
-          : "border border-white bg-white shadow-[0_4px_24px_rgba(37,99,235,0.06)]",
+          : "border border-slate-200/90 bg-white shadow-md shadow-slate-200/50",
       )}
     >
       <div
         className={cn(
           "flex shrink-0 items-center justify-between gap-2 border-b px-4 py-3.5",
-          darkMode ? "border-slate-800" : "border-slate-50",
+          darkMode ? "border-slate-800" : "border-slate-200 bg-slate-50/50",
         )}
       >
         <h2
           className={cn(
-            "text-[15px] font-bold",
+            "text-[15px] font-extrabold",
             darkMode ? "text-slate-100" : "text-slate-900",
           )}
         >
@@ -93,10 +93,10 @@ export function WholesalePOSRightPanel({
             onClick={onScanItem}
             leftIcon={<ScanLine size={13} />}
             className={cn(
-              "!rounded-xl",
+              "!rounded-xl !font-bold cursor-pointer transition-all",
               darkMode
                 ? "!bg-blue-500/15 !text-blue-300 hover:!bg-blue-500/25"
-                : "!bg-blue-50 !text-blue-700 hover:!bg-blue-100",
+                : "!bg-blue-600 !text-white hover:!bg-blue-700 shadow-xs",
             )}
           >
             Scan Item
@@ -104,35 +104,37 @@ export function WholesalePOSRightPanel({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-2 no-scrollbar">
+      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-2.5 no-scrollbar">
         {cart.length === 0 ? (
           <div
             className={cn(
-              "flex h-full min-h-[160px] flex-col items-center justify-center gap-2",
-              darkMode ? "text-slate-500" : "text-slate-300",
+              "flex h-full min-h-[160px] flex-col items-center justify-center gap-2 text-center",
+              darkMode ? "text-slate-500" : "text-slate-400",
             )}
           >
-            <Package size={32} className="opacity-35" />
-            <p className="text-[13px] font-semibold">No items yet</p>
+            <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl border shadow-xs", darkMode ? "bg-slate-800 border-slate-700 text-slate-400" : "bg-slate-100 border-slate-200 text-slate-400")}>
+              <Package size={24} />
+            </div>
+            <p className={cn("text-[13px] font-bold mt-1", darkMode ? "text-slate-400" : "text-slate-600")}>No items in cart</p>
+            <p className={cn("text-[11px] font-medium max-w-[180px]", darkMode ? "text-slate-600" : "text-slate-400")}>Click products on the left or scan barcodes to add</p>
           </div>
         ) : (
           cart.map((item, idx) => (
             <div
               key={`${item.productId}-${idx}`}
               className={cn(
-                "group relative flex gap-2.5 rounded-2xl border p-2.5 transition-all",
+                "group relative flex gap-2.5 rounded-xl border p-2.5 transition-all shadow-xs",
                 darkMode
                   ? "border-slate-700 bg-slate-900/60"
-                  : "border-slate-50 bg-slate-50/40 hover:border-blue-100 hover:bg-white hover:shadow-sm",
+                  : "border-slate-200 bg-slate-50/70 hover:border-blue-300 hover:bg-white hover:shadow-sm",
               )}
             >
-              {/* ... item content ... */}
               <div
                 className={cn(
-                  "flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border shadow-inner",
+                  "flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border",
                   darkMode
-                    ? "border-slate-700 bg-slate-900"
-                    : "border-slate-100 bg-white",
+                    ? "border-slate-700 bg-slate-950"
+                    : "border-slate-200 bg-white",
                 )}
               >
                 {item.imageUrl ? (
@@ -141,7 +143,7 @@ export function WholesalePOSRightPanel({
                 ) : (
                   <Package
                     size={18}
-                    className={darkMode ? "text-slate-500" : "text-slate-200"}
+                    className={darkMode ? "text-slate-500" : "text-slate-400"}
                   />
                 )}
               </div>
@@ -157,29 +159,29 @@ export function WholesalePOSRightPanel({
                     >
                       {item.name}
                     </p>
-                    <p className="mt-0.5 text-[10px] font-medium text-slate-400">
+                    <p className={cn("mt-0.5 text-[10px] font-semibold", darkMode ? "text-slate-400" : "text-slate-500")}>
                       {item.sku}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => onRemove(idx)}
-                    className="text-slate-300 hover:text-rose-500 transition-colors"
+                    className="text-slate-400 hover:text-rose-600 transition-colors p-0.5 cursor-pointer"
                   >
-                    <X size={14} />
+                    <X size={15} />
                   </button>
                 </div>
 
                 <div className="mt-2 flex items-center justify-between gap-2">
                   <div className={cn(
-                    "flex items-center rounded-lg border",
-                    darkMode ? "border-slate-700 bg-slate-950" : "border-slate-100 bg-white"
+                    "flex items-center rounded-lg border shadow-2xs",
+                    darkMode ? "border-slate-700 bg-slate-950" : "border-slate-300 bg-white"
                   )}>
-                    <button onClick={() => onQty(idx, item.qty - 1)} className="p-1 px-2 hover:bg-slate-50 text-slate-400"><Minus size={12} /></button>
-                    <span className="px-1 text-[12px] font-black text-blue-600">{item.qty}</span>
-                    <button onClick={() => onQty(idx, item.qty + 1)} className="p-1 px-2 hover:bg-slate-50 text-slate-400"><Plus size={12} /></button>
+                    <button onClick={() => onQty(idx, item.qty - 1)} className="p-1 px-2 hover:bg-slate-100 text-slate-600 cursor-pointer"><Minus size={12} /></button>
+                    <span className="px-1.5 text-[12px] font-extrabold text-blue-600">{item.qty}</span>
+                    <button onClick={() => onQty(idx, item.qty + 1)} className="p-1 px-2 hover:bg-slate-100 text-slate-600 cursor-pointer"><Plus size={12} /></button>
                   </div>
-                  <p className={cn("text-[13px] font-black tabular-nums", darkMode ? "text-slate-100" : "text-slate-900")}>
+                  <p className={cn("text-[13px] font-extrabold tabular-nums", darkMode ? "text-slate-100" : "text-slate-900")}>
                     {fmt(item.lineTotal)}
                   </p>
                 </div>
@@ -191,21 +193,20 @@ export function WholesalePOSRightPanel({
 
       <div
         className={cn(
-          "shrink-0 space-y-2 border-t px-4 py-3.5",
+          "shrink-0 space-y-2 border-t px-4 py-3.5 transition-colors",
           darkMode
             ? "border-slate-700 bg-slate-900"
-            : "border-slate-50 bg-slate-50/50",
+            : "border-slate-200 bg-slate-50/90",
         )}
       >
         <Row label="Subtotal" value={fmt(subtotal)} darkMode={darkMode} />
-        {/* ... discount/tax/shipping ... */}
         <div className="flex items-center justify-between text-[12px]">
-          <span className="font-semibold text-slate-500">Tax (15%)</span>
-          <span className="font-bold text-slate-700">{fmt(taxAmount)}</span>
+          <span className={cn("font-semibold", darkMode ? "text-slate-400" : "text-slate-600")}>Tax (15%)</span>
+          <span className={cn("font-bold tabular-nums", darkMode ? "text-slate-200" : "text-slate-800")}>{fmt(taxAmount)}</span>
         </div>
 
-        <div className="flex items-end justify-between border-t border-dashed border-slate-200 pt-3">
-          <span className={cn("text-[13px] font-bold", darkMode ? "text-slate-400" : "text-slate-500")}>
+        <div className="flex items-end justify-between border-t border-dashed border-slate-300 dark:border-slate-700 pt-3">
+          <span className={cn("text-[13px] font-extrabold", darkMode ? "text-slate-300" : "text-slate-800")}>
             Total Amount
           </span>
           <span className="text-[26px] font-black leading-none tracking-tight tabular-nums text-blue-600">
@@ -221,8 +222,10 @@ export function WholesalePOSRightPanel({
             onClick={onHold}
             disabled={cart.length === 0}
             className={cn(
-              "!h-11 !rounded-2xl !border-2 !border-blue-200 !px-4 !text-[13px] !font-black !text-blue-600",
-              darkMode ? "!bg-slate-900 !border-slate-700 !text-slate-300" : "!bg-white hover:!bg-blue-50",
+              "!h-11 !rounded-xl !border-2 !px-4 !text-[13px] !font-extrabold cursor-pointer transition-all",
+              darkMode
+                ? "!bg-slate-900 !border-slate-700 !text-slate-300 hover:!bg-slate-800"
+                : "!bg-white !border-slate-300 !text-slate-800 hover:!border-blue-500 hover:!text-blue-600 hover:!bg-blue-50/50 shadow-sm",
             )}
           >
             Hold Order
@@ -234,7 +237,7 @@ export function WholesalePOSRightPanel({
             themeColor="blue"
             disabled={cart.length === 0 || submitting}
             onClick={onProceed}
-            className="!h-11 !rounded-2xl !px-4 !text-[13px] !font-black uppercase tracking-wide shadow-lg shadow-blue-600/20"
+            className="!h-11 !rounded-xl !px-4 !text-[13px] !font-black uppercase tracking-wide shadow-md shadow-blue-600/20 cursor-pointer"
           >
             {submitting ? "Wait…" : "Proceed"}
           </CustomButton>
@@ -260,7 +263,7 @@ function Row({
       <span
         className={cn(
           "text-[12px] font-semibold",
-          darkMode ? "text-slate-400" : "text-gray-500",
+          darkMode ? "text-slate-400" : "text-slate-600",
         )}
       >
         {label}
@@ -268,7 +271,7 @@ function Row({
       <span
         className={cn(
           "text-[12px] font-bold tabular-nums",
-          darkMode ? "text-slate-100" : "text-gray-800",
+          darkMode ? "text-slate-100" : "text-slate-900",
           valueClass,
         )}
       >

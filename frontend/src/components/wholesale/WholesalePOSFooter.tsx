@@ -56,15 +56,15 @@ export function WholesalePOSFooter({
     <div className="shrink-0">
       <div
         className={cn(
-          "flex items-center gap-1 rounded-[18px] px-2 py-1.5 backdrop-blur-md transition-all",
+          "flex items-center gap-1 rounded-[18px] px-2.5 py-2 backdrop-blur-md transition-all",
           darkMode
             ? "border border-slate-700 bg-slate-900/90 shadow-lg"
-            : "border border-white bg-white shadow-[0_4px_20px_rgba(37,99,235,0.06)]",
+            : "border border-slate-200/90 bg-white/95 shadow-md shadow-slate-200/50",
         )}
       >
-        <div className="flex w-full items-center gap-1">
+        <div className="flex w-full items-center gap-1.5">
           {/* 1. Primary Utility Actions - Distributed Flex */}
-          <div className="flex flex-[1.2] items-center gap-1">
+          <div className="flex flex-[1.2] items-center gap-1.5">
             {UTILITY_ACTIONS.map((a) => (
               <button
                 key={a.id}
@@ -74,15 +74,17 @@ export function WholesalePOSFooter({
                   else onUtility?.(a.id);
                 }}
                 className={cn(
-                  "flex h-9 flex-1 min-w-0 items-center justify-center gap-2 rounded-xl px-2 text-[10px] font-bold transition-all active:scale-95 border",
+                  "flex h-9 flex-1 min-w-0 items-center justify-center gap-2 rounded-xl px-2.5 text-[11px] font-bold transition-all active:scale-95 border cursor-pointer",
                   darkMode
-                    ? "bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white"
-                    : "bg-slate-50 text-slate-600 border-slate-100 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100",
+                    ? "bg-slate-800/80 text-slate-200 border-slate-700 hover:bg-slate-700 hover:text-white"
+                    : "bg-slate-100/90 text-slate-800 border-slate-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 shadow-2xs group",
                 )}
               >
                 <span className={cn(
-                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-black",
-                  darkMode ? "bg-slate-950 text-primary-500" : "bg-slate-900 text-white"
+                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-black transition-colors",
+                  darkMode
+                    ? "bg-slate-950 text-blue-400"
+                    : "bg-slate-800 text-white group-hover:bg-white group-hover:text-blue-600"
                 )}>
                   {a.id === 'customer' ? <UserPlus size={12} /> : a.label.charAt(0)}
                 </span>
@@ -91,10 +93,10 @@ export function WholesalePOSFooter({
             ))}
           </div>
 
-          <div className={cn("h-6 w-px shrink-0 mx-0.5", darkMode ? "bg-slate-800" : "bg-slate-100")} />
+          <div className={cn("h-6 w-px shrink-0 mx-1", darkMode ? "bg-slate-800" : "bg-slate-300")} />
 
           {/* 2. Metadata Info Chips - Distributed Flex */}
-          <div className="flex flex-1 items-center gap-1">
+          <div className="flex flex-1 items-center gap-1.5">
             <MetaChip Icon={Warehouse} label="WAREHOUSE" value={warehouseName} darkMode={darkMode} />
             <MetaChip Icon={User} label="REP" value={salesRepName} avatar darkMode={darkMode} />
             <MetaChip Icon={Calendar} label="DELIVERY" value={deliveryDate} darkMode={darkMode} />
@@ -123,16 +125,16 @@ function MetaChip({
   return (
     <div
       className={cn(
-        "flex h-9 flex-1 min-w-0 items-center gap-2 rounded-xl border px-2 transition-all cursor-default",
+        "flex h-9 flex-1 min-w-0 items-center gap-2 rounded-xl border px-2.5 transition-all cursor-default",
         darkMode
           ? "border-slate-700 bg-slate-800/50"
-          : "border-slate-50 bg-slate-50/50",
+          : "border-slate-300 bg-slate-100/70 shadow-2xs",
       )}
     >
       <span
         className={cn(
-          "flex h-6 w-6 shrink-0 items-center justify-center rounded-md",
-          darkMode ? "bg-slate-950 text-blue-400" : "bg-white text-blue-600 shadow-xs",
+          "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border",
+          darkMode ? "bg-slate-950 border-slate-700 text-blue-400" : "bg-white border-slate-200 text-blue-600 shadow-xs",
         )}
       >
         <Icon size={11} />
@@ -141,15 +143,15 @@ function MetaChip({
         <span
           className={cn(
             "text-[7px] font-black uppercase tracking-widest truncate",
-            darkMode ? "text-slate-500" : "text-slate-400",
+            darkMode ? "text-slate-500" : "text-slate-500",
           )}
         >
           {label}
         </span>
         <span
           className={cn(
-            "text-[10px] font-bold truncate",
-            darkMode ? "text-slate-200" : "text-slate-700",
+            "text-[10px] font-extrabold truncate",
+            darkMode ? "text-slate-200" : "text-slate-900",
           )}
         >
           {value}

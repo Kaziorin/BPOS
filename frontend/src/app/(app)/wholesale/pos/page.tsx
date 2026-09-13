@@ -534,7 +534,7 @@ function WholesalePOSInner() {
       data-theme="wholesale"
       className={cn(
         "relative flex h-screen w-screen flex-col overflow-hidden transition-colors duration-300",
-        darkMode ? "dark bg-slate-950" : "bg-white",
+        darkMode ? "dark bg-slate-950" : "bg-slate-100/80",
       )}
       style={{ fontFamily: "var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif" }}
     >
@@ -549,16 +549,16 @@ function WholesalePOSInner() {
           </>
         ) : (
           <>
-            <div className="absolute inset-0 bg-[#F5F9FE]" />
-            <div className="absolute inset-0 bg-gradient-to-br from-[#EAF2FB] via-[#F5F9FE] to-white opacity-100" />
-            <div className="absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-blue-400/10 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 h-[280px] w-[280px] rounded-full bg-blue-300/10 blur-3xl" />
+            <div className="absolute inset-0 bg-[#EEF4FB]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#E2EDF9] via-[#EEF4FB] to-[#F8FAFC] opacity-100" />
+            <div className="absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-blue-500/10 blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 h-[280px] w-[280px] rounded-full bg-blue-400/10 blur-3xl" />
           </>
         )}
-        <svg className={cn("absolute inset-0 h-full w-full", darkMode ? "opacity-[0.2]" : "opacity-[0.15]")}>
+        <svg className={cn("absolute inset-0 h-full w-full", darkMode ? "opacity-[0.2]" : "opacity-[0.25]")}>
           <defs>
             <pattern id="ws-grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path d="M32 0H0V32" fill="none" stroke={darkMode ? "rgba(148,163,184,0.12)" : "rgba(37,99,235,0.04)"} strokeWidth="1" />
+              <path d="M32 0H0V32" fill="none" stroke={darkMode ? "rgba(148,163,184,0.12)" : "rgba(148,163,184,0.18)"} strokeWidth="1" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#ws-grid)" />
@@ -586,10 +586,10 @@ function WholesalePOSInner() {
         <div className="flex min-h-0 flex-1 gap-2 flex-col md:flex-row overflow-hidden">
           <div
             className={cn(
-              "flex min-w-0 flex-1 flex-col rounded-[20px] p-2 backdrop-blur-md transition-all md:min-h-0",
+              "flex min-w-0 flex-1 flex-col rounded-[20px] p-2.5 backdrop-blur-md transition-all md:min-h-0",
               darkMode
                 ? "border border-slate-700/80 bg-slate-900/70 shadow-lg"
-                : "border border-white bg-white shadow-[0_4px_20px_rgba(37,99,235,0.06)]",
+                : "border border-slate-200/90 bg-white shadow-md shadow-slate-200/50",
             )}
           >
             {loading ? (

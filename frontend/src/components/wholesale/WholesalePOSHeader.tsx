@@ -70,25 +70,25 @@ export function WholesalePOSHeader({
   ];
 
   return (
-    <div className="shrink-0 space-y-3">
+    <div className="shrink-0 space-y-2.5">
       <header
         className={cn(
-          "flex items-center gap-4 rounded-[20px] px-5 py-3.5 backdrop-blur-xl transition-colors",
+          "flex items-center gap-4 rounded-[20px] px-5 py-3.5 backdrop-blur-xl transition-all",
           darkMode
             ? "border border-slate-700/80 bg-slate-900/75 shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
-            : "border border-white bg-white shadow-[0_4px_20px_rgba(37,99,235,0.06)]",
+            : "border border-slate-200/90 bg-white/95 shadow-md shadow-slate-200/50",
         )}
       >
         <div className="min-w-0 shrink-0 pr-2">
           <h1
             className={cn(
-              "text-[20px] font-bold leading-tight tracking-tight sm:text-[22px]",
+              "text-[20px] font-extrabold leading-tight tracking-tight sm:text-[22px]",
               darkMode ? "text-slate-50" : "text-slate-900",
             )}
           >
             BPOS
           </h1>
-          <p className={cn("mt-0.5 text-[12px] font-bold tracking-wide uppercase", darkMode ? "text-blue-400" : "text-blue-600")}>
+          <p className={cn("mt-0.5 text-[11px] font-black tracking-wide uppercase", darkMode ? "text-blue-400" : "text-blue-600")}>
             Wholesale & Distribution
           </p>
         </div>
@@ -99,28 +99,28 @@ export function WholesalePOSHeader({
           type="button"
           onClick={onSelectCustomer}
           className={cn(
-            "flex min-w-0 max-w-full flex-1 items-center gap-0 overflow-hidden rounded-2xl px-4 py-2.5 text-left transition-colors md:flex-none md:max-w-none",
+            "flex min-w-0 max-w-full flex-1 items-center gap-0 overflow-hidden rounded-2xl px-4 py-2 text-left transition-all md:flex-none md:max-w-none cursor-pointer",
             darkMode
-              ? "border border-slate-700 bg-slate-800/90 shadow-[0_2px_12px_rgba(0,0,0,0.25)]"
-              : "border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-200 shadow-sm transition-all",
+              ? "border border-slate-700 bg-slate-800/90 shadow-[0_2px_12px_rgba(0,0,0,0.25)] hover:border-slate-600"
+              : "border border-slate-200 bg-slate-50/90 hover:bg-white hover:border-blue-400 hover:shadow-md shadow-sm",
           )}
         >
           <div className="min-w-0 shrink pr-4 sm:pr-5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={cn("truncate text-[14px] font-bold", darkMode ? "text-slate-100" : "text-slate-900")}>
+              <span className={cn("truncate text-[14px] font-extrabold", darkMode ? "text-slate-100" : "text-slate-900")}>
                 {customer.name}
               </span>
               <CustomBadge
                 tone="primary"
                 className={cn(
                   "!shrink-0 !px-2 !py-0.5 !text-[10px] !font-black uppercase tracking-tighter",
-                  darkMode ? "!bg-primary-500/15 !text-primary-300" : "!bg-violet-100 !text-violet-700",
+                  darkMode ? "!bg-primary-500/15 !text-primary-300" : "!bg-blue-100 !text-blue-800 !border !border-blue-200",
                 )}
               >
                 {customer.tier} Customer
               </CustomBadge>
             </div>
-            <p className={cn("mt-0.5 truncate text-[11px] font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>
+            <p className={cn("mt-0.5 truncate text-[11px] font-semibold", darkMode ? "text-slate-400" : "text-slate-500")}>
               {customer.id} <span className={cn("mx-0.5", darkMode ? "text-slate-600" : "text-slate-300")}>•</span>{" "}
               {customer.phone}
             </p>
@@ -129,17 +129,17 @@ export function WholesalePOSHeader({
           <Divider darkMode={darkMode} />
           <Metric label="Credit Limit" value={fmt(customer.creditLimit)} valueClass={darkMode ? "text-slate-100" : "text-slate-900"} darkMode={darkMode} />
           <Divider darkMode={darkMode} />
-          <Metric label="Available Credit" value={fmt(customer.availableCredit)} valueClass="text-emerald-600" darkMode={darkMode} />
+          <Metric label="Available Credit" value={fmt(customer.availableCredit)} valueClass="text-emerald-600 font-black" darkMode={darkMode} />
           <Divider darkMode={darkMode} />
-          <Metric label="Outstanding" value={fmt(customer.outstanding)} valueClass="text-rose-500" darkMode={darkMode} />
+          <Metric label="Outstanding" value={fmt(customer.outstanding)} valueClass="text-rose-600 font-black" darkMode={darkMode} />
         </button>
 
         <div className="flex shrink-0 items-center gap-2.5 pl-1">
           <div className="hidden text-right sm:block">
-            <p className={cn("text-[14px] font-bold leading-tight tabular-nums", darkMode ? "text-slate-100" : "text-slate-900")}>
+            <p className={cn("text-[14px] font-extrabold leading-tight tabular-nums", darkMode ? "text-slate-100" : "text-slate-900")}>
               {timeStr}
             </p>
-            <p className={cn("mt-0.5 text-[11px] font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>{dateStr}</p>
+            <p className={cn("mt-0.5 text-[11px] font-semibold", darkMode ? "text-slate-400" : "text-slate-500")}>{dateStr}</p>
           </div>
 
           {/* Light / Dark mode switch */}
@@ -150,10 +150,10 @@ export function WholesalePOSHeader({
             aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
             onClick={onToggleDarkMode}
             className={cn(
-              "relative inline-flex h-9 w-[68px] shrink-0 items-center rounded-full border p-1 transition-colors duration-300",
+              "relative inline-flex h-9 w-[68px] shrink-0 items-center rounded-full border p-1 transition-colors duration-300 cursor-pointer shadow-sm",
               darkMode
                 ? "border-slate-600 bg-slate-800"
-                : "border-slate-200 bg-slate-100",
+                : "border-slate-300 bg-slate-200/80",
             )}
           >
             <span
@@ -161,13 +161,13 @@ export function WholesalePOSHeader({
                 "absolute inset-y-1 left-1 flex h-7 w-7 items-center justify-center rounded-full shadow-md transition-transform duration-300",
                 darkMode
                   ? "translate-x-[30px] bg-blue-600 text-white"
-                  : "translate-x-0 bg-white text-amber-500",
+                  : "translate-x-0 bg-white text-amber-500 border border-slate-200",
               )}
             >
               {darkMode ? <Moon size={14} strokeWidth={2.2} /> : <Sun size={14} strokeWidth={2.2} />}
             </span>
             <span className="pointer-events-none flex w-full items-center justify-between px-1.5 text-[9px] font-bold uppercase tracking-wide">
-              <span className={cn(darkMode ? "text-slate-600" : "text-amber-500/80")}>
+              <span className={cn(darkMode ? "text-slate-600" : "text-amber-600")}>
                 <Sun size={11} />
               </span>
               <span className={cn(darkMode ? "text-blue-300" : "text-slate-400")}>
@@ -179,29 +179,29 @@ export function WholesalePOSHeader({
       </header>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-        {metricCards.map((m, i) => (
-          <div
-            key={m.label}
-          >
+        {metricCards.map((m) => (
+          <div key={m.label}>
             <div
               className={cn(
-                "flex items-center gap-2.5 rounded-xl border p-2 transition-colors",
+                "flex items-center gap-2.5 rounded-xl border p-2.5 transition-all shadow-sm",
                 darkMode
-                  ? "border-slate-700 bg-slate-900/60 shadow-sm"
-                  : "border-white bg-white shadow-[0_2px_12px_rgba(37,99,235,0.04)]",
+                  ? "border-slate-700/80 bg-slate-900/60 shadow-sm"
+                  : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md",
               )}
             >
               <div className={cn(
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                darkMode ? "bg-slate-800 text-slate-400" : "bg-blue-50 text-blue-600"
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border",
+                darkMode
+                  ? "bg-slate-800 border-slate-700 text-slate-300"
+                  : "bg-blue-50/80 border-blue-100 text-blue-600"
               )}>
-                <m.Icon size={16} strokeWidth={2.2} />
+                <m.Icon size={17} strokeWidth={2.2} />
               </div>
               <div className="min-w-0 overflow-hidden leading-tight">
-                <p className={cn("truncate text-[9px] font-bold uppercase tracking-wider", darkMode ? "text-slate-500" : "text-slate-400")}>
+                <p className={cn("truncate text-[10px] font-bold uppercase tracking-wider", darkMode ? "text-slate-400" : "text-slate-500")}>
                   {m.label}
                 </p>
-                <p className={cn("truncate text-[13px] font-black tabular-nums", darkMode ? "text-slate-100" : "text-slate-900")}>
+                <p className={cn("truncate text-[14px] font-extrabold tabular-nums mt-0.5", darkMode ? "text-slate-100" : "text-slate-900")}>
                   {m.value}
                 </p>
               </div>
