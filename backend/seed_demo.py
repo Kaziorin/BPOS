@@ -157,7 +157,7 @@ MODULE_SUB_PAGES = {
     "returns": [("RMA", "/rma"), ("Warranty", "/warranty")],
     "restaurant": [
         ("Floor & Table Map POS", "/restaurant/pos"),
-        ("Kitchen Management", "/restaurant?tab=kds"),
+        ("Kitchen Management", "/restaurant/kitchen"),
         ("Customer Display Screen", "/restaurant/customer-display"),
         ("Slots & Reservation Matrix", "/restaurant/slots-matrix"),
     ],

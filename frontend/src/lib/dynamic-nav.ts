@@ -516,7 +516,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         children: [
           { label: "Restaurant Management",      href: "/restaurant",                    icon: LayoutDashboard },
           { label: "Floor & Table Map POS",      href: "/restaurant/pos",               icon: UtensilsCrossed },
-          { label: "Kitchen Management",         href: "/restaurant?tab=kds",            icon: Flame           },
+          { label: "Kitchen Management",         href: "/restaurant/kitchen",            icon: Flame           },
           { label: "Customer Display Screen",    href: "/restaurant/customer-display",  icon: Monitor         },
           { label: "Slots & Reservation Matrix", href: "/restaurant/slots-matrix",      icon: Calendar        },
         ],
