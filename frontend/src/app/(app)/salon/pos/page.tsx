@@ -46,8 +46,8 @@ import { cn } from "@/lib/cn";
 import { useAuth } from "@/lib/auth";
 import { CustomModal, CustomInput, CustomButton, CustomSelect } from "@/components/custom";
 import { toast } from "react-toastify";
-import { ReceiptModal } from "../../pos/ReceiptModal";
-import type { SaleResult, PaymentLine } from "../../pos/pos-types";
+import { ReceiptModal } from "../../retail-pos/ReceiptModal";
+import type { SaleResult, PaymentLine } from "../../retail-pos/pos-types";
 import { fetchAllProducts } from "@/lib/catalog";
 
 // --- Types ---

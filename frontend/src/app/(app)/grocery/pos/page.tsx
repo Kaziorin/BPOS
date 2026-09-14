@@ -1040,7 +1040,13 @@ export default function GroceryPOSPage() {
                     className={`grid items-center px-3 py-2 hover:bg-emerald-50/30 cursor-pointer transition ${numTarget === item.id ? "bg-emerald-50/60" : ""}`}
                     style={{ gridTemplateColumns: "1.8fr 1fr 0.9fr 0.9fr 0.9fr 26px" }}>
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-sm leading-none" style={{ background: bg }}>{emoji}</div>
+                      {(item as any).image ? (
+                        <div className="w-6 h-6 rounded-md flex-shrink-0 overflow-hidden border border-gray-100 shadow-2xs bg-white">
+                          <img src={(item as any).image} alt={item.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-sm leading-none" style={{ background: bg }}>{emoji}</div>
+                      )}
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-slate-800 truncate leading-tight">{item.name}</p>
                         <p className="text-[10px] text-slate-500 font-medium">৳ {item.unitPrice.toFixed(2)} / {item.uom || "pcs"}</p>

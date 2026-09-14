@@ -326,9 +326,15 @@ export default function GroceryHubPage() {
                   className="group flex items-center justify-between p-4 rounded-3xl bg-white border border-slate-100 hover:border-emerald-200 hover:shadow-md transition-all duration-300"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors shrink-0 font-bold text-sm">
-                      {p.name.charAt(0).toUpperCase()}
-                    </div>
+                    {p.imageUrl || p.images?.[0]?.url || p.image ? (
+                      <div className="w-10 h-10 rounded-2xl overflow-hidden shrink-0 border border-emerald-100/50">
+                        <img src={p.imageUrl || p.images?.[0]?.url || p.image} alt={p.name} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors shrink-0 font-bold text-sm">
+                        {p.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                     <div className="min-w-0">
                       <p className="font-black text-slate-800 truncate text-xs tracking-tight">{p.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
