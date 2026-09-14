@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f8fa;
-  --foreground: #0f1f2b;
+  --background: #f8fafc;
+  --foreground: #0f172a;
 
-  /* Default Global Theme Variables (Ocean Teal) */
-  --theme-primary-50: #ecfeff;
-  --theme-primary-100: #cffafe;
-  --theme-primary-200: #a5f3fc;
-  --theme-primary-300: #67e8f9;
-  --theme-primary-400: #22d3ee;
-  --theme-primary-500: #06b6d4;
-  --theme-primary-600: #0891b2;
-  --theme-primary-700: #0e7490;
-  --theme-primary-800: #155e75;
-  --theme-primary-900: #164e63;
-  --theme-secondary: #0e7490;
-  --theme-accent: #06b6d4;
-  --theme-glow: rgba(8, 145, 178, 0.25);
-  --theme-gradient: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #0e7490 100%);
+  /* Default Global Theme Variables (OmniPOS Teal - #14B8A6 Design Spec) */
+  --theme-primary-50: #f0fdfa;
+  --theme-primary-100: #ccfbf1;
+  --theme-primary-200: #99f6e4;
+  --theme-primary-300: #5eead4;
+  --theme-primary-400: #2dd4bf;
+  --theme-primary-500: #14b8a6;
+  --theme-primary-600: #0ea5a0;
+  --theme-primary-700: #0f766e;
+  --theme-primary-800: #115e59;
+  --theme-primary-900: #134e4a;
+  --theme-secondary: #0ea5a0;
+  --theme-accent: #6366f1;
+  --theme-glow: rgba(20, 184, 166, 0.28);
+  --theme-gradient: linear-gradient(135deg, #14b8a6 0%, #6366f1 50%, #10b981 100%);
 }
 
 /* ========================================================================= */
@@ -26,38 +26,38 @@
 /* User-selected across Tenant, Business, POS & System UI                    */
 /* ========================================================================= */
 
-/* 1. OCEAN TEAL (Default Modern Coastal Cyan) */
+/* 1. OCEAN TEAL (OmniPOS Default - #14B8A6) */
 [data-theme="ocean-teal"], .theme-ocean-teal {
-  --theme-primary-50: #ecfeff;
-  --theme-primary-100: #cffafe;
-  --theme-primary-200: #a5f3fc;
-  --theme-primary-300: #67e8f9;
-  --theme-primary-400: #22d3ee;
-  --theme-primary-500: #06b6d4;
-  --theme-primary-600: #0891b2;
-  --theme-primary-700: #0e7490;
-  --theme-primary-800: #155e75;
-  --theme-primary-900: #164e63;
-  --theme-secondary: #0e7490;
-  --theme-accent: #06b6d4;
-  --theme-glow: rgba(8, 145, 178, 0.25);
+  --theme-primary-50: #f0fdfa;
+  --theme-primary-100: #ccfbf1;
+  --theme-primary-200: #99f6e4;
+  --theme-primary-300: #5eead4;
+  --theme-primary-400: #2dd4bf;
+  --theme-primary-500: #14b8a6;
+  --theme-primary-600: #0ea5a0;
+  --theme-primary-700: #0f766e;
+  --theme-primary-800: #115e59;
+  --theme-primary-900: #134e4a;
+  --theme-secondary: #0ea5a0;
+  --theme-accent: #6366f1;
+  --theme-glow: rgba(20, 184, 166, 0.28);
 }
 
-/* 2. ROYAL SAPPHIRE (Enterprise Cobalt Blue) */
+/* 2. ROYAL SAPPHIRE (Azure Ocean Blue - #3B9ADF) */
 [data-theme="royal-sapphire"], .theme-royal-sapphire {
-  --theme-primary-50: #eff6ff;
-  --theme-primary-100: #dbeafe;
-  --theme-primary-200: #bfdbfe;
-  --theme-primary-300: #93c5fd;
-  --theme-primary-400: #60a5fa;
-  --theme-primary-500: #3b82f6;
-  --theme-primary-600: #2563eb;
-  --theme-primary-700: #1d4ed8;
-  --theme-primary-800: #1e40af;
-  --theme-primary-900: #1e3a8a;
-  --theme-secondary: #1d4ed8;
-  --theme-accent: #3b82f6;
-  --theme-glow: rgba(37, 99, 235, 0.25);
+  --theme-primary-50: #f0f8ff;
+  --theme-primary-100: #e0f0fe;
+  --theme-primary-200: #bae1fc;
+  --theme-primary-300: #7cc5f8;
+  --theme-primary-400: #3b9adf;
+  --theme-primary-500: #3b9adf;
+  --theme-primary-600: #2285ce;
+  --theme-primary-700: #1669ac;
+  --theme-primary-800: #14548c;
+  --theme-primary-900: #173c60;
+  --theme-secondary: #1669ac;
+  --theme-accent: #3b9adf;
+  --theme-glow: rgba(59, 154, 223, 0.28);
 }
 
 /* 3. EMERALD MINT (Fresh Organic Green) */
@@ -310,6 +310,32 @@ input[type="button"]:not(:disabled),
   }
   50% {
     transform: translateY(-14px) translateX(10px);
+  }
+}
+
+@keyframes float-orbit {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(16px, -18px) scale(1.06) rotate(6deg);
+  }
+  50% {
+    transform: translate(-12px, -24px) scale(0.96) rotate(-4deg);
+  }
+  75% {
+    transform: translate(-18px, 12px) scale(1.03) rotate(3deg);
+  }
+}
+
+@keyframes icon-blink {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.08);
   }
 }
 
