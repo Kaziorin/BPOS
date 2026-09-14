@@ -27,20 +27,22 @@
 /* ========================================================================= */
 
 /* 1. OCEAN TEAL (OmniPOS Default - #14B8A6) */
+/* 1. OCEAN TEAL (OmniPOS Default - #14B8A6 Reference Image Spec) */
 [data-theme="ocean-teal"], .theme-ocean-teal {
   --theme-primary-50: #f0fdfa;
   --theme-primary-100: #ccfbf1;
   --theme-primary-200: #99f6e4;
   --theme-primary-300: #5eead4;
   --theme-primary-400: #2dd4bf;
-  --theme-primary-500: #14b8a6;
-  --theme-primary-600: #0ea5a0;
+  --theme-primary-500: #14b8a6; /* Primary Teal */
+  --theme-primary-600: #0ea5a0; /* Primary Hover */
   --theme-primary-700: #0f766e;
   --theme-primary-800: #115e59;
   --theme-primary-900: #134e4a;
   --theme-secondary: #0ea5a0;
-  --theme-accent: #6366f1;
+  --theme-accent: #6366f1; /* Accent Start */
   --theme-glow: rgba(20, 184, 166, 0.28);
+  --theme-gradient: linear-gradient(135deg, #14b8a6 0%, #6366f1 50%, #10b981 100%);
 }
 
 /* 2. ROYAL SAPPHIRE (Azure Ocean Blue - #3B9ADF) */
@@ -60,24 +62,7 @@
   --theme-glow: rgba(59, 154, 223, 0.28);
 }
 
-/* 3. EMERALD MINT (Fresh Organic Green) */
-[data-theme="emerald-mint"], .theme-emerald-mint {
-  --theme-primary-50: #ecfdf5;
-  --theme-primary-100: #d1fae5;
-  --theme-primary-200: #a7f3d0;
-  --theme-primary-300: #6ee7b7;
-  --theme-primary-400: #34d399;
-  --theme-primary-500: #10b981;
-  --theme-primary-600: #059669;
-  --theme-primary-700: #047857;
-  --theme-primary-800: #065f46;
-  --theme-primary-900: #064e3b;
-  --theme-secondary: #047857;
-  --theme-accent: #10b981;
-  --theme-glow: rgba(5, 150, 105, 0.25);
-}
-
-/* 4. MIDNIGHT VIOLET (Luxury Deep Purple) */
+/* 3. MIDNIGHT VIOLET (Luxury Deep Purple) */
 [data-theme="midnight-violet"], .theme-midnight-violet {
   --theme-primary-50: #f5f3ff;
   --theme-primary-100: #ede9fe;
@@ -94,24 +79,7 @@
   --theme-glow: rgba(124, 58, 237, 0.25);
 }
 
-/* 5. WARM AMBER (Craft Copper & Bronze) */
-[data-theme="warm-amber"], .theme-warm-amber {
-  --theme-primary-50: #fffbeb;
-  --theme-primary-100: #fef3c7;
-  --theme-primary-200: #fde68a;
-  --theme-primary-300: #fcd34d;
-  --theme-primary-400: #fbbf24;
-  --theme-primary-500: #f59e0b;
-  --theme-primary-600: #d97706;
-  --theme-primary-700: #b45309;
-  --theme-primary-800: #92400e;
-  --theme-primary-900: #78350f;
-  --theme-secondary: #b45309;
-  --theme-accent: #f59e0b;
-  --theme-glow: rgba(217, 119, 6, 0.25);
-}
-
-/* 6. SLATE CHARCOAL (Minimalist Corporate Dark) */
+/* 4. SLATE CHARCOAL (Minimalist Corporate Dark) */
 [data-theme="slate-charcoal"], .theme-slate-charcoal {
   --theme-primary-50: #f8fafc;
   --theme-primary-100: #f1f5f9;
@@ -129,45 +97,64 @@
 }
 
 /* ========================================================================= */
-/* MULTI-VERTICAL & TENANT THEME SYSTEM                                      */
-/* Allows dynamic theme switching from Settings, Tenant Config, or Page Scope */
+/* 9 BUSINESS VERTICAL THEMES (Tailored for each business type)              */
 /* ========================================================================= */
 
-/* 1. RESTAURANT & CULINARY (Warm Vibrant Orange & Flame Palette) */
-[data-theme="restaurant"],
-.theme-restaurant {
+/* 1. RESTAURANT & CULINARY (Warm Flame Orange) */
+[data-theme="restaurant"], .theme-restaurant {
   --theme-primary-50: #fff7ed;
   --theme-primary-100: #ffedd5;
   --theme-primary-200: #fed7aa;
   --theme-primary-300: #fdba74;
   --theme-primary-400: #fb923c;
-  --theme-primary-500: #f97316; /* Vibrant Culinary Orange */
-  --theme-primary-600: #ea580c; /* Flame Orange */
-  --theme-primary-700: #c2410c; /* Deep Amber Orange */
+  --theme-primary-500: #f97316;
+  --theme-primary-600: #ea580c;
+  --theme-primary-700: #c2410c;
   --theme-primary-800: #9a3412;
   --theme-primary-900: #7c2d12;
+  --theme-secondary: #ea580c;
   --theme-accent: #f59e0b;
   --theme-glow: rgba(249, 115, 22, 0.35);
   --theme-gradient: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #d97706 100%);
 }
 
-/* 2. GROCERY & SUPERMARKET (Fresh Emerald Green) */
+/* 2. GROCERY & SUPERMARKET (Fresh Organic Emerald) */
 [data-theme="grocery"], .theme-grocery {
-  --theme-primary-50: #ecfdf5; --theme-primary-100: #d1fae5; --theme-primary-200: #a7f3d0;
-  --theme-primary-500: #10b981; --theme-primary-600: #059669; --theme-primary-700: #047857;
+  --theme-primary-50: #ecfdf5;
+  --theme-primary-100: #d1fae5;
+  --theme-primary-200: #a7f3d0;
+  --theme-primary-300: #6ee7b7;
+  --theme-primary-400: #34d399;
+  --theme-primary-500: #10b981;
+  --theme-primary-600: #059669;
+  --theme-primary-700: #047857;
+  --theme-primary-800: #065f46;
+  --theme-primary-900: #064e3b;
+  --theme-secondary: #059669;
+  --theme-accent: #84cc16;
   --theme-glow: rgba(16, 185, 129, 0.35);
   --theme-gradient: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%);
 }
 
-/* 3. PHARMACY & HEALTH (Clinical Cyan/Teal) */
+/* 3. PHARMACY & HEALTH (Clinical Cyan) */
 [data-theme="pharmacy"], .theme-pharmacy {
-  --theme-primary-50: #ecfeff; --theme-primary-100: #cffafe; --theme-primary-200: #a5f3fc;
-  --theme-primary-500: #06b6d4; --theme-primary-600: #0891b2; --theme-primary-700: #0e7490;
+  --theme-primary-50: #ecfeff;
+  --theme-primary-100: #cffafe;
+  --theme-primary-200: #a5f3fc;
+  --theme-primary-300: #67e8f9;
+  --theme-primary-400: #22d3ee;
+  --theme-primary-500: #06b6d4;
+  --theme-primary-600: #0891b2;
+  --theme-primary-700: #0e7490;
+  --theme-primary-800: #155e75;
+  --theme-primary-900: #164e63;
+  --theme-secondary: #0891b2;
+  --theme-accent: #3b82f6;
   --theme-glow: rgba(6, 182, 212, 0.35);
   --theme-gradient: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #0e7490 100%);
 }
 
-/* 4. RETAIL & FASHION (Royal Blue) */
+/* 4. RETAIL & APPAREL (Royal Blue) */
 [data-theme="retail"], .theme-retail {
   --theme-primary-50: #eff6ff;
   --theme-primary-100: #dbeafe;
@@ -179,55 +166,98 @@
   --theme-primary-700: #1d4ed8;
   --theme-primary-800: #1e40af;
   --theme-primary-900: #1e3a8a;
+  --theme-secondary: #2563eb;
   --theme-accent: #8b5cf6;
   --theme-glow: rgba(37, 99, 235, 0.28);
   --theme-gradient: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 52%, #8b5cf6 100%);
 }
 
-/* 5. WHOLESALE & DISTRIBUTION (Vibrant Action Blue — matches B2B POS mock) */
+/* 5. WHOLESALE & DISTRIBUTION (Vibrant Action Blue) */
 [data-theme="wholesale"], .theme-wholesale {
-  --theme-primary-50: #eff6ff;
-  --theme-primary-100: #dbeafe;
-  --theme-primary-200: #bfdbfe;
-  --theme-primary-300: #93c5fd;
-  --theme-primary-400: #60a5fa;
-  --theme-primary-500: #3b82f6;
-  --theme-primary-600: #0066ff;
-  --theme-primary-700: #0052cc;
-  --theme-primary-800: #1e40af;
-  --theme-primary-900: #1e3a8a;
+  --theme-primary-50: #f0f7ff;
+  --theme-primary-100: #e0effe;
+  --theme-primary-200: #b9ddfe;
+  --theme-primary-300: #7cc2fd;
+  --theme-primary-400: #36a3f9;
+  --theme-primary-500: #0066ff;
+  --theme-primary-600: #0052cc;
+  --theme-primary-700: #0040a3;
+  --theme-primary-800: #003380;
+  --theme-primary-900: #002660;
+  --theme-secondary: #0052cc;
+  --theme-accent: #3b82f6;
   --theme-glow: rgba(0, 102, 255, 0.28);
   --theme-gradient: linear-gradient(135deg, #0066ff 0%, #3b82f6 50%, #2563eb 100%);
 }
 
-/* 6. SALON & BEAUTY (Glamour Rose/Pink) */
+/* 6. SALON & BEAUTY SPA (Glamour Rose) */
 [data-theme="salon"], .theme-salon {
-  --theme-primary-50: #fff1f2; --theme-primary-100: #ffe4e6; --theme-primary-200: #fecdd3;
-  --theme-primary-500: #f43f5e; --theme-primary-600: #e11d48; --theme-primary-700: #be123c;
+  --theme-primary-50: #fff1f2;
+  --theme-primary-100: #ffe4e6;
+  --theme-primary-200: #fecdd3;
+  --theme-primary-300: #fda4af;
+  --theme-primary-400: #fb7185;
+  --theme-primary-500: #f43f5e;
+  --theme-primary-600: #e11d48;
+  --theme-primary-700: #be123c;
+  --theme-primary-800: #9f1239;
+  --theme-primary-900: #881337;
+  --theme-secondary: #e11d48;
+  --theme-accent: #ec4899;
   --theme-glow: rgba(244, 63, 94, 0.35);
   --theme-gradient: linear-gradient(135deg, #e11d48 0%, #f43f5e 50%, #be123c 100%);
 }
 
-/* 7. MANUFACTURING & BAKERY (Warm Amber/Gold) */
+/* 7. MANUFACTURING & BAKERY (Amber Gold) */
 [data-theme="manufacturing"], .theme-manufacturing {
-  --theme-primary-50: #fffbeb; --theme-primary-100: #fef3c7; --theme-primary-200: #fde68a;
-  --theme-primary-500: #f59e0b; --theme-primary-600: #d97706; --theme-primary-700: #b45309;
+  --theme-primary-50: #fffbeb;
+  --theme-primary-100: #fef3c7;
+  --theme-primary-200: #fde68a;
+  --theme-primary-300: #fcd34d;
+  --theme-primary-400: #fbbf24;
+  --theme-primary-500: #f59e0b;
+  --theme-primary-600: #d97706;
+  --theme-primary-700: #b45309;
+  --theme-primary-800: #92400e;
+  --theme-primary-900: #78350f;
+  --theme-secondary: #d97706;
+  --theme-accent: #b45309;
   --theme-glow: rgba(245, 158, 11, 0.35);
   --theme-gradient: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #b45309 100%);
 }
 
 /* 8. REPAIR & SERVICE (Electric Violet) */
 [data-theme="repair"], .theme-repair {
-  --theme-primary-50: #f5f3ff; --theme-primary-100: #ede9fe; --theme-primary-200: #ddd6fe;
-  --theme-primary-500: #8b5cf6; --theme-primary-600: #7c3aed; --theme-primary-700: #6d28d9;
+  --theme-primary-50: #f5f3ff;
+  --theme-primary-100: #ede9fe;
+  --theme-primary-200: #ddd6fe;
+  --theme-primary-300: #c4b5fd;
+  --theme-primary-400: #a78bfa;
+  --theme-primary-500: #8b5cf6;
+  --theme-primary-600: #7c3aed;
+  --theme-primary-700: #6d28d9;
+  --theme-primary-800: #5b21b6;
+  --theme-primary-900: #4c1d95;
+  --theme-secondary: #7c3aed;
+  --theme-accent: #6366f1;
   --theme-glow: rgba(139, 92, 246, 0.35);
   --theme-gradient: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #6d28d9 100%);
 }
 
-/* 9. FRANCHISE & ENTERPRISE (Corporate Slate/Navy) */
+/* 9. FRANCHISE & ENTERPRISE (Corporate Slate) */
 [data-theme="franchise"], .theme-franchise {
-  --theme-primary-50: #f8fafc; --theme-primary-100: #f1f5f9; --theme-primary-200: #e2e8f0;
-  --theme-primary-500: #64748b; --theme-primary-600: #475569; --theme-primary-700: #334155;
+  --theme-primary-50: #f8fafc;
+  --theme-primary-100: #f1f5f9;
+  --theme-primary-200: #e2e8f0;
+  --theme-primary-300: #cbd5e1;
+  --theme-primary-400: #94a3b8;
+  --theme-primary-500: #64748b;
+  --theme-primary-600: #475569;
+  --theme-primary-700: #334155;
+  --theme-primary-800: #1e293b;
+  --theme-primary-900: #0f172a;
+  --theme-secondary: #475569;
+  --theme-accent: #0f172a;
   --theme-glow: rgba(100, 116, 139, 0.35);
   --theme-gradient: linear-gradient(135deg, #475569 0%, #64748b 50%, #334155 100%);
 }

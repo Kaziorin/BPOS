@@ -1,9 +1,16 @@
 export type GlobalThemeId =
   | "ocean-teal"
+  | "retail"
+  | "restaurant"
+  | "pharmacy"
+  | "grocery"
+  | "wholesale"
+  | "manufacturing"
+  | "salon"
+  | "repair"
+  | "franchise"
   | "royal-sapphire"
-  | "emerald-mint"
   | "midnight-violet"
-  | "warm-amber"
   | "slate-charcoal";
 
 export interface GlobalThemeConfig {
@@ -21,12 +28,102 @@ export const GLOBAL_THEMES: Record<GlobalThemeId, GlobalThemeConfig> = {
   "ocean-teal": {
     id: "ocean-teal",
     name: "OmniPOS Teal (Default)",
-    subtitle: "Modern Clean Professional",
+    subtitle: "Modern · Clean · Professional",
     primaryHex: "#14B8A6",
     secondaryHex: "#0EA5A0",
     accentHex: "#6366F1",
     previewBg: "from-teal-600 via-emerald-600 to-indigo-900",
-    description: "A perfect balance of trust and freshness, designed for all industries — Restaurant, Pharmacy, Grocery, Retail, Wholesale, Salon and more.",
+    description: "A perfect balance of trust and freshness, designed to work beautifully for all industries — Restaurant, Pharmacy, Grocery, Retail, Wholesale, Salon and more.",
+  },
+  retail: {
+    id: "retail",
+    name: "Retail & Apparel Blue",
+    subtitle: "Modern Store & Kiosk",
+    primaryHex: "#3B82F6",
+    secondaryHex: "#2563EB",
+    accentHex: "#8B5CF6",
+    previewBg: "from-blue-600 via-indigo-600 to-slate-900",
+    description: "Modern retail blue theme with barcode matrix, customer loyalty, and checkout kiosk styling.",
+  },
+  restaurant: {
+    id: "restaurant",
+    name: "Restaurant Flame Orange",
+    subtitle: "Dining & Kitchen KDS",
+    primaryHex: "#EA580C",
+    secondaryHex: "#F97316",
+    accentHex: "#F59E0B",
+    previewBg: "from-orange-600 via-amber-600 to-stone-900",
+    description: "Warm culinary flame orange theme with table mapping and KDS status indicators.",
+  },
+  pharmacy: {
+    id: "pharmacy",
+    name: "Pharmacy Clinical Cyan",
+    subtitle: "Healthcare & FEFO Expiry",
+    primaryHex: "#06B6D4",
+    secondaryHex: "#0891B2",
+    accentHex: "#3B82F6",
+    previewBg: "from-cyan-600 via-teal-600 to-slate-900",
+    description: "Clean medical cyan theme with FEFO expiry and prescription handling.",
+  },
+  grocery: {
+    id: "grocery",
+    name: "Grocery Organic Emerald",
+    subtitle: "Fresh Produce & Scale Barcodes",
+    primaryHex: "#10B981",
+    secondaryHex: "#059669",
+    accentHex: "#84CC16",
+    previewBg: "from-emerald-600 via-green-600 to-slate-900",
+    description: "Fresh green organic theme with scale barcode scanning and batch tracking.",
+  },
+  wholesale: {
+    id: "wholesale",
+    name: "Wholesale Action Blue",
+    subtitle: "B2B Bulk Tiered Credit",
+    primaryHex: "#0066FF",
+    secondaryHex: "#0052CC",
+    accentHex: "#3B82F6",
+    previewBg: "from-blue-700 via-cyan-700 to-slate-900",
+    description: "Vibrant B2B blue theme for bulk tier pricing and credit ledger management.",
+  },
+  manufacturing: {
+    id: "manufacturing",
+    name: "Manufacturing Amber Gold",
+    subtitle: "Recipe BOM & Work Orders",
+    primaryHex: "#F59E0B",
+    secondaryHex: "#D97706",
+    accentHex: "#B45309",
+    previewBg: "from-amber-600 via-orange-600 to-zinc-900",
+    description: "Industrial amber gold theme with work orders and raw material BOM management.",
+  },
+  salon: {
+    id: "salon",
+    name: "Salon Glamour Rose",
+    subtitle: "Spa Beauty & Stylist Appointments",
+    primaryHex: "#F43F5E",
+    secondaryHex: "#E11D48",
+    accentHex: "#EC4899",
+    previewBg: "from-rose-600 via-pink-600 to-slate-900",
+    description: "Luxurious rose pink theme for appointment scheduling and stylist commissions.",
+  },
+  repair: {
+    id: "repair",
+    name: "Repair Electric Violet",
+    subtitle: "Tech Jobs & Device IMEI",
+    primaryHex: "#8B5CF6",
+    secondaryHex: "#7C3AED",
+    accentHex: "#6366F1",
+    previewBg: "from-violet-600 via-purple-600 to-slate-900",
+    description: "Tech repair violet theme with job cards, device IMEI, and warranty tracking.",
+  },
+  franchise: {
+    id: "franchise",
+    name: "Franchise Corporate Slate",
+    subtitle: "Multi-Branch Royalty Sync",
+    primaryHex: "#475569",
+    secondaryHex: "#334155",
+    accentHex: "#0F172A",
+    previewBg: "from-slate-700 via-slate-800 to-slate-950",
+    description: "Corporate slate theme for multi-branch sync and royalty reporting.",
   },
   "royal-sapphire": {
     id: "royal-sapphire",
@@ -38,16 +135,6 @@ export const GLOBAL_THEMES: Record<GlobalThemeId, GlobalThemeConfig> = {
     previewBg: "from-sky-900 via-blue-900 to-slate-900",
     description: "Executive ocean azure blue theme for enterprise management and multi-branch stores.",
   },
-  "emerald-mint": {
-    id: "emerald-mint",
-    name: "Emerald Mint",
-    subtitle: "Fresh Organic Green",
-    primaryHex: "#059669",
-    secondaryHex: "#047857",
-    accentHex: "#10b981",
-    previewBg: "from-emerald-900 via-teal-950 to-slate-900",
-    description: "Clean organic emerald theme ideal for grocery, health, and fresh product counters.",
-  },
   "midnight-violet": {
     id: "midnight-violet",
     name: "Midnight Violet",
@@ -57,16 +144,6 @@ export const GLOBAL_THEMES: Record<GlobalThemeId, GlobalThemeConfig> = {
     accentHex: "#8b5cf6",
     previewBg: "from-violet-900 via-purple-950 to-slate-900",
     description: "Sophisticated deep violet theme tailored for boutique salons, spas, and fashion retail.",
-  },
-  "warm-amber": {
-    id: "warm-amber",
-    name: "Warm Amber",
-    subtitle: "Craft Copper & Bronze",
-    primaryHex: "#d97706",
-    secondaryHex: "#b45309",
-    accentHex: "#f59e0b",
-    previewBg: "from-amber-900 via-orange-950 to-slate-900",
-    description: "Warm craft copper and amber palette perfect for dining, cafes, and artisan bakeries.",
   },
   "slate-charcoal": {
     id: "slate-charcoal",

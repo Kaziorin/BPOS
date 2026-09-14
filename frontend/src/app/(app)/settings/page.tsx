@@ -121,7 +121,7 @@ const SETTINGS_TABS: SettingsTabDef[] = [
     label: "Theme & Appearance",
     category: "core",
     icon: Palette,
-    badge: "6 Themes",
+    badge: "9 Business Themes",
     badgeColor: "bg-cyan-50 text-cyan-700 border-cyan-200",
     description: "Global color theme across tenant, business, and POS screens",
   },

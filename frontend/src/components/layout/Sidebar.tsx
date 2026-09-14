@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useMemo } from "react";
 import {
-  ChevronLeft, ChevronRight, ChevronDown, LogOut, Loader2, Search, X,
+  ChevronLeft, ChevronRight, ChevronDown, LogOut, Loader2, Search, X, Play,
 } from "lucide-react";
 import { useDynamicNav, type NavItem, type NavChild } from "@/lib/dynamic-nav";
 import { siteConfig } from "@/config/site";
@@ -221,14 +221,58 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "relative hidden shrink-0 flex-col border-r border-gray-200/80 bg-slate-50/50 backdrop-blur-md transition-[width] duration-300 ease-in-out lg:flex shadow-xs",
+        "relative hidden shrink-0 flex-col border-r border-slate-800/80 bg-[#0F172A] text-slate-100 transition-[width] duration-300 ease-in-out lg:flex shadow-2xl overflow-hidden select-none",
         collapsed ? "w-[72px]" : "w-64",
       )}
     >
+      {/* ── Single Unified Flowing Ambient Wave Backdrop (Reference Image Spec) ── */}
+      <div className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden z-0 bg-[#0F172A]">
+        {/* Continuous Top-to-Bottom Multi-Point Ambient Radial Glow */}
+        <div
+          className="absolute inset-0 w-full h-full opacity-80"
+          style={{
+            background: `
+              radial-gradient(circle at 10% 15%, rgba(20, 184, 166, 0.35) 0%, transparent 45%),
+              radial-gradient(circle at 85% 45%, rgba(0, 201, 183, 0.22) 0%, transparent 50%),
+              radial-gradient(circle at 25% 85%, rgba(16, 185, 129, 0.40) 0%, transparent 55%)
+            `,
+          }}
+        />
+
+        {/* ONE Single Continuous Dynamic Wave Path (Top to Bottom Single Flow) */}
+        <svg
+          className="absolute inset-0 w-full h-full opacity-45"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+          viewBox="0 0 200 800"
+        >
+          <path
+            d="M 0 0 C 120 180, -40 380, 160 520 C 230 620, 40 720, 200 800 L 0 800 Z"
+            fill="url(#sidebar-unified-flow)"
+          />
+          <path
+            d="M 200 0 C 70 220, 230 420, 60 620 C -20 720, 130 780, 0 800 L 200 800 Z"
+            fill="url(#sidebar-unified-flow-2)"
+          />
+          <defs>
+            <linearGradient id="sidebar-unified-flow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#14B8A6" stopOpacity="0.45" />
+              <stop offset="50%" stopColor="#00C9B7" stopOpacity="0.30" />
+              <stop offset="100%" stopColor="#10B981" stopOpacity="0.65" />
+            </linearGradient>
+            <linearGradient id="sidebar-unified-flow-2" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#6366F1" stopOpacity="0.15" />
+              <stop offset="60%" stopColor="#14B8A6" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#00C9B7" stopOpacity="0.50" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
       {/* Collapse Toggle Button */}
       <button
         onClick={toggleCollapse}
-        className="absolute -right-3.5 top-6 z-30 flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-md transition-transform duration-200 hover:scale-110 hover:border-primary-400 hover:text-primary-600 focus:outline-none"
+        className="absolute -right-3.5 top-6 z-30 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-slate-300 shadow-md transition-transform duration-200 hover:scale-110 hover:border-teal-400 hover:text-white focus:outline-none cursor-pointer"
         title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
       >
         {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
@@ -237,26 +281,26 @@ export function Sidebar() {
       {/* Brand Header */}
       <div
         className={cn(
-          "flex h-16 shrink-0 items-center justify-between border-b border-gray-200/70 px-4 bg-white/70",
+          "relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-slate-800/80 px-4 bg-slate-900/40 backdrop-blur-md",
           collapsed && "justify-center px-0",
         )}
       >
         <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-primary-600 via-indigo-600 to-violet-600 text-white shadow-md shadow-primary-500/25">
-            <Logo size={18} />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-[#14B8A6] via-[#00C9B7] to-[#10B981] text-white shadow-md shadow-teal-500/30">
+            <Logo size={19} />
           </div>
           {!collapsed && (
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="truncate font-bold text-gray-900 tracking-tight text-sm">
+                <span className="truncate font-bold text-white tracking-tight text-sm">
                   {siteConfig.name}
                 </span>
-                <span className="shrink-0 rounded-md bg-primary-100 px-1.5 py-0.5 text-[9px] font-bold text-primary-700 uppercase tracking-wide">
+                <span className="shrink-0 rounded-md bg-[#14B8A6]/20 border border-[#14B8A6]/40 px-1.5 py-0.5 text-[9px] font-bold text-teal-300 uppercase tracking-wide">
                   PRO
                 </span>
               </div>
-              <span className="truncate text-[11px] text-gray-400 font-medium">
-                Enterprise POS v2.4
+              <span className="truncate text-[10px] text-teal-300/80 font-medium tracking-wide">
+                Smart · Fast · All Industries
               </span>
             </div>
           )}
@@ -265,20 +309,20 @@ export function Sidebar() {
 
       {/* Menu Quick Search */}
       {!collapsed && (
-        <div className="px-3 pt-3 pb-1">
+        <div className="relative z-10 px-3 pt-3 pb-1">
           <div className="relative flex items-center">
-            <Search size={14} className="absolute left-2.5 text-gray-400 pointer-events-none" />
+            <Search size={14} className="absolute left-2.5 text-slate-400 pointer-events-none" />
             <input
               type="text"
               placeholder="Search menu..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 bg-white py-1.5 pl-8 pr-7 text-xs text-gray-800 placeholder-gray-400 shadow-2xs transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              className="w-full rounded-xl border border-slate-700/80 bg-slate-800/80 py-1.5 pl-8 pr-7 text-xs text-slate-100 placeholder-slate-400 shadow-inner transition focus:border-[#14B8A6] focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2 text-gray-400 hover:text-gray-600"
+                className="absolute right-2 text-slate-400 hover:text-white"
               >
                 <X size={13} />
               </button>
@@ -288,14 +332,14 @@ export function Sidebar() {
       )}
 
       {/* Main Navigation List */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-4 custom-scrollbar">
+      <nav className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-4 custom-scrollbar">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-12 text-gray-400 gap-2">
-            <Loader2 size={20} className="animate-spin text-primary-600" />
+          <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
+            <Loader2 size={20} className="animate-spin text-[#14B8A6]" />
             <span className="text-xs font-medium">Loading navigation...</span>
           </div>
         ) : filteredNavGroups.length === 0 ? (
-          <div className="px-3 py-8 text-center text-xs text-gray-400">
+          <div className="px-3 py-8 text-center text-xs text-slate-400">
             No matching menus found.
           </div>
         ) : (
@@ -304,13 +348,13 @@ export function Sidebar() {
               {/* Category Group Header */}
               {!collapsed && (
                 <div className="px-2 pt-2 pb-1 flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary-500/60" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#14B8A6]" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     {group.title}
                   </span>
                 </div>
               )}
-              {collapsed && <div className="mx-2 my-2 h-px bg-gray-200/80" />}
+              {collapsed && <div className="mx-2 my-2 h-px bg-slate-800" />}
 
               {/* Module Rows */}
               {group.items.map((item, idx) => (
@@ -332,20 +376,35 @@ export function Sidebar() {
         )}
       </nav>
 
+      {/* ── Floating "Grow Your Business" Promo Card (Exact Reference Image Spec) ── */}
+      {!collapsed && (
+        <div className="relative z-10 mx-3 mb-2.5 overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-xl shadow-lg transition hover:bg-white/15 cursor-pointer">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#14B8A6] via-[#00C9B7] to-[#10B981] text-white shadow-md shadow-teal-500/30">
+              <Play size={15} className="ml-0.5 fill-white" />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="truncate text-xs font-bold text-white tracking-tight">Grow Your Business</span>
+              <span className="truncate text-[10px] font-medium text-slate-300/90">Smart POS, Better Tomorrow</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sidebar Footer User Info & Logout */}
-      <div className="border-t border-gray-200/80 p-2.5 bg-white/60">
+      <div className="relative z-10 border-t border-slate-800/80 p-2.5 bg-slate-900/60 backdrop-blur-md">
         {!collapsed ? (
-          <div className="flex items-center justify-between rounded-xl border border-gray-200/60 bg-white p-2 shadow-2xs">
+          <div className="flex items-center justify-between rounded-xl border border-slate-700/60 bg-slate-800/80 p-2 shadow-2xs">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-gray-900 to-gray-800 text-xs font-bold text-white shadow-2xs">
+              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-[#14B8A6] to-[#6366F1] text-xs font-bold text-white shadow-2xs">
                 {(user?.name || "A")[0].toUpperCase()}
-                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="truncate text-xs font-semibold text-gray-900">
+                <span className="truncate text-xs font-semibold text-white">
                   {user?.name || "Administrator"}
                 </span>
-                <span className="truncate text-[10px] text-gray-500 font-medium">
+                <span className="truncate text-[10px] text-slate-400 font-medium">
                   {user?.role || "Main Branch"}
                 </span>
               </div>
@@ -353,7 +412,7 @@ export function Sidebar() {
             <button
               onClick={logout}
               title="Logout"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-500/20 hover:text-rose-400 cursor-pointer"
             >
               <LogOut size={15} />
             </button>
@@ -362,7 +421,7 @@ export function Sidebar() {
           <button
             onClick={logout}
             title="Logout"
-            className="flex h-9 w-full items-center justify-center rounded-xl text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+            className="flex h-9 w-full items-center justify-center rounded-xl text-slate-400 transition hover:bg-rose-500/20 hover:text-rose-400 cursor-pointer"
           >
             <LogOut size={17} />
           </button>
@@ -410,8 +469,8 @@ function ModuleRow({
         className={cn(
           "mx-auto flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200",
           active
-            ? "bg-primary-600 text-white shadow-md shadow-primary-500/30"
-            : "text-gray-500 hover:bg-gray-200/60 hover:text-gray-900",
+            ? "bg-gradient-to-tr from-[#14B8A6] to-[#10B981] text-white shadow-md shadow-teal-500/30"
+            : "text-slate-400 hover:bg-slate-800/80 hover:text-white",
         )}
       >
         <Icon size={18} />
@@ -427,8 +486,8 @@ function ModuleRow({
         className={cn(
           "group flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200",
           active
-            ? "bg-primary-50/90 text-primary-700 font-semibold border-l-[3px] border-primary-600 shadow-2xs pl-2.5"
-            : "text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-2xs",
+            ? "bg-gradient-to-r from-[#14B8A6] to-[#00C9B7] text-white font-bold shadow-md shadow-teal-500/25"
+            : "text-slate-300 hover:bg-slate-800/70 hover:text-white",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0">
@@ -436,13 +495,16 @@ function ModuleRow({
             size={16}
             className={cn(
               "transition-colors duration-200",
-              active ? "text-primary-600" : "text-gray-400 group-hover:text-gray-600",
+              active ? "text-white" : "text-slate-400 group-hover:text-slate-200",
             )}
           />
           <span className="truncate">{item.label}</span>
         </div>
         {item.badge && (
-          <span className="shrink-0 text-[9px] font-bold bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-md">
+          <span className={cn(
+            "shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-md",
+            active ? "bg-white/20 text-white" : "bg-teal-500/20 text-teal-300 border border-teal-500/30"
+          )}>
             {item.badge}
           </span>
         )}
@@ -456,10 +518,10 @@ function ModuleRow({
       <button
         onClick={onToggleModule}
         className={cn(
-          "group flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200",
+          "group flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 cursor-pointer",
           active
-            ? "bg-primary-50/90 text-primary-700 font-semibold border-l-[3px] border-primary-600 shadow-2xs pl-2.5"
-            : "text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-2xs",
+            ? "bg-gradient-to-r from-[#14B8A6] to-[#00C9B7] text-white font-bold shadow-md shadow-teal-500/25"
+            : "text-slate-300 hover:bg-slate-800/70 hover:text-white",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -467,28 +529,32 @@ function ModuleRow({
             size={16}
             className={cn(
               "transition-colors duration-200",
-              active ? "text-primary-600" : "text-gray-400 group-hover:text-gray-600",
+              active ? "text-white" : "text-slate-400 group-hover:text-slate-200",
             )}
           />
           <span className="truncate text-left">{item.label}</span>
         </div>
         {item.badge && (
-          <span className="shrink-0 mr-1.5 text-[9px] font-bold bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-md">
+          <span className={cn(
+            "shrink-0 mr-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md",
+            active ? "bg-white/20 text-white" : "bg-teal-500/20 text-teal-300 border border-teal-500/30"
+          )}>
             {item.badge}
           </span>
         )}
         <ChevronDown
           size={13}
           className={cn(
-            "shrink-0 text-gray-400 transition-transform duration-200 group-hover:text-gray-600",
-            moduleExpanded && "rotate-180 text-primary-600",
+            "shrink-0 transition-transform duration-200",
+            active ? "text-white" : "text-slate-400 group-hover:text-slate-200",
+            moduleExpanded && "rotate-180 text-white",
           )}
         />
       </button>
 
       {/* Submenu Children Container */}
       {moduleExpanded && (
-        <div className="ml-4 mt-0.5 space-y-0.5 border-l-2 border-gray-200/60 pl-2.5 py-0.5">
+        <div className="ml-4 mt-0.5 space-y-0.5 border-l border-slate-700/80 pl-2.5 py-0.5">
           {item.children!.map((child, idx) => (
             <MenuItemRow
               key={`${child.label}-${child.href}-${idx}`}
@@ -528,28 +594,28 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
         <button
           onClick={onToggle}
           className={cn(
-            "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-150",
+            "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-150 cursor-pointer",
             active
-              ? "font-semibold text-primary-700"
-              : "text-gray-500 hover:bg-gray-100/70 hover:text-gray-800",
+              ? "font-bold text-teal-300 bg-slate-800/90"
+              : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200",
           )}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <ChildIcon size={13} className={active ? "text-primary-600" : "text-gray-400"} />
+            <ChildIcon size={13} className={active ? "text-[#14B8A6]" : "text-slate-400"} />
             <span className="truncate text-left">{child.label}</span>
           </div>
           <ChevronDown
             size={12}
             className={cn(
-              "shrink-0 text-gray-400 transition-transform duration-200",
-              itemExpanded && "rotate-180 text-primary-600",
+              "shrink-0 text-slate-400 transition-transform duration-200",
+              itemExpanded && "rotate-180 text-teal-300",
             )}
           />
         </button>
 
         {/* Render ONLY sub-children cleanly */}
         {itemExpanded && (
-          <div className="ml-3 mt-0.5 space-y-0.5 border-l border-gray-200 pl-2 py-0.5">
+          <div className="ml-3 mt-0.5 space-y-0.5 border-l border-slate-700/60 pl-2 py-0.5">
             {child.children!.map((sub, idx) => {
               const SubIcon = sub.icon;
               const subActive = isRouteActive(sub.href, pathname, allHrefs);
@@ -560,11 +626,11 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
                   className={cn(
                     "flex items-center gap-2 rounded-md px-2 py-1 text-[11px] font-medium transition-colors duration-150",
                     subActive
-                      ? "font-semibold text-primary-700 bg-primary-50/80"
-                      : "text-gray-500 hover:bg-gray-100/60 hover:text-gray-800",
+                      ? "font-bold text-white bg-[#14B8A6]/30 border-l-2 border-[#14B8A6] pl-1.5"
+                      : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200",
                   )}
                 >
-                  <SubIcon size={11} className={subActive ? "text-primary-600" : "text-gray-400"} />
+                  <SubIcon size={11} className={subActive ? "text-[#14B8A6]" : "text-slate-400"} />
                   <span className="truncate">{sub.label}</span>
                 </Link>
               );
@@ -582,15 +648,15 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
       className={cn(
         "flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-all duration-150",
         exactActive
-          ? "bg-primary-100/60 text-primary-800 font-semibold border-l-2 border-primary-600 -ml-[11px] pl-[9px] rounded-r-lg"
-          : "text-gray-600 hover:bg-gray-100/70 hover:text-gray-900 font-medium",
+          ? "bg-[#14B8A6]/25 text-white font-bold border-l-2 border-[#14B8A6] -ml-[11px] pl-[9px] rounded-r-lg"
+          : "text-slate-300 hover:bg-slate-800/60 hover:text-white font-medium",
       )}
     >
       <ChildIcon
         size={13}
         className={cn(
           "transition-colors",
-          exactActive ? "text-primary-600" : "text-gray-400",
+          exactActive ? "text-teal-300" : "text-slate-400",
         )}
       />
       <span className="truncate">{child.label}</span>
