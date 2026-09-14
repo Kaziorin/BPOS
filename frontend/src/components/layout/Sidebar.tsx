@@ -333,7 +333,7 @@ export function Sidebar() {
       )}
 
       {/* Main Navigation List */}
-      <nav className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-4 custom-scrollbar">
+      <nav className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-1 custom-scrollbar">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
             <Loader2 size={20} className="animate-spin text-[#14B8A6]" />
@@ -346,18 +346,7 @@ export function Sidebar() {
         ) : (
           filteredNavGroups.map((group) => (
             <div key={group.title} className="space-y-1">
-              {/* Category Group Header */}
-              {!collapsed && (
-                <div className="px-2 pt-2 pb-1 flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#14B8A6] shadow-xs shadow-teal-400" />
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#94A3B8]">
-                    {group.title}
-                  </span>
-                </div>
-              )}
-              {collapsed && <div className="mx-2 my-2 h-px bg-slate-800" />}
-
-              {/* Module Rows */}
+              {/* Module Rows (Group title labels removed per user request for clean continuous list) */}
               {group.items.map((item, idx) => (
                 <ModuleRow
                   key={`${group.title}-${item.label}-${idx}`}
@@ -453,10 +442,10 @@ function ModuleRow({
         href={item.href !== "#" ? item.href : item.children?.[0]?.href || "#"}
         title={item.label}
         className={cn(
-          "mx-auto flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200",
+          "mx-auto flex h-9 w-9 items-center justify-center rounded-md transition-all duration-200",
           active
-            ? "bg-gradient-to-tr from-[#14B8A6] to-[#10B981] text-white shadow-md shadow-teal-500/40"
-            : "text-[#2DD4BF] hover:bg-slate-800/80 hover:text-white",
+            ? "bg-gradient-to-tr from-[#14B8A6] to-[#10B981] text-white shadow-md shadow-teal-500/30"
+            : "text-[#2DD4BF] hover:bg-slate-800/70 hover:text-white",
         )}
       >
         <Icon size={18} />
@@ -470,18 +459,18 @@ function ModuleRow({
       <Link
         href={item.href}
         className={cn(
-          "group flex items-center justify-between rounded-xl px-3 py-2 text-xs transition-all duration-200",
+          "group flex items-center justify-between rounded-md px-3 py-2 text-xs transition-all duration-200",
           active
-            ? "bg-gradient-to-r from-[#14B8A6] via-[#0EA5A0] to-[#00C9B7] text-white font-bold shadow-lg shadow-teal-500/30 border-l-4 border-white"
-            : "text-slate-100 font-semibold hover:bg-slate-800/80 hover:text-white",
+            ? "bg-gradient-to-r from-[#14B8A6] via-[#0EA5A0] to-[#00C9B7] text-white font-bold shadow-md shadow-teal-500/25"
+            : "text-[#F1F5F9] font-semibold hover:bg-slate-800/80 hover:text-white",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <Icon
             size={16}
             className={cn(
-              "transition-colors duration-200",
-              active ? "text-white" : "text-[#2DD4BF] group-hover:text-white",
+              "transition-colors duration-200 shrink-0",
+              active ? "text-white" : "text-[#2DD4BF] group-hover:text-teal-300 drop-shadow-[0_0_6px_rgba(45,212,191,0.25)]",
             )}
           />
           <span className="truncate">{item.label}</span>
@@ -504,18 +493,18 @@ function ModuleRow({
       <button
         onClick={onToggleModule}
         className={cn(
-          "group flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
+          "group flex w-full items-center justify-between rounded-md px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
           active
-            ? "bg-gradient-to-r from-[#14B8A6] via-[#0EA5A0] to-[#00C9B7] text-white font-bold shadow-lg shadow-teal-500/30 border-l-4 border-white"
-            : "text-slate-100 font-semibold hover:bg-slate-800/80 hover:text-white",
+            ? "bg-gradient-to-r from-[#14B8A6] via-[#0EA5A0] to-[#00C9B7] text-white font-bold shadow-md shadow-teal-500/25"
+            : "text-[#F1F5F9] font-semibold hover:bg-slate-800/80 hover:text-white",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <Icon
             size={16}
             className={cn(
-              "transition-colors duration-200",
-              active ? "text-white" : "text-[#2DD4BF] group-hover:text-white",
+              "transition-colors duration-200 shrink-0",
+              active ? "text-white" : "text-[#2DD4BF] group-hover:text-teal-300 drop-shadow-[0_0_6px_rgba(45,212,191,0.25)]",
             )}
           />
           <span className="truncate text-left">{item.label}</span>
@@ -532,15 +521,15 @@ function ModuleRow({
           size={13}
           className={cn(
             "shrink-0 transition-transform duration-200",
-            active ? "text-white" : "text-slate-400 group-hover:text-white",
-            moduleExpanded && "rotate-180 text-white",
+            active ? "text-white" : "text-slate-300 group-hover:text-white",
+            moduleExpanded && "rotate-180 text-teal-300",
           )}
         />
       </button>
 
-      {/* Submenu Children Container */}
+      {/* Submenu Children Container with cyan visual guide line */}
       {moduleExpanded && (
-        <div className="ml-4 mt-0.5 space-y-0.5 border-l-2 border-slate-700/80 pl-2.5 py-0.5">
+        <div className="ml-3.5 mt-1 space-y-1 border-l-2 border-teal-500/35 pl-2.5 py-0.5 transition-all">
           {item.children!.map((child, idx) => (
             <MenuItemRow
               key={`${child.label}-${child.href}-${idx}`}
@@ -580,28 +569,28 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
         <button
           onClick={onToggle}
           className={cn(
-            "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-150 cursor-pointer",
+            "group flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors duration-150 cursor-pointer",
             active
               ? "font-bold text-teal-300 bg-slate-800/90"
-              : "text-slate-300 font-semibold hover:bg-slate-800/70 hover:text-white",
+              : "text-slate-200 font-medium hover:bg-teal-500/15 hover:text-white",
           )}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <ChildIcon size={13} className={active ? "text-white" : "text-[#2DD4BF]"} />
+            <ChildIcon size={13} className={cn("shrink-0", active ? "text-teal-300" : "text-[#5EEAD4] group-hover:text-white")} />
             <span className="truncate text-left">{child.label}</span>
           </div>
           <ChevronDown
             size={12}
             className={cn(
               "shrink-0 text-slate-400 transition-transform duration-200",
-              itemExpanded && "rotate-180 text-white",
+              itemExpanded && "rotate-180 text-teal-300",
             )}
           />
         </button>
 
-        {/* Render ONLY sub-children cleanly */}
+        {/* Render ONLY sub-children cleanly with border guide line */}
         {itemExpanded && (
-          <div className="ml-3 mt-0.5 space-y-0.5 border-l border-slate-700/80 pl-2 py-0.5">
+          <div className="ml-3 mt-1 space-y-1 border-l border-teal-500/20 pl-2 py-0.5">
             {child.children!.map((sub, idx) => {
               const SubIcon = sub.icon;
               const subActive = isRouteActive(sub.href, pathname, allHrefs);
@@ -610,13 +599,13 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
                   key={`${sub.label}-${sub.href}-${idx}`}
                   href={sub.href}
                   className={cn(
-                    "flex items-center gap-2 rounded-md px-2 py-1 text-[11px] font-semibold transition-colors duration-150",
+                    "group flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
                     subActive
-                      ? "font-bold text-white bg-[#14B8A6]/40 border-l-2 border-[#14B8A6] pl-1.5"
-                      : "text-slate-300 hover:bg-slate-800/70 hover:text-white",
+                      ? "font-bold text-white bg-[#14B8A6]/40"
+                      : "text-slate-300 hover:bg-teal-500/15 hover:text-white",
                   )}
                 >
-                  <SubIcon size={11} className={subActive ? "text-white" : "text-[#2DD4BF]"} />
+                  <SubIcon size={11} className={cn("shrink-0", subActive ? "text-white" : "text-[#5EEAD4] group-hover:text-white")} />
                   <span className="truncate">{sub.label}</span>
                 </Link>
               );
@@ -632,17 +621,17 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
     <Link
       href={child.href}
       className={cn(
-        "flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-all duration-150",
+        "group flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs transition-all duration-150",
         exactActive
-          ? "bg-[#14B8A6]/35 text-white font-bold border-l-3 border-[#14B8A6] -ml-[11px] pl-[9px] rounded-r-lg"
-          : "text-slate-200 font-semibold hover:bg-slate-800/70 hover:text-white",
+          ? "bg-[#14B8A6]/40 text-white font-bold shadow-2xs border-l-2 border-[#14B8A6]"
+          : "text-slate-200 font-medium hover:bg-teal-500/15 hover:text-white",
       )}
     >
       <ChildIcon
         size={13}
         className={cn(
-          "transition-colors",
-          exactActive ? "text-white" : "text-[#2DD4BF]",
+          "transition-colors shrink-0",
+          exactActive ? "text-white" : "text-[#5EEAD4] group-hover:text-teal-200",
         )}
       />
       <span className="truncate">{child.label}</span>
