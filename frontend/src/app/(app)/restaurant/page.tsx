@@ -30,7 +30,7 @@ function RestaurantPageContent() {
   const initialTab: TabType =
     tabParam === "shifts" || tabParam === "slots" || tabParam === "pos-shifts"
       ? "shifts"
-      : tabParam === "kds"
+      : tabParam === "kds" || tabParam === "kitchen" || tabParam === "kitchen-management"
       ? "kds"
       : tabParam === "recipes"
       ? "recipes"
@@ -42,7 +42,7 @@ function RestaurantPageContent() {
     if (tabParam) {
       if (tabParam === "shifts" || tabParam === "slots" || tabParam === "pos-shifts") {
         setActiveTab("shifts");
-      } else if (tabParam === "kds") {
+      } else if (tabParam === "kds" || tabParam === "kitchen" || tabParam === "kitchen-management") {
         setActiveTab("kds");
       } else if (tabParam === "recipes") {
         setActiveTab("recipes");
@@ -249,7 +249,7 @@ function RestaurantPageContent() {
       <CustomTabs
         tabs={[
           { id: "floors", label: "Sections & Table Grid", icon: <LayoutGrid className="w-4 h-4 text-orange-600" /> },
-          { id: "kds", label: "Kitchen Display (KDS Routing)", icon: <Flame className="w-4 h-4 text-red-600" /> },
+          { id: "kds", label: "Kitchen Management (KDS Routing)", icon: <Flame className="w-4 h-4 text-red-600" /> },
           { id: "recipes", label: "Recipe BOM & Food Costing", icon: <PieChart className="w-4 h-4 text-orange-600" /> },
           { id: "shifts", label: "POS Shifts & Time Slots", icon: <Clock className="w-4 h-4 text-teal-600" /> },
         ]}
