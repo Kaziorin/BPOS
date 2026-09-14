@@ -271,7 +271,7 @@ export default function QuotationsPage() {
   }
 
   return (
-    <div className="space-y-5 max-w-7xl mx-auto pb-12">
+    <div className="space-y-5 w-full px-4 sm:px-8 pb-12">
       
       {/* ── Page Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200/70 pb-4">
@@ -678,7 +678,7 @@ export default function QuotationsPage() {
         </div>
       ) : (
         /* ── CLEAN CARD GRID VIEW ── */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5">
           {paginatedQuotations.map((q) => {
             const cfg = STATUS_CONFIG[q.status] || STATUS_CONFIG.DRAFT;
 

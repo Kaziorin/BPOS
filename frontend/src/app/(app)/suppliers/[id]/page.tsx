@@ -55,7 +55,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
   ];
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="w-full px-4 sm:px-8 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button onClick={() => router.push("/suppliers")} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">

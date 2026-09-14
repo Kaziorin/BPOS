@@ -105,7 +105,7 @@ export default function CommissionPage() {
   const fmt = (n: number) => `৳${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 
   return (
-    <div className="space-y-6">
+    <div className="w-full px-4 sm:px-8 space-y-6">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
