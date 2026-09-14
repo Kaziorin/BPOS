@@ -327,6 +327,7 @@ export default function RestaurantPOSPage() {
   const [showSelectTableModal, setShowSelectTableModal] = useState(false);
   const [showSelectStaffModal, setShowSelectStaffModal] = useState(false);
   const [activeSectionTab, setActiveSectionTab] = useState<string>("ALL");
+  const [activeStatusFilter, setActiveStatusFilter] = useState<"ALL" | "AVAILABLE" | "OCCUPIED" | "RESERVED">("ALL");
   const [staffList, setStaffList] = useState<StaffOption[]>(DEFAULT_STAFF);
   const [customStaffName, setCustomStaffName] = useState("");
   const [showHoldModal, setShowHoldModal] = useState(false);
@@ -842,9 +843,16 @@ export default function RestaurantPOSPage() {
   }, [floors, tables]);
 
   const tableModalTables = useMemo(() => {
-    if (activeSectionTab === "ALL") return tables;
-    return tables.filter((t) => t.floorId === activeSectionTab);
-  }, [tables, activeSectionTab]);
+    let filtered = activeSectionTab === "ALL" ? tables : tables.filter((t) => t.floorId === activeSectionTab);
+    if (activeStatusFilter !== "ALL") {
+      if (activeStatusFilter === "OCCUPIED") {
+        filtered = filtered.filter((t) => t.status === "OCCUPIED" || t.status === "BILLING");
+      } else {
+        filtered = filtered.filter((t) => t.status === activeStatusFilter);
+      }
+    }
+    return filtered;
+  }, [tables, activeSectionTab, activeStatusFilter]);
 
 
 
@@ -2362,19 +2370,12 @@ export default function RestaurantPOSPage() {
       >
         <div className="space-y-5">
           <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-bold text-gray-800">Choose Section &amp; Dining Table</h4>
-                <p className="text-xs text-gray-500">Select a section tab to view its available tables</p>
-              </div>
-              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-wider text-slate-400">
-                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Free</span>
-                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-amber-500" /> Busy</span>
-                <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-purple-500" /> Reserved</span>
-              </div>
+            <div>
+              <h4 className="text-sm font-bold text-gray-800">Choose Section &amp; Dining Table</h4>
+              <p className="text-xs text-gray-500">Select a section tab, then filter by status</p>
             </div>
 
-            {/* CustomTabs for Dining Sections (wraps tabs to next line on overflow) */}
+            {/* CustomTabs for Dining Sections */}
             <CustomTabs
               tabs={sectionTabs}
               activeTab={activeSectionTab}
@@ -2384,12 +2385,36 @@ export default function RestaurantPOSPage() {
               wrap={true}
               className="bg-slate-50 border-slate-200 p-2"
             />
+
+            {/* Status Filter: All / Free / Busy / Reserved */}
+            <div className="flex items-center gap-2">
+              {([
+                { id: "ALL" as const, label: "All", dot: "bg-slate-400" },
+                { id: "AVAILABLE" as const, label: "Free", dot: "bg-emerald-500" },
+                { id: "OCCUPIED" as const, label: "Busy", dot: "bg-amber-500" },
+                { id: "RESERVED" as const, label: "Reserved", dot: "bg-purple-500" },
+              ]).map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setActiveStatusFilter(f.id)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition cursor-pointer border ${
+                    activeStatusFilter === f.id
+                      ? "bg-slate-800 text-white border-slate-800"
+                      : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  <span className={`h-2 w-2 rounded-full ${activeStatusFilter === f.id ? "bg-white" : f.dot}`} />
+                  {f.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Grid of Tables belonging to activeSectionTab */}
           <div className="custom-scrollbar max-h-[60vh] min-h-[260px] overflow-y-auto p-1">
             {tableModalTables.length === 0 ? (
-              <div className="py-12 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+              <div className="py-12 text-center border border-dashed border-slate-200 rounded-md bg-slate-50/50">
                 <Armchair size={38} className="mx-auto text-slate-300 mb-2" />
                 <p className="text-xs font-bold text-slate-500">No tables found in this section</p>
                 <p className="text-[11px] text-slate-400 mt-0.5">Try selecting &quot;All Sections&quot; or another tab above</p>
@@ -2423,7 +2448,7 @@ export default function RestaurantPOSPage() {
                         setShowSelectTableModal(false);
                         toast.success(`Table ${t.tableNo} (${t.floorName || "Section"}) selected!`);
                       }}
-                      className={`flex flex-col p-3 rounded-xl border text-left transition-all duration-150 cursor-pointer ${
+                      className={`flex flex-col p-3 rounded-md border text-left transition-all duration-150 cursor-pointer ${
                         isSelected
                           ? "border-orange-500 bg-orange-600 text-white shadow-sm"
                           : !isAvailable
@@ -2486,7 +2511,7 @@ export default function RestaurantPOSPage() {
             <button
               type="button"
               onClick={() => setShowSelectTableModal(false)}
-              className="px-4 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-gray-700 text-xs font-bold transition cursor-pointer"
+              className="px-4 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200 text-gray-700 text-xs font-bold transition cursor-pointer"
             >
               Close
             </button>
@@ -2499,7 +2524,7 @@ export default function RestaurantPOSPage() {
         open={showSelectStaffModal}
         onClose={() => setShowSelectStaffModal(false)}
         title="Select Staff / Server"
-        size="xl"
+        size="5xl"
       >
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -2515,7 +2540,7 @@ export default function RestaurantPOSPage() {
           </div>
 
           {/* Staff Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {staffList.map((staff) => {
               const isStaffActive = waiterName.toLowerCase() === staff.name.toLowerCase();
 
@@ -2528,16 +2553,16 @@ export default function RestaurantPOSPage() {
                     setShowSelectStaffModal(false);
                     toast.success(`${staff.name} assigned as staff!`);
                   }}
-                  className={`flex items-center gap-3 p-3 rounded-xl border text-left transition duration-150 cursor-pointer ${
+                  className={`flex items-center gap-3 p-3 rounded-md border text-left transition duration-150 cursor-pointer ${
                     isStaffActive
-                      ? "border-orange-500 bg-orange-50/90 ring-2 ring-orange-200 shadow-xs"
-                      : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/40"
+                      ? "border-orange-500 bg-orange-600 text-white shadow-sm"
+                      : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/60 hover:shadow-sm"
                   }`}
                 >
                   <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-black text-sm shadow-2xs ${
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md font-black text-sm shadow-2xs ${
                       isStaffActive
-                        ? "bg-orange-600 text-white"
+                        ? "bg-white/20 text-white"
                         : staff.avatarColor || "bg-orange-100 text-orange-700"
                     }`}
                   >
@@ -2546,14 +2571,16 @@ export default function RestaurantPOSPage() {
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <h5 className="font-black text-gray-800 text-sm truncate">{staff.name}</h5>
-                      {isStaffActive && <CheckCircle2 size={15} className="text-orange-600 shrink-0" />}
+                      <h5 className={`font-black text-sm ${isStaffActive ? "text-white" : "text-gray-800"}`}>{staff.name}</h5>
+                      {isStaffActive && <CheckCircle2 size={15} className="text-white shrink-0" />}
                     </div>
-                    <p className="text-[11px] text-gray-500 font-medium truncate">
+                    <p className={`text-[11px] font-medium ${isStaffActive ? "text-orange-100" : "text-gray-500"}`}>
                       {staff.role || "Waiter"}
                     </p>
                     {staff.shift && (
-                      <span className="inline-block mt-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">
+                      <span className={`inline-block mt-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                        isStaffActive ? "bg-white/15 text-orange-100" : "bg-slate-100 text-slate-600"
+                      }`}>
                         {staff.shift}
                       </span>
                     )}
@@ -2561,41 +2588,6 @@ export default function RestaurantPOSPage() {
                 </button>
               );
             })}
-          </div>
-
-          {/* Custom Staff Input */}
-          <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
-            <span className="text-xs font-bold text-gray-500 shrink-0">Custom Name:</span>
-            <input
-              type="text"
-              value={customStaffName}
-              onChange={(e) => setCustomStaffName(e.target.value)}
-              placeholder="Enter staff name..."
-              className="flex-1 text-xs border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && customStaffName.trim()) {
-                  setWaiterName(customStaffName.trim());
-                  setCustomStaffName("");
-                  setShowSelectStaffModal(false);
-                  toast.success(`${customStaffName.trim()} assigned!`);
-                }
-              }}
-            />
-            <button
-              type="button"
-              disabled={!customStaffName.trim()}
-              onClick={() => {
-                if (customStaffName.trim()) {
-                  setWaiterName(customStaffName.trim());
-                  setCustomStaffName("");
-                  setShowSelectStaffModal(false);
-                  toast.success(`${customStaffName.trim()} assigned!`);
-                }
-              }}
-              className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold disabled:opacity-50 transition cursor-pointer"
-            >
-              Set Staff
-            </button>
           </div>
         </div>
       </CustomModal>
