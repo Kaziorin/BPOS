@@ -221,49 +221,50 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "relative hidden shrink-0 flex-col border-r border-slate-800/80 bg-[#0F172A] text-slate-100 transition-[width] duration-300 ease-in-out lg:flex shadow-2xl overflow-hidden select-none",
+        "relative hidden shrink-0 flex-col border-r border-slate-700/60 bg-[#132238] text-slate-100 transition-[width] duration-300 ease-in-out lg:flex shadow-2xl overflow-hidden select-none",
         collapsed ? "w-[72px]" : "w-64",
       )}
     >
-      {/* ── Single Unified Flowing Ambient Wave Backdrop (Reference Image Spec) ── */}
+      {/* ── Horizontal Left-to-Right Wave & Luminous Ambient Glow Backdrop (Reference Image Spec) ── */}
       <div className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden z-0 bg-[#0F172A]">
-        {/* Continuous Top-to-Bottom Multi-Point Ambient Radial Glow */}
+        {/* Horizontal Left-to-Right Ambient Radial Glow (Top & Bottom Brightness) */}
         <div
-          className="absolute inset-0 w-full h-full opacity-80"
+          className="absolute inset-0 w-full h-full opacity-90"
           style={{
             background: `
-              radial-gradient(circle at 10% 15%, rgba(20, 184, 166, 0.35) 0%, transparent 45%),
-              radial-gradient(circle at 85% 45%, rgba(0, 201, 183, 0.22) 0%, transparent 50%),
-              radial-gradient(circle at 25% 85%, rgba(16, 185, 129, 0.40) 0%, transparent 55%)
+              radial-gradient(circle at 20% 0%, rgba(20, 184, 166, 0.50) 0%, transparent 60%),
+              radial-gradient(circle at 80% 20%, rgba(0, 201, 183, 0.40) 0%, transparent 55%),
+              radial-gradient(circle at 10% 85%, rgba(20, 184, 166, 0.45) 0%, transparent 65%),
+              radial-gradient(circle at 90% 90%, rgba(0, 201, 183, 0.35) 0%, transparent 60%)
             `,
           }}
         />
 
-        {/* ONE Single Continuous Dynamic Wave Path (Top to Bottom Single Flow) */}
+        {/* Horizontal Left-to-Right Wave Vector Graphics at Bottom Section */}
         <svg
-          className="absolute inset-0 w-full h-full opacity-45"
+          className="absolute bottom-0 left-0 w-full h-64 opacity-60"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
-          viewBox="0 0 200 800"
+          viewBox="0 0 256 160"
         >
           <path
-            d="M 0 0 C 120 180, -40 380, 160 520 C 230 620, 40 720, 200 800 L 0 800 Z"
-            fill="url(#sidebar-unified-flow)"
+            d="M -10 110 C 60 40, 140 150, 266 75 L 266 160 L -10 160 Z"
+            fill="url(#wave-left-right-1)"
           />
           <path
-            d="M 200 0 C 70 220, 230 420, 60 620 C -20 720, 130 780, 0 800 L 200 800 Z"
-            fill="url(#sidebar-unified-flow-2)"
+            d="M -10 135 C 90 65, 170 145, 266 95 L 266 160 L -10 160 Z"
+            fill="url(#wave-left-right-2)"
           />
           <defs>
-            <linearGradient id="sidebar-unified-flow" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#14B8A6" stopOpacity="0.45" />
-              <stop offset="50%" stopColor="#00C9B7" stopOpacity="0.30" />
-              <stop offset="100%" stopColor="#10B981" stopOpacity="0.65" />
+            <linearGradient id="wave-left-right-1" x1="0%" y1="50%" x2="100%" y2="50%">
+              <stop offset="0%" stopColor="#14B8A6" stopOpacity="0.65" />
+              <stop offset="60%" stopColor="#00C9B7" stopOpacity="0.40" />
+              <stop offset="100%" stopColor="#6366F1" stopOpacity="0.15" />
             </linearGradient>
-            <linearGradient id="sidebar-unified-flow-2" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#6366F1" stopOpacity="0.15" />
-              <stop offset="60%" stopColor="#14B8A6" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#00C9B7" stopOpacity="0.50" />
+            <linearGradient id="wave-left-right-2" x1="0%" y1="50%" x2="100%" y2="50%">
+              <stop offset="0%" stopColor="#00C9B7" stopOpacity="0.50" />
+              <stop offset="70%" stopColor="#10B981" stopOpacity="0.70" />
+              <stop offset="100%" stopColor="#14B8A6" stopOpacity="0.25" />
             </linearGradient>
           </defs>
         </svg>
@@ -272,7 +273,7 @@ export function Sidebar() {
       {/* Collapse Toggle Button */}
       <button
         onClick={toggleCollapse}
-        className="absolute -right-3.5 top-6 z-30 flex h-7 w-7 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-slate-300 shadow-md transition-transform duration-200 hover:scale-110 hover:border-teal-400 hover:text-white focus:outline-none cursor-pointer"
+        className="absolute -right-3.5 top-6 z-30 flex h-7 w-7 items-center justify-center rounded-full border border-slate-600 bg-slate-800 text-slate-200 shadow-md transition-transform duration-200 hover:scale-110 hover:border-teal-400 hover:text-white focus:outline-none cursor-pointer"
         title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
       >
         {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
@@ -281,7 +282,7 @@ export function Sidebar() {
       {/* Brand Header */}
       <div
         className={cn(
-          "relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-slate-800/80 px-4 bg-slate-900/40 backdrop-blur-md",
+          "relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-slate-700/60 px-4 bg-slate-800/40 backdrop-blur-md",
           collapsed && "justify-center px-0",
         )}
       >
@@ -299,7 +300,7 @@ export function Sidebar() {
                   PRO
                 </span>
               </div>
-              <span className="truncate text-[10px] text-teal-300/80 font-medium tracking-wide">
+              <span className="truncate text-[10px] text-teal-300 font-medium tracking-wide">
                 Smart · Fast · All Industries
               </span>
             </div>
@@ -311,18 +312,18 @@ export function Sidebar() {
       {!collapsed && (
         <div className="relative z-10 px-3 pt-3 pb-1">
           <div className="relative flex items-center">
-            <Search size={14} className="absolute left-2.5 text-slate-400 pointer-events-none" />
+            <Search size={14} className="absolute left-2.5 text-slate-300 pointer-events-none" />
             <input
               type="text"
               placeholder="Search menu..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-slate-700/80 bg-slate-800/80 py-1.5 pl-8 pr-7 text-xs text-slate-100 placeholder-slate-400 shadow-inner transition focus:border-[#14B8A6] focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20"
+              className="w-full rounded-xl border border-slate-600/70 bg-slate-800/70 py-1.5 pl-8 pr-7 text-xs text-white placeholder-slate-300 shadow-inner transition focus:border-[#14B8A6] focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/30"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2 text-slate-400 hover:text-white"
+                className="absolute right-2 text-slate-300 hover:text-white"
               >
                 <X size={13} />
               </button>
@@ -348,8 +349,8 @@ export function Sidebar() {
               {/* Category Group Header */}
               {!collapsed && (
                 <div className="px-2 pt-2 pb-1 flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#14B8A6]" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#14B8A6] shadow-xs shadow-teal-400" />
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#94A3B8]">
                     {group.title}
                   </span>
                 </div>
@@ -376,35 +377,20 @@ export function Sidebar() {
         )}
       </nav>
 
-      {/* ── Floating "Grow Your Business" Promo Card (Exact Reference Image Spec) ── */}
-      {!collapsed && (
-        <div className="relative z-10 mx-3 mb-2.5 overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-xl shadow-lg transition hover:bg-white/15 cursor-pointer">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#14B8A6] via-[#00C9B7] to-[#10B981] text-white shadow-md shadow-teal-500/30">
-              <Play size={15} className="ml-0.5 fill-white" />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="truncate text-xs font-bold text-white tracking-tight">Grow Your Business</span>
-              <span className="truncate text-[10px] font-medium text-slate-300/90">Smart POS, Better Tomorrow</span>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Sidebar Footer User Info & Logout */}
-      <div className="relative z-10 border-t border-slate-800/80 p-2.5 bg-slate-900/60 backdrop-blur-md">
+      <div className="relative z-10 border-t border-slate-800/80 p-2.5 bg-slate-900/80 backdrop-blur-md">
         {!collapsed ? (
-          <div className="flex items-center justify-between rounded-xl border border-slate-700/60 bg-slate-800/80 p-2 shadow-2xs">
+          <div className="flex items-center justify-between rounded-xl border border-slate-700/80 bg-slate-800/90 p-2 shadow-2xs">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-[#14B8A6] to-[#6366F1] text-xs font-bold text-white shadow-2xs">
                 {(user?.name || "A")[0].toUpperCase()}
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="truncate text-xs font-semibold text-white">
+                <span className="truncate text-xs font-bold text-white">
                   {user?.name || "Administrator"}
                 </span>
-                <span className="truncate text-[10px] text-slate-400 font-medium">
+                <span className="truncate text-[10px] text-slate-300 font-medium">
                   {user?.role || "Main Branch"}
                 </span>
               </div>
@@ -412,7 +398,7 @@ export function Sidebar() {
             <button
               onClick={logout}
               title="Logout"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-500/20 hover:text-rose-400 cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 transition hover:bg-rose-500/20 hover:text-rose-400 cursor-pointer"
             >
               <LogOut size={15} />
             </button>
@@ -421,7 +407,7 @@ export function Sidebar() {
           <button
             onClick={logout}
             title="Logout"
-            className="flex h-9 w-full items-center justify-center rounded-xl text-slate-400 transition hover:bg-rose-500/20 hover:text-rose-400 cursor-pointer"
+            className="flex h-9 w-full items-center justify-center rounded-xl text-slate-300 transition hover:bg-rose-500/20 hover:text-rose-400 cursor-pointer"
           >
             <LogOut size={17} />
           </button>
@@ -469,8 +455,8 @@ function ModuleRow({
         className={cn(
           "mx-auto flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200",
           active
-            ? "bg-gradient-to-tr from-[#14B8A6] to-[#10B981] text-white shadow-md shadow-teal-500/30"
-            : "text-slate-400 hover:bg-slate-800/80 hover:text-white",
+            ? "bg-gradient-to-tr from-[#14B8A6] to-[#10B981] text-white shadow-md shadow-teal-500/40"
+            : "text-[#2DD4BF] hover:bg-slate-800/80 hover:text-white",
         )}
       >
         <Icon size={18} />
@@ -484,10 +470,10 @@ function ModuleRow({
       <Link
         href={item.href}
         className={cn(
-          "group flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200",
+          "group flex items-center justify-between rounded-xl px-3 py-2 text-xs transition-all duration-200",
           active
-            ? "bg-gradient-to-r from-[#14B8A6] to-[#00C9B7] text-white font-bold shadow-md shadow-teal-500/25"
-            : "text-slate-300 hover:bg-slate-800/70 hover:text-white",
+            ? "bg-gradient-to-r from-[#14B8A6] via-[#0EA5A0] to-[#00C9B7] text-white font-bold shadow-lg shadow-teal-500/30 border-l-4 border-white"
+            : "text-slate-100 font-semibold hover:bg-slate-800/80 hover:text-white",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0">
@@ -495,7 +481,7 @@ function ModuleRow({
             size={16}
             className={cn(
               "transition-colors duration-200",
-              active ? "text-white" : "text-slate-400 group-hover:text-slate-200",
+              active ? "text-white" : "text-[#2DD4BF] group-hover:text-white",
             )}
           />
           <span className="truncate">{item.label}</span>
@@ -503,7 +489,7 @@ function ModuleRow({
         {item.badge && (
           <span className={cn(
             "shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-md",
-            active ? "bg-white/20 text-white" : "bg-teal-500/20 text-teal-300 border border-teal-500/30"
+            active ? "bg-white/20 text-white" : "bg-teal-500/20 text-teal-300 border border-teal-500/40"
           )}>
             {item.badge}
           </span>
@@ -518,10 +504,10 @@ function ModuleRow({
       <button
         onClick={onToggleModule}
         className={cn(
-          "group flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200 cursor-pointer",
+          "group flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
           active
-            ? "bg-gradient-to-r from-[#14B8A6] to-[#00C9B7] text-white font-bold shadow-md shadow-teal-500/25"
-            : "text-slate-300 hover:bg-slate-800/70 hover:text-white",
+            ? "bg-gradient-to-r from-[#14B8A6] via-[#0EA5A0] to-[#00C9B7] text-white font-bold shadow-lg shadow-teal-500/30 border-l-4 border-white"
+            : "text-slate-100 font-semibold hover:bg-slate-800/80 hover:text-white",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -529,7 +515,7 @@ function ModuleRow({
             size={16}
             className={cn(
               "transition-colors duration-200",
-              active ? "text-white" : "text-slate-400 group-hover:text-slate-200",
+              active ? "text-white" : "text-[#2DD4BF] group-hover:text-white",
             )}
           />
           <span className="truncate text-left">{item.label}</span>
@@ -537,7 +523,7 @@ function ModuleRow({
         {item.badge && (
           <span className={cn(
             "shrink-0 mr-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md",
-            active ? "bg-white/20 text-white" : "bg-teal-500/20 text-teal-300 border border-teal-500/30"
+            active ? "bg-white/20 text-white" : "bg-teal-500/20 text-teal-300 border border-teal-500/40"
           )}>
             {item.badge}
           </span>
@@ -546,7 +532,7 @@ function ModuleRow({
           size={13}
           className={cn(
             "shrink-0 transition-transform duration-200",
-            active ? "text-white" : "text-slate-400 group-hover:text-slate-200",
+            active ? "text-white" : "text-slate-400 group-hover:text-white",
             moduleExpanded && "rotate-180 text-white",
           )}
         />
@@ -554,7 +540,7 @@ function ModuleRow({
 
       {/* Submenu Children Container */}
       {moduleExpanded && (
-        <div className="ml-4 mt-0.5 space-y-0.5 border-l border-slate-700/80 pl-2.5 py-0.5">
+        <div className="ml-4 mt-0.5 space-y-0.5 border-l-2 border-slate-700/80 pl-2.5 py-0.5">
           {item.children!.map((child, idx) => (
             <MenuItemRow
               key={`${child.label}-${child.href}-${idx}`}
@@ -597,25 +583,25 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
             "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-150 cursor-pointer",
             active
               ? "font-bold text-teal-300 bg-slate-800/90"
-              : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200",
+              : "text-slate-300 font-semibold hover:bg-slate-800/70 hover:text-white",
           )}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <ChildIcon size={13} className={active ? "text-[#14B8A6]" : "text-slate-400"} />
+            <ChildIcon size={13} className={active ? "text-white" : "text-[#2DD4BF]"} />
             <span className="truncate text-left">{child.label}</span>
           </div>
           <ChevronDown
             size={12}
             className={cn(
               "shrink-0 text-slate-400 transition-transform duration-200",
-              itemExpanded && "rotate-180 text-teal-300",
+              itemExpanded && "rotate-180 text-white",
             )}
           />
         </button>
 
         {/* Render ONLY sub-children cleanly */}
         {itemExpanded && (
-          <div className="ml-3 mt-0.5 space-y-0.5 border-l border-slate-700/60 pl-2 py-0.5">
+          <div className="ml-3 mt-0.5 space-y-0.5 border-l border-slate-700/80 pl-2 py-0.5">
             {child.children!.map((sub, idx) => {
               const SubIcon = sub.icon;
               const subActive = isRouteActive(sub.href, pathname, allHrefs);
@@ -624,13 +610,13 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
                   key={`${sub.label}-${sub.href}-${idx}`}
                   href={sub.href}
                   className={cn(
-                    "flex items-center gap-2 rounded-md px-2 py-1 text-[11px] font-medium transition-colors duration-150",
+                    "flex items-center gap-2 rounded-md px-2 py-1 text-[11px] font-semibold transition-colors duration-150",
                     subActive
-                      ? "font-bold text-white bg-[#14B8A6]/30 border-l-2 border-[#14B8A6] pl-1.5"
-                      : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200",
+                      ? "font-bold text-white bg-[#14B8A6]/40 border-l-2 border-[#14B8A6] pl-1.5"
+                      : "text-slate-300 hover:bg-slate-800/70 hover:text-white",
                   )}
                 >
-                  <SubIcon size={11} className={subActive ? "text-[#14B8A6]" : "text-slate-400"} />
+                  <SubIcon size={11} className={subActive ? "text-white" : "text-[#2DD4BF]"} />
                   <span className="truncate">{sub.label}</span>
                 </Link>
               );
@@ -648,15 +634,15 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
       className={cn(
         "flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-all duration-150",
         exactActive
-          ? "bg-[#14B8A6]/25 text-white font-bold border-l-2 border-[#14B8A6] -ml-[11px] pl-[9px] rounded-r-lg"
-          : "text-slate-300 hover:bg-slate-800/60 hover:text-white font-medium",
+          ? "bg-[#14B8A6]/35 text-white font-bold border-l-3 border-[#14B8A6] -ml-[11px] pl-[9px] rounded-r-lg"
+          : "text-slate-200 font-semibold hover:bg-slate-800/70 hover:text-white",
       )}
     >
       <ChildIcon
         size={13}
         className={cn(
           "transition-colors",
-          exactActive ? "text-teal-300" : "text-slate-400",
+          exactActive ? "text-white" : "text-[#2DD4BF]",
         )}
       />
       <span className="truncate">{child.label}</span>
