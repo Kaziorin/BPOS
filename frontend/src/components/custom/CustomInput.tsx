@@ -12,11 +12,35 @@ export interface CustomInputProps extends InputHTMLAttributes<HTMLInputElement> 
   rightIcon?: ReactNode;
   containerClassName?: string;
   darkMode?: boolean;
+  rounded?: "none" | "sm" | "md" | "lg" | "xl" | "2xl" | "full";
 }
+
+const ROUNDED_CLASSES: Record<string, string> = {
+  none: "rounded-none",
+  sm: "rounded-sm",
+  md: "rounded-md",
+  lg: "rounded-lg",
+  xl: "rounded-xl",
+  "2xl": "rounded-2xl",
+  full: "rounded-full",
+};
 
 export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
   (
-    { label, error, hint, helperText, leftIcon, rightIcon, containerClassName, className, id, darkMode, ...props },
+    {
+      label,
+      error,
+      hint,
+      helperText,
+      leftIcon,
+      rightIcon,
+      containerClassName,
+      className,
+      id,
+      darkMode,
+      rounded = "md",
+      ...props
+    },
     ref
   ) => {
     const autoId = useId();
@@ -27,8 +51,8 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
       <div className={cn("w-full", containerClassName)}>
         {label && (
           <label htmlFor={inputId} className={cn(
-            "mb-1.5 block text-[15px] font-semibold capitalize",
-            darkMode ? "text-slate-300" : "text-gray-600"
+            "mb-1.5 block text-xs font-semibold capitalize",
+            darkMode ? "text-slate-300" : "text-slate-700"
           )}>
             {label}
           </label>
@@ -43,11 +67,12 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              "w-full rounded-lg border px-3 py-2 text-sm outline-none transition placeholder:text-gray-400",
+              "w-full border px-3 py-2 text-sm outline-none transition placeholder:text-gray-400",
+              ROUNDED_CLASSES[rounded] || "rounded-md",
               darkMode
                 ? "bg-slate-800 border-slate-700 text-slate-100 focus:border-primary-500 focus:ring-primary-500/20"
-                : "bg-white border-gray-300 text-gray-900 focus:border-primary-500 focus:ring-primary-100",
-              error ? "border-red-300" : "",
+                : "bg-white border-slate-300 text-slate-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10",
+              error ? "border-red-400 focus:border-red-500" : "",
               leftIcon && "pl-9",
               rightIcon && "pr-9",
               className
@@ -61,9 +86,9 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
           )}
         </div>
         {error ? (
-          <p className="mt-1.5 text-xs text-red-600">{error}</p>
+          <p className="mt-1 text-xs text-red-600">{error}</p>
         ) : bottomHint ? (
-          <p className="mt-1.5 text-xs text-gray-400">{bottomHint}</p>
+          <p className="mt-1 text-xs text-gray-400">{bottomHint}</p>
         ) : null}
       </div>
     );

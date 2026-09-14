@@ -53,9 +53,12 @@ import {
   SlidersHorizontal,
   Flame,
   Info,
+  Palette,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/cn";
+import { GLOBAL_THEMES, GlobalThemeConfig, GlobalThemeId } from "@/lib/theme";
+import { useTheme } from "@/components/theme/ThemeProvider";
 import {
   CustomBreadcrumb,
   CustomButton,
@@ -112,6 +115,15 @@ const SETTINGS_TABS: SettingsTabDef[] = [
     badge: "Counter",
     badgeColor: "bg-teal-50 text-teal-700 border-teal-200",
     description: "Receipt paper width, audio scanner chime, and cashier policies",
+  },
+  {
+    id: "theme",
+    label: "Theme & Appearance",
+    category: "core",
+    icon: Palette,
+    badge: "6 Themes",
+    badgeColor: "bg-cyan-50 text-cyan-700 border-cyan-200",
+    description: "Global color theme across tenant, business, and POS screens",
   },
   {
     id: "sync",
@@ -628,6 +640,12 @@ function SettingsContent() {
             <POSSettingsTab
               warehouses={warehouses}
               onSave={() => showToast("POS terminal & hardware settings saved!")}
+            />
+          )}
+
+          {activeTab === "theme" && (
+            <ThemeSettingsTab
+              onSave={() => showToast("Global theme preferences applied successfully!")}
             />
           )}
 
@@ -2285,6 +2303,130 @@ function SubscriptionSettingsTab({ tenantData }: { tenantData: any }) {
         </div>
       </div>
     </div>
+  );
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// TAB: THEME & GLOBAL APPEARANCE
+// ───────────────────────────────────────────────────────────────────────
+
+function ThemeSettingsTab({ onSave }: { onSave: () => void }) {
+  const { theme, setTheme } = useTheme();
+  const [selectedTheme, setSelectedTheme] = useState<GlobalThemeId>(theme || "ocean-teal");
+
+  useEffect(() => {
+    if (theme) setSelectedTheme(theme);
+  }, [theme]);
+
+  const handleSelect = (themeId: GlobalThemeId) => {
+    setSelectedTheme(themeId);
+    setTheme(themeId);
+  };
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setTheme(selectedTheme);
+    onSave();
+  };
+
+  return (
+    <form id="active-settings-form" onSubmit={handleSave} className="space-y-6 animate-in fade-in duration-300">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <h3 className="text-base font-bold text-slate-900">Global Color Theme & Palette</h3>
+          <p className="text-xs text-slate-500">
+            Select a primary modern theme. The selected theme will dynamically apply to all tenant, business, and POS screens.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-slate-500">Active Theme:</span>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary-50 text-primary-700 border border-primary-200 capitalize">
+            {GLOBAL_THEMES[selectedTheme]?.name || selectedTheme}
+          </span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {(Object.values(GLOBAL_THEMES) as GlobalThemeConfig[]).map((t) => {
+          const isSelected = selectedTheme === t.id;
+          return (
+            <div
+              key={t.id}
+              onClick={() => handleSelect(t.id)}
+              className={cn(
+                "group relative cursor-pointer rounded-2xl border-2 p-4 transition-all duration-200 shadow-2xs hover:shadow-md flex flex-col justify-between overflow-hidden",
+                isSelected
+                  ? "border-primary-600 bg-primary-50/20 ring-2 ring-primary-500/20"
+                  : "border-slate-200 bg-white hover:border-slate-300"
+              )}
+            >
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-4 h-4 rounded-full border border-black/10 shadow-2xs"
+                      style={{ backgroundColor: t.primaryHex }}
+                    />
+                    <h4 className="text-sm font-bold text-slate-900">{t.name}</h4>
+                  </div>
+                  {isSelected && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-white">
+                      <Check size={12} />
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-[11px] font-semibold text-slate-400 mb-3">{t.subtitle}</p>
+
+                {/* Color Palette Swatches */}
+                <div className="flex items-center gap-1.5 mb-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <div
+                    className="h-6 flex-1 rounded-md shadow-2xs border border-black/5"
+                    style={{ backgroundColor: t.primaryHex }}
+                    title="Primary"
+                  />
+                  <div
+                    className="h-6 flex-1 rounded-md shadow-2xs border border-black/5"
+                    style={{ backgroundColor: t.secondaryHex }}
+                    title="Secondary"
+                  />
+                  <div
+                    className="h-6 flex-1 rounded-md shadow-2xs border border-black/5"
+                    style={{ backgroundColor: t.accentHex }}
+                    title="Accent"
+                  />
+                </div>
+
+                <p className="text-xs text-slate-600 leading-relaxed mb-4">{t.description}</p>
+              </div>
+
+              {/* Action Footer */}
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-[11px] font-bold text-slate-400">
+                  {isSelected ? "Active Theme" : "Click to Apply"}
+                </span>
+                <span
+                  className={cn(
+                    "text-xs font-bold px-3 py-1 rounded-lg transition",
+                    isSelected
+                      ? "bg-primary-600 text-white shadow-2xs"
+                      : "bg-slate-100 text-slate-700 group-hover:bg-slate-200"
+                  )}
+                >
+                  {isSelected ? "Selected" : "Apply"}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex justify-end pt-4 border-t border-slate-100">
+        <CustomButton type="submit" variant="primary" icon={<Save size={14} />}>
+          Save Theme Preference
+        </CustomButton>
+      </div>
+    </form>
   );
 }
 

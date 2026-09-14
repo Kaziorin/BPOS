@@ -15,9 +15,117 @@
   --theme-primary-700: #0e7490;
   --theme-primary-800: #155e75;
   --theme-primary-900: #164e63;
-  --theme-accent: #f59e0b;
+  --theme-secondary: #0e7490;
+  --theme-accent: #06b6d4;
   --theme-glow: rgba(8, 145, 178, 0.25);
   --theme-gradient: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #0e7490 100%);
+}
+
+/* ========================================================================= */
+/* 6 CORE GLOBAL APP THEMES                                                  */
+/* User-selected across Tenant, Business, POS & System UI                    */
+/* ========================================================================= */
+
+/* 1. OCEAN TEAL (Default Modern Coastal Cyan) */
+[data-theme="ocean-teal"], .theme-ocean-teal {
+  --theme-primary-50: #ecfeff;
+  --theme-primary-100: #cffafe;
+  --theme-primary-200: #a5f3fc;
+  --theme-primary-300: #67e8f9;
+  --theme-primary-400: #22d3ee;
+  --theme-primary-500: #06b6d4;
+  --theme-primary-600: #0891b2;
+  --theme-primary-700: #0e7490;
+  --theme-primary-800: #155e75;
+  --theme-primary-900: #164e63;
+  --theme-secondary: #0e7490;
+  --theme-accent: #06b6d4;
+  --theme-glow: rgba(8, 145, 178, 0.25);
+}
+
+/* 2. ROYAL SAPPHIRE (Enterprise Cobalt Blue) */
+[data-theme="royal-sapphire"], .theme-royal-sapphire {
+  --theme-primary-50: #eff6ff;
+  --theme-primary-100: #dbeafe;
+  --theme-primary-200: #bfdbfe;
+  --theme-primary-300: #93c5fd;
+  --theme-primary-400: #60a5fa;
+  --theme-primary-500: #3b82f6;
+  --theme-primary-600: #2563eb;
+  --theme-primary-700: #1d4ed8;
+  --theme-primary-800: #1e40af;
+  --theme-primary-900: #1e3a8a;
+  --theme-secondary: #1d4ed8;
+  --theme-accent: #3b82f6;
+  --theme-glow: rgba(37, 99, 235, 0.25);
+}
+
+/* 3. EMERALD MINT (Fresh Organic Green) */
+[data-theme="emerald-mint"], .theme-emerald-mint {
+  --theme-primary-50: #ecfdf5;
+  --theme-primary-100: #d1fae5;
+  --theme-primary-200: #a7f3d0;
+  --theme-primary-300: #6ee7b7;
+  --theme-primary-400: #34d399;
+  --theme-primary-500: #10b981;
+  --theme-primary-600: #059669;
+  --theme-primary-700: #047857;
+  --theme-primary-800: #065f46;
+  --theme-primary-900: #064e3b;
+  --theme-secondary: #047857;
+  --theme-accent: #10b981;
+  --theme-glow: rgba(5, 150, 105, 0.25);
+}
+
+/* 4. MIDNIGHT VIOLET (Luxury Deep Purple) */
+[data-theme="midnight-violet"], .theme-midnight-violet {
+  --theme-primary-50: #f5f3ff;
+  --theme-primary-100: #ede9fe;
+  --theme-primary-200: #ddd6fe;
+  --theme-primary-300: #c4b5fd;
+  --theme-primary-400: #a78bfa;
+  --theme-primary-500: #8b5cf6;
+  --theme-primary-600: #7c3aed;
+  --theme-primary-700: #6d28d9;
+  --theme-primary-800: #5b21b6;
+  --theme-primary-900: #4c1d95;
+  --theme-secondary: #6d28d9;
+  --theme-accent: #8b5cf6;
+  --theme-glow: rgba(124, 58, 237, 0.25);
+}
+
+/* 5. WARM AMBER (Craft Copper & Bronze) */
+[data-theme="warm-amber"], .theme-warm-amber {
+  --theme-primary-50: #fffbeb;
+  --theme-primary-100: #fef3c7;
+  --theme-primary-200: #fde68a;
+  --theme-primary-300: #fcd34d;
+  --theme-primary-400: #fbbf24;
+  --theme-primary-500: #f59e0b;
+  --theme-primary-600: #d97706;
+  --theme-primary-700: #b45309;
+  --theme-primary-800: #92400e;
+  --theme-primary-900: #78350f;
+  --theme-secondary: #b45309;
+  --theme-accent: #f59e0b;
+  --theme-glow: rgba(217, 119, 6, 0.25);
+}
+
+/* 6. SLATE CHARCOAL (Minimalist Corporate Dark) */
+[data-theme="slate-charcoal"], .theme-slate-charcoal {
+  --theme-primary-50: #f8fafc;
+  --theme-primary-100: #f1f5f9;
+  --theme-primary-200: #e2e8f0;
+  --theme-primary-300: #cbd5e1;
+  --theme-primary-400: #94a3b8;
+  --theme-primary-500: #64748b;
+  --theme-primary-600: #475569;
+  --theme-primary-700: #334155;
+  --theme-primary-800: #1e293b;
+  --theme-primary-900: #0f172a;
+  --theme-secondary: #334155;
+  --theme-accent: #64748b;
+  --theme-glow: rgba(71, 85, 105, 0.25);
 }
 
 /* ========================================================================= */

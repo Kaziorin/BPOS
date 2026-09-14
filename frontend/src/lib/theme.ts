@@ -1,3 +1,89 @@
+export type GlobalThemeId =
+  | "ocean-teal"
+  | "royal-sapphire"
+  | "emerald-mint"
+  | "midnight-violet"
+  | "warm-amber"
+  | "slate-charcoal";
+
+export interface GlobalThemeConfig {
+  id: GlobalThemeId;
+  name: string;
+  subtitle: string;
+  primaryHex: string;
+  secondaryHex: string;
+  accentHex: string;
+  previewBg: string;
+  description: string;
+}
+
+export const GLOBAL_THEMES: Record<GlobalThemeId, GlobalThemeConfig> = {
+  "ocean-teal": {
+    id: "ocean-teal",
+    name: "Ocean Teal",
+    subtitle: "Modern Coastal Cyan",
+    primaryHex: "#0891b2",
+    secondaryHex: "#0e7490",
+    accentHex: "#06b6d4",
+    previewBg: "from-cyan-900 via-teal-900 to-slate-900",
+    description: "Crisp and refreshing cyan-teal palette for modern retail and POS environments.",
+  },
+  "royal-sapphire": {
+    id: "royal-sapphire",
+    name: "Royal Sapphire",
+    subtitle: "Enterprise Cobalt Blue",
+    primaryHex: "#2563eb",
+    secondaryHex: "#1d4ed8",
+    accentHex: "#3b82f6",
+    previewBg: "from-blue-900 via-indigo-900 to-slate-900",
+    description: "Executive cobalt sapphire theme for enterprise management and multi-branch stores.",
+  },
+  "emerald-mint": {
+    id: "emerald-mint",
+    name: "Emerald Mint",
+    subtitle: "Fresh Organic Green",
+    primaryHex: "#059669",
+    secondaryHex: "#047857",
+    accentHex: "#10b981",
+    previewBg: "from-emerald-900 via-teal-950 to-slate-900",
+    description: "Clean organic emerald theme ideal for grocery, health, and fresh product counters.",
+  },
+  "midnight-violet": {
+    id: "midnight-violet",
+    name: "Midnight Violet",
+    subtitle: "Luxury Deep Purple",
+    primaryHex: "#7c3aed",
+    secondaryHex: "#6d28d9",
+    accentHex: "#8b5cf6",
+    previewBg: "from-violet-900 via-purple-950 to-slate-900",
+    description: "Sophisticated deep violet theme tailored for boutique salons, spas, and fashion retail.",
+  },
+  "warm-amber": {
+    id: "warm-amber",
+    name: "Warm Amber",
+    subtitle: "Craft Copper & Bronze",
+    primaryHex: "#d97706",
+    secondaryHex: "#b45309",
+    accentHex: "#f59e0b",
+    previewBg: "from-amber-900 via-orange-950 to-slate-900",
+    description: "Warm craft copper and amber palette perfect for dining, cafes, and artisan bakeries.",
+  },
+  "slate-charcoal": {
+    id: "slate-charcoal",
+    name: "Slate Charcoal",
+    subtitle: "Minimalist Modern Dark",
+    primaryHex: "#475569",
+    secondaryHex: "#334155",
+    accentHex: "#64748b",
+    previewBg: "from-slate-800 via-zinc-900 to-black",
+    description: "High-contrast minimalist dark slate layout with ultra-clean precision styling.",
+  },
+};
+
+export function getGlobalThemeConfig(themeId: GlobalThemeId = "ocean-teal"): GlobalThemeConfig {
+  return GLOBAL_THEMES[themeId] || GLOBAL_THEMES["ocean-teal"];
+}
+
 export type VerticalThemeId =
   | "restaurant"
   | "grocery"
@@ -106,3 +192,4 @@ export const VERTICAL_THEMES: Record<VerticalThemeId, VerticalThemeConfig> = {
 export function getThemeConfig(themeId: VerticalThemeId = "restaurant"): VerticalThemeConfig {
   return VERTICAL_THEMES[themeId] || VERTICAL_THEMES.restaurant;
 }
+

@@ -3,7 +3,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
-import Link from "next/link";
 import { useAuth, ApiError } from "@/lib/auth";
 import { Mail, Lock } from "lucide-react";
 import { CustomInput } from "@/components/custom/CustomInput";
@@ -27,7 +26,11 @@ export default function LoginPage() {
       try {
         await login(values.email, values.password);
       } catch (err) {
-        setError(err instanceof ApiError ? err.message : "Login failed. Please check credentials or backend connection.");
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : "Login failed. Please check credentials or backend connection."
+        );
       } finally {
         setSubmitting(false);
       }
@@ -35,44 +38,34 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-radial from-slate-900 via-ink-950 to-black px-4 py-12">
-      {/* Background ambient lighting */}
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-slate-50/90 px-4 py-12">
+      {/* Soft background grid pattern */}
       <div
-        className="pointer-events-none absolute -top-40 -left-32 h-[500px] w-[500px] rounded-full bg-primary-500/15 blur-[120px]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -bottom-40 -right-32 h-[500px] w-[500px] rounded-full bg-cyan-600/15 blur-[140px]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-40"
         aria-hidden
       />
 
+      {/* Main Login Card */}
       <div className="relative w-full max-w-md">
-        {/* Brand header */}
-        <div className="mb-6 flex flex-col items-center text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-600 to-cyan-400 text-white shadow-xl shadow-primary-500/25 ring-4 ring-white/10 mb-3">
-            <siteConfig.logoIcon size={28} />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">{siteConfig.name}</h1>
-          <p className="mt-1 text-xs text-ink-300 font-medium tracking-wide uppercase">
-            Omnichannel POS & Business Operating System
-          </p>
-        </div>
-
-        {/* Login Form */}
         <form
           onSubmit={formik.handleSubmit}
-          className="rounded-3xl border border-white/10 bg-white/95 backdrop-blur-xl p-7 shadow-2xl shadow-black/60"
+          className="relative rounded-xl border border-slate-200 bg-white p-7 sm:p-8 shadow-xl shadow-slate-200/50 space-y-5 transition-all"
         >
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-base font-bold text-gray-900">Sign in to Terminal</h2>
-              <p className="text-xs text-gray-500">Enter your email and password to access your account</p>
+          {/* Centered Brand Header & Sign In Title */}
+          <div className="flex flex-col items-center text-center pb-4 border-b border-slate-100">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-600 text-white shadow-md shadow-primary-600/20 mb-3">
+              <siteConfig.logoIcon size={26} />
             </div>
+            <h1 className="text-xl font-bold tracking-tight text-slate-700">{siteConfig.name}</h1>
+            <h2 className="mt-2 text-sm font-semibold text-slate-600">Sign In</h2>
+          </div>
 
+          <div className="space-y-4">
             <CustomInput
               label="Email"
               name="email"
               type="email"
+              rounded="sm"
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -80,10 +73,12 @@ export default function LoginPage() {
               placeholder="user@example.com"
               leftIcon={<Mail size={15} />}
             />
+
             <CustomInput
               label="Password"
               name="password"
               type="password"
+              rounded="sm"
               value={formik.values.password}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -93,25 +88,24 @@ export default function LoginPage() {
             />
 
             {error && (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-600">
+              <div className="rounded-md border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-600 text-center">
                 {error}
               </div>
             )}
 
-            <CustomButton type="submit" loading={formik.isSubmitting} fullWidth size="lg">
-              {formik.isSubmitting ? "Authenticating..." : "Sign In to POS"}
+            <CustomButton
+              type="submit"
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={formik.isSubmitting}
+              className="mt-2 text-xs font-bold uppercase tracking-wider rounded-md shadow-sm"
+            >
+              {formik.isSubmitting ? "Authenticating..." : "Sign In"}
             </CustomButton>
-
-            <div className="text-center pt-2">
-              <span className="text-xs text-slate-500">Need a new business account? </span>
-              <Link href="/register" className="text-xs font-bold text-teal-600 hover:underline">
-                Create Store
-              </Link>
-            </div>
           </div>
         </form>
       </div>
     </div>
   );
 }
-
