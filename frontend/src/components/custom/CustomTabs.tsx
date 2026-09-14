@@ -20,6 +20,7 @@ export interface CustomTabsProps {
   variant?: "solid" | "pills" | "underline";
   darkMode?: boolean;
   inactiveClassName?: string;
+  wrap?: boolean;
 }
 
 const THEME_ACTIVE_STYLES: Record<string, string> = {
@@ -55,6 +56,7 @@ export function CustomTabs({
   variant = "solid",
   darkMode = false,
   inactiveClassName,
+  wrap = false,
 }: CustomTabsProps) {
   const activeStyle = THEME_ACTIVE_STYLES[themeColor] || THEME_ACTIVE_STYLES.orange;
   const hoverStyle = THEME_HOVER_STYLES(darkMode)[themeColor] || THEME_HOVER_STYLES(darkMode).orange;
@@ -62,7 +64,8 @@ export function CustomTabs({
   return (
     <div
       className={cn(
-        "flex items-center gap-1.5 overflow-x-auto rounded-md p-1.5 w-full transition-colors",
+        "flex items-center gap-1.5 rounded-md p-1.5 w-full transition-colors",
+        wrap ? "flex-wrap overflow-x-visible" : "overflow-x-auto",
         darkMode
           ? "border border-slate-800 bg-slate-900 shadow-none"
           : "border border-slate-200 bg-white shadow-2xs",

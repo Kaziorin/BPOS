@@ -599,7 +599,6 @@ export default function PosPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordingAction]);
 
-  // ── Hold / Resume ──
   async function loadHolds() {
     if (!tenantInfo?.branch?.id) return;
     if (isOnline()) {
