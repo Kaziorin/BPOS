@@ -177,7 +177,7 @@ export default function CommissionRulesPage() {
   const labelCls = "block text-xs font-semibold uppercase tracking-wide text-gray-500";
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="w-full px-4 sm:px-8 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/commission" className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
@@ -209,7 +209,7 @@ export default function CommissionRulesPage() {
           <p className="mt-1 text-sm text-gray-400">Rules auto-calculate commission when matching sales complete.</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {rules.map((rule) => (
             <div key={rule.id} className={`group relative rounded-2xl border p-5 shadow-sm transition ${rule.isActive ? "border-gray-100 bg-white hover:shadow-md" : "border-gray-100 bg-gray-50 opacity-70"}`}>
               {/* Type badge */}

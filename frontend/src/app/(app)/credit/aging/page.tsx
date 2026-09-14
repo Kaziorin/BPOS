@@ -361,8 +361,8 @@ export default function AgingReportPage() {
       )}
 
       {/* ── TOP BANNER / HEADER (THEME COMPLIANT) ── */}
-      <div className="border-b border-slate-200/80 bg-white px-4 sm:px-6 py-5 shadow-xs">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="border-b border-slate-200/80 bg-white px-4 sm:px-8 py-5 shadow-xs w-full">
+        <div className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-md shadow-primary-500/25">
@@ -437,7 +437,7 @@ export default function AgingReportPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-3 sm:px-6 pt-5 space-y-5">
+      <div className="w-full px-4 sm:px-8 pt-5 space-y-5">
         {/* ── AGING SUMMARY SCORECARD CARDS (THEME TOKEN COMPLIANT) ── */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {/* 1. Total Outstanding AR */}
@@ -894,7 +894,7 @@ export default function AgingReportPage() {
           </div>
         ) : (
           /* ── GRID / CARD VIEW ── */
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
             {loading ? (
               <div className="col-span-full py-12 text-center text-slate-400">
                 <RefreshCw className="w-6 h-6 animate-spin mx-auto text-primary-500 mb-2" />

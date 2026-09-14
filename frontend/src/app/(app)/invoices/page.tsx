@@ -814,8 +814,8 @@ export default function InvoicesPage() {
       )}
 
       {/* Top Banner / Header */}
-      <div className="border-b border-slate-200/80 bg-white px-4 sm:px-6 py-5 shadow-xs">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="border-b border-slate-200/80 bg-white px-4 sm:px-8 py-5 shadow-xs w-full">
+        <div className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-md shadow-primary-500/25">
@@ -863,7 +863,7 @@ export default function InvoicesPage() {
         </div>
 
         {/* Module Sub-Navigation Bar */}
-        <div className="mx-auto mt-5 flex max-w-7xl items-center gap-2 overflow-x-auto border-t border-slate-100 pt-3 pb-1 no-scrollbar">
+        <div className="w-full mt-5 flex items-center gap-2 overflow-x-auto border-t border-slate-100 pt-3 pb-1 no-scrollbar">
           {[
             { id: "all", label: "Invoice Management", icon: FileText },
             { id: "aging", label: "Aging & Due Intelligence", icon: Clock },
@@ -894,7 +894,7 @@ export default function InvoicesPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-3 sm:px-6 pt-5">
+      <div className="w-full px-4 sm:px-8 pt-5">
         {/* Executive KPI Stats Cards */}
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {/* 1. Total Invoiced */}
@@ -1486,7 +1486,7 @@ export default function InvoicesPage() {
         ) : (
           /* Grid Card View */
           <div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {invoices.map((inv) => {
                 const dueAmt = Math.max(0, Number(inv.total) - Number(inv.paidTotal));
                 const overdue = isOverdue(inv);

@@ -62,7 +62,7 @@ export default function CommissionAgentsPage() {
   const fmt = (n: number) => `৳${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="w-full px-4 sm:px-8 space-y-6">
       <div className="flex items-center gap-3">
         <Link href="/commission" className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
           <ArrowLeft size={18} />
@@ -94,7 +94,7 @@ export default function CommissionAgentsPage() {
           <p className="mt-1 text-sm text-gray-400">Agents appear here once they earn their first commission from a completed sale.</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {agents.map((agent) => {
             const s = agent.stats;
             const hasPayable = s.totalPayable > 0;
