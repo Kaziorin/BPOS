@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Search, ChevronDown, ChevronRight, MoreHorizontal,
   Plus, Minus, X, Pause, Printer, DollarSign, CreditCard,
@@ -10,19 +10,39 @@ import {
   User, Check, Sparkles, RefreshCw, Zap, ShieldCheck,
 } from "lucide-react";
 import { CustomModal, CustomButton, CustomInput, CustomSelect } from "@/components/custom";
+import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 
-// ─── DATA & SCHEMAS ───────────────────────────────────────────────────────────
-const CATEGORIES = [
-  { id: "all",       label: "All Products",        emoji: "🧁", icon: "grid" },
-  { id: "bread",     label: "Bread & Bakery",       emoji: "🍞" },
-  { id: "cake",      label: "Cake & Pastry",        emoji: "🎂" },
-  { id: "cookies",   label: "Cookies & Biscuits",   emoji: "🍪" },
-  { id: "snacks",    label: "Snacks",               emoji: "🍿" },
-  { id: "flour",     label: "Flour & Raw Material", emoji: "🌾" },
-  { id: "beverage",  label: "Beverages",            emoji: "☕" },
-  { id: "dairy",     label: "Dairy & Egg",          emoji: "🥚" },
-  { id: "packaging", label: "Packaging",            emoji: "📦" },
-];
+// ─── DATA TYPES & SCHEMAS ──────────────────────────────────────────────────
+export interface Product {
+  id: string;
+  name: string;
+  unit: string;
+  price: number;
+  cost: number;
+  stock: number;
+  maxStock: number;
+  cat: string;
+  badge: string;
+  badgeColor: string;
+  emoji: string;
+  bgGradient: string;
+  sku: string;
+}
+
+export interface Category {
+  id: string;
+  label: string;
+  emoji: string;
+}
+
+export interface Customer {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  address?: string;
+}
 
 const ACTION_BTNS = [
   { id: "customer", label: "Add Customer", Icon: UserPlus,   color: "text-teal-600" },
@@ -46,27 +66,6 @@ const FOOTER_BTNS = [
   { label: "Delivery",    key: "F10", Icon: Truck,      id: "delivery" },
 ];
 
-const PRODUCTS = [
-  { id: 1,  name: "White Bread",           unit: "500g",       price: 45,  stock: 120, maxStock: 150, cat: "bread",   badge: "Popular",    badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200", emoji: "🍞", bgGradient: "from-amber-100/80 via-orange-50/60 to-yellow-100/40" },
-  { id: 2,  name: "Whole Wheat Bread",     unit: "500g",       price: 55,  stock: 85,  maxStock: 120, cat: "bread",   badge: "Healthy",    badgeColor: "bg-sky-100 text-sky-800 border-sky-200",             emoji: "🍞", bgGradient: "from-amber-100/80 via-amber-50/60 to-yellow-50/40" },
-  { id: 3,  name: "Burger Bun",            unit: "1 pcs",      price: 18,  stock: 200, maxStock: 250, cat: "bread",   badge: "Best Seller",badgeColor: "bg-amber-100 text-amber-800 border-amber-200",       emoji: "🥐", bgGradient: "from-yellow-100/80 via-amber-50/60 to-orange-50/40" },
-  { id: 4,  name: "Cake (Vanilla)",        unit: "1 kg",       price: 350, stock: 40,  maxStock: 60,  cat: "cake",    badge: "New",        badgeColor: "bg-rose-100 text-rose-800 border-rose-200",         emoji: "🎂", bgGradient: "from-rose-100/80 via-pink-50/60 to-orange-50/40" },
-  { id: 5,  name: "Chocolate Cake",        unit: "1 kg",       price: 420, stock: 25,  maxStock: 50,  cat: "cake",    badge: "Chef Special",badgeColor: "bg-purple-100 text-purple-800 border-purple-200",   emoji: "🍫", bgGradient: "from-purple-100/80 via-indigo-50/60 to-pink-50/40" },
-  { id: 6,  name: "Croissant",             unit: "1 pcs",      price: 60,  stock: 40,  maxStock: 80,  cat: "bread",   badge: "",           badgeColor: "",                                                   emoji: "🥐", bgGradient: "from-amber-100/80 via-yellow-50/60 to-orange-50/40" },
-  { id: 7,  name: "Danish Pastry",         unit: "1 pcs",      price: 55,  stock: 45,  maxStock: 80,  cat: "cake",    badge: "",           badgeColor: "",                                                   emoji: "🥐", bgGradient: "from-amber-100/80 via-rose-50/60 to-pink-50/40" },
-  { id: 8,  name: "Cookies (Choco Chip)",  unit: "250g",       price: 120, stock: 70,  maxStock: 100, cat: "cookies", badge: "Hot",        badgeColor: "bg-orange-100 text-orange-800 border-orange-200",   emoji: "🍪", bgGradient: "from-orange-100/80 via-amber-50/60 to-yellow-50/40" },
-  { id: 9,  name: "Biscuits (Butter)",     unit: "300g",       price: 80,  stock: 90,  maxStock: 120, cat: "cookies", badge: "",           badgeColor: "",                                                   emoji: "🍪", bgGradient: "from-amber-100/80 via-orange-50/60 to-yellow-50/40" },
-  { id: 10, name: "Muffin (Blueberry)",    unit: "1 pcs",      price: 40,  stock: 55,  maxStock: 80,  cat: "cake",    badge: "",           badgeColor: "",                                                   emoji: "🧁", bgGradient: "from-purple-100/80 via-pink-50/60 to-rose-50/40" },
-  { id: 11, name: "Flour (All Purpose)",   unit: "1 kg",       price: 65,  stock: 150, maxStock: 200, cat: "flour",   badge: "",           badgeColor: "",                                                   emoji: "🌾", bgGradient: "from-emerald-100/80 via-teal-50/60 to-green-50/40" },
-  { id: 12, name: "Yeast (Active Dry)",    unit: "500g",       price: 160, stock: 35,  maxStock: 60,  cat: "flour",   badge: "",           badgeColor: "",                                                   emoji: "🫙", bgGradient: "from-teal-100/80 via-emerald-50/60 to-sky-50/40" },
-  { id: 13, name: "Premium Butter",        unit: "200g",       price: 190, stock: 50,  maxStock: 75,  cat: "dairy",   badge: "Fresh",      badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200", emoji: "🧈", bgGradient: "from-yellow-100/90 via-amber-50/70 to-emerald-50/40" },
-  { id: 14, name: "Milk Powder",           unit: "500g",       price: 320, stock: 50,  maxStock: 80,  cat: "dairy",   badge: "",           badgeColor: "",                                                   emoji: "🥛", bgGradient: "from-sky-100/80 via-blue-50/60 to-teal-50/40" },
-  { id: 15, name: "Cooking Oil",           unit: "1 ltr",      price: 180, stock: 60,  maxStock: 100, cat: "flour",   badge: "",           badgeColor: "",                                                   emoji: "🫙", bgGradient: "from-amber-100/80 via-yellow-50/60 to-orange-50/40" },
-  { id: 16, name: "Refined Sugar",         unit: "1 kg",       price: 70,  stock: 120, maxStock: 180, cat: "flour",   badge: "",           badgeColor: "",                                                   emoji: "🍚", bgGradient: "from-slate-100/90 via-emerald-50/60 to-teal-50/40" },
-  { id: 17, name: "Iodized Salt",          unit: "1 kg",       price: 25,  stock: 200, maxStock: 250, cat: "flour",   badge: "",           badgeColor: "",                                                   emoji: "🧂", bgGradient: "from-slate-100/90 via-sky-50/60 to-blue-50/40" },
-  { id: 18, name: "Instant Noodles",       unit: "Pack (5 pcs)",price: 95, stock: 75,  maxStock: 100, cat: "snacks",  badge: "",           badgeColor: "",                                                   emoji: "🍜", bgGradient: "from-red-100/80 via-orange-50/60 to-amber-50/40" },
-];
-
 const PAYMENT_METHODS = [
   { key: "cash",   label: "Cash",           Icon: DollarSign,     color: "text-emerald-600" },
   { key: "card",   label: "Card / POS",     Icon: CreditCard,     color: "text-sky-600"     },
@@ -76,50 +75,198 @@ const PAYMENT_METHODS = [
   { key: "other",  label: "Other",          Icon: MoreHorizontal, color: "text-slate-500"   },
 ];
 
-type CartItem = typeof PRODUCTS[0] & { qty: number; discount: number };
-type HeldSale = { id: string; time: string; note: string; items: CartItem[]; total: number };
-
-const INITIAL_CART: CartItem[] = [
-  { ...PRODUCTS[0],  qty: 2, discount: 5  },
-  { ...PRODUCTS[2],  qty: 5, discount: 0  },
-  { ...PRODUCTS[3],  qty: 1, discount: 10 },
-  { ...PRODUCTS[7],  qty: 2, discount: 5  },
-  { ...PRODUCTS[12], qty: 1, discount: 0  },
-];
+type CartItem = Product & { qty: number; discount: number };
+type HeldSale = { id: string; holdNo?: string; time: string; note: string; items: CartItem[]; total: number };
 
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
 export default function BakeryPOSPage() {
+  const { user } = useAuth();
   const [activeCat, setActiveCat]           = useState("all");
   const [search, setSearch]                 = useState("");
-  const [cart, setCart]                     = useState<CartItem[]>(INITIAL_CART);
+  const [cart, setCart]                     = useState<CartItem[]>([]);
   const [payMethod, setPayMethod]           = useState("cash");
   const [viewMode, setViewMode]             = useState<"grid"|"list">("grid");
-  const [addedId, setAddedId]               = useState<number|null>(null);
+  const [addedId, setAddedId]               = useState<string|null>(null);
   const [time, setTime]                     = useState(new Date());
 
-  // Customers state
-  const [customers, setCustomers]           = useState([
+  // Backend Dynamic Data States
+  const [products, setProducts]             = useState<Product[]>([]);
+  const [categories, setCategories]         = useState<Category[]>([
+    { id: "all", label: "All Products", emoji: "🧁" },
+  ]);
+  const [customers, setCustomers]           = useState<Customer[]>([
     { id: "walkin", name: "Walk-in Customer", phone: "" },
-    { id: "c1", name: "Rahat Khan", phone: "01712345678" },
-    { id: "c2", name: "Anika Rahman", phone: "01898765432" },
-    { id: "c3", name: "Tanvir Ahmed", phone: "01911223344" },
   ]);
   const [selectedCust, setSelectedCust]     = useState("walkin");
+  const [heldSales, setHeldSales]           = useState<HeldSale[]>([]);
+
+  // System Stats
+  const [todaySales, setTodaySales]         = useState(0);
+  const [todayOrders, setTodayOrders]       = useState(0);
+  const [loading, setLoading]               = useState(true);
+  const [submitting, setSubmitting]         = useState(false);
+  const [lastInvoiceNo, setLastInvoiceNo]   = useState("#POS-000101");
 
   // Modals & Triggers
   const [showHoldModal, setShowHoldModal]   = useState(false);
   const [showCustModal, setShowCustModal]   = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [holdNote, setHoldNote]             = useState("");
-  const [heldSales, setHeldSales]           = useState<HeldSale[]>([]);
 
-  // Customer form inputs
+  // Customer form & tab inputs
+  const [custModalTab, setCustModalTab]     = useState<"view"|"add">("view");
+  const [custSearchQuery, setCustSearchQuery] = useState("");
   const [newCustName, setNewCustName]       = useState("");
   const [newCustPhone, setNewCustPhone]     = useState("");
+  const [newCustEmail, setNewCustEmail]     = useState("");
+  const [newCustAddress, setNewCustAddress] = useState("");
 
   // Toast System
   const [toast, setToast]                   = useState<{ msg: string; type?: "success"|"info" } | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // ─── FETCH BACKEND DATA ────────────────────────────────────────────────────
+  const fetchProducts = useCallback(async () => {
+    try {
+      const res: any = await api.get("/api/v1/products?limit=200");
+      const list = res?.data?.data || res?.data || (Array.isArray(res) ? res : []);
+      if (Array.isArray(list)) {
+        const mapped: Product[] = list.map((p: any) => {
+          let attr: any = {};
+          if (p.attributes) {
+            try {
+              attr = typeof p.attributes === "string" ? JSON.parse(p.attributes) : p.attributes;
+            } catch { /* ignore */ }
+          }
+          const stockVal = Number(p.totalStock ?? p.stockQty ?? 100);
+          return {
+            id: String(p.id),
+            name: p.name || "Product",
+            unit: p.unit?.name || attr.unit || "pcs",
+            price: Number(p.sellingPrice || 0),
+            cost: Number(p.costPrice || 0),
+            stock: stockVal,
+            maxStock: Math.max(stockVal, 150),
+            cat: p.category?.id || (p.category?.name ? p.category.name.toLowerCase() : "bread"),
+            badge: attr.badge || "",
+            badgeColor: attr.badgeColor || "bg-emerald-100 text-emerald-800 border-emerald-200",
+            emoji: attr.emoji || "🧁",
+            bgGradient: attr.bgGradient || "from-amber-100/80 via-orange-50/60 to-yellow-100/40",
+            sku: p.sku || "",
+          };
+        });
+        setProducts(mapped);
+      }
+    } catch (err) {
+      console.error("Failed to fetch products:", err);
+    }
+  }, []);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res: any = await api.get("/api/v1/products/categories");
+      const list = res?.data?.data || res?.data || (Array.isArray(res) ? res : []);
+      if (Array.isArray(list)) {
+        const mapped: Category[] = list.map((c: any) => ({
+          id: String(c.id),
+          label: c.name || "Category",
+          emoji: c.icon || "🧁",
+        }));
+        setCategories([{ id: "all", label: "All Products", emoji: "🧁" }, ...mapped]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch categories:", err);
+    }
+  }, []);
+
+  const fetchCustomers = useCallback(async () => {
+    try {
+      const res: any = await api.get("/api/v1/customers?limit=200");
+      const list = res?.data?.data || res?.data || (Array.isArray(res) ? res : []);
+      if (Array.isArray(list)) {
+        const mapped: Customer[] = list.map((c: any) => ({
+          id: String(c.id),
+          name: c.name || "Customer",
+          phone: c.phone || "",
+          email: c.email || "",
+          address: c.address || "",
+        }));
+        setCustomers([{ id: "walkin", name: "Walk-in Customer", phone: "", email: "", address: "" }, ...mapped]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch customers:", err);
+    }
+  }, []);
+
+  const fetchHeldSales = useCallback(async () => {
+    try {
+      const res: any = await api.get("/api/v1/pos/holds");
+      const list = res?.data?.data || res?.data || (Array.isArray(res) ? res : []);
+      if (Array.isArray(list)) {
+        const mapped: HeldSale[] = list.map((h: any) => {
+          let items: CartItem[] = [];
+          if (h.cartSnapshot) {
+            try {
+              items = typeof h.cartSnapshot === "string" ? JSON.parse(h.cartSnapshot) : h.cartSnapshot;
+            } catch { /* ignore */ }
+          }
+          const tot = items.reduce((s, i) => s + (i.price * i.qty * (1 - (i.discount || 0) / 100)), 0);
+          const formattedTime = h.createdAt ? new Date(h.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Recently";
+          return {
+            id: String(h.id),
+            holdNo: h.holdNo || `#HOLD-${h.id.slice(0, 4)}`,
+            time: formattedTime,
+            note: h.note || "General Order",
+            items,
+            total: tot,
+          };
+        });
+        setHeldSales(mapped);
+      }
+    } catch (err) {
+      console.error("Failed to fetch held sales:", err);
+    }
+  }, []);
+
+  const fetchTodayStats = useCallback(async () => {
+    try {
+      const res: any = await api.get("/api/v1/pos/sales?limit=100");
+      const list = res?.data?.data || res?.data || (Array.isArray(res) ? res : []);
+      if (Array.isArray(list)) {
+        const todayStr = new Date().toISOString().split("T")[0];
+        let totRev = 0;
+        let count = 0;
+        list.forEach((s: any) => {
+          if (s.createdAt && s.createdAt.startsWith(todayStr)) {
+            totRev += Number(s.total || s.grandTotal || 0);
+            count += 1;
+          }
+        });
+        setTodaySales(totRev);
+        setTodayOrders(count);
+      }
+    } catch (err) {
+      console.error("Failed to fetch sales stats:", err);
+      setTodaySales(0);
+      setTodayOrders(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      setLoading(true);
+      await Promise.allSettled([
+        fetchProducts(),
+        fetchCategories(),
+        fetchCustomers(),
+        fetchHeldSales(),
+        fetchTodayStats(),
+      ]);
+      if (active) setLoading(false);
+    })();
+    return () => { active = false; };
+  }, [fetchProducts, fetchCategories, fetchCustomers, fetchHeldSales, fetchTodayStats]);
 
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
@@ -159,12 +306,12 @@ export default function BakeryPOSPage() {
     setTimeout(() => setToast(null), 2500);
   }
 
-  const filtered = PRODUCTS.filter(p =>
-    (activeCat === "all" || p.cat === activeCat) &&
-    (p.name.toLowerCase().includes(search.toLowerCase()) || p.cat.toLowerCase().includes(search.toLowerCase()))
+  const filtered = products.filter(p =>
+    (activeCat === "all" || p.cat === activeCat || p.cat.toLowerCase() === activeCat.toLowerCase()) &&
+    (p.name.toLowerCase().includes(search.toLowerCase()) || p.cat.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase()))
   );
 
-  function addToCart(p: typeof PRODUCTS[0]) {
+  function addToCart(p: Product) {
     setAddedId(p.id);
     setTimeout(() => setAddedId(null), 500);
     setCart(prev => {
@@ -175,57 +322,145 @@ export default function BakeryPOSPage() {
     triggerToast(`Added ${p.name} to cart`);
   }
 
-  function updQty(id: number, d: number) {
+  function updQty(id: string, d: number) {
     setCart(prev => prev.map(c => c.id === id ? { ...c, qty: Math.max(1, c.qty + d) } : c));
   }
 
-  function remItem(id: number) {
+  function remItem(id: string) {
     setCart(prev => prev.filter(c => c.id !== id));
   }
 
-  function handleHoldSale() {
+  async function handleHoldSale() {
     if (cart.length === 0) return;
-    const newHold: HeldSale = {
-      id: `#HOLD-${Math.floor(1000 + Math.random() * 9000)}`,
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      note: holdNote || "General Customer Order",
-      items: [...cart],
-      total: grandTotal,
-    };
-    setHeldSales(prev => [newHold, ...prev]);
-    setCart([]);
-    setHoldNote("");
-    setShowHoldModal(false);
-    triggerToast(`Order ${newHold.id} held successfully!`);
+    try {
+      const res: any = await api.post("/api/v1/pos/holds", {
+        items: cart,
+        note: holdNote || "General Customer Order",
+        customerId: selectedCust === "walkin" ? null : selectedCust,
+      });
+      const holdNo = res?.data?.holdNo || res?.holdNo || `#HOLD-${Math.floor(1000 + Math.random() * 9000)}`;
+      await fetchHeldSales();
+      setCart([]);
+      setHoldNote("");
+      setShowHoldModal(false);
+      triggerToast(`Order ${holdNo} held successfully!`);
+    } catch (err: any) {
+      console.error("Failed to hold sale via API:", err);
+      const newHold: HeldSale = {
+        id: `h_${Date.now()}`,
+        holdNo: `#HOLD-${Math.floor(1000 + Math.random() * 9000)}`,
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        note: holdNote || "General Order",
+        items: [...cart],
+        total: grandTotal,
+      };
+      setHeldSales(prev => [newHold, ...prev]);
+      setCart([]);
+      setHoldNote("");
+      setShowHoldModal(false);
+      triggerToast(`Order ${newHold.holdNo} held!`);
+    }
   }
 
-  function restoreHeldSale(h: HeldSale) {
+  async function restoreHeldSale(h: HeldSale) {
+    try {
+      if (!h.id.startsWith("h_")) {
+        await api.del(`/api/v1/pos/holds/${h.id}`);
+      }
+    } catch (err) {
+      console.error("Failed to delete hold:", err);
+    }
     setCart(h.items);
     setHeldSales(prev => prev.filter(x => x.id !== h.id));
     setShowHoldModal(false);
-    triggerToast(`Restored held order ${h.id}`);
+    triggerToast(`Restored held order ${h.holdNo || h.id}`);
   }
 
-  function handleAddCustomer(e: React.FormEvent) {
+  async function handleAddCustomer(e: React.FormEvent) {
     e.preventDefault();
     if (!newCustName) return;
-    const newC = {
-      id: `c_${Date.now()}`,
-      name: newCustName,
-      phone: newCustPhone || "N/A",
-    };
-    setCustomers(prev => [...prev, newC]);
-    setSelectedCust(newC.id);
-    setNewCustName("");
-    setNewCustPhone("");
-    setShowCustModal(false);
-    triggerToast(`Customer ${newC.name} added!`);
+    try {
+      const res: any = await api.post("/api/v1/customers", {
+        name: newCustName,
+        phone: newCustPhone || undefined,
+        email: newCustEmail || undefined,
+        address: newCustAddress || undefined,
+      });
+      const saved = res?.data ?? res;
+      const createdCust: Customer = {
+        id: String(saved.id || `c_${Date.now()}`),
+        name: saved.name || newCustName,
+        phone: saved.phone || newCustPhone || "",
+        email: saved.email || newCustEmail || "",
+        address: saved.address || newCustAddress || "",
+      };
+      setCustomers(prev => [...prev, createdCust]);
+      setSelectedCust(createdCust.id);
+      setNewCustName("");
+      setNewCustPhone("");
+      setNewCustEmail("");
+      setNewCustAddress("");
+      setShowCustModal(false);
+      triggerToast(`Customer ${createdCust.name} added & selected!`);
+    } catch (err: any) {
+      console.error("Failed to create customer:", err);
+      const fallbackCust: Customer = {
+        id: `c_${Date.now()}`,
+        name: newCustName,
+        phone: newCustPhone || "",
+        email: newCustEmail || "",
+        address: newCustAddress || "",
+      };
+      setCustomers(prev => [...prev, fallbackCust]);
+      setSelectedCust(fallbackCust.id);
+      setNewCustName("");
+      setNewCustPhone("");
+      setNewCustEmail("");
+      setNewCustAddress("");
+      setShowCustModal(false);
+      triggerToast(`Customer ${fallbackCust.name} added & selected!`);
+    }
   }
 
-  function handleCompleteCheckout() {
-    setShowReceiptModal(false);
-    setCart([]);
-    triggerToast("Sale Completed & Receipt Printed! 🎉", "success");
+  async function handleCompleteCheckout() {
+    if (cart.length === 0 || submitting) return;
+    setSubmitting(true);
+    try {
+      const res: any = await api.post("/api/v1/pos/confirm", {
+        customerId: selectedCust === "walkin" ? null : selectedCust,
+        customerName: activeCustomerObj?.name,
+        customerPhone: activeCustomerObj?.phone,
+        items: cart.map(i => ({
+          productId: i.id,
+          name: i.name,
+          qty: i.qty,
+          unitPrice: i.price,
+          discountAmount: i.price * i.qty * (i.discount / 100),
+        })),
+        paymentMethod: payMethod.toUpperCase(),
+        subtotal,
+        discountTotal: discAmt,
+        taxTotal: vatAmt,
+        grandTotal,
+        total: grandTotal,
+      });
+
+      const invNo = res?.data?.invoiceNo || res?.invoiceNo || `#INV-${Math.floor(100000 + Math.random() * 900000)}`;
+      setLastInvoiceNo(invNo);
+      setShowReceiptModal(false);
+      setCart([]);
+      triggerToast(`Sale ${invNo} Completed & Stock Updated! 🎉`, "success");
+      
+      // Refresh stock levels and today stats from backend
+      fetchProducts();
+      fetchTodayStats();
+    } catch (err: any) {
+      console.error("Complete checkout error:", err);
+      const msg = err?.message || "Checkout failed";
+      triggerToast(`Checkout Error: ${msg}`, "info");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const lineTotal  = (i: CartItem) => i.price * i.qty * (1 - i.discount / 100);
@@ -351,7 +586,7 @@ export default function BakeryPOSPage() {
             </div>
             <div>
               <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-0.5">Today&apos;s Sales</div>
-              <div className="text-[12px] font-black text-emerald-800 leading-none">৳ 18,450.00</div>
+              <div className="text-[12px] font-black text-emerald-800 leading-none">{fmt(todaySales)}</div>
             </div>
           </div>
 
@@ -362,7 +597,7 @@ export default function BakeryPOSPage() {
             </div>
             <div>
               <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-0.5">Total Orders</div>
-              <div className="text-[12px] font-black text-slate-800 leading-none">24 Orders</div>
+              <div className="text-[12px] font-black text-slate-800 leading-none">{todayOrders} Orders</div>
             </div>
           </div>
 
@@ -379,10 +614,12 @@ export default function BakeryPOSPage() {
 
           {/* Admin User */}
           <div className="flex items-center gap-2.5 bg-white/90 border border-slate-200/80 rounded-xl px-3 h-[38px] cursor-pointer hover:border-emerald-400 hover:shadow-md transition-all">
-            <div className="w-6.5 h-6.5 rounded-lg bg-gradient-to-br from-emerald-800 to-green-700 flex items-center justify-center text-white text-[11px] font-black flex-none shadow-sm">A</div>
+            <div className="w-6.5 h-6.5 rounded-lg bg-gradient-to-br from-emerald-800 to-green-700 flex items-center justify-center text-white text-[11px] font-black flex-none shadow-sm">
+              {(user?.name || "Admin").charAt(0).toUpperCase()}
+            </div>
             <div>
-              <div className="text-[11.5px] font-bold text-slate-800 leading-none">Admin</div>
-              <div className="text-[9px] text-slate-400 font-semibold leading-none mt-0.5">Administrator</div>
+              <div className="text-[11.5px] font-bold text-slate-800 leading-none">{user?.name || "Admin"}</div>
+              <div className="text-[9px] text-slate-400 font-semibold leading-none mt-0.5">{user?.role || "Administrator"}</div>
             </div>
             <ChevronDown size={13} className="text-slate-400" />
           </div>
@@ -398,7 +635,7 @@ export default function BakeryPOSPage() {
           {/* Category Bar */}
           <div className="flex-none flex items-center gap-2 px-3.5 pt-2.5 pb-2 overflow-x-auto border-b border-slate-100"
                style={{ scrollbarWidth: "none" }}>
-            {CATEGORIES.map(c => {
+            {categories.map(c => {
               const active = activeCat === c.id;
               return (
                 <button key={c.id} onClick={() => setActiveCat(c.id)}
@@ -848,31 +1085,157 @@ export default function BakeryPOSPage() {
         </div>
       </CustomModal>
 
-      {/* ═══ ADD CUSTOMER MODAL ══════════════════════════════════════════════ */}
-      <CustomModal open={showCustModal} onClose={() => setShowCustModal(false)} title="Add New Customer" size="sm">
-        <form onSubmit={handleAddCustomer} className="space-y-3.5">
-          <CustomInput
-            label="Customer Name *"
-            placeholder="e.g. Abul Kalam"
-            value={newCustName}
-            onChange={e => setNewCustName(e.target.value)}
-            required
-          />
-          <CustomInput
-            label="Phone Number"
-            placeholder="e.g. 01700000000"
-            value={newCustPhone}
-            onChange={e => setNewCustPhone(e.target.value)}
-          />
-          <div className="flex gap-2 pt-3">
-            <CustomButton variant="outline" fullWidth onClick={() => setShowCustModal(false)} type="button">
-              Cancel
-            </CustomButton>
-            <CustomButton themeColor="emerald" fullWidth type="submit">
-              Save Customer
-            </CustomButton>
+      {/* ═══ CUSTOMER MANAGEMENT MODAL ═══════════════════════════════════════ */}
+      <CustomModal open={showCustModal} onClose={() => setShowCustModal(false)} title="Customer Directory & Management" size="md">
+        <div className="space-y-4">
+
+          {/* Tab Navigation Buttons */}
+          <div className="flex border-b border-emerald-100 gap-2">
+            <button
+              type="button"
+              onClick={() => setCustModalTab("view")}
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold border-b-2 transition-all ${
+                custModalTab === "view"
+                  ? "border-emerald-700 text-emerald-900 bg-emerald-50/80 rounded-t-xl"
+                  : "border-transparent text-slate-500 hover:text-slate-800"
+              }`}>
+              <User size={14} className="text-emerald-700" />
+              View Customers ({customers.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setCustModalTab("add")}
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold border-b-2 transition-all ${
+                custModalTab === "add"
+                  ? "border-emerald-700 text-emerald-900 bg-emerald-50/80 rounded-t-xl"
+                  : "border-transparent text-slate-500 hover:text-slate-800"
+              }`}>
+              <UserPlus size={14} className="text-emerald-700" />
+              Add Customer
+            </button>
           </div>
-        </form>
+
+          {/* TAB 1: VIEW & SEARCH CUSTOMERS */}
+          {custModalTab === "view" && (
+            <div className="space-y-3">
+              {/* Search Bar */}
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                <input
+                  value={custSearchQuery}
+                  onChange={e => setCustSearchQuery(e.target.value)}
+                  placeholder="Search customer by name or phone number..."
+                  className="w-full h-9 pl-9 pr-8 text-xs font-medium border border-emerald-200 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white"
+                />
+                {custSearchQuery && (
+                  <button onClick={() => setCustSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    <X size={13} />
+                  </button>
+                )}
+              </div>
+
+              {/* Customer Cards List */}
+              <div className="space-y-2 max-h-[290px] overflow-y-auto pr-1" style={{ scrollbarWidth: "thin" }}>
+                {customers
+                  .filter(c =>
+                    c.name.toLowerCase().includes(custSearchQuery.toLowerCase()) ||
+                    (c.phone && c.phone.includes(custSearchQuery))
+                  )
+                  .map(c => {
+                    const isSelected = selectedCust === c.id;
+                    return (
+                      <div key={c.id} className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+                        isSelected
+                          ? "bg-emerald-50/90 border-emerald-300 shadow-2xs ring-1 ring-emerald-400/50"
+                          : "bg-slate-50/70 border-slate-200 hover:bg-emerald-50/40 hover:border-emerald-200"
+                      }`}>
+                        <div className="min-w-0 pr-2">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black text-slate-800">{c.name}</span>
+                            {isSelected && (
+                              <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-200 px-1.5 py-0.2 rounded-full">
+                                Selected
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex flex-wrap items-center gap-3 text-[10.5px] text-slate-500 mt-0.5 font-medium">
+                            {c.phone && <span>📞 {c.phone}</span>}
+                            {c.email && <span>✉️ {c.email}</span>}
+                            {c.address && <span className="truncate max-w-[180px]">📍 {c.address}</span>}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedCust(c.id);
+                            setShowCustModal(false);
+                            triggerToast(`Selected ${c.name}`);
+                          }}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex-none ${
+                            isSelected
+                              ? "bg-emerald-700 text-white shadow-xs"
+                              : "bg-white border border-slate-300 text-slate-700 hover:bg-emerald-600 hover:text-white hover:border-emerald-600"
+                          }`}>
+                          {isSelected ? "Active" : "Select"}
+                        </button>
+                      </div>
+                    );
+                  })}
+
+                {customers.filter(c =>
+                  c.name.toLowerCase().includes(custSearchQuery.toLowerCase()) ||
+                  (c.phone && c.phone.includes(custSearchQuery))
+                ).length === 0 && (
+                  <div className="py-8 text-center text-xs text-slate-400">
+                    No customer matching "{custSearchQuery}" found.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: ADD NEW CUSTOMER FORM */}
+          {custModalTab === "add" && (
+            <form onSubmit={handleAddCustomer} className="space-y-3">
+              <CustomInput
+                label="Customer Name *"
+                placeholder="e.g. Abul Kalam"
+                value={newCustName}
+                onChange={e => setNewCustName(e.target.value)}
+                required
+              />
+              <CustomInput
+                label="Phone Number"
+                placeholder="e.g. 01700000000"
+                value={newCustPhone}
+                onChange={e => setNewCustPhone(e.target.value)}
+              />
+              <CustomInput
+                label="Email Address"
+                placeholder="e.g. customer@example.com"
+                type="email"
+                value={newCustEmail}
+                onChange={e => setNewCustEmail(e.target.value)}
+              />
+              <CustomInput
+                label="Address"
+                placeholder="e.g. House 12, Road 4, Dhanmondi, Dhaka"
+                value={newCustAddress}
+                onChange={e => setNewCustAddress(e.target.value)}
+              />
+
+              <div className="flex gap-2 pt-2">
+                <CustomButton variant="outline" fullWidth onClick={() => setShowCustModal(false)} type="button">
+                  Cancel
+                </CustomButton>
+                <CustomButton themeColor="emerald" fullWidth type="submit">
+                  Save Customer
+                </CustomButton>
+              </div>
+            </form>
+          )}
+
+        </div>
       </CustomModal>
 
       {/* ═══ RECEIPT / CHECKOUT CONFIRMATION MODAL ═══════════════════════════ */}
@@ -885,7 +1248,7 @@ export default function BakeryPOSPage() {
               <p className="text-[10px] text-slate-500">Dhanmondi, Dhaka, Bangladesh</p>
               <p className="text-[10px] text-slate-500">Phone: +880 1700-000000</p>
               <div className="mt-2 text-[10px] font-bold text-emerald-800 bg-emerald-100 inline-block px-2 py-0.5 rounded">
-                TAX INVOICE #POS-000124
+                TAX INVOICE {lastInvoiceNo}
               </div>
             </div>
 

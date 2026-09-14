@@ -603,8 +603,29 @@ export default function PosPage() {
   async function loadHolds() {
     if (!tenantInfo?.branch?.id) return;
     if (isOnline()) {
-      const data = await api.get<HeldSale[]>(`/api/v1/pos/holds?branchId=${tenantInfo.branch.id}`).catch(() => []);
-      setHolds(data);
+      try {
+        const res: any = await api.get(`/api/v1/pos/holds?branchId=${tenantInfo.branch.id}`).catch(() => []);
+        const list = Array.isArray(res) ? res : (res?.data?.data || res?.data || []);
+        const mapped = (Array.isArray(list) ? list : []).map((h: any) => {
+          let items: any[] = [];
+          if (h.cartSnapshot) {
+            try {
+              items = typeof h.cartSnapshot === "string" ? JSON.parse(h.cartSnapshot) : h.cartSnapshot;
+            } catch {}
+          }
+          return {
+            id: String(h.id),
+            holdNo: h.holdNo || `#HOLD-${String(h.id).slice(0, 4)}`,
+            createdAt: h.createdAt || new Date().toISOString(),
+            cartSnapshot: Array.isArray(items) ? items : (Array.isArray(h.items) ? h.items : []),
+            customerId: h.customerId,
+            note: h.note,
+          };
+        });
+        setHolds(mapped);
+      } catch {
+        setHolds([]);
+      }
     }
   }
 
@@ -1383,12 +1404,12 @@ export default function PosPage() {
       {/* Held Sales Modal */}
       <CustomModal open={showHolds} onClose={() => setShowHolds(false)} title="Held Sales">
         <div className="space-y-2">
-          {holds.length === 0 && <p className="py-6 text-center text-xs text-gray-500">No held sales found</p>}
-          {holds.map((h) => (
+          {(!Array.isArray(holds) || holds.length === 0) && <p className="py-6 text-center text-xs text-gray-500">No held sales found</p>}
+          {Array.isArray(holds) && holds.map((h) => (
             <div key={h.id} className="flex items-center justify-between rounded-md border border-slate-200 p-3 hover:bg-slate-50 transition">
               <div>
                 <p className="text-xs font-semibold">{h.holdNo}</p>
-                <p className="text-[11px] text-gray-500">{h.cartSnapshot.length} items · {new Date(h.createdAt).toLocaleTimeString()}</p>
+                <p className="text-[11px] text-gray-500">{(Array.isArray(h.cartSnapshot) ? h.cartSnapshot.length : 0)} items · {new Date(h.createdAt).toLocaleTimeString()}</p>
                 {h.note && <p className="text-[11px] text-gray-500">{h.note}</p>}
               </div>
               <div className="flex gap-2">

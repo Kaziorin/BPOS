@@ -390,7 +390,7 @@ function SettingsContent() {
               size="sm"
               onClick={loadSettingsData}
               loading={loading}
-              icon={RefreshCw}
+              icon={<RefreshCw size={14} />}
             >
               Refresh
             </CustomButton>
@@ -405,7 +405,7 @@ function SettingsContent() {
                   showToast("Configuration preferences successfully applied!");
                 }
               }}
-              icon={Save}
+              icon={<Save size={14} />}
             >
               Save Changes
             </CustomButton>

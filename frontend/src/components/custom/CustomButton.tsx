@@ -1,6 +1,6 @@
 "use client";
 
-import { ButtonHTMLAttributes, ReactNode, forwardRef } from "react";
+import React, { ButtonHTMLAttributes, ReactNode, forwardRef } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -80,6 +80,22 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
 
     const effectiveLeftIcon = leftIcon ?? icon;
 
+    const renderIconNode = (iconNode: ReactNode) => {
+      if (!iconNode) return null;
+      if (React.isValidElement(iconNode)) return iconNode;
+      if (
+        typeof iconNode === "function" ||
+        (typeof iconNode === "object" &&
+          iconNode !== null &&
+          ("$$typeof" in (iconNode as any) || "render" in (iconNode as any)))
+      ) {
+        const IconComp = iconNode as React.ElementType;
+        const iconSize = size === "xs" || size === "sm" ? 14 : 16;
+        return <IconComp size={iconSize} />;
+      }
+      return iconNode;
+    };
+
     return (
       <button
         ref={ref}
@@ -98,10 +114,10 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
         {loading ? (
           <Loader2 size={size === "xs" || size === "sm" ? 14 : 16} className="animate-spin" />
         ) : (
-          effectiveLeftIcon
+          renderIconNode(effectiveLeftIcon)
         )}
         {children}
-        {!loading && rightIcon}
+        {!loading && renderIconNode(rightIcon)}
       </button>
     );
   }

@@ -626,11 +626,35 @@ async def pos_sales(
 
 
 
+async def _ensure_held_sales_table(db: AsyncSession):
+    try:
+        await db.execute(text(
+            "CREATE TABLE IF NOT EXISTS held_sales ("
+            "id VARCHAR(36) PRIMARY KEY, "
+            "tenantId VARCHAR(36) NOT NULL, "
+            "branchId VARCHAR(36) NULL, "
+            "userId VARCHAR(36) NULL, "
+            "terminalId VARCHAR(36) NULL, "
+            "customerId VARCHAR(36) NULL, "
+            "holdNo VARCHAR(50) NULL, "
+            "note TEXT NULL, "
+            "cartSnapshot LONGTEXT NULL, "
+            "createdBy VARCHAR(36) NULL, "
+            "createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, "
+            "updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+            ")"
+        ))
+        await db.commit()
+    except Exception:
+        pass
+
+
 @router.post("/api/v1/pos/holds")
 async def pos_hold(body: dict, user: AuthUser = Depends(require_auth),
                    tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
     items = body.get("items") or []
     if not items: return err("Nothing to hold", 400)
+    await _ensure_held_sales_table(db)
     holdNo = gen_no("HOLD")
     import json as _json
     await db.execute(text(
@@ -646,17 +670,30 @@ async def pos_hold(body: dict, user: AuthUser = Depends(require_auth),
 @router.get("/api/v1/pos/holds")
 async def pos_list_holds(tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
                          user: AuthUser = Depends(require_auth)):
-    rows = rows_to_dicts((await db.execute(text(
-        "SELECT id, holdNo, cartSnapshot, note, createdAt FROM held_sales WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 50"),
-        {"t": tenantId})).fetchall())
-    return ok(rows)
+    try:
+        rows = rows_to_dicts((await db.execute(text(
+            "SELECT id, holdNo, cartSnapshot, note, createdAt FROM held_sales WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 50"),
+            {"t": tenantId})).fetchall())
+        return ok(rows)
+    except Exception:
+        await _ensure_held_sales_table(db)
+        try:
+            rows = rows_to_dicts((await db.execute(text(
+                "SELECT id, holdNo, cartSnapshot, note, createdAt FROM held_sales WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 50"),
+                {"t": tenantId})).fetchall())
+            return ok(rows)
+        except Exception:
+            return ok([])
 
 
 @router.delete("/api/v1/pos/holds/{hold_id}")
 async def pos_delete_hold(hold_id: str, tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
                           user: AuthUser = Depends(require_auth)):
-    await db.execute(text("DELETE FROM held_sales WHERE id=:id AND tenantId=:t"), {"id": hold_id, "t": tenantId})
-    await db.commit()
+    try:
+        await db.execute(text("DELETE FROM held_sales WHERE id=:id AND tenantId=:t"), {"id": hold_id, "t": tenantId})
+        await db.commit()
+    except Exception:
+        pass
     return ok({"deleted": True})
 
 

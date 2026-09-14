@@ -14,9 +14,28 @@ export default function HoldsPage() {
 
   function load() {
     setLoading(true);
-    api.get<HeldSale[]>("/api/v1/pos/holds")
-      .then(setHolds)
-      .catch(() => {})
+    api.get<any>("/api/v1/pos/holds")
+      .then((res) => {
+        const list = Array.isArray(res) ? res : (res?.data?.data || res?.data || []);
+        const mapped = (Array.isArray(list) ? list : []).map((h: any) => {
+          let items: any[] = [];
+          if (h.cartSnapshot) {
+            try {
+              items = typeof h.cartSnapshot === "string" ? JSON.parse(h.cartSnapshot) : h.cartSnapshot;
+            } catch {}
+          }
+          return {
+            id: String(h.id),
+            holdNo: h.holdNo || `#HOLD-${String(h.id).slice(0, 4)}`,
+            createdAt: h.createdAt || new Date().toISOString(),
+            cartSnapshot: Array.isArray(items) ? items : (Array.isArray(h.items) ? h.items : []),
+            customerId: h.customerId,
+            note: h.note,
+          };
+        });
+        setHolds(mapped);
+      })
+      .catch(() => setHolds([]))
       .finally(() => setLoading(false));
   }
 
