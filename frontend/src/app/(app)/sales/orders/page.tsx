@@ -64,6 +64,9 @@ interface SalesOrder {
   total: number;
   paidTotal: number;
   dueTotal: number;
+  changeReturn?: number;
+  change?: number;
+  returnAmount?: number;
   orderDate: string;
   createdAt: string;
   branchName?: string;
@@ -181,6 +184,19 @@ export default function SalesOrdersPage() {
   const pendingPickingCount = orders.filter((o) => o.status === "PICKING" || o.status === "STOCK_RESERVED" || o.status === "CONFIRMED").length;
 
   function handleOpenInvoice(order: SalesOrder) {
+    const rawPaid = Number(order.paidTotal ?? (order as any).paidAmount ?? order.total ?? 0);
+    const orderTotal = Number(order.total || 0);
+    const rawChange = Math.max(
+      0,
+      Number(
+        order.changeReturn ??
+        order.change ??
+        order.returnAmount ??
+        (order as any).change_return ??
+        (rawPaid > orderTotal ? rawPaid - orderTotal : 0)
+      )
+    );
+
     setActiveInvoice({
       invoiceNo: order.orderNo,
       createdAt: order.createdAt || order.orderDate || new Date().toISOString(),
@@ -202,9 +218,10 @@ export default function SalesOrdersPage() {
             unitPrice: Number(order.total || 0),
             lineTotal: Number(order.total || 0),
           }],
-      total: Number(order.total || 0),
-      paidTotal: Number(order.paidTotal || order.total || 0),
+      total: orderTotal,
+      paidTotal: rawPaid,
       dueTotal: Number(order.dueTotal || 0),
+      changeReturn: rawChange,
       paymentMethod: (order as any).paymentMethod || "CASH",
     });
   }
@@ -806,6 +823,18 @@ export default function SalesOrdersPage() {
                   <div className="flex justify-between text-emerald-600">
                     <span>Paid Amount:</span>
                     <span className="font-bold">৳{Number(selectedOrderForDrawer.paidTotal || 0).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-teal-600">
+                    <span>Return Amount:</span>
+                    <span className="font-bold">
+                      ৳{Number(
+                        selectedOrderForDrawer.changeReturn ??
+                        selectedOrderForDrawer.change ??
+                        (Number(selectedOrderForDrawer.paidTotal || 0) > Number(selectedOrderForDrawer.total || 0)
+                          ? Number(selectedOrderForDrawer.paidTotal || 0) - Number(selectedOrderForDrawer.total || 0)
+                          : 0)
+                      ).toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between text-rose-600 pt-1 border-t border-gray-200">
                     <span>Remaining Due:</span>

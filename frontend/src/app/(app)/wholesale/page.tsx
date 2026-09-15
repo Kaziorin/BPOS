@@ -340,6 +340,7 @@ export default function WholesaleHubPage() {
           total: Number(selectedSale.total || 0),
           paidTotal: Number(selectedSale.paidTotal || selectedSale.total || 0),
           dueTotal: Number(selectedSale.dueTotal || 0),
+          changeReturn: Math.max(0, Number(selectedSale.paidTotal || 0) - Number(selectedSale.total || 0)),
           paymentMethod: selectedSale.paymentMethod || "CREDIT",
         } : null}
         onClose={() => setSelectedSale(null)}

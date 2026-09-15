@@ -50,7 +50,17 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
 
   // Primary payment method text
   const primaryMethod = payments && payments.length > 0 ? payments[0].method.toUpperCase() : "CASH";
-  const tenderText = `${primaryMethod} (Paid: ৳${(result.paidTotal ?? result.total ?? 0).toFixed(2)})`;
+  const paidTotal = Number(result.paidTotal ?? result.total ?? 0);
+  const changeReturn = Math.max(
+    0,
+    Number(
+      (result as any).change ??
+      (result as any).changeReturn ??
+      (result as any).changeAmount ??
+      (result as any).returnAmount ??
+      (paidTotal > result.total ? paidTotal - result.total : 0)
+    )
+  );
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-[400px] mx-auto">
@@ -149,22 +159,25 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
 
           <div className="flex justify-between items-baseline gap-2">
             <span className="text-gray-500 shrink-0">Tender Method:</span>
-            <span className="font-bold text-gray-900 text-right font-mono">{tenderText}</span>
+            <span className="font-bold text-gray-900 text-right font-mono">{primaryMethod}</span>
           </div>
 
-          {result.dueTotal > 0 && (
+          <div className="flex justify-between items-baseline gap-2">
+            <span className="text-gray-500 shrink-0">Paid Amount:</span>
+            <span className="font-bold text-gray-900 text-right font-mono">৳{paidTotal.toFixed(2)}</span>
+          </div>
+
+          {Number(result.dueTotal || 0) > 0 && (
             <div className="flex justify-between font-bold text-amber-700">
               <span>Remaining Due:</span>
-              <span className="font-mono">৳{result.dueTotal.toFixed(2)}</span>
+              <span className="font-mono">৳{Number(result.dueTotal).toFixed(2)}</span>
             </div>
           )}
 
-          {result.paidTotal > result.total && (
-            <div className="flex justify-between font-bold text-emerald-700">
-              <span>Change Return:</span>
-              <span className="font-mono">৳{(result.paidTotal - result.total).toFixed(2)}</span>
-            </div>
-          )}
+          <div className="flex justify-between font-bold text-emerald-700">
+            <span>Return Amount:</span>
+            <span className="font-mono">৳{changeReturn.toFixed(2)}</span>
+          </div>
         </div>
 
         <div className="border-t border-dashed border-gray-300" />
