@@ -37,6 +37,7 @@ import {
   ChevronRight,
   Package,
   Layers,
+  Maximize,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { CustomModal } from "@/components/custom/CustomModal";
@@ -163,6 +164,27 @@ export default function FranchisePOSPage() {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 3500);
   };
+
+  // Fullscreen shortcut
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(e => console.error(e));
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // ── Fetch Initial Data from Backend ─────────────────────────────
   const loadData = useCallback(async () => {
@@ -576,11 +598,11 @@ export default function FranchisePOSPage() {
   });
 
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-indigo-100/70 via-[#f5f3ff] to-violet-50/80 p-3 sm:p-4 text-slate-800 flex flex-col gap-2.5 select-none relative overflow-hidden">
+    <div className="h-screen w-screen bg-slate-50 p-3 sm:p-4 text-slate-800 flex flex-col gap-2.5 select-none relative overflow-hidden font-sans">
       
       {/* Decorative Ambient Background Glow Orbs */}
-      <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl animate-pulse" />
-      <div className="pointer-events-none absolute -bottom-24 -right-24 w-96 h-96 bg-violet-400/20 rounded-full blur-3xl" />
+      <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 bg-blue-100/40 rounded-full blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-100/30 rounded-full blur-3xl" />
 
       {/* Floating Toast Alerts Container */}
       <div className="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none">
@@ -604,7 +626,7 @@ export default function FranchisePOSPage() {
       </div>
 
       {/* ── TOP HEADER CONTROL BAR ──────────────────────────────── */}
-      <header className="flex-none flex flex-wrap items-center justify-between gap-3 bg-white/80 backdrop-blur-md border border-indigo-100/80 rounded-2xl p-3 sm:px-4 shadow-md shadow-indigo-500/5">
+      <header className="flex-none flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200 rounded-xl p-3 sm:px-4 shadow-sm">
         <div className="flex items-center gap-3">
           <Link
             href="/franchise"
@@ -631,6 +653,13 @@ export default function FranchisePOSPage() {
 
         {/* Action Controls & Shortcuts Guide */}
         <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={toggleFullscreen}
+            title="Toggle Fullscreen (F)"
+            className="flex items-center justify-center p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition shadow-xs"
+          >
+            <Maximize size={16} />
+          </button>
           {/* Held Orders Badge Button */}
           <button
             onClick={() => setShowHoldsModal(true)}
@@ -675,8 +704,8 @@ export default function FranchisePOSPage() {
       </header>
 
       {/* ── SELECTED OUTLET METRICS BANNER ─────────────────────── */}
-      <div className="flex-none grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white/75 backdrop-blur-md border border-indigo-100/60 rounded-2xl p-2.5 shadow-xs">
-        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-indigo-50/50 border border-indigo-100">
+      <div className="flex-none grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
+        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
           <div className="rounded-lg bg-indigo-600/10 p-1.5 text-indigo-700">
             <Building2 size={16} />
           </div>
@@ -686,7 +715,7 @@ export default function FranchisePOSPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-violet-50/50 border border-violet-100">
+        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
           <div className="rounded-lg bg-violet-600/10 p-1.5 text-violet-700">
             <User size={16} />
           </div>
@@ -696,7 +725,7 @@ export default function FranchisePOSPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-purple-50/50 border border-purple-100">
+        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
           <div className="rounded-lg bg-purple-600/10 p-1.5 text-purple-700">
             <Percent size={16} />
           </div>
@@ -706,7 +735,7 @@ export default function FranchisePOSPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-fuchsia-50/50 border border-fuchsia-100">
+        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
           <div className="rounded-lg bg-fuchsia-600/10 p-1.5 text-fuchsia-700">
             <TrendingUp size={16} />
           </div>
@@ -721,10 +750,10 @@ export default function FranchisePOSPage() {
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-3 overflow-hidden">
         
         {/* LEFT 7 COLS: HQ BRAND SUPPLY CATALOG */}
-        <div className="lg:col-span-7 flex flex-col rounded-3xl border border-indigo-100/90 bg-white/85 backdrop-blur-xl shadow-xl shadow-indigo-950/5 overflow-hidden">
+        <div className="lg:col-span-7 flex flex-col rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           
           {/* Search Bar & Category Filter Header */}
-          <div className="flex-none p-3.5 border-b border-indigo-100/80 space-y-2.5 bg-gradient-to-r from-indigo-50/40 via-white to-violet-50/30">
+          <div className="flex-none p-3.5 border-b border-slate-100 space-y-2.5 bg-slate-50/50">
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
                 <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -840,10 +869,10 @@ export default function FranchisePOSPage() {
         </div>
 
         {/* RIGHT 5 COLS: REQUISITION CART & ROYALTY BREAKDOWN */}
-        <div className="lg:col-span-5 flex flex-col rounded-3xl border border-indigo-100/90 bg-white/90 backdrop-blur-xl shadow-2xl shadow-indigo-950/10 overflow-hidden">
+        <div className="lg:col-span-5 flex flex-col rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           
           {/* Cart Header */}
-          <div className="flex-none p-3.5 border-b border-indigo-100/80 bg-gradient-to-r from-indigo-50/60 via-white to-violet-50/40 flex items-center justify-between">
+          <div className="flex-none p-3.5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Receipt size={18} className="text-indigo-600" />
               <div>
@@ -942,7 +971,7 @@ export default function FranchisePOSPage() {
           </div>
 
           {/* Royalty Calculation & Requisition Submit Footer */}
-          <div className="flex-none p-3.5 bg-gradient-to-b from-white via-indigo-50/70 to-violet-50/90 border-t border-indigo-200/90 text-slate-800 space-y-3 shadow-md">
+          <div className="flex-none p-3.5 bg-slate-50 border-t border-slate-200 text-slate-800 space-y-3 shadow-sm">
             <div className="space-y-1.5 text-xs text-slate-600">
               <div className="flex justify-between">
                 <span>Supply Items Subtotal:</span>
