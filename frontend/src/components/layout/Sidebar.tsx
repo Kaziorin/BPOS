@@ -222,50 +222,38 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "relative hidden shrink-0 flex-col border-r border-slate-700/60 bg-[#132238] text-slate-100 transition-[width] duration-300 ease-in-out lg:flex shadow-2xl overflow-hidden select-none",
+        "relative hidden shrink-0 flex-col border-r border-sky-100 bg-white text-slate-800 transition-[width] duration-300 ease-in-out lg:flex shadow-lg select-none",
         collapsed ? "w-[72px]" : "w-64",
       )}
     >
-      {/* ── Horizontal Left-to-Right Wave & Luminous Ambient Glow Backdrop (Reference Image Spec) ── */}
-      <div className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden z-0 bg-[#0F172A]">
-        {/* Horizontal Left-to-Right Ambient Radial Glow (Top & Bottom Brightness) */}
+      {/* ── Ocean Breeze (Light) Subtle Gradient Backdrop ── */}
+      <div className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden z-0 bg-white">
+        {/* Very soft sky blue top glow */}
         <div
-          className="absolute inset-0 w-full h-full opacity-90"
+          className="absolute inset-0 w-full h-full"
           style={{
             background: `
-              radial-gradient(circle at 20% 0%, rgba(20, 184, 166, 0.50) 0%, transparent 60%),
-              radial-gradient(circle at 80% 20%, rgba(0, 201, 183, 0.40) 0%, transparent 55%),
-              radial-gradient(circle at 10% 85%, rgba(20, 184, 166, 0.45) 0%, transparent 65%),
-              radial-gradient(circle at 90% 90%, rgba(0, 201, 183, 0.35) 0%, transparent 60%)
+              radial-gradient(ellipse at 50% 0%, rgba(186, 230, 253, 0.45) 0%, transparent 65%),
+              radial-gradient(ellipse at 100% 100%, rgba(125, 211, 252, 0.22) 0%, transparent 55%)
             `,
           }}
         />
 
-        {/* Horizontal Left-to-Right Wave Vector Graphics at Bottom Section */}
+        {/* Subtle wave at bottom */}
         <svg
-          className="absolute bottom-0 left-0 w-full h-64 opacity-60"
+          className="absolute bottom-0 left-0 w-full h-48 opacity-30"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
-          viewBox="0 0 256 160"
+          viewBox="0 0 256 120"
         >
           <path
-            d="M -10 110 C 60 40, 140 150, 266 75 L 266 160 L -10 160 Z"
-            fill="url(#wave-left-right-1)"
-          />
-          <path
-            d="M -10 135 C 90 65, 170 145, 266 95 L 266 160 L -10 160 Z"
-            fill="url(#wave-left-right-2)"
+            d="M -10 80 C 60 20, 140 100, 266 50 L 266 120 L -10 120 Z"
+            fill="url(#wave-sb-1)"
           />
           <defs>
-            <linearGradient id="wave-left-right-1" x1="0%" y1="50%" x2="100%" y2="50%">
-              <stop offset="0%" stopColor="#14B8A6" stopOpacity="0.65" />
-              <stop offset="60%" stopColor="#00C9B7" stopOpacity="0.40" />
-              <stop offset="100%" stopColor="#6366F1" stopOpacity="0.15" />
-            </linearGradient>
-            <linearGradient id="wave-left-right-2" x1="0%" y1="50%" x2="100%" y2="50%">
-              <stop offset="0%" stopColor="#00C9B7" stopOpacity="0.50" />
-              <stop offset="70%" stopColor="#10B981" stopOpacity="0.70" />
-              <stop offset="100%" stopColor="#14B8A6" stopOpacity="0.25" />
+            <linearGradient id="wave-sb-1" x1="0%" y1="50%" x2="100%" y2="50%">
+              <stop offset="0%" stopColor="#BAE6FD" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#7DD3FC" stopOpacity="0.2" />
             </linearGradient>
           </defs>
         </svg>
@@ -274,33 +262,33 @@ export function Sidebar() {
       {/* Collapse Toggle Button */}
       <button
         onClick={toggleCollapse}
-        className="group absolute -right-4 top-4.5 z-30 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-[#14B8A6] text-white shadow-xl shadow-teal-500/40 ring-2 ring-teal-500/30 transition-all duration-200 hover:scale-115 hover:bg-[#00C9B7] focus:outline-none cursor-pointer"
+        className="group absolute -right-3.5 top-5 z-30 flex h-7 w-7 items-center justify-center rounded-full border border-sky-300 bg-white text-sky-700 shadow-md transition-all duration-200 hover:scale-115 hover:bg-[#0284C7] hover:text-white hover:border-white focus:outline-none cursor-pointer"
         title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
       >
         {collapsed ? (
-          <ChevronRight size={17} className="text-white stroke-[3]" />
+          <ChevronRight size={15} className="text-sky-700 group-hover:text-white stroke-[2.5]" />
         ) : (
-          <ChevronLeft size={17} className="text-white stroke-[3]" />
+          <ChevronLeft size={15} className="text-sky-700 group-hover:text-white stroke-[2.5]" />
         )}
       </button>
 
       {/* Brand Header */}
       <div
         className={cn(
-          "relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-slate-700/50 px-4 bg-transparent",
+          "relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-sky-100 px-4 bg-transparent",
           collapsed && "justify-center px-0",
         )}
       >
         <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#14B8A6] via-[#00C9B7] to-[#10B981] text-white shadow-lg shadow-teal-500/35 border border-teal-300/30">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white shadow-md shadow-sky-500/30 border border-white/60">
             <Logo size={21} />
           </div>
           {!collapsed && (
             <div className="flex flex-col min-w-0">
-              <span className="truncate font-bold text-white tracking-tight text-sm drop-shadow-xs">
+              <span className="truncate font-bold text-slate-900 tracking-tight text-sm">
                 {siteConfig.name}
               </span>
-              <span className="truncate text-[10.5px] text-teal-300 font-semibold tracking-wide">
+              <span className="truncate text-[10.5px] text-[#0284C7] font-semibold tracking-wide">
                 Smart · Fast · All Industries
               </span>
             </div>
@@ -316,20 +304,20 @@ export function Sidebar() {
             placeholder="Search menu..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            darkMode
+            darkMode={false}
             rounded="md"
-            leftIcon={<Search size={14} className="text-teal-400 pointer-events-none" />}
+            leftIcon={<Search size={14} className="text-[#0284C7] pointer-events-none" />}
             rightIcon={
               searchQuery ? (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
                 >
                   <X size={13} />
                 </button>
               ) : null
             }
-            className="border-slate-700/80 bg-slate-900/80 text-xs text-white placeholder:text-slate-400 py-1.5 focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/40"
+            className="border-sky-200/90 bg-white/90 text-xs text-slate-900 placeholder:text-sky-900/40 py-1.5 focus:border-[#0284C7] shadow-2xs"
           />
         </div>
       )}
@@ -338,7 +326,7 @@ export function Sidebar() {
       <nav className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-1 custom-scrollbar">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
-            <Loader2 size={20} className="animate-spin text-[#14B8A6]" />
+            <Loader2 size={20} className="animate-spin text-[#0284C7]" />
             <span className="text-xs font-medium">Loading navigation...</span>
           </div>
         ) : filteredNavGroups.length === 0 ? (
@@ -348,7 +336,7 @@ export function Sidebar() {
         ) : (
           filteredNavGroups.map((group) => (
             <div key={group.title} className="space-y-1">
-              {/* Module Rows (Group title labels removed per user request for clean continuous list) */}
+              {/* Module Rows */}
               {group.items.map((item, idx) => (
                 <ModuleRow
                   key={`${group.title}-${item.label}-${idx}`}
@@ -369,19 +357,19 @@ export function Sidebar() {
       </nav>
 
       {/* Sidebar Footer User Info & Logout */}
-      <div className="relative z-10 border-t border-slate-800/80 p-2.5 bg-slate-900/80 backdrop-blur-md">
+      <div className="relative z-10 border-t border-sky-100 p-2.5 bg-white">
         {!collapsed ? (
-          <div className="flex items-center justify-between rounded-md border border-slate-800/90 bg-slate-900/90 p-2 shadow-2xs">
+          <div className="flex items-center justify-between rounded-lg border border-sky-100 bg-sky-50/60 p-2">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#14B8A6] to-[#6366F1] text-xs font-bold text-white shadow-2xs">
+              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-xs font-bold text-white shadow-2xs">
                 {(user?.name || "A")[0].toUpperCase()}
-                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="truncate text-xs font-bold text-white">
+                <span className="truncate text-xs font-bold text-slate-900">
                   {user?.name || "Administrator"}
                 </span>
-                <span className="truncate text-[10px] text-slate-300 font-medium">
+                <span className="truncate text-[10px] text-[#0284C7] font-semibold">
                   {user?.role || "Main Branch"}
                 </span>
               </div>
@@ -389,7 +377,7 @@ export function Sidebar() {
             <button
               onClick={logout}
               title="Logout"
-              className="flex h-8 w-8 items-center justify-center rounded-md bg-rose-500/15 border border-rose-500/30 text-rose-400 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 shadow-xs cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-md bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 shadow-2xs cursor-pointer"
             >
               <LogOut size={15} />
             </button>
@@ -398,7 +386,7 @@ export function Sidebar() {
           <button
             onClick={logout}
             title="Logout"
-            className="flex h-9 w-full items-center justify-center rounded-md bg-rose-500/15 border border-rose-500/30 text-rose-400 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 cursor-pointer"
+            className="flex h-9 w-full items-center justify-center rounded-md bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 cursor-pointer"
           >
             <LogOut size={17} />
           </button>
@@ -437,21 +425,69 @@ function ModuleRow({
   const hasChildren = !!item.children?.length;
   const active = isModuleActive(item, pathname, allHrefs);
 
-  // Collapsed Mode: Icon tooltip link with larger icon, border, and rounded-md radius
+  // Collapsed Mode: Icon with border, rounded-md; if has children → hover popup submenu on right
   if (collapsed) {
+    if (!hasChildren) {
+      return (
+        <Link
+          href={item.href !== "#" ? item.href : "#"}
+          title={item.label}
+          className={cn(
+            "mx-auto flex h-10 w-10 items-center justify-center rounded-md border transition-all duration-200",
+            active
+              ? "bg-gradient-to-r from-[#7DD3FC] via-[#38BDF8] to-[#0EA5E9] border-sky-300/60 text-white"
+              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800",
+          )}
+        >
+          <Icon size={20} />
+        </Link>
+      );
+    }
+
+    // Has children → icon button + hover popup submenu to the RIGHT
     return (
-      <Link
-        href={item.href !== "#" ? item.href : item.children?.[0]?.href || "#"}
-        title={item.label}
-        className={cn(
-          "mx-auto flex h-10 w-10 items-center justify-center rounded-md border transition-all duration-200",
-          active
-            ? "bg-gradient-to-tr from-[#14B8A6] to-[#10B981] border-[#14B8A6] text-white shadow-md shadow-teal-500/30"
-            : "border-slate-700/80 bg-slate-900/60 text-[#2DD4BF] hover:border-teal-400 hover:bg-slate-800/90 hover:text-white hover:shadow-xs",
-        )}
-      >
-        <Icon size={20} />
-      </Link>
+      <div className="group relative mx-auto w-10">
+        <div
+          className={cn(
+            "flex h-10 w-10 items-center justify-center rounded-md border transition-all duration-200 cursor-pointer",
+            active
+              ? "bg-gradient-to-r from-[#7DD3FC] via-[#38BDF8] to-[#0EA5E9] border-sky-300/60 text-white"
+              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800",
+          )}
+        >
+          <Icon size={20} />
+        </div>
+
+        {/* Floating submenu popup — shows to the RIGHT on hover */}
+        <div className="pointer-events-none group-hover:pointer-events-auto absolute left-full top-0 z-[200] ml-2 hidden group-hover:block">
+          <div className="min-w-[192px] overflow-hidden rounded-md border border-sky-100 bg-white shadow-xl">
+            <div className="border-b border-sky-50 bg-sky-50/60 px-3 py-2">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{item.label}</p>
+            </div>
+            <div className="py-1">
+              {item.children!.map((child) => {
+                const ChildIcon = child.icon;
+                const childActive = isChildActive(child, pathname, allHrefs);
+                return (
+                  <Link
+                    key={`${child.label}-${child.href}`}
+                    href={child.href !== "#" ? child.href : child.children?.[0]?.href || "#"}
+                    className={cn(
+                      "flex items-center gap-2.5 px-3 py-2 text-xs transition-colors",
+                      childActive
+                        ? "bg-sky-50 font-semibold text-sky-800"
+                        : "font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-900"
+                    )}
+                  >
+                    <ChildIcon size={13} className={childActive ? "text-[#0284C7]" : "text-slate-400"} />
+                    <span>{child.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -463,8 +499,8 @@ function ModuleRow({
         className={cn(
           "group flex items-center justify-between rounded-md px-3 py-2 text-xs transition-all duration-200",
           active
-            ? "bg-gradient-to-r from-[#14B8A6] via-[#0EA5A0] to-[#00C9B7] text-white font-bold shadow-md shadow-teal-500/25"
-            : "text-[#F1F5F9] font-semibold hover:bg-slate-800/80 hover:text-white",
+            ? "bg-gradient-to-r from-[#7DD3FC] via-[#38BDF8] to-[#0EA5E9] text-white font-bold"
+            : "text-slate-800 font-semibold hover:bg-sky-50 hover:text-sky-900",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0">
@@ -472,7 +508,7 @@ function ModuleRow({
             size={16}
             className={cn(
               "transition-colors duration-200 shrink-0",
-              active ? "text-white" : "text-[#2DD4BF] group-hover:text-teal-300 drop-shadow-[0_0_6px_rgba(45,212,191,0.25)]",
+              active ? "text-white" : "text-[#0284C7] group-hover:text-sky-800",
             )}
           />
           <span className="truncate">{item.label}</span>
@@ -480,7 +516,7 @@ function ModuleRow({
         {item.badge && (
           <span className={cn(
             "shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-md",
-            active ? "bg-white/20 text-white" : "bg-teal-500/20 text-teal-300 border border-teal-500/40"
+            active ? "bg-white/20 text-white" : "bg-sky-500/15 text-sky-800 border border-sky-500/30"
           )}>
             {item.badge}
           </span>
@@ -497,8 +533,8 @@ function ModuleRow({
         className={cn(
           "group flex w-full items-center justify-between rounded-md px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
           active
-            ? "bg-gradient-to-r from-[#14B8A6] via-[#0EA5A0] to-[#00C9B7] text-white font-bold shadow-md shadow-teal-500/25"
-            : "text-[#F1F5F9] font-semibold hover:bg-slate-800/80 hover:text-white",
+            ? "bg-gradient-to-r from-[#7DD3FC] via-[#38BDF8] to-[#0EA5E9] text-white font-bold"
+            : "text-slate-800 font-semibold hover:bg-sky-50 hover:text-sky-900",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -506,7 +542,7 @@ function ModuleRow({
             size={16}
             className={cn(
               "transition-colors duration-200 shrink-0",
-              active ? "text-white" : "text-[#2DD4BF] group-hover:text-teal-300 drop-shadow-[0_0_6px_rgba(45,212,191,0.25)]",
+              active ? "text-white" : "text-[#0284C7] group-hover:text-sky-800",
             )}
           />
           <span className="truncate text-left">{item.label}</span>
@@ -514,7 +550,7 @@ function ModuleRow({
         {item.badge && (
           <span className={cn(
             "shrink-0 mr-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md",
-            active ? "bg-white/20 text-white" : "bg-teal-500/20 text-teal-300 border border-teal-500/40"
+            active ? "bg-white/20 text-white" : "bg-sky-500/15 text-sky-800 border border-sky-500/30"
           )}>
             {item.badge}
           </span>
@@ -523,15 +559,15 @@ function ModuleRow({
           size={13}
           className={cn(
             "shrink-0 transition-transform duration-200",
-            active ? "text-white" : "text-slate-300 group-hover:text-white",
-            moduleExpanded && "rotate-180 text-teal-300",
+            active ? "text-white" : "text-slate-400 group-hover:text-sky-800",
+            moduleExpanded && "rotate-180 text-sky-800",
           )}
         />
       </button>
 
-      {/* Submenu Children Container with cyan visual guide line */}
+      {/* Submenu Children Container with sky visual guide line */}
       {moduleExpanded && (
-        <div className="ml-3.5 mt-1 space-y-1 border-l-2 border-teal-500/35 pl-2.5 py-0.5 transition-all">
+        <div className="ml-3.5 mt-1 space-y-1 border-l-2 border-sky-300/60 pl-2.5 py-0.5 transition-all">
           {item.children!.map((child, idx) => (
             <MenuItemRow
               key={`${child.label}-${child.href}-${idx}`}
@@ -573,26 +609,26 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
           className={cn(
             "group flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors duration-150 cursor-pointer",
             active
-              ? "font-bold text-teal-300 bg-slate-800/90"
-              : "text-slate-200 font-medium hover:bg-teal-500/15 hover:text-white",
+              ? "font-bold text-sky-950 bg-sky-500/20"
+              : "text-slate-700 font-medium hover:bg-sky-500/10 hover:text-sky-950",
           )}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <ChildIcon size={13} className={cn("shrink-0", active ? "text-teal-300" : "text-[#5EEAD4] group-hover:text-white")} />
+            <ChildIcon size={13} className={cn("shrink-0", active ? "text-sky-800" : "text-[#0284C7] group-hover:text-sky-800")} />
             <span className="truncate text-left">{child.label}</span>
           </div>
           <ChevronDown
             size={12}
             className={cn(
               "shrink-0 text-slate-400 transition-transform duration-200",
-              itemExpanded && "rotate-180 text-teal-300",
+              itemExpanded && "rotate-180 text-sky-800",
             )}
           />
         </button>
 
         {/* Render ONLY sub-children cleanly with border guide line */}
         {itemExpanded && (
-          <div className="ml-3 mt-1 space-y-1 border-l border-teal-500/20 pl-2 py-0.5">
+          <div className="ml-3 mt-1 space-y-1 border-l border-sky-300/50 pl-2 py-0.5">
             {child.children!.map((sub, idx) => {
               const SubIcon = sub.icon;
               const subActive = isRouteActive(sub.href, pathname, allHrefs);
@@ -603,11 +639,11 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
                   className={cn(
                     "group flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
                     subActive
-                      ? "font-bold text-white bg-[#14B8A6]/40"
-                      : "text-slate-300 hover:bg-teal-500/15 hover:text-white",
+                      ? "font-bold text-sky-950 bg-sky-500/25"
+                      : "text-slate-700 hover:bg-sky-500/10 hover:text-sky-950",
                   )}
                 >
-                  <SubIcon size={11} className={cn("shrink-0", subActive ? "text-white" : "text-[#5EEAD4] group-hover:text-white")} />
+                  <SubIcon size={11} className={cn("shrink-0", subActive ? "text-sky-900" : "text-[#0284C7] group-hover:text-sky-800")} />
                   <span className="truncate">{sub.label}</span>
                 </Link>
               );
@@ -625,15 +661,15 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
       className={cn(
         "group flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs transition-all duration-150",
         exactActive
-          ? "bg-[#14B8A6]/40 text-white font-bold shadow-2xs"
-          : "text-slate-200 font-medium hover:bg-teal-500/15 hover:text-white",
+          ? "bg-sky-50 text-sky-900 font-semibold"
+          : "text-slate-600 font-medium hover:bg-sky-50 hover:text-sky-900",
       )}
     >
       <ChildIcon
         size={13}
         className={cn(
           "transition-colors shrink-0",
-          exactActive ? "text-white" : "text-[#5EEAD4] group-hover:text-teal-200",
+          exactActive ? "text-[#0284C7]" : "text-[#0284C7] group-hover:text-sky-800",
         )}
       />
       <span className="truncate">{child.label}</span>

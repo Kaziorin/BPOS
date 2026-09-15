@@ -68,137 +68,150 @@ export function Header() {
 
   return (
     <>
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-800/80 bg-[#0F172A]/90 backdrop-blur-md px-4 sm:px-6 shadow-md z-20 text-white">
-        <div className="flex min-w-0 items-center gap-3">
-          {/* Mobile menu button */}
-          <button
-            onClick={() => window.dispatchEvent(new Event("omni:open-mobile-menu"))}
-            className="rounded-md p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white lg:hidden cursor-pointer"
-            aria-label="Open menu"
-          >
-            <Menu size={19} />
-          </button>
-          <div>
-            <h1 className="truncate text-base font-bold text-white sm:text-lg tracking-tight">
-              {cleanTitle || siteConfig.name}
-            </h1>
-          </div>
+      <header className="relative flex h-16 shrink-0 items-center justify-between border-b border-sky-100 bg-white px-4 sm:px-6 shadow-sm z-20 text-slate-800 overflow-hidden">
+        {/* Ocean Breeze subtle top gradient glow */}
+        <div
+          className="pointer-events-none absolute inset-0 w-full h-full z-0"
+          style={{
+            background: `
+              radial-gradient(ellipse at 0% 0%, rgba(186, 230, 253, 0.50) 0%, transparent 50%),
+              radial-gradient(ellipse at 100% 100%, rgba(125, 211, 252, 0.20) 0%, transparent 50%)
+            `,
+          }}
+        />
 
-          {/* Store / Branch Chip */}
-          <div className="hidden items-center gap-1.5 rounded-md border border-slate-700/80 bg-slate-800/80 px-2.5 py-1 text-xs font-medium text-slate-200 md:flex">
-            <Building2 size={12} className="text-teal-400" />
-            <span>Main Branch</span>
-            <span className="text-slate-500">•</span>
-            <span className="text-slate-400 font-normal">Terminal-01</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5 sm:gap-3.5">
-          {/* Global Search / Command Bar Trigger */}
-          <button
-            onClick={() => setPaletteOpen(true)}
-            className="flex items-center gap-2 rounded-md border border-slate-700/80 bg-slate-800/70 px-3 py-1.5 text-xs text-slate-300 hover:border-[#14B8A6] hover:bg-slate-800 transition cursor-pointer"
-          >
-            <Search size={14} className="text-teal-400" />
-            <span className="hidden sm:inline">Search pages, items, actions...</span>
-            <span className="sm:hidden">Search</span>
-            <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded bg-slate-900 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-teal-300 border border-slate-700 shadow-2xs">
-              Ctrl+K
-            </kbd>
-          </button>
-
-          {/* Real-time Sync & Connectivity Status Indicator */}
-          <div
-            title={online ? "Connected to Backend & Cloud Sync" : "Offline mode active — transactions cached locally"}
-            className={cn(
-              "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition",
-              online
-                ? "bg-teal-500/15 text-teal-300 border border-teal-500/30"
-                : "bg-amber-500/15 text-amber-300 border border-amber-500/30 animate-pulse"
-            )}
-          >
-            {online ? (
-              <>
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-400"></span>
-                </span>
-                <span className="hidden sm:inline">Live Sync</span>
-              </>
-            ) : (
-              <>
-                <WifiOff size={12} />
-                <span>Offline Mode</span>
-              </>
-            )}
-          </div>
-
-          {/* Quick POS action button if not already on POS screen */}
-          {pathname !== "/retail-pos" && (
-            <Link
-              href="/retail-pos"
-              className="hidden items-center gap-1.5 rounded-md bg-gradient-to-r from-[#14B8A6] via-[#0EA5A0] to-[#00C9B7] px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-teal-500/25 transition hover:brightness-110 sm:flex"
-            >
-              <ShoppingCart size={13} />
-              <span>Express POS</span>
-            </Link>
-          )}
-
-          {/* User profile dropdown */}
-          <div className="relative" ref={menuRef}>
+        <div className="relative z-10 flex w-full items-center justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            {/* Mobile menu button */}
             <button
-              onClick={() => setOpen((v) => !v)}
-              className="flex items-center gap-2 rounded-md p-1 sm:px-2.5 sm:py-1.5 transition hover:bg-slate-800/80 cursor-pointer"
+              onClick={() => window.dispatchEvent(new Event("omni:open-mobile-menu"))}
+              className="rounded-md p-2 text-slate-700 transition hover:bg-sky-100/60 hover:text-slate-900 lg:hidden cursor-pointer"
+              aria-label="Open menu"
             >
-              <div className="hidden text-right sm:block">
-                <p className="text-sm font-bold text-white leading-tight">{user?.name || "Store Admin"}</p>
-                <p className="text-[11px] font-semibold text-teal-300">{user?.role || "Administrator"}</p>
-              </div>
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#14B8A6] to-[#6366F1] text-sm font-bold text-white shadow-xs">
-                {user?.name?.[0]?.toUpperCase() ?? "A"}
-              </div>
-              <ChevronDown
-                size={14}
-                className={cn("text-slate-300 transition-transform hidden sm:block", open && "rotate-180 text-teal-300")}
-              />
+              <Menu size={19} />
+            </button>
+            <div>
+              <h1 className="truncate text-base font-bold text-slate-900 sm:text-lg tracking-tight">
+                {cleanTitle || siteConfig.name}
+              </h1>
+            </div>
+
+            {/* Store / Branch Chip */}
+            <div className="hidden items-center gap-1.5 rounded-md border border-sky-200/90 bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-2xs md:flex">
+              <Building2 size={12} className="text-[#0284C7]" />
+              <span>Main Branch</span>
+              <span className="text-slate-400">•</span>
+              <span className="text-slate-500 font-normal">Terminal-01</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 sm:gap-3.5">
+            {/* Global Search / Command Bar Trigger */}
+            <button
+              onClick={() => setPaletteOpen(true)}
+              className="flex items-center gap-2 rounded-md border border-sky-200/90 bg-white/90 px-3 py-1.5 text-xs text-slate-700 hover:border-[#0284C7] hover:bg-white transition cursor-pointer shadow-2xs"
+            >
+              <Search size={14} className="text-[#0284C7]" />
+              <span className="hidden sm:inline">Search pages, items, actions...</span>
+              <span className="sm:hidden">Search</span>
+              <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded bg-sky-100/80 px-1.5 py-0.5 font-mono text-[10px] font-bold text-sky-800 border border-sky-200 shadow-2xs">
+                Ctrl+K
+              </kbd>
             </button>
 
-            {open && (
-              <div className="absolute right-0 top-full z-30 mt-2 w-56 origin-top-right overflow-hidden rounded-md border border-slate-800 bg-slate-900 p-1.5 shadow-2xl animate-[scale-in_140ms_ease-out]">
-                <div className="border-b border-slate-800 px-3.5 py-3 bg-slate-950/60 rounded-md mb-1">
-                  <p className="truncate text-sm font-bold text-white">{user?.name || "OmniPOS Admin"}</p>
-                  <p className="truncate text-xs text-slate-400">{user?.email || "admin@blueoceans.pos"}</p>
-                  <span className="mt-1.5 inline-block rounded-md bg-teal-500/15 px-2 py-0.5 text-[10px] font-bold text-teal-300 border border-teal-500/30">
-                    {user?.role || "Super Admin"}
+            {/* Real-time Sync & Connectivity Status Indicator */}
+            <div
+              title={online ? "Connected to Backend & Cloud Sync" : "Offline mode active — transactions cached locally"}
+              className={cn(
+                "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition shadow-2xs",
+                online
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-amber-50 text-amber-700 border border-amber-200 animate-pulse"
+              )}
+            >
+              {online ? (
+                <>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
                   </span>
-                </div>
-                <div className="p-1 space-y-0.5">
-                  <Link
-                    href="/settings"
-                    onClick={() => setOpen(false)}
-                    className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-white transition"
-                  >
-                    <Building2 size={14} className="text-teal-400" />
-                    Store Settings
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setOpen(false)}
-                    className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-white transition"
-                  >
-                    <Sparkles size={14} className="text-teal-400" />
-                    Executive Dashboard
-                  </Link>
-                  <button
-                    onClick={logout}
-                    className="flex w-full items-center gap-2.5 rounded-md bg-rose-500/15 border border-rose-500/30 px-3 py-2 text-xs font-bold text-rose-400 transition hover:bg-rose-600 hover:text-white cursor-pointer"
-                  >
-                    <LogOut size={14} />
-                    Sign Out
-                  </button>
-                </div>
-              </div>
+                  <span className="hidden sm:inline">Live Sync</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff size={12} />
+                  <span>Offline Mode</span>
+                </>
+              )}
+            </div>
+
+            {/* Quick POS action button if not already on POS screen */}
+            {pathname !== "/retail-pos" && (
+              <Link
+                href="/retail-pos"
+                className="hidden items-center gap-1.5 rounded-md bg-gradient-to-r from-[#38BDF8] via-[#0284C7] to-[#0369A1] px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-sky-500/25 transition hover:brightness-105 sm:flex"
+              >
+                <ShoppingCart size={13} />
+                <span>Express POS</span>
+              </Link>
             )}
+
+            {/* User profile dropdown */}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setOpen((v) => !v)}
+                className="flex items-center gap-2 rounded-md p-1 sm:px-2.5 sm:py-1.5 transition hover:bg-sky-100/60 cursor-pointer"
+              >
+                <div className="hidden text-right sm:block">
+                  <p className="text-sm font-bold text-slate-900 leading-tight">{user?.name || "Store Admin"}</p>
+                  <p className="text-[11px] font-semibold text-[#0284C7]">{user?.role || "Administrator"}</p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-sm font-bold text-white shadow-xs">
+                  {user?.name?.[0]?.toUpperCase() ?? "A"}
+                </div>
+                <ChevronDown
+                  size={14}
+                  className={cn("text-slate-600 transition-transform hidden sm:block", open && "rotate-180 text-sky-700")}
+                />
+              </button>
+
+              {open && (
+                <div className="absolute right-0 top-full z-30 mt-2 w-56 origin-top-right overflow-hidden rounded-md border border-sky-200/90 bg-white p-1.5 shadow-xl animate-[scale-in_140ms_ease-out]">
+                  <div className="border-b border-sky-100 px-3.5 py-3 bg-sky-50/80 rounded-md mb-1">
+                    <p className="truncate text-sm font-bold text-slate-900">{user?.name || "OmniPOS Admin"}</p>
+                    <p className="truncate text-xs text-slate-500">{user?.email || "admin@blueoceans.pos"}</p>
+                    <span className="mt-1.5 inline-block rounded-md bg-sky-50 px-2 py-0.5 text-[10px] font-bold text-sky-800 border border-sky-200">
+                      {user?.role || "Super Admin"}
+                    </span>
+                  </div>
+                  <div className="p-1 space-y-0.5">
+                    <Link
+                      href="/settings"
+                      onClick={() => setOpen(false)}
+                      className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-sky-50/80 hover:text-sky-950 transition"
+                    >
+                      <Building2 size={14} className="text-[#0284C7]" />
+                      Store Settings
+                    </Link>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setOpen(false)}
+                      className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-sky-50/80 hover:text-sky-950 transition"
+                    >
+                      <Sparkles size={14} className="text-[#0284C7]" />
+                      Executive Dashboard
+                    </Link>
+                    <button
+                      onClick={logout}
+                      className="flex w-full items-center gap-2.5 rounded-md bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-100/80 cursor-pointer"
+                    >
+                      <LogOut size={14} />
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
