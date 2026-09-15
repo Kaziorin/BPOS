@@ -10,7 +10,6 @@ import {
   Building2,
   DollarSign,
   Landmark,
-  Receipt,
   RotateCcw,
   Sparkles,
   ArrowRight,
@@ -19,7 +18,16 @@ import {
   Warehouse,
   PlusCircle,
   X,
+  Croissant,
+  ShoppingBag,
+  Wrench,
+  Scissors,
+  Pill,
+  UtensilsCrossed,
+  Truck,
+  Monitor,
 } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface CommandItem {
   id: string;
@@ -39,31 +47,40 @@ const COMMANDS: CommandItem[] = [
   { id: "new-customer", title: "Add New Customer", subtitle: "Register customer profile & phone", category: "Quick Actions", icon: Users, href: "/customers/create", keywords: ["customer", "client", "buyer"] },
 
   // POS & Retail
-  { id: "pos-terminal", title: "POS Counter Checkout", subtitle: "Express retail checkout interface", category: "POS & Retail", icon: ShoppingCart, href: "/retail-pos" },
-  { id: "cash-register", title: "Cash Register & Shifts", subtitle: "Drawer balance, cash in/out, Z-report", category: "POS & Retail", icon: DollarSign, href: "/cash-register" },
-  { id: "held-orders", title: "Held Sales / Carts", subtitle: "Resume paused transactions", category: "POS & Retail", icon: ShoppingCart, href: "/retail-pos/holds" },
-  { id: "price-checker", title: "Price & Barcode Checker", subtitle: "Fast kiosk price scanner", category: "POS & Retail", icon: Search, href: "/retail-pos/price-checker" },
+  { id: "pos-terminal", title: "Retail POS Counter", subtitle: "Express retail checkout interface", category: "POS & Retail", icon: ShoppingCart, href: "/retail-pos", keywords: ["retail", "pos", "counter", "checkout"] },
+  { id: "bakery-pos", title: "Bakery & Confectionery POS", subtitle: "Fresh baked goods, pastries & recipe BOM", category: "POS & Retail", icon: Croissant, href: "/bakery/pos", keywords: ["bakery", "pastry", "cake", "bread", "pos"] },
+  { id: "grocery-pos", title: "Grocery & Supermarket POS", subtitle: "Weigh scales, PLU loose item barcodes & lanes", category: "POS & Retail", icon: ShoppingBag, href: "/grocery/pos", keywords: ["grocery", "supermarket", "scale", "produce"] },
+  { id: "restaurant-pos", title: "Restaurant & Table Map POS", subtitle: "Dine-in table map, KDS kitchen & takeout", category: "POS & Retail", icon: UtensilsCrossed, href: "/restaurant/pos", keywords: ["restaurant", "cafe", "table", "kitchen", "kds"] },
+  { id: "pharmacy-pos", title: "Pharmacy Rx FEFO POS", subtitle: "Batch expiry FEFO tracking & prescription billing", category: "POS & Retail", icon: Pill, href: "/pharmacy/pos", keywords: ["pharmacy", "medicine", "fefo", "rx"] },
+  { id: "wholesale-pos", title: "Wholesale B2B POS", subtitle: "Volume tiers, client credit limits & invoice counter", category: "POS & Retail", icon: Truck, href: "/wholesale/pos", keywords: ["wholesale", "b2b", "bulk", "credit"] },
+  { id: "repair-pos", title: "Repair & Service POS", subtitle: "Device intake diagnosis, technician labor & warranty", category: "POS & Retail", icon: Wrench, href: "/repair/pos", keywords: ["repair", "service", "job", "device"] },
+  { id: "salon-pos", title: "Salon & Spa POS", subtitle: "Stylist appointment calendar & chair commission", category: "POS & Retail", icon: Scissors, href: "/salon/pos", keywords: ["salon", "spa", "beauty", "hair"] },
+  { id: "franchise-pos", title: "Franchise & Outlet POS", subtitle: "Multi-branch synchronized sales & master catalog", category: "POS & Retail", icon: Building2, href: "/franchise/pos", keywords: ["franchise", "chain", "outlet"] },
+  { id: "cash-register", title: "Cash Register & Shifts", subtitle: "Drawer balance, cash in/out, Z-report", category: "POS & Retail", icon: DollarSign, href: "/cash-register", keywords: ["cash", "register", "drawer", "shift"] },
+  { id: "held-orders", title: "Held Sales / Carts", subtitle: "Resume paused transactions", category: "POS & Retail", icon: ShoppingCart, href: "/retail-pos/holds", keywords: ["hold", "held", "pause"] },
+  { id: "price-checker", title: "Price & Barcode Checker", subtitle: "Fast kiosk price scanner", category: "POS & Retail", icon: Search, href: "/retail-pos/price-checker", keywords: ["price", "barcode", "checker"] },
+  { id: "customer-display", title: "Customer Facing Display", subtitle: "Dual-screen live cart & total", category: "POS & Retail", icon: Monitor, href: "/customer-display", keywords: ["customer", "display", "screen"] },
 
   // Inventory
-  { id: "products-list", title: "Products Catalog", subtitle: "Manage stock items, prices and barcodes", category: "Inventory", icon: Package, href: "/products" },
-  { id: "stock-overview", title: "Stock Levels & Ledger", subtitle: "Current inventory across warehouses", category: "Inventory", icon: Warehouse, href: "/inventory/stock" },
-  { id: "stock-transfers", title: "Inter-Branch Transfers", subtitle: "Move goods between outlets", category: "Inventory", icon: ArrowRight, href: "/inventory/transfers" },
-  { id: "purchasing-grn", title: "Goods Received Notes (GRN)", subtitle: "Receive and verify vendor deliveries", category: "Inventory", icon: FileText, href: "/purchasing/grns" },
-  { id: "suppliers", title: "Supplier Directory", subtitle: "Vendor contacts & payables", category: "Inventory", icon: Users, href: "/suppliers" },
+  { id: "products-list", title: "Products Catalog", subtitle: "Manage stock items, prices and barcodes", category: "Inventory", icon: Package, href: "/products", keywords: ["items", "inventory", "stock", "products"] },
+  { id: "stock-overview", title: "Stock Levels & Ledger", subtitle: "Current inventory across warehouses", category: "Inventory", icon: Warehouse, href: "/inventory/stock", keywords: ["inventory", "stock", "levels", "warehouses"] },
+  { id: "stock-transfers", title: "Inter-Branch Transfers", subtitle: "Move goods between outlets", category: "Inventory", icon: ArrowRight, href: "/inventory/transfers", keywords: ["transfer", "branch", "inter-branch"] },
+  { id: "purchasing-grn", title: "Goods Received Notes (GRN)", subtitle: "Receive and verify vendor deliveries", category: "Inventory", icon: FileText, href: "/purchasing/grns", keywords: ["grn", "receive", "delivery"] },
+  { id: "suppliers", title: "Supplier Directory", subtitle: "Vendor contacts & payables", category: "Inventory", icon: Users, href: "/suppliers", keywords: ["vendor", "supplier", "payables"] },
 
   // Accounting & Finance
-  { id: "accounting", title: "Financial Overview", subtitle: "General ledger & balance summary", category: "Accounting", icon: Landmark, href: "/accounting" },
-  { id: "pnl", title: "Profit & Loss (P&L)", subtitle: "Income statement & gross margins", category: "Accounting", icon: Landmark, href: "/accounting/pnl" },
-  { id: "balance-sheet", title: "Balance Sheet", subtitle: "Assets, liabilities & equity", category: "Accounting", icon: Landmark, href: "/accounting/balance-sheet" },
-  { id: "tax-mushak", title: "Tax & NBR VAT (Mushak)", subtitle: "Mushak 6.3 & VAT calculation rules", category: "Accounting", icon: DollarSign, href: "/tax" },
-  { id: "expenses", title: "Expenses & Petty Cash", subtitle: "Log store expenses & vouchers", category: "Accounting", icon: DollarSign, href: "/expenses" },
+  { id: "accounting", title: "Financial Overview", subtitle: "General ledger & balance summary", category: "Accounting", icon: Landmark, href: "/accounting", keywords: ["finance", "ledger", "accounts"] },
+  { id: "pnl", title: "Profit & Loss (P&L)", subtitle: "Income statement & gross margins", category: "Accounting", icon: Landmark, href: "/accounting/pnl", keywords: ["pnl", "profit", "loss", "income"] },
+  { id: "balance-sheet", title: "Balance Sheet", subtitle: "Assets, liabilities & equity", category: "Accounting", icon: Landmark, href: "/accounting/balance-sheet", keywords: ["balance", "sheet", "assets"] },
+  { id: "tax-mushak", title: "Tax & NBR VAT (Mushak)", subtitle: "Mushak 6.3 & VAT calculation rules", category: "Accounting", icon: DollarSign, href: "/tax", keywords: ["vat", "tax", "nbr", "mushak"] },
+  { id: "expenses", title: "Expenses & Petty Cash", subtitle: "Log store expenses & vouchers", category: "Accounting", icon: DollarSign, href: "/expenses", keywords: ["expense", "petty cash", "voucher"] },
 
   // Admin & Settings
-  { id: "dashboard", title: "Executive Dashboard", subtitle: "Sales metrics, revenue & analytics", category: "Admin & Settings", icon: Sparkles, href: "/dashboard" },
-  { id: "onboarding", title: "Onboarding Wizard", subtitle: "Store & organization setup guide", category: "Admin & Settings", icon: Sparkles, href: "/onboarding" },
-  { id: "branches", title: "Branch Outlets", subtitle: "Manage physical store locations", category: "Admin & Settings", icon: Building2, href: "/branches" },
-  { id: "rbac", title: "Roles & Permissions (RBAC)", subtitle: "Staff security & access levels", category: "Admin & Settings", icon: Shield, href: "/rbac" },
-  { id: "settings", title: "Store Settings", subtitle: "Currency, receipt templates & options", category: "Admin & Settings", icon: Building2, href: "/settings" },
+  { id: "dashboard", title: "Executive Dashboard", subtitle: "Sales metrics, revenue & analytics", category: "Admin & Settings", icon: Sparkles, href: "/dashboard", keywords: ["dashboard", "home", "analytics"] },
+  { id: "onboarding", title: "Onboarding Wizard", subtitle: "Store & organization setup guide", category: "Admin & Settings", icon: Sparkles, href: "/onboarding", keywords: ["wizard", "setup"] },
+  { id: "branches", title: "Branch Outlets", subtitle: "Manage physical store locations", category: "Admin & Settings", icon: Building2, href: "/branches", keywords: ["outlet", "location", "store"] },
+  { id: "rbac", title: "Roles & Permissions (RBAC)", subtitle: "Staff security & access levels", category: "Admin & Settings", icon: Shield, href: "/rbac", keywords: ["role", "permission", "security"] },
+  { id: "settings", title: "Store Settings", subtitle: "Currency, receipt templates & options", category: "Admin & Settings", icon: Building2, href: "/settings", keywords: ["settings", "config"] },
 ];
 
 export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -104,19 +121,22 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4 bg-slate-900/40 backdrop-blur-xs animate-fadeIn">
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-20 p-3 sm:p-4 bg-sky-950/45 backdrop-blur-xs select-none animate-[fade-in_150ms_ease-out]"
+      onClick={onClose}
+    >
       <div
-        className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200 animate-[scale-in_150ms_ease-out]"
+        className="w-full max-w-2xl overflow-hidden rounded-sm bg-white shadow-2xl border border-sky-200/90 animate-[scale-in_150ms_ease-out]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input Bar */}
-        <div className="relative flex items-center border-b border-slate-100 px-4 py-3.5">
-          <Search size={18} className="text-slate-400 shrink-0 mr-3" />
+        <div className="relative flex items-center border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-4 py-3">
+          <Search size={17} className="text-[#0284C7] shrink-0 mr-3" />
           <input
             autoFocus
             type="text"
-            className="w-full bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none"
-            placeholder="Type a command, page name, or action... (e.g. 'pos', 'stock', 'tax')"
+            className="w-full bg-transparent text-sm font-medium text-gray-700 placeholder:text-sky-900/40 outline-none"
+            placeholder="Search pages, items, actions... (e.g. 'pos', 'bakery', 'stock', 'tax')"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -135,18 +155,21 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
               }
             }}
           />
+          {/* Red Close Button */}
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shadow-2xs ml-2"
+            title="Close (Esc)"
+            aria-label="Close search"
           >
-            <X size={16} />
+            <X size={15} />
           </button>
         </div>
 
         {/* Results List */}
-        <div className="max-h-96 overflow-y-auto p-2 scrollbar-thin">
+        <div className="max-h-96 overflow-y-auto p-2 space-y-1 custom-scrollbar">
           {filtered.length === 0 ? (
-            <div className="py-12 text-center text-sm text-slate-400">
+            <div className="py-12 text-center text-xs font-medium text-gray-500">
               No matching pages or commands found for &ldquo;{query}&rdquo;
             </div>
           ) : (
@@ -159,40 +182,66 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
                   key={cmd.id}
                   onClick={() => handleSelect(cmd.href)}
                   onMouseEnter={() => setSelectedIndex(idx)}
-                  className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${
-                    isSelected ? "bg-primary-50 text-primary-950" : "hover:bg-slate-50 text-slate-800"
-                  }`}
+                  className={cn(
+                    "group flex items-center justify-between p-2.5 rounded-sm border cursor-pointer transition-all duration-150 shadow-2xs",
+                    isSelected
+                      ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-[#0284C7] text-white shadow-md"
+                      : "bg-white hover:bg-sky-50/50 border-sky-100/90 text-gray-700"
+                  )}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`p-2 rounded-lg shrink-0 ${
-                        isSelected ? "bg-primary-600 text-white" : "bg-slate-100 text-slate-600"
-                      }`}
+                      className={cn(
+                        "flex h-8 w-8 items-center justify-center rounded-sm shrink-0 transition-colors shadow-2xs",
+                        isSelected
+                          ? "bg-white/20 text-white border border-white/30"
+                          : "bg-sky-50 border border-sky-200/80 text-[#0284C7] group-hover:bg-[#E0F2FE]"
+                      )}
                     >
                       <Icon size={16} />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm truncate">{cmd.title}</span>
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                        <span
+                          className={cn(
+                            "font-bold text-xs sm:text-sm truncate",
+                            isSelected ? "text-white" : "text-gray-700 group-hover:text-[#0369A1]"
+                          )}
+                        >
+                          {cmd.title}
+                        </span>
+                        <span
+                          className={cn(
+                            "text-[9.5px] font-bold px-1.5 py-0.5 rounded-sm border",
+                            isSelected
+                              ? "bg-white/20 text-white border-white/30"
+                              : "bg-sky-50/80 text-[#0284C7] border-sky-200"
+                          )}
+                        >
                           {cmd.category}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 truncate">{cmd.subtitle}</p>
+                      <p
+                        className={cn(
+                          "text-[11px] truncate mt-0.5",
+                          isSelected ? "text-white/90" : "text-gray-500"
+                        )}
+                      >
+                        {cmd.subtitle}
+                      </p>
                     </div>
                   </div>
-                  <ArrowRight size={14} className={isSelected ? "text-primary-600" : "text-slate-300"} />
+                  <ArrowRight
+                    size={14}
+                    className={cn(
+                      "shrink-0 transition-transform ml-2",
+                      isSelected ? "text-white translate-x-0.5" : "text-slate-400 group-hover:text-[#0284C7]"
+                    )}
+                  />
                 </div>
               );
             })
           )}
-        </div>
-
-        {/* Footer shortcuts helper */}
-        <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/70 px-4 py-2 text-[11px] text-slate-500">
-          <span>Navigate with <kbd className="font-mono bg-white border border-slate-200 px-1 rounded shadow-2xs">↑</kbd> <kbd className="font-mono bg-white border border-slate-200 px-1 rounded shadow-2xs">↓</kbd></span>
-          <span>Select with <kbd className="font-mono bg-white border border-slate-200 px-1 rounded shadow-2xs">Enter</kbd></span>
-          <span>Close with <kbd className="font-mono bg-white border border-slate-200 px-1 rounded shadow-2xs">Esc</kbd></span>
         </div>
       </div>
     </div>
