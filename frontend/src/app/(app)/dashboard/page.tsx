@@ -52,12 +52,12 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-5">
-      {/* ── Hero Welcome Banner ── Ocean Breeze Light gradient matching design spec */}
+      {/* ── Hero Welcome Banner ── Ocean Breeze Light right-to-left gradient matching design spec */}
       <div
         className="relative flex flex-col gap-4 overflow-hidden rounded-2xl p-6 text-white sm:flex-row sm:items-center sm:justify-between"
         style={{
           background:
-            "linear-gradient(to right, #BAE6FD 0%, #7DD3FC 30%, #38BDF8 65%, #0EA5E9 100%)",
+            "linear-gradient(to left, #BAE6FD 0%, #7DD3FC 30%, #38BDF8 65%, #0284C7 100%)",
         }}
       >
         {/* Soft white ambient glow top-left */}
@@ -65,42 +65,42 @@ export default function DashboardPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse at 10% 20%, rgba(255,255,255,0.45) 0%, transparent 55%)",
+              "radial-gradient(ellipse at 10% 20%, rgba(255,255,255,0.25) 0%, transparent 55%)",
           }}
         />
         {/* Wave blob decoration — right side */}
         <div
-          className="pointer-events-none absolute -right-8 -bottom-10 h-56 w-64 rounded-full opacity-30"
+          className="pointer-events-none absolute -right-8 -bottom-10 h-56 w-64 rounded-full opacity-35"
           style={{
             background:
-              "radial-gradient(ellipse, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 70%, transparent 100%)",
+              "radial-gradient(ellipse, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.15) 70%, transparent 100%)",
             filter: "blur(16px)",
           }}
         />
         <div
-          className="pointer-events-none absolute right-8 top-2 h-32 w-48 rounded-full opacity-20"
+          className="pointer-events-none absolute right-8 top-2 h-32 w-48 rounded-full opacity-25"
           style={{
             background:
-              "radial-gradient(ellipse, rgba(255,255,255,0.6) 0%, transparent 70%)",
+              "radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%)",
             filter: "blur(10px)",
           }}
         />
 
         <div className="relative z-10">
-          <span className="inline-flex items-center rounded-full bg-white/30 px-2.5 py-1 text-[11px] font-bold uppercase tracking-widest text-[#0369A1]">
+          <span className="inline-flex items-center rounded-full bg-white/25 px-2.5 py-1 text-[11px] font-bold uppercase tracking-widest text-white border border-white/20">
             {greeting}
           </span>
-          <h1 className="mt-2.5 text-2xl font-bold tracking-tight text-[#0C4A6E]">
+          <h1 className="mt-2.5 text-2xl font-bold tracking-tight text-white">
             Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
           </h1>
-          <p className="mt-0.5 text-sm font-medium text-[#075985]">
+          <p className="mt-0.5 text-sm font-medium text-white/90">
             {user?.roleName ? `Role: ${user.roleName}` : ""}
           </p>
-          <p className="mt-1 text-sm text-[#0369A1]/80">Here&apos;s what&apos;s happening in your store today.</p>
+          <p className="mt-1 text-sm text-sky-100">Here&apos;s what&apos;s happening in your store today.</p>
         </div>
         <Link
           href="/retail-pos"
-          className="relative z-10 inline-flex shrink-0 items-center gap-2 self-start rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-[#0284C7] shadow-lg shadow-sky-700/20 transition hover:bg-sky-50 hover:scale-105 active:scale-100"
+          className="relative z-10 inline-flex shrink-0 items-center gap-2 self-start rounded-xl bg-[#0284C7] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-sky-900/20 transition hover:bg-[#0369A1] hover:scale-105 active:scale-100"
         >
           New Sale
           <ArrowRight size={15} />

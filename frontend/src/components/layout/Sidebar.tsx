@@ -102,7 +102,17 @@ export function Sidebar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [activeFlyout, setActiveFlyout] = useState<{
+    item: NavItem;
+    top: number;
+  } | null>(null);
+  const flyoutTimerRef = useRef<NodeJS.Timeout | null>(null);
   const didAutoExpand = useRef(false);
+
+  // Close flyout when route changes
+  useEffect(() => {
+    setActiveFlyout(null);
+  }, [pathname]);
 
   // Collect all active hrefs in the nav system to prevent double active highlights
   const allHrefs = useMemo(() => {
@@ -187,10 +197,36 @@ export function Sidebar() {
   function toggleCollapse() {
     setCollapsed((prev) => {
       const next = !prev;
+      setActiveFlyout(null);
       localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
       return next;
     });
   }
+
+  const handleOpenFlyout = (item: NavItem, top: number) => {
+    if (flyoutTimerRef.current) clearTimeout(flyoutTimerRef.current);
+    if (!collapsed || !item.children?.length) {
+      setActiveFlyout(null);
+      return;
+    }
+    setActiveFlyout({ item, top });
+  };
+
+  const handleCloseFlyout = () => {
+    if (flyoutTimerRef.current) clearTimeout(flyoutTimerRef.current);
+    flyoutTimerRef.current = setTimeout(() => {
+      setActiveFlyout(null);
+    }, 200);
+  };
+
+  const handleToggleFlyout = (item: NavItem, top: number) => {
+    if (!collapsed || !item.children?.length) return;
+    if (activeFlyout?.item.label === item.label) {
+      setActiveFlyout(null);
+    } else {
+      setActiveFlyout({ item, top });
+    }
+  };
 
   // Live filtered nav groups based on search query
   const filteredNavGroups = useMemo(() => {
@@ -222,7 +258,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "relative hidden shrink-0 flex-col border-r border-sky-100 bg-white text-slate-800 transition-[width] duration-300 ease-in-out lg:flex shadow-lg select-none",
+        "relative hidden shrink-0 flex-col border-r border-sky-100 bg-white text-[#0284C7] transition-[width] duration-300 ease-in-out lg:flex shadow-lg select-none",
         collapsed ? "w-[72px]" : "w-64",
       )}
     >
@@ -280,7 +316,7 @@ export function Sidebar() {
         )}
       >
         <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white shadow-md shadow-sky-500/30 border border-white/60">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60">
             <Logo size={21} />
           </div>
           {!collapsed && (
@@ -349,6 +385,10 @@ export function Sidebar() {
                   onToggleModule={() => toggleModule(item.label)}
                   onToggleItem={toggleItem}
                   isSearching={isSearching}
+                  onOpenFlyout={handleOpenFlyout}
+                  onCloseFlyout={handleCloseFlyout}
+                  onToggleFlyout={handleToggleFlyout}
+                  isFlyoutOpen={activeFlyout?.item.label === item.label}
                 />
               ))}
             </div>
@@ -392,6 +432,123 @@ export function Sidebar() {
           </button>
         )}
       </div>
+
+      {/* ── Collapsed Mode Floating Flyout Submenu ── */}
+      {collapsed && activeFlyout && (
+        <div
+          onMouseEnter={() => {
+            if (flyoutTimerRef.current) clearTimeout(flyoutTimerRef.current);
+          }}
+          onMouseLeave={handleCloseFlyout}
+          style={{
+            position: "fixed",
+            left: "72px",
+            top: Math.max(12, Math.min(typeof window !== "undefined" ? window.innerHeight - 380 : 100, activeFlyout.top)),
+            zIndex: 999999,
+          }}
+          className="pl-2 select-none"
+        >
+          <div className="min-w-[210px] max-w-[260px] overflow-hidden rounded-lg border border-sky-200 bg-white shadow-2xl ring-1 ring-black/5 animate-in fade-in-50 zoom-in-95 duration-150">
+            {/* Header */}
+            {(() => {
+              const FlyoutIcon = activeFlyout.item.icon;
+              const isParentActive = isModuleActive(activeFlyout.item, pathname, allHrefs);
+              return (
+                <div
+                  className={cn(
+                    "flex items-center justify-between border-b px-3.5 py-2.5",
+                    isParentActive
+                      ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white border-sky-400/40"
+                      : "bg-gradient-to-r from-sky-50 to-white text-[#0284C7] border-sky-100",
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <FlyoutIcon
+                      size={16}
+                      className={cn("shrink-0", isParentActive ? "text-white" : "text-[#0284C7]")}
+                    />
+                    <span
+                      className={cn(
+                        "text-xs font-bold tracking-tight",
+                        isParentActive ? "text-white" : "text-[#0284C7]",
+                      )}
+                    >
+                      {activeFlyout.item.label}
+                    </span>
+                  </div>
+                  {activeFlyout.item.badge && (
+                    <span
+                      className={cn(
+                        "text-[9px] font-bold px-1.5 py-0.5 rounded border",
+                        isParentActive
+                          ? "bg-white/20 text-white border-white/30"
+                          : "bg-sky-100 text-[#0284C7] border-sky-200",
+                      )}
+                    >
+                      {activeFlyout.item.badge}
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Submenu links */}
+            <div className="p-1.5 space-y-0.5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+              {activeFlyout.item.children?.map((child, idx) => {
+                const ChildIcon = child.icon;
+                const childActive = isChildActive(child, pathname, allHrefs);
+                const hasSub = !!child.children?.length;
+
+                return (
+                  <div key={`${child.label}-${child.href}-${idx}`}>
+                    <Link
+                      href={child.href !== "#" ? child.href : (child.children?.[0]?.href || "#")}
+                      onClick={() => setActiveFlyout(null)}
+                      className={cn(
+                        "flex items-center justify-between gap-2.5 px-3 py-2 text-xs rounded-md transition-colors",
+                        childActive
+                          ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
+                          : "text-[#0284C7] font-semibold hover:bg-sky-50 hover:text-sky-900"
+                      )}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <ChildIcon size={14} className={cn("shrink-0", childActive ? "text-white" : "text-[#0284C7]")} />
+                        <span className="truncate">{child.label}</span>
+                      </div>
+                    </Link>
+
+                    {/* Sub-children if any */}
+                    {hasSub && (
+                      <div className="ml-4 pl-2 border-l border-sky-200 my-1 space-y-0.5">
+                        {child.children!.map((sub, sIdx) => {
+                          const SubIcon = sub.icon;
+                          const subActive = isRouteActive(sub.href, pathname, allHrefs);
+                          return (
+                            <Link
+                              key={`${sub.label}-${sub.href}-${sIdx}`}
+                              href={sub.href}
+                              onClick={() => setActiveFlyout(null)}
+                              className={cn(
+                                "flex items-center gap-2 px-2 py-1.5 text-[11px] rounded-md transition-colors",
+                                subActive
+                                  ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
+                                  : "text-[#0284C7] font-medium hover:bg-sky-50 hover:text-sky-900"
+                              )}
+                            >
+                              <SubIcon size={11} className={cn("shrink-0", subActive ? "text-white" : "text-[#0284C7]")} />
+                              <span className="truncate">{sub.label}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
@@ -408,6 +565,10 @@ interface ModuleRowProps {
   onToggleModule: () => void;
   onToggleItem: (href: string) => void;
   isSearching?: boolean;
+  onOpenFlyout: (item: NavItem, top: number) => void;
+  onCloseFlyout: () => void;
+  onToggleFlyout: (item: NavItem, top: number) => void;
+  isFlyoutOpen: boolean;
 }
 
 function ModuleRow({
@@ -420,12 +581,16 @@ function ModuleRow({
   onToggleModule,
   onToggleItem,
   isSearching,
+  onOpenFlyout,
+  onCloseFlyout,
+  onToggleFlyout,
+  isFlyoutOpen,
 }: ModuleRowProps) {
   const Icon = item.icon;
   const hasChildren = !!item.children?.length;
   const active = isModuleActive(item, pathname, allHrefs);
 
-  // Collapsed Mode: Icon with border, rounded-md; if has children → hover popup submenu on right
+  // Collapsed Mode: Icon with border, rounded-md; if has children → hover/click opens flyout on right
   if (collapsed) {
     if (!hasChildren) {
       return (
@@ -435,8 +600,8 @@ function ModuleRow({
           className={cn(
             "mx-auto flex h-10 w-10 items-center justify-center rounded-md border transition-all duration-200",
             active
-              ? "bg-gradient-to-r from-[#7DD3FC] via-[#38BDF8] to-[#0EA5E9] border-sky-300/60 text-white"
-              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800",
+              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white"
+              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-sky-50 hover:text-sky-900",
           )}
         >
           <Icon size={20} />
@@ -444,49 +609,26 @@ function ModuleRow({
       );
     }
 
-    // Has children → icon button + hover popup submenu to the RIGHT
+    // Has children → icon button; hovering or clicking opens flyout to the right
     return (
-      <div className="group relative mx-auto w-10">
-        <div
+      <div
+        className="relative mx-auto w-10"
+        onMouseEnter={(e) => onOpenFlyout(item, e.currentTarget.getBoundingClientRect().top)}
+        onMouseLeave={onCloseFlyout}
+      >
+        <button
+          type="button"
+          onClick={(e) => onToggleFlyout(item, e.currentTarget.getBoundingClientRect().top)}
+          title={item.label}
           className={cn(
             "flex h-10 w-10 items-center justify-center rounded-md border transition-all duration-200 cursor-pointer",
-            active
-              ? "bg-gradient-to-r from-[#7DD3FC] via-[#38BDF8] to-[#0EA5E9] border-sky-300/60 text-white"
-              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800",
+            active || isFlyoutOpen
+              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white"
+              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-sky-50 hover:text-sky-900",
           )}
         >
           <Icon size={20} />
-        </div>
-
-        {/* Floating submenu popup — shows to the RIGHT on hover */}
-        <div className="pointer-events-none group-hover:pointer-events-auto absolute left-full top-0 z-[200] ml-2 hidden group-hover:block">
-          <div className="min-w-[192px] overflow-hidden rounded-md border border-sky-100 bg-white shadow-xl">
-            <div className="border-b border-sky-50 bg-sky-50/60 px-3 py-2">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{item.label}</p>
-            </div>
-            <div className="py-1">
-              {item.children!.map((child) => {
-                const ChildIcon = child.icon;
-                const childActive = isChildActive(child, pathname, allHrefs);
-                return (
-                  <Link
-                    key={`${child.label}-${child.href}`}
-                    href={child.href !== "#" ? child.href : child.children?.[0]?.href || "#"}
-                    className={cn(
-                      "flex items-center gap-2.5 px-3 py-2 text-xs transition-colors",
-                      childActive
-                        ? "bg-sky-50 font-semibold text-sky-800"
-                        : "font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-900"
-                    )}
-                  >
-                    <ChildIcon size={13} className={childActive ? "text-[#0284C7]" : "text-slate-400"} />
-                    <span>{child.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        </button>
       </div>
     );
   }
@@ -499,8 +641,8 @@ function ModuleRow({
         className={cn(
           "group flex items-center justify-between rounded-md px-3 py-2 text-xs transition-all duration-200",
           active
-            ? "bg-gradient-to-r from-[#7DD3FC] via-[#38BDF8] to-[#0EA5E9] text-white font-bold"
-            : "text-slate-800 font-semibold hover:bg-sky-50 hover:text-sky-900",
+            ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
+            : "text-[#0284C7] font-semibold hover:bg-sky-50 hover:text-sky-900",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0">
@@ -508,7 +650,7 @@ function ModuleRow({
             size={16}
             className={cn(
               "transition-colors duration-200 shrink-0",
-              active ? "text-white" : "text-[#0284C7] group-hover:text-sky-800",
+              active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
             )}
           />
           <span className="truncate">{item.label}</span>
@@ -533,8 +675,10 @@ function ModuleRow({
         className={cn(
           "group flex w-full items-center justify-between rounded-md px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
           active
-            ? "bg-gradient-to-r from-[#7DD3FC] via-[#38BDF8] to-[#0EA5E9] text-white font-bold"
-            : "text-slate-800 font-semibold hover:bg-sky-50 hover:text-sky-900",
+            ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
+            : moduleExpanded
+            ? "text-[#0284C7] font-bold bg-sky-50/80"
+            : "text-[#0284C7] font-semibold hover:bg-sky-50 hover:text-sky-900",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -542,7 +686,7 @@ function ModuleRow({
             size={16}
             className={cn(
               "transition-colors duration-200 shrink-0",
-              active ? "text-white" : "text-[#0284C7] group-hover:text-sky-800",
+              active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
             )}
           />
           <span className="truncate text-left">{item.label}</span>
@@ -559,8 +703,8 @@ function ModuleRow({
           size={13}
           className={cn(
             "shrink-0 transition-transform duration-200",
-            active ? "text-white" : "text-slate-400 group-hover:text-sky-800",
-            moduleExpanded && "rotate-180 text-sky-800",
+            active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
+            moduleExpanded && "rotate-180",
           )}
         />
       </button>
@@ -609,19 +753,22 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
           className={cn(
             "group flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors duration-150 cursor-pointer",
             active
-              ? "font-bold text-sky-950 bg-sky-500/20"
-              : "text-slate-700 font-medium hover:bg-sky-500/10 hover:text-sky-950",
+              ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
+              : itemExpanded
+              ? "text-[#0284C7] font-bold bg-sky-50/80"
+              : "text-[#0284C7] font-semibold hover:bg-sky-50 hover:text-sky-900",
           )}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <ChildIcon size={13} className={cn("shrink-0", active ? "text-sky-800" : "text-[#0284C7] group-hover:text-sky-800")} />
+            <ChildIcon size={13} className={cn("shrink-0", active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900")} />
             <span className="truncate text-left">{child.label}</span>
           </div>
           <ChevronDown
             size={12}
             className={cn(
-              "shrink-0 text-slate-400 transition-transform duration-200",
-              itemExpanded && "rotate-180 text-sky-800",
+              "shrink-0 transition-transform duration-200",
+              active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
+              itemExpanded && "rotate-180",
             )}
           />
         </button>
@@ -639,11 +786,11 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
                   className={cn(
                     "group flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
                     subActive
-                      ? "font-bold text-sky-950 bg-sky-500/25"
-                      : "text-slate-700 hover:bg-sky-500/10 hover:text-sky-950",
+                      ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
+                      : "text-[#0284C7] hover:bg-sky-50 hover:text-sky-900",
                   )}
                 >
-                  <SubIcon size={11} className={cn("shrink-0", subActive ? "text-sky-900" : "text-[#0284C7] group-hover:text-sky-800")} />
+                  <SubIcon size={11} className={cn("shrink-0", subActive ? "text-white" : "text-[#0284C7] group-hover:text-sky-900")} />
                   <span className="truncate">{sub.label}</span>
                 </Link>
               );
@@ -661,15 +808,15 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
       className={cn(
         "group flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs transition-all duration-150",
         exactActive
-          ? "bg-sky-50 text-sky-900 font-semibold"
-          : "text-slate-600 font-medium hover:bg-sky-50 hover:text-sky-900",
+          ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
+          : "text-[#0284C7] font-semibold hover:bg-sky-50 hover:text-sky-900",
       )}
     >
       <ChildIcon
         size={13}
         className={cn(
           "transition-colors shrink-0",
-          exactActive ? "text-[#0284C7]" : "text-[#0284C7] group-hover:text-sky-800",
+          exactActive ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
         )}
       />
       <span className="truncate">{child.label}</span>
