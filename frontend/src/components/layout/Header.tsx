@@ -18,12 +18,14 @@ import { useAuth } from "@/lib/auth";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/cn";
 import { CommandPalette } from "./CommandPalette";
+import { PosTerminalModal } from "./PosTerminalModal";
 
 export function Header() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [posModalOpen, setPosModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const Logo = siteConfig.logoIcon;
 
@@ -57,12 +59,8 @@ export function Header() {
           .map((part) => part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, " "))
           .join(" / ");
 
-  // Super Admin role formatting
-  const displayRole =
-    user?.roleName ||
-    (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN"
-      ? "Super Admin"
-      : user?.role || "Super Admin");
+  // Dynamic Role from User / Database
+  const displayRole = user?.roleName || user?.role || "Staff";
 
   return (
     <>
@@ -114,7 +112,7 @@ export function Header() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="truncate text-xs font-bold text-[#0369A1]">{user?.name || "Store Admin"}</p>
-                    <p className="truncate text-[10.5px] text-[#0284C7]">{user?.email || "admin@blueoceans.pos"}</p>
+                    <p className="truncate text-[10.5px] text-[#0284C7]">{user?.email || ""}</p>
                     <div className="mt-0.5">
                       <span className="inline-flex items-center rounded-md bg-white px-1.5 py-0.5 text-[9px] font-bold text-[#0284C7] border border-sky-200 shadow-2xs">
                         <ShieldCheck size={10} className="mr-1 text-emerald-600" />
@@ -134,14 +132,21 @@ export function Header() {
                     <LayoutDashboard size={14} className="text-[#0284C7]" />
                     Dashboard
                   </Link>
-                  <Link
-                    href="/retail-pos"
-                    onClick={() => setOpen(false)}
-                    className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      setPosModalOpen(true);
+                    }}
+                    className="flex w-full items-center justify-between rounded-md px-2.5 py-1.5 font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition cursor-pointer text-left"
                   >
-                    <ShoppingCart size={14} className="text-[#0284C7]" />
-                    Retail POS Screen
-                  </Link>
+                    <div className="flex items-center gap-2">
+                      <ShoppingCart size={14} className="text-[#0284C7]" />
+                      <span>All POS Terminals</span>
+                    </div>
+                    <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[9.5px] font-bold text-[#0284C7]">
+                      9 Modes
+                    </span>
+                  </button>
                   <Link
                     href="/settings"
                     onClick={() => setOpen(false)}
@@ -164,13 +169,10 @@ export function Header() {
                 <div className="border-t border-sky-100 pt-2 mt-1.5">
                   <button
                     onClick={logout}
-                    className="flex w-full items-center justify-between gap-2 rounded-md bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs"
+                    className="flex w-full items-center justify-center gap-2 rounded-md bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs"
                   >
-                    <div className="flex items-center gap-2">
-                      <LogOut size={14} />
-                      <span>Sign Out / Logout</span>
-                    </div>
-                    <span className="text-[10px] font-medium opacity-80">Exit</span>
+                    <LogOut size={14} />
+                    <span>Sign Out</span>
                   </button>
                 </div>
               </div>
@@ -207,16 +209,16 @@ export function Header() {
               <span className="font-medium">Search pages, items, actions...</span>
             </button>
 
-            {/* Quick POS action button */}
-            {pathname !== "/retail-pos" && (
-              <Link
-                href="/retail-pos"
-                className="flex items-center gap-1.5 rounded-md bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs transition hover:brightness-105"
-              >
-                <ShoppingCart size={13} />
-                <span>Express POS</span>
-              </Link>
-            )}
+            {/* Quick POS action button - Opens All POS Terminals */}
+            <button
+              onClick={() => setPosModalOpen(true)}
+              className="flex items-center gap-1.5 rounded-md bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs transition hover:brightness-105 cursor-pointer"
+              title="Access All POS Terminals & Counters"
+            >
+              <ShoppingCart size={13} />
+              <span>POS Terminals</span>
+              <ChevronDown size={12} className="opacity-80 ml-0.5" />
+            </button>
 
             {/* Desktop User Profile Card (Avatar first, then Name & Role, Dropdown on click) */}
             <div className="relative">
@@ -264,7 +266,7 @@ export function Header() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="truncate text-xs font-bold text-[#0369A1]">{user?.name || "Store Admin"}</p>
-                      <p className="truncate text-[11px] text-[#0284C7]">{user?.email || "admin@blueoceans.pos"}</p>
+                      <p className="truncate text-[11px] text-[#0284C7]">{user?.email || ""}</p>
                       <div className="mt-1 flex items-center gap-1.5">
                         <span className="inline-flex items-center rounded-md bg-white px-2 py-0.5 text-[9.5px] font-bold text-[#0284C7] border border-sky-200 shadow-2xs">
                           <ShieldCheck size={10} className="mr-1 text-emerald-600" />
@@ -293,14 +295,21 @@ export function Header() {
                       Dashboard
                     </Link>
 
-                    <Link
-                      href="/retail-pos"
-                      onClick={() => setOpen(false)}
-                      className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                    <button
+                      onClick={() => {
+                        setOpen(false);
+                        setPosModalOpen(true);
+                      }}
+                      className="flex w-full items-center justify-between rounded-md px-2.5 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition cursor-pointer text-left"
                     >
-                      <ShoppingCart size={14} className="text-[#0284C7]" />
-                      Retail POS Screen
-                    </Link>
+                      <div className="flex items-center gap-2.5">
+                        <ShoppingCart size={14} className="text-[#0284C7]" />
+                        <span>All POS Terminals</span>
+                      </div>
+                      <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[9.5px] font-bold text-[#0284C7]">
+                        9 Modes
+                      </span>
+                    </button>
 
                     <Link
                       href="/settings"
@@ -336,13 +345,10 @@ export function Header() {
                   <div className="border-t border-sky-100 pt-2 mt-1.5">
                     <button
                       onClick={logout}
-                      className="flex w-full items-center justify-between gap-2 rounded-md bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs"
+                      className="flex w-full items-center justify-center gap-2 rounded-md bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs"
                     >
-                      <div className="flex items-center gap-2">
-                        <LogOut size={15} />
-                        <span>Sign Out / Logout</span>
-                      </div>
-                      <span className="text-[10px] font-medium opacity-80">Exit</span>
+                      <LogOut size={15} />
+                      <span>Sign Out</span>
                     </button>
                   </div>
                 </div>
@@ -354,6 +360,9 @@ export function Header() {
 
       {/* Global Command Palette */}
       <CommandPalette isOpen={paletteOpen} onClose={() => setPaletteOpen(false)} />
+
+      {/* POS Terminals & Live Counters Hub Modal */}
+      <PosTerminalModal isOpen={posModalOpen} onClose={() => setPosModalOpen(false)} />
     </>
   );
 }

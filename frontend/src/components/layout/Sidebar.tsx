@@ -109,6 +109,9 @@ export function Sidebar() {
   const flyoutTimerRef = useRef<NodeJS.Timeout | null>(null);
   const didAutoExpand = useRef(false);
 
+  // Dynamic Role from User / Database
+  const displayRole = user?.roleName || user?.role || "Staff";
+
   // Close flyout when route changes
   useEffect(() => {
     setActiveFlyout(null);
@@ -410,7 +413,7 @@ export function Sidebar() {
                   {user?.name || "Administrator"}
                 </span>
                 <span className="truncate text-[10px] text-[#0284C7] font-semibold">
-                  {user?.role || "Main Branch"}
+                  {displayRole}
                 </span>
               </div>
             </div>

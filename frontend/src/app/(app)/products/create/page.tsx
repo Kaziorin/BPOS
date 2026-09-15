@@ -107,8 +107,7 @@ export default function CreateProductPage() {
   const isSuperAdmin = Boolean(
     user?.isSuperAdmin ||
     user?.role?.toLowerCase().includes("super") ||
-    user?.roleName?.toLowerCase().includes("super") ||
-    user?.email === "admin@gmail.com"
+    user?.roleName?.toLowerCase().includes("super")
   );
 
   const [saving, setSaving] = useState(false);

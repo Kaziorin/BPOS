@@ -68,6 +68,7 @@ import {
   Cpu,
   HeartHandshake,
   ShoppingBag,
+  Croissant,
   Globe,
   BarChart2,
   ListTodo,
@@ -81,6 +82,7 @@ import { api } from "./api";
 
 // ─── Icon map ─────────────────────────────────────────────────────────
 const iconMap: Record<string, LucideIcon> = {
+  Croissant,
   LayoutDashboard,
   ShoppingCart,
   Receipt,
@@ -261,7 +263,24 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
     title: "1. POS & Retail Counter",
     items: [
       {
-        label: "POS Terminal",
+        label: "All POS Terminals",
+        href: "/retail-pos",
+        icon: Monitor,
+        badge: "9 Modes",
+        children: [
+          { label: "Retail POS Terminal",       href: "/retail-pos",      icon: ShoppingCart },
+          { label: "Wholesale POS Counter",     href: "/wholesale/pos",   icon: Package      },
+          { label: "Pharmacy Rx POS",           href: "/pharmacy/pos",    icon: Pill         },
+          { label: "Restaurant & Cafe POS",     href: "/restaurant/pos",  icon: UtensilsCrossed },
+          { label: "Bakery & Confectionery POS", href: "/bakery/pos",     icon: Croissant    },
+          { label: "Grocery & Supermarket POS", href: "/grocery/pos",     icon: ShoppingBag  },
+          { label: "Repair & Service POS",      href: "/repair/pos",      icon: Wrench       },
+          { label: "Salon & Spa POS",           href: "/salon/pos",       icon: Scissors     },
+          { label: "Franchise & Outlet POS",    href: "/franchise/pos",   icon: Building2    },
+        ],
+      },
+      {
+        label: "Retail POS Counter",
         href: "/retail-pos",
         icon: ShoppingCart,
         badge: "Live",
@@ -555,12 +574,23 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         ],
       },
       {
-        label: "Manufacturing & Bakery",
+        label: "Bakery & Confectionery",
+        href: "/bakery",
+        icon: Croissant,
+        badge: "Bakery",
+        children: [
+          { label: "Bakery Operations Hub",  href: "/bakery",            icon: Croissant },
+          { label: "Bakery & Sweets POS",    href: "/bakery/pos",        icon: Croissant },
+          { label: "Recipe & Production BOM", href: "/manufacturing",    icon: Layers    },
+        ],
+      },
+      {
+        label: "Manufacturing & Production",
         href: "/manufacturing",
         icon: Factory,
         children: [
           { label: "Production & BOM Hub",  href: "/manufacturing",     icon: Layers  },
-          { label: "Recipe & Batch POS",    href: "/manufacturing/pos", icon: Factory },
+          { label: "Batch & Factory POS",    href: "/manufacturing/pos", icon: Factory },
         ],
       },
       {

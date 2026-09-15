@@ -36,6 +36,8 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
     if not row or not verify_password(password, row.passwordHash):
         return err("Invalid email or password", 401)
 
+    role_name = row.roleName or ""
+
     token = sign_token(
         {
             "id": row.id,
@@ -44,7 +46,7 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
             "name": row.name,
             "email": row.email,
             "roleId": row.roleId or "",
-            "roleName": row.roleName or "",
+            "roleName": role_name,
             "businessType": row.businessType or "",
         }
     )
@@ -58,8 +60,8 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
                 "tenantId": row.tenantId,
                 "branchId": row.branchId or None,
                 "roleId": row.roleId,
-                "role": row.roleName or "",
-                "roleName": row.roleName or "",
+                "role": role_name,
+                "roleName": role_name,
                 "businessType": row.businessType or "RETAIL",
             },
             "tenant": {
@@ -75,6 +77,7 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
 @router.get("/api/auth/me")
 @router.get("/api/v1/auth/me")
 async def get_me(user: AuthUser = Depends(require_auth)):
+    role = user.roleName or user.role or ""
     return ok({
         "user": {
             "id": user.id,
@@ -82,8 +85,8 @@ async def get_me(user: AuthUser = Depends(require_auth)):
             "email": user.email,
             "tenantId": user.tenantId,
             "branchId": user.branchId,
-            "role": user.role,
-            "roleName": user.role,
+            "role": role,
+            "roleName": role,
             "businessType": user.businessType,
         }
     })

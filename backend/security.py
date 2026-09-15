@@ -176,7 +176,12 @@ def require_permission(*codes: str):
 
         perms = await get_user_permissions(user.id, user.tenantId, db)
         if not any(c in perms for c in codes):
-            if "system.admin" in perms or (user.roleName or user.role or "").lower() in ("owner", "admin", "system admin", "superadmin", "tenant admin"):
+            role_clean = (user.roleName or user.role or "").lower()
+            if (
+                "system.admin" in perms
+                or "super" in role_clean
+                or role_clean in ("owner", "admin", "system admin", "superadmin", "super admin", "tenant admin")
+            ):
                 return user
             raise HTTPException(403, f"Forbidden — requires one of {codes}")
         return user

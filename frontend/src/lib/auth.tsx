@@ -22,6 +22,16 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function normalizeAuthUser(u: any): AuthUser | null {
+  if (!u) return null;
+  const role = u.roleName || u.role || "";
+  return {
+    ...u,
+    role: role,
+    roleName: role,
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,7 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = localStorage.getItem("modernpos_token");
     if (stored && token) {
       try {
-        setUser(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        setUser(normalizeAuthUser(parsed));
       } catch (e) {}
 
       // Validate session with backend DB
@@ -40,7 +51,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .then((res) => {
           const u = res?.data?.user || res?.user;
           if (u) {
-            setUser(u);
+            const norm = normalizeAuthUser(u);
+            setUser(norm);
+            if (norm) {
+              localStorage.setItem("modernpos_user", JSON.stringify(norm));
+            }
           }
         })
         .catch((err: any) => {
@@ -79,11 +94,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (e) {}
     }
 
+    const normUser = normalizeAuthUser(res.user);
     localStorage.setItem("modernpos_token", res.token);
-    localStorage.setItem("modernpos_user", JSON.stringify({
-      ...res.user,
-      role: res.user.roleName || res.user.role,
-    }));
+    if (normUser) {
+      localStorage.setItem("modernpos_user", JSON.stringify(normUser));
+      setUser(normUser);
+    }
 
     // Set tenant context for multi-tenant API endpoints (v1)
     const tenantInfo = res.tenant || {

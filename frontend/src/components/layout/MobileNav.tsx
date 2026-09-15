@@ -81,12 +81,8 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const Logo = siteConfig.logoIcon;
 
-  // Super Admin role formatting
-  const displayRole =
-    user?.roleName ||
-    (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN"
-      ? "Super Admin"
-      : user?.role || "Super Admin");
+  // Dynamic Role from User / Database
+  const displayRole = user?.roleName || user?.role || "Staff";
 
   // Collect all hrefs for route checking
   const allHrefs = useMemo(() => {
@@ -193,26 +189,31 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
   return (
     <>
       {/* ── Bottom Bar on Smaller Screens (< lg) ── */}
-      {/* ONLY TWO BUTTONS: Menu On/Off on Left + Search on Right */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-sky-100 bg-white/95 backdrop-blur-md px-4 py-2 flex items-center justify-between gap-3 lg:hidden shadow-lg select-none">
-        {/* Left: Menu On/Off Button */}
+      {/* Icon button for Menu on Left + Search bar taking full remaining width */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-sky-100 bg-white/95 backdrop-blur-md px-3 py-2 flex items-center gap-2.5 lg:hidden shadow-lg select-none">
+        {/* Left: Menu On/Off Icon Button */}
         <button
           onClick={() => onOpenChange(!open)}
-          className="flex flex-1 items-center justify-center gap-2 py-2.5 rounded-md border border-sky-200/90 bg-sky-50/80 text-xs font-bold text-[#0284C7] hover:bg-[#E0F2FE] hover:text-[#0369A1] transition cursor-pointer shadow-2xs"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-sky-200/90 bg-sky-50/90 text-[#0284C7] hover:bg-[#E0F2FE] hover:text-[#0369A1] transition cursor-pointer shadow-2xs"
           aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+          title={open ? "Close navigation menu" : "Open navigation menu"}
         >
-          {open ? <X size={18} /> : <Menu size={18} />}
-          <span>{open ? "Close Menu" : "Menu"}</span>
+          {open ? <X size={20} /> : <Menu size={20} />}
         </button>
 
-        {/* Right: Search Button */}
+        {/* Right: Search Bar Taking Full Remaining Width */}
         <button
           onClick={() => window.dispatchEvent(new Event("omni:open-command-palette"))}
-          className="flex flex-1 items-center justify-center gap-2 py-2.5 rounded-md border border-sky-200/90 bg-white/95 text-xs font-semibold text-[#0284C7] hover:bg-[#E0F2FE] transition cursor-pointer shadow-2xs"
+          className="flex flex-1 h-10 items-center justify-between gap-2 px-3.5 rounded-md border border-sky-200/90 bg-sky-50/40 text-xs text-slate-500 hover:bg-[#E0F2FE] hover:border-[#0284C7] transition cursor-pointer shadow-2xs min-w-0"
           aria-label="Search pages and items"
         >
-          <Search size={16} />
-          <span>Search</span>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Search size={15} className="text-[#0284C7] shrink-0" />
+            <span className="truncate font-medium text-slate-600">Search pages, items, actions...</span>
+          </div>
+          <span className="shrink-0 rounded bg-white px-1.5 py-0.5 text-[10px] font-bold text-[#0284C7] border border-sky-200 shadow-2xs">
+            ⌘K
+          </span>
         </button>
       </nav>
 
@@ -534,10 +535,10 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
               {/* Prominent Sign Out Button */}
               <button
                 onClick={logout}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-rose-50 border border-rose-200 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs"
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-rose-50 border border-rose-200 py-2.5 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs"
               >
                 <LogOut size={14} />
-                <span>Sign Out / Logout</span>
+                <span>Sign Out</span>
               </button>
             </div>
           </div>

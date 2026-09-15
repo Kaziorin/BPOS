@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { DollarSign, Package, AlertTriangle, Users, Wallet, ArrowRight } from "lucide-react";
+import { DollarSign, Package, AlertTriangle, Users, Wallet, ArrowRight, ShoppingCart, ChevronDown } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { DashboardSummary, TrendPoint } from "@/lib/types";
 import { CustomStatCard } from "@/components/custom/CustomStatCard";
 import { StatusBadge } from "@/components/custom/CustomBadge";
 import { SalesTrendChart } from "@/components/dashboard/SalesTrendChart";
+import { PosTerminalModal } from "@/components/layout/PosTerminalModal";
 import { money, dateTime } from "@/lib/format";
 
 function useGreeting() {
@@ -24,6 +25,10 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [trend, setTrend] = useState<TrendPoint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [posModalOpen, setPosModalOpen] = useState(false);
+
+  // Dynamic Role from User / Database
+  const displayRole = user?.roleName || user?.role || "Staff";
 
   useEffect(() => {
     Promise.all([
@@ -124,17 +129,27 @@ export default function DashboardPage() {
             Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
           </h1>
           <p className="mt-0.5 text-xs font-medium text-white/90">
-            {`Role: ${user?.roleName || (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" ? "Super Admin" : user?.role || "Super Admin")}`}
+            {`Role: ${displayRole}`}
           </p>
           <p className="mt-1 text-xs text-white/80">Here&apos;s what&apos;s happening in your store today.</p>
         </div>
-        <Link
-          href="/retail-pos"
-          className="relative z-10 inline-flex shrink-0 items-center gap-2 self-start rounded-md bg-[#0284C7] px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-sky-900/20 transition hover:bg-[#0369A1] hover:scale-105 active:scale-100"
-        >
-          New Sale
-          <ArrowRight size={15} />
-        </Link>
+        <div className="relative z-10 flex items-center gap-2.5 self-start flex-wrap">
+          <button
+            onClick={() => setPosModalOpen(true)}
+            className="inline-flex shrink-0 items-center gap-2 rounded-md bg-[#0284C7] px-4 sm:px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-sky-900/20 transition hover:bg-[#0369A1] hover:scale-105 active:scale-100 cursor-pointer"
+          >
+            <ShoppingCart size={15} />
+            <span>POS Terminals</span>
+            <ChevronDown size={13} className="opacity-80" />
+          </button>
+          <Link
+            href="/retail-pos"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-white/20 hover:bg-white/30 border border-white/30 px-3.5 py-2.5 text-sm font-semibold text-white transition cursor-pointer"
+          >
+            <span>Express Retail</span>
+            <ArrowRight size={14} />
+          </Link>
+        </div>
       </div>
 
       {/* Quick links */}
@@ -196,6 +211,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* POS Terminals Modal */}
+      <PosTerminalModal isOpen={posModalOpen} onClose={() => setPosModalOpen(false)} />
     </div>
   );
 }
