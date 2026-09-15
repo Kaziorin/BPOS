@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { DollarSign, Package, AlertTriangle, Users, Wallet, ArrowRight, ShoppingCart, ChevronDown } from "lucide-react";
+import { DollarSign, Package, AlertTriangle, Users, Wallet, ArrowRight, ShoppingCart, ChevronDown, BarChart3, Clock } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { DashboardSummary, TrendPoint } from "@/lib/types";
@@ -50,7 +50,7 @@ export default function DashboardPage() {
   if (loading || !summary) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-sky-200 border-t-[#0284C7]" />
       </div>
     );
   }
@@ -59,7 +59,7 @@ export default function DashboardPage() {
     <div className="space-y-5">
       {/* ── Hero Welcome Banner ── Pure CSS Gradient & SVG Ocean Waves (Center to Right) ── */}
       <div
-        className="relative flex flex-col gap-4 overflow-hidden rounded-md p-6 text-white sm:flex-row sm:items-center sm:justify-between shadow-md select-none"
+        className="relative flex flex-col gap-4 overflow-hidden rounded-sm p-6 text-white sm:flex-row sm:items-center sm:justify-between shadow-md select-none border border-sky-300/30"
         style={{
           background:
             "linear-gradient(115deg, #0284C7 0%, #0396E6 28%, #0EA5E9 48%, #38BDF8 70%, #7DD3FC 88%, #BAE6FD 100%)",
@@ -122,43 +122,58 @@ export default function DashboardPage() {
         />
 
         <div className="relative z-10">
-          <span className="inline-flex items-center rounded-full bg-white/20 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-white border border-white/25">
+          <span className="inline-flex items-center rounded-sm bg-white/20 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-white border border-white/25">
             {greeting}
           </span>
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-white">
             Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
           </h1>
-          <p className="mt-0.5 text-xs font-medium text-white/90">
+          <p className="mt-0.5 text-xs font-semibold text-white/90">
             {`Role: ${displayRole}`}
           </p>
           <p className="mt-1 text-xs text-white/80">Here&apos;s what&apos;s happening in your store today.</p>
         </div>
+
+        {/* Action button: Opens Unified POS Terminals Hub Modal */}
         <div className="relative z-10 flex items-center gap-2.5 self-start flex-wrap">
           <button
             onClick={() => setPosModalOpen(true)}
-            className="inline-flex shrink-0 items-center gap-2 rounded-md bg-[#0284C7] px-4 sm:px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-sky-900/20 transition hover:bg-[#0369A1] hover:scale-105 active:scale-100 cursor-pointer"
+            className="inline-flex shrink-0 items-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 sm:px-5 py-2.5 text-sm font-bold text-white border border-white/40 shadow-md shadow-sky-950/20 transition hover:brightness-105 active:scale-100 cursor-pointer"
           >
             <ShoppingCart size={15} />
             <span>POS Terminals</span>
             <ChevronDown size={13} className="opacity-80" />
           </button>
-          <Link
-            href="/retail-pos"
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-white/20 hover:bg-white/30 border border-white/30 px-3.5 py-2.5 text-sm font-semibold text-white transition cursor-pointer"
-          >
-            <span>Express Retail</span>
-            <ArrowRight size={14} />
-          </Link>
         </div>
       </div>
 
-      {/* Quick links */}
-      <div className="flex items-center gap-3">
-        <Link href="/dashboard/builder" className="text-sm text-[#0284C7] hover:underline font-semibold">Dashboard Builder →</Link>
-        <Link href="/reports" className="text-sm text-slate-500 hover:text-[#0284C7] hover:underline font-medium">Reports →</Link>
+      {/* ── Quick Utility Links Bar ── */}
+      <div className="flex items-center gap-2.5 flex-wrap select-none">
+        <Link
+          href="/dashboard/builder"
+          className="inline-flex items-center gap-1.5 rounded-sm border border-sky-200/90 bg-sky-50/70 px-3 py-1.5 text-xs font-bold text-[#0284C7] shadow-2xs hover:bg-[#E0F2FE] hover:border-[#0284C7] transition"
+        >
+          <BarChart3 size={13} className="text-[#0284C7]" />
+          <span>Dashboard Builder</span>
+          <ArrowRight size={12} className="text-[#0284C7]" />
+        </Link>
+        <Link
+          href="/reports"
+          className="inline-flex items-center gap-1.5 rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-[#0369A1] shadow-2xs hover:bg-[#E0F2FE] hover:border-[#0284C7] transition"
+        >
+          <span>Analytics & Reports</span>
+          <ArrowRight size={12} />
+        </Link>
+        <button
+          onClick={() => setPosModalOpen(true)}
+          className="inline-flex items-center gap-1.5 rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-[#0369A1] shadow-2xs hover:bg-[#E0F2FE] hover:border-[#0284C7] transition cursor-pointer"
+        >
+          <ShoppingCart size={12} className="text-[#0284C7]" />
+          <span>All 9 POS Counters</span>
+        </button>
       </div>
 
-      {/* ── Stat Cards ── Uniform Height Grid */}
+      {/* ── Stat Cards ── Uniform Height Grid with Blue Ocean Theme Gradient Accent ── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 items-stretch">
         <CustomStatCard label="Today's Sales" value={money(summary.todaySalesTotal)} icon={DollarSign} tone="primary" />
         <CustomStatCard label="Today's Orders" value={String(summary.todaySalesCount ?? 0)} icon={Package} tone="blue" />
@@ -167,47 +182,61 @@ export default function DashboardPage() {
         <CustomStatCard label="Total Due" value={money(summary.totalDue)} icon={Wallet} tone="red" />
       </div>
 
-      {/* ── Charts & Recent Sales ── Uniform Height & Standard Layout */}
+      {/* ── Charts & Recent Sales ── Uniform Height & Standard Layout ── */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 items-stretch">
-        <div className="flex flex-col justify-between rounded-md border border-sky-100/80 bg-white p-5 shadow-sm lg:col-span-2 min-h-[380px]">
-          <div>
-            <h2 className="mb-1 text-sm font-bold text-[#0369A1]">Sales trend</h2>
-            <p className="mb-3 text-xs text-slate-400">Last 7 days</p>
+        {/* Sales Trend Chart Card */}
+        <div className="flex flex-col justify-between overflow-hidden rounded-sm border border-sky-200/80 bg-white shadow-xs lg:col-span-2 min-h-[390px]">
+          <div className="border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/40 px-5 py-3.5 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-[#0369A1]">Sales Trend</h2>
+              <p className="text-[11px] text-[#0284C7] font-medium">Last 7 days performance</p>
+            </div>
+            <span className="inline-flex items-center gap-1 rounded-sm bg-sky-100/80 px-2 py-0.5 text-[10px] font-bold text-[#0284C7] border border-sky-200">
+              <BarChart3 size={10} /> Live Revenue
+            </span>
           </div>
-          <div className="flex-1 w-full flex items-end">
+          <div className="flex-1 w-full p-4 flex items-end">
             <SalesTrendChart data={trend ?? []} />
           </div>
         </div>
 
-        <div className="flex flex-col justify-between rounded-md border border-sky-100/80 bg-white p-5 shadow-sm min-h-[380px]">
-          <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-[#0369A1]">Recent sales</h2>
-              <Link href="/sales" className="text-xs font-semibold text-[#0284C7] hover:text-[#0369A1]">
-                View all sales →
-              </Link>
+        {/* Recent Sales List Card */}
+        <div className="flex flex-col justify-between overflow-hidden rounded-sm border border-sky-200/80 bg-white shadow-xs min-h-[390px]">
+          <div className="border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/40 px-5 py-3.5 flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Clock size={14} className="text-[#0284C7]" />
+              <h2 className="text-sm font-bold text-[#0369A1]">Recent Live Sales</h2>
             </div>
-            <div className="space-y-3">
-              {(summary.recentSales ?? []).length === 0 && (
-                <p className="text-sm text-slate-400 py-6 text-center">No sales yet.</p>
-              )}
-              {(summary.recentSales ?? []).slice(0, 5).map((s) => (
-                <div key={s.id} className="flex items-center justify-between text-sm py-1 border-b border-sky-50/60 last:border-0">
-                  <div>
-                    <p className="font-semibold text-slate-800">{s.invoiceNo}</p>
-                    <p className="text-xs text-slate-400">
-                      {s.customer} • {dateTime(s.createdAt)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-[#0369A1] [font-variant-numeric:tabular-nums]">
-                      {money(s.total)}
-                    </p>
+            <Link href="/sales" className="flex items-center gap-1 text-xs font-bold text-[#0284C7] hover:text-[#0369A1] transition">
+              <span>View all</span>
+              <ArrowRight size={12} />
+            </Link>
+          </div>
+          <div className="flex-1 p-3.5 space-y-2 overflow-y-auto custom-scrollbar">
+            {(summary.recentSales ?? []).length === 0 && (
+              <p className="text-xs font-medium text-slate-400 py-12 text-center">No sales recorded yet.</p>
+            )}
+            {(summary.recentSales ?? []).slice(0, 5).map((s) => (
+              <div
+                key={s.id}
+                className="flex items-center justify-between text-sm p-2.5 rounded-sm border border-sky-100/80 bg-white hover:bg-sky-50/60 transition shadow-2xs"
+              >
+                <div className="min-w-0 pr-2">
+                  <p className="font-bold text-xs text-[#0369A1] truncate">{s.invoiceNo}</p>
+                  <p className="text-[11px] text-gray-500 truncate">
+                    {s.customer} • {dateTime(s.createdAt)}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-bold text-xs text-[#0284C7] [font-variant-numeric:tabular-nums]">
+                    {money(s.total)}
+                  </p>
+                  <div className="mt-0.5">
                     <StatusBadge status={s.status} />
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
