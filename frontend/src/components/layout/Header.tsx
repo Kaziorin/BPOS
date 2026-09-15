@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react";
 import {
   LogOut,
   ChevronDown,
-  Menu,
   ShoppingCart,
   Building2,
   Search,
@@ -79,22 +78,115 @@ export function Header() {
           }}
         />
 
-        <div className="relative z-10 flex w-full items-center justify-between gap-2 sm:gap-4">
-          {/* Left: On Mobile show Logo + Page Name; On Desktop show Page Title + Branch Badge */}
-          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-            {/* Logo on smaller screens (<lg) */}
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs lg:hidden">
+        {/* ── Mobile Layout (< lg) ── */}
+        <div className="relative z-10 flex w-full items-center justify-between lg:hidden">
+          {/* Mobile Left: Logo */}
+          <Link href="/dashboard" className="flex items-center">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs">
               <Logo size={20} />
             </div>
+          </Link>
 
-            {/* Page Title */}
-            <div>
-              <h1 className="truncate text-base font-bold text-[#0369A1] sm:text-lg tracking-tight">
-                {cleanTitle || siteConfig.name}
-              </h1>
-            </div>
+          {/* Mobile Center: Page Name */}
+          <div className="flex-1 text-center px-2 min-w-0">
+            <h1 className="truncate text-base font-bold text-[#0369A1] tracking-tight">
+              {cleanTitle || siteConfig.name}
+            </h1>
+          </div>
 
-            {/* Store / Branch Badge (Visible on large screens) */}
+          {/* Mobile Right: ONLY Avatar Icon (Click opens dropdown) */}
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setOpen((v) => !v)}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-xs font-bold text-white shadow-2xs border border-white/60 hover:ring-2 hover:ring-[#0284C7] transition cursor-pointer"
+              aria-label="User account menu"
+            >
+              {user?.name?.[0]?.toUpperCase() ?? "A"}
+            </button>
+
+            {/* Mobile Dropdown Menu (Pops Down from Avatar) */}
+            {open && (
+              <div className="absolute right-0 top-full z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-md border border-sky-200/90 bg-white p-2 shadow-2xl animate-[scale-in_140ms_ease-out]">
+                {/* Profile Header */}
+                <div className="flex items-center gap-2.5 rounded-md bg-[#E0F2FE]/70 border border-sky-100 p-2.5 mb-1.5">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-xs font-bold text-white shadow-xs border border-white/80">
+                    {user?.name?.[0]?.toUpperCase() ?? "A"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-xs font-bold text-[#0369A1]">{user?.name || "Store Admin"}</p>
+                    <p className="truncate text-[10.5px] text-[#0284C7]">{user?.email || "admin@blueoceans.pos"}</p>
+                    <div className="mt-0.5">
+                      <span className="inline-flex items-center rounded-md bg-white px-1.5 py-0.5 text-[9px] font-bold text-[#0284C7] border border-sky-200 shadow-2xs">
+                        <ShieldCheck size={10} className="mr-1 text-emerald-600" />
+                        {displayRole}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Navigation Links */}
+                <div className="space-y-0.5 text-xs">
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                  >
+                    <LayoutDashboard size={14} className="text-[#0284C7]" />
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/retail-pos"
+                    onClick={() => setOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                  >
+                    <ShoppingCart size={14} className="text-[#0284C7]" />
+                    Retail POS Screen
+                  </Link>
+                  <Link
+                    href="/settings"
+                    onClick={() => setOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                  >
+                    <Settings size={14} className="text-[#0284C7]" />
+                    Store Settings
+                  </Link>
+                  <Link
+                    href="/reports"
+                    onClick={() => setOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                  >
+                    <FileText size={14} className="text-[#0284C7]" />
+                    Reports & Analytics
+                  </Link>
+                </div>
+
+                {/* Logout Button */}
+                <div className="border-t border-sky-100 pt-2 mt-1.5">
+                  <button
+                    onClick={logout}
+                    className="flex w-full items-center justify-between gap-2 rounded-md bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <LogOut size={14} />
+                      <span>Sign Out / Logout</span>
+                    </div>
+                    <span className="text-[10px] font-medium opacity-80">Exit</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Desktop Layout (lg+) ── */}
+        <div className="relative z-10 hidden w-full items-center justify-between gap-4 lg:flex">
+          {/* Desktop Left: Page Title + Branch Badge */}
+          <div className="flex min-w-0 items-center gap-3">
+            <h1 className="truncate text-base font-bold text-[#0369A1] sm:text-lg tracking-tight">
+              {cleanTitle || siteConfig.name}
+            </h1>
+
+            {/* Store / Branch Badge */}
             <div className="hidden items-center gap-1.5 rounded-md border border-sky-200/90 bg-sky-50/60 px-2.5 py-1 text-xs font-semibold text-[#0369A1] shadow-2xs xl:flex">
               <Building2 size={12} className="text-[#0284C7]" />
               <span>Main Branch</span>
@@ -103,8 +195,8 @@ export function Header() {
             </div>
           </div>
 
-          {/* Right on desktop (lg+): Search + Quick POS + User Profile Dropdown Card */}
-          <div className="hidden lg:flex items-center gap-2.5 sm:gap-3">
+          {/* Desktop Right: Search + POS Shortcut + Profile Card */}
+          <div className="flex items-center gap-3">
             {/* Global Search Button */}
             <button
               onClick={() => setPaletteOpen(true)}
@@ -126,8 +218,8 @@ export function Header() {
               </Link>
             )}
 
-            {/* User Profile Card (Avatar first, then Name & Role, Dropdown on click) */}
-            <div className="relative" ref={menuRef}>
+            {/* Desktop User Profile Card (Avatar first, then Name & Role, Dropdown on click) */}
+            <div className="relative">
               <button
                 onClick={() => setOpen((v) => !v)}
                 className={cn(
@@ -137,7 +229,7 @@ export function Header() {
                 aria-expanded={open}
                 aria-haspopup="true"
               >
-                {/* 1. Avatar icon / picture FIRST */}
+                {/* 1. Avatar icon FIRST */}
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-xs font-bold text-white shadow-2xs border border-white/60">
                   {user?.name?.[0]?.toUpperCase() ?? "A"}
                 </div>
@@ -162,7 +254,7 @@ export function Header() {
                 />
               </button>
 
-              {/* Comprehensive Profile Dropdown Card */}
+              {/* Desktop Profile Dropdown Card */}
               {open && (
                 <div className="absolute right-0 top-full z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-md border border-sky-200/90 bg-white p-2 shadow-2xl animate-[scale-in_140ms_ease-out]">
                   {/* User Profile Header Card */}
