@@ -1467,6 +1467,13 @@ export default function RestaurantPOSPage() {
             )}
           </div>
           <button
+            onClick={toggleFullscreen}
+            title="Toggle Fullscreen (F)"
+            className="flex h-8 w-8 items-center justify-center rounded-md bg-white/15 hover:bg-white/20 text-white transition ml-1"
+          >
+            <Maximize size={16} />
+          </button>
+          <button
             onClick={loadData}
             title="Refresh Data"
             className="flex h-8 w-8 items-center justify-center rounded-md bg-white/15 hover:bg-white/20 text-white transition"

@@ -43,10 +43,12 @@ import {
   Hammer,
   Activity,
   Award,
+  Maximize,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { toast } from "react-toastify";
+import { CustomModal, CustomInput, CustomButton } from "@/components/custom";
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -147,8 +149,9 @@ export default function RepairPOSPage() {
   const [submitting, setSubmitting] = useState(false);
   const [completedTicket, setCompletedTicket] = useState<CompletedTicket | null>(null);
   const [activeTab, setActiveTab] = useState<"parts" | "labor">("parts");
-  const [showNewCustomer, setShowNewCustomer] = useState(false);
-  const [newCust, setNewCust] = useState({ name: "", phone: "", email: "" });
+  const [isCustomerOpen, setCustomerOpen] = useState(false);
+  const [customerModalTab, setCustomerModalTab] = useState<"view" | "add">("view");
+  const [newCustomer, setNewCustomer] = useState({ name: "", phone: "", email: "", address: "" });
   const [savingCustomer, setSavingCustomer] = useState(false);
 
   const customerSearchRef = useRef<HTMLInputElement>(null);
@@ -201,6 +204,27 @@ export default function RepairPOSPage() {
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // Fullscreen shortcut
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(e => console.error(e));
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // ── Computed ─────────────────────────────────────────────────────────
   const selectedCustomer = useMemo(
@@ -308,17 +332,17 @@ export default function RepairPOSPage() {
   const removeLine = (id: string) => setCart((prev) => prev.filter((i) => i.id !== id));
 
   const saveNewCustomer = async () => {
-    if (!newCust.name.trim()) return;
+    if (!newCustomer.name.trim()) return;
     setSavingCustomer(true);
     try {
-      const res = await api.post("/customers", newCust);
+      const res = await api.post("/customers", newCustomer);
       const created = ((res as any).data as any)?.data ?? ((res as any).data as any);
       if (created?.id) {
         setCustomers((prev) => [created, ...prev]);
         setCustomerId(created.id);
         setCustomerSearch(created.name);
-        setShowNewCustomer(false);
-        setNewCust({ name: "", phone: "", email: "" });
+        setCustomerOpen(false);
+        setNewCustomer({ name: "", phone: "", email: "", address: "" });
         toast.success("Customer created!");
       }
     } catch {
@@ -646,6 +670,13 @@ export default function RepairPOSPage() {
             </select>
 
             <button
+              onClick={toggleFullscreen}
+              className="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition ml-1"
+              title="Toggle Fullscreen (F)"
+            >
+              <Maximize size={15} />
+            </button>
+            <button
               onClick={loadData}
               className="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition"
               title="Refresh"
@@ -963,108 +994,34 @@ export default function RepairPOSPage() {
                   <User size={12} className="text-indigo-500" /> Customer
                 </p>
                 <button
-                  onClick={() => setShowNewCustomer((v) => !v)}
-                  className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                  onClick={() => { setCustomerModalTab("view"); setCustomerOpen(true); }}
+                  className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 px-2 py-1 bg-indigo-50 rounded-md"
                 >
-                  <UserPlus size={11} /> New
+                  <UserPlus size={11} /> Select / Add
                 </button>
               </div>
 
-              {showNewCustomer ? (
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    className="field-input"
-                    placeholder="Full Name *"
-                    value={newCust.name}
-                    onChange={(e) => setNewCust((p) => ({ ...p, name: e.target.value }))}
-                  />
-                  <input
-                    type="text"
-                    className="field-input"
-                    placeholder="Phone Number"
-                    value={newCust.phone}
-                    onChange={(e) => setNewCust((p) => ({ ...p, phone: e.target.value }))}
-                  />
-                  <div className="flex gap-2">
+              <div className="relative">
+                {selectedCustomer && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50 border border-indigo-200 cursor-pointer" onClick={() => { setCustomerModalTab("view"); setCustomerOpen(true); }}>
+                    <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-extrabold text-sm flex-shrink-0">
+                      {selectedCustomer.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-extrabold text-indigo-900 truncate">{selectedCustomer.name}</p>
+                      {selectedCustomer.phone && (
+                        <p className="text-[11px] text-indigo-500 font-medium">{selectedCustomer.phone}</p>
+                      )}
+                    </div>
                     <button
-                      onClick={saveNewCustomer}
-                      disabled={savingCustomer || !newCust.name.trim()}
-                      className="flex-1 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold disabled:opacity-50 hover:bg-indigo-700 transition"
+                      onClick={(e) => { e.stopPropagation(); setCustomerId(""); setCustomerSearch(""); }}
+                      className="text-indigo-300 hover:text-indigo-500 p-1 transition"
                     >
-                      {savingCustomer ? "Saving..." : "Save & Select"}
-                    </button>
-                    <button
-                      onClick={() => setShowNewCustomer(false)}
-                      className="px-3 py-2 rounded-xl bg-slate-100 text-slate-500 text-xs font-bold hover:bg-slate-200 transition"
-                    >
-                      Cancel
+                      <X size={14} />
                     </button>
                   </div>
-                </div>
-              ) : (
-                <div className="relative">
-                  {selectedCustomer ? (
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50 border border-indigo-200">
-                      <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-extrabold text-sm flex-shrink-0">
-                        {selectedCustomer.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-extrabold text-indigo-900 truncate">{selectedCustomer.name}</p>
-                        {selectedCustomer.phone && (
-                          <p className="text-[11px] text-indigo-500 font-medium">{selectedCustomer.phone}</p>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => { setCustomerId(""); setCustomerSearch(""); }}
-                        className="text-indigo-300 hover:text-indigo-500 p-1 transition"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="relative">
-                        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input
-                          ref={customerSearchRef}
-                          type="text"
-                          className="field-input !pl-9"
-                          placeholder="Search customer by name or phone..."
-                          value={customerSearch}
-                          onChange={(e) => { setCustomerSearch(e.target.value); setShowCustomerDropdown(true); }}
-                          onFocus={() => setShowCustomerDropdown(true)}
-                        />
-                      </div>
-                      {showCustomerDropdown && (customerSearch.length > 0 || filteredCustomers.length > 0) && (
-                        <>
-                          <div className="fixed inset-0 z-20" onClick={() => setShowCustomerDropdown(false)} />
-                          <div className="absolute z-30 left-0 right-0 top-full mt-1 bg-white rounded-xl border border-slate-200 shadow-xl max-h-52 overflow-y-auto">
-                            {filteredCustomers.length === 0 ? (
-                              <p className="text-xs text-slate-400 text-center py-4">No customers found</p>
-                            ) : (
-                            filteredCustomers.map((c) => (
-                              <button
-                                key={c.id}
-                                onClick={() => {
-                                  setCustomerId(c.id);
-                                  setCustomerSearch(c.name);
-                                  setShowCustomerDropdown(false);
-                                }}
-                                className="w-full text-left px-3 py-2.5 hover:bg-indigo-50 transition text-xs border-b border-slate-50 last:border-0"
-                              >
-                                <p className="font-bold text-slate-800">{c.name}</p>
-                                {c.phone && <p className="text-slate-400 text-[10px]">{c.phone}</p>}
-                              </button>
-                            ))
-                          )}
-                          </div>
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Device Info */}
@@ -1259,6 +1216,82 @@ export default function RepairPOSPage() {
           </div>
         </footer>
       </div>
+
+      {/* ── CUSTOMER MODAL ──────────────────────────────────────────────── */}
+      <CustomModal open={isCustomerOpen} onClose={() => setCustomerOpen(false)} title="Customer Management" size="md">
+        <div className="space-y-8 p-2">
+          <div className="flex items-center gap-3 bg-slate-100 p-1.5 rounded-[2rem]">
+            <button
+              onClick={() => setCustomerModalTab("view")}
+              className={cn("flex-1 py-3 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500", customerModalTab === "view" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-500 hover:text-indigo-600")}
+            >
+              View Customer
+            </button>
+            <button
+              onClick={() => setCustomerModalTab("add")}
+              className={cn("flex-1 py-3 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500", customerModalTab === "add" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-500 hover:text-indigo-600")}
+            >
+              Add Customer
+            </button>
+          </div>
+
+          {customerModalTab === "view" ? (
+            <div className="space-y-6 animate-fade-in-up">
+              <CustomInput
+                placeholder="Search by name or phone..."
+                leftIcon={<Search size={18} className="text-indigo-400" />}
+                value={customerSearch}
+                onChange={(e) => setCustomerSearch(e.target.value)}
+                className="!h-14 !rounded-[1.5rem] !text-base"
+              />
+              <div className="max-h-96 overflow-y-auto space-y-3 pr-2 no-scrollbar">
+                {filteredCustomers.length === 0 ? (
+                  <div className="py-20 text-center opacity-40">
+                     <User size={48} className="mx-auto mb-4 text-slate-300" />
+                     <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">No Match Found</p>
+                  </div>
+                ) : filteredCustomers.map((c, idx) => (
+                  <button
+                    key={c.id || `cust-${idx}`}
+                    onClick={() => { setCustomerId(c.id); setCustomerOpen(false); }}
+                    className={cn(
+                      "w-full flex items-center justify-between p-5 rounded-[2rem] border transition-all duration-500 shadow-sm",
+                      customerId === c.id ? "bg-indigo-50 border-indigo-300 shadow-indigo-100" : "bg-white border-slate-50 hover:border-indigo-100 hover:shadow-xl"
+                    )}
+                  >
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-lg uppercase border-2 border-white shadow-md">{c.name.charAt(0)}</div>
+                      <div className="text-left">
+                        <p className="text-base font-black text-slate-800 uppercase tracking-tight">{c.name}</p>
+                        <p className="text-[10px] text-indigo-400 font-black uppercase tracking-widest mt-1">{c.phone || "No Phone"}</p>
+                      </div>
+                    </div>
+                    {customerId === c.id ? <CheckCircle2 size={24} strokeWidth={3.5} className="text-indigo-600" /> : <ChevronRight size={20} className="text-slate-200" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6 animate-fade-in-up">
+              <div className="grid grid-cols-2 gap-5">
+                <CustomInput label="Full Name" placeholder="John Doe" value={newCustomer.name} onChange={(e) => setNewCustomer(prev => ({ ...prev, name: e.target.value }))} className="!h-12 !rounded-2xl" />
+                <CustomInput label="Phone Number" placeholder="01XXX-XXXXXX" value={newCustomer.phone} onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))} className="!h-12 !rounded-2xl" />
+              </div>
+              <CustomInput label="Email" placeholder="client@example.com" value={newCustomer.email} onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value }))} className="!h-12 !rounded-2xl" />
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] px-1">Address</label>
+                <textarea
+                  placeholder="Street details..."
+                  className="w-full h-28 p-5 rounded-[1.75rem] bg-slate-50 border border-transparent text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-400 focus:ring-8 focus:ring-indigo-50 transition-all resize-none shadow-inner"
+                  value={newCustomer.address}
+                  onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value }))}
+                />
+              </div>
+              <CustomButton fullWidth themeColor="indigo" size="lg" onClick={saveNewCustomer} loading={savingCustomer} className="!h-16 !rounded-[1.75rem] font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo-100 mt-4">Save Customer</CustomButton>
+            </div>
+          )}
+        </div>
+      </CustomModal>
 
       {/* ── COMPLETED TICKET MODAL (Monochrome) ────────────────────────── */}
       {completedTicket && (
