@@ -103,46 +103,50 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
 
   // Auto-expand active modules on navigation
   useEffect(() => {
-    const activeModuleSet = new Set<string>();
-    const activeItemSet = new Set<string>();
+    let activeMod: string | null = null;
+    let activeItem: string | null = null;
 
     for (const group of navGroups) {
       for (const item of group.items) {
         if (isModuleActive(item, pathname, allHrefs)) {
-          activeModuleSet.add(item.label);
+          activeMod = item.label;
           for (const child of item.children ?? []) {
             if (isChildActive(child, pathname, allHrefs)) {
-              activeItemSet.add(child.label);
+              activeItem = child.label;
+              break;
             }
           }
+          break;
         }
       }
+      if (activeMod) break;
     }
 
-    if (activeModuleSet.size > 0) {
-      setExpandedModules((prev) => new Set([...prev, ...activeModuleSet]));
-    }
-    if (activeItemSet.size > 0) {
-      setExpandedItems((prev) => new Set([...prev, ...activeItemSet]));
+    if (activeMod) {
+      setExpandedModules(new Set([activeMod]));
+      if (activeItem) setExpandedItems(new Set([activeItem]));
     }
   }, [pathname, navGroups, allHrefs]);
 
-  // Toggle Module accordion
+  // Toggle Module accordion: strictly only ONE module open at any time
   const toggleModule = (label: string) => {
     setExpandedModules((prev) => {
-      const next = new Set(prev);
-      if (next.has(label)) next.delete(label);
-      else next.add(label);
+      const next = new Set<string>();
+      if (!prev.has(label)) {
+        next.add(label);
+      }
+      setExpandedItems(new Set<string>());
       return next;
     });
   };
 
-  // Toggle Sub-child accordion
+  // Toggle Sub-child accordion: strictly only ONE sub-child open at any time
   const toggleItem = (label: string) => {
     setExpandedItems((prev) => {
-      const next = new Set(prev);
-      if (next.has(label)) next.delete(label);
-      else next.add(label);
+      const next = new Set<string>();
+      if (!prev.has(label)) {
+        next.add(label);
+      }
       return next;
     });
   };

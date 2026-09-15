@@ -200,36 +200,14 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
                     >
                       <Icon size={16} />
                     </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={cn(
-                            "font-bold text-xs sm:text-sm truncate",
-                            isSelected ? "text-white" : "text-gray-700 group-hover:text-[#0369A1]"
-                          )}
-                        >
-                          {cmd.title}
-                        </span>
-                        <span
-                          className={cn(
-                            "text-[9.5px] font-bold px-1.5 py-0.5 rounded-sm border",
-                            isSelected
-                              ? "bg-white/20 text-white border-white/30"
-                              : "bg-sky-50/80 text-[#0284C7] border-sky-200"
-                          )}
-                        >
-                          {cmd.category}
-                        </span>
-                      </div>
-                      <p
-                        className={cn(
-                          "text-[11px] truncate mt-0.5",
-                          isSelected ? "text-white/90" : "text-gray-500"
-                        )}
-                      >
-                        {cmd.subtitle}
-                      </p>
-                    </div>
+                    <span
+                      className={cn(
+                        "font-semibold text-xs sm:text-sm truncate min-w-0 flex-1",
+                        isSelected ? "text-white font-bold" : "text-gray-700 group-hover:text-[#0369A1]"
+                      )}
+                    >
+                      {cmd.title}
+                    </span>
                   </div>
                   <ArrowRight
                     size={14}

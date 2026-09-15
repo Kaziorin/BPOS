@@ -141,36 +141,47 @@ export function Sidebar() {
       const saved = localStorage.getItem(EXPANDED_KEY);
       if (saved) {
         const parsed = JSON.parse(saved) as { modules: string[]; items: string[] };
-        setExpandedModules(new Set(parsed.modules ?? []));
-        setExpandedItems(new Set(parsed.items ?? []));
+        // Strictly restore only 1 module and 1 item at most
+        const lastMod = (parsed.modules ?? []).slice(-1);
+        const lastItem = (parsed.items ?? []).slice(-1);
+        setExpandedModules(new Set(lastMod));
+        setExpandedItems(new Set(lastItem));
       }
     } catch {}
   }, []);
 
-  // Auto-expand active module + active menuItem on first load
+  // Auto-expand only the current active module + active menuItem
   useEffect(() => {
-    if (didAutoExpand.current || navGroups.length === 0) return;
-    didAutoExpand.current = true;
+    if (navGroups.length === 0) return;
 
-    const mods = new Set(expandedModules);
-    const items = new Set(expandedItems);
+    let activeMod: string | null = null;
+    let activeItem: string | null = null;
 
     for (const group of navGroups) {
       for (const mod of group.items) {
         if (isModuleActive(mod, pathname, allHrefs)) {
-          mods.add(mod.label);
+          activeMod = mod.label;
           for (const child of mod.children ?? []) {
             if (isChildActive(child, pathname, allHrefs) && child.children?.length) {
-              items.add(child.href);
+              activeItem = child.href;
+              break;
             }
           }
+          break;
         }
       }
+      if (activeMod) break;
     }
-    setExpandedModules(mods);
-    setExpandedItems(items);
+
+    if (activeMod) {
+      const nextMods = new Set([activeMod]);
+      const nextItems = activeItem ? new Set([activeItem]) : new Set<string>();
+      setExpandedModules(nextMods);
+      setExpandedItems(nextItems);
+      persist(nextMods, nextItems);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navGroups, pathname, allHrefs]);
+  }, [pathname, navGroups, allHrefs]);
 
   function persist(mods: Set<string>, items: Set<string>) {
     localStorage.setItem(
@@ -179,19 +190,28 @@ export function Sidebar() {
     );
   }
 
+  // Accordion mode: exactly ONE module open at any time
   function toggleModule(label: string) {
     setExpandedModules((prev) => {
-      const next = new Set(prev);
-      next.has(label) ? next.delete(label) : next.add(label);
-      persist(next, expandedItems);
+      const next = new Set<string>();
+      if (!prev.has(label)) {
+        next.add(label);
+      }
+      // Close open sub-items when toggling module
+      const nextItems = new Set<string>();
+      setExpandedItems(nextItems);
+      persist(next, nextItems);
       return next;
     });
   }
 
+  // Nested accordion mode: exactly ONE sub-child open at any time
   function toggleItem(href: string) {
     setExpandedItems((prev) => {
-      const next = new Set(prev);
-      next.has(href) ? next.delete(href) : next.add(href);
+      const next = new Set<string>();
+      if (!prev.has(href)) {
+        next.add(href);
+      }
       persist(expandedModules, next);
       return next;
     });
