@@ -10,6 +10,7 @@ import { useDynamicNav, type NavItem, type NavChild } from "@/lib/dynamic-nav";
 import { siteConfig } from "@/config/site";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/cn";
+import { CustomInput } from "@/components/custom/CustomInput";
 
 const STORAGE_KEY = "modernpos_sidebar_collapsed";
 const EXPANDED_KEY = "modernpos_sidebar_expanded";
@@ -273,34 +274,33 @@ export function Sidebar() {
       {/* Collapse Toggle Button */}
       <button
         onClick={toggleCollapse}
-        className="absolute -right-3.5 top-6 z-30 flex h-7 w-7 items-center justify-center rounded-full border border-slate-600 bg-slate-800 text-slate-200 shadow-md transition-transform duration-200 hover:scale-110 hover:border-teal-400 hover:text-white focus:outline-none cursor-pointer"
+        className="group absolute -right-4 top-4.5 z-30 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-[#14B8A6] text-white shadow-xl shadow-teal-500/40 ring-2 ring-teal-500/30 transition-all duration-200 hover:scale-115 hover:bg-[#00C9B7] focus:outline-none cursor-pointer"
         title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
       >
-        {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        {collapsed ? (
+          <ChevronRight size={17} className="text-white stroke-[3]" />
+        ) : (
+          <ChevronLeft size={17} className="text-white stroke-[3]" />
+        )}
       </button>
 
       {/* Brand Header */}
       <div
         className={cn(
-          "relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-slate-700/60 px-4 bg-slate-800/40 backdrop-blur-md",
+          "relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-slate-700/50 px-4 bg-transparent",
           collapsed && "justify-center px-0",
         )}
       >
         <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-[#14B8A6] via-[#00C9B7] to-[#10B981] text-white shadow-md shadow-teal-500/30">
-            <Logo size={19} />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#14B8A6] via-[#00C9B7] to-[#10B981] text-white shadow-lg shadow-teal-500/35 border border-teal-300/30">
+            <Logo size={21} />
           </div>
           {!collapsed && (
             <div className="flex flex-col min-w-0">
-              <div className="flex items-center gap-1.5">
-                <span className="truncate font-bold text-white tracking-tight text-sm">
-                  {siteConfig.name}
-                </span>
-                <span className="shrink-0 rounded-md bg-[#14B8A6]/20 border border-[#14B8A6]/40 px-1.5 py-0.5 text-[9px] font-bold text-teal-300 uppercase tracking-wide">
-                  PRO
-                </span>
-              </div>
-              <span className="truncate text-[10px] text-teal-300 font-medium tracking-wide">
+              <span className="truncate font-bold text-white tracking-tight text-sm drop-shadow-xs">
+                {siteConfig.name}
+              </span>
+              <span className="truncate text-[10.5px] text-teal-300 font-semibold tracking-wide">
                 Smart · Fast · All Industries
               </span>
             </div>
@@ -308,27 +308,29 @@ export function Sidebar() {
         </Link>
       </div>
 
-      {/* Menu Quick Search */}
+      {/* Menu Quick Search using CustomInput */}
       {!collapsed && (
         <div className="relative z-10 px-3 pt-3 pb-1">
-          <div className="relative flex items-center">
-            <Search size={14} className="absolute left-2.5 text-slate-300 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search menu..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-slate-600/70 bg-slate-800/70 py-1.5 pl-8 pr-7 text-xs text-white placeholder-slate-300 shadow-inner transition focus:border-[#14B8A6] focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/30"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2 text-slate-300 hover:text-white"
-              >
-                <X size={13} />
-              </button>
-            )}
-          </div>
+          <CustomInput
+            type="text"
+            placeholder="Search menu..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            darkMode
+            rounded="md"
+            leftIcon={<Search size={14} className="text-teal-400 pointer-events-none" />}
+            rightIcon={
+              searchQuery ? (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X size={13} />
+                </button>
+              ) : null
+            }
+            className="border-slate-700/80 bg-slate-900/80 text-xs text-white placeholder:text-slate-400 py-1.5 focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/40"
+          />
         </div>
       )}
 
@@ -369,9 +371,9 @@ export function Sidebar() {
       {/* Sidebar Footer User Info & Logout */}
       <div className="relative z-10 border-t border-slate-800/80 p-2.5 bg-slate-900/80 backdrop-blur-md">
         {!collapsed ? (
-          <div className="flex items-center justify-between rounded-xl border border-slate-700/80 bg-slate-800/90 p-2 shadow-2xs">
+          <div className="flex items-center justify-between rounded-md border border-slate-800/90 bg-slate-900/90 p-2 shadow-2xs">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-[#14B8A6] to-[#6366F1] text-xs font-bold text-white shadow-2xs">
+              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#14B8A6] to-[#6366F1] text-xs font-bold text-white shadow-2xs">
                 {(user?.name || "A")[0].toUpperCase()}
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
               </div>
@@ -387,7 +389,7 @@ export function Sidebar() {
             <button
               onClick={logout}
               title="Logout"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 transition hover:bg-rose-500/20 hover:text-rose-400 cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-md bg-rose-500/15 border border-rose-500/30 text-rose-400 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 shadow-xs cursor-pointer"
             >
               <LogOut size={15} />
             </button>
@@ -396,7 +398,7 @@ export function Sidebar() {
           <button
             onClick={logout}
             title="Logout"
-            className="flex h-9 w-full items-center justify-center rounded-xl text-slate-300 transition hover:bg-rose-500/20 hover:text-rose-400 cursor-pointer"
+            className="flex h-9 w-full items-center justify-center rounded-md bg-rose-500/15 border border-rose-500/30 text-rose-400 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 cursor-pointer"
           >
             <LogOut size={17} />
           </button>
@@ -435,20 +437,20 @@ function ModuleRow({
   const hasChildren = !!item.children?.length;
   const active = isModuleActive(item, pathname, allHrefs);
 
-  // Collapsed Mode: Icon tooltip link
+  // Collapsed Mode: Icon tooltip link with larger icon, border, and rounded-md radius
   if (collapsed) {
     return (
       <Link
         href={item.href !== "#" ? item.href : item.children?.[0]?.href || "#"}
         title={item.label}
         className={cn(
-          "mx-auto flex h-9 w-9 items-center justify-center rounded-md transition-all duration-200",
+          "mx-auto flex h-10 w-10 items-center justify-center rounded-md border transition-all duration-200",
           active
-            ? "bg-gradient-to-tr from-[#14B8A6] to-[#10B981] text-white shadow-md shadow-teal-500/30"
-            : "text-[#2DD4BF] hover:bg-slate-800/70 hover:text-white",
+            ? "bg-gradient-to-tr from-[#14B8A6] to-[#10B981] border-[#14B8A6] text-white shadow-md shadow-teal-500/30"
+            : "border-slate-700/80 bg-slate-900/60 text-[#2DD4BF] hover:border-teal-400 hover:bg-slate-800/90 hover:text-white hover:shadow-xs",
         )}
       >
-        <Icon size={18} />
+        <Icon size={20} />
       </Link>
     );
   }
@@ -623,7 +625,7 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
       className={cn(
         "group flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs transition-all duration-150",
         exactActive
-          ? "bg-[#14B8A6]/40 text-white font-bold shadow-2xs border-l-2 border-[#14B8A6]"
+          ? "bg-[#14B8A6]/40 text-white font-bold shadow-2xs"
           : "text-slate-200 font-medium hover:bg-teal-500/15 hover:text-white",
       )}
     >

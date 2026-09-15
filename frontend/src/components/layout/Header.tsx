@@ -68,28 +68,28 @@ export function Header() {
 
   return (
     <>
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200/80 bg-white/95 backdrop-blur-md px-4 sm:px-6 shadow-2xs z-20">
+      <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-800/80 bg-[#0F172A]/90 backdrop-blur-md px-4 sm:px-6 shadow-md z-20 text-white">
         <div className="flex min-w-0 items-center gap-3">
           {/* Mobile menu button */}
           <button
             onClick={() => window.dispatchEvent(new Event("omni:open-mobile-menu"))}
-            className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 lg:hidden"
+            className="rounded-md p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white lg:hidden cursor-pointer"
             aria-label="Open menu"
           >
             <Menu size={19} />
           </button>
           <div>
-            <h1 className="truncate text-base font-bold text-slate-900 sm:text-lg tracking-tight">
+            <h1 className="truncate text-base font-bold text-white sm:text-lg tracking-tight">
               {cleanTitle || siteConfig.name}
             </h1>
           </div>
 
           {/* Store / Branch Chip */}
-          <div className="hidden items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 md:flex">
-            <Building2 size={12} className="text-primary-600" />
+          <div className="hidden items-center gap-1.5 rounded-md border border-slate-700/80 bg-slate-800/80 px-2.5 py-1 text-xs font-medium text-slate-200 md:flex">
+            <Building2 size={12} className="text-teal-400" />
             <span>Main Branch</span>
-            <span className="text-slate-300">•</span>
-            <span className="text-slate-500 font-normal">Terminal-01</span>
+            <span className="text-slate-500">•</span>
+            <span className="text-slate-400 font-normal">Terminal-01</span>
           </div>
         </div>
 
@@ -97,12 +97,12 @@ export function Header() {
           {/* Global Search / Command Bar Trigger */}
           <button
             onClick={() => setPaletteOpen(true)}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-xs text-slate-500 hover:border-slate-300 hover:bg-slate-100/80 transition"
+            className="flex items-center gap-2 rounded-md border border-slate-700/80 bg-slate-800/70 px-3 py-1.5 text-xs text-slate-300 hover:border-[#14B8A6] hover:bg-slate-800 transition cursor-pointer"
           >
-            <Search size={14} className="text-slate-400" />
+            <Search size={14} className="text-teal-400" />
             <span className="hidden sm:inline">Search pages, items, actions...</span>
             <span className="sm:hidden">Search</span>
-            <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded bg-white px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-500 border border-slate-200 shadow-2xs">
+            <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded bg-slate-900 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-teal-300 border border-slate-700 shadow-2xs">
               Ctrl+K
             </kbd>
           </button>
@@ -111,17 +111,17 @@ export function Header() {
           <div
             title={online ? "Connected to Backend & Cloud Sync" : "Offline mode active — transactions cached locally"}
             className={cn(
-              "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition",
+              "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition",
               online
-                ? "bg-emerald-50 text-emerald-700 border border-emerald-200/70"
-                : "bg-amber-50 text-amber-700 border border-amber-200/70 animate-pulse"
+                ? "bg-teal-500/15 text-teal-300 border border-teal-500/30"
+                : "bg-amber-500/15 text-amber-300 border border-amber-500/30 animate-pulse"
             )}
           >
             {online ? (
               <>
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-400"></span>
                 </span>
                 <span className="hidden sm:inline">Live Sync</span>
               </>
@@ -137,7 +137,7 @@ export function Header() {
           {pathname !== "/retail-pos" && (
             <Link
               href="/retail-pos"
-              className="hidden items-center gap-1.5 rounded-xl bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-primary-700 sm:flex"
+              className="hidden items-center gap-1.5 rounded-md bg-gradient-to-r from-[#14B8A6] via-[#0EA5A0] to-[#00C9B7] px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-teal-500/25 transition hover:brightness-110 sm:flex"
             >
               <ShoppingCart size={13} />
               <span>Express POS</span>
@@ -148,27 +148,27 @@ export function Header() {
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setOpen((v) => !v)}
-              className="flex items-center gap-2 rounded-xl p-1 sm:px-2.5 sm:py-1.5 transition hover:bg-slate-100"
+              className="flex items-center gap-2 rounded-md p-1 sm:px-2.5 sm:py-1.5 transition hover:bg-slate-800/80 cursor-pointer"
             >
               <div className="hidden text-right sm:block">
-                <p className="text-sm font-semibold text-slate-800 leading-tight">{user?.name || "Store Admin"}</p>
-                <p className="text-[11px] font-medium text-primary-700">{user?.role || "Administrator"}</p>
+                <p className="text-sm font-bold text-white leading-tight">{user?.name || "Store Admin"}</p>
+                <p className="text-[11px] font-semibold text-teal-300">{user?.role || "Administrator"}</p>
               </div>
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-primary-600 to-primary-500 text-sm font-bold text-white shadow-xs">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#14B8A6] to-[#6366F1] text-sm font-bold text-white shadow-xs">
                 {user?.name?.[0]?.toUpperCase() ?? "A"}
               </div>
               <ChevronDown
                 size={14}
-                className={cn("text-slate-400 transition-transform hidden sm:block", open && "rotate-180")}
+                className={cn("text-slate-300 transition-transform hidden sm:block", open && "rotate-180 text-teal-300")}
               />
             </button>
 
             {open && (
-              <div className="absolute right-0 top-full z-30 mt-2 w-56 origin-top-right overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl animate-[scale-in_140ms_ease-out]">
-                <div className="border-b border-slate-100 px-3.5 py-3 bg-slate-50/70 rounded-xl mb-1">
-                  <p className="truncate text-sm font-bold text-slate-900">{user?.name || "OmniPOS Admin"}</p>
-                  <p className="truncate text-xs text-slate-500">{user?.email || "admin@blueoceans.pos"}</p>
-                  <span className="mt-1.5 inline-block rounded-full bg-primary-50 px-2 py-0.5 text-[10px] font-semibold text-primary-700 border border-primary-200/50">
+              <div className="absolute right-0 top-full z-30 mt-2 w-56 origin-top-right overflow-hidden rounded-md border border-slate-800 bg-slate-900 p-1.5 shadow-2xl animate-[scale-in_140ms_ease-out]">
+                <div className="border-b border-slate-800 px-3.5 py-3 bg-slate-950/60 rounded-md mb-1">
+                  <p className="truncate text-sm font-bold text-white">{user?.name || "OmniPOS Admin"}</p>
+                  <p className="truncate text-xs text-slate-400">{user?.email || "admin@blueoceans.pos"}</p>
+                  <span className="mt-1.5 inline-block rounded-md bg-teal-500/15 px-2 py-0.5 text-[10px] font-bold text-teal-300 border border-teal-500/30">
                     {user?.role || "Super Admin"}
                   </span>
                 </div>
@@ -176,22 +176,22 @@ export function Header() {
                   <Link
                     href="/settings"
                     onClick={() => setOpen(false)}
-                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 transition"
+                    className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-white transition"
                   >
-                    <Building2 size={14} className="text-slate-400" />
+                    <Building2 size={14} className="text-teal-400" />
                     Store Settings
                   </Link>
                   <Link
                     href="/dashboard"
                     onClick={() => setOpen(false)}
-                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 transition"
+                    className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-white transition"
                   >
-                    <Sparkles size={14} className="text-primary-600" />
+                    <Sparkles size={14} className="text-teal-400" />
                     Executive Dashboard
                   </Link>
                   <button
                     onClick={logout}
-                    className="flex w-full items-center gap-2.5 rounded-lg bg-red-50/80 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-100"
+                    className="flex w-full items-center gap-2.5 rounded-md bg-rose-500/15 border border-rose-500/30 px-3 py-2 text-xs font-bold text-rose-400 transition hover:bg-rose-600 hover:text-white cursor-pointer"
                   >
                     <LogOut size={14} />
                     Sign Out
