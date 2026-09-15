@@ -132,9 +132,9 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                     u_row = (await db.execute(text("SELECT id FROM users LIMIT 1"))).first()
                     u_val = u_row[0] if u_row else "system"
                 await db.execute(text(
-                    "INSERT INTO products (id, tenantId, name, type, status, sellingPrice, createdBy, updatedAt) "
-                    "VALUES (:id, :t, :n, 'SERVICE', 'ACTIVE', :sp, :u, NOW())"),
-                    {"id": p_id, "t": tenant, "n": it.get("name", "Demo Item"), "sp": float(it.get("unitPrice", 0)), "u": u_val})
+                    "INSERT INTO products (id, tenantId, name, sku, productType, status, sellingPrice, createdBy, updatedAt) "
+                    "VALUES (:id, :t, :n, :sku, 'SERVICE', 'ACTIVE', :sp, :u, NOW())"),
+                    {"id": p_id, "t": tenant, "n": it.get("name", "Demo Item"), "sku": p_id, "sp": float(it.get("unitPrice", 0)), "u": u_val})
                 await db.commit()
 
     # stock check
