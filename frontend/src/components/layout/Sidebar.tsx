@@ -321,7 +321,7 @@ export function Sidebar() {
           </div>
           {!collapsed && (
             <div className="flex flex-col min-w-0">
-              <span className="truncate font-bold text-slate-900 tracking-tight text-sm">
+              <span className="truncate font-bold text-[#0369A1] tracking-tight text-sm">
                 {siteConfig.name}
               </span>
               <span className="truncate text-[10.5px] text-[#0284C7] font-semibold tracking-wide">
@@ -399,14 +399,14 @@ export function Sidebar() {
       {/* Sidebar Footer User Info & Logout */}
       <div className="relative z-10 border-t border-sky-100 p-2.5 bg-white">
         {!collapsed ? (
-          <div className="flex items-center justify-between rounded-lg border border-sky-100 bg-sky-50/60 p-2">
+          <div className="flex items-center justify-between rounded-md border border-sky-100 bg-sky-50/60 p-2">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-xs font-bold text-white shadow-2xs">
                 {(user?.name || "A")[0].toUpperCase()}
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="truncate text-xs font-bold text-slate-900">
+                <span className="truncate text-xs font-bold text-[#0369A1]">
                   {user?.name || "Administrator"}
                 </span>
                 <span className="truncate text-[10px] text-[#0284C7] font-semibold">

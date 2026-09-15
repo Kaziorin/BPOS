@@ -8,15 +8,16 @@ import {
   ChevronDown,
   Menu,
   ShoppingCart,
-  WifiOff,
   Building2,
-  Sparkles,
   Search,
+  Settings,
+  LayoutDashboard,
+  FileText,
+  ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/cn";
-import { isOnline } from "@/lib/offline/db";
 import { CommandPalette } from "./CommandPalette";
 
 export function Header() {
@@ -24,22 +25,13 @@ export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [online, setOnline] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
+  const Logo = siteConfig.logoIcon;
 
   useEffect(() => {
-    setOnline(isOnline());
-    const on = () => setOnline(true);
-    const off = () => setOnline(false);
-    window.addEventListener("online", on);
-    window.addEventListener("offline", off);
-
     const handleOpenPalette = () => setPaletteOpen(true);
     window.addEventListener("omni:open-command-palette", handleOpenPalette);
-
     return () => {
-      window.removeEventListener("online", on);
-      window.removeEventListener("offline", off);
       window.removeEventListener("omni:open-command-palette", handleOpenPalette);
     };
   }, []);
@@ -54,10 +46,10 @@ export function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Format page title nicely
+  // Format page title cleanly ("Dashboard" instead of "Executive Dashboard")
   const cleanTitle =
     pathname === "/" || pathname === "/dashboard"
-      ? "Executive Dashboard"
+      ? "Dashboard"
       : pathname === "/retail-pos"
       ? "Retail POS"
       : pathname
@@ -66,38 +58,44 @@ export function Header() {
           .map((part) => part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, " "))
           .join(" / ");
 
+  // Super Admin role formatting
+  const displayRole =
+    user?.roleName ||
+    (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN"
+      ? "Super Admin"
+      : user?.role || "Super Admin");
+
   return (
     <>
-      <header className="relative flex h-16 shrink-0 items-center justify-between border-b border-sky-100 bg-white px-4 sm:px-6 shadow-2xs z-20 overflow-hidden">
-        {/* Ocean Breeze subtle top gradient glow */}
+      <header className="relative flex h-16 shrink-0 items-center justify-between border-b border-sky-100 bg-white px-3 sm:px-4 md:px-6 shadow-2xs z-30 select-none">
+        {/* Subtle Ocean Breeze top gradient glow */}
         <div
-          className="pointer-events-none absolute inset-0 w-full h-full z-0"
+          className="pointer-events-none absolute inset-0 w-full h-full z-0 overflow-hidden"
           style={{
             background: `
-              radial-gradient(ellipse at 0% 0%, rgba(186, 230, 253, 0.50) 0%, transparent 50%),
+              radial-gradient(ellipse at 0% 0%, rgba(186, 230, 253, 0.45) 0%, transparent 50%),
               radial-gradient(ellipse at 100% 100%, rgba(125, 211, 252, 0.20) 0%, transparent 50%)
             `,
           }}
         />
 
-        <div className="relative z-10 flex w-full items-center justify-between">
-          <div className="flex min-w-0 items-center gap-3">
-            {/* Mobile menu button */}
-            <button
-              onClick={() => window.dispatchEvent(new Event("omni:open-mobile-menu"))}
-              className="rounded-md p-2 text-[#0284C7] transition hover:bg-[#E0F2FE] hover:text-[#0369A1] lg:hidden cursor-pointer"
-              aria-label="Open menu"
-            >
-              <Menu size={19} />
-            </button>
+        <div className="relative z-10 flex w-full items-center justify-between gap-2 sm:gap-4">
+          {/* Left: On Mobile show Logo + Page Name; On Desktop show Page Title + Branch Badge */}
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+            {/* Logo on smaller screens (<lg) */}
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs lg:hidden">
+              <Logo size={20} />
+            </div>
+
+            {/* Page Title */}
             <div>
               <h1 className="truncate text-base font-bold text-[#0369A1] sm:text-lg tracking-tight">
                 {cleanTitle || siteConfig.name}
               </h1>
             </div>
 
-            {/* Store / Branch Chip */}
-            <div className="hidden items-center gap-1.5 rounded-md border border-sky-200/90 bg-sky-50/60 px-2.5 py-1 text-xs font-semibold text-[#0369A1] shadow-2xs md:flex">
+            {/* Store / Branch Badge (Visible on large screens) */}
+            <div className="hidden items-center gap-1.5 rounded-md border border-sky-200/90 bg-sky-50/60 px-2.5 py-1 text-xs font-semibold text-[#0369A1] shadow-2xs xl:flex">
               <Building2 size={12} className="text-[#0284C7]" />
               <span>Main Branch</span>
               <span className="text-sky-300">•</span>
@@ -105,108 +103,154 @@ export function Header() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 sm:gap-3.5">
-            {/* Global Search / Command Bar Trigger */}
+          {/* Right on desktop (lg+): Search + Quick POS + User Profile Dropdown Card */}
+          <div className="hidden lg:flex items-center gap-2.5 sm:gap-3">
+            {/* Global Search Button */}
             <button
               onClick={() => setPaletteOpen(true)}
               className="flex items-center gap-2 rounded-md border border-sky-200/90 bg-sky-50/50 px-3 py-1.5 text-xs text-[#0284C7] hover:border-[#0284C7] hover:bg-[#E0F2FE] transition cursor-pointer shadow-2xs"
+              title="Search"
             >
-              <Search size={14} className="text-[#0284C7]" />
-              <span className="hidden sm:inline font-medium">Search pages, items, actions...</span>
-              <span className="sm:hidden font-medium">Search</span>
-              <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded-md bg-white px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#0284C7] border border-sky-200 shadow-2xs">
-                Ctrl+K
-              </kbd>
+              <Search size={14} className="text-[#0284C7] shrink-0" />
+              <span className="font-medium">Search pages, items, actions...</span>
             </button>
 
-            {/* Real-time Sync & Connectivity Status Indicator */}
-            <div
-              title={online ? "Connected to Backend & Cloud Sync" : "Offline mode active — transactions cached locally"}
-              className={cn(
-                "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition shadow-2xs",
-                online
-                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                  : "bg-amber-50 text-amber-700 border border-amber-200 animate-pulse"
-              )}
-            >
-              {online ? (
-                <>
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
-                  </span>
-                  <span className="hidden sm:inline">Live Sync</span>
-                </>
-              ) : (
-                <>
-                  <WifiOff size={12} />
-                  <span>Offline Mode</span>
-                </>
-              )}
-            </div>
-
-            {/* Quick POS action button if not already on POS screen */}
+            {/* Quick POS action button */}
             {pathname !== "/retail-pos" && (
               <Link
                 href="/retail-pos"
-                className="hidden items-center gap-1.5 rounded-md bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs transition hover:brightness-105 sm:flex"
+                className="flex items-center gap-1.5 rounded-md bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs transition hover:brightness-105"
               >
                 <ShoppingCart size={13} />
                 <span>Express POS</span>
               </Link>
             )}
 
-            {/* User profile dropdown */}
+            {/* User Profile Card (Avatar first, then Name & Role, Dropdown on click) */}
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setOpen((v) => !v)}
-                className="flex items-center gap-2 rounded-md p-1 sm:px-2.5 sm:py-1.5 transition hover:bg-[#E0F2FE] cursor-pointer"
+                className={cn(
+                  "flex items-center gap-2 rounded-md border border-sky-200/90 bg-white/95 px-2.5 py-1.5 shadow-2xs transition hover:bg-[#E0F2FE] hover:border-[#0284C7] cursor-pointer",
+                  open && "bg-[#E0F2FE] border-[#0284C7] ring-2 ring-sky-100"
+                )}
+                aria-expanded={open}
+                aria-haspopup="true"
               >
-                <div className="hidden text-right sm:block">
-                  <p className="text-sm font-bold text-[#0369A1] leading-tight">{user?.name || "Store Admin"}</p>
-                  <p className="text-[11px] font-semibold text-[#0284C7]">{user?.role || "Administrator"}</p>
-                </div>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-sm font-bold text-white shadow-xs">
+                {/* 1. Avatar icon / picture FIRST */}
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-xs font-bold text-white shadow-2xs border border-white/60">
                   {user?.name?.[0]?.toUpperCase() ?? "A"}
                 </div>
+
+                {/* 2. Then Name and Role */}
+                <div className="text-left min-w-0 max-w-[140px] xl:max-w-[180px]">
+                  <p className="truncate text-xs font-bold text-[#0369A1] leading-tight">
+                    {user?.name || "Store Admin"}
+                  </p>
+                  <p className="truncate text-[10.5px] font-semibold text-[#0284C7] leading-tight">
+                    {displayRole}
+                  </p>
+                </div>
+
+                {/* 3. Chevron indicator */}
                 <ChevronDown
                   size={14}
-                  className={cn("text-[#0284C7] transition-transform hidden sm:block", open && "rotate-180 text-sky-700")}
+                  className={cn(
+                    "text-[#0284C7] transition-transform shrink-0",
+                    open && "rotate-180 text-[#0369A1]"
+                  )}
                 />
               </button>
 
+              {/* Comprehensive Profile Dropdown Card */}
               {open && (
-                <div className="absolute right-0 top-full z-30 mt-2 w-56 origin-top-right overflow-hidden rounded-md border border-sky-200/90 bg-white p-1.5 shadow-xl animate-[scale-in_140ms_ease-out]">
-                  <div className="border-b border-sky-100 px-3.5 py-3 bg-[#E0F2FE]/50 rounded-md mb-1">
-                    <p className="truncate text-sm font-bold text-[#0369A1]">{user?.name || "OmniPOS Admin"}</p>
-                    <p className="truncate text-xs text-[#0284C7]">{user?.email || "admin@blueoceans.pos"}</p>
-                    <span className="mt-1.5 inline-block rounded-md bg-white px-2 py-0.5 text-[10px] font-bold text-[#0284C7] border border-sky-200">
-                      {user?.role || "Super Admin"}
-                    </span>
+                <div className="absolute right-0 top-full z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-md border border-sky-200/90 bg-white p-2 shadow-2xl animate-[scale-in_140ms_ease-out]">
+                  {/* User Profile Header Card */}
+                  <div className="flex items-center gap-3 rounded-md bg-[#E0F2FE]/70 border border-sky-100 p-3 mb-1.5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-sm font-bold text-white shadow-xs border border-white/80">
+                      {user?.name?.[0]?.toUpperCase() ?? "A"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="truncate text-xs font-bold text-[#0369A1]">{user?.name || "Store Admin"}</p>
+                      <p className="truncate text-[11px] text-[#0284C7]">{user?.email || "admin@blueoceans.pos"}</p>
+                      <div className="mt-1 flex items-center gap-1.5">
+                        <span className="inline-flex items-center rounded-md bg-white px-2 py-0.5 text-[9.5px] font-bold text-[#0284C7] border border-sky-200 shadow-2xs">
+                          <ShieldCheck size={10} className="mr-1 text-emerald-600" />
+                          {displayRole}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="p-1 space-y-0.5">
-                    <Link
-                      href="/settings"
-                      onClick={() => setOpen(false)}
-                      className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
-                    >
-                      <Building2 size={14} className="text-[#0284C7]" />
-                      Store Settings
-                    </Link>
+
+                  {/* Branch / Terminal Context */}
+                  <div className="flex items-center justify-between px-2.5 py-1.5 text-[11px] text-[#0284C7] font-medium border-b border-sky-100 mb-1">
+                    <span className="flex items-center gap-1 text-slate-500">
+                      <Building2 size={12} className="text-[#0284C7]" /> Branch:
+                    </span>
+                    <span className="font-semibold text-[#0369A1]">Main • Terminal-01</span>
+                  </div>
+
+                  {/* Quick Action Navigation Links */}
+                  <div className="space-y-0.5">
                     <Link
                       href="/dashboard"
                       onClick={() => setOpen(false)}
-                      className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                      className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
                     >
-                      <Sparkles size={14} className="text-[#0284C7]" />
-                      Executive Dashboard
+                      <LayoutDashboard size={14} className="text-[#0284C7]" />
+                      Dashboard
                     </Link>
+
+                    <Link
+                      href="/retail-pos"
+                      onClick={() => setOpen(false)}
+                      className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                    >
+                      <ShoppingCart size={14} className="text-[#0284C7]" />
+                      Retail POS Screen
+                    </Link>
+
+                    <Link
+                      href="/settings"
+                      onClick={() => setOpen(false)}
+                      className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                    >
+                      <Settings size={14} className="text-[#0284C7]" />
+                      Store Settings
+                    </Link>
+
+                    <Link
+                      href="/reports"
+                      onClick={() => setOpen(false)}
+                      className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                    >
+                      <FileText size={14} className="text-[#0284C7]" />
+                      Reports & Analytics
+                    </Link>
+
+                    <button
+                      onClick={() => {
+                        setOpen(false);
+                        setPaletteOpen(true);
+                      }}
+                      className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition text-left cursor-pointer"
+                    >
+                      <Search size={14} className="text-[#0284C7]" />
+                      Command Palette
+                    </button>
+                  </div>
+
+                  {/* Sign Out Button - Highly visible and prominent */}
+                  <div className="border-t border-sky-100 pt-2 mt-1.5">
                     <button
                       onClick={logout}
-                      className="flex w-full items-center gap-2.5 rounded-md bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-100/80 cursor-pointer"
+                      className="flex w-full items-center justify-between gap-2 rounded-md bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs"
                     >
-                      <LogOut size={14} />
-                      Sign Out
+                      <div className="flex items-center gap-2">
+                        <LogOut size={15} />
+                        <span>Sign Out / Logout</span>
+                      </div>
+                      <span className="text-[10px] font-medium opacity-80">Exit</span>
                     </button>
                   </div>
                 </div>

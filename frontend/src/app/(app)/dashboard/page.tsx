@@ -124,7 +124,7 @@ export default function DashboardPage() {
             Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
           </h1>
           <p className="mt-0.5 text-xs font-medium text-white/90">
-            {user?.roleName ? `Role: ${user.roleName}` : "Role: Owner"}
+            {`Role: ${user?.roleName || (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" ? "Super Admin" : user?.role || "Super Admin")}`}
           </p>
           <p className="mt-1 text-xs text-white/80">Here&apos;s what&apos;s happening in your store today.</p>
         </div>
