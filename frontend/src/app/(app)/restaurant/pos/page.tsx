@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Utensils,
   ChefHat,
@@ -42,6 +43,8 @@ import {
   Armchair,
   CheckCircle2,
   ArrowLeft,
+  ClipboardList,
+  Calendar,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { api, TENANT_STORAGE_KEY } from "@/lib/api";
@@ -189,7 +192,7 @@ function mapApiProductToMenuItem(p: any): MenuItem {
         price: Number(a.price || 0),
       }));
     }
-  } catch (e) {}
+  } catch (e) { }
 
   return {
     id: String(p.id || p._id),
@@ -265,6 +268,7 @@ const getCategoryName = (cat: any): string => {
 };
 
 export default function RestaurantPOSPage() {
+  const router = useRouter();
   const [storeName, setStoreName] = useState<string>("BlueOceans POS SYSTEM");
   const [branchName, setBranchName] = useState<string>("Main Branch");
   const [branchAddress, setBranchAddress] = useState<string>("Dhaka, Bangladesh");
@@ -278,7 +282,7 @@ export default function RestaurantPOSPage() {
           const match = DEMO_TABLES.find((t) => t.id === savedId);
           if (match) return match;
         }
-      } catch (_) {}
+      } catch (_) { }
     }
     return DEMO_TABLES[0];
   });
@@ -290,7 +294,7 @@ export default function RestaurantPOSPage() {
           const n = parseInt(c, 10);
           if (n >= 1 && n <= 20) return n;
         }
-      } catch (_) {}
+      } catch (_) { }
     }
     return 2;
   });
@@ -309,7 +313,7 @@ export default function RestaurantPOSPage() {
           const parsed = JSON.parse(cached);
           if (Array.isArray(parsed)) return parsed as RestaurantCartItem[];
         }
-      } catch (_) {}
+      } catch (_) { }
     }
     return [];
   });
@@ -423,7 +427,7 @@ export default function RestaurantPOSPage() {
         if (tData?.tenant?.name) setStoreName(tData.tenant.name);
         if (tData?.branches?.[0]?.name) setBranchName(tData.branches[0].name);
         if (tData?.branches?.[0]?.address) setBranchAddress(tData.branches[0].address);
-      } catch (_) {}
+      } catch (_) { }
 
       // 1c. Fetch staff/employees from HRM if available
       try {
@@ -448,7 +452,7 @@ export default function RestaurantPOSPage() {
             }))
           );
         }
-      } catch (_) {}
+      } catch (_) { }
 
       // 2. Fetch created categories for current tenant & business
       const catRes: any = await api.get("/v1/products/categories").catch(() => null);
@@ -560,8 +564,8 @@ export default function RestaurantPOSPage() {
           const slotsList = Array.isArray(slData.slots)
             ? slData.slots
             : Array.isArray(slData)
-            ? slData
-            : [];
+              ? slData
+              : [];
           if (slotsList.length > 0) {
             setTimeSlots(slotsList);
           }
@@ -569,8 +573,8 @@ export default function RestaurantPOSPage() {
           const curActiveSlots = Array.isArray(slData.activeSlots)
             ? slData.activeSlots
             : slData.activeSlot
-            ? [slData.activeSlot]
-            : [];
+              ? [slData.activeSlot]
+              : [];
           if (curActiveSlots.length > 0) {
             setActiveSlots(curActiveSlots);
             setActiveSlot(slData.activeSlot || curActiveSlots[0] || null);
@@ -607,10 +611,10 @@ export default function RestaurantPOSPage() {
         loadedFloors =
           Array.isArray(fData) && fData.length > 0
             ? fData.map((f: any, i: number) => ({
-                id: String(f.id),
-                name: f.name || `Section ${i + 1}`,
-                sortOrder: f.sortOrder !== undefined && f.sortOrder !== null ? Number(f.sortOrder) : i,
-              }))
+              id: String(f.id),
+              name: f.name || `Section ${i + 1}`,
+              sortOrder: f.sortOrder !== undefined && f.sortOrder !== null ? Number(f.sortOrder) : i,
+            }))
             : DEFAULT_FLOORS.map((f) => ({ id: f.id, name: f.name, sortOrder: f.sortOrder }));
         setFloors(loadedFloors);
 
@@ -632,10 +636,10 @@ export default function RestaurantPOSPage() {
           const withFloors: TableOption[] = anyAssigned
             ? mappedTables
             : mappedTables.map((t, i) => ({
-                ...t,
-                floorId: loadedFloors[i % loadedFloors.length].id,
-                floorName: loadedFloors[i % loadedFloors.length].name,
-              }));
+              ...t,
+              floorId: loadedFloors[i % loadedFloors.length].id,
+              floorName: loadedFloors[i % loadedFloors.length].name,
+            }));
           setTables(withFloors);
           setSelectedTable(() => {
             try {
@@ -644,7 +648,7 @@ export default function RestaurantPOSPage() {
                 const match = withFloors.find((t) => t.id === savedId);
                 if (match) return match;
               }
-            } catch (_) {}
+            } catch (_) { }
             return withFloors[0];
           });
         } else {
@@ -663,7 +667,7 @@ export default function RestaurantPOSPage() {
                 const match = demoTables.find((t) => t.id === savedId);
                 if (match) return match;
               }
-            } catch (_) {}
+            } catch (_) { }
             return demoTables[0];
           });
         }
@@ -685,7 +689,7 @@ export default function RestaurantPOSPage() {
               const match = demoTables.find((t) => t.id === savedId);
               if (match) return match;
             }
-          } catch (_) {}
+          } catch (_) { }
           return demoTables[0];
         });
       }
@@ -721,7 +725,7 @@ export default function RestaurantPOSPage() {
     if (typeof window === "undefined") return;
     try {
       localStorage.setItem("bpos_restaurant_cart", JSON.stringify(cart));
-    } catch (_) {}
+    } catch (_) { }
   }, [cart]);
 
   useEffect(() => {
@@ -733,7 +737,7 @@ export default function RestaurantPOSPage() {
         localStorage.removeItem("bpos_restaurant_selected_table_id");
       }
       localStorage.setItem("bpos_restaurant_guest_count", String(guestCount));
-    } catch (_) {}
+    } catch (_) { }
   }, [selectedTable, guestCount]);
 
   // ── Customer-facing display: sync live cart to Customer Display in real-time ──
@@ -780,8 +784,8 @@ export default function RestaurantPOSPage() {
         (orderType === "TAKEAWAY"
           ? "Takeaway"
           : orderType === "DELIVERY"
-          ? "Delivery"
-          : undefined),
+            ? "Delivery"
+            : undefined),
       orderType,
       guestCount,
     });
@@ -936,11 +940,11 @@ export default function RestaurantPOSPage() {
         prev.map((i) =>
           i.id === editingCartItem.id
             ? {
-                ...i,
-                unitPrice: finalUnitPrice,
-                modifiers: modifiersList,
-                notes: itemNote,
-              }
+              ...i,
+              unitPrice: finalUnitPrice,
+              modifiers: modifiersList,
+              notes: itemNote,
+            }
             : i
         )
       );
@@ -977,7 +981,7 @@ export default function RestaurantPOSPage() {
       try {
         const parsed = JSON.parse(days);
         if (Array.isArray(parsed)) return parsed.join(", ");
-      } catch (e) {}
+      } catch (e) { }
       return days;
     }
     return String(days);
@@ -995,7 +999,7 @@ export default function RestaurantPOSPage() {
       );
       api
         .patch(`/v1/restaurant/tables/${selectedTable.id}/status`, { status: "RESERVED" })
-        .catch(() => {});
+        .catch(() => { });
     }
   };
 
@@ -1199,7 +1203,7 @@ export default function RestaurantPOSPage() {
         );
         try {
           await api.patch(`/v1/restaurant/tables/${finishedTableId}/status`, { status: "AVAILABLE" });
-        } catch {}
+        } catch { }
       }
 
       // Reload product list to reflect updated stock
@@ -1252,10 +1256,10 @@ export default function RestaurantPOSPage() {
     const matchesCategory = isSearching
       ? true
       : selectedCategory === "All Items"
-      ? true
-      : selectedCategory === "Popular"
-      ? p.isPopular
-      : pCat.toLowerCase() === selectedCategory.toLowerCase();
+        ? true
+        : selectedCategory === "Popular"
+          ? p.isPopular
+          : pCat.toLowerCase() === selectedCategory.toLowerCase();
     const matchesSearch =
       !searchQ || p.name.toLowerCase().includes(searchQ) || pCat.toLowerCase().includes(searchQ);
     return matchesCategory && matchesSearch;
@@ -1291,31 +1295,28 @@ export default function RestaurantPOSPage() {
         <div className="flex items-center gap-1 bg-white/20 p-1 rounded-md shadow-inner">
           <button
             onClick={() => setOrderType("DINE_IN")}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
-              orderType === "DINE_IN"
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${orderType === "DINE_IN"
                 ? "bg-white text-orange-600 shadow-xs"
                 : "text-white hover:bg-white/10"
-            }`}
+              }`}
           >
             <Utensils size={13} /> Dine In
           </button>
           <button
             onClick={() => setOrderType("TAKEAWAY")}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
-              orderType === "TAKEAWAY"
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${orderType === "TAKEAWAY"
                 ? "bg-white text-orange-600 shadow-xs"
                 : "text-white hover:bg-white/10"
-            }`}
+              }`}
           >
             <ShoppingBag size={13} /> Take Away
           </button>
           <button
             onClick={() => setOrderType("DELIVERY")}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
-              orderType === "DELIVERY"
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${orderType === "DELIVERY"
                 ? "bg-white text-orange-600 shadow-xs"
                 : "text-white hover:bg-white/10"
-            }`}
+              }`}
           >
             <Flame size={13} /> Delivery
           </button>
@@ -1386,11 +1387,10 @@ export default function RestaurantPOSPage() {
             <button
               onClick={() => setGuestCount((g) => Math.max(1, g - 1))}
               disabled={guestCount <= 1}
-              className={`flex h-5 w-5 items-center justify-center rounded-md border font-bold ${
-                guestCount <= 1
+              className={`flex h-5 w-5 items-center justify-center rounded-md border font-bold ${guestCount <= 1
                   ? "bg-slate-100 border-slate-200 text-slate-300 cursor-not-allowed"
                   : "bg-white border-slate-200 text-gray-700 hover:bg-slate-100 cursor-pointer"
-              }`}
+                }`}
             >
               <Minus size={11} />
             </button>
@@ -1423,43 +1423,43 @@ export default function RestaurantPOSPage() {
 
           {/* ── MEAL SHIFT BADGE / DIALOG TRIGGER (ALWAYS DISPLAYED NEXT TO WAITER) ── */}
           {restaurantPosShiftVisible && (
-          <button
-            type="button"
-            onClick={() => setShowShiftDetailsModal(true)}
-            className="flex items-center gap-2 bg-gradient-to-r from-amber-50/95 to-orange-50/85 hover:from-amber-100 hover:to-orange-100/90 border border-amber-300 hover:border-amber-400 rounded-md px-3 py-1.5 shadow-2xs transition-all duration-150 cursor-pointer text-left"
-            title="Click to view & manage today's Meal Shifts / Demand Overlaps"
-          >
-            <Clock size={15} className="text-amber-600 shrink-0" />
-            <span className="text-xs font-bold text-amber-900 shrink-0">Shift:</span>
-            <span className="text-xs font-black text-amber-950 flex items-center gap-1.5 min-w-0">
-              {activeSlots.length === 0 ? (
-                <span className="text-slate-600 font-bold flex items-center gap-1">
-                  <span>General / All-Day Menu</span>
-                </span>
-              ) : activeSlots.length === 1 ? (
-                <span className="flex items-center gap-1.5">
-                  <span className="font-black text-gray-600">{activeSlots[0].name}</span>
-                  <span className="text-[11px] font-extrabold text-amber-800 font-mono">
-                    ({activeSlots[0].startTime} – {activeSlots[0].endTime})
+            <button
+              type="button"
+              onClick={() => setShowShiftDetailsModal(true)}
+              className="flex items-center gap-2 bg-gradient-to-r from-amber-50/95 to-orange-50/85 hover:from-amber-100 hover:to-orange-100/90 border border-amber-300 hover:border-amber-400 rounded-md px-3 py-1.5 shadow-2xs transition-all duration-150 cursor-pointer text-left"
+              title="Click to view & manage today's Meal Shifts / Demand Overlaps"
+            >
+              <Clock size={15} className="text-amber-600 shrink-0" />
+              <span className="text-xs font-bold text-amber-900 shrink-0">Shift:</span>
+              <span className="text-xs font-black text-amber-950 flex items-center gap-1.5 min-w-0">
+                {activeSlots.length === 0 ? (
+                  <span className="text-slate-600 font-bold flex items-center gap-1">
+                    <span>General / All-Day Menu</span>
                   </span>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    LIVE
+                ) : activeSlots.length === 1 ? (
+                  <span className="flex items-center gap-1.5">
+                    <span className="font-black text-gray-600">{activeSlots[0].name}</span>
+                    <span className="text-[11px] font-extrabold text-amber-800 font-mono">
+                      ({activeSlots[0].startTime} – {activeSlots[0].endTime})
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      LIVE
+                    </span>
                   </span>
-                </span>
-              ) : (
-                <span className="flex items-center gap-1.5 text-orange-900 font-black">
-                  <span>🔥 {activeSlots.map((s) => s.name).join(" + ")}</span>
-                  <span className="text-[10px] bg-orange-100 border border-orange-300 px-1.5 py-0.2 rounded-full font-extrabold text-orange-800">
-                    {activeSlots.length} Active
+                ) : (
+                  <span className="flex items-center gap-1.5 text-orange-900 font-black">
+                    <span>🔥 {activeSlots.map((s) => s.name).join(" + ")}</span>
+                    <span className="text-[10px] bg-orange-100 border border-orange-300 px-1.5 py-0.2 rounded-full font-extrabold text-orange-800">
+                      {activeSlots.length} Active
+                    </span>
                   </span>
-                </span>
-              )}
-            </span>
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-amber-200/80 text-amber-900 text-[10px] ml-1 shrink-0 font-bold">
-              <Info size={11} />
-            </span>
-          </button>
+                )}
+              </span>
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-amber-200/80 text-amber-900 text-[10px] ml-1 shrink-0 font-bold">
+                <Info size={11} />
+              </span>
+            </button>
           )}
         </div>
 
@@ -1520,20 +1520,18 @@ export default function RestaurantPOSPage() {
                   {/* Main Category Button */}
                   <button
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-lg text-xs font-bold text-left transition-all duration-150 cursor-pointer ${
-                      isSelected
+                    className={`w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-lg text-xs font-bold text-left transition-all duration-150 cursor-pointer ${isSelected
                         ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/20 border border-orange-600"
                         : "bg-white text-gray-700 border border-slate-100 hover:bg-orange-50/80 hover:text-orange-600 hover:border-orange-200"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       {Icon && (
                         <div
-                          className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 transition ${
-                            isSelected
+                          className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 transition ${isSelected
                               ? "bg-white/20 text-white"
                               : "bg-orange-50 text-orange-600 border border-orange-100"
-                          }`}
+                            }`}
                         >
                           <Icon size={15} />
                         </div>
@@ -1541,11 +1539,10 @@ export default function RestaurantPOSPage() {
                       <span className="truncate">{cat.label}</span>
                     </div>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 ${
-                        isSelected
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 ${isSelected
                           ? "bg-white/25 text-white"
                           : "bg-slate-100 text-gray-500"
-                      }`}
+                        }`}
                     >
                       {count}
                     </span>
@@ -1626,21 +1623,19 @@ export default function RestaurantPOSPage() {
             <div className="flex items-center gap-1 bg-slate-200/70 p-0.5 rounded-md">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-1 rounded-md text-xs font-bold transition ${
-                  viewMode === "grid"
+                className={`p-1 rounded-md text-xs font-bold transition ${viewMode === "grid"
                     ? "bg-white text-orange-600 shadow-2xs"
                     : "text-gray-500 hover:text-gray-600"
-                }`}
+                  }`}
               >
                 <LayoutGrid size={14} />
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`p-1 rounded-md text-xs font-bold transition ${
-                  viewMode === "list"
+                className={`p-1 rounded-md text-xs font-bold transition ${viewMode === "list"
                     ? "bg-white text-orange-600 shadow-2xs"
                     : "text-gray-500 hover:text-gray-600"
-                }`}
+                  }`}
               >
                 <List size={14} />
               </button>
@@ -1673,19 +1668,17 @@ export default function RestaurantPOSPage() {
                   <div
                     key={item.id}
                     onClick={() => handleProductAction(item)}
-                    className={`group relative flex rounded-2xl border border-gray-200 bg-white shadow-sm hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden ${
-                      viewMode === "list"
+                    className={`group relative flex rounded-2xl border border-gray-200 bg-white shadow-sm hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden ${viewMode === "list"
                         ? "flex-row items-center p-2.5 gap-3"
                         : "flex-col justify-between"
-                    }`}
+                      }`}
                   >
                     {/* Dish Image / Placeholder Container (Flush on top, left, right in Grid View) */}
                     <div
-                      className={`relative overflow-hidden bg-gradient-to-br from-amber-50/50 to-orange-50/30 flex items-center justify-center shrink-0 ${
-                        viewMode === "list"
+                      className={`relative overflow-hidden bg-gradient-to-br from-amber-50/50 to-orange-50/30 flex items-center justify-center shrink-0 ${viewMode === "list"
                           ? "h-16 w-16 rounded-lg"
                           : "h-28 sm:h-30 w-full border-b border-gray-100"
-                      }`}
+                        }`}
                     >
                       {item.image ? (
                         <img
@@ -1730,9 +1723,8 @@ export default function RestaurantPOSPage() {
 
                     {/* Title & Price (inline, one line) & Right Add Button Row */}
                     <div
-                      className={`flex items-center justify-between gap-2 ${
-                        viewMode === "list" ? "flex-1 min-w-0" : "p-3 w-full flex-1 min-w-0"
-                      }`}
+                      className={`flex items-center justify-between gap-2 ${viewMode === "list" ? "flex-1 min-w-0" : "p-3 w-full flex-1 min-w-0"
+                        }`}
                     >
                       <div className="flex-1 min-w-0 flex items-center gap-1.5">
                         <h3 className="font-bold text-xs sm:text-sm text-gray-600 truncate group-hover:text-orange-600 transition min-w-0 flex-1">
@@ -1761,7 +1753,7 @@ export default function RestaurantPOSPage() {
           </div>
 
           {/* Bottom Toolbar Row under Menu */}
-          <div className="flex-none p-2.5 border-t border-slate-200 bg-slate-50/70 grid grid-cols-6 gap-2">
+          <div className="flex-none p-2.5 border-t border-slate-200 bg-slate-50/70 grid grid-cols-4 sm:grid-cols-8 gap-2">
             <button
               onClick={() => {
                 setPromptModalState({
@@ -1774,7 +1766,7 @@ export default function RestaurantPOSPage() {
                   },
                 });
               }}
-              className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <Tag size={13} className="text-orange-600" /> Coupon
             </button>
@@ -1792,14 +1784,14 @@ export default function RestaurantPOSPage() {
                   },
                 });
               }}
-              className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <Percent size={13} className="text-orange-600" /> Discount
             </button>
 
             <button
               onClick={() => toast.info("Promo Campaign applied")}
-              className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <Gift size={13} className="text-orange-600" /> Promo
             </button>
@@ -1817,31 +1809,35 @@ export default function RestaurantPOSPage() {
                   },
                 });
               }}
-              className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <FileText size={13} className="text-orange-600" /> Note
             </button>
 
             <button
-              onClick={() => {
-                setPromptModalState({
-                  isOpen: true,
-                  title: "Kitchen Note for Chef",
-                  placeholder: "Add instructions for kitchen...",
-                  inputType: "textarea",
-                  onSubmit: (kn) => {
-                    if (kn) toast.success("Kitchen note attached!");
-                  },
-                });
-              }}
-              className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              onClick={() => router.push("/sales/orders")}
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
-              <ChefHat size={13} className="text-orange-600" /> Kitchen Note
+              <ClipboardList size={13} className="text-orange-600" /> Order
+            </button>
+
+            <button
+              onClick={() => router.push("/restaurant/kitchen")}
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+            >
+              <Flame size={13} className="text-orange-600" /> Kitchen
+            </button>
+
+            <button
+              onClick={() => router.push("/restaurant?tab=floors")}
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+            >
+              <Calendar size={13} className="text-orange-600" /> Reservation
             </button>
 
             <button
               onClick={() => window.print()}
-              className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <Printer size={13} className="text-orange-600" /> Print
             </button>
@@ -1893,7 +1889,7 @@ export default function RestaurantPOSPage() {
                   Pick a section table, then tap food items to build this order.
                 </p>
               </div>
-) : (
+            ) : (
               cart.map((item) => (
                 <div key={item.id} className="rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all duration-150 overflow-hidden">
                   <div className="p-3.5">
@@ -1934,13 +1930,12 @@ export default function RestaurantPOSPage() {
                             {item.modifiers.map((mod, mIdx) => (
                               <span
                                 key={mIdx}
-                                className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${
-                                  mod.label === "Size"
+                                className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${mod.label === "Size"
                                     ? "bg-orange-100 border border-orange-300 text-orange-800"
                                     : mod.label === "Spice"
                                       ? "bg-rose-50 border border-rose-200 text-rose-600"
                                       : "bg-amber-50 border border-amber-200 text-amber-700"
-                                }`}
+                                  }`}
                               >
                                 <span className="font-black">{mod.label}:</span> {mod.value.replace(/ \(.*?\)$/, "")}
                               </span>
@@ -1968,11 +1963,10 @@ export default function RestaurantPOSPage() {
                             </span>
                           ) : (
                             <span
-                              className={`inline-flex items-center gap-0.5 rounded-md px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${
-                                item.kotStatus === "SENT_TO_KITCHEN"
+                              className={`inline-flex items-center gap-0.5 rounded-md px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${item.kotStatus === "SENT_TO_KITCHEN"
                                   ? "bg-amber-100 text-amber-800"
                                   : "bg-slate-100 text-gray-600"
-                              }`}
+                                }`}
                             >
                               🍳 {item.kotStatus === "SENT_TO_KITCHEN" ? "KOT Sent" : "KOT Pending"}
                             </span>
@@ -2349,7 +2343,7 @@ export default function RestaurantPOSPage() {
             setTables((prev) =>
               prev.map((x) => (x.id === clearedTableId ? { ...x, status: "AVAILABLE" as const } : x))
             );
-            api.patch(`/v1/restaurant/tables/${clearedTableId}/status`, { status: "AVAILABLE" }).catch(() => {});
+            api.patch(`/v1/restaurant/tables/${clearedTableId}/status`, { status: "AVAILABLE" }).catch(() => { });
           }
           setShowClearConfirm(false);
           toast.info("Cart cleared successfully");
@@ -2398,11 +2392,10 @@ export default function RestaurantPOSPage() {
                   key={f.id}
                   type="button"
                   onClick={() => setActiveStatusFilter(f.id)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition cursor-pointer border ${
-                    activeStatusFilter === f.id
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition cursor-pointer border ${activeStatusFilter === f.id
                       ? "bg-slate-800 text-white border-slate-800"
                       : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
-                  }`}
+                    }`}
                 >
                   <span className={`h-2 w-2 rounded-full ${activeStatusFilter === f.id ? "bg-white" : f.dot}`} />
                   {f.label}
@@ -2438,25 +2431,24 @@ export default function RestaurantPOSPage() {
                           setTables((prev) =>
                             prev.map((x) => (x.id === previous.id ? { ...x, status: "AVAILABLE" as const } : x))
                           );
-                          api.patch(`/v1/restaurant/tables/${previous.id}/status`, { status: "AVAILABLE" }).catch(() => {});
+                          api.patch(`/v1/restaurant/tables/${previous.id}/status`, { status: "AVAILABLE" }).catch(() => { });
                         }
                         setTables((prev) =>
                           prev.map((x) => (x.id === t.id ? { ...x, status: "RESERVED" as const } : x))
                         );
-                        api.patch(`/v1/restaurant/tables/${t.id}/status`, { status: "RESERVED" }).catch(() => {});
+                        api.patch(`/v1/restaurant/tables/${t.id}/status`, { status: "RESERVED" }).catch(() => { });
                         setSelectedTable(t);
                         setShowSelectTableModal(false);
                         toast.success(`Table ${t.tableNo} (${t.floorName || "Section"}) selected!`);
                       }}
-                      className={`flex flex-col p-3 rounded-md border text-left transition-all duration-150 cursor-pointer ${
-                        isSelected
+                      className={`flex flex-col p-3 rounded-md border text-left transition-all duration-150 cursor-pointer ${isSelected
                           ? "border-orange-500 bg-orange-600 text-white shadow-sm"
                           : !isAvailable
-                          ? isReserved
-                            ? "border-purple-200 bg-purple-50 opacity-85 cursor-not-allowed"
-                            : "border-amber-200 bg-amber-50 opacity-85 cursor-not-allowed"
-                          : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/60 hover:shadow-sm"
-                      }`}
+                            ? isReserved
+                              ? "border-purple-200 bg-purple-50 opacity-85 cursor-not-allowed"
+                              : "border-amber-200 bg-amber-50 opacity-85 cursor-not-allowed"
+                            : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/60 hover:shadow-sm"
+                        }`}
                     >
                       {/* Table Name */}
                       <p className={`text-[13px] font-black leading-snug ${isSelected ? "text-white" : "text-gray-800"}`}>
@@ -2473,18 +2465,16 @@ export default function RestaurantPOSPage() {
                         <span className={`flex items-center gap-1 text-[11px] font-bold ${isSelected ? "text-orange-100" : "text-slate-500"}`}>
                           <Users size={11} /> {t.capacity} Seats
                         </span>
-                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
-                          isSelected
+                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${isSelected
                             ? "bg-white/20 text-white"
                             : isReserved
-                            ? "bg-purple-100 text-purple-700"
-                            : isBusy
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-emerald-50 text-emerald-700"
-                        }`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${
-                            isReserved ? "bg-purple-500" : isBusy ? "bg-amber-500" : isSelected ? "bg-white" : "bg-emerald-500"
-                          }`} />
+                              ? "bg-purple-100 text-purple-700"
+                              : isBusy
+                                ? "bg-amber-100 text-amber-700"
+                                : "bg-emerald-50 text-emerald-700"
+                          }`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${isReserved ? "bg-purple-500" : isBusy ? "bg-amber-500" : isSelected ? "bg-white" : "bg-emerald-500"
+                            }`} />
                           {isReserved ? "Reserved" : isBusy ? "Busy" : "Free"}
                         </span>
                       </div>
@@ -2553,18 +2543,16 @@ export default function RestaurantPOSPage() {
                     setShowSelectStaffModal(false);
                     toast.success(`${staff.name} assigned as staff!`);
                   }}
-                  className={`flex items-center gap-3 p-3 rounded-md border text-left transition duration-150 cursor-pointer ${
-                    isStaffActive
+                  className={`flex items-center gap-3 p-3 rounded-md border text-left transition duration-150 cursor-pointer ${isStaffActive
                       ? "border-orange-500 bg-orange-600 text-white shadow-sm"
                       : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/60 hover:shadow-sm"
-                  }`}
+                    }`}
                 >
                   <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md font-black text-sm shadow-2xs ${
-                      isStaffActive
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md font-black text-sm shadow-2xs ${isStaffActive
                         ? "bg-white/20 text-white"
                         : staff.avatarColor || "bg-orange-100 text-orange-700"
-                    }`}
+                      }`}
                   >
                     {staff.name.charAt(0).toUpperCase()}
                   </div>
@@ -2578,9 +2566,8 @@ export default function RestaurantPOSPage() {
                       {staff.role || "Waiter"}
                     </p>
                     {staff.shift && (
-                      <span className={`inline-block mt-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                        isStaffActive ? "bg-white/15 text-orange-100" : "bg-slate-100 text-slate-600"
-                      }`}>
+                      <span className={`inline-block mt-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded ${isStaffActive ? "bg-white/15 text-orange-100" : "bg-slate-100 text-slate-600"
+                        }`}>
                         {staff.shift}
                       </span>
                     )}
@@ -2676,11 +2663,10 @@ export default function RestaurantPOSPage() {
                   return (
                     <div
                       key={slot.id}
-                      className={`relative flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 ${
-                        isCurActive
+                      className={`relative flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 ${isCurActive
                           ? "bg-gradient-to-b from-amber-50/95 via-orange-50/40 to-white border-amber-400 shadow-md shadow-amber-500/10 ring-2 ring-amber-400/80"
                           : "bg-white border-slate-200 hover:border-slate-300 hover:shadow-2xs"
-                      }`}
+                        }`}
                     >
                       {/* Top Header: Shift Name + Live Status */}
                       <div>
@@ -2841,7 +2827,7 @@ export default function RestaurantPOSPage() {
 
             <CustomButton
               themeColor="orange"
-        size="lg"
+              size="lg"
               onClick={() => setShowShiftDetailsModal(false)}
             >
               Done
@@ -2917,11 +2903,10 @@ export default function RestaurantPOSPage() {
                         type="button"
                         key={s.id || s.name}
                         onClick={() => setSelectedSize({ label: s.name, price: s.price })}
-                        className={`flex items-center justify-between gap-2 p-3 rounded-md border-2 transition cursor-pointer select-none ${
-                          isSelected
+                        className={`flex items-center justify-between gap-2 p-3 rounded-md border-2 transition cursor-pointer select-none ${isSelected
                             ? "bg-orange-50 border-orange-500 text-orange-950 font-bold shadow-sm"
                             : "bg-white border-slate-200 text-gray-700 hover:border-orange-300 hover:shadow-xs font-medium"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-1.5 text-left min-w-0 flex-1">
                           <span className="text-xs font-bold truncate">{s.name}</span>
@@ -2930,9 +2915,8 @@ export default function RestaurantPOSPage() {
                           </span>
                         </div>
                         <div
-                          className={`h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                            isSelected ? "border-orange-600 bg-orange-600 text-white" : "border-slate-300"
-                          }`}
+                          className={`h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? "border-orange-600 bg-orange-600 text-white" : "border-slate-300"
+                            }`}
                         >
                           {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
                         </div>
@@ -2959,11 +2943,10 @@ export default function RestaurantPOSPage() {
                       type="button"
                       key={spice.label}
                       onClick={() => setSelectedSpice(spice.label)}
-                      className={`flex items-center justify-center gap-1.5 p-2.5 rounded-md border-2 text-xs font-bold transition cursor-pointer ${
-                        isSelected
+                      className={`flex items-center justify-center gap-1.5 p-2.5 rounded-md border-2 text-xs font-bold transition cursor-pointer ${isSelected
                           ? "bg-rose-50 border-rose-500 text-rose-800 shadow-sm"
                           : "bg-white border-slate-200 text-gray-700 hover:border-rose-300 hover:shadow-xs"
-                      }`}
+                        }`}
                     >
                       <span>{spice.icon}</span>
                       <span>{spice.label}</span>
@@ -2991,25 +2974,23 @@ export default function RestaurantPOSPage() {
                     <label
                       key={top.label}
                       onClick={() => toggleExtraTopping(top)}
-                      className={`flex items-center gap-3 p-3 rounded-md border-2 transition cursor-pointer select-none ${
-                        isChecked
+                      className={`flex items-center gap-3 p-3 rounded-md border-2 transition cursor-pointer select-none ${isChecked
                           ? "bg-amber-50/90 border-amber-500 text-amber-950 shadow-sm font-bold"
                           : "bg-white border-slate-200 text-gray-700 hover:border-amber-300 hover:shadow-xs font-medium"
-                      }`}
+                        }`}
                     >
                       <input
                         type="checkbox"
                         checked={isChecked}
-                        onChange={() => {}}
+                        onChange={() => { }}
                         className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500 accent-amber-600 cursor-pointer shrink-0"
                       />
 
                       <div className="flex-1 min-w-0 flex items-center gap-1.5">
                         <h5 className="text-xs font-bold text-gray-600 truncate">{top.label}</h5>
                         <span
-                          className={`text-[11px] font-black shrink-0 whitespace-nowrap ${
-                            isChecked ? "text-amber-700" : "text-gray-500"
-                          }`}
+                          className={`text-[11px] font-black shrink-0 whitespace-nowrap ${isChecked ? "text-amber-700" : "text-gray-500"
+                            }`}
                         >
                           + {fmt(top.price)}
                         </span>
@@ -3048,7 +3029,7 @@ export default function RestaurantPOSPage() {
                     (selectedProductForAddons.portionSizes && selectedProductForAddons.portionSizes.length > 0
                       ? selectedSize.price
                       : selectedProductForAddons.sellingPrice) +
-                      selectedExtras.reduce((sum, e) => sum + e.price, 0)
+                    selectedExtras.reduce((sum, e) => sum + e.price, 0)
                   )}
                 </span>
               </div>

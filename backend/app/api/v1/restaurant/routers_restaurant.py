@@ -457,7 +457,11 @@ async def create_kot(
     except Exception as e:
         return err(str(e), 403)
 
-    branchId = body.get("branchId")
+    branchId = body.get("branchId") or user.branchId
+    if not branchId:
+        b = (await db.execute(text("SELECT id FROM branches WHERE tenantId = :t LIMIT 1"), {"t": tenantId})).first()
+        branchId = b[0] if b else None
+
     items = body.get("items") or []
     if not branchId or not items:
         return err("branchId and items are required", 400)

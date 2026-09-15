@@ -70,110 +70,6 @@ export interface KOTTicket {
 // Staff / Chef Role Options
 const CHEF_ROLES = ["Head chef", "Sous chef", "Line cook", "Grill master", "Barista", "Pastry chef"];
 
-// Baseline Sample Orders Matching Screenshot Design
-const INITIAL_TICKETS: KOTTicket[] = [
-  {
-    id: "KOT-1026",
-    orderNo: "1026",
-    tokenNo: "12",
-    orderType: "Takeaway",
-    timePlaced: "11:00 AM",
-    station: "KITCHEN",
-    status: "QUEUED",
-    chefRole: "Sous chef",
-    createdAt: new Date(Date.now() - 20 * 60000).toISOString(),
-    items: [
-      { id: "i1", name: "Grilled Salmon", qty: 1, completed: false },
-      { id: "i2", name: "Caesar Salad", qty: 2, completed: false },
-      { id: "i3", name: "Quinoa Bowl", qty: 1, completed: false },
-    ],
-  },
-  {
-    id: "KOT-1027-Q",
-    orderNo: "1027",
-    tableNo: "8",
-    orderType: "Dine-in",
-    timePlaced: "11:30 AM",
-    station: "KITCHEN",
-    status: "QUEUED",
-    chefRole: "Line cook",
-    createdAt: new Date(Date.now() - 15 * 60000).toISOString(),
-    items: [
-      { id: "i4", name: "BBQ Pulled Pork Sandwich", qty: 3, completed: false },
-      { id: "i5", name: "Kale and Apple Salad", qty: 1, completed: false },
-      { id: "i6", name: "Sweet Potato Fries", qty: 2, completed: false },
-    ],
-  },
-  {
-    id: "KOT-1025",
-    orderNo: "1025",
-    tableNo: "12",
-    orderType: "Dine-in",
-    timePlaced: "11:15 AM",
-    station: "GRILL",
-    status: "PREPARING",
-    chefRole: "Head chef",
-    createdAt: new Date(Date.now() - 15 * 60000).toISOString(),
-    items: [
-      { id: "i7", name: "Classic Cheeseburger", qty: 1, completed: true },
-      { id: "i8", name: "Chicken Caesar Salad", qty: 1, completed: true },
-      { id: "i9", name: "Spicy Tofu Wrap", qty: 3, completed: true },
-      { id: "i10", name: "Vegan Black Bean Burger", qty: 1, completed: false },
-    ],
-  },
-  {
-    id: "KOT-1025-TK",
-    orderNo: "1025",
-    tokenNo: "12",
-    orderType: "Takeaway",
-    timePlaced: "11:20 AM",
-    station: "GRILL",
-    status: "PREPARING",
-    chefRole: "Head chef",
-    createdAt: new Date(Date.now() - 12 * 60000).toISOString(),
-    items: [
-      { id: "i11", name: "Classic Cheeseburger", qty: 1, completed: false },
-      { id: "i12", name: "Crispy Potato Wedges", qty: 2, completed: true },
-    ],
-  },
-  {
-    id: "KOT-1026-R",
-    orderNo: "1026",
-    tableNo: "7",
-    orderType: "Dine-in",
-    timePlaced: "11:05 AM",
-    station: "KITCHEN",
-    status: "READY",
-    chefRole: "Head chef",
-    createdAt: new Date(Date.now() - 25 * 60000).toISOString(),
-    readyAt: "11:45 AM",
-    items: [
-      { id: "i13", name: "BBQ Pulled Pork Sandwich", qty: 3, completed: true },
-      { id: "i14", name: "Caesar Salad", qty: 2, completed: true },
-      { id: "i15", name: "Sweet Potato Fries", qty: 1, completed: true },
-      { id: "i16", name: "Chocolate Lava Cake", qty: 2, completed: true },
-    ],
-  },
-  {
-    id: "KOT-1027-R",
-    orderNo: "1027",
-    tokenNo: "12",
-    orderType: "Takeaway",
-    timePlaced: "11:25 AM",
-    station: "BAR",
-    status: "READY",
-    chefRole: "Barista",
-    createdAt: new Date(Date.now() - 30 * 60000).toISOString(),
-    readyAt: "12:10 PM",
-    items: [
-      { id: "i17", name: "Spicy Tuna Roll", qty: 1, completed: true },
-      { id: "i18", name: "Miso Soup", qty: 2, completed: true },
-      { id: "i19", name: "Edamame", qty: 1, completed: true },
-      { id: "i20", name: "Matcha Green Tea Ice Cream", qty: 1, completed: true },
-    ],
-  },
-];
-
 const STATION_ICONS: Record<string, React.ReactNode> = {
   KITCHEN: <ChefHat className="w-4 h-4 text-amber-600" />,
   GRILL: <Flame className="w-4 h-4 text-rose-600" />,
@@ -186,7 +82,7 @@ export default function KitchenManagementPage() {
   const [viewMode, setViewMode] = useState<"OPERATOR" | "FACING">("OPERATOR");
 
   // Core State
-  const [tickets, setTickets] = useState<KOTTicket[]>(INITIAL_TICKETS);
+  const [tickets, setTickets] = useState<KOTTicket[]>([]);
   const [activeFilterPill, setActiveFilterPill] = useState<string>("ALL");
   const [stationFilter, setStationFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -216,22 +112,22 @@ export default function KitchenManagementPage() {
     }
   };
 
-  // Fetch Tickets from API or Local Storage
+  // Fetch Tickets from Real API Endpoint
   const fetchTickets = useCallback(async () => {
     setLoading(true);
     try {
       const res: any = await api.get("/v1/restaurant/kds").catch(() => null);
       const serverData = res?.data?.data || res?.data;
-      if (Array.isArray(serverData) && serverData.length > 0) {
+      if (Array.isArray(serverData)) {
         const mapped: KOTTicket[] = serverData.map((t: any) => ({
           id: t.id,
-          orderNo: t.orderNo || t.kotNo || `10${t.id.slice(0, 2)}`,
+          orderNo: t.orderNo || t.kotNo || `KOT-${t.id.slice(0, 4)}`,
           tokenNo: t.tokenNo,
           tableNo: t.tableNo,
           orderType: t.orderType === "TAKEAWAY" ? "Takeaway" : t.orderType === "DELIVERY" ? "Delivery" : "Dine-in",
           timePlaced: t.timePlaced || new Date(t.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           station: t.station || "KITCHEN",
-          status: t.status === "READY" || t.status === "READY_TO_SERVE" ? "READY" : t.status === "PREPARING" || t.status === "COOKING" || t.status === "PLATING" ? "PREPARING" : "QUEUED",
+          status: t.status === "READY" || t.status === "READY_TO_SERVE" || t.status === "SERVED" ? "READY" : t.status === "PREPARING" || t.status === "COOKING" || t.status === "PLATING" || t.status === "ACCEPTED" ? "PREPARING" : "QUEUED",
           chefRole: t.chefRole || "Head chef",
           customerName: t.customerName,
           createdAt: t.createdAt || new Date().toISOString(),
@@ -242,33 +138,18 @@ export default function KitchenManagementPage() {
                 name: i.name,
                 qty: i.qty || 1,
                 notes: i.notes || "",
-                completed: i.completed ?? (t.status === "READY" || t.status === "READY_TO_SERVE"),
+                completed: i.completed ?? (t.status === "READY" || t.status === "READY_TO_SERVE" || t.status === "SERVED"),
               }))
             : [],
         }));
         setTickets(mapped);
         broadcastSync(mapped);
       } else {
-        const local = localStorage.getItem("bpos_kitchen_kanban_tickets");
-        if (local) {
-          try {
-            const parsed = JSON.parse(local);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              const hasActive = parsed.some((t: any) => t.status === "QUEUED" || t.status === "PREPARING");
-              if (hasActive) {
-                setTickets(parsed);
-                return;
-              }
-            }
-          } catch {}
-        }
-        // Fallback to INITIAL_TICKETS if local storage is missing active orders
-        setTickets(INITIAL_TICKETS);
-        broadcastSync(INITIAL_TICKETS);
+        setTickets([]);
       }
     } catch (err) {
-      console.warn("KDS API fallback:", err);
-      setTickets(INITIAL_TICKETS);
+      console.warn("KDS API fetch error:", err);
+      setTickets([]);
     } finally {
       setLoading(false);
     }
@@ -412,10 +293,10 @@ export default function KitchenManagementPage() {
   const readyColumnTickets = filteredTickets.filter((t) => t.status === "READY");
 
   // KPI Metrics
-  const newOrdersCount = tickets.filter((t) => t.status === "QUEUED").length || 18;
-  const preparingCount = tickets.filter((t) => t.status === "PREPARING").length || 2;
-  const completedCount = tickets.filter((t) => t.status === "READY").length || 4;
-  const cancelledCount = 5; // Demo baseline metrics matching screenshot
+  const newOrdersCount = tickets.filter((t) => t.status === "QUEUED").length;
+  const preparingCount = tickets.filter((t) => t.status === "PREPARING").length;
+  const completedCount = tickets.filter((t) => t.status === "READY").length;
+  const cancelledCount = tickets.filter((t) => (t as any).status === "CANCELLED").length;
 
   return (
     <div
@@ -491,117 +372,7 @@ export default function KitchenManagementPage() {
               {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
             </button>
 
-            {/* Reset / Seed Test Orders */}
-            <button
-              onClick={() => {
-                const freshTickets: KOTTicket[] = [
-                  {
-                    id: `KOT-${Date.now()}-1`,
-                    orderNo: "1032",
-                    tokenNo: "14",
-                    orderType: "Takeaway",
-                    timePlaced: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    station: "KITCHEN",
-                    status: "QUEUED",
-                    chefRole: "Sous chef",
-                    createdAt: new Date().toISOString(),
-                    items: [
-                      { id: "i101", name: "Crispy Chicken Burger", qty: 2, completed: false },
-                      { id: "i102", name: "French Fries (Large)", qty: 1, completed: false },
-                      { id: "i103", name: "Cold Coffee", qty: 2, completed: false },
-                    ],
-                  },
-                  {
-                    id: `KOT-${Date.now()}-2`,
-                    orderNo: "1033",
-                    tableNo: "4",
-                    orderType: "Dine-in",
-                    timePlaced: new Date(Date.now() - 3 * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    station: "GRILL",
-                    status: "QUEUED",
-                    chefRole: "Line cook",
-                    createdAt: new Date(Date.now() - 3 * 60000).toISOString(),
-                    items: [
-                      { id: "i104", name: "Ribeye Steak (Medium Rare)", qty: 1, completed: false },
-                      { id: "i105", name: "Mashed Potatoes", qty: 1, completed: false },
-                      { id: "i106", name: "Garlic Bread", qty: 2, completed: false },
-                    ],
-                  },
-                  {
-                    id: `KOT-${Date.now()}-3`,
-                    orderNo: "1030",
-                    tableNo: "10",
-                    orderType: "Dine-in",
-                    timePlaced: new Date(Date.now() - 10 * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    station: "KITCHEN",
-                    status: "PREPARING",
-                    chefRole: "Head chef",
-                    createdAt: new Date(Date.now() - 10 * 60000).toISOString(),
-                    items: [
-                      { id: "i107", name: "Seafood Pasta Primavera", qty: 2, completed: true },
-                      { id: "i108", name: "Mushroom Soup", qty: 2, completed: true },
-                      { id: "i109", name: "Tiramisu", qty: 1, completed: false },
-                    ],
-                  },
-                  {
-                    id: `KOT-${Date.now()}-4`,
-                    orderNo: "1031",
-                    tokenNo: "18",
-                    orderType: "Takeaway",
-                    timePlaced: new Date(Date.now() - 8 * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    station: "BAR",
-                    status: "PREPARING",
-                    chefRole: "Barista",
-                    createdAt: new Date(Date.now() - 8 * 60000).toISOString(),
-                    items: [
-                      { id: "i110", name: "Iced Caramel Macchiato", qty: 2, completed: true },
-                      { id: "i111", name: "Blueberry Muffin", qty: 2, completed: false },
-                    ],
-                  },
-                  {
-                    id: `KOT-${Date.now()}-5`,
-                    orderNo: "1026",
-                    tokenNo: "12",
-                    orderType: "Takeaway",
-                    timePlaced: new Date(Date.now() - 25 * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    station: "KITCHEN",
-                    status: "READY",
-                    chefRole: "Sous chef",
-                    createdAt: new Date(Date.now() - 25 * 60000).toISOString(),
-                    readyAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    items: [
-                      { id: "i1", name: "Grilled Salmon", qty: 1, completed: true },
-                      { id: "i2", name: "Caesar Salad", qty: 2, completed: true },
-                      { id: "i3", name: "Quinoa Bowl", qty: 1, completed: true },
-                    ],
-                  },
-                  {
-                    id: `KOT-${Date.now()}-6`,
-                    orderNo: "1027",
-                    tableNo: "8",
-                    orderType: "Dine-in",
-                    timePlaced: new Date(Date.now() - 30 * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    station: "KITCHEN",
-                    status: "READY",
-                    chefRole: "Line cook",
-                    createdAt: new Date(Date.now() - 30 * 60000).toISOString(),
-                    readyAt: new Date(Date.now() - 5 * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    items: [
-                      { id: "i4", name: "BBQ Pulled Pork Sandwich", qty: 3, completed: true },
-                      { id: "i5", name: "Kale and Apple Salad", qty: 1, completed: true },
-                      { id: "i6", name: "Sweet Potato Fries", qty: 2, completed: true },
-                    ],
-                  },
-                ];
-                setTickets(freshTickets);
-                broadcastSync(freshTickets);
-              }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-orange-50 border border-orange-200 text-orange-700 text-xs font-bold hover:bg-orange-100 transition shadow-sm"
-              title="Seed test orders into Queued and Preparing"
-            >
-              <PlusCircle size={14} />
-              <span className="hidden md:inline">+ Seed Test Orders</span>
-            </button>
+
 
             {/* Manual Sync */}
             <button
