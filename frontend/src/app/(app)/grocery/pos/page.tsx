@@ -10,6 +10,7 @@ import {
   Apple, Coffee, Home, Wallet, FileText, X,
   Layers, Grid, AlignLeft, Camera, Info, AlertCircle,
   Utensils, Snowflake, Fish, Sparkles, Heart, ShieldCheck, ChevronDown,
+  Maximize, Minimize, MoreVertical,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { fetchAllProducts, fetchBatches, applyBatchStock, fetchRegisterContext } from "@/lib/catalog";
@@ -165,6 +166,23 @@ export default function GroceryPOSPage() {
   });
 
   const [salesHistory, setSalesHistory] = useState<any[]>([]);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showThreeDotMenu, setShowThreeDotMenu] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error("Error attempting to enable fullscreen:", err);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch((err) => {
+          console.error("Error attempting to exit fullscreen:", err);
+        });
+      }
+    }
+  }, []);
 
   const scanRef = useRef<HTMLInputElement>(null);
   const discountInputRef = useRef<HTMLInputElement>(null);
@@ -181,6 +199,26 @@ export default function GroceryPOSPage() {
   }, []);
 
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(t); }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isTyping = target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT" || target.isContentEditable);
+      if (!isTyping && (e.key === "f" || e.key === "F")) {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [toggleFullscreen]);
 
   const loadProducts = useCallback(async () => {
     try {
@@ -239,6 +277,12 @@ export default function GroceryPOSPage() {
           id: s.id,
           invoiceNo: s.invoiceNo,
           grandTotal: Number(s.grandTotal ?? s.totalAmount ?? s.total ?? 0),
+          subTotal: Number(s.subtotal ?? s.total ?? 0),
+          discountTotal: Number(s.discountTotal ?? 0),
+          taxTotal: Number(s.taxTotal ?? 0),
+          paidTotal: Number(s.paidTotal ?? s.total ?? 0),
+          changeReturn: Number(s.changeReturn ?? 0),
+          items: s.items || [],
           customer: s.customer?.name || s.customerName || "Walk-in Customer",
           date: new Date(s.createdAt).toLocaleString(),
           paymentMethod: s.paymentMethod || "CASH",
@@ -770,6 +814,15 @@ export default function GroceryPOSPage() {
               </div>
             </div>
           ))}
+
+          {/* Fullscreen + 3-dot */}
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen (F)" : "Enter Fullscreen (F)"}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 transition cursor-pointer border border-emerald-300 shrink-0"
+          >
+            {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+          </button>
         </div>
       </header>
 
@@ -1652,7 +1705,23 @@ export default function GroceryPOSPage() {
                       <p className="text-sm font-black text-emerald-700">৳ {s.grandTotal.toFixed(2)}</p>
                       <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Sale Confirmed</p>
                     </div>
-                    <button onClick={() => { window.print(); }} className="p-2.5 rounded-xl border border-gray-100 bg-slate-50 hover:bg-emerald-50 text-slate-500 hover:text-emerald-600 transition-all active:scale-90">
+                    <button onClick={() => {
+                      setRecentSalesOpen(false);
+                      setCompletedInv({
+                        invoiceNo: s.invoiceNo,
+                        customer: s.customer,
+                        date: s.date,
+                        grandTotal: s.grandTotal,
+                        subTotal: s.subTotal || s.grandTotal,
+                        discAmt: s.discountTotal || 0,
+                        taxTotal: s.taxTotal || 0,
+                        paidAmount: s.paidTotal || s.grandTotal,
+                        changeReturn: s.changeReturn || 0,
+                        items: s.items || [],
+                        paymentMethod: s.paymentMethod
+                      });
+                      setTimeout(() => window.print(), 150);
+                    }} className="p-2.5 rounded-xl border border-gray-100 bg-slate-50 hover:bg-emerald-50 text-slate-500 hover:text-emerald-600 transition-all active:scale-90">
                       <Printer size={16} />
                     </button>
                   </div>
@@ -1966,10 +2035,10 @@ export default function GroceryPOSPage() {
                   </div>
                   {(completedInv.items || []).map((item: any, idx: number) => (
                     <div key={idx} className="flex justify-between text-[11px] py-0.5 border-b border-gray-50 last:border-0">
-                      <div className="min-w-0 max-w-[170px]">
-                        <p className="font-bold text-slate-800 truncate">{item.name}</p>
+                      <div className="min-w-0 flex-1 pr-2">
+                        <p className="font-bold text-slate-800 break-words">{item.name}</p>
                       </div>
-                      <div className="text-slate-500 font-mono text-[10px]">
+                      <div className="text-slate-500 font-mono text-[10px] whitespace-nowrap">
                         {item.qty} {item.uom || "pcs"} x ৳{item.unitPrice.toFixed(2)}
                       </div>
                       <div className="font-bold text-slate-900 font-mono">
@@ -2051,6 +2120,9 @@ export default function GroceryPOSPage() {
         to { width: 0%; }
       }
       @media print {
+        @page {
+          margin: 0.5cm;
+        }
         body * {
           visibility: hidden !important;
         }
@@ -2058,17 +2130,23 @@ export default function GroceryPOSPage() {
           visibility: visible !important;
         }
         #printable-thermal-receipt {
-          position: fixed !important;
+          position: absolute !important;
           left: 0 !important;
           top: 0 !important;
-          width: 80mm !important;
-          margin: 0 !important;
+          width: 100% !important;
+          max-width: 210mm !important;
+          margin: 0 auto !important;
           padding: 12px !important;
           background: white !important;
           color: black !important;
           box-shadow: none !important;
           border: none !important;
-          font-size: 11px !important;
+          font-size: 12px !important;
+        }
+        /* Remove max-width on item name for A4 stretching */
+        #printable-thermal-receipt .truncate {
+          max-width: none !important;
+          white-space: normal !important;
         }
       }
     `}</style>

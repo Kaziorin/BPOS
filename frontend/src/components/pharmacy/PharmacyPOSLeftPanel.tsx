@@ -36,6 +36,8 @@ import {
   History,
   Archive,
   Settings,
+  Maximize,
+  Minimize,
 } from "lucide-react";
 import type { RegisterProduct } from "@/lib/catalog";
 import { cn } from "@/lib/cn";
@@ -162,6 +164,9 @@ interface PharmacyPOSLeftPanelProps {
   genericAlternatives?: RegisterProduct[];
   /** Called when user clicks "View Alternatives" */
   onViewAlternatives?: () => void;
+  /** Fullscreen toggle */
+  onToggleFullscreen?: () => void;
+  isFullscreen?: boolean;
 }
 
 export function PharmacyPOSLeftPanel({
@@ -189,6 +194,8 @@ export function PharmacyPOSLeftPanel({
   lastAddedProduct,
   genericAlternatives = [],
   onViewAlternatives,
+  onToggleFullscreen,
+  isFullscreen,
 }: PharmacyPOSLeftPanelProps) {
   const visibleCategories = useMemo(() => {
     const q = catSearch.trim().toLowerCase();
@@ -267,6 +274,19 @@ export function PharmacyPOSLeftPanel({
           title="Toggle dark mode"
         >
           <Moon size={17} />
+        </button>
+
+        {/* Fullscreen toggle */}
+        <button
+          type="button"
+          onClick={onToggleFullscreen}
+          className={cn(
+            "rounded-full p-2 transition shrink-0",
+            darkMode ? "bg-slate-800 text-teal-300 hover:bg-slate-700" : "text-slate-600 hover:bg-slate-100",
+          )}
+          title={isFullscreen ? "Exit Fullscreen (F)" : "Enter Fullscreen (F)"}
+        >
+          {isFullscreen ? <Minimize size={17} /> : <Maximize size={17} />}
         </button>
       </header>
 

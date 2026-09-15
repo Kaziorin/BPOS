@@ -144,14 +144,6 @@ export default function WholesaleHubPage() {
             <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
           </Link>
 
-          <Link
-            href="/pharmacy/patient-display"
-            target="_blank"
-            className="group/cd flex items-center gap-3 px-6 py-3.5 rounded-2xl text-sm font-black bg-white text-slate-700 border border-slate-200 shadow-lg shadow-slate-200/20 hover:bg-slate-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
-          >
-            <Monitor size={18} className="text-slate-400 group-hover/cd:text-blue-500" />
-            Client Display
-          </Link>
         </div>
       </div>
 

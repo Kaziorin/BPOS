@@ -50,6 +50,7 @@ import {
   GenericAlternativesModal,
   HardwareSettingsModal,
   PaymentCheckoutModal,
+  PharmacyPOSHeldBillsModal,
   DEFAULT_HARDWARE_CONFIG,
   type HardwareConfig,
   type NotificationItem,
@@ -168,7 +169,7 @@ export default function PharmacyPOSPage() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   // ─── Held bills ─────────────────────────────────────────────────────────
-  const [heldBills, setHeldBills] = useState<{ id: string; items: RxCartItem[]; discountTotal: number; note: string }[]>(() => {
+  const [heldBills, setHeldBills] = useState<{ id: string; items: RxCartItem[]; discountTotal: number; note: string; createdAt?: number }[]>(() => {
     if (typeof window === "undefined") return [];
     try {
       const saved = localStorage.getItem("bpos_pharmacy_held_bills");
@@ -188,6 +189,7 @@ export default function PharmacyPOSPage() {
   const [addDoctorOpen, setAddDoctorOpen] = useState(false);
   const [loyaltyOpen, setLoyaltyOpen] = useState(false);
   const [returnOpen, setReturnOpen] = useState(false);
+  const [heldBillsOpen, setHeldBillsOpen] = useState(false);
   const [addCustomerOpen, setAddCustomerOpen] = useState(false);
   const [advFilterOpen, setAdvFilterOpen] = useState(false);
   const [genericsOpen, setGenericsOpen] = useState(false);
@@ -209,6 +211,44 @@ export default function PharmacyPOSPage() {
       document.documentElement.classList.remove("dark");
     }
   }, [darkMode]);
+
+  // ─── Fullscreen ───────────────────────────────────────────────────────────
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error("Error attempting to enable fullscreen:", err);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch((err) => {
+          console.error("Error attempting to exit fullscreen:", err);
+        });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isTyping = target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT" || target.isContentEditable);
+      if (!isTyping && (e.key === "f" || e.key === "F")) {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [toggleFullscreen]);
 
   // ─── Dynamic Notifications Generator ─────────────────────────────────────
   useEffect(() => {
@@ -459,7 +499,8 @@ export default function PharmacyPOSPage() {
       }
       if (e.key === "F1") { e.preventDefault(); void confirmSale(); }
       if (e.key === "F2" || e.key === "F3") { e.preventDefault(); searchRef.current?.focus(); }
-      if (e.key === "F6" || e.key === "F8") { e.preventDefault(); holdBill(); }
+      if (e.key === "F6") { e.preventDefault(); holdBill(); }
+      if (e.key === "F8") { e.preventDefault(); if (heldBills.length > 0) setHeldBillsOpen(true); }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -552,7 +593,7 @@ export default function PharmacyPOSPage() {
   // ─── Hold Bill ────────────────────────────────────────────────────────────
   function holdBill() {
     if (cart.length === 0) return;
-    setHeldBills((prev) => [...prev, { id: crypto.randomUUID(), items: cart, discountTotal, note }]);
+    setHeldBills((prev) => [...prev, { id: crypto.randomUUID(), items: cart, discountTotal, note, createdAt: Date.now() }]);
     setCart([]);
     setDiscountTotal(0);
     setDiscountApplied(false);
@@ -561,15 +602,22 @@ export default function PharmacyPOSPage() {
     showToast("Bill held successfully", "info");
   }
 
-  function handleResumeHeldBill() {
-    const last = heldBills[heldBills.length - 1];
-    if (!last) return;
-    setCart(last.items);
-    setDiscountTotal(last.discountTotal);
-    setNote(last.note);
-    setDiscountApplied(last.discountTotal > 0);
-    setHeldBills((prev) => prev.slice(0, -1));
+  function handleResumeHeldBill(id: string) {
+    const index = heldBills.findIndex((b) => b.id === id);
+    if (index === -1) return;
+    const bill = heldBills[index];
+    setCart(bill.items);
+    setDiscountTotal(bill.discountTotal);
+    setNote(bill.note);
+    setDiscountApplied(bill.discountTotal > 0);
+    setHeldBills((prev) => prev.filter((_, i) => i !== index));
+    setHeldBillsOpen(false);
     showToast("Held bill resumed", "info");
+  }
+
+  function handleRemoveHeldBill(id: string) {
+    setHeldBills((prev) => prev.filter((b) => b.id !== id));
+    showToast("Held bill removed", "info");
   }
 
   // ─── Sale ─────────────────────────────────────────────────────────────────
@@ -694,7 +742,7 @@ export default function PharmacyPOSPage() {
       case "rx": setPrescriptionOpen(true); break;
       case "doctor": setAddDoctorOpen(true); break;
       case "refill": {
-        if (heldBills.length > 0) handleResumeHeldBill();
+        if (heldBills.length > 0) setHeldBillsOpen(true);
         else showToast("No held bills to refill", "info");
         break;
       }
@@ -710,7 +758,7 @@ export default function PharmacyPOSPage() {
       case "scan-rx": setPrescriptionOpen(true); break;
       case "scan-barcode": searchRef.current?.focus(); break;
       case "quick-refill": {
-        if (heldBills.length > 0) handleResumeHeldBill();
+        if (heldBills.length > 0) setHeldBillsOpen(true);
         else searchRef.current?.focus();
         break;
       }
@@ -854,6 +902,8 @@ export default function PharmacyPOSPage() {
             lastAddedProduct={lastAddedProduct}
             genericAlternatives={genericAlternatives}
             onViewAlternatives={() => setGenericsOpen(true)}
+            onToggleFullscreen={toggleFullscreen}
+            isFullscreen={isFullscreen}
           />
         </div>
 
@@ -920,7 +970,7 @@ export default function PharmacyPOSPage() {
           online={online}
           lastBackupTime="11:30 AM"
           heldBillsCount={heldBills.length}
-          onResumeHeldBill={handleResumeHeldBill}
+          onResumeHeldBill={() => setHeldBillsOpen(true)}
           onSalesHistory={() => setSalesHistoryOpen(true)}
           onOpenDrawer={() => showToast("🗄️ Cash drawer opened!", "success")}
           darkMode={darkMode}
@@ -987,7 +1037,16 @@ export default function PharmacyPOSPage() {
         )}
       </CustomModal>
 
-      {/* ═══ ALL FEATURE MODALS ═══ */}
+      {/* ═══ OTHER MODALS ═══ */}
+      <PharmacyPOSHeldBillsModal
+        open={heldBillsOpen}
+        onClose={() => setHeldBillsOpen(false)}
+        heldBills={heldBills}
+        onResume={handleResumeHeldBill}
+        onRemove={handleRemoveHeldBill}
+        darkMode={darkMode}
+      />
+
       <SalesHistoryPanel open={salesHistoryOpen} onClose={() => setSalesHistoryOpen(false)} />
 
       <PrescriptionModal
