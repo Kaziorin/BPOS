@@ -194,7 +194,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
         {/* Left: Menu On/Off Icon Button */}
         <button
           onClick={() => onOpenChange(!open)}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-sky-200/90 bg-sky-50/90 text-[#0284C7] hover:bg-[#E0F2FE] hover:text-[#0369A1] transition cursor-pointer shadow-2xs"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-sky-200/90 bg-sky-50/90 text-[#0284C7] hover:bg-[#E0F2FE] hover:text-[#0369A1] transition cursor-pointer shadow-2xs"
           aria-label={open ? "Close navigation menu" : "Open navigation menu"}
           title={open ? "Close navigation menu" : "Open navigation menu"}
         >
@@ -204,16 +204,13 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
         {/* Right: Search Bar Taking Full Remaining Width */}
         <button
           onClick={() => window.dispatchEvent(new Event("omni:open-command-palette"))}
-          className="flex flex-1 h-10 items-center justify-between gap-2 px-3.5 rounded-md border border-sky-200/90 bg-sky-50/40 text-xs text-slate-500 hover:bg-[#E0F2FE] hover:border-[#0284C7] transition cursor-pointer shadow-2xs min-w-0"
+          className="flex flex-1 h-10 items-center justify-between gap-2 px-3.5 rounded-sm border border-sky-200/90 bg-sky-50/40 text-xs text-slate-500 hover:bg-[#E0F2FE] hover:border-[#0284C7] transition cursor-pointer shadow-2xs min-w-0"
           aria-label="Search pages and items"
         >
           <div className="flex items-center gap-2.5 min-w-0">
             <Search size={15} className="text-[#0284C7] shrink-0" />
             <span className="truncate font-medium text-slate-600">Search pages, items, actions...</span>
           </div>
-          <span className="shrink-0 rounded bg-white px-1.5 py-0.5 text-[10px] font-bold text-[#0284C7] border border-sky-200 shadow-2xs">
-            ⌘K
-          </span>
         </button>
       </nav>
 
@@ -235,7 +232,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                 onClick={() => onOpenChange(false)}
                 className="flex items-center gap-3 min-w-0"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs">
                   <Logo size={19} />
                 </div>
                 <div className="flex flex-col min-w-0">
@@ -249,7 +246,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
               </Link>
               <button
                 onClick={() => onOpenChange(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-md border border-sky-200 bg-sky-50/60 text-[#0284C7] hover:bg-[#E0F2FE] transition cursor-pointer"
+                className="flex h-8 w-8 items-center justify-center rounded-sm border border-sky-200 bg-sky-50/60 text-[#0284C7] hover:bg-[#E0F2FE] transition cursor-pointer"
                 aria-label="Close menu"
               >
                 <X size={16} />
@@ -264,7 +261,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 darkMode={false}
-                rounded="md"
+                rounded="sm"
                 leftIcon={<Search size={14} className="text-[#0284C7] pointer-events-none" />}
                 rightIcon={
                   searchQuery ? (
@@ -294,13 +291,6 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
               ) : (
                 filteredNavGroups.map((group) => (
                   <div key={group.title} className="space-y-1">
-                    {/* Group Title */}
-                    <div className="px-3 pt-3 pb-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                        {group.title}
-                      </span>
-                    </div>
-
                     {/* Module Items */}
                     {group.items.map((item, idx) => {
                       const Icon = item.icon;
@@ -316,7 +306,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                             href={item.href}
                             onClick={() => onOpenChange(false)}
                             className={cn(
-                              "group flex items-center justify-between rounded-md px-3 py-2 text-xs transition-all duration-200",
+                              "group flex items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-200",
                               active
                                 ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold shadow-2xs"
                                 : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]"
@@ -335,7 +325,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                             {item.badge && (
                               <span
                                 className={cn(
-                                  "shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-md",
+                                  "shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
                                   active
                                     ? "bg-white/20 text-white"
                                     : "bg-sky-500/15 text-sky-800 border border-sky-500/30"
@@ -355,7 +345,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                             type="button"
                             onClick={() => toggleModule(item.label)}
                             className={cn(
-                              "group flex w-full items-center justify-between rounded-md px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
+                              "group flex w-full items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
                               active
                                 ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
                                 : moduleExpanded
@@ -377,7 +367,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                               {item.badge && (
                                 <span
                                   className={cn(
-                                    "text-[9px] font-bold px-1.5 py-0.5 rounded-md",
+                                    "text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
                                     active
                                       ? "bg-white/20 text-white"
                                       : "bg-sky-500/15 text-sky-800 border border-sky-500/30"
@@ -414,7 +404,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                         type="button"
                                         onClick={() => toggleItem(child.label)}
                                         className={cn(
-                                          "group flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-all duration-150 cursor-pointer",
+                                          "group flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-xs transition-all duration-150 cursor-pointer",
                                           childActive
                                             ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
                                             : itemExpanded
@@ -454,7 +444,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                                 href={sub.href}
                                                 onClick={() => onOpenChange(false)}
                                                 className={cn(
-                                                  "group flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
+                                                  "group flex items-center gap-2 rounded-sm px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
                                                   subActive
                                                     ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
                                                     : "text-[#0284C7] hover:bg-[#E0F2FE] hover:text-[#0369A1]"
@@ -483,7 +473,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                     href={child.href}
                                     onClick={() => onOpenChange(false)}
                                     className={cn(
-                                      "group flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs transition-all duration-150",
+                                      "group flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-xs transition-all duration-150",
                                       exactActive
                                         ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
                                         : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]"
@@ -512,9 +502,9 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
 
             {/* Drawer Footer with Branch info & Direct Logout Button */}
             <div className="border-t border-sky-100 bg-sky-50/60 p-3 space-y-2">
-              <div className="flex items-center justify-between rounded-md border border-sky-100 bg-white p-2">
+              <div className="flex items-center justify-between rounded-sm border border-sky-100 bg-white p-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-xs font-bold text-white shadow-2xs">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-xs font-bold text-white shadow-2xs">
                     {(user?.name || "A")[0].toUpperCase()}
                   </div>
                   <div className="flex flex-col min-w-0">
@@ -535,7 +525,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
               {/* Prominent Sign Out Button */}
               <button
                 onClick={logout}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-rose-50 border border-rose-200 py-2.5 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs"
+                className="flex w-full items-center justify-center gap-2 rounded-sm bg-rose-50 border border-rose-200 py-2.5 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs"
               >
                 <LogOut size={14} />
                 <span>Sign Out</span>

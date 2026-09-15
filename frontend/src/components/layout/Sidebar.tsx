@@ -402,9 +402,9 @@ export function Sidebar() {
       {/* Sidebar Footer User Info & Logout */}
       <div className="relative z-10 border-t border-sky-100 p-2.5 bg-white">
         {!collapsed ? (
-          <div className="flex items-center justify-between rounded-md border border-sky-100 bg-sky-50/60 p-2">
+          <div className="flex items-center justify-between rounded-sm border border-sky-100 bg-sky-50/60 p-2">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-xs font-bold text-white shadow-2xs">
+              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-xs font-bold text-white shadow-2xs">
                 {(user?.name || "A")[0].toUpperCase()}
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
               </div>
@@ -420,7 +420,7 @@ export function Sidebar() {
             <button
               onClick={logout}
               title="Logout"
-              className="flex h-8 w-8 items-center justify-center rounded-md bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 shadow-2xs cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 shadow-2xs cursor-pointer"
             >
               <LogOut size={15} />
             </button>
@@ -429,7 +429,7 @@ export function Sidebar() {
           <button
             onClick={logout}
             title="Logout"
-            className="flex h-9 w-full items-center justify-center rounded-md bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 cursor-pointer"
+            className="flex h-9 w-full items-center justify-center rounded-sm bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 cursor-pointer"
           >
             <LogOut size={17} />
           </button>
@@ -601,7 +601,7 @@ function ModuleRow({
           href={item.href !== "#" ? item.href : "#"}
           title={item.label}
           className={cn(
-            "mx-auto flex h-10 w-10 items-center justify-center rounded-md border transition-all duration-200",
+            "mx-auto flex h-10 w-10 items-center justify-center rounded-sm border transition-all duration-200",
             active
               ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white"
               : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
@@ -624,7 +624,7 @@ function ModuleRow({
           onClick={(e) => onToggleFlyout(item, e.currentTarget.getBoundingClientRect().top)}
           title={item.label}
           className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-md border transition-all duration-200 cursor-pointer",
+            "flex h-10 w-10 items-center justify-center rounded-sm border transition-all duration-200 cursor-pointer",
             active || isFlyoutOpen
               ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white"
               : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
@@ -642,7 +642,7 @@ function ModuleRow({
       <Link
         href={item.href}
         className={cn(
-          "group flex items-center justify-between rounded-md px-3 py-2 text-xs transition-all duration-200",
+          "group flex items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-200",
           active
             ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
             : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
@@ -660,7 +660,7 @@ function ModuleRow({
         </div>
         {item.badge && (
           <span className={cn(
-            "shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-md",
+            "shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
             active ? "bg-white/20 text-white" : "bg-sky-500/15 text-sky-800 border border-sky-500/30"
           )}>
             {item.badge}
@@ -676,7 +676,7 @@ function ModuleRow({
       <button
         onClick={onToggleModule}
         className={cn(
-          "group flex w-full items-center justify-between rounded-md px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
+          "group flex w-full items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
           active
             ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
             : moduleExpanded
@@ -696,7 +696,7 @@ function ModuleRow({
         </div>
         {item.badge && (
           <span className={cn(
-            "shrink-0 mr-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md",
+            "shrink-0 mr-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
             active ? "bg-white/20 text-white" : "bg-sky-500/15 text-sky-800 border border-sky-500/30"
           )}>
             {item.badge}
@@ -754,7 +754,7 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
         <button
           onClick={onToggle}
           className={cn(
-            "group flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors duration-150 cursor-pointer",
+            "group flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-xs transition-colors duration-150 cursor-pointer",
             active
               ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
               : itemExpanded
@@ -787,7 +787,7 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
                   key={`${sub.label}-${sub.href}-${idx}`}
                   href={sub.href}
                   className={cn(
-                    "group flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
+                    "group flex items-center gap-2 rounded-sm px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
                     subActive
                       ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
                       : "text-[#0284C7] hover:bg-[#E0F2FE] hover:text-[#0369A1]",
@@ -809,7 +809,7 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
     <Link
       href={child.href}
       className={cn(
-        "group flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs transition-all duration-150",
+        "group flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-xs transition-all duration-150",
         exactActive
           ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
           : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",

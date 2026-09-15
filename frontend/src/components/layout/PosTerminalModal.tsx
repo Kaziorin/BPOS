@@ -146,11 +146,11 @@ export function PosTerminalModal({ isOpen, onClose }: PosTerminalModalProps) {
       />
 
       {/* Modal Dialog */}
-      <div className="relative z-10 flex max-h-[92vh] w-full max-w-5xl flex-col rounded-md border border-sky-200/90 bg-white shadow-2xl animate-[scale-in_150ms_ease-out] overflow-hidden">
+      <div className="relative z-10 flex max-h-[92vh] w-full max-w-5xl flex-col rounded-sm border border-sky-200/90 bg-white shadow-2xl animate-[scale-in_150ms_ease-out] overflow-hidden">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-4 sm:px-6 py-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-white shadow-2xs">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-white shadow-2xs">
               <Monitor size={20} />
             </div>
             <div className="min-w-0">
@@ -158,7 +158,7 @@ export function PosTerminalModal({ isOpen, onClose }: PosTerminalModalProps) {
                 <h2 className="text-base font-bold text-[#0369A1] sm:text-lg tracking-tight">
                   POS Terminals & Counter Hub
                 </h2>
-                <span className="inline-flex items-center gap-1 rounded-md bg-sky-100/80 px-2 py-0.5 text-[10px] font-bold text-[#0284C7] border border-sky-200">
+                <span className="inline-flex items-center gap-1 rounded-sm bg-sky-100/80 px-2 py-0.5 text-[10px] font-bold text-[#0284C7] border border-sky-200">
                   <Sparkles size={10} />
                   {displayRole}
                 </span>
@@ -170,7 +170,7 @@ export function PosTerminalModal({ isOpen, onClose }: PosTerminalModalProps) {
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-sky-200/80 bg-white text-slate-400 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 transition cursor-pointer"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-sky-200/80 bg-white text-slate-400 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 transition cursor-pointer"
             aria-label="Close modal"
           >
             <X size={16} />
@@ -192,7 +192,7 @@ export function PosTerminalModal({ isOpen, onClose }: PosTerminalModalProps) {
                   href={term.href}
                   onClick={onClose}
                   className={cn(
-                    "group relative flex flex-col justify-between rounded-md border p-3.5 transition-all duration-150 hover:shadow-md cursor-pointer",
+                    "group relative flex flex-col justify-between rounded-sm border p-3.5 transition-all duration-150 hover:shadow-md cursor-pointer",
                     isActive
                       ? "border-[#0284C7] bg-[#E0F2FE]/40 ring-1 ring-[#0284C7]"
                       : "border-sky-100 bg-white hover:border-sky-300 hover:bg-sky-50/30"
@@ -202,7 +202,7 @@ export function PosTerminalModal({ isOpen, onClose }: PosTerminalModalProps) {
                     <div className="flex items-start gap-3 min-w-0">
                       <div
                         className={cn(
-                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-white shadow-2xs bg-gradient-to-tr",
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-sm text-white shadow-2xs bg-gradient-to-tr",
                           term.accent
                         )}
                       >
@@ -214,7 +214,7 @@ export function PosTerminalModal({ isOpen, onClose }: PosTerminalModalProps) {
                             {term.name}
                           </span>
                           {isActive && (
-                            <span className="inline-flex items-center gap-1 rounded bg-emerald-100 px-1.5 py-0.5 text-[9.5px] font-bold text-emerald-700">
+                            <span className="inline-flex items-center gap-1 rounded-sm bg-emerald-100 px-1.5 py-0.5 text-[9.5px] font-bold text-emerald-700">
                               <CheckCircle2 size={10} /> Active
                             </span>
                           )}
@@ -252,7 +252,7 @@ export function PosTerminalModal({ isOpen, onClose }: PosTerminalModalProps) {
           </div>
           <button
             onClick={onClose}
-            className="rounded-md border border-sky-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition cursor-pointer shadow-2xs"
+            className="rounded-sm border border-sky-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition cursor-pointer shadow-2xs"
           >
             Close
           </button>

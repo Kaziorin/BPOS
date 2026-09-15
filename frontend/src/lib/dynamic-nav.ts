@@ -257,10 +257,10 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // 1. POS & RETAIL COUNTER
+  // POS & RETAIL COUNTER
   // ══════════════════════════════════════════════════════════════════════
   {
-    title: "1. POS & Retail Counter",
+    title: "POS & Retail Counter",
     items: [
       {
         label: "All POS Terminals",
@@ -318,10 +318,10 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // 2. INVENTORY & PROCUREMENT
+  // INVENTORY & PROCUREMENT
   // ══════════════════════════════════════════════════════════════════════
   {
-    title: "2. Inventory & Procurement",
+    title: "Inventory & Procurement",
     items: [
       {
         label: "Product Catalog",
@@ -373,10 +373,10 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // 3. SALES & OMNICHANNEL
+  // SALES & OMNICHANNEL
   // ══════════════════════════════════════════════════════════════════════
   {
-    title: "3. Sales & Omnichannel",
+    title: "Sales & Omnichannel",
     items: [
       { label: "Sales Invoices & History",   href: "/sales",            icon: Receipt      },
       { label: "Sales Orders",               href: "/sales/orders",     icon: ClipboardList},
@@ -415,10 +415,10 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // 4. FINANCE & ACCOUNTING
+  // FINANCE & ACCOUNTING
   // ══════════════════════════════════════════════════════════════════════
   {
-    title: "4. Finance & Accounting",
+    title: "Finance & Accounting",
     items: [
       {
         label: "Financial Accounting",
@@ -462,10 +462,10 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // 5. ADMINISTRATION & INTELLIGENCE
+  // ADMINISTRATION & INTELLIGENCE
   // ══════════════════════════════════════════════════════════════════════
   {
-    title: "5. Administration & Intelligence",
+    title: "Administration & Intelligence",
     items: [
       { label: "Platform & SaaS Management",        href: "/saas",          icon: Shield,        badge: "SaaS"   },
       { label: "Onboarding Wizard",                 href: "/onboarding",    icon: Sparkles                       },
@@ -523,10 +523,10 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // 6. INDUSTRY VERTICALS
+  // INDUSTRY VERTICALS
   // ══════════════════════════════════════════════════════════════════════
   {
-    title: "6. Industry Verticals",
+    title: "Industry Verticals",
     items: [
       {
         label: "Restaurant & Cafe",
