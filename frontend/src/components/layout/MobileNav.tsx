@@ -208,7 +208,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
         {/* Right: Search Bar Taking Full Remaining Width */}
         <button
           onClick={() => window.dispatchEvent(new Event("omni:open-command-palette"))}
-          className="flex flex-1 h-10 items-center justify-between gap-2 px-3.5 rounded-sm border border-sky-200/90 bg-sky-50/40 text-xs text-slate-500 hover:bg-[#E0F2FE] hover:border-[#0284C7] transition cursor-pointer shadow-2xs min-w-0"
+          className="flex flex-1 h-10 items-center justify-between gap-2 px-3.5 rounded-sm border border-[#0284C7] bg-white text-xs text-slate-500 hover:bg-[#E0F2FE] hover:border-[#0284C7] transition cursor-pointer shadow-none min-w-0"
           aria-label="Search pages and items"
         >
           <div className="flex items-center gap-2.5 min-w-0">
@@ -259,26 +259,25 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
 
             {/* Menu Search Box (same as big screen sidebar) */}
             <div className="px-3 pt-3 pb-1 border-b border-sky-100/60">
-              <CustomInput
-                type="text"
-                placeholder="Search menu..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                darkMode={false}
-                rounded="sm"
-                leftIcon={<Search size={14} className="text-[#0284C7] pointer-events-none" />}
-                rightIcon={
-                  searchQuery ? (
-                    <button
-                      onClick={() => setSearchQuery("")}
-                      className="text-slate-400 hover:text-slate-700 transition cursor-pointer"
-                    >
-                      <X size={13} />
-                    </button>
-                  ) : null
-                }
-                className="border-sky-200/90 bg-white/90 text-xs text-[#0369A1] placeholder:text-sky-900/40 py-1.5 focus:border-[#0284C7] shadow-2xs"
-              />
+              <div className="relative flex items-center">
+                <Search size={14} className="pointer-events-none absolute left-3 text-[#0284C7]" />
+                <input
+                  type="text"
+                  placeholder="Search menu..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-sm border border-[#0284C7] bg-white pl-9 pr-8 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:outline-none focus:border-[#0284C7] focus:ring-0 shadow-none transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                  >
+                    <X size={13} />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Navigation Groups & Modules (Same flow as big screen sidebar) */}

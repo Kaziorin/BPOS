@@ -27,9 +27,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [posModalOpen, setPosModalOpen] = useState(false);
 
-  // Dynamic Role from User / Database
-  const displayRole = user?.roleName || user?.role || "Staff";
-
   useEffect(() => {
     Promise.all([
       api.get<any>("/dashboard/summary"),
@@ -59,10 +56,10 @@ export default function DashboardPage() {
     <div className="space-y-5">
       {/* ── Hero Welcome Banner ── Pure CSS Gradient & SVG Ocean Waves (Center to Right) ── */}
       <div
-        className="relative flex flex-col gap-4 overflow-hidden rounded-sm p-6 text-white sm:flex-row sm:items-center sm:justify-between shadow-md select-none border border-sky-300/30"
+        className="relative flex flex-col gap-4 overflow-hidden rounded-sm p-6 text-white sm:flex-row sm:items-center sm:justify-between shadow-md select-none border-0"
         style={{
           background:
-            "linear-gradient(115deg, #0284C7 0%, #0396E6 28%, #0EA5E9 48%, #38BDF8 70%, #7DD3FC 88%, #BAE6FD 100%)",
+            "linear-gradient(115deg, #0284C7 0%, #0396E6 28%, #0EA5E9 48%, #38BDF8 70%, #7DD3FC 92%, #A0E1FD 100%)",
         }}
       >
         {/* Ambient luminous glow on the left & top-right */}
@@ -96,12 +93,12 @@ export default function DashboardPage() {
           </defs>
           {/* Wave 1: Flowing smooth organic wave rising from center toward right */}
           <path
-            d="M 380,200 C 440,160 480,95 560,95 C 660,95 720,150 820,120 C 900,95 950,55 1000,45 L 1000,200 L 380,200 Z"
+            d="M 380,200 C 440,160 480,95 560,95 C 660,95 720,150 820,120 C 900,95 950,55 1020,45 L 1020,200 L 380,200 Z"
             fill="url(#waveCenterRight1)"
           />
           {/* Wave 2: Overlapping silky layer flowing across center-right */}
           <path
-            d="M 430,200 C 490,140 540,75 620,80 C 720,85 780,140 880,105 C 940,85 980,60 1000,75 L 1000,200 L 430,200 Z"
+            d="M 430,200 C 490,140 540,75 620,80 C 720,85 780,140 880,105 C 940,85 980,60 1020,75 L 1020,200 L 430,200 Z"
             fill="url(#waveCenterRight2)"
           />
           {/* Crest shimmer curve */}
@@ -128,49 +125,32 @@ export default function DashboardPage() {
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-white">
             Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
           </h1>
-          <p className="mt-0.5 text-xs font-semibold text-white/90">
-            {`Role: ${displayRole}`}
-          </p>
-          <p className="mt-1 text-xs text-white/80">Here&apos;s what&apos;s happening in your store today.</p>
         </div>
 
-        {/* Action button: Opens Unified POS Terminals Hub Modal */}
-        <div className="relative z-10 flex items-center gap-2.5 self-start flex-wrap">
+        {/* Action buttons: All sharing the exact same POS Terminals gradient background */}
+        <div className="relative z-10 flex items-center gap-2 sm:gap-2.5 self-start sm:self-center flex-wrap">
+          <Link
+            href="/dashboard/builder"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-sky-950/25 transition hover:brightness-110 active:scale-98 cursor-pointer"
+          >
+            <BarChart3 size={14} className="text-white" />
+            <span>Dashboard Builder</span>
+          </Link>
+          <Link
+            href="/reports"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-sky-950/25 transition hover:brightness-110 active:scale-98 cursor-pointer"
+          >
+            <span>Reports & Analytics</span>
+          </Link>
           <button
             onClick={() => setPosModalOpen(true)}
-            className="inline-flex shrink-0 items-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 sm:px-5 py-2.5 text-sm font-bold text-white border border-white/40 shadow-md shadow-sky-950/20 transition hover:brightness-105 active:scale-100 cursor-pointer"
+            className="inline-flex shrink-0 items-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-sky-950/25 transition hover:brightness-110 active:scale-98 cursor-pointer"
           >
             <ShoppingCart size={15} />
             <span>POS Terminals</span>
             <ChevronDown size={13} className="opacity-80" />
           </button>
         </div>
-      </div>
-
-      {/* ── Quick Utility Links Bar ── */}
-      <div className="flex items-center gap-2.5 flex-wrap select-none">
-        <Link
-          href="/dashboard/builder"
-          className="inline-flex items-center gap-1.5 rounded-sm border border-sky-200/90 bg-sky-50/70 px-3 py-1.5 text-xs font-bold text-[#0284C7] shadow-2xs hover:bg-[#E0F2FE] hover:border-[#0284C7] transition"
-        >
-          <BarChart3 size={13} className="text-[#0284C7]" />
-          <span>Dashboard Builder</span>
-          <ArrowRight size={12} className="text-[#0284C7]" />
-        </Link>
-        <Link
-          href="/reports"
-          className="inline-flex items-center gap-1.5 rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-[#0369A1] shadow-2xs hover:bg-[#E0F2FE] hover:border-[#0284C7] transition"
-        >
-          <span>Analytics & Reports</span>
-          <ArrowRight size={12} />
-        </Link>
-        <button
-          onClick={() => setPosModalOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-[#0369A1] shadow-2xs hover:bg-[#E0F2FE] hover:border-[#0284C7] transition cursor-pointer"
-        >
-          <ShoppingCart size={12} className="text-[#0284C7]" />
-          <span>All 9 POS Counters</span>
-        </button>
       </div>
 
       {/* ── Stat Cards ── Uniform Height Grid with Blue Ocean Theme Gradient Accent ── */}
@@ -219,16 +199,24 @@ export default function DashboardPage() {
             {(summary.recentSales ?? []).slice(0, 5).map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between text-sm p-2.5 rounded-sm border border-sky-100/80 bg-white hover:bg-sky-50/60 transition shadow-2xs"
+                className="group flex items-center justify-between p-2.5 rounded-sm border border-sky-100/90 bg-white hover:bg-sky-50/40 hover:border-sky-300/80 transition-all duration-150 shadow-2xs"
               >
                 <div className="min-w-0 pr-2">
-                  <p className="font-bold text-xs text-[#0369A1] truncate">{s.invoiceNo}</p>
-                  <p className="text-[11px] text-gray-500 truncate">
-                    {s.customer} • {dateTime(s.createdAt)}
+                  <p className="font-bold text-xs text-slate-900 group-hover:text-[#0284C7] transition-colors truncate">
+                    {s.invoiceNo}
                   </p>
+                  <div className="mt-0.5 flex items-center gap-1.5 text-xs truncate">
+                    <span className="font-semibold text-slate-700 truncate">
+                      {s.customer || "Walk-in Customer"}
+                    </span>
+                    <span className="text-slate-300 font-normal shrink-0">•</span>
+                    <span className="text-slate-500 font-medium shrink-0 text-[11px]">
+                      {dateTime(s.createdAt)}
+                    </span>
+                  </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-bold text-xs text-[#0284C7] [font-variant-numeric:tabular-nums]">
+                  <p className="font-bold text-xs sm:text-sm text-slate-900 [font-variant-numeric:tabular-nums]">
                     {money(s.total)}
                   </p>
                   <div className="mt-0.5">

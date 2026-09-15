@@ -355,29 +355,28 @@ export function Sidebar() {
         </Link>
       </div>
 
-      {/* Menu Quick Search using CustomInput */}
+      {/* Menu Quick Search */}
       {!collapsed && (
         <div className="relative z-10 px-3 pt-3 pb-1">
-          <CustomInput
-            type="text"
-            placeholder="Search menu..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            darkMode={false}
-            rounded="md"
-            leftIcon={<Search size={14} className="text-[#0284C7] pointer-events-none" />}
-            rightIcon={
-              searchQuery ? (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-                >
-                  <X size={13} />
-                </button>
-              ) : null
-            }
-            className="border-sky-200/90 bg-white/90 text-xs text-slate-900 placeholder:text-sky-900/40 py-1.5 focus:border-[#0284C7] shadow-2xs"
-          />
+          <div className="relative flex items-center">
+            <Search size={14} className="pointer-events-none absolute left-3 text-[#0284C7]" />
+            <input
+              type="text"
+              placeholder="Search menu..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-sm border border-[#0284C7] bg-white pl-9 pr-8 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:outline-none focus:border-[#0284C7] focus:ring-0 shadow-none transition-colors"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+              >
+                <X size={13} />
+              </button>
+            )}
+          </div>
         </div>
       )}
 

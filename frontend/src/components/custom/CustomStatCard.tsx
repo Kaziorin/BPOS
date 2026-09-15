@@ -3,42 +3,36 @@ import { cn } from "@/lib/cn";
 
 export type StatTone = "primary" | "blue" | "violet" | "green" | "amber" | "red";
 
-const TONE_STYLES: Record<StatTone, { bg: string; icon: string; border: string; accent: string }> = {
+const TONE_STYLES: Record<StatTone, { bg: string; icon: string; border: string }> = {
   primary: {
-    bg: "from-sky-50/70 via-white to-sky-50/30",
+    bg: "from-sky-100/70 via-sky-50/40 to-white",
     icon: "bg-gradient-to-tr from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs",
     border: "border-sky-200/90 hover:border-[#0284C7]",
-    accent: "from-[#0284C7] to-[#38BDF8]",
   },
   blue: {
-    bg: "from-sky-50/70 via-white to-sky-50/30",
+    bg: "from-sky-100/70 via-sky-50/40 to-white",
     icon: "bg-gradient-to-tr from-[#0369A1] to-[#0284C7] text-white shadow-2xs",
     border: "border-sky-200/90 hover:border-[#0284C7]",
-    accent: "from-[#0369A1] to-[#0EA5E9]",
   },
   violet: {
-    bg: "from-indigo-50/40 via-white to-sky-50/30",
+    bg: "from-indigo-100/50 via-sky-50/30 to-white",
     icon: "bg-gradient-to-tr from-indigo-500 to-sky-500 text-white shadow-2xs",
     border: "border-sky-200/90 hover:border-[#0284C7]",
-    accent: "from-indigo-500 to-[#38BDF8]",
   },
   green: {
-    bg: "from-emerald-50/40 via-white to-sky-50/30",
+    bg: "from-emerald-100/50 via-sky-50/30 to-white",
     icon: "bg-gradient-to-tr from-emerald-500 to-teal-500 text-white shadow-2xs",
     border: "border-sky-200/90 hover:border-[#0284C7]",
-    accent: "from-emerald-500 to-cyan-500",
   },
   amber: {
-    bg: "from-amber-50/40 via-white to-sky-50/30",
+    bg: "from-amber-100/50 via-sky-50/30 to-white",
     icon: "bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-2xs",
     border: "border-sky-200/90 hover:border-[#0284C7]",
-    accent: "from-amber-500 to-[#0EA5E9]",
   },
   red: {
-    bg: "from-rose-50/40 via-white to-sky-50/30",
+    bg: "from-rose-100/50 via-sky-50/30 to-white",
     icon: "bg-gradient-to-tr from-rose-500 to-pink-500 text-white shadow-2xs",
     border: "border-sky-200/90 hover:border-[#0284C7]",
-    accent: "from-rose-500 to-[#0284C7]",
   },
 };
 
@@ -57,26 +51,35 @@ export function CustomStatCard({ label, value, icon: Icon, tone = "primary", cla
   return (
     <div
       className={cn(
-        "relative h-full flex flex-col justify-between overflow-hidden rounded-sm border bg-gradient-to-br p-4 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
+        "group relative h-full flex items-center justify-between gap-3 overflow-hidden rounded-sm border bg-gradient-to-br p-4 sm:p-5 shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
         style.bg,
         style.border,
         className
       )}
     >
-      {/* Top micro gradient line */}
-      <div className={cn("absolute inset-x-0 top-0 h-[2.5px] bg-gradient-to-r", style.accent)} />
-
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-xs sm:text-sm font-bold text-[#0369A1] leading-snug">{label}</p>
-        <div className={cn("flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-sm", style.icon)}>
-          <Icon size={18} />
-        </div>
+      {/* Left side: Icon */}
+      <div
+        className={cn(
+          "flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-sm transition-transform duration-200 group-hover:scale-105",
+          style.icon
+        )}
+      >
+        <Icon size={20} />
       </div>
-      <div>
-        <p className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-[#0369A1] [font-variant-numeric:tabular-nums]">
+
+      {/* Right side: Value on top, Name below */}
+      <div className="flex flex-col items-end text-right min-w-0">
+        <p className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0369A1] [font-variant-numeric:tabular-nums]">
           {value}
         </p>
-        {subtitle && <p className="mt-1 text-xs text-[#0284C7] font-medium">{subtitle}</p>}
+        <p className="mt-0.5 text-xs sm:text-[12.5px] font-bold text-gray-600 leading-snug truncate">
+          {label}
+        </p>
+        {subtitle && (
+          <p className="mt-0.5 text-[10.5px] text-[#0284C7] font-medium leading-tight">
+            {subtitle}
+          </p>
+        )}
       </div>
     </div>
   );
