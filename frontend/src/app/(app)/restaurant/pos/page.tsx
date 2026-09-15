@@ -3157,6 +3157,27 @@ export default function RestaurantPOSPage() {
                   const isBusy = t.status === "OCCUPIED" || t.status === "BILLING";
                   const isAvailable = t.status === "AVAILABLE";
 
+                  // Color scheme per status
+                  const color = isSelected
+                    ? { chair: "bg-orange-400 border-orange-400", table: "border-orange-400 bg-orange-50", text: "text-orange-600", badge: "bg-orange-100 text-orange-700", card: "border-orange-400 bg-white shadow-md shadow-orange-100" }
+                    : isBusy
+                      ? { chair: "bg-amber-300 border-amber-300", table: "border-amber-300 bg-amber-50/60", text: "text-amber-600", badge: "bg-amber-100 text-amber-700", card: "border-amber-200 bg-white" }
+                      : isReserved
+                        ? { chair: "bg-purple-300 border-purple-300", table: "border-purple-300 bg-purple-50/60", text: "text-purple-600", badge: "bg-purple-100 text-purple-700", card: "border-purple-200 bg-white" }
+                        : { chair: "bg-blue-300 border-blue-300", table: "border-blue-200 bg-blue-50/30", text: "text-blue-500", badge: "bg-emerald-100 text-emerald-700", card: "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md" };
+
+                  const cap = t.capacity || 4;
+                  // Distribute chairs: top/bottom rows, sides
+                  const topCount = Math.min(Math.ceil(cap / 2), 4);
+                  const bottomCount = Math.min(Math.floor(cap / 2), 4);
+                  const remaining = Math.max(0, cap - topCount - bottomCount);
+                  const leftCount = Math.floor(remaining / 2);
+                  const rightCount = remaining - leftCount;
+
+                  const ChairDot = ({ className }: { className: string }) => (
+                    <div className={`rounded-sm border-2 border-dashed ${color.chair} opacity-80 ${className}`} />
+                  );
+
                   return (
                     <button
                       key={t.id}
@@ -3178,47 +3199,82 @@ export default function RestaurantPOSPage() {
                         setShowSelectTableModal(false);
                         toast.success(`Table ${t.tableNo} (${t.floorName || "Section"}) selected!`);
                       }}
-                      className={`flex flex-col p-3 rounded-md border text-left transition-all duration-150 cursor-pointer ${isSelected
-                        ? "border-orange-500 bg-orange-600 text-white shadow-sm"
-                        : !isAvailable
-                          ? isReserved
-                            ? "border-purple-200 bg-purple-50 opacity-85 cursor-not-allowed"
-                            : "border-amber-200 bg-amber-50 opacity-85 cursor-not-allowed"
-                          : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/60 hover:shadow-sm"
-                        }`}
+                      className={`flex flex-col items-center p-3 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer select-none ${!isAvailable && !isSelected ? "opacity-70 cursor-not-allowed" : ""} ${color.card}`}
                     >
-                      {/* Table Name */}
-                      <p className={`text-[13px] font-black leading-snug ${isSelected ? "text-white" : "text-gray-800"}`}>
+                      {/* Visual Table Layout */}
+                      <div className="w-full flex flex-col items-center gap-1 py-1">
+                        {/* Top chairs */}
+                        {topCount > 0 && (
+                          <div className="flex items-center justify-center gap-1.5">
+                            {Array.from({ length: topCount }).map((_, i) => (
+                              <ChairDot key={`top-${i}`} className="h-2 w-5 rounded-t-sm" />
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Middle row: side chairs + table */}
+                        <div className="flex items-center justify-center gap-1.5 w-full">
+                          {/* Left chairs */}
+                          {leftCount > 0 && (
+                            <div className="flex flex-col gap-1.5">
+                              {Array.from({ length: leftCount }).map((_, i) => (
+                                <ChairDot key={`left-${i}`} className="h-5 w-2 rounded-l-sm" />
+                              ))}
+                            </div>
+                          )}
+
+                          {/* The Table Surface */}
+                          <div className={`flex-1 border-2 border-dashed rounded-lg flex items-center justify-center ${color.table}`}
+                            style={{ minWidth: 40, minHeight: cap > 6 ? 36 : 30, maxWidth: 80 }}
+                          >
+                            <span className={`text-[9px] font-black tracking-widest uppercase ${color.text} opacity-60`}>
+                              {cap}p
+                            </span>
+                          </div>
+
+                          {/* Right chairs */}
+                          {rightCount > 0 && (
+                            <div className="flex flex-col gap-1.5">
+                              {Array.from({ length: rightCount }).map((_, i) => (
+                                <ChairDot key={`right-${i}`} className="h-5 w-2 rounded-r-sm" />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Bottom chairs */}
+                        {bottomCount > 0 && (
+                          <div className="flex items-center justify-center gap-1.5">
+                            {Array.from({ length: bottomCount }).map((_, i) => (
+                              <ChairDot key={`bot-${i}`} className="h-2 w-5 rounded-b-sm" />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Table name */}
+                      <p className={`text-[11px] font-black mt-1.5 text-center leading-tight ${isSelected ? "text-orange-600" : isBusy ? "text-amber-700" : isReserved ? "text-purple-700" : "text-gray-700"}`}>
                         {t.tableNo}
                       </p>
 
-                      {/* Section Name */}
-                      <p className={`text-[11px] font-medium mt-0.5 leading-snug ${isSelected ? "text-orange-100" : "text-gray-400"}`}>
-                        {t.floorName || "Main Dining"}
-                      </p>
-
-                      {/* Seats + Status */}
-                      <div className="mt-2.5 flex items-center justify-between gap-1.5">
-                        <span className={`flex items-center gap-1 text-[11px] font-bold ${isSelected ? "text-orange-100" : "text-slate-500"}`}>
-                          <Users size={11} /> {t.capacity} Seats
+                      {/* Status badge for busy/reserved */}
+                      {(isBusy || isReserved) && !isSelected && (
+                        <span className={`mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${color.badge}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${isBusy ? "bg-amber-500" : "bg-purple-500"}`} />
+                          {isBusy ? `৳${t.currentBill ? t.currentBill.toLocaleString() : "Busy"}` : "Reserved"}
                         </span>
-                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${isSelected
-                          ? "bg-white/20 text-white"
-                          : isReserved
-                            ? "bg-purple-100 text-purple-700"
-                            : isBusy
-                              ? "bg-amber-100 text-amber-700"
-                              : "bg-emerald-50 text-emerald-700"
-                          }`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${isReserved ? "bg-purple-500" : isBusy ? "bg-amber-500" : isSelected ? "bg-white" : "bg-emerald-500"
-                            }`} />
-                          {isReserved ? "Reserved" : isBusy ? "Busy" : "Free"}
+                      )}
+                      {isSelected && (
+                        <span className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-orange-100 text-orange-700">
+                          <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+                          Selected
                         </span>
-                      </div>
+                      )}
                     </button>
                   );
                 })}
               </div>
+
             )}
           </div>
 
