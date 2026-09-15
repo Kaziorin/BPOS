@@ -41,13 +41,14 @@ import {
 import { api } from "@/lib/api";
 
 // ── Types & Interfaces ────────────────────────────────────────────────
-export type KDSColumnStatus = "QUEUED" | "PREPARING" | "READY";
+export type KDSColumnStatus = "QUEUED" | "PREPARING" | "READY" | "SERVED";
 
 export interface KOTItem {
   id: string;
   name: string;
   qty: number;
   notes?: string;
+  modifiers?: any[];
   completed?: boolean;
 }
 
@@ -62,6 +63,7 @@ export interface KOTTicket {
   status: KDSColumnStatus;
   chefRole?: string;
   customerName?: string;
+  notes?: string;
   createdAt: string;
   items: KOTItem[];
   readyAt?: string;
@@ -127,21 +129,38 @@ export default function KitchenManagementPage() {
           orderType: t.orderType === "TAKEAWAY" ? "Takeaway" : t.orderType === "DELIVERY" ? "Delivery" : "Dine-in",
           timePlaced: t.timePlaced || new Date(t.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           station: t.station || "KITCHEN",
-          status: t.status === "READY" || t.status === "READY_TO_SERVE" || t.status === "SERVED" ? "READY" : t.status === "PREPARING" || t.status === "COOKING" || t.status === "PLATING" || t.status === "ACCEPTED" ? "PREPARING" : "QUEUED",
+          status: t.status === "SERVED" ? "SERVED" : t.status === "READY" || t.status === "READY_TO_SERVE" ? "READY" : t.status === "PREPARING" || t.status === "COOKING" || t.status === "PLATING" || t.status === "ACCEPTED" ? "PREPARING" : "QUEUED",
           chefRole: t.chefRole || "Head chef",
           customerName: t.customerName,
+          notes: t.notes || "",
           createdAt: t.createdAt || new Date().toISOString(),
           readyAt: t.readyAt,
           items: Array.isArray(t.items)
-            ? t.items.map((i: any) => ({
-                id: i.id || crypto.randomUUID(),
-                name: i.name,
-                qty: i.qty || 1,
-                notes: i.notes || "",
-                completed: i.completed ?? (t.status === "READY" || t.status === "READY_TO_SERVE" || t.status === "SERVED"),
-              }))
+            ? t.items.map((i: any) => {
+                let parsedModifiers: any[] = [];
+                if (typeof i.modifiersJson === "string") {
+                  try { parsedModifiers = JSON.parse(i.modifiersJson); } catch {}
+                } else if (Array.isArray(i.modifiersJson)) {
+                  parsedModifiers = i.modifiersJson;
+                } else if (Array.isArray(i.modifiers)) {
+                  parsedModifiers = i.modifiers;
+                } else if (Array.isArray(i.addons)) {
+                  parsedModifiers = i.addons;
+                }
+                return {
+                  id: i.id || crypto.randomUUID(),
+                  name: i.name,
+                  qty: i.qty || 1,
+                  notes: i.notes || "",
+                  modifiers: parsedModifiers,
+                  completed: i.completed ?? (t.status === "READY" || t.status === "READY_TO_SERVE" || t.status === "SERVED"),
+                };
+              })
             : [],
         }));
+        mapped.sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
         setTickets(mapped);
         broadcastSync(mapped);
       } else {
@@ -200,15 +219,15 @@ export default function KitchenManagementPage() {
   };
 
   // Status Shift Handler
-  const moveTicketStatus = (ticketId: string, nextStatus: KDSColumnStatus) => {
+  const moveTicketStatus = async (ticketId: string, nextStatus: KDSColumnStatus) => {
+    const isReadyOrServed = nextStatus === "READY" || nextStatus === "SERVED";
     const updated = tickets.map((t) => {
       if (t.id === ticketId) {
-        const isReady = nextStatus === "READY";
         return {
           ...t,
           status: nextStatus,
-          readyAt: isReady ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : t.readyAt,
-          items: t.items.map((i) => ({ ...i, completed: isReady ? true : i.completed })),
+          readyAt: isReadyOrServed ? (t.readyAt || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) : t.readyAt,
+          items: t.items.map((i) => ({ ...i, completed: isReadyOrServed ? true : i.completed })),
         };
       }
       return t;
@@ -219,23 +238,28 @@ export default function KitchenManagementPage() {
     playChime();
 
     try {
-      const backendSt = nextStatus === "READY" ? "READY" : nextStatus === "PREPARING" ? "PREPARING" : "ACCEPTED";
-      api.patch(`/v1/restaurant/kot/${ticketId}/status`, { status: backendSt }).catch(() => {});
-    } catch {}
+      const backendSt = nextStatus === "SERVED" ? "SERVED" : nextStatus === "READY" ? "READY" : nextStatus === "PREPARING" ? "PREPARING" : "ACCEPTED";
+      await api.patch(`/v1/restaurant/kot/${ticketId}/status`, { status: backendSt });
+    } catch (err) {
+      console.error("KDS status update error:", err);
+    }
   };
 
   // Toggle Item Checklist Box
-  const toggleItemCompleted = (ticketId: string, itemId: string) => {
+  const toggleItemCompleted = async (ticketId: string, itemId: string) => {
+    const targetTicket = tickets.find((t) => t.id === ticketId);
+    if (!targetTicket) return;
+
+    const nextItems = targetTicket.items.map((i) => (i.id === itemId ? { ...i, completed: !i.completed } : i));
+    const allDone = nextItems.length > 0 && nextItems.every((i) => i.completed);
+    const nextStatus: KDSColumnStatus = allDone ? "READY" : targetTicket.status === "QUEUED" ? "PREPARING" : targetTicket.status;
+
     const updated = tickets.map((t) => {
       if (t.id === ticketId) {
-        const nextItems = t.items.map((i) => (i.id === itemId ? { ...i, completed: !i.completed } : i));
-        const allDone = nextItems.length > 0 && nextItems.every((i) => i.completed);
-        const nextStatus: KDSColumnStatus = allDone ? "READY" : t.status === "QUEUED" ? "PREPARING" : t.status;
-
         return {
           ...t,
           status: nextStatus,
-          readyAt: allDone ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : t.readyAt,
+          readyAt: allDone ? (t.readyAt || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) : t.readyAt,
           items: nextItems,
         };
       }
@@ -244,6 +268,15 @@ export default function KitchenManagementPage() {
 
     setTickets(updated);
     broadcastSync(updated);
+
+    if (nextStatus !== targetTicket.status) {
+      try {
+        const backendSt = nextStatus === "SERVED" ? "SERVED" : nextStatus === "READY" ? "READY" : nextStatus === "PREPARING" ? "PREPARING" : "ACCEPTED";
+        await api.patch(`/v1/restaurant/kot/${ticketId}/status`, { status: backendSt });
+      } catch (err) {
+        console.error("KDS item toggle status error:", err);
+      }
+    }
   };
 
   // Change Chef Assigned Role
@@ -257,12 +290,18 @@ export default function KitchenManagementPage() {
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       containerRef.current?.requestFullscreen().catch(() => {});
-      setIsFullscreen(true);
     } else {
       document.exitFullscreen().catch(() => {});
-      setIsFullscreen(false);
     }
   };
+
+  useEffect(() => {
+    const handleFSChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFSChange);
+    return () => document.removeEventListener("fullscreenchange", handleFSChange);
+  }, []);
 
   // Elapsed mins
   const getElapsedMins = (createdAtStr: string) => {
@@ -276,7 +315,8 @@ export default function KitchenManagementPage() {
       activeFilterPill === "ALL" ||
       (activeFilterPill === "QUEUED" && t.status === "QUEUED") ||
       (activeFilterPill === "PREPARING" && t.status === "PREPARING") ||
-      (activeFilterPill === "READY" && t.status === "READY");
+      (activeFilterPill === "READY" && t.status === "READY") ||
+      (activeFilterPill === "SERVED" && t.status === "SERVED");
     const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
       !q ||
@@ -291,17 +331,22 @@ export default function KitchenManagementPage() {
   const queuedColumnTickets = filteredTickets.filter((t) => t.status === "QUEUED");
   const preparingColumnTickets = filteredTickets.filter((t) => t.status === "PREPARING");
   const readyColumnTickets = filteredTickets.filter((t) => t.status === "READY");
+  const servedColumnTickets = filteredTickets.filter((t) => t.status === "SERVED");
 
   // KPI Metrics
   const newOrdersCount = tickets.filter((t) => t.status === "QUEUED").length;
   const preparingCount = tickets.filter((t) => t.status === "PREPARING").length;
-  const completedCount = tickets.filter((t) => t.status === "READY").length;
+  const readyCount = tickets.filter((t) => t.status === "READY").length;
+  const servedCount = tickets.filter((t) => t.status === "SERVED").length;
+  const completedCount = readyCount + servedCount;
   const cancelledCount = tickets.filter((t) => (t as any).status === "CANCELLED").length;
 
   return (
     <div
       ref={containerRef}
-      className="min-h-screen w-full bg-[#f4f5f8] text-slate-800 font-sans select-none pb-12"
+      className={`w-full bg-[#f4f5f8] text-slate-800 font-sans select-none pb-12 overflow-y-auto ${
+        isFullscreen ? "h-screen max-h-screen overflow-y-auto" : "min-h-screen"
+      }`}
     >
       {/* ── 1. TOP NAVBAR (MATCHING SCREENSHOT HEADER) ────────────────────────── */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-3 shadow-xs">
@@ -515,11 +560,23 @@ export default function KitchenManagementPage() {
               <Bell size={14} className="text-emerald-600" />
               <span>Ready ({readyColumnTickets.length})</span>
             </button>
+
+            <button
+              onClick={() => setActiveFilterPill("SERVED")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
+                activeFilterPill === "SERVED"
+                  ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
+                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <BadgeCheck size={14} className="text-blue-600" />
+              <span>Served ({servedColumnTickets.length})</span>
+            </button>
           </div>
         </div>
 
-            {/* ── 4. OPERATOR VIEW: 3-COLUMN KANBAN BOARD ─────────────────────────── */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* ── 4. OPERATOR VIEW: 4-COLUMN KANBAN BOARD ─────────────────────────── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
             
             {/* 🟣 COLUMN 1: QUEUED */}
             <div className="flex flex-col rounded-3xl bg-[#efedf8] border border-purple-200/80 overflow-hidden shadow-xs">
@@ -535,7 +592,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 min-h-[60vh]">
+              <div className="p-3.5 space-y-3.5 min-h-[60vh] max-h-[calc(100vh-250px)] overflow-y-auto">
                 {queuedColumnTickets.map((t) => {
                   const elapsedMins = getElapsedMins(t.createdAt);
                   return (
@@ -544,12 +601,14 @@ export default function KitchenManagementPage() {
                       className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm space-y-3.5 transition hover:shadow-md"
                     >
                       {/* Ticket Title & Badge */}
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-bold text-slate-900 text-base">Order # {t.orderNo}</h4>
+                      <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <h4 className="font-mono font-bold text-slate-900 text-xs sm:text-sm truncate max-w-[130px]" title={`Order # ${t.orderNo}`}>
+                              Order # {t.orderNo}
+                            </h4>
                             <span
-                              className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
                                 t.orderType === "Takeaway"
                                   ? "bg-sky-500 text-white"
                                   : "bg-emerald-500 text-white"
@@ -558,15 +617,15 @@ export default function KitchenManagementPage() {
                               {t.orderType}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-400 font-medium mt-1">Time : {t.timePlaced}</p>
+                          <p className="text-[11px] text-slate-400 font-medium mt-0.5">Time: {t.timePlaced}</p>
                         </div>
 
-                        <div className="text-right">
-                          <span className="font-black text-sm text-slate-800">
+                        <div className="text-right shrink-0">
+                          <span className="font-bold text-xs text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md inline-block">
                             {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "01"}`}
                           </span>
-                          <div className="flex items-center justify-end gap-1 text-xs text-slate-400 font-semibold mt-1">
-                            <Clock size={12} />
+                          <div className="flex items-center justify-end gap-1 text-[11px] text-slate-400 font-semibold mt-0.5">
+                            <Clock size={11} />
                             <span>{elapsedMins}m</span>
                           </div>
                         </div>
@@ -587,12 +646,44 @@ export default function KitchenManagementPage() {
                         </select>
                       </div>
 
+                      {/* Order Level Note */}
+                      {t.notes && (
+                        <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
+                          <FileText size={13} className="text-amber-600 shrink-0" />
+                          <span className="truncate">Note: {t.notes}</span>
+                        </div>
+                      )}
+
                       {/* Items List */}
-                      <div className="space-y-1.5 pt-1">
+                      <div className="space-y-2 pt-1 border-t border-slate-100">
                         {t.items.map((item) => (
-                          <div key={item.id} className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                            <span className="text-orange-600">{item.qty}x</span>
-                            <span>{item.name}</span>
+                          <div key={item.id} className="space-y-1">
+                            <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                              <span className="text-orange-600 font-black">{item.qty}x</span>
+                              <span>{item.name}</span>
+                            </div>
+
+                            {/* Addons / Modifiers */}
+                            {Array.isArray(item.modifiers) && item.modifiers.length > 0 && (
+                              <div className="flex flex-wrap gap-1 pl-5">
+                                {item.modifiers.map((mod: any, idx: number) => {
+                                  const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
+                                  const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
+                                  return label ? (
+                                    <span key={idx} className="rounded-md bg-orange-100/90 border border-orange-200 text-orange-900 px-1.5 py-0.5 text-[10px] font-bold">
+                                      +{label}{val}
+                                    </span>
+                                  ) : null;
+                                })}
+                              </div>
+                            )}
+
+                            {/* Item Special Note */}
+                            {item.notes && (
+                              <div className="text-[10px] font-semibold text-rose-600 italic pl-5">
+                                * {item.notes}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -630,7 +721,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 min-h-[60vh]">
+              <div className="p-3.5 space-y-3.5 min-h-[60vh] max-h-[calc(100vh-250px)] overflow-y-auto">
                 {preparingColumnTickets.map((t) => {
                   const elapsedMins = getElapsedMins(t.createdAt);
                   const completedItems = t.items.filter((i) => i.completed).length;
@@ -643,12 +734,14 @@ export default function KitchenManagementPage() {
                       className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm space-y-3.5 transition hover:shadow-md"
                     >
                       {/* Header */}
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-bold text-slate-900 text-base">Order # {t.orderNo}</h4>
+                      <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <h4 className="font-mono font-bold text-slate-900 text-xs sm:text-sm truncate max-w-[130px]" title={`Order # ${t.orderNo}`}>
+                              Order # {t.orderNo}
+                            </h4>
                             <span
-                              className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
                                 t.orderType === "Takeaway"
                                   ? "bg-sky-500 text-white"
                                   : "bg-emerald-500 text-white"
@@ -659,11 +752,11 @@ export default function KitchenManagementPage() {
                           </div>
                         </div>
 
-                        <div className="text-right">
-                          <span className="font-black text-sm text-slate-800">
+                        <div className="text-right shrink-0">
+                          <span className="font-bold text-xs text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md inline-block">
                             {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "12"}`}
                           </span>
-                          <div className="flex items-center justify-end gap-1 text-xs text-orange-600 font-bold mt-0.5 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">
+                          <div className="flex items-center justify-end gap-1 text-[11px] text-orange-600 font-bold mt-0.5 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">
                             <Clock size={11} />
                             <span>{elapsedMins}m</span>
                           </div>
@@ -699,27 +792,58 @@ export default function KitchenManagementPage() {
                         </select>
                       </div>
 
+                      {/* Order Level Note */}
+                      {t.notes && (
+                        <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
+                          <FileText size={13} className="text-amber-600 shrink-0" />
+                          <span className="truncate">Note: {t.notes}</span>
+                        </div>
+                      )}
+
                       {/* Items Checklist */}
                       <div className="space-y-2 pt-1 border-t border-slate-100">
                         {t.items.map((item) => (
-                          <div
-                            key={item.id}
-                            onClick={() => toggleItemCompleted(t.id, item.id)}
-                            className="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer select-none group"
-                          >
-                            <span
-                              className={`h-5 w-5 rounded-full flex items-center justify-center transition border ${
-                                item.completed
-                                  ? "bg-orange-500 text-white border-orange-500 shadow-xs"
-                                  : "border-slate-300 bg-slate-50 group-hover:border-orange-400"
-                              }`}
+                          <div key={item.id} className="space-y-1">
+                            <div
+                              onClick={() => toggleItemCompleted(t.id, item.id)}
+                              className="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer select-none group"
                             >
-                              {item.completed && <Check size={13} strokeWidth={3} />}
-                            </span>
-                            <span className={item.completed ? "line-through opacity-60 text-slate-500" : ""}>
-                              <strong className="text-orange-600 mr-1">{item.qty}x</strong>
-                              {item.name}
-                            </span>
+                              <span
+                                className={`h-5 w-5 rounded-full flex items-center justify-center transition border ${
+                                  item.completed
+                                    ? "bg-orange-500 text-white border-orange-500 shadow-xs"
+                                    : "border-slate-300 bg-slate-50 group-hover:border-orange-400"
+                                }`}
+                              >
+                                {item.completed && <Check size={13} strokeWidth={3} />}
+                              </span>
+                              <span className={item.completed ? "line-through opacity-60 text-slate-500" : ""}>
+                                <strong className="text-orange-600 mr-1">{item.qty}x</strong>
+                                {item.name}
+                              </span>
+                            </div>
+
+                            {/* Addons / Modifiers */}
+                            {Array.isArray(item.modifiers) && item.modifiers.length > 0 && (
+                              <div className="flex flex-wrap gap-1 pl-7">
+                                {item.modifiers.map((mod: any, idx: number) => {
+                                  const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
+                                  const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
+                                  return label ? (
+                                    <span key={idx} className="rounded-md bg-orange-100/90 border border-orange-200 text-orange-900 px-1.5 py-0.5 text-[10px] font-bold">
+                                      +{label}{val}
+                                    </span>
+                                  ) : null;
+                                })}
+                              </div>
+                            )}
+
+                            {/* Item Special Note */}
+                            {item.notes && (
+                              <div className="text-[10px] font-semibold text-rose-600 italic pl-7">
+                                * {item.notes}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -757,19 +881,21 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 min-h-[60vh]">
+              <div className="p-3.5 space-y-3.5 min-h-[60vh] max-h-[calc(100vh-250px)] overflow-y-auto">
                 {readyColumnTickets.map((t) => (
                   <div
                     key={t.id}
                     className="rounded-3xl border border-emerald-200 bg-white p-4 shadow-sm space-y-3 transition hover:shadow-md"
                   >
                     {/* Header */}
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-slate-900 text-base">Order # {t.orderNo}</h4>
+                    <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h4 className="font-mono font-bold text-slate-900 text-xs sm:text-sm truncate max-w-[130px]" title={`Order # ${t.orderNo}`}>
+                            Order # {t.orderNo}
+                          </h4>
                           <span
-                            className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
                               t.orderType === "Takeaway"
                                 ? "bg-sky-500 text-white"
                                 : "bg-emerald-500 text-white"
@@ -780,29 +906,61 @@ export default function KitchenManagementPage() {
                         </div>
                       </div>
 
-                      <div className="text-right">
-                        <span className="font-black text-sm text-slate-800">
+                      <div className="text-right shrink-0">
+                        <span className="font-bold text-xs text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md inline-block">
                           {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "07"}`}
                         </span>
                         <div className="mt-0.5">
-                          <span className="rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 px-2 py-0.5 text-[10px] font-black">
+                          <span className="rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 px-2 py-0.5 text-[10px] font-bold">
                             • On Time
                           </span>
                         </div>
                       </div>
                     </div>
 
+                    {/* Order Level Note */}
+                    {t.notes && (
+                      <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
+                        <FileText size={13} className="text-emerald-600 shrink-0" />
+                        <span className="truncate">Note: {t.notes}</span>
+                      </div>
+                    )}
+
                     {/* Checked Items List */}
-                    <div className="space-y-1.5 pt-1">
+                    <div className="space-y-2 pt-1 border-t border-slate-100">
                       {t.items.map((item) => (
-                        <div key={item.id} className="text-xs font-bold text-slate-800 flex items-center gap-2">
-                          <div className="h-4 w-4 rounded-full bg-slate-700 text-white flex items-center justify-center shrink-0">
-                            <Check size={11} strokeWidth={3} />
+                        <div key={item.id} className="space-y-1">
+                          <div className="text-xs font-bold text-slate-800 flex items-center gap-2">
+                            <div className="h-4 w-4 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                              <Check size={11} strokeWidth={3} />
+                            </div>
+                            <span>
+                              <strong className="text-slate-600 mr-1">{item.qty}x</strong>
+                              {item.name}
+                            </span>
                           </div>
-                          <span>
-                            <strong className="text-slate-600 mr-1">{item.qty}x</strong>
-                            {item.name}
-                          </span>
+
+                          {/* Addons / Modifiers */}
+                          {Array.isArray(item.modifiers) && item.modifiers.length > 0 && (
+                            <div className="flex flex-wrap gap-1 pl-6">
+                              {item.modifiers.map((mod: any, idx: number) => {
+                                const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
+                                const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
+                                return label ? (
+                                  <span key={idx} className="rounded-md bg-emerald-100/90 border border-emerald-200 text-emerald-900 px-1.5 py-0.5 text-[10px] font-bold">
+                                    +{label}{val}
+                                  </span>
+                                ) : null;
+                              })}
+                            </div>
+                          )}
+
+                          {/* Item Special Note */}
+                          {item.notes && (
+                            <div className="text-[10px] font-semibold text-rose-600 italic pl-6">
+                              * {item.notes}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -812,12 +970,134 @@ export default function KitchenManagementPage() {
                       <span>Ready at {t.readyAt || "11:45 AM"}</span>
                       <CheckCircle2 size={18} className="text-emerald-600" />
                     </div>
+
+                    {/* Action Button: Serve Order */}
+                    <button
+                      onClick={() => moveTicketStatus(t.id, "SERVED")}
+                      className="w-full rounded-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 text-xs font-black tracking-wide shadow-md transition flex items-center justify-center gap-1.5"
+                    >
+                      <CheckCheck size={15} /> Serve Order
+                    </button>
                   </div>
                 ))}
 
                 {readyColumnTickets.length === 0 && (
                   <div className="py-16 text-center text-slate-400 text-xs font-semibold">
                     No orders ready to serve yet
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 🔵 COLUMN 4: SERVED */}
+            <div className="flex flex-col rounded-3xl bg-[#edf4ff] border border-blue-200/80 overflow-hidden shadow-xs">
+              {/* Header */}
+              <div className="bg-[#1d4ed8] px-5 py-3.5 text-white flex items-center justify-between">
+                <div className="flex items-center gap-2 font-bold text-sm">
+                  <BadgeCheck size={18} />
+                  <span>Served</span>
+                </div>
+                <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-black">
+                  {servedColumnTickets.length}
+                </span>
+              </div>
+
+              {/* Column Cards List */}
+              <div className="p-3.5 space-y-3.5 min-h-[60vh] max-h-[calc(100vh-250px)] overflow-y-auto">
+                {servedColumnTickets.map((t) => (
+                  <div
+                    key={t.id}
+                    className="rounded-3xl border border-blue-200 bg-white p-4 shadow-sm space-y-3 transition hover:shadow-md"
+                  >
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h4 className="font-mono font-bold text-slate-900 text-xs sm:text-sm truncate max-w-[130px]" title={`Order # ${t.orderNo}`}>
+                            Order # {t.orderNo}
+                          </h4>
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
+                              t.orderType === "Takeaway"
+                                ? "bg-sky-500 text-white"
+                                : "bg-emerald-500 text-white"
+                            }`}
+                          >
+                            {t.orderType}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <span className="font-bold text-xs text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md inline-block">
+                          {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "N/A"}`}
+                        </span>
+                        <div className="mt-0.5">
+                          <span className="rounded-full bg-blue-50 border border-blue-200 text-blue-700 px-2 py-0.5 text-[10px] font-bold">
+                            ✓ Served
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Order Level Note */}
+                    {t.notes && (
+                      <div className="bg-blue-50 border border-blue-200 text-blue-900 rounded-xl px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
+                        <FileText size={13} className="text-blue-600 shrink-0" />
+                        <span className="truncate">Note: {t.notes}</span>
+                      </div>
+                    )}
+
+                    {/* Checked Items List */}
+                    <div className="space-y-2 pt-1 border-t border-slate-100">
+                      {t.items.map((item) => (
+                        <div key={item.id} className="space-y-1">
+                          <div className="text-xs font-bold text-slate-800 flex items-center gap-2">
+                            <div className="h-4 w-4 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
+                              <Check size={11} strokeWidth={3} />
+                            </div>
+                            <span className="line-through text-slate-400">
+                              <strong className="text-slate-500 mr-1">{item.qty}x</strong>
+                              {item.name}
+                            </span>
+                          </div>
+
+                          {/* Addons / Modifiers */}
+                          {Array.isArray(item.modifiers) && item.modifiers.length > 0 && (
+                            <div className="flex flex-wrap gap-1 pl-6">
+                              {item.modifiers.map((mod: any, idx: number) => {
+                                const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
+                                const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
+                                return label ? (
+                                  <span key={idx} className="rounded-md bg-blue-100/90 border border-blue-200 text-blue-900 px-1.5 py-0.5 text-[10px] font-bold">
+                                    +{label}{val}
+                                  </span>
+                                ) : null;
+                              })}
+                            </div>
+                          )}
+
+                          {/* Item Special Note */}
+                          {item.notes && (
+                            <div className="text-[10px] font-semibold text-rose-600 italic pl-6">
+                              * {item.notes}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Footer Served Indicator */}
+                    <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-blue-700 font-bold">
+                      <span>Served at {t.readyAt || "Just now"}</span>
+                      <BadgeCheck size={18} className="text-blue-600" />
+                    </div>
+                  </div>
+                ))}
+
+                {servedColumnTickets.length === 0 && (
+                  <div className="py-16 text-center text-slate-400 text-xs font-semibold">
+                    No served orders yet
                   </div>
                 )}
               </div>
@@ -849,28 +1129,28 @@ export default function KitchenManagementPage() {
               </div>
             </div>
 
-            {/* DUAL COLUMN OVERHEAD DISPLAY (MATCHING LIGHT MODE KANBAN) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[65vh]">
+            {/* 3-COLUMN OVERHEAD FACING DISPLAY */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[65vh]">
               {/* Left: Preparing Orders */}
-              <div className="rounded-3xl border border-amber-200 bg-white p-6 shadow-md space-y-4">
-                <div className="flex items-center justify-between border-b border-amber-100 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md">
-                      <Flame size={22} />
+              <div className="rounded-3xl border border-amber-200 bg-white p-5 shadow-md space-y-4">
+                <div className="flex flex-wrap items-center justify-between border-b border-amber-100 pb-3 gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-9 w-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-sm shrink-0">
+                      <Flame size={20} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black tracking-wider uppercase text-amber-600">
+                      <h3 className="text-base font-black tracking-wider uppercase text-amber-600">
                         PREPARING & COOKING ({preparingColumnTickets.length})
                       </h3>
-                      <p className="text-xs text-slate-500 font-semibold">Orders currently being cooked by chefs</p>
+                      <p className="text-[11px] text-slate-500 font-medium">In Kitchen Cooking</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-amber-100 text-amber-800 border border-amber-300 px-3.5 py-1 text-xs font-black">
+                  <span className="rounded-full bg-amber-100 text-amber-800 border border-amber-300 px-3 py-0.5 text-xs font-bold shrink-0">
                     IN KITCHEN
                   </span>
                 </div>
 
-                <div className="space-y-3.5">
+                <div className="space-y-3">
                   {preparingColumnTickets.map((t) => {
                     const elapsedMins = getElapsedMins(t.createdAt);
                     const completedItems = t.items.filter((i) => i.completed).length;
@@ -880,85 +1160,224 @@ export default function KitchenManagementPage() {
                     return (
                       <div
                         key={t.id}
-                        className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 shadow-xs flex items-center justify-between gap-4"
+                        className="rounded-2xl border border-amber-200/80 bg-amber-50/50 p-4 shadow-xs space-y-2.5"
                       >
-                        <div className="min-w-0 flex-1 space-y-1.5">
-                          <div className="flex items-center gap-3">
-                            <span className="font-mono font-black text-2xl text-orange-600">
-                              Order # {t.orderNo}
-                            </span>
-                            <span className="rounded-lg bg-white border border-slate-200 text-slate-800 px-3 py-0.5 text-xs font-black">
-                              {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "01"}`}
-                            </span>
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="font-mono font-black text-base sm:text-lg text-amber-900 truncate max-w-[70%]" title={`Order # ${t.orderNo}`}>
+                            Order # {t.orderNo}
+                          </h4>
+                          <span className="rounded-lg bg-amber-600 text-white px-2.5 py-0.5 text-xs font-bold shrink-0">
+                            {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "N/A"}`}
+                          </span>
+                        </div>
+
+                        {/* Order Level Note */}
+                        {t.notes && (
+                          <div className="bg-amber-100/90 border border-amber-300 text-amber-950 rounded-xl px-2.5 py-1 text-xs font-bold flex items-center gap-1.5">
+                            <FileText size={13} className="text-amber-700 shrink-0" />
+                            <span className="truncate">Note: {t.notes}</span>
                           </div>
-                          <div className="text-xs font-bold text-slate-700 truncate">
-                            {t.items.map((i) => `${i.qty}x ${i.name}`).join(" · ")}
-                          </div>
-                          <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden mt-2">
+                        )}
+
+                        <div className="text-xs font-semibold text-slate-800 bg-white/80 p-2.5 rounded-xl border border-amber-100 space-y-1">
+                          {t.items.map((i) => (
+                            <div key={i.id} className="space-y-0.5">
+                              <div><strong className="text-orange-600 mr-1">{i.qty}x</strong>{i.name}</div>
+                              {Array.isArray(i.modifiers) && i.modifiers.length > 0 && (
+                                <div className="flex flex-wrap gap-1 pt-0.5">
+                                  {i.modifiers.map((mod: any, idx: number) => {
+                                    const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
+                                    const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
+                                    return label ? (
+                                      <span key={idx} className="rounded bg-orange-100 text-orange-800 border border-orange-200 px-1 py-0.2 text-[9px] font-bold">
+                                        +{label}{val}
+                                      </span>
+                                    ) : null;
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center justify-between pt-1">
+                          <div className="h-2 flex-1 bg-amber-200 rounded-full overflow-hidden mr-3">
                             <div
-                              className="h-full bg-orange-500 rounded-full transition-all duration-300"
+                              className="h-full bg-amber-500 rounded-full transition-all duration-300"
                               style={{ width: `${progressPct}%` }}
                             />
                           </div>
-                        </div>
-
-                        <div className="text-right shrink-0">
-                          <span className="font-mono text-base font-black px-3 py-1 rounded-xl bg-amber-100 text-amber-900 border border-amber-300">
-                            {elapsedMins}m ago
-                          </span>
+                          <span className="font-mono text-xs font-bold text-amber-800 shrink-0">{elapsedMins}m ago</span>
                         </div>
                       </div>
                     );
                   })}
+                  {preparingColumnTickets.length === 0 && (
+                    <div className="py-12 text-center text-slate-400 text-xs font-semibold">
+                      No orders preparing
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Right: Ready to Serve Orders */}
-              <div className="rounded-3xl border border-emerald-300 bg-white p-6 shadow-md space-y-4">
-                <div className="flex items-center justify-between border-b border-emerald-100 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md">
-                      <CheckCircle2 size={22} />
+              {/* Middle: Ready to Serve Orders */}
+              <div className="rounded-3xl border border-emerald-300 bg-white p-5 shadow-md space-y-4">
+                <div className="flex flex-wrap items-center justify-between border-b border-emerald-100 pb-3 gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-9 w-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                      <CheckCircle2 size={20} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black tracking-wider uppercase text-emerald-600">
+                      <h3 className="text-base font-black tracking-wider uppercase text-emerald-600">
                         READY TO SERVE ({readyColumnTickets.length})
                       </h3>
-                      <p className="text-xs text-slate-500 font-semibold">Please collect order from serving counter</p>
+                      <p className="text-[11px] text-slate-500 font-medium">Ready at Serving Counter</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-emerald-600 text-white px-3.5 py-1 text-xs font-black shadow-md animate-pulse">
-                    READY TO SERVE
+                  <span className="rounded-full bg-emerald-600 text-white px-3 py-0.5 text-xs font-bold shadow-xs animate-pulse shrink-0">
+                    READY
                   </span>
                 </div>
 
-                <div className="space-y-3.5">
+                <div className="space-y-3">
                   {readyColumnTickets.map((t) => (
                     <div
                       key={t.id}
-                      className="rounded-2xl border-2 border-emerald-500 bg-emerald-50/70 p-4.5 shadow-md flex items-center justify-between gap-4 animate-in zoom-in-95 duration-200"
+                      className="rounded-2xl border-2 border-emerald-500 bg-emerald-50/80 p-4 shadow-md space-y-2.5 animate-in zoom-in-95 duration-200"
                     >
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <div className="flex items-center gap-3">
-                          <span className="font-mono font-black text-3xl text-emerald-700">
-                            Order # {t.orderNo}
-                          </span>
-                          <span className="rounded-lg bg-emerald-600 text-white px-3 py-1 text-xs font-black shadow-2xs">
-                            {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "01"}`}
-                          </span>
-                        </div>
-                        <div className="text-xs font-bold text-emerald-900 truncate">
-                          {t.items.map((i) => `${i.qty}x ${i.name}`).join(" · ")}
-                        </div>
+                      {/* Top Row: Order No & Table Badge */}
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="font-mono font-black text-base sm:text-lg text-emerald-900 truncate max-w-[70%]" title={`Order # ${t.orderNo}`}>
+                          Order # {t.orderNo}
+                        </h4>
+                        <span className="rounded-lg bg-emerald-700 text-white px-2.5 py-0.5 text-xs font-bold shrink-0">
+                          {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "N/A"}`}
+                        </span>
                       </div>
 
-                      <div className="text-right shrink-0">
-                        <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-emerald-600 text-white font-black text-xs uppercase tracking-wider shadow-md animate-bounce">
-                          <BadgeCheck size={18} /> READY TO SERVE
+                      {/* Order Level Note */}
+                      {t.notes && (
+                        <div className="bg-emerald-100/90 border border-emerald-300 text-emerald-950 rounded-xl px-2.5 py-1 text-xs font-bold flex items-center gap-1.5">
+                          <FileText size={13} className="text-emerald-700 shrink-0" />
+                          <span className="truncate">Note: {t.notes}</span>
+                        </div>
+                      )}
+
+                      {/* Middle: Items List */}
+                      <div className="text-xs font-bold text-emerald-950 bg-white/80 p-2.5 rounded-xl border border-emerald-200/80 space-y-1">
+                        {t.items.map((i) => (
+                          <div key={i.id} className="space-y-0.5">
+                            <div><strong className="text-emerald-700 mr-1">{i.qty}x</strong>{i.name}</div>
+                            {Array.isArray(i.modifiers) && i.modifiers.length > 0 && (
+                              <div className="flex flex-wrap gap-1 pt-0.5">
+                                {i.modifiers.map((mod: any, idx: number) => {
+                                  const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
+                                  const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
+                                  return label ? (
+                                    <span key={idx} className="rounded bg-emerald-100 text-emerald-900 border border-emerald-200 px-1 py-0.2 text-[9px] font-bold">
+                                      +{label}{val}
+                                    </span>
+                                  ) : null;
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Bottom: Ready Badge */}
+                      <div className="flex items-center justify-between pt-1 text-xs text-emerald-800 font-bold border-t border-emerald-200/60 mt-1">
+                        <span className="text-[11px] font-medium text-emerald-700">Collect at Counter</span>
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600 text-white font-black text-[11px] uppercase tracking-wider shadow-xs">
+                          <BadgeCheck size={14} /> READY
                         </span>
                       </div>
                     </div>
                   ))}
+                  {readyColumnTickets.length === 0 && (
+                    <div className="py-12 text-center text-slate-400 text-xs font-semibold">
+                      No orders ready to serve
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Right: Served Orders */}
+              <div className="rounded-3xl border border-blue-300 bg-white p-5 shadow-md space-y-4">
+                <div className="flex flex-wrap items-center justify-between border-b border-blue-100 pb-3 gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                      <BadgeCheck size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-black tracking-wider uppercase text-blue-600">
+                        SERVED ORDERS ({servedColumnTickets.length})
+                      </h3>
+                      <p className="text-[11px] text-slate-500 font-medium">Delivered to Tables</p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-blue-600 text-white px-3 py-0.5 text-xs font-bold shrink-0">
+                    SERVED
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {servedColumnTickets.map((t) => (
+                    <div
+                      key={t.id}
+                      className="rounded-2xl border border-blue-200 bg-blue-50/50 p-4 shadow-xs space-y-2.5"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="font-mono font-black text-base sm:text-lg text-blue-900 truncate max-w-[70%]" title={`Order # ${t.orderNo}`}>
+                          Order # {t.orderNo}
+                        </h4>
+                        <span className="rounded-lg bg-blue-600 text-white px-2.5 py-0.5 text-xs font-bold shrink-0">
+                          {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "N/A"}`}
+                        </span>
+                      </div>
+
+                      {/* Order Level Note */}
+                      {t.notes && (
+                        <div className="bg-blue-100/90 border border-blue-300 text-blue-950 rounded-xl px-2.5 py-1 text-xs font-bold flex items-center gap-1.5">
+                          <FileText size={13} className="text-blue-700 shrink-0" />
+                          <span className="truncate">Note: {t.notes}</span>
+                        </div>
+                      )}
+
+                      <div className="text-xs font-semibold text-slate-700 bg-white/80 p-2.5 rounded-xl border border-blue-100 space-y-1">
+                        {t.items.map((i) => (
+                          <div key={i.id} className="space-y-0.5">
+                            <div><strong className="text-blue-700 mr-1">{i.qty}x</strong>{i.name}</div>
+                            {Array.isArray(i.modifiers) && i.modifiers.length > 0 && (
+                              <div className="flex flex-wrap gap-1 pt-0.5">
+                                {i.modifiers.map((mod: any, idx: number) => {
+                                  const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
+                                  const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
+                                  return label ? (
+                                    <span key={idx} className="rounded bg-blue-100 text-blue-900 border border-blue-200 px-1 py-0.2 text-[9px] font-bold">
+                                      +{label}{val}
+                                    </span>
+                                  ) : null;
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1 text-xs text-blue-700 font-bold border-t border-blue-100">
+                        <span className="text-[11px] font-medium text-blue-600">Delivered</span>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold text-[11px]">
+                          <BadgeCheck size={14} /> SERVED
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  {servedColumnTickets.length === 0 && (
+                    <div className="py-12 text-center text-slate-400 text-xs font-semibold">
+                      No served orders yet
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

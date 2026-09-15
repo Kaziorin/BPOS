@@ -1086,23 +1086,48 @@ export default function RestaurantPOSPage() {
     toast.success(`Recalled order ${heldOrder.id}!`);
   };
 
-  const sendKotToKitchen = () => {
+  const sendKotToKitchen = async () => {
     if (cart.length === 0) return;
     const kitchenItems = cart.filter((item) => item.isKitchenProduct !== false);
     if (kitchenItems.length === 0) {
       toast.info("All items in cart are ready-to-serve (No kitchen KOT needed)");
       return;
     }
-    setCart((prev) =>
-      prev.map((item) =>
-        item.isKitchenProduct !== false
-          ? { ...item, kotStatus: "SENT_TO_KITCHEN" }
-          : item
-      )
-    );
-    toast.success(
-      `KOT Ticket sent (${kitchenItems.length} kitchen items) to KDS for Table ${selectedTable?.tableNo || "N/A"}!`
-    );
+
+    try {
+      const payload = {
+        tableId: selectedTable?.id || null,
+        orderType: orderType ? orderType.toUpperCase().replace("-", "_") : "DINE_IN",
+        station: "KITCHEN",
+        notes: orderNote
+          ? `${orderNote} | Table: ${selectedTable?.tableNo || "N/A"} | Waiter: ${waiterName || "Staff"}`
+          : `Table: ${selectedTable?.tableNo || "N/A"} | Waiter: ${waiterName || "Staff"}`,
+        items: kitchenItems.map((item) => ({
+          productId: item.productId || item.id,
+          name: item.name,
+          qty: item.qty,
+          notes: item.notes || item.specialInstructions || "",
+          modifiers: item.modifiers || item.addons || [],
+        })),
+      };
+
+      await api.post("/api/v1/restaurant/kot", payload);
+
+      setCart((prev) =>
+        prev.map((item) =>
+          item.isKitchenProduct !== false
+            ? { ...item, kotStatus: "SENT_TO_KITCHEN" }
+            : item
+        )
+      );
+      setOrderNote("");
+      toast.success(
+        `KOT Ticket sent (${kitchenItems.length} kitchen items) to Kitchen for Table ${selectedTable?.tableNo || "N/A"}!`
+      );
+    } catch (err: any) {
+      console.error("Failed to send KOT:", err);
+      toast.error(err?.response?.data?.message || err?.message || "Failed to send KOT to kitchen");
+    }
   };
 
   const rawSubtotal = cart.reduce((acc, i) => acc + i.qty * i.unitPrice, 0);
@@ -1115,6 +1140,14 @@ export default function RestaurantPOSPage() {
   const handlePlaceOrder = async () => {
     if (cart.length === 0) return;
     try {
+      // Auto-send KOT to kitchen if there are unsent kitchen products
+      const unsentKitchenItems = cart.filter(
+        (item) => item.isKitchenProduct !== false && item.kotStatus !== "SENT_TO_KITCHEN"
+      );
+      if (unsentKitchenItems.length > 0) {
+        await sendKotToKitchen();
+      }
+
       // Build payload for the backend POS confirm endpoint
       // Let the backend calculate tax and totals (server-side tax rules)
       const payload = {
