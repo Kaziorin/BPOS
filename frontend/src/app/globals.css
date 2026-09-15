@@ -4,21 +4,21 @@
   --background: #f8fafc;
   --foreground: #0f172a;
 
-  /* Default Global Theme Variables (OmniPOS Teal - #14B8A6 Design Spec) */
-  --theme-primary-50: #f0fdfa;
-  --theme-primary-100: #ccfbf1;
-  --theme-primary-200: #99f6e4;
-  --theme-primary-300: #5eead4;
-  --theme-primary-400: #2dd4bf;
-  --theme-primary-500: #14b8a6;
-  --theme-primary-600: #0ea5a0;
-  --theme-primary-700: #0f766e;
-  --theme-primary-800: #115e59;
-  --theme-primary-900: #134e4a;
-  --theme-secondary: #0ea5a0;
-  --theme-accent: #6366f1;
-  --theme-glow: rgba(20, 184, 166, 0.28);
-  --theme-gradient: linear-gradient(135deg, #14b8a6 0%, #6366f1 50%, #10b981 100%);
+  /* Default Global Theme Variables (Blue Ocean POS - #0284C7 / #0EA5E9 / #38BDF8 Design Spec) */
+  --theme-primary-50: #f0f9ff;
+  --theme-primary-100: #e0f2fe;
+  --theme-primary-200: #bae6fd;
+  --theme-primary-300: #7dd3fc;
+  --theme-primary-400: #38bdf8;
+  --theme-primary-500: #0ea5e9;
+  --theme-primary-600: #0284c7;
+  --theme-primary-700: #0369a1;
+  --theme-primary-800: #075985;
+  --theme-primary-900: #0c4a6e;
+  --theme-secondary: #0284c7;
+  --theme-accent: #38bdf8;
+  --theme-glow: rgba(2, 132, 199, 0.28);
+  --theme-gradient: linear-gradient(115deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
 }
 
 /* ========================================================================= */

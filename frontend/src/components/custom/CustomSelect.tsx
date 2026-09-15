@@ -31,8 +31,8 @@ export const CustomSelect = forwardRef<HTMLSelectElement, CustomSelectProps>(
       <div className={cn("w-full", containerClassName)}>
         {label && (
           <label htmlFor={selectId} className={cn(
-            "mb-1.5 block text-[15px] font-semibold capitalize",
-            darkMode ? "text-slate-300" : "text-gray-600"
+            "mb-1.5 block text-xs font-semibold capitalize",
+            darkMode ? "text-slate-300" : "text-[#0369A1]"
           )}>
             {label}
           </label>
@@ -42,10 +42,10 @@ export const CustomSelect = forwardRef<HTMLSelectElement, CustomSelectProps>(
             ref={ref}
             id={selectId}
             className={cn(
-              "w-full appearance-none rounded-lg border px-3 py-2 pr-9 text-sm outline-none transition cursor-pointer",
+              "w-full appearance-none rounded-sm border px-3 py-2 pr-9 text-sm outline-none transition cursor-pointer shadow-2xs",
               darkMode
-                ? "bg-slate-800 border-slate-700 text-slate-100 focus:border-primary-500 focus:ring-primary-500/20"
-                : "bg-white border-gray-300 text-gray-900 focus:border-primary-500 focus:ring-primary-100",
+                ? "bg-slate-800 border-slate-700 text-slate-100 focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8]/20"
+                : "bg-white border-sky-200/90 text-slate-900 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
               error ? "border-red-300" : "",
               className
             )}
@@ -61,7 +61,7 @@ export const CustomSelect = forwardRef<HTMLSelectElement, CustomSelectProps>(
           </select>
           <ChevronDown
             size={15}
-            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#0284C7]"
           />
         </div>
         {error ? (

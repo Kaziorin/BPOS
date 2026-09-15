@@ -33,37 +33,35 @@ export function CustomModal({ open, onClose, title, children, size = "md", class
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4 sm:p-6 animate-[fade-in_150ms_ease-out]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/50 backdrop-blur-xs p-4 sm:p-6 animate-[fade-in_150ms_ease-out] select-none"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          "w-full rounded-md shadow-2xl animate-[scale-in_180ms_ease-out] flex flex-col max-h-[90vh]",
+          "w-full rounded-sm shadow-2xl animate-[scale-in_180ms_ease-out] flex flex-col max-h-[90vh] overflow-hidden",
           sizeClasses[size] ?? "max-w-md",
-          darkMode ? "bg-slate-900 border border-slate-800" : "bg-white border border-gray-100",
+          darkMode ? "bg-slate-900 border border-slate-800" : "bg-white border border-sky-200/90",
           className
         )}
       >
         <div className={cn(
           "flex items-center justify-between border-b px-6 py-4 shrink-0",
-          darkMode ? "border-slate-800" : "border-gray-100"
+          darkMode ? "border-slate-800 bg-slate-900" : "border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50"
         )}>
           <h2 className={cn(
-            "text-base font-bold",
-            darkMode ? "text-slate-200" : "text-gray-600"
+            "text-base font-bold tracking-tight",
+            darkMode ? "text-slate-200" : "text-[#0369A1]"
           )}>{title}</h2>
           <button
             onClick={onClose}
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-md transition",
-              darkMode ? "text-slate-400 hover:bg-slate-800 hover:text-slate-200" : "text-gray-400 hover:bg-teal-50 hover:text-teal-600"
-            )}
+            className="flex h-8 w-8 items-center justify-center rounded-sm border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition cursor-pointer shadow-2xs"
+            aria-label="Close modal"
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
-        <div className="overflow-y-auto px-6 py-5">{children}</div>
+        <div className="overflow-y-auto px-6 py-5 custom-scrollbar">{children}</div>
       </div>
     </div>
   );

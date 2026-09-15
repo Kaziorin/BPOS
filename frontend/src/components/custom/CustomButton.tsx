@@ -21,8 +21,8 @@ export interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
-  primary: "bg-primary-600 text-white shadow-2xs hover:bg-primary-700 focus-visible:ring-primary-300",
-  blue: "bg-blue-600 text-white shadow-2xs hover:bg-blue-700 focus-visible:ring-blue-300",
+  primary: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs hover:brightness-105 active:scale-98 focus-visible:ring-sky-300",
+  blue: "bg-gradient-to-r from-[#0284C7] to-[#0369A1] text-white shadow-xs hover:brightness-105 active:scale-98 focus-visible:ring-sky-300",
   teal: "bg-teal-600 text-white shadow-2xs hover:bg-teal-700 focus-visible:ring-teal-300",
   orange: "bg-orange-600 text-white shadow-2xs hover:bg-orange-700 focus-visible:ring-orange-300",
   emerald: "bg-emerald-600 text-white shadow-2xs hover:bg-emerald-700 focus-visible:ring-emerald-300",
@@ -34,16 +34,16 @@ const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
 
 const VARIANT_CLASSES = (darkMode: boolean): Record<ButtonVariant, string> => ({
   primary:
-    "bg-primary-600 text-white shadow-2xs hover:bg-primary-700 focus-visible:ring-primary-300",
+    "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs hover:brightness-105 active:scale-98 focus-visible:ring-sky-300",
   secondary: darkMode
     ? "bg-slate-800 text-slate-200 hover:bg-slate-700 focus-visible:ring-slate-700"
-    : "bg-slate-100 text-gray-700 hover:bg-slate-200 focus-visible:ring-slate-300",
+    : "bg-sky-50 text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] border border-sky-200/80 focus-visible:ring-sky-300",
   outline: darkMode
     ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 focus-visible:ring-slate-700"
-    : "border border-slate-200 bg-white text-gray-700 hover:bg-slate-50 focus-visible:ring-slate-300",
+    : "border border-sky-200 bg-white text-[#0369A1] hover:bg-sky-50 hover:border-[#0284C7] focus-visible:ring-sky-300",
   ghost: darkMode
     ? "text-slate-400 hover:bg-slate-800 focus-visible:ring-slate-700"
-    : "text-gray-600 hover:bg-slate-100 focus-visible:ring-slate-300",
+    : "text-[#0284C7] hover:bg-sky-50 focus-visible:ring-sky-300",
   danger: "bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-300 shadow-2xs",
 });
 
@@ -101,7 +101,7 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          "inline-flex items-center justify-center rounded-md font-medium transition-colors cursor-pointer select-none",
+          "inline-flex items-center justify-center rounded-sm font-medium transition-all cursor-pointer select-none",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
           "disabled:cursor-not-allowed disabled:opacity-50",
           variantClass,

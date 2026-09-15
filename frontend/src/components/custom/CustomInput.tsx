@@ -38,7 +38,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
       className,
       id,
       darkMode,
-      rounded = "md",
+      rounded = "sm",
       ...props
     },
     ref
@@ -52,14 +52,14 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
         {label && (
           <label htmlFor={inputId} className={cn(
             "mb-1.5 block text-xs font-semibold capitalize",
-            darkMode ? "text-slate-300" : "text-slate-700"
+            darkMode ? "text-slate-300" : "text-[#0369A1]"
           )}>
             {label}
           </label>
         )}
         <div className="relative flex items-center">
           {leftIcon && (
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center justify-center text-gray-400">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center justify-center text-[#0284C7]">
               {leftIcon}
             </span>
           )}
@@ -67,11 +67,11 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              "w-full border px-3 py-2 text-sm outline-none transition placeholder:text-gray-400",
-              ROUNDED_CLASSES[rounded] || "rounded-md",
+              "w-full border px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 shadow-2xs",
+              ROUNDED_CLASSES[rounded] || "rounded-sm",
               darkMode
-                ? "bg-slate-800 border-slate-700 text-slate-100 focus:border-primary-500 focus:ring-primary-500/20"
-                : "bg-white border-slate-300 text-slate-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10",
+                ? "bg-slate-800 border-slate-700 text-slate-100 focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8]/20"
+                : "bg-white border-sky-200/90 text-slate-900 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
               error ? "border-red-400 focus:border-red-500" : "",
               leftIcon && "pl-9",
               rightIcon && "pr-9",
