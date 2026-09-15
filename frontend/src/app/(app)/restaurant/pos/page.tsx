@@ -45,6 +45,18 @@ import {
   ArrowLeft,
   ClipboardList,
   Calendar,
+  Banknote,
+  CreditCard,
+  Smartphone,
+  Receipt,
+  Wallet,
+  MoreVertical,
+  Monitor,
+  Cpu,
+  Save,
+  Tv,
+  Maximize,
+  Minimize,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { api, TENANT_STORAGE_KEY } from "@/lib/api";
@@ -111,6 +123,8 @@ interface RestaurantCartItem {
   modifiers?: CartModifier[];
   extras?: { label: string; price: number }[];
   notes?: string;
+  specialInstructions?: string;
+  addons?: any[];
   isKitchenProduct?: boolean;
   kotStatus: "PENDING" | "SENT_TO_KITCHEN" | "PREPARING" | "SERVED" | "READY_TO_SERVE";
 }
@@ -342,6 +356,71 @@ export default function RestaurantPOSPage() {
   const [heldOrders, setHeldOrders] = useState<any[]>([]);
   const [completedBill, setCompletedBill] = useState<any | null>(null);
   const [showShiftDetailsModal, setShowShiftDetailsModal] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [checkoutPayMethod, setCheckoutPayMethod] = useState<"CASH" | "CARD" | "MFS" | "DUE">("CASH");
+  const [cashTenderedInput, setCashTenderedInput] = useState("");
+  const [submittingCheckout, setSubmittingCheckout] = useState(false);
+  const [showThreeDotMenu, setShowThreeDotMenu] = useState(false);
+  const [showHardwareModal, setShowHardwareModal] = useState(false);
+  const [showSystemInfoModal, setShowSystemInfoModal] = useState(false);
+  const [hwThermalPrinter, setHwThermalPrinter] = useState(false);
+  const [hwKDS, setHwKDS] = useState(false);
+  const [hwCashDrawer, setHwCashDrawer] = useState(false);
+  const [hwBarcodeScanner, setHwBarcodeScanner] = useState(false);
+  const [hwKitchenPrinter, setHwKitchenPrinter] = useState(false);
+  const [hwCardTerminal, setHwCardTerminal] = useState(false);
+  const [hwCustomerDisplay, setHwCustomerDisplay] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error("Error attempting to enable fullscreen:", err);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch((err) => {
+          console.error("Error attempting to exit fullscreen:", err);
+        });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isTyping =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable);
+
+      if (!isTyping && (e.key === "f" || e.key === "F")) {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [toggleFullscreen]);
+
+  const handleOpenCheckoutModal = () => {
+    if (cart.length === 0) return;
+    setCashTenderedInput(estimateGrandTotal.toFixed(0));
+    setShowCheckoutModal(true);
+  };
 
   const [promptModalState, setPromptModalState] = useState<{
     isOpen: boolean;
@@ -1137,8 +1216,9 @@ export default function RestaurantPOSPage() {
   const estimateService = subTotal * 0.04;
   const estimateGrandTotal = subTotal + estimateTax + estimateService;
 
-  const handlePlaceOrder = async () => {
-    if (cart.length === 0) return;
+  const handlePlaceOrder = async (payMethod: string = "CASH", tenderedAmount?: number) => {
+    if (cart.length === 0 || submittingCheckout) return;
+    setSubmittingCheckout(true);
     try {
       // Auto-send KOT to kitchen if there are unsent kitchen products
       const unsentKitchenItems = cart.filter(
@@ -1147,6 +1227,11 @@ export default function RestaurantPOSPage() {
       if (unsentKitchenItems.length > 0) {
         await sendKotToKitchen();
       }
+
+      const finalTendered =
+        payMethod === "CASH" && tenderedAmount !== undefined && tenderedAmount > 0
+          ? tenderedAmount
+          : estimateGrandTotal;
 
       // Build payload for the backend POS confirm endpoint
       // Let the backend calculate tax and totals (server-side tax rules)
@@ -1160,7 +1245,7 @@ export default function RestaurantPOSPage() {
           discountAmount: 0,
           lineTotal: i.qty * i.unitPrice,
         })),
-        payments: [{ method: "CASH", amount: estimateGrandTotal }],
+        payments: [{ method: payMethod, amount: finalTendered }],
         discountTotal: discountAmount,
         serviceCharge: estimateService,
         source: "RESTAURANT",
@@ -1186,13 +1271,17 @@ export default function RestaurantPOSPage() {
         rawSubtotal,
         discountAmount,
         subTotal: saleResult.subtotal || subTotal,
-        taxAmount: saleResult.taxTotal || 0,
-        serviceCharge: saleResult.serviceCharge || 0,
-        grandTotal: saleResult.total || subTotal,
+        taxAmount: saleResult.taxTotal || estimateTax,
+        serviceCharge: saleResult.serviceCharge || estimateService,
+        grandTotal: saleResult.total || estimateGrandTotal,
+        tenderedAmount: finalTendered,
+        changeAmount: Math.max(finalTendered - (saleResult.total || estimateGrandTotal), 0),
+        payMethod,
         date: new Date().toISOString(),
       };
 
       setCompletedBill(billData);
+      setShowCheckoutModal(false);
 
       // Publish paid status to Customer Display
       publishRestaurantCart({
@@ -1244,6 +1333,8 @@ export default function RestaurantPOSPage() {
     } catch (err: any) {
       console.error("Restaurant POS order error:", err);
       toast.error(err?.response?.data?.message || err?.message || "Failed to place order. Please try again.");
+    } finally {
+      setSubmittingCheckout(false);
     }
   };
 
@@ -1329,8 +1420,8 @@ export default function RestaurantPOSPage() {
           <button
             onClick={() => setOrderType("DINE_IN")}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${orderType === "DINE_IN"
-                ? "bg-white text-orange-600 shadow-xs"
-                : "text-white hover:bg-white/10"
+              ? "bg-white text-orange-600 shadow-xs"
+              : "text-white hover:bg-white/10"
               }`}
           >
             <Utensils size={13} /> Dine In
@@ -1338,8 +1429,8 @@ export default function RestaurantPOSPage() {
           <button
             onClick={() => setOrderType("TAKEAWAY")}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${orderType === "TAKEAWAY"
-                ? "bg-white text-orange-600 shadow-xs"
-                : "text-white hover:bg-white/10"
+              ? "bg-white text-orange-600 shadow-xs"
+              : "text-white hover:bg-white/10"
               }`}
           >
             <ShoppingBag size={13} /> Take Away
@@ -1347,8 +1438,8 @@ export default function RestaurantPOSPage() {
           <button
             onClick={() => setOrderType("DELIVERY")}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${orderType === "DELIVERY"
-                ? "bg-white text-orange-600 shadow-xs"
-                : "text-white hover:bg-white/10"
+              ? "bg-white text-orange-600 shadow-xs"
+              : "text-white hover:bg-white/10"
               }`}
           >
             <Flame size={13} /> Delivery
@@ -1391,6 +1482,96 @@ export default function RestaurantPOSPage() {
               3
             </span>
           </button>
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen (F)" : "Enter Fullscreen (F)"}
+            className="flex h-8 w-8 items-center justify-center rounded-md bg-white/15 hover:bg-white/20 text-white transition cursor-pointer"
+          >
+            {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+          </button>
+
+          {/* 3-Dot Options Menu */}
+          <div className="relative">
+            <button
+              onClick={() => setShowThreeDotMenu((prev) => !prev)}
+              className="flex h-8 w-8 items-center justify-center rounded-md bg-white/15 hover:bg-white/25 text-white transition cursor-pointer"
+              title="More Options"
+            >
+              <MoreVertical size={18} />
+            </button>
+
+            {/* Dropdown Menu */}
+            {showThreeDotMenu && (
+              <>
+                <div
+                  className="fixed inset-0 z-30"
+                  onClick={() => setShowThreeDotMenu(false)}
+                />
+                <div className="absolute right-0 top-10 z-40 w-56 rounded-2xl bg-white p-1.5 shadow-2xl border border-slate-100 text-slate-700 animate-in fade-in zoom-in-95 duration-150">
+                  <button
+                    onClick={() => {
+                      setShowThreeDotMenu(false);
+                      setShowHoldModal(true);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold hover:bg-orange-50 hover:text-orange-600 transition cursor-pointer text-left"
+                  >
+                    <PauseCircle size={17} className="text-orange-500 shrink-0" />
+                    <span>Held Orders</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowThreeDotMenu(false);
+                      setShowShiftDetailsModal(true);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold hover:bg-orange-50 hover:text-orange-600 transition cursor-pointer text-left"
+                  >
+                    <FileText size={17} className="text-orange-500 shrink-0" />
+                    <span>Shift Report</span>
+                  </button>
+
+                  <div className="my-1 border-t border-slate-100" />
+
+                  <button
+                    onClick={() => {
+                      setShowThreeDotMenu(false);
+                      setShowHardwareModal(true);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold hover:bg-orange-50 hover:text-orange-600 transition cursor-pointer text-left"
+                  >
+                    <SlidersHorizontal size={17} className="text-orange-500 shrink-0" />
+                    <span>Hardware Settings</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowThreeDotMenu(false);
+                      setShowSystemInfoModal(true);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold hover:bg-orange-50 hover:text-orange-600 transition cursor-pointer text-left"
+                  >
+                    <Info size={17} className="text-orange-500 shrink-0" />
+                    <span>System Info</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowThreeDotMenu(false);
+                      toggleFullscreen();
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold hover:bg-orange-50 hover:text-orange-600 transition cursor-pointer text-left"
+                  >
+                    {isFullscreen ? (
+                      <Minimize size={17} className="text-orange-500 shrink-0" />
+                    ) : (
+                      <Maximize size={17} className="text-orange-500 shrink-0" />
+                    )}
+                    <span>{isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen Mode (F)"}</span>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
@@ -1421,8 +1602,8 @@ export default function RestaurantPOSPage() {
               onClick={() => setGuestCount((g) => Math.max(1, g - 1))}
               disabled={guestCount <= 1}
               className={`flex h-5 w-5 items-center justify-center rounded-md border font-bold ${guestCount <= 1
-                  ? "bg-slate-100 border-slate-200 text-slate-300 cursor-not-allowed"
-                  : "bg-white border-slate-200 text-gray-700 hover:bg-slate-100 cursor-pointer"
+                ? "bg-slate-100 border-slate-200 text-slate-300 cursor-not-allowed"
+                : "bg-white border-slate-200 text-gray-700 hover:bg-slate-100 cursor-pointer"
                 }`}
             >
               <Minus size={11} />
@@ -1554,16 +1735,16 @@ export default function RestaurantPOSPage() {
                   <button
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-lg text-xs font-bold text-left transition-all duration-150 cursor-pointer ${isSelected
-                        ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/20 border border-orange-600"
-                        : "bg-white text-gray-700 border border-slate-100 hover:bg-orange-50/80 hover:text-orange-600 hover:border-orange-200"
+                      ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/20 border border-orange-600"
+                      : "bg-white text-gray-700 border border-slate-100 hover:bg-orange-50/80 hover:text-orange-600 hover:border-orange-200"
                       }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       {Icon && (
                         <div
                           className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 transition ${isSelected
-                              ? "bg-white/20 text-white"
-                              : "bg-orange-50 text-orange-600 border border-orange-100"
+                            ? "bg-white/20 text-white"
+                            : "bg-orange-50 text-orange-600 border border-orange-100"
                             }`}
                         >
                           <Icon size={15} />
@@ -1573,8 +1754,8 @@ export default function RestaurantPOSPage() {
                     </div>
                     <span
                       className={`px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 ${isSelected
-                          ? "bg-white/25 text-white"
-                          : "bg-slate-100 text-gray-500"
+                        ? "bg-white/25 text-white"
+                        : "bg-slate-100 text-gray-500"
                         }`}
                     >
                       {count}
@@ -1657,8 +1838,8 @@ export default function RestaurantPOSPage() {
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-1 rounded-md text-xs font-bold transition ${viewMode === "grid"
-                    ? "bg-white text-orange-600 shadow-2xs"
-                    : "text-gray-500 hover:text-gray-600"
+                  ? "bg-white text-orange-600 shadow-2xs"
+                  : "text-gray-500 hover:text-gray-600"
                   }`}
               >
                 <LayoutGrid size={14} />
@@ -1666,8 +1847,8 @@ export default function RestaurantPOSPage() {
               <button
                 onClick={() => setViewMode("list")}
                 className={`p-1 rounded-md text-xs font-bold transition ${viewMode === "list"
-                    ? "bg-white text-orange-600 shadow-2xs"
-                    : "text-gray-500 hover:text-gray-600"
+                  ? "bg-white text-orange-600 shadow-2xs"
+                  : "text-gray-500 hover:text-gray-600"
                   }`}
               >
                 <List size={14} />
@@ -1702,15 +1883,15 @@ export default function RestaurantPOSPage() {
                     key={item.id}
                     onClick={() => handleProductAction(item)}
                     className={`group relative flex rounded-2xl border border-gray-200 bg-white shadow-sm hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden ${viewMode === "list"
-                        ? "flex-row items-center p-2.5 gap-3"
-                        : "flex-col justify-between"
+                      ? "flex-row items-center p-2.5 gap-3"
+                      : "flex-col justify-between"
                       }`}
                   >
                     {/* Dish Image / Placeholder Container (Flush on top, left, right in Grid View) */}
                     <div
                       className={`relative overflow-hidden bg-gradient-to-br from-amber-50/50 to-orange-50/30 flex items-center justify-center shrink-0 ${viewMode === "list"
-                          ? "h-16 w-16 rounded-lg"
-                          : "h-28 sm:h-30 w-full border-b border-gray-100"
+                        ? "h-16 w-16 rounded-lg"
+                        : "h-28 sm:h-30 w-full border-b border-gray-100"
                         }`}
                     >
                       {item.image ? (
@@ -1964,10 +2145,10 @@ export default function RestaurantPOSPage() {
                               <span
                                 key={mIdx}
                                 className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${mod.label === "Size"
-                                    ? "bg-orange-100 border border-orange-300 text-orange-800"
-                                    : mod.label === "Spice"
-                                      ? "bg-rose-50 border border-rose-200 text-rose-600"
-                                      : "bg-amber-50 border border-amber-200 text-amber-700"
+                                  ? "bg-orange-100 border border-orange-300 text-orange-800"
+                                  : mod.label === "Spice"
+                                    ? "bg-rose-50 border border-rose-200 text-rose-600"
+                                    : "bg-amber-50 border border-amber-200 text-amber-700"
                                   }`}
                               >
                                 <span className="font-black">{mod.label}:</span> {mod.value.replace(/ \(.*?\)$/, "")}
@@ -1997,8 +2178,8 @@ export default function RestaurantPOSPage() {
                           ) : (
                             <span
                               className={`inline-flex items-center gap-0.5 rounded-md px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${item.kotStatus === "SENT_TO_KITCHEN"
-                                  ? "bg-amber-100 text-amber-800"
-                                  : "bg-slate-100 text-gray-600"
+                                ? "bg-amber-100 text-amber-800"
+                                : "bg-slate-100 text-gray-600"
                                 }`}
                             >
                               🍳 {item.kotStatus === "SENT_TO_KITCHEN" ? "KOT Sent" : "KOT Pending"}
@@ -2109,7 +2290,7 @@ export default function RestaurantPOSPage() {
               </button>
 
               <button
-                onClick={handlePlaceOrder}
+                onClick={handleOpenCheckoutModal}
                 disabled={cart.length === 0}
                 className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white font-bold text-xs hover:from-orange-600 hover:via-amber-600 hover:to-orange-600 transition cursor-pointer shadow-md shadow-orange-500/25 disabled:opacity-40 disabled:cursor-not-allowed"
               >
@@ -2317,8 +2498,14 @@ export default function RestaurantPOSPage() {
               <span>Subtotal</span>
               <span>{fmt(completedBill?.subTotal || 0)}</span>
             </div>
+            {(completedBill?.discountAmount ?? 0) > 0 && (
+              <div className="flex justify-between text-emerald-600">
+                <span>Discount</span>
+                <span>−{fmt(completedBill.discountAmount)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-slate-500">
-              <span>Tax</span>
+              <span>Tax (15%)</span>
               <span>{fmt(completedBill?.taxAmount || 0)}</span>
             </div>
             {(completedBill?.serviceCharge ?? 0) > 0 && (
@@ -2330,6 +2517,24 @@ export default function RestaurantPOSPage() {
             <div className="flex justify-between font-bold text-base text-orange-600 pt-2 border-t border-orange-200">
               <span>Total Payable</span>
               <span>{fmt(completedBill?.grandTotal || 0)}</span>
+            </div>
+
+            {/* Payment & Return Amount (Change) Breakdown */}
+            <div className="pt-2 mt-2 border-t border-dashed border-slate-300 space-y-1.5 text-xs">
+              <div className="flex justify-between text-slate-600 font-medium">
+                <span>Payment Method</span>
+                <span className="font-bold text-slate-800 uppercase">{completedBill?.payMethod || "CASH"}</span>
+              </div>
+              <div className="flex justify-between text-slate-600 font-medium">
+                <span>Paid / Tendered</span>
+                <span className="font-bold text-slate-800">{fmt(completedBill?.tenderedAmount || completedBill?.grandTotal || 0)}</span>
+              </div>
+              {(completedBill?.changeAmount ?? 0) >= 0 && (
+                <div className="flex justify-between text-emerald-700 font-bold bg-emerald-50/80 px-2 py-1 rounded-md border border-emerald-200 mt-1">
+                  <span>Return Amount (Change)</span>
+                  <span className="text-sm font-black tabular-nums">{fmt(completedBill?.changeAmount || 0)}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -2360,6 +2565,505 @@ export default function RestaurantPOSPage() {
             leftIcon={<Printer size={16} />}
           >
             Print Now
+          </CustomButton>
+        </div>
+      </CustomModal>
+
+      {/* ── RESTAURANT PAYMENT CHECKOUT MODAL ── */}
+      <CustomModal
+        open={showCheckoutModal}
+        onClose={() => !submittingCheckout && setShowCheckoutModal(false)}
+        title=""
+        size="md"
+      >
+        {/* ── Orange Header ── */}
+        <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 -mx-6 -mt-5 mb-4 px-6 py-4 flex items-center justify-between rounded-t-md shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md text-white shadow-inner">
+              <ShoppingBag size={22} />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-white tracking-wide">Checkout & Payment</h2>
+              <p className="text-xs font-semibold text-orange-100">
+                {cart.length} item{cart.length !== 1 ? "s" : ""} · {selectedTable ? selectedTable.tableNo : "Takeaway"} · Staff: {waiterName}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => !submittingCheckout && setShowCheckoutModal(false)}
+            className="rounded-xl p-1.5 text-white/80 hover:bg-white/20 hover:text-white transition cursor-pointer"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* ── Total Due Strip ── */}
+        <div className="rounded-2xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50/50 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Total Payable</p>
+              <p className="text-3xl font-black tabular-nums text-orange-600 leading-tight">
+                {fmt(estimateGrandTotal)}
+              </p>
+            </div>
+            <div className="text-xs font-bold text-gray-600 space-y-1 text-right">
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-400">Subtotal:</span>
+                <span>{fmt(subTotal)}</span>
+              </div>
+              {discountPercent > 0 && (
+                <div className="flex justify-between gap-4 text-emerald-600">
+                  <span>Discount ({discountPercent}%):</span>
+                  <span>−{fmt(discountAmount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-400">Tax & Service:</span>
+                <span>{fmt(estimateTax + estimateService)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Payment Options ── */}
+        <div className="space-y-4 pt-3">
+          <div>
+            <label className="block text-[11px] font-black uppercase tracking-wider text-gray-500 mb-2">
+              Payment Method
+            </label>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { id: "CASH", label: "Cash", icon: Banknote },
+                { id: "CARD", label: "Card / POS", icon: CreditCard },
+                { id: "MFS", label: "Mobile Banking", icon: Smartphone },
+                { id: "DUE", label: "Table Due", icon: Receipt },
+              ].map(({ id, label, icon: Icon }) => {
+                const active = checkoutPayMethod === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setCheckoutPayMethod(id as any)}
+                    className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border-2 py-3.5 px-2 text-center transition cursor-pointer ${active
+                        ? "border-orange-500 bg-orange-500 text-white shadow-md shadow-orange-500/20 scale-[1.02]"
+                        : "border-slate-200 bg-white text-gray-600 hover:border-orange-300 hover:bg-orange-50/50"
+                      }`}
+                  >
+                    <Icon size={20} />
+                    <span className="text-[11px] font-black">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── CASH TENDERING INPUT & DENOMINATIONS ── */}
+          {checkoutPayMethod === "CASH" && (
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-black uppercase tracking-wider text-gray-500">
+                  Cash Tendered (৳)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setCashTenderedInput(estimateGrandTotal.toFixed(0))}
+                  className="text-xs font-bold text-orange-600 hover:underline cursor-pointer"
+                >
+                  Exact Amount
+                </button>
+              </div>
+
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lg font-black text-gray-400">৳</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={cashTenderedInput}
+                  onChange={(e) => setCashTenderedInput(e.target.value)}
+                  placeholder={estimateGrandTotal.toFixed(0)}
+                  className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-9 pr-4 text-2xl font-black text-right tabular-nums text-gray-900 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 focus:outline-none transition"
+                />
+              </div>
+
+              {/* Presets */}
+              <div className="grid grid-cols-4 gap-2 pt-1">
+                {[50, 100, 500, 1000].map((denom) => (
+                  <button
+                    key={denom}
+                    type="button"
+                    onClick={() => {
+                      const cur = parseFloat(cashTenderedInput) || 0;
+                      setCashTenderedInput((cur + denom).toString());
+                    }}
+                    className="rounded-lg border border-slate-200 bg-white py-1.5 text-xs font-bold text-gray-700 hover:bg-orange-50 hover:border-orange-300 transition cursor-pointer"
+                  >
+                    +৳{denom}
+                  </button>
+                ))}
+              </div>
+
+              {/* Return Change calculation */}
+              {parseFloat(cashTenderedInput) >= estimateGrandTotal ? (
+                <div className="flex items-center justify-between rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-emerald-800">
+                  <span className="text-xs font-bold">Change to Return</span>
+                  <span className="text-lg font-black tabular-nums">
+                    {fmt(Math.max((parseFloat(cashTenderedInput) || 0) - estimateGrandTotal, 0))}
+                  </span>
+                </div>
+              ) : parseFloat(cashTenderedInput) > 0 ? (
+                <div className="flex items-center justify-between rounded-xl bg-amber-50 border border-amber-200 p-3 text-amber-800">
+                  <span className="text-xs font-bold">Remaining Due</span>
+                  <span className="text-lg font-black tabular-nums">
+                    {fmt(estimateGrandTotal - (parseFloat(cashTenderedInput) || 0))}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+          )}
+
+          {/* ── ACTION BUTTON ── */}
+          <div className="pt-2">
+            <button
+              type="button"
+              disabled={
+                submittingCheckout ||
+                (checkoutPayMethod === "CASH" &&
+                  parseFloat(cashTenderedInput) > 0 &&
+                  parseFloat(cashTenderedInput) < estimateGrandTotal)
+              }
+              onClick={() => {
+                const tendered = parseFloat(cashTenderedInput) || estimateGrandTotal;
+                handlePlaceOrder(checkoutPayMethod, tendered);
+              }}
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white font-black text-sm shadow-lg shadow-orange-500/25 hover:from-orange-600 hover:to-amber-600 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submittingCheckout ? (
+                <>
+                  <RefreshCw size={18} className="animate-spin" /> Processing Order...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 size={18} /> Complete Sale ({fmt(estimateGrandTotal)})
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </CustomModal>
+
+      {/* ── HARDWARE SETTINGS MODAL ── */}
+      <CustomModal
+        open={showHardwareModal}
+        onClose={() => setShowHardwareModal(false)}
+        title=""
+        size="md"
+      >
+        <div className="flex items-center gap-3 -mx-6 -mt-5 mb-4 px-6 py-4 bg-orange-50/70 border-b border-orange-100 rounded-t-md">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
+            <SlidersHorizontal size={20} />
+          </div>
+          <h2 className="text-base font-black text-slate-800">Hardware Settings</h2>
+        </div>
+
+        <div className="divide-y divide-slate-100 py-1">
+          {/* 1. Thermal Receipt Printer */}
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                <Printer size={18} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  🖨️ Thermal Receipt Printer
+                </p>
+                <p className="text-[11px] font-semibold text-slate-400">
+                  • {hwThermalPrinter ? "Enabled" : "Disabled"}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setHwThermalPrinter((v) => !v)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                hwThermalPrinter ? "bg-orange-500" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                  hwThermalPrinter ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* 2. Kitchen Display System (KDS) */}
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                <Monitor size={18} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  🖥️ Kitchen Display System (KDS)
+                </p>
+                <p className="text-[11px] font-semibold text-slate-400">
+                  • {hwKDS ? "Enabled" : "Disabled"}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setHwKDS((v) => !v)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                hwKDS ? "bg-orange-500" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                  hwKDS ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* 3. Cash Drawer */}
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                <Banknote size={18} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  💵 Cash Drawer
+                </p>
+                <p className="text-[11px] font-semibold text-slate-400">
+                  • {hwCashDrawer ? "Enabled" : "Disabled"}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setHwCashDrawer((v) => !v)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                hwCashDrawer ? "bg-orange-500" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                  hwCashDrawer ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* 4. Barcode Scanner */}
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                <Search size={18} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  🔍 Barcode Scanner
+                </p>
+                <p className="text-[11px] font-semibold text-slate-400">
+                  • {hwBarcodeScanner ? "Enabled" : "Disabled"}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setHwBarcodeScanner((v) => !v)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                hwBarcodeScanner ? "bg-orange-500" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                  hwBarcodeScanner ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* 5. Kitchen Printer */}
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                <ChefHat size={18} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  🍳 Kitchen Printer
+                </p>
+                <p className="text-[11px] font-semibold text-slate-400">
+                  • {hwKitchenPrinter ? "Enabled" : "Disabled"}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setHwKitchenPrinter((v) => !v)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                hwKitchenPrinter ? "bg-orange-500" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                  hwKitchenPrinter ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* 6. Card Terminal */}
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                <CreditCard size={18} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  💳 Card Terminal
+                </p>
+                <p className="text-[11px] font-semibold text-slate-400">
+                  • {hwCardTerminal ? "Enabled" : "Disabled"}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setHwCardTerminal((v) => !v)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                hwCardTerminal ? "bg-orange-500" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                  hwCardTerminal ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* 7. Customer Display */}
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                <Tv size={18} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  📺 Customer Display
+                </p>
+                <p className="text-[11px] font-semibold text-slate-400">
+                  • {hwCustomerDisplay ? "Enabled" : "Disabled"}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setHwCustomerDisplay((v) => !v)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                hwCustomerDisplay ? "bg-orange-500" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                  hwCustomerDisplay ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        {/* Info Alert Box (Matching Screenshot) */}
+        <div className="mt-3 rounded-2xl bg-sky-50 border border-sky-200 p-3.5 flex items-start gap-3 text-sky-800">
+          <Info size={18} className="text-sky-600 shrink-0 mt-0.5" />
+          <p className="text-[11.5px] leading-relaxed font-semibold">
+            Full hardware activation requires SDK/driver integration. UI is ready — connect ESC/POS, Bluetooth or USB packages in the backend to activate.
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="pt-4 mt-2 border-t border-slate-100 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => setShowHardwareModal(false)}
+            className="px-4 py-2 rounded-xl text-xs font-bold text-orange-600 hover:bg-orange-50 transition cursor-pointer"
+          >
+            Close
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              toast.success("Hardware settings saved!");
+              setShowHardwareModal(false);
+            }}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500 text-white text-xs font-bold shadow-md shadow-orange-500/20 hover:bg-orange-600 transition cursor-pointer"
+          >
+            <Save size={15} /> Save Settings
+          </button>
+        </div>
+      </CustomModal>
+
+      {/* ── SYSTEM INFO MODAL ── */}
+      <CustomModal
+        open={showSystemInfoModal}
+        onClose={() => setShowSystemInfoModal(false)}
+        title=""
+        size="md"
+      >
+        <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 -mx-6 -mt-5 mb-4 px-6 py-4 flex items-center justify-between rounded-t-md shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white">
+              <Info size={20} />
+            </div>
+            <div>
+              <h2 className="text-base font-black text-white">System Information</h2>
+              <p className="text-xs text-orange-100">POS Software Version & Server Details</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowSystemInfoModal(false)}
+            className="rounded-lg p-1 text-white/80 hover:bg-white/20 transition cursor-pointer"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="space-y-2.5 py-1 text-xs">
+          <div className="flex justify-between py-1.5 border-b border-slate-100 text-slate-600">
+            <span>Product Name</span>
+            <span className="font-bold text-slate-900">BPOS Enterprise POS</span>
+          </div>
+          <div className="flex justify-between py-1.5 border-b border-slate-100 text-slate-600">
+            <span>Version</span>
+            <span className="font-bold text-orange-600">v2.4 (Restaurant Edition)</span>
+          </div>
+          <div className="flex justify-between py-1.5 border-b border-slate-100 text-slate-600">
+            <span>Branch Name</span>
+            <span className="font-bold text-slate-900">{branchName} ({branchAddress})</span>
+          </div>
+          <div className="flex justify-between py-1.5 border-b border-slate-100 text-slate-600">
+            <span>API Server</span>
+            <span className="font-bold text-emerald-600">Connected (Port 4000)</span>
+          </div>
+          <div className="flex justify-between py-1.5 border-b border-slate-100 text-slate-600">
+            <span>Terminal ID</span>
+            <span className="font-bold text-slate-900">Terminal 01</span>
+          </div>
+          <div className="flex justify-between py-1.5 text-slate-600">
+            <span>Local Time</span>
+            <span className="font-bold text-slate-900">{new Date().toLocaleTimeString()}</span>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-slate-100 flex justify-end">
+          <CustomButton themeColor="orange" onClick={() => setShowSystemInfoModal(false)}>
+            Close Info
           </CustomButton>
         </div>
       </CustomModal>
@@ -2426,8 +3130,8 @@ export default function RestaurantPOSPage() {
                   type="button"
                   onClick={() => setActiveStatusFilter(f.id)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition cursor-pointer border ${activeStatusFilter === f.id
-                      ? "bg-slate-800 text-white border-slate-800"
-                      : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
+                    ? "bg-slate-800 text-white border-slate-800"
+                    : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
                     }`}
                 >
                   <span className={`h-2 w-2 rounded-full ${activeStatusFilter === f.id ? "bg-white" : f.dot}`} />
@@ -2453,6 +3157,27 @@ export default function RestaurantPOSPage() {
                   const isBusy = t.status === "OCCUPIED" || t.status === "BILLING";
                   const isAvailable = t.status === "AVAILABLE";
 
+                  // Color scheme per status
+                  const color = isSelected
+                    ? { chair: "bg-orange-400 border-orange-400", table: "border-orange-400 bg-orange-50", text: "text-orange-600", badge: "bg-orange-100 text-orange-700", card: "border-orange-400 bg-white shadow-md shadow-orange-100" }
+                    : isBusy
+                      ? { chair: "bg-amber-300 border-amber-300", table: "border-amber-300 bg-amber-50/60", text: "text-amber-600", badge: "bg-amber-100 text-amber-700", card: "border-amber-200 bg-white" }
+                      : isReserved
+                        ? { chair: "bg-purple-300 border-purple-300", table: "border-purple-300 bg-purple-50/60", text: "text-purple-600", badge: "bg-purple-100 text-purple-700", card: "border-purple-200 bg-white" }
+                        : { chair: "bg-blue-300 border-blue-300", table: "border-blue-200 bg-blue-50/30", text: "text-blue-500", badge: "bg-emerald-100 text-emerald-700", card: "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md" };
+
+                  const cap = t.capacity || 4;
+                  // Distribute chairs: top/bottom rows, sides
+                  const topCount = Math.min(Math.ceil(cap / 2), 4);
+                  const bottomCount = Math.min(Math.floor(cap / 2), 4);
+                  const remaining = Math.max(0, cap - topCount - bottomCount);
+                  const leftCount = Math.floor(remaining / 2);
+                  const rightCount = remaining - leftCount;
+
+                  const ChairDot = ({ className }: { className: string }) => (
+                    <div className={`rounded-sm border-2 border-dashed ${color.chair} opacity-80 ${className}`} />
+                  );
+
                   return (
                     <button
                       key={t.id}
@@ -2474,47 +3199,82 @@ export default function RestaurantPOSPage() {
                         setShowSelectTableModal(false);
                         toast.success(`Table ${t.tableNo} (${t.floorName || "Section"}) selected!`);
                       }}
-                      className={`flex flex-col p-3 rounded-md border text-left transition-all duration-150 cursor-pointer ${isSelected
-                          ? "border-orange-500 bg-orange-600 text-white shadow-sm"
-                          : !isAvailable
-                            ? isReserved
-                              ? "border-purple-200 bg-purple-50 opacity-85 cursor-not-allowed"
-                              : "border-amber-200 bg-amber-50 opacity-85 cursor-not-allowed"
-                            : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/60 hover:shadow-sm"
-                        }`}
+                      className={`flex flex-col items-center p-3 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer select-none ${!isAvailable && !isSelected ? "opacity-70 cursor-not-allowed" : ""} ${color.card}`}
                     >
-                      {/* Table Name */}
-                      <p className={`text-[13px] font-black leading-snug ${isSelected ? "text-white" : "text-gray-800"}`}>
+                      {/* Visual Table Layout */}
+                      <div className="w-full flex flex-col items-center gap-1 py-1">
+                        {/* Top chairs */}
+                        {topCount > 0 && (
+                          <div className="flex items-center justify-center gap-1.5">
+                            {Array.from({ length: topCount }).map((_, i) => (
+                              <ChairDot key={`top-${i}`} className="h-2 w-5 rounded-t-sm" />
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Middle row: side chairs + table */}
+                        <div className="flex items-center justify-center gap-1.5 w-full">
+                          {/* Left chairs */}
+                          {leftCount > 0 && (
+                            <div className="flex flex-col gap-1.5">
+                              {Array.from({ length: leftCount }).map((_, i) => (
+                                <ChairDot key={`left-${i}`} className="h-5 w-2 rounded-l-sm" />
+                              ))}
+                            </div>
+                          )}
+
+                          {/* The Table Surface */}
+                          <div className={`flex-1 border-2 border-dashed rounded-lg flex items-center justify-center ${color.table}`}
+                            style={{ minWidth: 40, minHeight: cap > 6 ? 36 : 30, maxWidth: 80 }}
+                          >
+                            <span className={`text-[9px] font-black tracking-widest uppercase ${color.text} opacity-60`}>
+                              {cap}p
+                            </span>
+                          </div>
+
+                          {/* Right chairs */}
+                          {rightCount > 0 && (
+                            <div className="flex flex-col gap-1.5">
+                              {Array.from({ length: rightCount }).map((_, i) => (
+                                <ChairDot key={`right-${i}`} className="h-5 w-2 rounded-r-sm" />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Bottom chairs */}
+                        {bottomCount > 0 && (
+                          <div className="flex items-center justify-center gap-1.5">
+                            {Array.from({ length: bottomCount }).map((_, i) => (
+                              <ChairDot key={`bot-${i}`} className="h-2 w-5 rounded-b-sm" />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Table name */}
+                      <p className={`text-[11px] font-black mt-1.5 text-center leading-tight ${isSelected ? "text-orange-600" : isBusy ? "text-amber-700" : isReserved ? "text-purple-700" : "text-gray-700"}`}>
                         {t.tableNo}
                       </p>
 
-                      {/* Section Name */}
-                      <p className={`text-[11px] font-medium mt-0.5 leading-snug ${isSelected ? "text-orange-100" : "text-gray-400"}`}>
-                        {t.floorName || "Main Dining"}
-                      </p>
-
-                      {/* Seats + Status */}
-                      <div className="mt-2.5 flex items-center justify-between gap-1.5">
-                        <span className={`flex items-center gap-1 text-[11px] font-bold ${isSelected ? "text-orange-100" : "text-slate-500"}`}>
-                          <Users size={11} /> {t.capacity} Seats
+                      {/* Status badge for busy/reserved */}
+                      {(isBusy || isReserved) && !isSelected && (
+                        <span className={`mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${color.badge}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${isBusy ? "bg-amber-500" : "bg-purple-500"}`} />
+                          {isBusy ? `৳${t.currentBill ? t.currentBill.toLocaleString() : "Busy"}` : "Reserved"}
                         </span>
-                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${isSelected
-                            ? "bg-white/20 text-white"
-                            : isReserved
-                              ? "bg-purple-100 text-purple-700"
-                              : isBusy
-                                ? "bg-amber-100 text-amber-700"
-                                : "bg-emerald-50 text-emerald-700"
-                          }`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${isReserved ? "bg-purple-500" : isBusy ? "bg-amber-500" : isSelected ? "bg-white" : "bg-emerald-500"
-                            }`} />
-                          {isReserved ? "Reserved" : isBusy ? "Busy" : "Free"}
+                      )}
+                      {isSelected && (
+                        <span className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-orange-100 text-orange-700">
+                          <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+                          Selected
                         </span>
-                      </div>
+                      )}
                     </button>
                   );
                 })}
               </div>
+
             )}
           </div>
 
@@ -2577,14 +3337,14 @@ export default function RestaurantPOSPage() {
                     toast.success(`${staff.name} assigned as staff!`);
                   }}
                   className={`flex items-center gap-3 p-3 rounded-md border text-left transition duration-150 cursor-pointer ${isStaffActive
-                      ? "border-orange-500 bg-orange-600 text-white shadow-sm"
-                      : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/60 hover:shadow-sm"
+                    ? "border-orange-500 bg-orange-600 text-white shadow-sm"
+                    : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/60 hover:shadow-sm"
                     }`}
                 >
                   <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md font-black text-sm shadow-2xs ${isStaffActive
-                        ? "bg-white/20 text-white"
-                        : staff.avatarColor || "bg-orange-100 text-orange-700"
+                      ? "bg-white/20 text-white"
+                      : staff.avatarColor || "bg-orange-100 text-orange-700"
                       }`}
                   >
                     {staff.name.charAt(0).toUpperCase()}
@@ -2697,8 +3457,8 @@ export default function RestaurantPOSPage() {
                     <div
                       key={slot.id}
                       className={`relative flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 ${isCurActive
-                          ? "bg-gradient-to-b from-amber-50/95 via-orange-50/40 to-white border-amber-400 shadow-md shadow-amber-500/10 ring-2 ring-amber-400/80"
-                          : "bg-white border-slate-200 hover:border-slate-300 hover:shadow-2xs"
+                        ? "bg-gradient-to-b from-amber-50/95 via-orange-50/40 to-white border-amber-400 shadow-md shadow-amber-500/10 ring-2 ring-amber-400/80"
+                        : "bg-white border-slate-200 hover:border-slate-300 hover:shadow-2xs"
                         }`}
                     >
                       {/* Top Header: Shift Name + Live Status */}
@@ -2937,8 +3697,8 @@ export default function RestaurantPOSPage() {
                         key={s.id || s.name}
                         onClick={() => setSelectedSize({ label: s.name, price: s.price })}
                         className={`flex items-center justify-between gap-2 p-3 rounded-md border-2 transition cursor-pointer select-none ${isSelected
-                            ? "bg-orange-50 border-orange-500 text-orange-950 font-bold shadow-sm"
-                            : "bg-white border-slate-200 text-gray-700 hover:border-orange-300 hover:shadow-xs font-medium"
+                          ? "bg-orange-50 border-orange-500 text-orange-950 font-bold shadow-sm"
+                          : "bg-white border-slate-200 text-gray-700 hover:border-orange-300 hover:shadow-xs font-medium"
                           }`}
                       >
                         <div className="flex items-center gap-1.5 text-left min-w-0 flex-1">
@@ -2977,8 +3737,8 @@ export default function RestaurantPOSPage() {
                       key={spice.label}
                       onClick={() => setSelectedSpice(spice.label)}
                       className={`flex items-center justify-center gap-1.5 p-2.5 rounded-md border-2 text-xs font-bold transition cursor-pointer ${isSelected
-                          ? "bg-rose-50 border-rose-500 text-rose-800 shadow-sm"
-                          : "bg-white border-slate-200 text-gray-700 hover:border-rose-300 hover:shadow-xs"
+                        ? "bg-rose-50 border-rose-500 text-rose-800 shadow-sm"
+                        : "bg-white border-slate-200 text-gray-700 hover:border-rose-300 hover:shadow-xs"
                         }`}
                     >
                       <span>{spice.icon}</span>
@@ -3008,8 +3768,8 @@ export default function RestaurantPOSPage() {
                       key={top.label}
                       onClick={() => toggleExtraTopping(top)}
                       className={`flex items-center gap-3 p-3 rounded-md border-2 transition cursor-pointer select-none ${isChecked
-                          ? "bg-amber-50/90 border-amber-500 text-amber-950 shadow-sm font-bold"
-                          : "bg-white border-slate-200 text-gray-700 hover:border-amber-300 hover:shadow-xs font-medium"
+                        ? "bg-amber-50/90 border-amber-500 text-amber-950 shadow-sm font-bold"
+                        : "bg-white border-slate-200 text-gray-700 hover:border-amber-300 hover:shadow-xs font-medium"
                         }`}
                     >
                       <input

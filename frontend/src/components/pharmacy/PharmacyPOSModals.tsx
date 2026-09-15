@@ -2298,3 +2298,154 @@ export function PaymentCheckoutModal({
     </div>
   );
 }
+
+// ═══════════════════════════════════════════
+// HELD BILLS MODAL
+// ═══════════════════════════════════════════
+interface HeldBill {
+  id: string;
+  items: RxCartItem[];
+  discountTotal: number;
+  note: string;
+  createdAt?: number;
+}
+
+interface PharmacyPOSHeldBillsModalProps {
+  open: boolean;
+  onClose: () => void;
+  heldBills: HeldBill[];
+  onResume: (id: string) => void;
+  onRemove: (id: string) => void;
+  darkMode?: boolean;
+}
+
+export function PharmacyPOSHeldBillsModal({
+  open,
+  onClose,
+  heldBills,
+  onResume,
+  onRemove,
+  darkMode,
+}: PharmacyPOSHeldBillsModalProps) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className={cn(
+        "relative flex h-[75vh] max-h-[600px] w-[90vw] max-w-2xl flex-col overflow-hidden sm:rounded-[2rem]",
+        darkMode ? "bg-slate-900" : "bg-white"
+      )}>
+        {/* ── HEADER ── */}
+        <div className={cn(
+          "flex flex-none items-center justify-between border-b px-6 py-4",
+          darkMode ? "border-slate-800 bg-slate-900" : "border-slate-100 bg-white"
+        )}>
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              "flex h-10 w-10 items-center justify-center rounded-2xl",
+              darkMode ? "bg-teal-900/50 text-teal-400" : "bg-teal-50 text-[#00796b]"
+            )}>
+              <RotateCcw size={20} />
+            </div>
+            <div>
+              <h2 className={cn("text-[17px] font-black tracking-tight", darkMode ? "text-slate-100" : "text-slate-800")}>
+                Held Bills
+              </h2>
+              <p className={cn("text-[11px] font-semibold mt-0.5", darkMode ? "text-slate-400" : "text-slate-500")}>
+                {heldBills.length} {heldBills.length === 1 ? "bill" : "bills"} on hold
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full transition",
+              darkMode ? "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200" : "bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+            )}
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* ── BODY ── */}
+        <div className={cn("flex-1 overflow-y-auto p-6 space-y-3", darkMode ? "bg-slate-950" : "bg-slate-50/50")}>
+          {heldBills.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center text-center">
+              <Archive size={48} className={cn("mb-4 opacity-50", darkMode ? "text-slate-600" : "text-slate-300")} />
+              <h3 className={cn("text-base font-bold", darkMode ? "text-slate-300" : "text-slate-600")}>No held bills</h3>
+              <p className={cn("text-xs mt-1", darkMode ? "text-slate-500" : "text-slate-400")}>
+                Use F6 or the Hold Bill button to suspend a transaction.
+              </p>
+            </div>
+          ) : (
+            heldBills.map((bill) => {
+              const totalItems = bill.items.reduce((sum, item) => sum + item.qty, 0);
+              const subtotal = bill.items.reduce((sum, item) => sum + item.lineTotal, 0);
+              const total = subtotal - (bill.discountTotal || 0);
+
+              return (
+                <div
+                  key={bill.id}
+                  className={cn(
+                    "flex flex-col gap-3 rounded-2xl border p-4 transition-all hover:shadow-md sm:flex-row sm:items-center sm:justify-between",
+                    darkMode ? "border-slate-800 bg-slate-900 hover:border-teal-700" : "border-slate-200 bg-white hover:border-teal-300"
+                  )}
+                >
+                  {/* Bill Info */}
+                  <div className="flex flex-1 items-start gap-4">
+                    <div className={cn(
+                      "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl font-bold",
+                      darkMode ? "bg-slate-800 text-slate-300" : "bg-slate-100 text-slate-500"
+                    )}>
+                      #{bill.id.slice(0, 4)}
+                    </div>
+                    <div className="flex flex-col">
+                      <h4 className={cn("text-sm font-extrabold", darkMode ? "text-slate-200" : "text-slate-800")}>
+                        {totalItems} items
+                      </h4>
+                      <p className={cn("text-xs font-semibold mt-0.5", darkMode ? "text-slate-400" : "text-slate-500")}>
+                        {bill.createdAt ? new Date(bill.createdAt).toLocaleTimeString("en-BD", { hour: "2-digit", minute: "2-digit" }) : "N/A"}
+                        {bill.note ? ` • ${bill.note}` : ""}
+                      </p>
+                      <p className={cn("text-sm font-black mt-2", darkMode ? "text-teal-400" : "text-[#00796b]")}>
+                        ৳{total.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex shrink-0 items-center gap-2 border-t pt-3 sm:border-0 sm:pt-0">
+                    <button
+                      type="button"
+                      onClick={() => onRemove(bill.id)}
+                      className={cn(
+                        "flex h-9 items-center justify-center rounded-xl border px-3 text-xs font-bold transition",
+                        darkMode ? "border-slate-700 bg-slate-800 text-rose-400 hover:bg-slate-700/80" : "border-slate-200 bg-white text-rose-500 hover:bg-rose-50 hover:border-rose-200"
+                      )}
+                    >
+                      <Trash2 size={14} className="sm:mr-1.5" />
+                      <span className="hidden sm:inline">Delete</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onResume(bill.id)}
+                      className={cn(
+                        "flex h-9 flex-1 items-center justify-center rounded-xl px-4 text-xs font-bold text-white shadow-sm transition active:scale-[0.98] sm:flex-none",
+                        darkMode ? "bg-teal-600 hover:bg-teal-500" : "bg-[#00796b] hover:bg-[#00695c]"
+                      )}
+                    >
+                      <RotateCcw size={14} className="mr-1.5" />
+                      Recall Bill
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

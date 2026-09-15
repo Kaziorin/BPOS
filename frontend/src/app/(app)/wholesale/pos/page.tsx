@@ -8,7 +8,6 @@ import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/cn";
 import { isOnline } from "@/lib/offline/db";
 import { syncManager } from "@/lib/offline/sync";
-import { publishCart } from "@/lib/customer-display";
 import {
   fetchAllProducts,
   fetchBatches,
@@ -301,28 +300,6 @@ function WholesalePOSInner() {
   const taxable = Math.max(subtotal - discountAmount, 0);
   const taxAmount = taxable * TAX_RATE;
   const total = taxable + taxAmount + (Number(shipping) || 0);
-
-  // Publish customer display
-  useEffect(() => {
-    publishCart({
-      updatedAt: Date.now(),
-      lines: cart.map((i) => ({
-        name: i.name,
-        qty: i.qty,
-        unitPrice: i.unitPrice,
-        discountAmount: i.discountAmount,
-        sku: i.sku,
-        image: i.imageUrl || undefined,
-      })),
-      subtotal,
-      discountTotal: discountAmount,
-      taxTotal: taxAmount,
-      total,
-      status: cart.length > 0 ? "ACTIVE" : "IDLE",
-      customerName: selectedCustomer?.name || "Walk-in Customer",
-      customerTier: selectedCustomer?.tier || "Standard",
-    });
-  }, [cart, subtotal, discountAmount, taxAmount, total, selectedCustomer]);
 
   const stats = useMemo(() => {
     const low = products.filter((p) => (p.stockQty ?? 0) > 0 && (p.stockQty ?? 0) <= 10).length;
