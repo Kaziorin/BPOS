@@ -457,7 +457,11 @@ async def create_kot(
     except Exception as e:
         return err(str(e), 403)
 
-    branchId = body.get("branchId")
+    branchId = body.get("branchId") or user.branchId
+    if not branchId:
+        b = (await db.execute(text("SELECT id FROM branches WHERE tenantId = :t LIMIT 1"), {"t": tenantId})).first()
+        branchId = b[0] if b else None
+
     items = body.get("items") or []
     if not branchId or not items:
         return err("branchId and items are required", 400)
@@ -557,7 +561,7 @@ async def kds_feed(
     except Exception as e:
         return err(str(e), 403)
 
-    where = "k.tenantId = :t AND k.status IN ('NEW','ACCEPTED','PREPARING','READY')"
+    where = "k.tenantId = :t AND k.status IN ('NEW','ACCEPTED','PREPARING','READY','SERVED')"
     params: dict = {"t": tenantId}
     if branchId:
         where += " AND k.branchId = :b"
@@ -572,7 +576,7 @@ async def kds_feed(
             f"FROM restaurant_kot k "
             f"LEFT JOIN restaurant_tables rt ON rt.id = k.tableId "
             f"LEFT JOIN users u ON u.id = k.waiterUserId "
-            f"WHERE {where} ORDER BY k.createdAt ASC"
+            f"WHERE {where} ORDER BY k.createdAt DESC"
         ),
         params,
     )).fetchall())
