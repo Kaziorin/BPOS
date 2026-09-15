@@ -508,7 +508,7 @@ export function Sidebar() {
                         "flex items-center justify-between gap-2.5 px-3 py-2 text-xs rounded-md transition-colors",
                         childActive
                           ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
-                          : "text-[#0284C7] font-semibold hover:bg-sky-50 hover:text-sky-900"
+                          : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]"
                       )}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -532,7 +532,7 @@ export function Sidebar() {
                                 "flex items-center gap-2 px-2 py-1.5 text-[11px] rounded-md transition-colors",
                                 subActive
                                   ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
-                                  : "text-[#0284C7] font-medium hover:bg-sky-50 hover:text-sky-900"
+                                  : "text-[#0284C7] font-medium hover:bg-[#E0F2FE] hover:text-[#0369A1]"
                               )}
                             >
                               <SubIcon size={11} className={cn("shrink-0", subActive ? "text-white" : "text-[#0284C7]")} />
@@ -601,7 +601,7 @@ function ModuleRow({
             "mx-auto flex h-10 w-10 items-center justify-center rounded-md border transition-all duration-200",
             active
               ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white"
-              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-sky-50 hover:text-sky-900",
+              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
           )}
         >
           <Icon size={20} />
@@ -624,7 +624,7 @@ function ModuleRow({
             "flex h-10 w-10 items-center justify-center rounded-md border transition-all duration-200 cursor-pointer",
             active || isFlyoutOpen
               ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white"
-              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-sky-50 hover:text-sky-900",
+              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
           )}
         >
           <Icon size={20} />
@@ -642,7 +642,7 @@ function ModuleRow({
           "group flex items-center justify-between rounded-md px-3 py-2 text-xs transition-all duration-200",
           active
             ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
-            : "text-[#0284C7] font-semibold hover:bg-sky-50 hover:text-sky-900",
+            : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0">
@@ -677,8 +677,8 @@ function ModuleRow({
           active
             ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
             : moduleExpanded
-            ? "text-[#0284C7] font-bold bg-sky-50/80"
-            : "text-[#0284C7] font-semibold hover:bg-sky-50 hover:text-sky-900",
+            ? "text-[#0284C7] font-bold bg-[#E0F2FE]/80"
+            : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -755,8 +755,8 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
             active
               ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
               : itemExpanded
-              ? "text-[#0284C7] font-bold bg-sky-50/80"
-              : "text-[#0284C7] font-semibold hover:bg-sky-50 hover:text-sky-900",
+              ? "text-[#0284C7] font-bold bg-[#E0F2FE]/80"
+              : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
           )}
         >
           <div className="flex items-center gap-2 min-w-0">
@@ -787,7 +787,7 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
                     "group flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
                     subActive
                       ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
-                      : "text-[#0284C7] hover:bg-sky-50 hover:text-sky-900",
+                      : "text-[#0284C7] hover:bg-[#E0F2FE] hover:text-[#0369A1]",
                   )}
                 >
                   <SubIcon size={11} className={cn("shrink-0", subActive ? "text-white" : "text-[#0284C7] group-hover:text-sky-900")} />
@@ -809,7 +809,7 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
         "group flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs transition-all duration-150",
         exactActive
           ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
-          : "text-[#0284C7] font-semibold hover:bg-sky-50 hover:text-sky-900",
+          : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
       )}
     >
       <ChildIcon
