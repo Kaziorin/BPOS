@@ -23,6 +23,7 @@ import {
   Box,
   Monitor,
   Wifi,
+  Maximize,
   Bell,
   Calendar,
   User,
@@ -118,7 +119,13 @@ export default function SalonPOSPage() {
   const [activeTab, setActiveTab] = useState<"services" | "products">("services");
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem("bpos_salon_cart");
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
@@ -148,7 +155,13 @@ export default function SalonPOSPage() {
   const [staffList, setStaffList] = useState<Staff[]>([]);
   const [servicesList, setServicesList] = useState<SalonItem[]>([]);
   const [productsList, setProductsList] = useState<SalonItem[]>([]);
-  const [heldOrders, setHeldOrders] = useState<any[]>([]);
+  const [heldOrders, setHeldOrders] = useState<any[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem("bpos_salon_held");
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
   const [salesHistory, setSalesHistory] = useState<any[]>([]);
   const [orderNote, setOrderNote] = useState("");
   const [discountInput, setDiscountInput] = useState("");
@@ -158,8 +171,22 @@ export default function SalonPOSPage() {
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
   const [orderSeq] = useState(() => `ORD-${Math.floor(Math.random() * 9000) + 1000}`);
 
+  useEffect(() => {
+    try { localStorage.setItem("bpos_salon_cart", JSON.stringify(cart)); } catch {}
+  }, [cart]);
+
+  useEffect(() => {
+    try { localStorage.setItem("bpos_salon_held", JSON.stringify(heldOrders)); } catch {}
+  }, [heldOrders]);
+
   // Load Data
   useEffect(() => {
+    // Load Sales History
+    api.get("/api/v1/pos/sales?limit=20").then((res: any) => {
+      const data = res?.data?.data || res?.data || [];
+      if (Array.isArray(data)) setSalesHistory(data);
+    }).catch(() => {});
+
     // Load Customers
     api.get("/customers").then((res: any) => {
       setCustomers(res?.data?.data || res?.data || []);
@@ -446,6 +473,9 @@ export default function SalonPOSPage() {
       {/* --- TOP HEADER --- */}
       <header className="flex-none h-[72px] px-8 flex items-center justify-between gap-8 bg-white/70 backdrop-blur-xl border-b border-indigo-50 z-30 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4">
+          <Link href="/" className="w-12 h-12 rounded-2xl bg-white border border-indigo-50 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm">
+            <ChevronLeft size={24} />
+          </Link>
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-xl shadow-indigo-200 rotate-3 transform transition hover:rotate-0">
             <Smile size={28} strokeWidth={2.5} />
           </div>
@@ -485,10 +515,13 @@ export default function SalonPOSPage() {
             </div>
             <div className="hidden sm:block leading-none">
               <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Operator</p>
-              <p className="text-xs font-black text-indigo-950 mt-1 uppercase tracking-tight">Rahat</p>
+              <p className="text-xs font-black text-indigo-950 mt-1 uppercase tracking-tight">{user?.name || "Staff"}</p>
             </div>
           </div>
 
+          <button onClick={() => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }} className="w-10 h-10 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center shadow-sm border border-slate-200 transition-all active:scale-95">
+            <Maximize size={20} />
+          </button>
           <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100/50">
             <Wifi size={20} />
           </div>
@@ -948,7 +981,8 @@ export default function SalonPOSPage() {
 
           <div className="flex items-center gap-3 bg-slate-50/50 p-1.5 rounded-[1.5rem] border border-indigo-50/50">
             {[
-              { label: "Hold", icon: PauseCircle, onClick: () => setHeldOrdersOpen(true), color: "text-amber-500", bg: "bg-amber-50" },
+              { label: "Hold", icon: PauseCircle, onClick: holdOrder, color: "text-amber-500", bg: "bg-amber-50" },
+              { label: "Recall", icon: History, onClick: () => setHeldOrdersOpen(true), color: "text-emerald-500", bg: "bg-emerald-50" },
               { label: "History", icon: History, onClick: () => setHistoryOpen(true), color: "text-blue-500", bg: "bg-blue-50" },
               { label: "Report", icon: TrendingUp, onClick: () => window.open("/reports", "_blank"), color: "text-indigo-500", bg: "bg-indigo-50" },
               { label: "Settings", icon: Settings, onClick: () => window.open("/settings", "_blank"), color: "text-slate-500", bg: "bg-slate-100" },
@@ -963,6 +997,9 @@ export default function SalonPOSPage() {
               >
                 <tool.icon size={16} strokeWidth={3} className="group-hover:rotate-12 transition-transform duration-700" />
                 <span className="text-[10px] uppercase tracking-[0.2em] hidden xl:block">{tool.label}</span>
+                {tool.label === "Recall" && heldOrders.length > 0 && (
+                  <span className="ml-1 bg-emerald-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">{heldOrders.length}</span>
+                )}
               </button>
             ))}
           </div>
@@ -972,12 +1009,10 @@ export default function SalonPOSPage() {
           <button onClick={() => setNotesOpen(true)} className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-500 group relative active:scale-95 shadow-sm ring-1 ring-indigo-100">
             <Bell size={18} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform duration-700" />
             <span className="text-[10px] font-black uppercase tracking-[0.25em]">Notes</span>
-            <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-rose-500 border-[3px] border-white text-white text-[10px] font-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-rose-200">3</div>
           </button>
           <button className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all duration-500 group relative active:scale-95 shadow-sm ring-1 ring-rose-100">
             <Gift size={18} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform duration-700" />
             <span className="text-[10px] font-black uppercase tracking-[0.25em]">Rewards</span>
-            <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-indigo-600 border-[3px] border-white text-white text-[10px] font-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-indigo-200">2</div>
           </button>
         </div>
       </footer>
@@ -1270,7 +1305,7 @@ export default function SalonPOSPage() {
       </CustomModal>
 
       {/* Session History */}
-      <CustomModal open={isHistoryOpen} onClose={() => setHistoryOpen(false)} title="Order Vault" size="lg">
+      <CustomModal open={isHistoryOpen} onClose={() => setHistoryOpen(false)} title="Order Vault" size="2xl">
         <div className="space-y-6 p-2">
           {salesHistory.length === 0 ? (
             <div className="py-28 text-center opacity-30">
@@ -1278,7 +1313,7 @@ export default function SalonPOSPage() {
               <p className="text-sm font-black uppercase tracking-[0.3em] text-slate-400">Vault is Empty</p>
             </div>
           ) : (
-            <div className="overflow-hidden border border-slate-50 rounded-[3rem] shadow-xl shadow-indigo-100/10">
+            <div className="overflow-x-auto border border-slate-50 rounded-[3rem] shadow-xl shadow-indigo-100/10">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50/50 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-50">
                   <tr>
@@ -1289,18 +1324,35 @@ export default function SalonPOSPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 bg-white">
-                  {salesHistory.map((sale, idx) => (
-                    <tr key={sale.id || `sale-${idx}`} className="text-xs hover:bg-indigo-50/30 transition-all duration-500 group">
-                      <td className="px-8 py-5 font-mono font-black text-indigo-600 tracking-[0.2em]">{sale.invoiceNo}</td>
-                      <td className="px-8 py-5 font-black uppercase tracking-tight text-slate-700">{sale.customerName}</td>
-                      <td className="px-8 py-5 text-right font-black text-indigo-600 tabular-nums text-sm">৳{sale.total.toFixed(0)}</td>
+                  {salesHistory.map((sale, idx) => {
+                    const invNo = sale.invoiceNo || (sale.saleId ? `INV-${sale.saleId.slice(0, 8).toUpperCase()}` : `INV-${(sale._id || "").slice(-8).toUpperCase()}`);
+                    const custName = sale.customerName || sale.customer?.name || "Walk-in";
+                    const amount = Number(sale.total || sale.grandTotal || sale.totalAmount || 0);
+
+                    return (
+                    <tr key={sale.id || sale._id || `sale-${idx}`} className="text-xs hover:bg-indigo-50/30 transition-all duration-500 group">
+                      <td className="px-8 py-5 font-mono font-black text-indigo-600 tracking-[0.2em]">{invNo}</td>
+                      <td className="px-8 py-5 font-black uppercase tracking-tight text-slate-700">{custName}</td>
+                      <td className="px-8 py-5 text-right font-black text-indigo-600 tabular-nums text-sm">৳{amount.toFixed(0)}</td>
                       <td className="px-8 py-5 text-center">
-                        <button className="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 active:scale-75 shadow-sm">
+                        <button 
+                          onClick={() => {
+                            setCompletedSale({
+                              result: sale,
+                              cart: sale.items || [],
+                              payments: sale.payments || [{ method: "CASH", amount: amount }],
+                              cashierName: sale.cashierName || sale.salesmanName || sale.salesman?.name || "Staff",
+                              customerName: custName,
+                            });
+                          }}
+                          className="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 active:scale-75 shadow-sm"
+                        >
                           <Printer size={16} strokeWidth={2.5} />
                         </button>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -1333,8 +1385,10 @@ export default function SalonPOSPage() {
               customerName={completedSale.customerName}
               onNewSale={() => { 
                 setCompletedSale(null); 
-                setResult(null); 
-                onClearCart(); 
+                if (result) {
+                  setResult(null); 
+                  onClearCart(); 
+                }
               }} 
             />
           </div>
