@@ -18,25 +18,29 @@ export interface CustomStatCardProps {
   icon: LucideIcon;
   tone?: StatTone;
   className?: string;
+  subtitle?: string;
 }
 
-export function CustomStatCard({ label, value, icon: Icon, tone = "primary", className }: CustomStatCardProps) {
+export function CustomStatCard({ label, value, icon: Icon, tone = "primary", className, subtitle }: CustomStatCardProps) {
   return (
     <div
       className={cn(
-        "rounded-2xl border border-sky-100/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
+        "h-full flex flex-col justify-between rounded-md border border-sky-100/80 bg-white p-4 sm:p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
         className
       )}
     >
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-slate-500">{label}</p>
-        <div className={cn("flex h-10 w-10 items-center justify-center rounded-full", TONE_ICON_CLASSES[tone])}>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs sm:text-sm font-medium text-slate-500 leading-snug">{label}</p>
+        <div className={cn("flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-md", TONE_ICON_CLASSES[tone])}>
           <Icon size={17} />
         </div>
       </div>
-      <p className="mt-3 text-2xl font-bold tracking-tight text-slate-900 [font-variant-numeric:tabular-nums]">
-        {value}
-      </p>
+      <div>
+        <p className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-[#0369A1] [font-variant-numeric:tabular-nums]">
+          {value}
+        </p>
+        {subtitle && <p className="mt-1 text-xs text-slate-400">{subtitle}</p>}
+      </div>
     </div>
   );
 }

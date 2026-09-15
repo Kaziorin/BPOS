@@ -54,7 +54,7 @@ export default function DashboardPage() {
     <div className="space-y-5">
       {/* ── Hero Welcome Banner ── Pure CSS Gradient & SVG Ocean Waves (Center to Right) ── */}
       <div
-        className="relative flex flex-col gap-4 overflow-hidden rounded-2xl p-6 text-white sm:flex-row sm:items-center sm:justify-between shadow-md select-none"
+        className="relative flex flex-col gap-4 overflow-hidden rounded-md p-6 text-white sm:flex-row sm:items-center sm:justify-between shadow-md select-none"
         style={{
           background:
             "linear-gradient(115deg, #0284C7 0%, #0396E6 28%, #0EA5E9 48%, #38BDF8 70%, #7DD3FC 88%, #BAE6FD 100%)",
@@ -130,7 +130,7 @@ export default function DashboardPage() {
         </div>
         <Link
           href="/retail-pos"
-          className="relative z-10 inline-flex shrink-0 items-center gap-2 self-start rounded-xl bg-[#0284C7] px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-sky-900/20 transition hover:bg-[#0369A1] hover:scale-105 active:scale-100"
+          className="relative z-10 inline-flex shrink-0 items-center gap-2 self-start rounded-md bg-[#0284C7] px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-sky-900/20 transition hover:bg-[#0369A1] hover:scale-105 active:scale-100"
         >
           New Sale
           <ArrowRight size={15} />
@@ -139,12 +139,12 @@ export default function DashboardPage() {
 
       {/* Quick links */}
       <div className="flex items-center gap-3">
-        <Link href="/dashboard/builder" className="text-sm text-[#0284C7] hover:underline font-medium">Dashboard Builder →</Link>
-        <Link href="/reports" className="text-sm text-slate-500 hover:text-[#0284C7] hover:underline">Reports →</Link>
+        <Link href="/dashboard/builder" className="text-sm text-[#0284C7] hover:underline font-semibold">Dashboard Builder →</Link>
+        <Link href="/reports" className="text-sm text-slate-500 hover:text-[#0284C7] hover:underline font-medium">Reports →</Link>
       </div>
 
-      {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      {/* ── Stat Cards ── Uniform Height Grid */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 items-stretch">
         <CustomStatCard label="Today's Sales" value={money(summary.todaySalesTotal)} icon={DollarSign} tone="primary" />
         <CustomStatCard label="Today's Orders" value={String(summary.todaySalesCount ?? 0)} icon={Package} tone="blue" />
         <CustomStatCard label="Low Stock Items" value={String(summary.lowStockCount ?? 0)} icon={AlertTriangle} tone="amber" />
@@ -152,41 +152,47 @@ export default function DashboardPage() {
         <CustomStatCard label="Total Due" value={money(summary.totalDue)} icon={Wallet} tone="red" />
       </div>
 
-      {/* ── Charts & Recent Sales ── */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <div className="rounded-2xl border border-sky-100/80 bg-white p-5 shadow-sm lg:col-span-2">
-          <h2 className="mb-1 text-sm font-bold text-slate-800">Sales trend</h2>
-          <p className="mb-3 text-xs text-slate-400">Last 7 days</p>
-          <SalesTrendChart data={trend ?? []} />
+      {/* ── Charts & Recent Sales ── Uniform Height & Standard Layout */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 items-stretch">
+        <div className="flex flex-col justify-between rounded-md border border-sky-100/80 bg-white p-5 shadow-sm lg:col-span-2 min-h-[380px]">
+          <div>
+            <h2 className="mb-1 text-sm font-bold text-[#0369A1]">Sales trend</h2>
+            <p className="mb-3 text-xs text-slate-400">Last 7 days</p>
+          </div>
+          <div className="flex-1 w-full flex items-end">
+            <SalesTrendChart data={trend ?? []} />
+          </div>
         </div>
 
-        <div className="rounded-2xl border border-sky-100/80 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-bold text-slate-800">Recent sales</h2>
-            <Link href="/sales" className="text-xs font-semibold text-[#0284C7] hover:text-[#0369A1]">
-              View all sales →
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {(summary.recentSales ?? []).length === 0 && (
-              <p className="text-sm text-slate-400">No sales yet.</p>
-            )}
-            {(summary.recentSales ?? []).map((s) => (
-              <div key={s.id} className="flex items-center justify-between text-sm">
-                <div>
-                  <p className="font-semibold text-slate-800">{s.invoiceNo}</p>
-                  <p className="text-xs text-slate-400">
-                    {s.customer} • {dateTime(s.createdAt)}
-                  </p>
+        <div className="flex flex-col justify-between rounded-md border border-sky-100/80 bg-white p-5 shadow-sm min-h-[380px]">
+          <div>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-sm font-bold text-[#0369A1]">Recent sales</h2>
+              <Link href="/sales" className="text-xs font-semibold text-[#0284C7] hover:text-[#0369A1]">
+                View all sales →
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {(summary.recentSales ?? []).length === 0 && (
+                <p className="text-sm text-slate-400 py-6 text-center">No sales yet.</p>
+              )}
+              {(summary.recentSales ?? []).slice(0, 5).map((s) => (
+                <div key={s.id} className="flex items-center justify-between text-sm py-1 border-b border-sky-50/60 last:border-0">
+                  <div>
+                    <p className="font-semibold text-slate-800">{s.invoiceNo}</p>
+                    <p className="text-xs text-slate-400">
+                      {s.customer} • {dateTime(s.createdAt)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-[#0369A1] [font-variant-numeric:tabular-nums]">
+                      {money(s.total)}
+                    </p>
+                    <StatusBadge status={s.status} />
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-slate-800 [font-variant-numeric:tabular-nums]">
-                    {money(s.total)}
-                  </p>
-                  <StatusBadge status={s.status} />
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
