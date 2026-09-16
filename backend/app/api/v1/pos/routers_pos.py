@@ -892,6 +892,9 @@ async def pos_stats_today(
         WHERE tenantId = :t AND DATE(createdAt) = CURDATE() AND status != 'CANCELLED'
     """), {"t": tenantId})).first()
 
+    branches_count = (await db.execute(text("SELECT COUNT(*) FROM branches WHERE tenantId = :t"), {"t": tenantId})).scalar() or 0
+    employees_count = (await db.execute(text("SELECT COUNT(*) FROM users WHERE tenantId = :t"), {"t": tenantId})).scalar() or 0
+
     total_sales = float(row[0]) if row and row[0] is not None else 0.0
     tx_count = int(row[1]) if row and row[1] is not None else 0
     paid_tot = float(row[2]) if row and row[2] is not None else 0.0
@@ -903,5 +906,7 @@ async def pos_stats_today(
         "transactionCount": tx_count,
         "count": tx_count,
         "paidTotal": round(paid_tot, 2),
-        "dueTotal": round(due_tot, 2)
+        "dueTotal": round(due_tot, 2),
+        "branchesCount": branches_count,
+        "employeesCount": employees_count
     })
