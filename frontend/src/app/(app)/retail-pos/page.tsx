@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import {
   Search, ShoppingCart, PauseCircle, PlayCircle,
   XCircle, RotateCcw, User, ChevronDown, Settings2, WifiOff, CloudOff,
@@ -640,7 +641,7 @@ export default function PosPage() {
   }
 
   // ── Stats ──
-  const avgSale = todayTxCount > 0 ? todaySales / todayTxCount : 34.69;
+  const avgSale = todayTxCount > 0 ? todaySales / todayTxCount : 0;
 
   // ── Filtered customers for modal ──
   const filteredCustomers = useMemo(() => {
@@ -1246,13 +1247,13 @@ export default function PosPage() {
           <div className="grid grid-cols-8 gap-1.5">
             {[
               { label: "Hold Orders", fkey: "F10", icon: PauseCircle, action: () => { loadHolds(); setShowHolds(true); } },
-              { label: "Recent Orders", fkey: "F11", icon: Clock, action: () => {} },
-              { label: "Price Check", fkey: "", icon: Search, action: () => {} },
-              { label: "Stock Lookup", fkey: "", icon: Package, action: () => {} },
+              { label: "Recent Orders", fkey: "F11", icon: Clock, action: () => toast.info("Recent Orders coming soon") },
+              { label: "Price Check", fkey: "", icon: Search, action: () => { searchRef.current?.focus(); toast.info("Scan or enter barcode"); } },
+              { label: "Stock Lookup", fkey: "", icon: Package, action: () => { searchRef.current?.focus(); toast.info("Scan or enter barcode"); } },
               { label: "Return", fkey: "", icon: RotateCcw, action: () => setShowReturn(true) },
               { label: "Discount", fkey: "", icon: Tag, action: () => setShowExtras(true) },
               { label: "Note", fkey: "", icon: FileText, action: () => setShowExtras(true) },
-              { label: "Calculator", fkey: "", icon: Calculator, action: () => {} },
+              { label: "Calculator", fkey: "", icon: Calculator, action: () => toast.info("Calculator coming soon") },
             ].map((btn, i) => (
               <button key={i} onClick={btn.action}
                 className="h-8 px-2 rounded-xl border border-slate-200 bg-white hover:bg-violet-50 hover:border-violet-300 text-slate-700 hover:text-violet-700 text-[11px] font-semibold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer transition truncate">
