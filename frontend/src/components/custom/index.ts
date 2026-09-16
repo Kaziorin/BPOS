@@ -15,3 +15,4 @@ export * from "./CustomBreadcrumb";
 export * from "./CustomTabs";
 export * from "./CustomCard";
 export * from "./ImageUploader";
+export * from "./CustomDropdownSelect";

@@ -35,6 +35,7 @@ import {
   ConfirmModal,
   CustomInput,
   CustomSelect,
+  CustomDropdownSelect,
   CustomTextarea,
 } from "@/components/custom";
 import { money, dateTime } from "@/lib/format";
@@ -628,13 +629,12 @@ export default function CashRegisterPage() {
           <div className="flex flex-wrap items-center gap-2">
             {branches.length > 0 && (
               <div className="w-52">
-                <CustomSelect
+                <CustomDropdownSelect
                   value={branchId}
-                  onChange={(e) => {
-                    setBranchId(e.target.value);
+                  onChange={(val) => {
+                    setBranchId(val);
                     setPage(1);
                   }}
-                  className="bg-sky-50/80 border-sky-200 text-gray-600 font-semibold hover:bg-sky-100/70 hover:border-[#0284C7] transition shadow-2xs cursor-pointer"
                   options={branches.map((b) => ({
                     label: `📍 ${b.name}`,
                     value: b.id,
@@ -822,39 +822,39 @@ export default function CashRegisterPage() {
               </div>
             </div>
 
-            {/* Shift Real-time Money Breakdown Grid */}
+            {/* Shift Real-time Money Breakdown Grid (Single Line Per Card) */}
             {summary && (
-              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                <div className="rounded-sm border border-slate-200/80 bg-slate-50/70 p-3">
-                  <p className="text-xs font-semibold capitalize text-gray-600">Opening Float</p>
-                  <p className="mt-1 text-sm font-bold text-gray-600 tabular-nums">{money(summary.openingCash)}</p>
+              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+                <div className="flex items-center justify-between gap-1.5 rounded-sm border border-slate-200/80 bg-slate-50/70 px-2.5 py-2 shadow-2xs">
+                  <span className="text-xs font-semibold capitalize text-gray-600 whitespace-nowrap">Opening Float</span>
+                  <span className="text-xs font-bold text-gray-600 tabular-nums whitespace-nowrap">{money(summary.openingCash)}</span>
                 </div>
 
-                <div className="rounded-sm border border-emerald-200 bg-emerald-50/50 p-3">
-                  <p className="text-xs font-semibold capitalize text-emerald-700">Cash Sales (+)</p>
-                  <p className="mt-1 text-sm font-bold text-emerald-700 tabular-nums">{money(summary.cashSales)}</p>
+                <div className="flex items-center justify-between gap-1.5 rounded-sm border border-emerald-200 bg-emerald-50/50 px-2.5 py-2 shadow-2xs">
+                  <span className="text-xs font-semibold capitalize text-emerald-700 whitespace-nowrap">Cash Sales (+)</span>
+                  <span className="text-xs font-bold text-emerald-700 tabular-nums whitespace-nowrap">{money(summary.cashSales)}</span>
                 </div>
 
-                <div className="rounded-sm border border-sky-200 bg-sky-50/50 p-3">
-                  <p className="text-xs font-semibold capitalize text-[#0284C7]">Cash In (+)</p>
-                  <p className="mt-1 text-sm font-bold text-[#0284C7] tabular-nums">
+                <div className="flex items-center justify-between gap-1.5 rounded-sm border border-sky-200 bg-sky-50/50 px-2.5 py-2 shadow-2xs">
+                  <span className="text-xs font-semibold capitalize text-[#0284C7] whitespace-nowrap">Cash In (+)</span>
+                  <span className="text-xs font-bold text-[#0284C7] tabular-nums whitespace-nowrap">
                     {money(summary.cashIn + summary.customerPaymentsIn)}
-                  </p>
+                  </span>
                 </div>
 
-                <div className="rounded-sm border border-indigo-200 bg-indigo-50/50 p-3">
-                  <p className="text-xs font-semibold capitalize text-indigo-700">Cash Out (-)</p>
-                  <p className="mt-1 text-sm font-bold text-indigo-700 tabular-nums">{money(summary.cashOut)}</p>
+                <div className="flex items-center justify-between gap-1.5 rounded-sm border border-indigo-200 bg-indigo-50/50 px-2.5 py-2 shadow-2xs">
+                  <span className="text-xs font-semibold capitalize text-indigo-700 whitespace-nowrap">Cash Out (-)</span>
+                  <span className="text-xs font-bold text-indigo-700 tabular-nums whitespace-nowrap">{money(summary.cashOut)}</span>
                 </div>
 
-                <div className="rounded-sm border border-amber-200 bg-amber-50/50 p-3">
-                  <p className="text-xs font-semibold capitalize text-amber-700">Expenses (-)</p>
-                  <p className="mt-1 text-sm font-bold text-amber-700 tabular-nums">{money(summary.cashExpenses)}</p>
+                <div className="flex items-center justify-between gap-1.5 rounded-sm border border-amber-200 bg-amber-50/50 px-2.5 py-2 shadow-2xs">
+                  <span className="text-xs font-semibold capitalize text-amber-700 whitespace-nowrap">Expenses (-)</span>
+                  <span className="text-xs font-bold text-amber-700 tabular-nums whitespace-nowrap">{money(summary.cashExpenses)}</span>
                 </div>
 
-                <div className="rounded-sm border border-rose-200 bg-rose-50/50 p-3">
-                  <p className="text-xs font-semibold capitalize text-rose-700">Refunds (-)</p>
-                  <p className="mt-1 text-sm font-bold text-rose-700 tabular-nums">{money(summary.cashRefunds)}</p>
+                <div className="flex items-center justify-between gap-1.5 rounded-sm border border-rose-200 bg-rose-50/50 px-2.5 py-2 shadow-2xs">
+                  <span className="text-xs font-semibold capitalize text-rose-700 whitespace-nowrap">Refunds (-)</span>
+                  <span className="text-xs font-bold text-rose-700 tabular-nums whitespace-nowrap">{money(summary.cashRefunds)}</span>
                 </div>
               </div>
             )}
@@ -987,13 +987,12 @@ export default function CashRegisterPage() {
             </div>
 
             <div className="w-44">
-              <CustomSelect
+              <CustomDropdownSelect
                 value={historyStatusFilter}
-                onChange={(e) => {
-                  setHistoryStatusFilter(e.target.value);
+                onChange={(val) => {
+                  setHistoryStatusFilter(val);
                   setPage(1);
                 }}
-                className="bg-sky-50/70 border-sky-200 text-gray-600 font-semibold cursor-pointer"
                 options={[
                   { label: "All Statuses", value: "ALL" },
                   { label: "Open", value: "OPEN" },
@@ -1468,37 +1467,37 @@ export default function CashRegisterPage() {
               </CustomButton>
             </div>
 
-            {/* Reconciliation KPI Strip */}
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs">
-                <p className="text-xs font-semibold capitalize text-gray-600">Expected In Drawer</p>
-                <p className="mt-1 font-mono text-base font-bold text-[#0284C7]">{money(detail.summary.expectedCash)}</p>
+            {/* Reconciliation KPI Strip (Single-Line) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="flex items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-3.5 py-2.5 shadow-2xs">
+                <span className="text-xs font-semibold capitalize text-gray-600 truncate">Expected In Drawer</span>
+                <span className="font-mono text-sm font-bold text-[#0284C7] shrink-0">{money(detail.summary.expectedCash)}</span>
               </div>
 
-              <div className="rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs">
-                <p className="text-xs font-semibold capitalize text-gray-600">Physical Counted</p>
-                <p className="mt-1 font-mono text-base font-bold text-gray-600">
+              <div className="flex items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-3.5 py-2.5 shadow-2xs">
+                <span className="text-xs font-semibold capitalize text-gray-600 truncate">Physical Counted</span>
+                <span className="font-mono text-sm font-bold text-gray-600 shrink-0">
                   {detail.shift.countedCash != null ? money(detail.shift.countedCash) : "—"}
-                </p>
+                </span>
               </div>
 
               <div
-                className={`rounded-sm border p-3 shadow-2xs ${
+                className={`flex items-center justify-between gap-2 rounded-sm border px-3.5 py-2.5 shadow-2xs ${
                   detail.shift.variance != null && Math.abs(Number(detail.shift.variance)) > 0
                     ? "border-rose-200 bg-rose-50/70"
                     : "border-emerald-200 bg-emerald-50/70"
                 }`}
               >
-                <p className="text-xs font-semibold capitalize text-gray-600">Reconciled Variance</p>
-                <p
-                  className={`mt-1 font-mono text-base font-bold ${
+                <span className="text-xs font-semibold capitalize text-gray-600 truncate">Reconciled Variance</span>
+                <span
+                  className={`font-mono text-sm font-bold shrink-0 ${
                     detail.shift.variance != null && Math.abs(Number(detail.shift.variance)) > 0
                       ? "text-rose-700"
                       : "text-emerald-700"
                   }`}
                 >
                   {detail.shift.variance != null ? money(detail.shift.variance) : "—"}
-                </p>
+                </span>
               </div>
             </div>
 
