@@ -71,7 +71,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
               ROUNDED_CLASSES[rounded] || "rounded-sm",
               darkMode
                 ? "bg-slate-800 border-slate-700 text-slate-100 focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8]/20"
-                : "bg-white border-sky-200/90 text-slate-900 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
+                : "bg-white border-sky-200/90 text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
               error ? "border-red-400 focus:border-red-500" : "",
               leftIcon && "pl-9",
               rightIcon && "pr-9",

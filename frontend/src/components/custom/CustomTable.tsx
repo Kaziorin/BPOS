@@ -282,13 +282,13 @@ export function CustomTable<T>({
 
       {/* Sleek Blue Ocean Pagination Footer */}
       {showPagination && totalItems > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 px-1 py-1 text-xs text-slate-500">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 px-1 py-1 text-xs text-gray-600 font-medium">
           <div className="flex items-center gap-2">
             <span>Show:</span>
             <select
               value={activePageSize}
               onChange={(e) => handleSizeChange(Number(e.target.value))}
-              className="rounded-sm border border-sky-200/90 bg-white px-2 py-1 text-xs font-semibold text-slate-700 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 focus:outline-none shadow-2xs cursor-pointer"
+              className="rounded-sm border border-sky-200/90 bg-white px-2 py-1 text-xs font-semibold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 focus:outline-none shadow-2xs cursor-pointer"
             >
               {[5, 10, 25, 50].map((s) => (
                 <option key={s} value={s}>
@@ -296,10 +296,10 @@ export function CustomTable<T>({
                 </option>
               ))}
             </select>
-            <span className="text-slate-500 font-medium ml-1">
-              Showing <strong className="text-slate-800">{startEntry}</strong>–
-              <strong className="text-slate-800">{endEntry}</strong> of{" "}
-              <strong className="text-slate-800">{totalItems}</strong>
+            <span className="text-gray-600 font-medium ml-1">
+              Showing <strong className="font-bold text-[#0284C7]">{startEntry}</strong>–
+              <strong className="font-bold text-[#0284C7]">{endEntry}</strong> of{" "}
+              <strong className="font-bold text-[#0284C7]">{totalItems}</strong>
             </span>
           </div>
 
@@ -309,7 +309,7 @@ export function CustomTable<T>({
               type="button"
               disabled={validCurrentPage <= 1}
               onClick={() => handlePageSelect(validCurrentPage - 1)}
-              className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-sky-200/80 bg-white text-slate-600 hover:bg-[#E0F2FE] hover:text-[#0284C7] hover:border-[#0284C7] disabled:opacity-40 disabled:cursor-not-allowed transition font-medium text-xs shadow-2xs gap-1 cursor-pointer"
+              className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-sky-200/80 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] hover:border-[#0284C7] disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold text-xs shadow-2xs gap-1 cursor-pointer"
             >
               <ChevronLeft size={13} /> Prev
             </button>
@@ -322,8 +322,8 @@ export function CustomTable<T>({
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-sm text-xs font-semibold transition shadow-2xs cursor-pointer",
                   p === validCurrentPage
-                    ? "bg-sky-600 text-white border-transparent shadow-2xs font-bold"
-                    : "border border-slate-200 bg-white text-slate-700 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300"
+                    ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white border-transparent shadow-2xs font-bold"
+                    : "border border-sky-200/80 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] hover:border-[#0284C7]"
                 )}
               >
                 {p}
@@ -334,7 +334,7 @@ export function CustomTable<T>({
               type="button"
               disabled={validCurrentPage >= totalPages}
               onClick={() => handlePageSelect(validCurrentPage + 1)}
-              className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-sky-200/80 bg-white text-slate-600 hover:bg-[#E0F2FE] hover:text-[#0284C7] hover:border-[#0284C7] disabled:opacity-40 disabled:cursor-not-allowed transition font-medium text-xs shadow-2xs gap-1 cursor-pointer"
+              className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-sky-200/80 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] hover:border-[#0284C7] disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold text-xs shadow-2xs gap-1 cursor-pointer"
             >
               Next <ChevronRight size={13} />
             </button>

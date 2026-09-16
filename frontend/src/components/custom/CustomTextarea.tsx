@@ -27,7 +27,7 @@ export const CustomTextarea = forwardRef<HTMLTextAreaElement, CustomTextareaProp
           id={textareaId}
           rows={rows}
           className={cn(
-            "w-full resize-y rounded-sm border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 shadow-2xs",
+            "w-full resize-y rounded-sm border bg-white px-3 py-2 text-sm text-gray-600 outline-none transition placeholder:text-slate-400 shadow-2xs",
             "border-sky-200/90 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
             error ? "border-red-400 focus:border-red-500" : "",
             className

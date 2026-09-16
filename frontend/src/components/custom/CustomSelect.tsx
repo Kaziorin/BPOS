@@ -45,7 +45,7 @@ export const CustomSelect = forwardRef<HTMLSelectElement, CustomSelectProps>(
               "w-full appearance-none rounded-sm border px-3 py-2 pr-9 text-sm outline-none transition cursor-pointer shadow-2xs",
               darkMode
                 ? "bg-slate-800 border-slate-700 text-slate-100 focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8]/20"
-                : "bg-white border-sky-200/90 text-slate-900 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
+                : "bg-white border-sky-200/90 text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
               error ? "border-red-300" : "",
               className
             )}
