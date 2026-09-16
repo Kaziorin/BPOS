@@ -55,6 +55,39 @@ function WholesalePOSInner() {
   const [todaySales, setTodaySales] = useState(0);
   const [todayOrders, setTodayOrders] = useState(0);
 
+  // Fullscreen state & keyboard shortcut (F key)
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((e) => console.error(e));
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch((e) => console.error(e));
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<WsCategory>("All Products");
   const [sortBy, setSortBy] = useState<WsSortBy>("name-asc");
@@ -77,7 +110,7 @@ function WholesalePOSInner() {
 
   const [discountMode, setDiscountMode] = useState<DiscountMode>("flat");
   const [discountInput, setDiscountInput] = useState("0");
-  const [shipping, setShipping] = useState(15);
+  const [shipping, setShipping] = useState(0);
   const [note, setNote] = useState("");
   const [customerId, setCustomerId] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -299,7 +332,7 @@ function WholesalePOSInner() {
 
   const taxable = Math.max(subtotal - discountAmount, 0);
   const taxAmount = taxable * TAX_RATE;
-  const total = taxable + taxAmount + (Number(shipping) || 0);
+  const total = cart.length > 0 ? taxable + taxAmount + (Number(shipping) || 0) : 0;
 
   const stats = useMemo(() => {
     const low = products.filter((p) => (p.stockQty ?? 0) > 0 && (p.stockQty ?? 0) <= 10).length;
@@ -582,7 +615,9 @@ function WholesalePOSInner() {
           }}
           stats={stats}
           darkMode={darkMode}
+          isFullscreen={isFullscreen}
           onToggleDarkMode={() => setDarkMode((v) => !v)}
+          onToggleFullscreen={toggleFullscreen}
           onSelectCustomer={() => setCustomerModalOpen(true)}
         />
 

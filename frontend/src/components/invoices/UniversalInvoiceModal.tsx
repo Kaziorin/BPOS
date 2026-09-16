@@ -81,6 +81,7 @@ export interface InvoiceData {
     id?: string;
     name?: string;
   } | null;
+  cashierName?: string;
   items: InvoiceItem[];
   subTotal?: number;
   discountTotal?: number;
@@ -872,8 +873,9 @@ function SalonInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; f
       <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-600 border-b border-dashed border-slate-300 pb-3">
         <div><span className="text-slate-400">Client:</span> <strong>{data.customer?.name || "VIP Salon Client"}</strong></div>
         <div className="text-right"><span className="text-slate-400">Stylist:</span> <strong>{data.serverName || "Master Stylist Farhana"}</strong></div>
-        <div><span className="text-slate-400">Date:</span> {invoiceDate}</div>
+        <div><span className="text-slate-400">Cashier:</span> <strong>{data.cashier?.name || data.cashierName || "Admin"}</strong></div>
         <div className="text-right"><span className="text-slate-400">Voucher:</span> {data.invoiceNo}</div>
+        <div><span className="text-slate-400">Date:</span> {invoiceDate}</div>
       </div>
 
       <table className="w-full text-left text-xs">

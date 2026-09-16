@@ -457,6 +457,8 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                "paidTotal": paid, "dueTotal": due, "changeReturn": change_return,
                "change": change_return, "returnAmount": change_return,
                "paymentIds": payment_ids,
+               "cashierName": getattr(user, "name", None) or "Staff",
+               "cashier": {"id": getattr(user, "id", None), "name": getattr(user, "name", None) or "Staff"},
                **override_extra})
 
 
@@ -617,9 +619,11 @@ async def pos_sales(
                 "email": r.get("customerEmail"),
                 "loyaltyPoints": r.get("customerPoints") or 0,
             }
+            c_name = r.get("cashierName") or "Staff"
+            r["cashierName"] = c_name
             r["cashier"] = {
                 "id": r.get("cashierId"),
-                "name": r.get("cashierName"),
+                "name": c_name,
             }
             r["items"] = items_by_sale.get(r["id"], [])
             r["itemsCount"] = len(r["items"])
@@ -870,4 +874,34 @@ async def shift_detail(shiftId: str, tenantId: str = Depends(resolve_tenant), db
     txns = rows_to_dicts((await db.execute(text(
         "SELECT * FROM shift_txns WHERE shiftId=:id ORDER BY createdAt"), {"id": shiftId})).fetchall())
     summary = await _shift_summary(tenantId, shiftId, db)
-    return ok({"shift": dict(sh._mapping), "summary": summary, "txns": txns})
+    return ok({"shift": sh, "txns": txns, "summary": summary})
+
+
+@router.get("/api/v1/pos/stats/today")
+async def pos_stats_today(
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db)
+):
+    row = (await db.execute(text("""
+        SELECT COALESCE(SUM(total), 0.0) AS totalSales,
+               COUNT(*) AS transactionCount,
+               COALESCE(SUM(paidTotal), 0.0) AS paidTotal,
+               COALESCE(SUM(dueTotal), 0.0) AS dueTotal
+        FROM sales
+        WHERE tenantId = :t AND DATE(createdAt) = CURDATE() AND status != 'CANCELLED'
+    """), {"t": tenantId})).first()
+
+    total_sales = float(row[0]) if row and row[0] is not None else 0.0
+    tx_count = int(row[1]) if row and row[1] is not None else 0
+    paid_tot = float(row[2]) if row and row[2] is not None else 0.0
+    due_tot = float(row[3]) if row and row[3] is not None else 0.0
+
+    return ok({
+        "totalSales": round(total_sales, 2),
+        "revenue": round(total_sales, 2),
+        "transactionCount": tx_count,
+        "count": tx_count,
+        "paidTotal": round(paid_tot, 2),
+        "dueTotal": round(due_tot, 2)
+    })
