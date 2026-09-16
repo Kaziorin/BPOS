@@ -34,7 +34,7 @@ import { UniversalInvoiceModal } from "@/components/invoices/UniversalInvoiceMod
 function getCustomerTier(pts: number) {
   if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-200/80" };
   if (pts >= 1500) return { name: "Gold", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200/80" };
-  if (pts >= 500) return { name: "Silver", color: "text-sky-700", bg: "bg-sky-50", border: "border-sky-200/80" };
+  if (pts >= 500) return { name: "Silver", color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200/80" };
   return { name: "Bronze", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-200/80" };
 }
 
@@ -108,9 +108,9 @@ export default function GroceryHubPage() {
               <CustomButton
                 variant="outline"
                 size="sm"
-                className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50"
+                className="border-slate-200 text-emerald-800 hover:bg-emerald-50"
               >
-                <Monitor size={14} className="text-[#0284C7]" />
+                <Monitor size={14} className="text-emerald-700" />
                 Customer Display
               </CustomButton>
             </Link>
@@ -138,11 +138,11 @@ export default function GroceryHubPage() {
         ].map((stat, i) => (
           <div
             key={i}
-            className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300/80 transition"
+            className="rounded-sm border border-slate-200 bg-white p-4 shadow-xs hover:border-emerald-300/80 transition"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#0369A1]">{stat.label}</span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80">
+              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-800">{stat.label}</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200/80">
                 <stat.icon size={16} />
               </div>
             </div>
@@ -155,11 +155,11 @@ export default function GroceryHubPage() {
       {/* ── Main Content: Lane Activity & Scale PLU ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Recent Supermarket Lane Transactions */}
-        <div className="lg:col-span-2 rounded-sm border border-sky-100/90 bg-white shadow-xs overflow-hidden flex flex-col">
-          <div className="p-4 border-b border-sky-100/90 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 flex flex-wrap items-center justify-between gap-3">
+        <div className="lg:col-span-2 rounded-sm border border-slate-200 bg-white shadow-xs overflow-hidden flex flex-col">
+          <div className="p-4 border-b border-slate-200 bg-gradient-to-r from-emerald-50/80 via-white to-emerald-50/50 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="text-sm font-bold text-[#0369A1] flex items-center gap-2">
-                <History className="text-[#0284C7]" size={16} /> Lane Activity
+              <h3 className="text-sm font-bold text-emerald-800 flex items-center gap-2">
+                <History className="text-emerald-700" size={16} /> Lane Activity
               </h3>
               <p className="text-[11px] text-gray-400 mt-0.5">Real-time checkout transaction stream</p>
             </div>
@@ -172,15 +172,15 @@ export default function GroceryHubPage() {
                   placeholder="Search invoice, cashier..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="rounded-sm border border-sky-200/90 bg-white py-1.5 pl-8 pr-3 text-xs text-gray-800 placeholder-gray-400 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition w-56"
+                  className="rounded-sm border border-slate-200 bg-white py-1.5 pl-8 pr-3 text-xs text-gray-800 placeholder-gray-400 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 focus:outline-none transition w-56"
                 />
               </div>
               <button
                 onClick={loadData}
-                className="rounded-sm border border-sky-200/90 p-1.5 text-[#0369A1] hover:bg-sky-50 transition"
+                className="rounded-sm border border-slate-200 p-1.5 text-emerald-800 hover:bg-emerald-50 transition"
                 title="Refresh"
               >
-                <RefreshCw size={14} className={loading ? "animate-spin text-[#0284C7]" : ""} />
+                <RefreshCw size={14} className={loading ? "animate-spin text-emerald-700" : ""} />
               </button>
             </div>
           </div>
@@ -188,19 +188,19 @@ export default function GroceryHubPage() {
           <div className="flex-1 overflow-x-auto">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-24 gap-2">
-                <RefreshCw size={24} className="animate-spin text-[#0284C7]" />
-                <p className="text-xs font-semibold text-[#0369A1]">Syncing lane receipts...</p>
+                <RefreshCw size={24} className="animate-spin text-emerald-700" />
+                <p className="text-xs font-semibold text-emerald-800">Syncing lane receipts...</p>
               </div>
             ) : filteredSales.length === 0 ? (
               <div className="py-24 text-center space-y-2">
-                <Receipt size={32} className="mx-auto text-sky-300" />
+                <Receipt size={32} className="mx-auto text-emerald-300" />
                 <p className="text-sm font-bold text-gray-700">No Lane Activity</p>
                 <p className="text-xs text-gray-400">Launch a POS lane to start processing supermarket baskets</p>
               </div>
             ) : (
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-sky-100/90 bg-gradient-to-r from-sky-50/60 via-white to-sky-50/40 text-[11px] font-semibold uppercase tracking-wider text-[#0369A1]">
+                  <tr className="border-b border-slate-200 bg-gradient-to-r from-emerald-50/60 via-white to-emerald-50/40 text-[11px] font-semibold uppercase tracking-wider text-emerald-800">
                     <th className="py-3 px-4">Invoice</th>
                     <th className="py-3 px-4">Customer & Tier</th>
                     <th className="py-3 px-4">Time</th>
@@ -209,7 +209,7 @@ export default function GroceryHubPage() {
                     <th className="py-3 px-4 text-center">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-sky-100/60">
+                <tbody className="divide-y divide-slate-100">
                   {filteredSales.map((s) => {
                     const points = s.customer?.loyaltyPoints || 0;
                     const tier = getCustomerTier(points);
@@ -217,8 +217,8 @@ export default function GroceryHubPage() {
                     const itemCount = Array.isArray(s.items) && s.items.length > 0 ? s.items.length : (s.itemsCount || 0);
                     const totalAmt = Number(s.grandTotal ?? s.totalAmount ?? s.total ?? 0);
                     return (
-                      <tr key={s.id} className="hover:bg-sky-50/40 transition-colors">
-                        <td className="py-3 px-4 font-mono font-bold text-[#0369A1]">
+                      <tr key={s.id} className="hover:bg-emerald-50/40 transition-colors">
+                        <td className="py-3 px-4 font-mono font-bold text-emerald-800">
                           {s.invoiceNo || s.id.slice(0, 8).toUpperCase()}
                         </td>
                         <td className="py-3 px-4">
@@ -239,7 +239,7 @@ export default function GroceryHubPage() {
                           </div>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-sm bg-sky-50 text-[#0284C7] font-bold text-xs border border-sky-200/80">
+                          <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-sm bg-emerald-50 text-emerald-700 font-bold text-xs border border-emerald-200/80">
                             {itemCount}
                           </span>
                         </td>
@@ -249,7 +249,7 @@ export default function GroceryHubPage() {
                         <td className="py-3 px-4 text-center">
                           <button
                             onClick={() => setSelectedSale(s)}
-                            className="rounded-sm border border-sky-200/90 bg-white px-3 py-1 text-[11px] font-semibold text-[#0369A1] hover:bg-sky-50 transition shadow-2xs"
+                            className="rounded-sm border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-emerald-800 hover:bg-emerald-50 transition shadow-2xs"
                           >
                             Receipt
                           </button>
@@ -264,17 +264,17 @@ export default function GroceryHubPage() {
         </div>
 
         {/* Right Col: Produce & Scale PLU Price List */}
-        <div className="rounded-sm border border-sky-100/90 bg-white shadow-xs overflow-hidden flex flex-col">
-          <div className="p-4 border-b border-sky-100/90 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 flex items-center justify-between">
+        <div className="rounded-sm border border-slate-200 bg-white shadow-xs overflow-hidden flex flex-col">
+          <div className="p-4 border-b border-slate-200 bg-gradient-to-r from-emerald-50/80 via-white to-emerald-50/50 flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-[#0369A1] flex items-center gap-2">
-                <Activity className="text-[#0284C7]" size={16} /> Scale PLU Catalog
+              <h3 className="text-sm font-bold text-emerald-800 flex items-center gap-2">
+                <Activity className="text-emerald-700" size={16} /> Scale PLU Catalog
               </h3>
               <p className="text-[11px] text-gray-400 mt-0.5">Weight-based produce rates</p>
             </div>
             <Link
               href="/products/create"
-              className="flex h-7 w-7 items-center justify-center rounded-sm bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white hover:brightness-105 transition shadow-2xs"
+              className="flex h-7 w-7 items-center justify-center rounded-sm bg-emerald-600 hover:bg-emerald-700 text-white hover:brightness-105 transition shadow-2xs"
               title="Add PLU Product"
             >
               <PlusCircle size={15} />
@@ -287,17 +287,17 @@ export default function GroceryHubPage() {
               return (
                 <div
                   key={p.id}
-                  className="flex items-center justify-between p-2.5 rounded-sm border border-sky-100/90 bg-white hover:border-sky-300 transition shadow-2xs"
+                  className="flex items-center justify-between p-2.5 rounded-sm border border-slate-200 bg-white hover:border-emerald-300 transition shadow-2xs"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 flex items-center justify-center shrink-0 font-bold text-xs">
+                    <div className="w-8 h-8 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center justify-center shrink-0 font-bold text-xs">
                       {p.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
                       <p className="font-semibold text-gray-800 truncate text-xs">{p.name}</p>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className="text-[9px] font-mono text-gray-400">{p.sku || "NO-SKU"}</span>
-                        {isKg && <span className="text-[8px] font-bold bg-sky-50 text-[#0284C7] border border-sky-200/60 px-1 rounded-sm">SCALE</span>}
+                        {isKg && <span className="text-[8px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-1 rounded-sm">SCALE</span>}
                       </div>
                     </div>
                   </div>
@@ -310,7 +310,7 @@ export default function GroceryHubPage() {
             })}
           </div>
 
-          <div className="p-3 border-t border-sky-100/90 bg-sky-50/40">
+          <div className="p-3 border-t border-slate-200 bg-emerald-50/40">
             <Link href="/grocery/pos" className="w-full block">
               <CustomButton
                 variant="primary"

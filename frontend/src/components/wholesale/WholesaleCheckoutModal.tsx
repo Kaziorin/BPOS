@@ -126,7 +126,7 @@ export function WholesaleCheckoutModal({
 
   const textPrimary = darkMode ? "text-slate-100" : "text-slate-900";
   const textSub = darkMode ? "text-slate-400" : "text-slate-500";
-  const cardBg = darkMode ? "bg-slate-800/60 border-slate-700" : "bg-slate-50/50 border-sky-100/90";
+  const cardBg = darkMode ? "bg-slate-800/60 border-slate-700" : "bg-slate-50/50 border-slate-200";
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-3">
@@ -250,7 +250,7 @@ export function WholesaleCheckoutModal({
                   placeholder="0.00"
                   className={cn(
                     "w-full rounded-sm border pl-10 pr-5 py-4 text-[28px] font-black text-right tabular-nums focus:outline-none focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 transition-all",
-                    darkMode ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-800" : "bg-white border-sky-100/90 text-slate-900 placeholder-slate-100",
+                    darkMode ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-800" : "bg-white border-slate-200 text-slate-900 placeholder-slate-100",
                     isExact ? "border-emerald-400 focus:ring-emerald-600/10" : ""
                   )}
                 />
@@ -328,7 +328,7 @@ export function WholesaleCheckoutModal({
                   placeholder="0.00"
                   className={cn(
                     "w-full rounded-sm border pl-10 pr-5 py-4 text-[28px] font-black text-right tabular-nums focus:outline-none focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 transition-all",
-                    darkMode ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-800" : "bg-white border-sky-100/90 text-slate-900 placeholder-slate-100",
+                    darkMode ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-800" : "bg-white border-slate-200 text-slate-900 placeholder-slate-100",
                   )}
                 />
               </div>
@@ -426,7 +426,7 @@ export function WholesaleCheckoutModal({
               "rounded-sm border px-6 py-3.5 text-[14px] font-black transition-all active:scale-95",
               darkMode
                 ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
-                : "border-sky-100/90 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             )}
           >
             CANCEL

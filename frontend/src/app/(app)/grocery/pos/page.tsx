@@ -668,7 +668,7 @@ export default function GroceryPOSPage() {
     "Grocery": { icon: <ShoppingBag size={15} />, color: "text-orange-500" },
     "Beverages": { icon: <Coffee size={15} />, color: "text-blue-500" },
     "Snacks": { icon: <Package size={15} />, color: "text-amber-500" },
-    "Dairy": { icon: <Star size={15} />, color: "text-sky-500" },
+    "Dairy": { icon: <Star size={15} />, color: "text-emerald-600" },
     "Household": { icon: <Home size={15} />, color: "text-indigo-500" },
     "Bakery": { icon: <Utensils size={15} />, color: "text-amber-600" },
     "Frozen Foods": { icon: <Snowflake size={15} />, color: "text-cyan-500" },
@@ -995,11 +995,11 @@ export default function GroceryPOSPage() {
             {/* Status Summary Bar — Pure White */}
             <div className="bg-white rounded-sm border border-gray-200 shadow-md px-4 py-2.5 flex items-center justify-between divide-x divide-gray-100">
               {[
-                { icon: <ShoppingBag size={16} />, label: "Total Items", val: totalItems, bg: "bg-slate-100 text-slate-700 border border-sky-100/90" },
-                { icon: <Package size={16} />, label: "Total Qty", val: Math.round(totalQty * 100) / 100, bg: "bg-slate-100 text-slate-700 border border-sky-100/90" },
-                { icon: <FileText size={16} />, label: "Subtotal", val: fmt(subTotal), bg: "bg-slate-100 text-slate-700 border border-sky-100/90" },
-                { icon: <Tag size={16} />, label: "Discount", val: fmt(discAmt), bg: "bg-slate-100 text-slate-700 border border-sky-100/90" },
-                { icon: <Gift size={16} />, label: "Total Savings", val: fmt(discAmt), bg: "bg-slate-100 text-slate-700 border border-sky-100/90" },
+                { icon: <ShoppingBag size={16} />, label: "Total Items", val: totalItems, bg: "bg-slate-100 text-slate-700 border border-slate-200" },
+                { icon: <Package size={16} />, label: "Total Qty", val: Math.round(totalQty * 100) / 100, bg: "bg-slate-100 text-slate-700 border border-slate-200" },
+                { icon: <FileText size={16} />, label: "Subtotal", val: fmt(subTotal), bg: "bg-slate-100 text-slate-700 border border-slate-200" },
+                { icon: <Tag size={16} />, label: "Discount", val: fmt(discAmt), bg: "bg-slate-100 text-slate-700 border border-slate-200" },
+                { icon: <Gift size={16} />, label: "Total Savings", val: fmt(discAmt), bg: "bg-slate-100 text-slate-700 border border-slate-200" },
               ].map((s, idx) => (
                 <div key={s.label} className={`flex items-center gap-2.5 ${idx === 0 ? "" : "pl-3.5"} ${idx === 4 ? "" : "pr-3.5"} flex-1`}>
                   <div className={`w-8 h-8 rounded-xl ${s.bg} flex items-center justify-center shrink-0 shadow-2xs`}>
@@ -1246,7 +1246,7 @@ export default function GroceryPOSPage() {
                         <Icon size={14} className="text-emerald-600 group-hover:scale-110 transition-transform shrink-0" />
                         <div className="min-w-0 flex-1">
                           <p className="text-[11px] font-bold text-slate-800 truncate leading-tight group-hover:text-emerald-700">{label}</p>
-                          <span className="text-[8px] font-bold font-mono bg-slate-100 text-slate-700 border border-sky-100/90 px-1 py-0.1 rounded inline-block mt-0.5">{key}</span>
+                          <span className="text-[8px] font-bold font-mono bg-slate-100 text-slate-700 border border-slate-200 px-1 py-0.1 rounded inline-block mt-0.5">{key}</span>
                         </div>
                       </button>
                     ))}

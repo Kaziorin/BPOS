@@ -626,7 +626,7 @@ export default function RepairPOSPage() {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="text-xs font-bold rounded-xl border border-sky-100/90 bg-white px-3 py-2 focus:outline-none focus:border-indigo-400 cursor-pointer"
+              className="text-xs font-bold rounded-xl border border-slate-200 bg-white px-3 py-2 focus:outline-none focus:border-indigo-400 cursor-pointer"
             >
               {PRIORITIES.map((p) => (
                 <option key={p.id} value={p.id}>{p.label} Priority</option>
@@ -637,7 +637,7 @@ export default function RepairPOSPage() {
             <select
               value={technicianId}
               onChange={(e) => setTechnicianId(e.target.value)}
-              className="text-xs font-semibold rounded-xl border border-sky-100/90 bg-white px-3 py-2 focus:outline-none focus:border-indigo-400 min-w-[160px] cursor-pointer"
+              className="text-xs font-semibold rounded-xl border border-slate-200 bg-white px-3 py-2 focus:outline-none focus:border-indigo-400 min-w-[160px] cursor-pointer"
             >
               <option value="">-- Select Technician --</option>
               {technicians.map((t) => (
@@ -709,7 +709,7 @@ export default function RepairPOSPage() {
                       value={searchFilter}
                       onChange={(e) => setSearchFilter(e.target.value)}
                       placeholder="Search parts by name, SKU or category..."
-                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-sky-100/90 bg-slate-50 text-xs font-medium text-slate-700 focus:outline-none focus:border-indigo-400 focus:bg-white transition"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-slate-700 focus:outline-none focus:border-indigo-400 focus:bg-white transition"
                     />
                     {searchFilter && (
                       <button onClick={() => setSearchFilter("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
@@ -774,7 +774,7 @@ export default function RepairPOSPage() {
                           </div>
                           
                           <div className="flex flex-wrap items-center gap-2">
-                             <span className="text-[10px] text-slate-500 font-mono bg-white/80 px-2 py-0.5 rounded-md border border-sky-100/90/60 shadow-sm">{part.sku}</span>
+                             <span className="text-[10px] text-slate-500 font-mono bg-white/80 px-2 py-0.5 rounded-md border border-slate-200/60 shadow-sm">{part.sku}</span>
                              {part.categoryName && (
                                <span className="text-[10px] text-indigo-700 bg-indigo-50/80 px-2 py-0.5 rounded-md font-bold shadow-sm">{part.categoryName}</span>
                              )}
@@ -920,7 +920,7 @@ export default function RepairPOSPage() {
                         { name: "Charging Port", price: 350, warranty: 3, icon: Settings2, color: "text-orange-500", bg: "bg-orange-50", border: "border-orange-100" },
                         { name: "Software Flash", price: 250, warranty: 1, icon: Monitor, color: "text-indigo-500", bg: "bg-indigo-50", border: "border-indigo-100" },
                         { name: "Housing Change", price: 600, warranty: 0, icon: Hammer, color: "text-rose-500", bg: "bg-rose-50", border: "border-rose-100" },
-                        { name: "Diagnostic Fee", price: 200, warranty: 0, icon: Search, color: "text-slate-500", bg: "bg-slate-100", border: "border-sky-100/90" },
+                        { name: "Diagnostic Fee", price: 200, warranty: 0, icon: Search, color: "text-slate-500", bg: "bg-slate-100", border: "border-slate-200" },
                       ].map((preset) => (
                         <button
                           key={preset.name}
@@ -1039,7 +1039,7 @@ export default function RepairPOSPage() {
                       {showCustomerDropdown && (customerSearch.length > 0 || filteredCustomers.length > 0) && (
                         <>
                           <div className="fixed inset-0 z-20" onClick={() => setShowCustomerDropdown(false)} />
-                          <div className="absolute z-30 left-0 right-0 top-full mt-1 bg-white rounded-xl border border-sky-100/90 shadow-xl max-h-52 overflow-y-auto">
+                          <div className="absolute z-30 left-0 right-0 top-full mt-1 bg-white rounded-xl border border-slate-200 shadow-xl max-h-52 overflow-y-auto">
                             {filteredCustomers.length === 0 ? (
                               <p className="text-xs text-slate-400 text-center py-4">No customers found</p>
                             ) : (
@@ -1195,7 +1195,7 @@ export default function RepairPOSPage() {
                     <span className="flex items-center gap-1"><Hammer size={11} /> Labor</span>
                     <span className="font-bold tabular-nums">{fmt(laborTotal)}</span>
                   </div>
-                  <div className="flex justify-between items-center pt-2 border-t border-dashed border-sky-100/90">
+                  <div className="flex justify-between items-center pt-2 border-t border-dashed border-slate-200">
                     <span className="text-sm font-extrabold text-slate-700">Grand Total</span>
                     <span className="text-xl font-black text-indigo-700 tabular-nums">{fmt(grandTotal)}</span>
                   </div>
@@ -1217,7 +1217,7 @@ export default function RepairPOSPage() {
                       "py-2.5 px-2 rounded-xl text-[10px] font-extrabold flex flex-col items-center gap-1 transition-all border",
                       paymentMethod === pm.id
                         ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200"
-                        : "bg-slate-50 text-slate-500 border-sky-100/90 hover:border-indigo-300 hover:text-indigo-600"
+                        : "bg-slate-50 text-slate-500 border-slate-200 hover:border-indigo-300 hover:text-indigo-600"
                     )}
                   >
                     <pm.icon size={14} />
@@ -1276,7 +1276,7 @@ export default function RepairPOSPage() {
                 </div>
                 <h2 className="text-lg font-black tracking-tight text-slate-900">Ticket Completed!</h2>
                 <p className="text-slate-500 text-xs mt-1 font-medium">Device delivered & payment recorded</p>
-                <div className="mt-4 bg-slate-50 rounded-xl px-4 py-2 inline-block border border-sky-100/90 shadow-sm">
+                <div className="mt-4 bg-slate-50 rounded-xl px-4 py-2 inline-block border border-slate-200 shadow-sm">
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Ticket No.</p>
                   <p className="text-base font-extrabold font-mono tracking-tight text-slate-800">{completedTicket.ticketNo}</p>
                 </div>
@@ -1304,7 +1304,7 @@ export default function RepairPOSPage() {
               </div>
 
               {completedTicket.diagnosisProblem && (
-                <div className="bg-slate-50 border border-sky-100/90 rounded-xl p-3">
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Problem / Diagnosis</p>
                   <p className="text-xs text-slate-800 font-medium">{completedTicket.diagnosisProblem}</p>
                 </div>
@@ -1339,7 +1339,7 @@ export default function RepairPOSPage() {
               </div>
 
               {/* Totals */}
-              <div className="bg-slate-50 border border-sky-100/90 rounded-sm p-4 space-y-2">
+              <div className="bg-slate-50 border border-slate-200 rounded-sm p-4 space-y-2">
                 <div className="flex justify-between text-xs text-slate-500">
                   <span>Parts Total</span>
                   <span className="font-bold text-slate-700 tabular-nums">{fmt(completedTicket.partsTotal)}</span>
@@ -1348,13 +1348,13 @@ export default function RepairPOSPage() {
                   <span>Labor Total</span>
                   <span className="font-bold text-slate-700 tabular-nums">{fmt(completedTicket.laborTotal)}</span>
                 </div>
-                <div className="flex justify-between items-center pt-3 mt-1 border-t border-sky-100/90">
+                <div className="flex justify-between items-center pt-3 mt-1 border-t border-slate-200">
                   <span className="text-sm font-extrabold text-slate-800">Total Paid</span>
                   <span className="text-2xl font-black text-black tabular-nums tracking-tight">{fmt(completedTicket.grandTotal)}</span>
                 </div>
                 <div className="flex justify-between items-center mt-1">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Payment Method</span>
-                  <span className="text-[10px] font-black text-slate-700 bg-white rounded px-2 py-0.5 border border-sky-100/90 shadow-sm">{completedTicket.paymentMethod}</span>
+                  <span className="text-[10px] font-black text-slate-700 bg-white rounded px-2 py-0.5 border border-slate-200 shadow-sm">{completedTicket.paymentMethod}</span>
                 </div>
               </div>
 
@@ -1369,7 +1369,7 @@ export default function RepairPOSPage() {
             <div className="p-4 border-t border-slate-100 flex gap-3 bg-slate-50">
               <button
                 onClick={() => window.print()}
-                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white border border-sky-100/90 text-slate-700 text-xs font-bold hover:bg-slate-50 hover:text-black transition shadow-sm"
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 hover:text-black transition shadow-sm"
               >
                 <Printer size={16} /> Print Job Card
               </button>

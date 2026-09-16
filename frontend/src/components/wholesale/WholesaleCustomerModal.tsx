@@ -124,7 +124,7 @@ export function WholesaleCustomerModal({
               {filteredCustomers.length === 0 ? (
                 <div className={cn(
                   "py-16 text-center rounded-sm border border-dashed transition-colors",
-                  darkMode ? "bg-slate-900/40 border-slate-800 text-slate-500" : "bg-slate-50 border-sky-100/90 text-slate-400"
+                  darkMode ? "bg-slate-900/40 border-slate-800 text-slate-500" : "bg-slate-50 border-slate-200 text-slate-400"
                 )}>
                   <Users size={40} className="mx-auto mb-3 opacity-20" />
                   <p className="text-sm font-bold uppercase tracking-wider">No customers found</p>

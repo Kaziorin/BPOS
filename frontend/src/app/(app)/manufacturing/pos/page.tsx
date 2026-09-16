@@ -68,7 +68,7 @@ const FOOTER_BTNS = [
 
 const PAYMENT_METHODS = [
   { key: "cash",   label: "Cash",           Icon: DollarSign,     color: "text-emerald-600" },
-  { key: "card",   label: "Card / POS",     Icon: CreditCard,     color: "text-sky-600"     },
+  { key: "card",   label: "Card / POS",     Icon: CreditCard,     color: "text-slate-700"   },
   { key: "mobile", label: "bKash/Nagad",    Icon: Smartphone,     color: "text-pink-600"    },
   { key: "credit", label: "Credit Sale",    Icon: Receipt,        color: "text-purple-600"  },
   { key: "due",    label: "Partial Due",    Icon: Clock,          color: "text-amber-600"   },
@@ -571,8 +571,8 @@ export default function BakeryPOSPage() {
             </button>
           ) : (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
-              <kbd className="text-[9px] font-bold text-slate-400 bg-slate-100 border border-sky-100/90 px-1.5 py-0.5 rounded shadow-2xs">Ctrl</kbd>
-              <kbd className="text-[9px] font-bold text-slate-400 bg-slate-100 border border-sky-100/90 px-1.5 py-0.5 rounded shadow-2xs">K</kbd>
+              <kbd className="text-[9px] font-bold text-slate-400 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">Ctrl</kbd>
+              <kbd className="text-[9px] font-bold text-slate-400 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">K</kbd>
             </div>
           )}
         </div>
@@ -580,7 +580,7 @@ export default function BakeryPOSPage() {
         {/* Stats */}
         <div className="flex items-center gap-2 flex-none ml-auto">
           {/* Today's Sales */}
-          <div className="flex items-center gap-2.5 bg-white/90 border border-sky-100/90 rounded-xl px-3 h-[38px] shadow-sm hover:border-emerald-300 transition-all">
+          <div className="flex items-center gap-2.5 bg-white/90 border border-slate-200 rounded-xl px-3 h-[38px] shadow-sm hover:border-emerald-300 transition-all">
             <div className="w-6.5 h-6.5 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center flex-none">
               <FileText size={14} className="text-emerald-700" />
             </div>
@@ -591,9 +591,9 @@ export default function BakeryPOSPage() {
           </div>
 
           {/* Total Orders */}
-          <div className="flex items-center gap-2.5 bg-white/90 border border-sky-100/90 rounded-xl px-3 h-[38px] shadow-sm hover:border-sky-300 transition-all">
-            <div className="w-6.5 h-6.5 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center flex-none">
-              <ShoppingBag size={14} className="text-sky-600" />
+          <div className="flex items-center gap-2.5 bg-white/90 border border-slate-200 rounded-xl px-3 h-[38px] shadow-sm hover:border-slate-300 transition-all">
+            <div className="w-6.5 h-6.5 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center flex-none">
+              <ShoppingBag size={14} className="text-slate-700" />
             </div>
             <div>
               <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-0.5">Total Orders</div>
@@ -602,7 +602,7 @@ export default function BakeryPOSPage() {
           </div>
 
           {/* Live Clock */}
-          <div className="flex items-center gap-2.5 bg-white/90 border border-sky-100/90 rounded-xl px-3 h-[38px] shadow-sm hover:border-amber-300 transition-all">
+          <div className="flex items-center gap-2.5 bg-white/90 border border-slate-200 rounded-xl px-3 h-[38px] shadow-sm hover:border-amber-300 transition-all">
             <div className="w-6.5 h-6.5 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center flex-none">
               <Clock size={14} className="text-amber-600" />
             </div>
@@ -613,7 +613,7 @@ export default function BakeryPOSPage() {
           </div>
 
           {/* Admin User */}
-          <div className="flex items-center gap-2.5 bg-white/90 border border-sky-100/90 rounded-xl px-3 h-[38px] cursor-pointer hover:border-emerald-400 hover:shadow-md transition-all">
+          <div className="flex items-center gap-2.5 bg-white/90 border border-slate-200 rounded-xl px-3 h-[38px] cursor-pointer hover:border-emerald-400 hover:shadow-md transition-all">
             <div className="w-6.5 h-6.5 rounded-lg bg-gradient-to-br from-emerald-800 to-green-700 flex items-center justify-center text-white text-[11px] font-black flex-none shadow-sm">
               {(user?.name || "Admin").charAt(0).toUpperCase()}
             </div>
@@ -679,11 +679,11 @@ export default function BakeryPOSPage() {
             </div>
 
             <div className="flex items-center gap-2.5">
-              <div className="flex items-center gap-1.5 bg-white border border-sky-100/90 rounded-xl px-3 py-1 text-[11.5px] font-semibold text-slate-600 cursor-pointer hover:border-emerald-400 shadow-sm transition-all">
+              <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-1 text-[11.5px] font-semibold text-slate-600 cursor-pointer hover:border-emerald-400 shadow-sm transition-all">
                 <span>Sort by: <strong className="text-slate-800 font-bold ml-1">Popular</strong></span>
                 <ChevronDown size={13} className="text-slate-400" />
               </div>
-              <div className="flex items-center gap-0.5 bg-slate-100/80 p-1 rounded-xl border border-sky-100/90/60">
+              <div className="flex items-center gap-0.5 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
                 <button onClick={() => setViewMode("grid")}
                   className={`p-1 rounded-lg transition-all ${
                     viewMode === "grid" ? "bg-emerald-700 text-white shadow-sm" : "text-slate-400 hover:text-slate-700"
@@ -712,7 +712,7 @@ export default function BakeryPOSPage() {
                 return (
                   <div key={p.id}
                     onClick={() => addToCart(p)}
-                    className={`bg-white rounded-sm border border-sky-100/90/90 overflow-hidden cursor-pointer relative group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_16px_35px_-6px_rgba(16,185,129,0.25)] hover:border-emerald-400 card-shine ${
+                    className={`bg-white rounded-sm border border-slate-200/90 overflow-hidden cursor-pointer relative group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_16px_35px_-6px_rgba(16,185,129,0.25)] hover:border-emerald-400 card-shine ${
                       isAdding ? "scale-[1.04] border-emerald-500 shadow-[0_0_22px_rgba(16,185,129,0.45)] ring-2 ring-emerald-400/50" : ""
                     } ${viewMode === "list" ? "flex items-center gap-3 p-2.5" : ""}`}>
 
@@ -858,7 +858,7 @@ export default function BakeryPOSPage() {
         </div>
 
         {/* ── RIGHT CART PANEL (30%) ─────────────────────────────────────────── */}
-        <div className="w-[30%] min-w-[350px] flex-none flex flex-col bg-white/95 backdrop-blur-xl rounded-sm border border-sky-100/90/90 shadow-[0_4px_25px_rgba(0,0,0,0.04)] overflow-hidden">
+        <div className="w-[30%] min-w-[350px] flex-none flex flex-col bg-white/95 backdrop-blur-xl rounded-sm border border-slate-200/90 shadow-[0_4px_25px_rgba(0,0,0,0.04)] overflow-hidden">
 
           {/* Cart Header */}
           <div className="flex-none px-3.5 py-3 flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/90 via-white to-emerald-50/40">
@@ -986,7 +986,7 @@ export default function BakeryPOSPage() {
             <select
               value={selectedCust}
               onChange={e => setSelectedCust(e.target.value)}
-              className="flex-1 appearance-none bg-slate-50 border border-sky-100/90 rounded-xl px-3 py-1.5 text-[11.5px] font-semibold text-slate-700 outline-none cursor-pointer hover:border-emerald-300 transition-colors shadow-2xs">
+              className="flex-1 appearance-none bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-[11.5px] font-semibold text-slate-700 outline-none cursor-pointer hover:border-emerald-300 transition-colors shadow-2xs">
               {customers.map(c => (
                 <option key={c.id} value={c.id}>
                   {c.name} {c.phone ? `(${c.phone})` : ""}
@@ -1008,7 +1008,7 @@ export default function BakeryPOSPage() {
                   className={`flex items-center justify-center gap-1.5 h-[34px] px-2 rounded-xl text-[10.5px] font-bold border transition-all ${
                     active
                       ? "bg-gradient-to-br from-emerald-800 to-green-700 border-emerald-800 text-white shadow-[0_4px_12px_rgba(21,128,61,0.3)] scale-[1.02]"
-                      : "bg-slate-50 border-sky-100/90 hover:border-emerald-300 hover:bg-emerald-50/50 text-slate-700 hover:scale-[1.01]"
+                      : "bg-slate-50 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/50 text-slate-700 hover:scale-[1.01]"
                   }`}>
                   <pm.Icon size={12} className={active ? "text-white" : pm.color} />
                   <span className="truncate">{pm.label}</span>
@@ -1062,11 +1062,11 @@ export default function BakeryPOSPage() {
           <div>
             <h4 className="text-xs font-bold text-slate-800 mb-2">Held Orders ({heldSales.length})</h4>
             {heldSales.length === 0 ? (
-              <p className="text-xs text-slate-400 py-4 text-center bg-slate-50 rounded-xl border border-dashed border-sky-100/90">No orders currently held.</p>
+              <p className="text-xs text-slate-400 py-4 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">No orders currently held.</p>
             ) : (
               <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                 {heldSales.map(h => (
-                  <div key={h.id} className="flex items-center justify-between p-3 bg-slate-50 border border-sky-100/90 rounded-xl hover:border-emerald-300 transition-colors">
+                  <div key={h.id} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-emerald-300 transition-colors">
                     <div>
                       <div className="text-xs font-bold text-slate-800">{h.id} — <span className="text-emerald-700">{h.note}</span></div>
                       <div className="text-[10px] text-slate-400">{h.items.length} Items • Saved at {h.time}</div>
@@ -1147,7 +1147,7 @@ export default function BakeryPOSPage() {
                       <div key={c.id} className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
                         isSelected
                           ? "bg-emerald-50/90 border-emerald-300 shadow-2xs ring-1 ring-emerald-400/50"
-                          : "bg-slate-50/70 border-sky-100/90 hover:bg-emerald-50/40 hover:border-emerald-200"
+                          : "bg-slate-50/70 border-slate-200 hover:bg-emerald-50/40 hover:border-emerald-200"
                       }`}>
                         <div className="min-w-0 pr-2">
                           <div className="flex items-center gap-1.5">
@@ -1242,7 +1242,7 @@ export default function BakeryPOSPage() {
       <CustomModal open={showReceiptModal} onClose={() => setShowReceiptModal(false)} title="Sale Invoice & Receipt" size="md">
         <div className="space-y-4">
           {/* Printable Receipt Box */}
-          <div className="p-4 bg-slate-50 border border-sky-100/90 rounded-sm font-mono text-xs text-slate-800 shadow-inner">
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-sm font-mono text-xs text-slate-800 shadow-inner">
             <div className="text-center border-b border-dashed border-slate-300 pb-3">
               <h3 className="font-black text-sm uppercase tracking-wider text-slate-900">BPOS Bakery &amp; Manufacturing</h3>
               <p className="text-[10px] text-slate-500">Dhanmondi, Dhaka, Bangladesh</p>

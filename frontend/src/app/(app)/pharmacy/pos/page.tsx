@@ -869,7 +869,7 @@ export default function PharmacyPOSPage() {
         {/* Left Card */}
         <div className={cn(
           "flex w-full lg:w-[70%] shrink-0 flex-col overflow-hidden rounded-sm border shadow-2xs",
-          darkMode ? "border-slate-700 bg-slate-800" : "border-sky-100/90 bg-white",
+          darkMode ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white",
         )}>
           <PharmacyPOSLeftPanel
             search={search}
@@ -910,7 +910,7 @@ export default function PharmacyPOSPage() {
         {/* Right Card */}
         <div className={cn(
           "flex w-full lg:w-[30%] shrink-0 flex-col overflow-hidden rounded-sm border shadow-2xs",
-          darkMode ? "border-slate-700 bg-slate-800" : "border-sky-100/90 bg-white",
+          darkMode ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white",
         )}>
           <PharmacyPOSRightPanel
             rxMode={rxMode}
@@ -960,7 +960,7 @@ export default function PharmacyPOSPage() {
       {/* ═══ FOOTER ═══ */}
       <div className={cn(
         "flex-none rounded-sm border shadow-2xs overflow-hidden",
-        darkMode ? "border-slate-700 bg-slate-800" : "border-sky-100/90 bg-white",
+        darkMode ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white",
       )}>
         <PharmacyPOSFooter
           timeStr={timeStr}
@@ -1003,7 +1003,7 @@ export default function PharmacyPOSPage() {
                     onClick={() => setPickerBatch(b)}
                     className={cn(
                       "flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left transition disabled:opacity-40",
-                      selected ? "border-teal-400 bg-teal-50 ring-1 ring-teal-200" : "border-slate-100 hover:border-sky-100/90",
+                      selected ? "border-teal-400 bg-teal-50 ring-1 ring-teal-200" : "border-slate-100 hover:border-slate-200",
                     )}
                   >
                     <div className="min-w-0">

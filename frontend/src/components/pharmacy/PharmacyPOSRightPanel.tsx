@@ -146,13 +146,13 @@ export function PharmacyPOSRightPanel({
   return (
     <aside className={cn(
       "flex w-full flex-col overflow-hidden border-l h-full transition",
-      darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-sky-100/90 bg-white text-slate-800"
+      darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-slate-200 bg-white text-slate-800"
     )}>
       {/* ═══ TOP HEADER ═══ */}
-      <div className={cn("flex flex-none items-center justify-between border-b px-3 py-2.5 transition", darkMode ? "border-slate-800 bg-slate-900" : "border-sky-100/90 bg-white")}>
+      <div className={cn("flex flex-none items-center justify-between border-b px-3 py-2.5 transition", darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white")}>
         {/* Rx Mode Toggle */}
         <div className="flex items-center gap-2">
-          <div className={cn("flex items-center gap-2 rounded-xl border px-2.5 py-1", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-sky-100/90")}>
+          <div className={cn("flex items-center gap-2 rounded-xl border px-2.5 py-1", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-200")}>
             <span className={cn("text-[11px] font-black", darkMode ? "text-slate-200" : "text-slate-700")}>Rx Mode</span>
             <button
               type="button"
@@ -205,7 +205,7 @@ export function PharmacyPOSRightPanel({
             <button
               type="button"
               onClick={() => { setProfileOpen((v) => !v); setBellOpen(false); }}
-              className={cn("flex items-center gap-2 rounded-xl border px-2 py-1 shadow-2xs transition", darkMode ? "border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-100" : "border-sky-100/90 bg-white hover:bg-slate-50 text-slate-800")}
+              className={cn("flex items-center gap-2 rounded-xl border px-2 py-1 shadow-2xs transition", darkMode ? "border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-100" : "border-slate-200 bg-white hover:bg-slate-50 text-slate-800")}
             >
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-teal-600 text-white font-bold text-[11px]">
                 <User size={14} />
@@ -248,7 +248,7 @@ export function PharmacyPOSRightPanel({
 
         {/* Customer Select Dropdown */}
         <div className="flex items-center gap-1">
-          <div className={cn("flex items-center rounded-xl border px-2 py-1", darkMode ? "border-slate-700 bg-slate-800" : "border-sky-100/90 bg-slate-50")}>
+          <div className={cn("flex items-center rounded-xl border px-2 py-1", darkMode ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-slate-50")}>
             <User size={13} className="text-slate-400 mr-1.5" />
             <select
               value={customerId}
@@ -266,7 +266,7 @@ export function PharmacyPOSRightPanel({
           <button
             type="button"
             onClick={onAddCustomer}
-            className={cn("flex h-7 w-7 items-center justify-center rounded-xl border transition", darkMode ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700" : "border-sky-100/90 bg-slate-50 text-slate-600 hover:bg-teal-50 hover:text-[#00796b] hover:border-teal-200")}
+            className={cn("flex h-7 w-7 items-center justify-center rounded-xl border transition", darkMode ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700" : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-teal-50 hover:text-[#00796b] hover:border-teal-200")}
             title="Add new customer"
           >
             <Plus size={13} />
@@ -286,7 +286,7 @@ export function PharmacyPOSRightPanel({
           cart.map((item, idx) => (
             <div
               key={`${item.productId}-${idx}`}
-              className={cn("flex items-center gap-2 rounded-xl border p-2 shadow-2xs transition", darkMode ? "border-slate-800 bg-slate-900 text-slate-100 hover:border-slate-700" : "border-sky-100/90 bg-white hover:border-teal-200")}
+              className={cn("flex items-center gap-2 rounded-xl border p-2 shadow-2xs transition", darkMode ? "border-slate-800 bg-slate-900 text-slate-100 hover:border-slate-700" : "border-slate-200 bg-white hover:border-teal-200")}
             >
               {/* Thumb */}
               <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border overflow-hidden", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-slate-100")}>
@@ -313,7 +313,7 @@ export function PharmacyPOSRightPanel({
               </div>
 
               {/* Qty controls */}
-              <div className={cn("flex items-center gap-0.5 border rounded-lg p-0.5", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-sky-100/90")}>
+              <div className={cn("flex items-center gap-0.5 border rounded-lg p-0.5", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-200")}>
                 <button
                   type="button"
                   onClick={() => onQty(idx, item.qty - 1)}
@@ -350,7 +350,7 @@ export function PharmacyPOSRightPanel({
       </div>
 
       {/* ═══ FIXED BOTTOM CHECKOUT & TOTALS ═══ */}
-      <div className={cn("flex-none border-t px-3 py-2 space-y-2 transition", darkMode ? "border-slate-800 bg-slate-900" : "border-sky-100/90 bg-white")}>
+      <div className={cn("flex-none border-t px-3 py-2 space-y-2 transition", darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white")}>
         {/* Pharmacy Safety Check Accordion */}
         <div className="rounded-xl border border-teal-200/80 bg-[#e8f7f5] overflow-hidden">
           <button
@@ -399,7 +399,7 @@ export function PharmacyPOSRightPanel({
                     "w-full rounded-lg border pl-5 pr-1.5 py-1 text-[11px] font-bold focus:border-teal-500 focus:outline-none transition",
                     discountApplied
                       ? (darkMode ? "border-emerald-500 bg-emerald-950/60 text-emerald-300" : "border-emerald-400 bg-emerald-50 text-slate-800")
-                      : (darkMode ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500" : "border-sky-100/90 bg-white text-slate-800 placeholder-slate-400")
+                      : (darkMode ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500" : "border-slate-200 bg-white text-slate-800 placeholder-slate-400")
                   )}
                 />
               </div>
@@ -424,14 +424,14 @@ export function PharmacyPOSRightPanel({
               placeholder="Add note..."
               className={cn(
                 "w-full rounded-lg border px-2 py-1 text-[10.5px] font-semibold focus:border-teal-500 focus:outline-none resize-none transition",
-                darkMode ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500" : "border-sky-100/90 bg-white text-slate-800 placeholder-slate-400"
+                darkMode ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500" : "border-slate-200 bg-white text-slate-800 placeholder-slate-400"
               )}
             />
           </div>
         </div>
 
         {/* Calculation Totals */}
-        <div className={cn("space-y-1 rounded-xl border p-2 text-[11.5px] transition", darkMode ? "border-slate-700 bg-slate-800/80" : "border-sky-100/90 bg-slate-50/70")}>
+        <div className={cn("space-y-1 rounded-xl border p-2 text-[11.5px] transition", darkMode ? "border-slate-700 bg-slate-800/80" : "border-slate-200 bg-slate-50/70")}>
           <div className={cn("flex justify-between font-semibold", darkMode ? "text-slate-300" : "text-slate-600")}>
             <span>Sub Total</span>
             <span className={cn("font-extrabold tabular-nums whitespace-nowrap", darkMode ? "text-slate-100" : "text-slate-800")}>৳ {subtotal.toFixed(2)}</span>
@@ -444,7 +444,7 @@ export function PharmacyPOSRightPanel({
             <span>VAT (15%)</span>
             <span className={cn("font-extrabold tabular-nums whitespace-nowrap", darkMode ? "text-slate-100" : "text-slate-800")}>৳ {vatAmount.toFixed(2)}</span>
           </div>
-          <div className={cn("pt-1.5 border-t border-dashed flex items-baseline justify-between", darkMode ? "border-slate-700" : "border-sky-100/90")}>
+          <div className={cn("pt-1.5 border-t border-dashed flex items-baseline justify-between", darkMode ? "border-slate-700" : "border-slate-200")}>
             <span className={cn("text-[13px] font-black", darkMode ? "text-slate-100" : "text-slate-900")}>Total</span>
             <span className="text-[20px] font-black tabular-nums text-[#00796b] whitespace-nowrap">
               ৳ {total.toFixed(2)}
@@ -467,7 +467,7 @@ export function PharmacyPOSRightPanel({
                     ? "border-[#00796b] bg-[#e6f7f5] text-[#00796b]"
                     : darkMode
                       ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
-                      : "border-sky-100/90 bg-white text-slate-500 hover:bg-slate-50",
+                      : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50",
                 )}
               >
                 <Icon size={12} />
@@ -492,7 +492,7 @@ export function PharmacyPOSRightPanel({
             disabled={cart.length === 0}
             className={cn(
               "flex flex-col items-center justify-center rounded-sm border px-3 py-2.5 transition shadow-2xs disabled:opacity-40 shrink-0",
-              darkMode ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700" : "border-sky-100/90 bg-slate-50 text-slate-700 hover:bg-slate-100"
+              darkMode ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
             )}
           >
             <PauseCircle size={16} />

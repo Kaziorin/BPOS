@@ -224,7 +224,7 @@ export default function TimeSlotsManager() {
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Top Controls Card: Global Filter & Navigation */}
-      <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div className="p-3 rounded-xl bg-teal-50 border border-teal-200 text-teal-700">
             <Clock size={24} />
@@ -235,7 +235,7 @@ export default function TimeSlotsManager() {
                 Restaurant Time Slots &amp; Meal Shifts
               </h2>
               {currentTime && (
-                <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-sky-100/90">
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
                   Clock: {currentTime}
                 </span>
               )}
@@ -342,7 +342,7 @@ export default function TimeSlotsManager() {
               className={`rounded-sm border bg-white p-4 shadow-xs transition-all relative overflow-hidden flex flex-col justify-between ${
                 isCurrentActive
                   ? "border-teal-400 ring-2 ring-teal-100"
-                  : "border-sky-100/90 hover:border-slate-300"
+                  : "border-slate-200 hover:border-slate-300"
               }`}
             >
               {/* Top Row: Shift Name & Status */}
@@ -363,7 +363,7 @@ export default function TimeSlotsManager() {
                         ? "bg-amber-100 text-amber-800 border border-amber-200"
                         : isActive
                         ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : "bg-slate-100 text-slate-500 border border-sky-100/90"
+                        : "bg-slate-100 text-slate-500 border border-slate-200"
                     }`}
                   >
                     {isCurrentActive ? "Active Now" : isActive ? "Enabled" : "Disabled"}
@@ -371,7 +371,7 @@ export default function TimeSlotsManager() {
                 </div>
 
                 {/* Timing Badge */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-sky-100/90 font-mono text-xs font-bold text-slate-800 my-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs font-bold text-slate-800 my-2">
                   <Clock size={13} className="text-teal-600" />
                   {slot.startTime} – {slot.endTime}
                 </div>

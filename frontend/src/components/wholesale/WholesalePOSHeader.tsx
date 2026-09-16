@@ -180,7 +180,7 @@ export function WholesalePOSHeader({
                 "absolute inset-y-1 left-1 flex h-7 w-7 items-center justify-center rounded-full shadow-md transition-transform duration-300",
                 darkMode
                   ? "translate-x-[30px] bg-blue-600 text-white"
-                  : "translate-x-0 bg-white text-amber-500 border border-sky-100/90",
+                  : "translate-x-0 bg-white text-amber-500 border border-slate-200",
               )}
             >
               {darkMode ? <Moon size={14} strokeWidth={2.2} /> : <Sun size={14} strokeWidth={2.2} />}

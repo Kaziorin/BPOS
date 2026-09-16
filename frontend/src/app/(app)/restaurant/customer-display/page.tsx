@@ -395,7 +395,7 @@ export default function RestaurantCustomerDisplayPage() {
               <button
                 id="cdisp-sound"
                 onClick={() => setSoundOn((v) => !v)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100/90 bg-white text-gray-600 hover:text-orange-600 hover:border-orange-300 transition shadow-2xs cursor-pointer"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-gray-600 hover:text-orange-600 hover:border-orange-300 transition shadow-2xs cursor-pointer"
                 title={soundOn ? "Mute" : "Enable sound"}
               >
                 {soundOn ? <Volume2 size={17} /> : <VolumeX size={17} />}
@@ -441,7 +441,7 @@ export default function RestaurantCustomerDisplayPage() {
                 🟢 Live Order Active
               </span>
             ) : (
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-gray-500 border border-sky-100/90">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-gray-500 border border-slate-200">
                 Waiting for order scan…
               </span>
             )}
@@ -486,7 +486,7 @@ export default function RestaurantCustomerDisplayPage() {
                             <img
                               src={line.image}
                               alt={line.name}
-                              className="h-14 w-14 rounded-xl object-cover border border-sky-100/90 shrink-0"
+                              className="h-14 w-14 rounded-xl object-cover border border-slate-200 shrink-0"
                             />
                           ) : (
                             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-orange-200 bg-orange-50 text-2xl shadow-2xs">
@@ -642,7 +642,7 @@ export default function RestaurantCustomerDisplayPage() {
                             "py-2 rounded-xl text-xs font-bold transition-all text-center cursor-pointer border",
                             isActive
                               ? "bg-orange-600 text-white border-transparent shadow-xs"
-                              : "bg-slate-50 text-gray-600 border-sky-100/90 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200"
+                              : "bg-slate-50 text-gray-600 border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200"
                           )}
                         >
                           {m.label}
@@ -654,7 +654,7 @@ export default function RestaurantCustomerDisplayPage() {
                   {/* Clean QR Code Card matching reference image */}
                   <div className="flex flex-col items-center justify-center p-4 rounded-sm border border-orange-100 bg-orange-50/40">
                     <div
-                      className="rounded-sm border border-sky-100/90/90 bg-white p-3 shadow-xs"
+                      className="rounded-sm border border-slate-200/90 bg-white p-3 shadow-xs"
                       dangerouslySetInnerHTML={{ __html: qrSvg(qrPayload, 155) }}
                     />
                     <p className="text-xs font-bold text-gray-700 mt-2.5">Scan to Pay with bKash / Nagad</p>

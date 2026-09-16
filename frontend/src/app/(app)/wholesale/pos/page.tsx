@@ -873,7 +873,7 @@ function WholesalePOSInner() {
                           className={cn(
                             "flex h-10 items-center justify-center rounded-xl px-5 text-xs font-bold transition-all active:scale-95",
                             darkMode
-                              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs hover:bg-primary-500"
+                              ? "bg-blue-600 text-white hover:bg-blue-500 shadow-2xs"
                               : "bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-200",
                           )}
                         >

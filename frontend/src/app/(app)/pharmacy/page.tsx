@@ -42,7 +42,7 @@ import {
 function getCustomerTier(pts: number) {
   if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-100" };
   if (pts >= 1500) return { name: "Gold", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" };
-  if (pts >= 500) return { name: "Silver", color: "text-slate-700", bg: "bg-slate-50", border: "border-sky-100/70" };
+  if (pts >= 500) return { name: "Silver", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-200" };
   return { name: "Bronze", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-100" };
 }
 
@@ -123,11 +123,11 @@ export default function PharmacyHubPage() {
       </div>
 
       {/* Header Banner: Glassmorphic & Curved */}
-      <div className="relative group overflow-hidden rounded-sm border border-sky-200/70 bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] p-6 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="relative group overflow-hidden rounded-sm border border-teal-500/30 bg-gradient-to-r from-emerald-800 via-teal-700 to-teal-800 p-6 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-6">
         <div className={`absolute -left-20 -top-20 w-64 h-64 blur-3xl opacity-20 rounded-full bg-cyan-400 group-hover:scale-125 transition-transform duration-700`} />
 
         <div className="relative flex items-center gap-6 z-10">
-          <div className="w-14 h-14 rounded-sm bg-white/15 border border-sky-100/90/30 text-white flex items-center justify-center text-white shadow-2xs transform rotate-3 group-hover:rotate-6 transition-transform duration-500">
+          <div className="w-14 h-14 rounded-sm bg-white/15 border border-teal-200/30 text-white flex items-center justify-center text-white shadow-2xs transform rotate-3 group-hover:rotate-6 transition-transform duration-500">
             <HeartPulse size={40} strokeWidth={2.2} />
           </div>
           <div>
@@ -146,7 +146,7 @@ export default function PharmacyHubPage() {
         <div className="relative flex flex-col sm:flex-row items-center gap-3 z-10">
           <Link
             href="/pharmacy/pos"
-            className="group/btn flex items-center gap-3 px-5 py-2.5 rounded-sm text-xs font-bold bg-white text-sky-700 shadow-2xs hover:bg-sky-50 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
+            className="group/btn flex items-center gap-3 px-5 py-2.5 rounded-sm text-xs font-bold bg-white text-teal-800 shadow-2xs hover:bg-teal-50 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
           >
             <Zap size={18} className="text-cyan-400 group-hover/btn:animate-pulse" />
             Open Rx Register
@@ -156,7 +156,7 @@ export default function PharmacyHubPage() {
           <Link
             href="/pharmacy/patient-display"
             target="_blank"
-            className="group/cd flex items-center gap-3 px-6 py-3.5 rounded-sm text-sm font-black bg-white text-slate-700 border border-sky-100/90 shadow-2xs shadow-slate-200/20 hover:bg-slate-50 hover:border-cyan-300 hover:text-cyan-700 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
+            className="group/cd flex items-center gap-3 px-6 py-3.5 rounded-sm text-sm font-black bg-white text-slate-700 border border-slate-200 shadow-2xs shadow-slate-200/20 hover:bg-slate-50 hover:border-cyan-300 hover:text-cyan-700 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
           >
             <Monitor size={18} className="text-slate-400 group-hover/cd:text-cyan-500" />
             Patient Display
@@ -172,13 +172,13 @@ export default function PharmacyHubPage() {
           { label: "Units Dispensed", val: totalItemsSold, sub: "Medicine units sold", icon: Pill, color: "indigo", iconColor: "text-indigo-600", bg: "bg-indigo-50" },
           { label: "Active Medicines", val: products.length, sub: "FEFO tracked stock", icon: Activity, color: "amber", iconColor: "text-amber-600", bg: "bg-amber-50" },
         ].map((stat, i) => (
-          <div key={i} className="group relative overflow-hidden rounded-sm bg-white border border-sky-100/70 p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-1">
+          <div key={i} className="group relative overflow-hidden rounded-sm bg-white border border-slate-200 p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-1">
             <div className={`absolute -right-4 -bottom-4 w-24 h-24 blur-2xl opacity-[0.05] rounded-full ${stat.bg}`} />
             <div className="flex items-center justify-between mb-4">
               <div className={`w-12 h-12 rounded-sm ${stat.bg} flex items-center justify-center ${stat.iconColor} shadow-2xs group-hover:scale-110 transition-transform`}>
                 <stat.icon size={24} strokeWidth={2.5} />
               </div>
-              <div className="px-2 py-1 rounded-sm bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-sky-100/70">
+              <div className="px-2 py-1 rounded-sm bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-slate-200">
                 Live
               </div>
             </div>
@@ -195,7 +195,7 @@ export default function PharmacyHubPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
 
         {/* Left 2 Cols: Recent Pharmacy Transactions */}
-        <div className="lg:col-span-2 rounded-sm bg-white border border-sky-100/70 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
+        <div className="lg:col-span-2 rounded-sm bg-white border border-slate-200 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
           <div className="p-8 border-b border-slate-50 flex flex-wrap items-center justify-between gap-4">
             <div>
               <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
@@ -212,12 +212,12 @@ export default function PharmacyHubPage() {
                   placeholder="Search Rx #, patient..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="rounded-sm border border-sky-100/90 bg-slate-50/50 py-2.5 pl-11 pr-4 text-xs font-bold focus:border-cyan-500 focus:outline-none focus:bg-white transition-all w-64 shadow-inner"
+                  className="rounded-sm border border-slate-200 bg-slate-50/50 py-2.5 pl-11 pr-4 text-xs font-bold focus:border-cyan-500 focus:outline-none focus:bg-white transition-all w-64 shadow-inner"
                 />
               </div>
               <button
                 onClick={loadData}
-                className="rounded-sm border border-sky-100/70 p-2.5 text-slate-500 hover:bg-cyan-50 hover:text-cyan-600 transition-all shadow-2xs active:scale-90"
+                className="rounded-sm border border-slate-200 p-2.5 text-slate-500 hover:bg-cyan-50 hover:text-cyan-600 transition-all shadow-2xs active:scale-90"
               >
                 <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
               </button>
@@ -314,7 +314,7 @@ export default function PharmacyHubPage() {
         </div>
 
         {/* Right Col: Medicine Inventory & Expiry Alerts */}
-        <div className="rounded-sm bg-white border border-sky-100/70 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
+        <div className="rounded-sm bg-white border border-slate-200 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
           <div className="p-8 border-b border-slate-50 bg-slate-50/30">
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
@@ -336,10 +336,10 @@ export default function PharmacyHubPage() {
               return (
                 <div
                   key={p.id}
-                  className="group flex items-center justify-between p-4 rounded-sm bg-white border border-sky-100/70 hover:border-cyan-200 hover:shadow-2xs transition-all duration-300"
+                  className="group flex items-center justify-between p-4 rounded-sm bg-white border border-slate-200 hover:border-cyan-200 hover:shadow-2xs transition-all duration-300"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-sm bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:bg-cyan-600 group-hover:text-white transition-colors shrink-0 font-bold text-sm overflow-hidden border border-sky-100/70/50 shadow-inner">
+                    <div className="w-10 h-10 rounded-sm bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:bg-cyan-600 group-hover:text-white transition-colors shrink-0 font-bold text-sm overflow-hidden border border-slate-200/50 shadow-inner">
                       {p.imageUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={p.imageUrl} alt={p.name} className="h-full w-full object-cover transition-transform group-hover:scale-110" />

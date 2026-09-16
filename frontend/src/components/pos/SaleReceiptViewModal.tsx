@@ -102,7 +102,7 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
           {/* 80mm Thermal Receipt */}
           <div
             id="thermal-receipt-view"
-            className="w-full rounded-sm border border-sky-100/90 bg-white p-6 shadow-2xs font-mono text-xs text-gray-800 space-y-3"
+            className="w-full rounded-sm border border-slate-200 bg-white p-6 shadow-2xs font-mono text-xs text-gray-800 space-y-3"
           >
             {/* Header */}
             <div className="text-center">
@@ -260,7 +260,7 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
             <button
               type="button"
               onClick={() => window.print()}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-sm border border-sky-200 bg-white px-3 py-2.5 text-xs font-bold text-sky-700 shadow-2xs hover:bg-sky-50 transition"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-sm border border-slate-300 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
             >
               <Printer size={15} />
               Print Thermal (80mm)

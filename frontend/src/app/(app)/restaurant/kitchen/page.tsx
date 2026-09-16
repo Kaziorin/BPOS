@@ -349,13 +349,13 @@ export default function KitchenManagementPage() {
       }`}
     >
       {/* ── 1. TOP NAVBAR (MATCHING SCREENSHOT HEADER) ────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-sky-100/90 px-4 sm:px-6 py-3 shadow-xs">
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 py-3 shadow-xs">
         <div className="mx-auto flex flex-wrap items-center justify-between gap-4">
           {/* Left Title & Search */}
           <div className="flex items-center gap-4 flex-1 min-w-[280px]">
             <Link
               href="/restaurant"
-              className="rounded-xl border border-sky-100/90 bg-slate-50 p-2 text-slate-700 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition"
+              className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-700 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition"
               title="Back to Restaurant Hub"
             >
               <ArrowLeft size={18} />
@@ -369,7 +369,7 @@ export default function KitchenManagementPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products, orders, tokens..."
-                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/70 py-2 pl-9 pr-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/70 py-2 pl-9 pr-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition"
               />
             </div>
           </div>
@@ -377,7 +377,7 @@ export default function KitchenManagementPage() {
           {/* Right User & Control Widgets */}
           <div className="flex items-center gap-3">
             {/* View Mode Switcher: Operator vs Facing TV */}
-            <div className="flex items-center rounded-sm border border-sky-100/90 bg-slate-100 p-1 shadow-inner">
+            <div className="flex items-center rounded-sm border border-slate-200 bg-slate-100 p-1 shadow-inner">
               <button
                 id="btn-switch-operator-mode"
                 onClick={() => setViewMode("OPERATOR")}
@@ -410,7 +410,7 @@ export default function KitchenManagementPage() {
               className={`rounded-xl border p-2 transition ${
                 soundEnabled
                   ? "border-orange-500/40 bg-orange-50 text-orange-600"
-                  : "border-sky-100/90 bg-slate-100 text-slate-400"
+                  : "border-slate-200 bg-slate-100 text-slate-400"
               }`}
               title={soundEnabled ? "Audio Chime Enabled" : "Muted"}
             >
@@ -422,7 +422,7 @@ export default function KitchenManagementPage() {
             {/* Manual Sync */}
             <button
               onClick={fetchTickets}
-              className="rounded-xl border border-sky-100/90 bg-white p-2 text-slate-700 hover:bg-slate-50 transition"
+              className="rounded-xl border border-slate-200 bg-white p-2 text-slate-700 hover:bg-slate-50 transition"
               title="Refresh KDS"
             >
               <RefreshCw size={16} className={loading ? "animate-spin text-orange-500" : ""} />
@@ -439,13 +439,13 @@ export default function KitchenManagementPage() {
             </button>
 
             {/* Notification & User Profile Badge */}
-            <div className="flex items-center gap-2 pl-2 border-l border-sky-100/90">
-              <button className="rounded-xl border border-sky-100/90 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100 transition relative">
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
+              <button className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100 transition relative">
                 <Bell size={16} />
                 <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-orange-500" />
               </button>
               
-              <div className="flex items-center gap-2.5 bg-slate-50 border border-sky-100/90 px-3 py-1.5 rounded-sm">
+              <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-sm">
                 <div className="h-7 w-7 rounded-full bg-gradient-to-tr from-orange-500 to-amber-500 text-white font-bold text-xs flex items-center justify-center shadow-xs">
                   EG
                 </div>
@@ -466,7 +466,7 @@ export default function KitchenManagementPage() {
             {/* KPI SCORECARDS ROW (MATCHING SCREENSHOT) */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: New Orders */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
               <p className="text-xs font-bold text-slate-500">New Orders</p>
               <h3 className="text-3xl font-black text-slate-900 mt-1">{newOrdersCount.toString().padStart(2, "0")}</h3>
@@ -477,7 +477,7 @@ export default function KitchenManagementPage() {
           </div>
 
           {/* Card 2: Preparing */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
               <p className="text-xs font-bold text-slate-500">Preparing</p>
               <h3 className="text-3xl font-black text-slate-900 mt-1">{preparingCount.toString().padStart(2, "0")}</h3>
@@ -488,7 +488,7 @@ export default function KitchenManagementPage() {
           </div>
 
           {/* Card 3: Completed Orders */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
               <p className="text-xs font-bold text-slate-500">Completed Orders</p>
               <h3 className="text-3xl font-black text-slate-900 mt-1">{completedCount.toString().padStart(2, "0")}</h3>
@@ -499,7 +499,7 @@ export default function KitchenManagementPage() {
           </div>
 
           {/* Card 4: Cancelled Orders */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
               <p className="text-xs font-bold text-slate-500">Cancelled Orders</p>
               <h3 className="text-3xl font-black text-slate-900 mt-1">{cancelledCount.toString().padStart(2, "0")}</h3>
@@ -518,7 +518,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "ALL"
                   ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-500 shadow-md shadow-orange-500/20"
-                  : "bg-white text-slate-700 border-sky-100/90 hover:bg-slate-50"
+                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
               }`}
             >
               <UtensilsCrossed size={14} />
@@ -530,7 +530,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "QUEUED"
                   ? "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-600/20"
-                  : "bg-white text-slate-700 border-sky-100/90 hover:bg-slate-50"
+                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
               }`}
             >
               <FileText size={14} className="text-purple-600" />
@@ -542,7 +542,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "PREPARING"
                   ? "bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20"
-                  : "bg-white text-slate-700 border-sky-100/90 hover:bg-slate-50"
+                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
               }`}
             >
               <Flame size={14} className="text-amber-600" />
@@ -554,7 +554,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "READY"
                   ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20"
-                  : "bg-white text-slate-700 border-sky-100/90 hover:bg-slate-50"
+                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
               }`}
             >
               <Bell size={14} className="text-emerald-600" />
@@ -566,7 +566,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "SERVED"
                   ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
-                  : "bg-white text-slate-700 border-sky-100/90 hover:bg-slate-50"
+                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
               }`}
             >
               <BadgeCheck size={14} className="text-blue-600" />
@@ -598,7 +598,7 @@ export default function KitchenManagementPage() {
                   return (
                     <div
                       key={t.id}
-                      className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-sm space-y-3.5 transition hover:shadow-md"
+                      className="rounded-sm border border-slate-200 bg-white p-4 shadow-sm space-y-3.5 transition hover:shadow-md"
                     >
                       {/* Ticket Title & Badge */}
                       <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
@@ -610,7 +610,7 @@ export default function KitchenManagementPage() {
                             <span
                               className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
                                 t.orderType === "Takeaway"
-                                  ? "bg-sky-500 text-white"
+                                  ? "bg-orange-500 text-white"
                                   : "bg-emerald-500 text-white"
                               }`}
                             >
@@ -636,7 +636,7 @@ export default function KitchenManagementPage() {
                         <select
                           value={t.chefRole || "Sous chef"}
                           onChange={(e) => changeChefRole(t.id, e.target.value)}
-                          className="w-full rounded-sm border border-sky-100/90 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:outline-none cursor-pointer"
+                          className="w-full rounded-sm border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:outline-none cursor-pointer"
                         >
                           {CHEF_ROLES.map((role) => (
                             <option key={role} value={role}>
@@ -731,7 +731,7 @@ export default function KitchenManagementPage() {
                   return (
                     <div
                       key={t.id}
-                      className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-sm space-y-3.5 transition hover:shadow-md"
+                      className="rounded-sm border border-slate-200 bg-white p-4 shadow-sm space-y-3.5 transition hover:shadow-md"
                     >
                       {/* Header */}
                       <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
@@ -743,7 +743,7 @@ export default function KitchenManagementPage() {
                             <span
                               className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
                                 t.orderType === "Takeaway"
-                                  ? "bg-sky-500 text-white"
+                                  ? "bg-orange-500 text-white"
                                   : "bg-emerald-500 text-white"
                               }`}
                             >
@@ -782,7 +782,7 @@ export default function KitchenManagementPage() {
                         <select
                           value={t.chefRole || "Head chef"}
                           onChange={(e) => changeChefRole(t.id, e.target.value)}
-                          className="w-full rounded-sm border border-sky-100/90 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:outline-none cursor-pointer"
+                          className="w-full rounded-sm border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:outline-none cursor-pointer"
                         >
                           {CHEF_ROLES.map((role) => (
                             <option key={role} value={role}>
@@ -897,7 +897,7 @@ export default function KitchenManagementPage() {
                           <span
                             className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
                               t.orderType === "Takeaway"
-                                ? "bg-sky-500 text-white"
+                                ? "bg-orange-500 text-white"
                                 : "bg-emerald-500 text-white"
                             }`}
                           >
@@ -1019,7 +1019,7 @@ export default function KitchenManagementPage() {
                           <span
                             className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
                               t.orderType === "Takeaway"
-                                ? "bg-sky-500 text-white"
+                                ? "bg-orange-500 text-white"
                                 : "bg-emerald-500 text-white"
                             }`}
                           >
@@ -1109,7 +1109,7 @@ export default function KitchenManagementPage() {
         {/* ── 5. FACING MODE: KITCHEN FACING DISPLAY ─────────────────────── */}
         {viewMode === "FACING" && (
           <div className="space-y-6">
-            <div className="bg-white p-6 rounded-sm border border-sky-100/90 shadow-sm flex items-center justify-between">
+            <div className="bg-white p-6 rounded-sm border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                   <Tv className="text-indigo-600" size={24} />
@@ -1119,7 +1119,7 @@ export default function KitchenManagementPage() {
                   Live Facing Screen — Track order progress from In Kitchen to Ready to Serve
                 </p>
               </div>
-              <div className="bg-slate-50 border border-sky-100/90 px-4 py-2 rounded-sm text-right">
+              <div className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-sm text-right">
                 <span className="font-mono text-2xl font-black text-indigo-600">
                   {nowTime.toLocaleTimeString()}
                 </span>

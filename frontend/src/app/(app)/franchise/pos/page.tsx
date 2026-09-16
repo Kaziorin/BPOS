@@ -902,7 +902,7 @@ export default function FranchisePOSPage() {
 
                   <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-50">
                     {/* Quantity Selector */}
-                    <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-0.5 border border-sky-100/90">
+                    <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-0.5 border border-slate-200">
                       <button
                         onClick={() => updateQty(item.id, -1)}
                         className="w-6 h-6 rounded-lg bg-white text-slate-700 font-bold hover:bg-slate-200 transition flex items-center justify-center text-xs shadow-xs"
@@ -928,7 +928,7 @@ export default function FranchisePOSPage() {
                           type="number"
                           value={item.unitPrice}
                           onChange={(e) => updateUnitPrice(item.id, parseFloat(e.target.value) || 0)}
-                          className="w-14 rounded-md border border-sky-100/90 px-1 py-0.5 text-[10px] font-mono text-slate-700 focus:border-indigo-500 focus:outline-none"
+                          className="w-14 rounded-md border border-slate-200 px-1 py-0.5 text-[10px] font-mono text-slate-700 focus:border-indigo-500 focus:outline-none"
                         />
                       </div>
                       <span className="w-20 font-black text-indigo-700 tabular-nums text-xs sm:text-sm">
@@ -1030,7 +1030,7 @@ export default function FranchisePOSPage() {
                   className={`cursor-pointer rounded-sm p-3.5 border transition-all ${
                     isSelected
                       ? "bg-indigo-50/90 border-indigo-500 ring-2 ring-indigo-500/20 shadow-md"
-                      : "bg-white border-sky-100/90 hover:border-indigo-300 hover:bg-indigo-50/30"
+                      : "bg-white border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -1071,7 +1071,7 @@ export default function FranchisePOSPage() {
             Manage customer profiles, search directory, or register new franchisee account
           </p>
           {/* Modal Tab Switcher */}
-          <div className="flex border-b border-sky-100/90">
+          <div className="flex border-b border-slate-200">
             <button
               onClick={() => setCustomerModalTab("view")}
               className={`flex-1 py-2 text-xs font-bold text-center border-b-2 transition ${
@@ -1121,7 +1121,7 @@ export default function FranchisePOSPage() {
                         setShowCustomerModal(false);
                         addToast("info", `Selected customer: ${c.name}`);
                       }}
-                      className="p-3 rounded-xl border border-sky-100/90 hover:border-indigo-500 hover:bg-indigo-50/40 transition cursor-pointer flex items-center justify-between gap-3"
+                      className="p-3 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/40 transition cursor-pointer flex items-center justify-between gap-3"
                     >
                       <div>
                         <p className="font-bold text-xs text-slate-900">{c.name}</p>
@@ -1201,7 +1201,7 @@ export default function FranchisePOSPage() {
               {holds.map((h) => (
                 <div
                   key={h.id}
-                  className="p-3 rounded-sm border border-sky-100/90 bg-white hover:border-amber-400 transition flex items-center justify-between gap-3 shadow-xs"
+                  className="p-3 rounded-sm border border-slate-200 bg-white hover:border-amber-400 transition flex items-center justify-between gap-3 shadow-xs"
                 >
                   <div>
                     <div className="flex items-center gap-2">
@@ -1298,7 +1298,7 @@ export default function FranchisePOSPage() {
                 <span>Marketing Fund Levy ({completedTransfer.outlet?.marketingFeePct}%):</span>
                 <span>{fmt(completedTransfer.marketingLevy)}</span>
               </div>
-              <div className="flex justify-between font-black text-base text-indigo-800 pt-1.5 border-t border-sky-100/90">
+              <div className="flex justify-between font-black text-base text-indigo-800 pt-1.5 border-t border-slate-200">
                 <span>Total Invoice Settled:</span>
                 <span>{fmt(completedTransfer.totalSupplyInvoice)}</span>
               </div>

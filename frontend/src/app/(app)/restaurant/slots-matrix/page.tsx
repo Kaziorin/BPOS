@@ -207,7 +207,7 @@ export default function RestaurantSlotsMatrixPage() {
           <div className="flex items-center gap-2.5">
             <Link
               href="/restaurant"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-sky-100/90 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition shadow-2xs"
             >
               <ArrowLeft size={14} /> Back to Hub
             </Link>
@@ -229,7 +229,7 @@ export default function RestaurantSlotsMatrixPage() {
       />
 
       {/* Control Bar: Filters & Quick Bulk Tools */}
-      <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3 flex-1">
           {/* Search */}
           <div className="relative w-full sm:w-64">
@@ -239,7 +239,7 @@ export default function RestaurantSlotsMatrixPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search foods by name or SKU..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs font-medium rounded-xl border border-sky-100/90 focus:border-teal-500 focus:outline-none bg-slate-50"
+              className="w-full pl-9 pr-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 focus:border-orange-500 focus:outline-none bg-slate-50"
             />
           </div>
 
@@ -249,7 +249,7 @@ export default function RestaurantSlotsMatrixPage() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-sky-100/90 bg-slate-50 text-slate-700 focus:outline-none cursor-pointer"
+              className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 focus:outline-none cursor-pointer"
             >
               <option value="ALL">All Categories ({products.length})</option>
               {categories.map((c) => (
@@ -270,7 +270,7 @@ export default function RestaurantSlotsMatrixPage() {
           </button>
           <button
             onClick={fetchMatrixData}
-            className="p-2 text-slate-500 hover:text-teal-600 bg-slate-50 hover:bg-teal-50 border border-sky-100/90 rounded-xl transition cursor-pointer"
+            className="p-2 text-slate-500 hover:text-orange-600 bg-slate-50 hover:bg-orange-50 border border-slate-200 rounded-xl transition cursor-pointer"
             title="Reload Matrix Data"
           >
             <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
@@ -279,7 +279,7 @@ export default function RestaurantSlotsMatrixPage() {
       </div>
 
       {/* Main Matrix Table Grid Card */}
-      <div className="rounded-sm border border-sky-100/90 bg-white shadow-xs overflow-hidden">
+      <div className="rounded-sm border border-slate-200 bg-white shadow-xs overflow-hidden">
         {loading ? (
           <div className="py-20 text-center text-slate-400 space-y-2">
             <RefreshCw size={28} className="mx-auto animate-spin text-teal-600" />
@@ -289,7 +289,7 @@ export default function RestaurantSlotsMatrixPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-sky-100/90 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
                   <th className="py-3 px-4 min-w-[240px]">Food Product Item</th>
                   <th className="py-3 px-3 min-w-[100px]">Category</th>
                   <th className="py-3 px-3 min-w-[90px] text-right">Price</th>
@@ -356,10 +356,10 @@ export default function RestaurantSlotsMatrixPage() {
                             <img
                               src={prod.imageUrl}
                               alt={prod.name}
-                              className="w-8 h-8 rounded-lg object-cover border border-sky-100/90 shrink-0"
+                              className="w-8 h-8 rounded-lg object-cover border border-slate-200 shrink-0"
                             />
                           ) : (
-                            <div className="w-8 h-8 rounded-lg bg-slate-100 border border-sky-100/90 flex items-center justify-center font-bold text-slate-500 text-xs shrink-0">
+                            <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-500 text-xs shrink-0">
                               {prod.name.slice(0, 1).toUpperCase()}
                             </div>
                           )}
@@ -434,7 +434,7 @@ export default function RestaurantSlotsMatrixPage() {
         )}
 
         {/* Footer info bar */}
-        <div className="p-4 bg-slate-50 border-t border-sky-100/90 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+        <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
           <div className="flex items-center gap-2">
             <Info size={14} className="text-teal-600" />
             <span>

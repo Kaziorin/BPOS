@@ -519,7 +519,7 @@ export default function SalonPOSPage() {
             </div>
           </div>
 
-          <button onClick={() => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }} className="w-10 h-10 rounded-sm bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center shadow-sm border border-sky-100/90 transition-all active:scale-95">
+          <button onClick={() => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }} className="w-10 h-10 rounded-sm bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center shadow-sm border border-slate-200 transition-all active:scale-95">
             <Maximize size={20} />
           </button>
           <div className="w-10 h-10 rounded-sm bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100/50">

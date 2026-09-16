@@ -47,7 +47,7 @@ export function PharmacyPOSFooter({
 
         {/* Cashier */}
         <div className="hidden sm:flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-100 text-sky-600">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-teal-100 text-teal-700">
             <User size={13} />
           </div>
           <div className="leading-tight">

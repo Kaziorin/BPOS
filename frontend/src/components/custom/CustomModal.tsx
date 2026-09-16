@@ -36,7 +36,7 @@ export function CustomModal({ open, isOpen, onClose, title, children, size = "md
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/50 backdrop-blur-xs p-4 sm:p-6 animate-[fade-in_150ms_ease-out] select-none"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-xs p-4 sm:p-6 animate-[fade-in_150ms_ease-out] select-none"
       onClick={onClose}
     >
       <div
@@ -44,17 +44,17 @@ export function CustomModal({ open, isOpen, onClose, title, children, size = "md
         className={cn(
           "w-full rounded-sm shadow-2xl animate-[scale-in_180ms_ease-out] flex flex-col max-h-[90vh] overflow-hidden",
           maxWidth ?? sizeClasses[size] ?? "max-w-md",
-          darkMode ? "bg-slate-900 border border-slate-800" : "bg-white border border-sky-200/90",
+          darkMode ? "bg-slate-900 border border-slate-800" : "bg-white border border-slate-200",
           className
         )}
       >
         <div className={cn(
           "flex items-center justify-between border-b px-6 py-4 shrink-0",
-          darkMode ? "border-slate-800 bg-slate-900" : "border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50"
+          darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-slate-50/80"
         )}>
           <h2 className={cn(
             "text-base font-bold tracking-tight",
-            darkMode ? "text-slate-200" : "text-[#0369A1]"
+            darkMode ? "text-slate-200" : "text-slate-900"
           )}>{title}</h2>
           <button
             onClick={onClose}
