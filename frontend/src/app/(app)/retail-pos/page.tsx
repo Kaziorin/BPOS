@@ -222,6 +222,27 @@ export default function PosPage() {
   // Categories state from API
   const [apiCategories, setApiCategories] = useState<{ id: string; name: string }[]>([]);
 
+  // ── Extra Features State ──
+  const [showRecentOrders, setShowRecentOrders] = useState(false);
+  const [recentOrdersList, setRecentOrdersList] = useState<any[]>([]);
+  const [showPriceCheck, setShowPriceCheck] = useState(false);
+  const [priceCheckSearch, setPriceCheckSearch] = useState("");
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [calcInput, setCalcInput] = useState("");
+
+  const fetchRecentOrders = useCallback(async () => {
+    try {
+      if (isOnline()) {
+        const res = await api.get<any>("/api/v1/pos/sales");
+        if (res.data?.data) {
+           setRecentOrdersList(res.data.data.slice(0, 10));
+        } else if (Array.isArray(res.data)) {
+           setRecentOrdersList(res.data.slice(0, 10));
+        }
+      }
+    } catch (e) {}
+  }, []);
+
   // ── Load data ──
   const loadData = useCallback(async () => {
     const onlineNow = isOnline();
@@ -1247,13 +1268,13 @@ export default function PosPage() {
           <div className="grid grid-cols-8 gap-1.5">
             {[
               { label: "Hold Orders", fkey: "F10", icon: PauseCircle, action: () => { loadHolds(); setShowHolds(true); } },
-              { label: "Recent Orders", fkey: "F11", icon: Clock, action: () => toast.info("Recent Orders coming soon") },
-              { label: "Price Check", fkey: "", icon: Search, action: () => { searchRef.current?.focus(); toast.info("Scan or enter barcode"); } },
-              { label: "Stock Lookup", fkey: "", icon: Package, action: () => { searchRef.current?.focus(); toast.info("Scan or enter barcode"); } },
+              { label: "Recent Orders", fkey: "F11", icon: Clock, action: () => { fetchRecentOrders(); setShowRecentOrders(true); } },
+              { label: "Price Check", fkey: "", icon: Search, action: () => { setPriceCheckSearch(""); setShowPriceCheck(true); } },
+              { label: "Stock Lookup", fkey: "", icon: Package, action: () => { setPriceCheckSearch(""); setShowPriceCheck(true); } },
               { label: "Return", fkey: "", icon: RotateCcw, action: () => setShowReturn(true) },
               { label: "Discount", fkey: "", icon: Tag, action: () => setShowExtras(true) },
               { label: "Note", fkey: "", icon: FileText, action: () => setShowExtras(true) },
-              { label: "Calculator", fkey: "", icon: Calculator, action: () => toast.info("Calculator coming soon") },
+              { label: "Calculator", fkey: "", icon: Calculator, action: () => setShowCalculator(true) },
             ].map((btn, i) => (
               <button key={i} onClick={btn.action}
                 className="h-8 px-2 rounded-xl border border-slate-200 bg-white hover:bg-violet-50 hover:border-violet-300 text-slate-700 hover:text-violet-700 text-[11px] font-semibold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer transition truncate">
@@ -1753,6 +1774,100 @@ export default function PosPage() {
           />
         </CustomModal>
       )}
+
+      {/* Recent Orders Modal */}
+      <CustomModal open={showRecentOrders} onClose={() => setShowRecentOrders(false)} title="Recent Orders" size="lg">
+        <div className="max-h-[60vh] overflow-y-auto">
+          {recentOrdersList.length === 0 ? (
+            <div className="text-center text-slate-500 py-10">No recent orders found.</div>
+          ) : (
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-slate-500 bg-slate-50 sticky top-0">
+                <tr>
+                  <th className="px-4 py-2">Time</th>
+                  <th className="px-4 py-2">Total</th>
+                  <th className="px-4 py-2">Paid</th>
+                  <th className="px-4 py-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentOrdersList.map((order: any, i: number) => (
+                  <tr key={i} className="border-b border-slate-100 hover:bg-slate-50">
+                    <td className="px-4 py-2 font-medium">{new Date(order.createdAt).toLocaleTimeString()}</td>
+                    <td className="px-4 py-2 text-slate-700 font-bold">{fmt(order.total)}</td>
+                    <td className="px-4 py-2 text-emerald-600 font-semibold">{fmt(order.paidTotal)}</td>
+                    <td className="px-4 py-2 text-slate-500">{order.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </CustomModal>
+
+      {/* Price / Stock Check Modal */}
+      <CustomModal open={showPriceCheck} onClose={() => setShowPriceCheck(false)} title="Price & Stock Check" size="sm">
+        <div className="space-y-4 py-2">
+          <input
+            autoFocus
+            type="text"
+            value={priceCheckSearch}
+            onChange={(e) => setPriceCheckSearch(e.target.value)}
+            placeholder="Scan barcode or type name..."
+            className="w-full h-12 px-4 rounded-xl border border-slate-300 text-lg focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500"
+          />
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 min-h-[120px] flex flex-col justify-center items-center text-center">
+            {(() => {
+              if (!priceCheckSearch) return <span className="text-slate-400">Waiting for input...</span>;
+              const term = priceCheckSearch.toLowerCase();
+              const found = products.find(p => p.barcode?.toLowerCase() === term || p.name.toLowerCase().includes(term));
+              if (!found) return <span className="text-rose-500 font-medium">Product not found.</span>;
+              return (
+                <div className="w-full">
+                  <div className="text-sm font-semibold text-slate-600 mb-1">{found.name}</div>
+                  <div className="text-3xl font-extrabold text-violet-600 mb-2">{fmt(Number(found.sellingPrice))}</div>
+                  <div className="text-sm font-medium text-slate-500">
+                    Stock: <span className="text-emerald-600 font-bold">{found.stockQty} {found.unit}</span>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      </CustomModal>
+
+      {/* Calculator Modal */}
+      <CustomModal open={showCalculator} onClose={() => setShowCalculator(false)} title="Calculator" size="sm">
+        <div className="w-full max-w-[280px] mx-auto space-y-2">
+          <div className="w-full h-14 bg-slate-100 rounded-xl px-4 flex items-center justify-end text-2xl font-bold text-slate-800 tracking-wider overflow-hidden">
+            {calcInput || "0"}
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {["7","8","9","/","4","5","6","*","1","2","3","-","C","0","=","+"].map((btn) => (
+              <button
+                key={btn}
+                onClick={() => {
+                  if (btn === "C") setCalcInput("");
+                  else if (btn === "=") {
+                    try { setCalcInput(String(eval(calcInput))); } catch { setCalcInput("Error"); }
+                  } else {
+                    setCalcInput(prev => (prev === "Error" || prev === "0" ? btn : prev + btn));
+                  }
+                }}
+                className={cn(
+                  "h-12 rounded-xl text-lg font-bold shadow-xs active:scale-95 transition",
+                  btn === "=" ? "bg-violet-600 text-white hover:bg-violet-700" :
+                  ["+","-","*","/"].includes(btn) ? "bg-slate-200 text-slate-700 hover:bg-slate-300" :
+                  btn === "C" ? "bg-rose-100 text-rose-600 hover:bg-rose-200" :
+                  "bg-white border border-slate-200 text-slate-800 hover:bg-slate-50"
+                )}
+              >
+                {btn}
+              </button>
+            ))}
+          </div>
+        </div>
+      </CustomModal>
     </div>
   );
 }
