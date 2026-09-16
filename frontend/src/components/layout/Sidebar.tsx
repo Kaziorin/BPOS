@@ -571,43 +571,23 @@ export function Sidebar() {
           }}
           className="pl-2 select-none"
         >
-          <div className="min-w-[210px] max-w-[260px] overflow-hidden rounded-lg border border-sky-200 bg-white shadow-2xl ring-1 ring-black/5 animate-in fade-in-50 zoom-in-95 duration-150">
-            {/* Header */}
+          <div className="min-w-[210px] max-w-[260px] overflow-hidden rounded-sm border border-sky-200 bg-white shadow-xl select-none">
+            {/* Header (Clean title without background color) */}
             {(() => {
               const FlyoutIcon = activeFlyout.item.icon;
-              const isParentActive = isModuleActive(activeFlyout.item, pathname, allHrefs);
               return (
-                <div
-                  className={cn(
-                    "flex items-center justify-between border-b px-3.5 py-2.5",
-                    isParentActive
-                      ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white border-sky-400/40"
-                      : "bg-gradient-to-r from-sky-50 to-white text-[#0284C7] border-sky-100",
-                  )}
-                >
+                <div className="flex items-center justify-between border-b border-sky-100 px-3.5 py-2.5 bg-white">
                   <div className="flex items-center gap-2">
                     <FlyoutIcon
                       size={16}
-                      className={cn("shrink-0", isParentActive ? "text-white" : "text-[#0284C7]")}
+                      className="shrink-0 text-[#0284C7]"
                     />
-                    <span
-                      className={cn(
-                        "text-xs font-bold tracking-tight",
-                        isParentActive ? "text-white" : "text-[#0284C7]",
-                      )}
-                    >
+                    <span className="text-xs font-bold tracking-tight text-[#0369A1]">
                       {activeFlyout.item.label}
                     </span>
                   </div>
                   {activeFlyout.item.badge && (
-                    <span
-                      className={cn(
-                        "text-[9px] font-bold px-1.5 py-0.5 rounded border",
-                        isParentActive
-                          ? "bg-white/20 text-white border-white/30"
-                          : "bg-sky-100 text-[#0284C7] border-sky-200",
-                      )}
-                    >
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm border bg-sky-50 text-[#0284C7] border-sky-200">
                       {activeFlyout.item.badge}
                     </span>
                   )}
@@ -628,7 +608,7 @@ export function Sidebar() {
                       href={child.href !== "#" ? child.href : (child.children?.[0]?.href || "#")}
                       onClick={() => setActiveFlyout(null)}
                       className={cn(
-                        "flex items-center justify-between gap-2.5 px-3 py-2 text-xs rounded-md transition-colors",
+                        "flex items-center justify-between gap-2.5 px-3 py-2 text-xs rounded-sm transition-colors",
                         childActive
                           ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
                           : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]"
@@ -652,7 +632,7 @@ export function Sidebar() {
                               href={sub.href}
                               onClick={() => setActiveFlyout(null)}
                               className={cn(
-                                "flex items-center gap-2 px-2 py-1.5 text-[11px] rounded-md transition-colors",
+                                "flex items-center gap-2 px-2 py-1.5 text-[11px] rounded-sm transition-colors",
                                 subActive
                                   ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
                                   : "text-[#0284C7] font-medium hover:bg-[#E0F2FE] hover:text-[#0369A1]"
