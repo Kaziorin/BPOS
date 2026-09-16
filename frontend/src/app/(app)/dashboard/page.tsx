@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { DollarSign, Package, AlertTriangle, Users, Wallet, ArrowRight, ShoppingCart, ChevronDown, BarChart3, Clock } from "lucide-react";
+import { DollarSign, Package, AlertTriangle, Users, Wallet, ArrowRight, ShoppingCart, ChevronDown, BarChart3, Clock, TrendingUp } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { DashboardSummary, TrendPoint } from "@/lib/types";
@@ -127,28 +127,29 @@ export default function DashboardPage() {
           </h1>
         </div>
 
-        {/* Action buttons: All sharing the exact same POS Terminals gradient background */}
+        {/* Action buttons: All sharing the exact same POS Terminals gradient background, icon size, font styling and padding */}
         <div className="relative z-10 flex items-center gap-2 sm:gap-2.5 self-start sm:self-center flex-wrap">
           <Link
             href="/dashboard/builder"
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-sky-950/25 transition hover:brightness-110 active:scale-98 cursor-pointer"
+            className="inline-flex shrink-0 items-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-sky-950/25 transition hover:brightness-110 active:scale-98 cursor-pointer select-none"
           >
-            <BarChart3 size={14} className="text-white" />
+            <BarChart3 size={15} className="shrink-0 text-white" />
             <span>Dashboard Builder</span>
           </Link>
           <Link
             href="/reports"
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-sky-950/25 transition hover:brightness-110 active:scale-98 cursor-pointer"
+            className="inline-flex shrink-0 items-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-sky-950/25 transition hover:brightness-110 active:scale-98 cursor-pointer select-none"
           >
+            <TrendingUp size={15} className="shrink-0 text-white" />
             <span>Reports & Analytics</span>
           </Link>
           <button
             onClick={() => setPosModalOpen(true)}
-            className="inline-flex shrink-0 items-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-sky-950/25 transition hover:brightness-110 active:scale-98 cursor-pointer"
+            className="inline-flex shrink-0 items-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-sky-950/25 transition hover:brightness-110 active:scale-98 cursor-pointer select-none"
           >
-            <ShoppingCart size={15} />
+            <ShoppingCart size={15} className="shrink-0 text-white" />
             <span>POS Terminals</span>
-            <ChevronDown size={13} className="opacity-80" />
+            <ChevronDown size={14} className="opacity-80 shrink-0" />
           </button>
         </div>
       </div>

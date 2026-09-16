@@ -88,24 +88,18 @@ export function CustomBreadcrumb({
             </Link>
           </div>
 
-          {/* Divider */}
-          <div className="h-3.5 w-px bg-sky-200/80 shrink-0" />
-
           {/* Breadcrumb Path Hierarchy */}
           {pathItems.length > 0 && (
-            <nav className="flex items-center gap-1 text-xs text-slate-500 font-medium">
-              <Link href="/dashboard" className="hover:text-[#0284C7] transition">
-                Home
-              </Link>
+            <nav className="flex items-center gap-1 text-xs text-gray-600 font-medium">
               {pathItems.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-1 shrink-0">
-                  <ChevronRight size={13} className="text-slate-400" />
+                  {idx > 0 && <ChevronRight size={13} className="text-gray-400" />}
                   {item.href ? (
-                    <Link href={item.href} className="hover:text-[#0284C7] transition">
+                    <Link href={item.href} className="text-gray-600 hover:text-[#0284C7] transition">
                       {item.label}
                     </Link>
                   ) : (
-                    <span className="font-semibold text-slate-800">{item.label}</span>
+                    <span className="font-semibold text-gray-600">{item.label}</span>
                   )}
                 </div>
               ))}

@@ -21,37 +21,37 @@ export interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
-  primary: "bg-sky-600 text-white shadow-2xs hover:bg-sky-700 active:scale-98 focus-visible:ring-sky-300 font-bold",
-  blue: "bg-blue-600 text-white shadow-2xs hover:bg-blue-700 active:scale-98 focus-visible:ring-blue-300 font-bold",
-  teal: "bg-[#00796b] text-white shadow-2xs hover:bg-[#00695c] active:scale-98 focus-visible:ring-teal-300 font-bold",
-  orange: "bg-orange-500 text-white shadow-2xs hover:bg-orange-600 active:scale-98 focus-visible:ring-orange-300 font-bold",
-  emerald: "bg-emerald-600 text-white shadow-2xs hover:bg-emerald-700 active:scale-98 focus-visible:ring-emerald-300 font-bold",
-  indigo: "bg-indigo-600 text-white shadow-2xs hover:bg-indigo-700 active:scale-98 focus-visible:ring-indigo-300 font-bold",
-  amber: "bg-amber-500 text-white shadow-2xs hover:bg-amber-600 active:scale-98 focus-visible:ring-amber-300 font-bold",
-  rose: "bg-rose-600 text-white shadow-2xs hover:bg-rose-700 active:scale-98 focus-visible:ring-rose-300 font-bold",
-  purple: "bg-purple-600 text-white shadow-2xs hover:bg-purple-700 active:scale-98 focus-visible:ring-purple-300 font-bold",
+  primary: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-md shadow-sky-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-sky-300 font-bold",
+  blue: "bg-gradient-to-r from-blue-600 via-sky-500 to-sky-400 text-white shadow-md shadow-blue-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-blue-300 font-bold",
+  teal: "bg-gradient-to-r from-[#00796b] via-[#00897b] to-[#26a69a] text-white shadow-md shadow-teal-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-teal-300 font-bold",
+  orange: "bg-gradient-to-r from-orange-500 via-amber-500 to-amber-400 text-white shadow-md shadow-orange-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-orange-300 font-bold",
+  emerald: "bg-gradient-to-r from-emerald-600 via-teal-600 to-teal-500 text-white shadow-md shadow-emerald-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-emerald-300 font-bold",
+  indigo: "bg-gradient-to-r from-indigo-600 via-blue-600 to-blue-500 text-white shadow-md shadow-indigo-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-indigo-300 font-bold",
+  amber: "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-400 text-white shadow-md shadow-amber-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-amber-300 font-bold",
+  rose: "bg-gradient-to-r from-rose-600 via-pink-600 to-rose-500 text-white shadow-md shadow-rose-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-rose-300 font-bold",
+  purple: "bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 text-white shadow-md shadow-purple-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-purple-300 font-bold",
 };
 
 const VARIANT_CLASSES = (darkMode: boolean): Record<ButtonVariant, string> => ({
   primary:
-    "bg-sky-600 text-white shadow-2xs hover:bg-sky-700 active:scale-98 focus-visible:ring-sky-300 font-bold",
+    "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-md shadow-sky-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-sky-300 font-bold",
   secondary: darkMode
-    ? "bg-slate-800 text-slate-200 hover:bg-slate-700 focus-visible:ring-slate-700"
+    ? "bg-slate-800 text-slate-200 hover:bg-slate-700 focus-visible:ring-slate-700 font-bold"
     : "bg-sky-50 text-sky-700 hover:bg-sky-100 hover:text-sky-800 border border-sky-200/80 focus-visible:ring-sky-300 font-bold",
   outline: darkMode
-    ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 focus-visible:ring-slate-700"
-    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-sky-400 focus-visible:ring-sky-300 font-bold",
+    ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 focus-visible:ring-slate-700 font-bold"
+    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-sky-400 focus-visible:ring-sky-300 font-bold shadow-2xs",
   ghost: darkMode
-    ? "text-slate-400 hover:bg-slate-800 focus-visible:ring-slate-700"
+    ? "text-slate-400 hover:bg-slate-800 focus-visible:ring-slate-700 font-bold"
     : "text-sky-600 hover:bg-sky-50 focus-visible:ring-sky-300 font-bold",
-  danger: "bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-300 shadow-2xs font-bold",
+  danger: "bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-300 shadow-md font-bold",
 });
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
-  xs: "h-7 px-2 text-[11px] gap-1",
-  sm: "h-8 px-3 text-xs gap-1.5",
-  md: "h-9 px-4 text-xs font-semibold gap-2",
-  lg: "h-11 px-5 text-sm font-semibold gap-2",
+  xs: "px-2.5 py-1 text-[11px] font-bold gap-1.5",
+  sm: "px-4 py-2 text-xs sm:text-sm font-bold gap-2",
+  md: "px-4 py-2 text-xs sm:text-sm font-bold gap-2",
+  lg: "px-5 py-2.5 text-sm font-bold gap-2",
 };
 
 export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
@@ -82,7 +82,14 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
 
     const renderIconNode = (iconNode: ReactNode) => {
       if (!iconNode) return null;
-      if (React.isValidElement(iconNode)) return iconNode;
+      if (React.isValidElement(iconNode)) {
+        return React.cloneElement(iconNode as React.ReactElement<any>, {
+          className: cn(
+            "shrink-0",
+            (iconNode as React.ReactElement<any>).props?.className
+          ),
+        });
+      }
       if (
         typeof iconNode === "function" ||
         (typeof iconNode === "object" &&
@@ -90,8 +97,8 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
           ("$$typeof" in (iconNode as any) || "render" in (iconNode as any)))
       ) {
         const IconComp = iconNode as React.ElementType;
-        const iconSize = size === "xs" || size === "sm" ? 14 : 16;
-        return <IconComp size={iconSize} />;
+        const iconSize = size === "xs" ? 13 : 15;
+        return <IconComp size={iconSize} className="shrink-0" />;
       }
       return iconNode;
     };
@@ -101,7 +108,7 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          "inline-flex items-center justify-center rounded-sm font-medium transition-all cursor-pointer select-none",
+          "inline-flex shrink-0 items-center justify-center rounded-sm font-bold transition hover:brightness-110 active:scale-98 cursor-pointer select-none",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
           "disabled:cursor-not-allowed disabled:opacity-50",
           variantClass,
@@ -112,7 +119,7 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
         {...props}
       >
         {loading ? (
-          <Loader2 size={size === "xs" || size === "sm" ? 14 : 16} className="animate-spin" />
+          <Loader2 size={size === "xs" ? 13 : 15} className="animate-spin shrink-0" />
         ) : (
           renderIconNode(effectiveLeftIcon)
         )}

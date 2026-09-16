@@ -341,7 +341,6 @@ export default function DashboardBuilderPage() {
         {/* Header Breadcrumb */}
         <CustomBreadcrumb
           title="Dashboard Builder & BI Canvas"
-          description="Create customized executive KPI boards, sales charts, and commercial analytics."
           icon={<LayoutDashboard size={16} />}
           items={[
             { label: "Dashboard", href: "/dashboard" },
@@ -350,9 +349,9 @@ export default function DashboardBuilderPage() {
           actions={
             <CustomButton
               variant="primary"
-              size="sm"
+              size="md"
               onClick={() => setShowCreateModal(true)}
-              leftIcon={<Plus size={14} />}
+              leftIcon={<Plus size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
             >
               New Dashboard
             </CustomButton>
@@ -398,9 +397,9 @@ export default function DashboardBuilderPage() {
               </p>
               <CustomButton
                 variant="primary"
-                size="sm"
+                size="md"
                 onClick={() => setShowCreateModal(true)}
-                leftIcon={<Plus size={14} />}
+                leftIcon={<Plus size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
               >
                 Create Your First Dashboard
               </CustomButton>
@@ -428,13 +427,13 @@ export default function DashboardBuilderPage() {
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-sky-100">
               <CustomButton
                 variant="outline"
-                size="sm"
+                size="md"
                 type="button"
                 onClick={() => setShowCreateModal(false)}
               >
                 Cancel
               </CustomButton>
-              <CustomButton variant="primary" size="sm" type="submit">
+              <CustomButton variant="primary" size="md" type="submit">
                 Create Canvas
               </CustomButton>
             </div>
@@ -472,17 +471,17 @@ export default function DashboardBuilderPage() {
           <div className="flex items-center gap-2">
             <CustomButton
               variant="outline"
-              size="sm"
+              size="md"
               onClick={() => setActiveDashboard(null)}
-              leftIcon={<ArrowLeft size={13} />}
+              leftIcon={<ArrowLeft size={15} strokeWidth={2} className="shrink-0" />}
             >
               Back to List
             </CustomButton>
             <CustomButton
               variant="primary"
-              size="sm"
+              size="md"
               onClick={() => setShowAddWidget(true)}
-              leftIcon={<Plus size={14} />}
+              leftIcon={<Plus size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
             >
               Add Widget
             </CustomButton>
@@ -510,9 +509,9 @@ export default function DashboardBuilderPage() {
             </p>
             <CustomButton
               variant="primary"
-              size="sm"
+              size="md"
               onClick={() => setShowAddWidget(true)}
-              leftIcon={<Plus size={14} />}
+              leftIcon={<Plus size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
             >
               Add Your First Widget
             </CustomButton>
@@ -580,13 +579,13 @@ export default function DashboardBuilderPage() {
           <div className="flex justify-end gap-2 pt-2 border-t border-sky-100">
             <CustomButton
               variant="outline"
-              size="sm"
+              size="md"
               type="button"
               onClick={() => setShowAddWidget(false)}
             >
               Cancel
             </CustomButton>
-            <CustomButton variant="primary" size="sm" type="submit">
+            <CustomButton variant="primary" size="md" type="submit">
               Add to Canvas
             </CustomButton>
           </div>
