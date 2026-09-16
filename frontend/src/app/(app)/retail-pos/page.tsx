@@ -1,17 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import {
   Search, ShoppingCart, PauseCircle, PlayCircle,
   XCircle, RotateCcw, User, ChevronDown, Settings2, WifiOff, CloudOff,
   Keyboard, Scan, Zap, TrendingUp, BarChart2, Package, Bell, Cpu,
   CreditCard, Banknote, Smartphone, Gift, Plus, Minus, Trash2,
-  MoreHorizontal, CheckCircle2, ArrowRight, ChevronLeft, ChevronRight,
+  MoreHorizontal, CheckCircle2, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight,
   Monitor, Tag, ShoppingBag, Star, Clock, RefreshCcw, LayoutGrid,
   ListFilter, Building2, Store, Users, FileText, PieChart,
   Bot, Calculator, Check, ArrowUpRight, Briefcase, Network,
-  Receipt, X, RefreshCw, Printer
+  Receipt, X, RefreshCw, Printer, Maximize, Minimize
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -109,6 +110,16 @@ const PAYMENT_METHODS = [
 ];
 
 export default function PosPage() {
+  const router = useRouter();
+
+  const handleBack = useCallback(() => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/dashboard");
+    }
+  }, [router]);
+
   // ── Online status ──
   const [online, setOnline] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -165,6 +176,100 @@ export default function PosPage() {
   const [showExtras, setShowExtras] = useState(false);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [customerSearch, setCustomerSearch] = useState("");
+  const [customerTab, setCustomerTab] = useState<"view" | "add">("view");
+  const [newCustomer, setNewCustomer] = useState({ name: "", phone: "", email: "", address: "" });
+  const [addingCustomer, setAddingCustomer] = useState(false);
+
+  // Fullscreen state & toggle
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const handleAddCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCustomer.name) return toast.error("Name is required");
+
+    // Create a temporary ID for local use
+    const tempId = `local_${Date.now()}`;
+    const localCust: CachedCustomer = {
+      id: tempId,
+      name: newCustomer.name,
+      phone: newCustomer.phone || null,
+      email: newCustomer.email || null,
+      address: newCustomer.address || null,
+      creditLimit: 0,
+      currentDue: 0,
+      loyaltyPoints: 0,
+      status: "ACTIVE",
+    };
+
+    setAddingCustomer(true);
+    try {
+      const res = await api.post<any>("/api/v1/customers", newCustomer);
+      const added = res.data?.data || res.data;
+
+      if (added && added.id) {
+        toast.success("Customer added successfully");
+        const formattedCust: CachedCustomer = {
+          id: String(added.id),
+          name: added.name || newCustomer.name,
+          phone: added.phone || newCustomer.phone || null,
+          email: added.email || newCustomer.email || null,
+          address: added.address || newCustomer.address || null,
+          creditLimit: Number(added.creditLimit) || 0,
+          currentDue: Number(added.currentDue) || 0,
+          loyaltyPoints: Number(added.loyaltyPoints) || 0,
+          status: added.status || "ACTIVE",
+        };
+        setCustomers(prev => [formattedCust, ...prev.filter(c => c.id !== tempId)]);
+        setCustomerId(added.id);
+        setNewCustomer({ name: "", phone: "", email: "", address: "" });
+        setCustomerTab("view");
+        setShowCustomerModal(false);
+
+        // Save to persistent local storage for fallback
+        try {
+          const raw = localStorage.getItem("bpos_custom_customers");
+          const list = raw ? JSON.parse(raw) : [];
+          localStorage.setItem("bpos_custom_customers", JSON.stringify([...list, formattedCust]));
+        } catch {}
+      }
+    } catch (err: any) {
+      console.error("Failed to add customer:", err);
+      // If duplicate or other error, show the real message
+      const errorMsg = err.message || "Failed to add customer";
+      toast.error(errorMsg);
+
+      // If it's a network error or server down, we could fallback to local-only,
+      // but if it's a 409 (duplicate), we shouldn't.
+      if (err.status !== 409 && err.status !== 400) {
+        setCustomers(prev => [localCust, ...prev]);
+        setCustomerId(tempId);
+        setNewCustomer({ name: "", phone: "", email: "", address: "" });
+        setCustomerTab("view");
+        setShowCustomerModal(false);
+        toast.info("Customer saved locally (Offline)");
+      }
+    } finally {
+      setAddingCustomer(false);
+    }
+  };
 
   // Stats matching reference screenshot
   const [todaySales, setTodaySales] = useState(0);
@@ -551,6 +656,13 @@ export default function PosPage() {
       const tag = (e.target as HTMLElement)?.tagName;
       const plainKey = /^[A-Za-z0-9 ]$/.test(e.key);
       if ((tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") && plainKey) return;
+
+      // Toggle fullscreen on 'f' or 'F' (when not typing in an input)
+      if ((e.key === "f" || e.key === "F") && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        toggleFullscreen();
+        return;
+      }
       if (recordingAction) {
         e.preventDefault();
         const mods: string[] = [];
@@ -697,8 +809,17 @@ export default function PosPage() {
 
       {/* ── 1. TOP HEADER BAR ─────────────────────────────────────── */}
       <header className="flex items-center justify-between px-4 py-2 bg-white border-b border-slate-200 z-30 shrink-0 shadow-sm">
-        {/* Left Branding */}
+        {/* Left Branding & Navigation */}
         <div className="flex items-center gap-2.5 h-9">
+          {/* Back Button */}
+          <button
+            onClick={handleBack}
+            title="Back"
+            className="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 hover:text-violet-700 text-slate-700 flex items-center justify-center shadow-xs transition cursor-pointer shrink-0"
+          >
+            <ArrowLeft size={17} />
+          </button>
+
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white shrink-0 shadow-md">
             <ShoppingBag size={18} />
           </div>
@@ -736,6 +857,19 @@ export default function PosPage() {
 
         {/* Right Actions & Operator */}
         <div className="flex items-center gap-2 h-9">
+          {/* Fullscreen Button */}
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen (F)"}
+            className="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 flex items-center justify-center shadow-xs transition cursor-pointer shrink-0"
+          >
+            {isFullscreen ? (
+              <Minimize size={16} className="text-violet-600" />
+            ) : (
+              <Maximize size={16} className="text-violet-600" />
+            )}
+          </button>
+
           {/* Quick Actions Button */}
           <button
             onClick={() => { loadHolds(); setShowHolds(true); }}
@@ -1326,42 +1460,106 @@ export default function PosPage() {
       {/* ── MODALS ────────────────────────────────────────────────── */}
 
       {/* Customer Select Modal */}
-      <CustomModal open={showCustomerModal} onClose={() => { setShowCustomerModal(false); setCustomerSearch(""); }} title="Select Customer">
-        <div className="space-y-3">
-          <input
-            autoFocus
-            value={customerSearch}
-            onChange={(e) => setCustomerSearch(e.target.value)}
-            placeholder="Search by name or phone…"
-            className="w-full h-9 px-3 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400"
-          />
-          <div className="space-y-1 max-h-64 overflow-y-auto">
-            <button
-              onClick={() => { setCustomerId(""); setShowCustomerModal(false); setCustomerSearch(""); }}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-slate-300 text-xs text-slate-600 hover:border-violet-400 hover:text-violet-600 transition cursor-pointer"
-            >
-              <User size={14} /> Walk-in Customer
-            </button>
-            {filteredCustomers.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => { setCustomerId(c.id); setShowCustomerModal(false); setCustomerSearch(""); }}
-                className={cn("w-full flex items-center justify-between px-3 py-2 rounded-lg border text-xs transition cursor-pointer", customerId === c.id ? "border-violet-500 bg-violet-50 text-violet-800 font-bold" : "border-slate-200 hover:border-violet-300 hover:bg-slate-50")}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center text-violet-700 text-xs font-bold">
-                    {((c as any).name || "?")[0].toUpperCase()}
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs font-bold text-slate-900">{(c as any).name || (c as any).fullName}</p>
-                    <p className="text-[10px] text-slate-400">{(c as any).phone || "No phone"}</p>
-                  </div>
-                </div>
-                {customerId === c.id && <CheckCircle2 size={14} className="text-violet-600" />}
-              </button>
-            ))}
-          </div>
+      <CustomModal open={showCustomerModal} onClose={() => { setShowCustomerModal(false); setCustomerSearch(""); setCustomerTab("view"); }} title="Select Customer">
+        <div className="flex bg-slate-100 p-1 rounded-lg mb-4">
+          <button
+            className={cn("flex-1 py-1.5 text-xs font-bold rounded-md transition cursor-pointer", customerTab === "view" ? "bg-white text-violet-700 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+            onClick={() => setCustomerTab("view")}
+          >
+            View Customer
+          </button>
+          <button
+            className={cn("flex-1 py-1.5 text-xs font-bold rounded-md transition cursor-pointer", customerTab === "add" ? "bg-white text-violet-700 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+            onClick={() => setCustomerTab("add")}
+          >
+            Add Customer
+          </button>
         </div>
+
+        {customerTab === "view" ? (
+          <div className="space-y-3">
+            <input
+              autoFocus
+              value={customerSearch}
+              onChange={(e) => setCustomerSearch(e.target.value)}
+              placeholder="Search by name or phone…"
+              className="w-full h-9 px-3 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400"
+            />
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              <button
+                onClick={() => { setCustomerId(""); setShowCustomerModal(false); setCustomerSearch(""); }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-slate-300 text-xs text-slate-600 hover:border-violet-400 hover:text-violet-600 transition cursor-pointer"
+              >
+                <User size={14} /> Walk-in Customer
+              </button>
+              {filteredCustomers.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => { setCustomerId(c.id); setShowCustomerModal(false); setCustomerSearch(""); }}
+                  className={cn("w-full flex items-center justify-between px-3 py-2 rounded-lg border text-xs transition cursor-pointer", customerId === c.id ? "border-violet-500 bg-violet-50 text-violet-800 font-bold" : "border-slate-200 hover:border-violet-300 hover:bg-slate-50")}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center text-violet-700 text-xs font-bold">
+                      {((c as any).name || "?")[0].toUpperCase()}
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs font-bold text-slate-900">{(c as any).name || (c as any).fullName}</p>
+                      <p className="text-[10px] text-slate-400">{(c as any).phone || "No phone"}</p>
+                    </div>
+                  </div>
+                  {customerId === c.id && <CheckCircle2 size={14} className="text-violet-600" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleAddCustomer} className="space-y-3">
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Name *</label>
+              <input
+                autoFocus
+                required
+                value={newCustomer.name}
+                onChange={(e) => setNewCustomer(prev => ({ ...prev, name: e.target.value }))}
+                className="w-full h-9 px-3 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Phone Number</label>
+              <input
+                type="tel"
+                value={newCustomer.phone}
+                onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))}
+                className="w-full h-9 px-3 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Email</label>
+              <input
+                type="email"
+                value={newCustomer.email}
+                onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value }))}
+                className="w-full h-9 px-3 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Address</label>
+              <input
+                type="text"
+                value={newCustomer.address}
+                onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value }))}
+                className="w-full h-9 px-3 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={addingCustomer}
+              className="w-full h-9 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs shadow-xs disabled:opacity-50 mt-2 cursor-pointer transition"
+            >
+              {addingCustomer ? "Adding..." : "Save Customer"}
+            </button>
+          </form>
+        )}
       </CustomModal>
 
       {/* Held Sales Modal */}
