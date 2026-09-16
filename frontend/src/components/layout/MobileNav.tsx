@@ -281,7 +281,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
             </div>
 
             {/* Navigation Groups & Modules (Same flow as big screen sidebar) */}
-            <nav className="flex-1 overflow-y-auto px-2.5 py-2 space-y-1 custom-scrollbar">
+            <nav className="flex-1 overflow-y-auto px-2.5 py-2 space-y-1 no-scrollbar">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
                   <Loader2 size={20} className="animate-spin text-[#0284C7]" />

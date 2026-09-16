@@ -83,7 +83,7 @@ export function Header() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => window.dispatchEvent(new Event("omni:open-mobile-menu"))}
-              className="flex h-8.5 w-8.5 items-center justify-center rounded-sm border border-sky-200/90 bg-sky-50/70 text-[#0284C7] hover:bg-[#E0F2FE] hover:border-[#0284C7] hover:text-[#0369A1] transition shadow-2xs cursor-pointer shrink-0"
+              className="flex h-9 w-9 items-center justify-center rounded-sm border border-sky-200/90 bg-sky-50/70 text-[#0284C7] hover:bg-[#E0F2FE] hover:border-[#0284C7] hover:text-[#0369A1] transition shadow-2xs cursor-pointer shrink-0"
               title="Open Navigation Menu"
               aria-label="Open Navigation Menu"
             >
@@ -197,7 +197,7 @@ export function Header() {
           <div className="flex min-w-0 items-center gap-2.5">
             <button
               onClick={() => window.dispatchEvent(new Event("bpos:toggle-sidebar"))}
-              className="flex h-8.5 w-8.5 items-center justify-center rounded-sm border border-sky-200/90 bg-sky-50/70 text-[#0284C7] hover:bg-[#E0F2FE] hover:border-[#0284C7] hover:text-[#0369A1] transition shadow-2xs cursor-pointer shrink-0"
+              className="flex h-9 w-9 items-center justify-center rounded-sm border border-sky-200/90 bg-sky-50/70 text-[#0284C7] hover:bg-[#E0F2FE] hover:border-[#0284C7] hover:text-[#0369A1] transition shadow-2xs cursor-pointer shrink-0"
               title="Toggle Sidebar (Collapse / Expand)"
               aria-label="Toggle Sidebar"
             >

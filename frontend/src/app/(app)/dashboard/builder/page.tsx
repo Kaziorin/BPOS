@@ -1,29 +1,29 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import { api } from "@/lib/api";
-import {
-  Plus,
-  Trash2,
-  GripVertical,
-  BarChart3,
-  Table2,
-  DollarSign,
-  Users,
-  AlertTriangle,
-  TrendingUp,
-  CheckCircle2,
-  RefreshCw,
-  LayoutDashboard,
-  LayoutGrid,
-  ArrowRight,
-  ArrowLeft,
-} from "lucide-react";
 import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { CustomButton } from "@/components/custom/CustomButton";
-import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomInput } from "@/components/custom/CustomInput";
+import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomSelect } from "@/components/custom/CustomSelect";
+import { api } from "@/lib/api";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  BarChart3,
+  CheckCircle2,
+  DollarSign,
+  GripVertical,
+  LayoutDashboard,
+  LayoutGrid,
+  Plus,
+  RefreshCw,
+  Table2,
+  Trash2,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
 
 const currency = (v: number) =>
   `৳${(v || 0).toLocaleString("en-BD", { maximumFractionDigits: 0 })}`;
@@ -434,7 +434,7 @@ export default function DashboardBuilderPage() {
                 Cancel
               </CustomButton>
               <CustomButton variant="primary" size="md" type="submit">
-                Create Canvas
+                Create Dashboard
               </CustomButton>
             </div>
           </form>

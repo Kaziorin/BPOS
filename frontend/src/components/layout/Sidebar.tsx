@@ -287,10 +287,12 @@ export function Sidebar() {
 
   return (
     <aside
-      className={cn(
-        "relative hidden shrink-0 flex-col border-r border-sky-100 bg-white text-[#0284C7] transition-[width] duration-300 ease-in-out lg:flex shadow-lg select-none",
-        collapsed ? "w-[72px]" : "w-64",
-      )}
+      style={{
+        width: collapsed ? "72px" : "256px",
+        transition: "width 200ms cubic-bezier(0.4, 0, 0.2, 1)",
+        willChange: "width",
+      }}
+      className="relative hidden shrink-0 flex-col border-r border-sky-100 bg-white text-[#0284C7] lg:flex shadow-lg select-none overflow-x-hidden"
     >
       {/* ── Ocean Breeze (Light) Subtle Gradient Backdrop ── */}
       <div className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden z-0 bg-white">
@@ -325,59 +327,64 @@ export function Sidebar() {
         </svg>
       </div>
 
-
-
       {/* Brand Header */}
-      <div
-        className={cn(
-          "relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-sky-100 px-4 bg-transparent",
-          collapsed && "justify-center px-0",
-        )}
-      >
-        <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60">
+      <div className="relative z-10 flex h-16 shrink-0 items-center border-b border-sky-100 px-4 bg-transparent overflow-hidden">
+        <Link href="/dashboard" className="flex items-center min-w-0">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs">
             <Logo size={21} />
           </div>
-          {!collapsed && (
-            <div className="flex flex-col min-w-0">
-              <span className="truncate font-bold text-[#0369A1] tracking-tight text-sm">
-                {siteConfig.name}
-              </span>
-              <span className="truncate text-[10.5px] text-[#0284C7] font-semibold tracking-wide">
-                Smart · Fast · All Industries
-              </span>
-            </div>
-          )}
+          <div
+            style={{
+              transition: "max-width 200ms cubic-bezier(0.4, 0, 0.2, 1), opacity 150ms ease, margin 200ms ease",
+            }}
+            className={cn(
+              "flex flex-col min-w-0 overflow-hidden whitespace-nowrap",
+              collapsed ? "max-w-0 opacity-0 pointer-events-none ml-0" : "max-w-[160px] opacity-100 ml-3"
+            )}
+          >
+            <span className="truncate font-bold text-[#0369A1] tracking-tight text-sm">
+              {siteConfig.name}
+            </span>
+            <span className="truncate text-[10.5px] text-[#0284C7] font-semibold tracking-wide">
+              Smart · Fast · All Industries
+            </span>
+          </div>
         </Link>
       </div>
 
       {/* Menu Quick Search */}
-      {!collapsed && (
-        <div className="relative z-10 px-3 pt-3 pb-1">
-          <div className="relative flex items-center">
-            <Search size={14} className="pointer-events-none absolute left-3 text-[#0284C7]" />
-            <input
-              type="text"
-              placeholder="Search menu..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-sm border border-[#0284C7] bg-white pl-9 pr-8 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:outline-none focus:border-[#0284C7] focus:ring-0 shadow-none transition-colors"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-              >
-                <X size={13} />
-              </button>
-            )}
-          </div>
+      <div
+        style={{
+          transition: "max-height 200ms cubic-bezier(0.4, 0, 0.2, 1), opacity 150ms ease, padding 200ms ease",
+        }}
+        className={cn(
+          "relative z-10 overflow-hidden",
+          collapsed ? "max-h-0 opacity-0 pointer-events-none px-3 py-0" : "max-h-16 opacity-100 px-3 pt-3 pb-1"
+        )}
+      >
+        <div className="relative flex items-center">
+          <Search size={14} className="pointer-events-none absolute left-3 text-[#0284C7]" />
+          <input
+            type="text"
+            placeholder="Search menu..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-sm border border-[#0284C7] bg-white pl-9 pr-8 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:outline-none focus:border-[#0284C7] focus:ring-0 shadow-none transition-colors"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+            >
+              <X size={13} />
+            </button>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Main Navigation List */}
-      <nav className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-1 custom-scrollbar">
+      <nav className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-1 no-scrollbar">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
             <Loader2 size={20} className="animate-spin text-[#0284C7]" />
@@ -415,40 +422,62 @@ export function Sidebar() {
       </nav>
 
       {/* Sidebar Footer User Info & Logout */}
-      <div className="relative z-10 border-t border-sky-100 p-2.5 bg-white">
-        {!collapsed ? (
-          <div className="flex items-center justify-between rounded-sm border border-sky-100 bg-sky-50/60 p-2">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-xs font-bold text-white shadow-2xs">
-                {(user?.name || "A")[0].toUpperCase()}
-                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="truncate text-xs font-bold text-[#0369A1]">
-                  {user?.name || "Administrator"}
-                </span>
-                <span className="truncate text-[10px] text-[#0284C7] font-semibold">
-                  {displayRole}
-                </span>
-              </div>
+      <div className="relative z-10 border-t border-sky-100 p-2 bg-white min-h-[58px] flex items-center justify-center overflow-hidden">
+        {/* Expanded User Card */}
+        <div
+          style={{
+            transition: "opacity 200ms ease, transform 200ms ease",
+          }}
+          className={cn(
+            "flex w-full items-center justify-between rounded-sm border border-sky-100 bg-sky-50/60 p-2",
+            collapsed
+              ? "opacity-0 pointer-events-none absolute scale-95"
+              : "opacity-100 relative scale-100"
+          )}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-xs font-bold text-white shadow-2xs">
+              {(user?.name || "A")[0].toUpperCase()}
+              <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
             </div>
-            <button
-              onClick={logout}
-              title="Logout"
-              className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 shadow-2xs cursor-pointer"
-            >
-              <LogOut size={15} />
-            </button>
+            <div className="flex flex-col min-w-0">
+              <span className="truncate text-xs font-bold text-[#0369A1]">
+                {user?.name || "Administrator"}
+              </span>
+              <span className="truncate text-[10px] text-[#0284C7] font-semibold">
+                {displayRole}
+              </span>
+            </div>
           </div>
-        ) : (
           <button
             onClick={logout}
             title="Logout"
-            className="flex h-9 w-full items-center justify-center rounded-sm bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 shadow-2xs cursor-pointer shrink-0"
+          >
+            <LogOut size={15} />
+          </button>
+        </div>
+
+        {/* Collapsed Single Logout Button */}
+        <div
+          style={{
+            transition: "opacity 200ms ease, transform 200ms ease",
+          }}
+          className={cn(
+            "w-full flex justify-center",
+            collapsed
+              ? "opacity-100 relative scale-100"
+              : "opacity-0 pointer-events-none absolute scale-95"
+          )}
+        >
+          <button
+            onClick={logout}
+            title="Logout"
+            className="flex h-9 w-10 items-center justify-center rounded-sm bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 cursor-pointer shadow-2xs"
           >
             <LogOut size={17} />
           </button>
-        )}
+        </div>
       </div>
 
       {/* ── Collapsed Mode Floating Flyout Submenu ── */}
@@ -511,7 +540,7 @@ export function Sidebar() {
             })()}
 
             {/* Submenu links */}
-            <div className="p-1.5 space-y-0.5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            <div className="p-1.5 space-y-0.5 max-h-[70vh] overflow-y-auto no-scrollbar">
               {activeFlyout.item.children?.map((child, idx) => {
                 const ChildIcon = child.icon;
                 const childActive = isChildActive(child, pathname, allHrefs);
@@ -608,79 +637,54 @@ function ModuleRow({
   const hasChildren = !!item.children?.length;
   const active = isModuleActive(item, pathname, allHrefs);
 
-  // Collapsed Mode: Icon with border, rounded-md; if has children → hover/click opens flyout on right
-  if (collapsed) {
-    if (!hasChildren) {
-      return (
-        <Link
-          href={item.href !== "#" ? item.href : "#"}
-          title={item.label}
-          className={cn(
-            "mx-auto flex h-10 w-10 items-center justify-center rounded-sm border transition-all duration-200",
-            active
-              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white"
-              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
-          )}
-        >
-          <Icon size={20} />
-        </Link>
-      );
-    }
-
-    // Has children → icon button; hovering or clicking opens flyout to the right
-    return (
-      <div
-        className="relative mx-auto w-10"
-        onMouseEnter={(e) => onOpenFlyout(item, e.currentTarget.getBoundingClientRect().top)}
-        onMouseLeave={onCloseFlyout}
-      >
-        <button
-          type="button"
-          onClick={(e) => onToggleFlyout(item, e.currentTarget.getBoundingClientRect().top)}
-          title={item.label}
-          className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-sm border transition-all duration-200 cursor-pointer",
-            active || isFlyoutOpen
-              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white"
-              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
-          )}
-        >
-          <Icon size={20} />
-        </button>
-      </div>
-    );
-  }
-
-  // Direct Single Link (no sub-children)
+  // Single Direct Link (no children)
   if (!hasChildren) {
     return (
       <Link
-        href={item.href}
+        href={item.href !== "#" ? item.href : "#"}
+        title={collapsed ? item.label : undefined}
         className={cn(
-          "group flex items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-200",
+          "group relative flex w-full h-10 items-center rounded-sm transition-colors duration-150 overflow-hidden select-none border",
           active
-            ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
-            : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
+            ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white font-bold shadow-2xs"
+            : collapsed
+            ? "border-sky-100/80 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]"
+            : "border-transparent text-[#0284C7] font-semibold hover:border-sky-200 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
         )}
       >
-        <div className="flex items-center gap-2.5 min-w-0">
+        {/* Icon wrapper (fixed 40px wide, center aligned) */}
+        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center", collapsed && "mx-auto")}>
           <Icon
-            size={16}
+            size={18}
             className={cn(
               "transition-colors duration-200 shrink-0",
               active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
             )}
           />
-          <span className="truncate">{item.label}</span>
         </div>
-        {item.badge && (
-          <span className={cn(
-            "shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
-            active ? "bg-white/20 text-white" : "bg-sky-500/15 text-sky-800 border border-sky-500/30"
-          )}>
-            {item.badge}
-          </span>
-        )}
+
+        {/* Text wrapper - smoothly expands/collapses via max-width and opacity */}
+        <div
+          style={{
+            transition: "max-width 200ms cubic-bezier(0.4, 0, 0.2, 1), opacity 150ms ease, margin 200ms ease",
+          }}
+          className={cn(
+            "flex items-center justify-between flex-1 min-w-0 overflow-hidden whitespace-nowrap",
+            collapsed ? "max-w-0 opacity-0 pointer-events-none ml-0" : "max-w-[190px] opacity-100 ml-1 pr-2"
+          )}
+        >
+          <span className="truncate text-xs">{item.label}</span>
+          {item.badge && (
+            <span
+              className={cn(
+                "shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-sm ml-1.5",
+                active ? "bg-white/20 text-white" : "bg-sky-500/15 text-sky-800 border border-sky-500/30",
+              )}
+            >
+              {item.badge}
+            </span>
+          )}
+        </div>
       </Link>
     );
   }
@@ -689,59 +693,106 @@ function ModuleRow({
   return (
     <div className="space-y-0.5">
       <button
-        onClick={onToggleModule}
+        type="button"
+        onClick={(e) => {
+          if (collapsed) {
+            onToggleFlyout(item, e.currentTarget.getBoundingClientRect().top);
+          } else {
+            onToggleModule();
+          }
+        }}
+        onMouseEnter={(e) => {
+          if (collapsed) {
+            onOpenFlyout(item, e.currentTarget.getBoundingClientRect().top);
+          }
+        }}
+        onMouseLeave={() => {
+          if (collapsed) {
+            onCloseFlyout();
+          }
+        }}
+        title={collapsed ? item.label : undefined}
         className={cn(
-          "group flex w-full items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
-          active
-            ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
+          "group relative flex w-full h-10 items-center rounded-sm transition-colors duration-150 cursor-pointer overflow-hidden select-none border",
+          active || (collapsed && isFlyoutOpen)
+            ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white font-bold shadow-2xs"
+            : collapsed
+            ? "border-sky-100/80 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]"
             : moduleExpanded
-            ? "text-[#0284C7] font-bold bg-[#E0F2FE]/80"
-            : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
+            ? "border-transparent bg-[#E0F2FE]/80 text-[#0284C7] font-bold"
+            : "border-transparent text-[#0284C7] font-semibold hover:border-sky-200 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
         )}
       >
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+        {/* Icon wrapper (fixed 40px wide, center aligned) */}
+        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center", collapsed && "mx-auto")}>
           <Icon
-            size={16}
+            size={18}
             className={cn(
               "transition-colors duration-200 shrink-0",
-              active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
+              (active || (collapsed && isFlyoutOpen))
+                ? "text-white"
+                : "text-[#0284C7] group-hover:text-sky-900",
             )}
           />
-          <span className="truncate text-left">{item.label}</span>
         </div>
-        {item.badge && (
-          <span className={cn(
-            "shrink-0 mr-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
-            active ? "bg-white/20 text-white" : "bg-sky-500/15 text-sky-800 border border-sky-500/30"
-          )}>
-            {item.badge}
-          </span>
-        )}
-        <ChevronDown
-          size={13}
+
+        {/* Text wrapper - smoothly expands/collapses via max-width and opacity */}
+        <div
+          style={{
+            transition: "max-width 200ms cubic-bezier(0.4, 0, 0.2, 1), opacity 150ms ease, margin 200ms ease",
+          }}
           className={cn(
-            "shrink-0 transition-transform duration-200",
-            active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
-            moduleExpanded && "rotate-180",
+            "flex items-center justify-between flex-1 min-w-0 overflow-hidden whitespace-nowrap",
+            collapsed ? "max-w-0 opacity-0 pointer-events-none ml-0" : "max-w-[190px] opacity-100 ml-1 pr-2"
           )}
-        />
+        >
+          <span className="truncate text-left text-xs">{item.label}</span>
+          <div className="flex items-center gap-1.5 shrink-0 ml-1">
+            {item.badge && (
+              <span
+                className={cn(
+                  "text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
+                  active ? "bg-white/20 text-white" : "bg-sky-500/15 text-sky-800 border border-sky-500/30",
+                )}
+              >
+                {item.badge}
+              </span>
+            )}
+            <ChevronDown
+              size={13}
+              className={cn(
+                "shrink-0 transition-transform duration-200",
+                active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
+                moduleExpanded && "rotate-180",
+              )}
+            />
+          </div>
+        </div>
       </button>
 
       {/* Submenu Children Container with sky visual guide line */}
-      {moduleExpanded && (
-        <div className="ml-3.5 mt-1 space-y-1 border-l-2 border-sky-300/60 pl-2.5 py-0.5 transition-all">
-          {item.children!.map((child, idx) => (
-            <MenuItemRow
-              key={`${child.label}-${child.href}-${idx}`}
-              child={child}
-              pathname={pathname}
-              allHrefs={allHrefs}
-              itemExpanded={isSearching || expandedItems.has(child.href)}
-              onToggle={() => onToggleItem(child.href)}
-            />
-          ))}
-        </div>
-      )}
+      <div
+        style={{
+          transition: "max-height 200ms cubic-bezier(0.4, 0, 0.2, 1), opacity 150ms ease",
+        }}
+        className={cn(
+          "overflow-hidden",
+          !collapsed && moduleExpanded
+            ? "max-h-[800px] opacity-100 ml-3.5 mt-1 space-y-1 border-l-2 border-sky-300/60 pl-2.5 py-0.5"
+            : "max-h-0 opacity-0 pointer-events-none p-0 m-0 border-transparent",
+        )}
+      >
+        {item.children?.map((child, idx) => (
+          <MenuItemRow
+            key={`${child.label}-${child.href}-${idx}`}
+            child={child}
+            pathname={pathname}
+            allHrefs={allHrefs}
+            itemExpanded={isSearching || expandedItems.has(child.href)}
+            onToggle={() => onToggleItem(child.href)}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -802,7 +853,7 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
                   key={`${sub.label}-${sub.href}-${idx}`}
                   href={sub.href}
                   className={cn(
-                    "group flex items-center gap-2 rounded-sm px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
+                    "group flex items-center gap-2 rounded-sm px-2 py-1.5 text-[11px] font-semibold transition-colors duration-150",
                     subActive
                       ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
                       : "text-[#0284C7] hover:bg-[#E0F2FE] hover:text-[#0369A1]",
@@ -824,7 +875,7 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
     <Link
       href={child.href}
       className={cn(
-        "group flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-xs transition-all duration-150",
+        "group flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-xs transition-colors duration-150",
         exactActive
           ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
           : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
@@ -841,3 +892,4 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
     </Link>
   );
 }
+
