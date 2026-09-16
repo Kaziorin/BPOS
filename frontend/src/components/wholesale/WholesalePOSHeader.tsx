@@ -2,10 +2,14 @@
 
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
+  ArrowLeft,
   Settings2,
   Sun,
   Moon,
+  Maximize,
+  Minimize,
   TrendingUp,
   ShoppingBag,
   Truck,
@@ -28,7 +32,9 @@ interface WholesalePOSHeaderProps {
   customer: WsCustomerProfile;
   stats: WsStats;
   darkMode?: boolean;
+  isFullscreen?: boolean;
   onToggleDarkMode?: () => void;
+  onToggleFullscreen?: () => void;
   onSelectCustomer?: () => void;
   onOpenSettings?: () => void;
 }
@@ -38,7 +44,9 @@ export function WholesalePOSHeader({
   customer,
   stats,
   darkMode = false,
+  isFullscreen = false,
   onToggleDarkMode,
+  onToggleFullscreen,
   onSelectCustomer,
   onOpenSettings,
 }: WholesalePOSHeaderProps): ReactElement {
@@ -87,22 +95,38 @@ export function WholesalePOSHeader({
         )}
         style={darkMode ? undefined : { background: iceCard, border: `1px solid ${iceBorder}` }}
       >
-        <div className="min-w-0 shrink-0 pr-2">
-          <h1
+        <Link
+          href="/wholesale"
+          className="flex items-center gap-2.5 min-w-0 shrink-0 pr-2 group cursor-pointer transition-all active:scale-95"
+          title="Back to Wholesale Hub"
+        >
+          <div
             className={cn(
-              "text-[20px] font-extrabold leading-tight tracking-tight sm:text-[22px]",
-              darkMode ? "text-slate-50" : "",
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all group-hover:scale-105",
+              darkMode
+                ? "border-slate-700 bg-slate-800 text-slate-300 group-hover:border-slate-600 group-hover:text-white"
+                : "border-slate-200 bg-slate-100 text-slate-600 group-hover:border-blue-400 group-hover:bg-blue-50 group-hover:text-blue-600",
             )}
-            style={darkMode ? undefined : { color: darkText }}
           >
-            BPOS
-          </h1>
-          <p className={cn("mt-0.5 text-[11px] font-black tracking-wide uppercase", darkMode ? "text-blue-400" : "")}
-            style={darkMode ? undefined : { color: iceBlue }}
-          >
-            Wholesale & Distribution
-          </p>
-        </div>
+            <ArrowLeft size={16} strokeWidth={2.4} className="transition-transform group-hover:-translate-x-0.5" />
+          </div>
+          <div>
+            <h1
+              className={cn(
+                "text-[20px] font-extrabold leading-tight tracking-tight sm:text-[22px]",
+                darkMode ? "text-slate-50" : "",
+              )}
+              style={darkMode ? undefined : { color: darkText }}
+            >
+              BPOS
+            </h1>
+            <p className={cn("mt-0.5 text-[11px] font-black tracking-wide uppercase", darkMode ? "text-blue-400" : "")}
+              style={darkMode ? undefined : { color: iceBlue }}
+            >
+              Wholesale & B2B
+            </p>
+          </div>
+        </Link>
 
         <div className="hidden flex-1 md:block" />
 
@@ -194,6 +218,23 @@ export function WholesalePOSHeader({
               </span>
             </span>
           </button>
+
+          {/* Fullscreen Toggle */}
+          {onToggleFullscreen && (
+            <button
+              type="button"
+              onClick={onToggleFullscreen}
+              title={isFullscreen ? "Exit Fullscreen (F)" : "Full Screen (F)"}
+              className={cn(
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all cursor-pointer shadow-sm active:scale-95",
+                darkMode
+                  ? "border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-600 hover:bg-slate-700 hover:text-white"
+                  : "border-slate-300 bg-slate-100 text-slate-700 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600",
+              )}
+            >
+              {isFullscreen ? <Minimize size={16} strokeWidth={2.2} /> : <Maximize size={16} strokeWidth={2.2} />}
+            </button>
+          )}
         </div>
       </header>
 

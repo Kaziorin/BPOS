@@ -1,6 +1,7 @@
 """Remaining routers — credit, installments, sales orders, invoices, pricing, inventory queries, branches/settings."""
 from __future__ import annotations
 
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession

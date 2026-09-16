@@ -94,6 +94,22 @@ export function WholesalePOSRightPanel({
           Order Items <span style={{ color: iceBlue }}>({cart.length})</span>
         </h2>
         <div className="flex items-center gap-1.5">
+          {cart.length > 0 && (
+            <button
+              type="button"
+              onClick={onClearCart}
+              title="Clear entire cart"
+              className={cn(
+                "flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[11.5px] font-extrabold transition-all cursor-pointer shadow-2xs active:scale-95",
+                darkMode
+                  ? "border border-rose-500/30 bg-rose-500/15 text-rose-300 hover:bg-rose-500/25"
+                  : "border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700",
+              )}
+            >
+              <Trash2 size={13} strokeWidth={2.2} />
+              <span>Clear Cart</span>
+            </button>
+          )}
           <CustomButton
             type="button"
             size="sm"

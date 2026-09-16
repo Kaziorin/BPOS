@@ -123,7 +123,7 @@ export default function WholesaleHubPage() {
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-black text-slate-900 tracking-tight">Wholesale & Distribution</h1>
+              <h1 className="text-3xl font-black text-slate-900 tracking-tight">Wholesale & B2B</h1>
               <span className="px-3 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] bg-blue-100 text-blue-700 border border-blue-200 rounded-full shadow-sm">
                 B2B Portal
               </span>

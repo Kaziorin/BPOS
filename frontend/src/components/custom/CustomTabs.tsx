@@ -21,6 +21,7 @@ export interface CustomTabsProps {
   darkMode?: boolean;
   inactiveClassName?: string;
   wrap?: boolean;
+  style?: React.CSSProperties;
 }
 
 const THEME_ACTIVE_STYLES: Record<string, string> = {
@@ -57,12 +58,14 @@ export function CustomTabs({
   darkMode = false,
   inactiveClassName,
   wrap = false,
+  style,
 }: CustomTabsProps) {
   const activeStyle = THEME_ACTIVE_STYLES[themeColor] || THEME_ACTIVE_STYLES.orange;
   const hoverStyle = THEME_HOVER_STYLES(darkMode)[themeColor] || THEME_HOVER_STYLES(darkMode).orange;
 
   return (
     <div
+      style={style}
       className={cn(
         "flex items-center gap-1.5 rounded-md p-1.5 w-full transition-colors",
         wrap ? "flex-wrap overflow-x-visible" : "overflow-x-auto",

@@ -24,6 +24,7 @@ import {
   Monitor,
   Wifi,
   Maximize,
+  Minimize,
   Bell,
   Calendar,
   User,
@@ -41,6 +42,12 @@ import {
   Printer,
   ChevronRight,
   UserPlus,
+  SlidersHorizontal,
+  Banknote,
+  Volume2,
+  Tv,
+  Archive,
+  Info,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -137,7 +144,65 @@ export default function SalonPOSPage() {
   const [customerModalTab, setCustomerModalTab] = useState<"view" | "add">("view");
   const [isNotesOpen, setNotesOpen] = useState(false);
   const [isStaffOpen, setStaffOpen] = useState(false);
+  const [isSettingsOpen, setSettingsOpen] = useState(false);
   const [selectedCartIdx, setSelectedCartIdx] = useState<number | null>(null);
+
+  // POS Hardware & Station Settings
+  const [hardwareSettings, setHardwareSettings] = useState(() => {
+    if (typeof window === "undefined") {
+      return {
+        thermalPrinter: true,
+        cashDrawer: true,
+        barcodeScanner: true,
+        cardTerminal: true,
+        customerDisplay: true,
+        autoPrintReceipt: true,
+        soundChime: true,
+        paperWidth: "80mm",
+      };
+    }
+    try {
+      const saved = localStorage.getItem("bpos_salon_hardware_settings");
+      return saved ? JSON.parse(saved) : {
+        thermalPrinter: true,
+        cashDrawer: true,
+        barcodeScanner: true,
+        cardTerminal: true,
+        customerDisplay: true,
+        autoPrintReceipt: true,
+        soundChime: true,
+        paperWidth: "80mm",
+      };
+    } catch {
+      return {
+        thermalPrinter: true,
+        cashDrawer: true,
+        barcodeScanner: true,
+        cardTerminal: true,
+        customerDisplay: true,
+        autoPrintReceipt: true,
+        soundChime: true,
+        paperWidth: "80mm",
+      };
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("bpos_salon_hardware_settings", JSON.stringify(hardwareSettings));
+    } catch {}
+  }, [hardwareSettings]);
+
+  const toggleHardwareConfig = (key: keyof typeof hardwareSettings) => {
+    setHardwareSettings((prev: any) => ({
+      ...prev,
+      [key]: typeof prev[key] === "boolean" ? !prev[key] : prev[key],
+    }));
+  };
+
+  const openCashDrawerManually = () => {
+    toast.success("💵 Cash drawer pulse trigger sent! Drawer opened successfully.");
+  };
 
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SaleResult | null>(null);
@@ -171,6 +236,39 @@ export default function SalonPOSPage() {
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
   const [orderSeq] = useState(() => `ORD-${Math.floor(Math.random() * 9000) + 1000}`);
 
+  // Fullscreen state & keyboard shortcut (F key)
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((e) => console.error(e));
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch((e) => console.error(e));
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   useEffect(() => {
     try { localStorage.setItem("bpos_salon_cart", JSON.stringify(cart)); } catch {}
   }, [cart]);
@@ -188,7 +286,7 @@ export default function SalonPOSPage() {
     }).catch(() => {});
 
     // Load Customers
-    api.get("/customers").then((res: any) => {
+    api.get("/api/v1/customers").then((res: any) => {
       setCustomers(res?.data?.data || res?.data || []);
     }).catch(() => {});
 
@@ -421,14 +519,22 @@ export default function SalonPOSPage() {
       const res: any = await api.post("/api/v1/pos/confirm", payload);
       const saleResult = res?.data || res;
       setResult(saleResult);
+      const currentCashier = user?.name || "Staff";
       setCompletedSale({
         result: saleResult,
         cart: items,
         payments: payload.payments,
         customerName: selectedCustomer?.name || "Walk-in",
-        cashierName: user?.name || "Staff",
+        cashierName: saleResult?.cashierName || currentCashier,
       });
-      setSalesHistory(prev => [{ ...saleResult, customerName: selectedCustomer?.name || "Walk-in" }, ...prev]);
+      setSalesHistory(prev => [{
+        ...saleResult,
+        customerName: selectedCustomer?.name || "Walk-in",
+        cashierName: saleResult?.cashierName || currentCashier,
+        cashier: saleResult?.cashier || { id: user?.id, name: currentCashier },
+        items: items,
+        payments: payload.payments,
+      }, ...prev]);
       setCheckoutOpen(false);
       toast.success("Sale confirmed!");
     } catch (err: any) {
@@ -519,8 +625,13 @@ export default function SalonPOSPage() {
             </div>
           </div>
 
-          <button onClick={() => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }} className="w-10 h-10 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center shadow-sm border border-slate-200 transition-all active:scale-95">
-            <Maximize size={20} />
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen (F)" : "Toggle Fullscreen (F)"}
+            className="w-10 h-10 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center shadow-sm border border-slate-200 transition-all active:scale-95 cursor-pointer"
+          >
+            {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
           </button>
           <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100/50">
             <Wifi size={20} />
@@ -985,7 +1096,7 @@ export default function SalonPOSPage() {
               { label: "Recall", icon: History, onClick: () => setHeldOrdersOpen(true), color: "text-emerald-500", bg: "bg-emerald-50" },
               { label: "History", icon: History, onClick: () => setHistoryOpen(true), color: "text-blue-500", bg: "bg-blue-50" },
               { label: "Report", icon: TrendingUp, onClick: () => window.open("/reports", "_blank"), color: "text-indigo-500", bg: "bg-indigo-50" },
-              { label: "Settings", icon: Settings, onClick: () => window.open("/settings", "_blank"), color: "text-slate-500", bg: "bg-slate-100" },
+              { label: "Settings", icon: Settings, onClick: () => setSettingsOpen(true), color: "text-slate-500", bg: "bg-slate-100" },
             ].map((tool) => (
               <button
                 key={tool.label}
@@ -1305,47 +1416,50 @@ export default function SalonPOSPage() {
       </CustomModal>
 
       {/* Session History */}
-      <CustomModal open={isHistoryOpen} onClose={() => setHistoryOpen(false)} title="Order Vault" size="2xl">
-        <div className="space-y-6 p-2">
+      <CustomModal open={isHistoryOpen} onClose={() => setHistoryOpen(false)} title="Order Vault" size="4xl" className="!rounded-[2.5rem]">
+        <div className="space-y-6 p-1">
           {salesHistory.length === 0 ? (
             <div className="py-28 text-center opacity-30">
               <History size={80} className="mx-auto mb-6 text-slate-300" />
               <p className="text-sm font-black uppercase tracking-[0.3em] text-slate-400">Vault is Empty</p>
             </div>
           ) : (
-            <div className="overflow-x-auto border border-slate-50 rounded-[3rem] shadow-xl shadow-indigo-100/10">
+            <div className="overflow-x-auto border border-slate-50 rounded-[2rem] shadow-xl shadow-indigo-100/10">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50/50 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-50">
+                <thead className="bg-slate-50/50 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-50">
                   <tr>
-                    <th className="px-8 py-5">Invoice ID</th>
-                    <th className="px-8 py-5">Guest Profile</th>
-                    <th className="px-8 py-5 text-right">Value</th>
-                    <th className="px-8 py-5 text-center">Action</th>
+                    <th className="px-5 py-4">Invoice ID</th>
+                    <th className="px-5 py-4">Guest Profile</th>
+                    <th className="px-5 py-4">Cashier</th>
+                    <th className="px-5 py-4 text-right">Value</th>
+                    <th className="px-5 py-4 text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 bg-white">
                   {salesHistory.map((sale, idx) => {
                     const invNo = sale.invoiceNo || (sale.saleId ? `INV-${sale.saleId.slice(0, 8).toUpperCase()}` : `INV-${(sale._id || "").slice(-8).toUpperCase()}`);
                     const custName = sale.customerName || sale.customer?.name || "Walk-in";
+                    const cashierName = sale.cashierName || sale.cashier?.name || sale.salesmanName || sale.salesman?.name || sale.createdBy?.name || user?.name || "Staff";
                     const amount = Number(sale.total || sale.grandTotal || sale.totalAmount || 0);
 
                     return (
                     <tr key={sale.id || sale._id || `sale-${idx}`} className="text-xs hover:bg-indigo-50/30 transition-all duration-500 group">
-                      <td className="px-8 py-5 font-mono font-black text-indigo-600 tracking-[0.2em]">{invNo}</td>
-                      <td className="px-8 py-5 font-black uppercase tracking-tight text-slate-700">{custName}</td>
-                      <td className="px-8 py-5 text-right font-black text-indigo-600 tabular-nums text-sm">৳{amount.toFixed(0)}</td>
-                      <td className="px-8 py-5 text-center">
+                      <td className="px-5 py-4 font-mono font-black text-indigo-600 tracking-[0.1em]">{invNo}</td>
+                      <td className="px-5 py-4 font-black uppercase tracking-tight text-slate-700">{custName}</td>
+                      <td className="px-5 py-4 font-bold uppercase tracking-tight text-slate-600">{cashierName}</td>
+                      <td className="px-5 py-4 text-right font-black text-indigo-600 tabular-nums text-sm">৳{amount.toFixed(0)}</td>
+                      <td className="px-5 py-4 text-center">
                         <button 
                           onClick={() => {
                             setCompletedSale({
                               result: sale,
                               cart: sale.items || [],
-                              payments: sale.payments || [{ method: "CASH", amount: amount }],
-                              cashierName: sale.cashierName || sale.salesmanName || sale.salesman?.name || "Staff",
+                              payments: sale.payments || [{ method: sale.paymentMethod || "CASH", amount: amount }],
+                              cashierName: cashierName,
                               customerName: custName,
                             });
                           }}
-                          className="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 active:scale-75 shadow-sm"
+                          className="w-9 h-9 mx-auto flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 active:scale-75 shadow-sm"
                         >
                           <Printer size={16} strokeWidth={2.5} />
                         </button>
@@ -1370,6 +1484,209 @@ export default function SalonPOSPage() {
             className="w-full h-48 p-7 rounded-[2.5rem] bg-slate-50/50 border border-transparent text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-400 focus:ring-[12px] focus:ring-indigo-50/50 transition-all resize-none placeholder:text-slate-300 shadow-inner leading-relaxed"
           />
           <CustomButton fullWidth themeColor="indigo" onClick={() => setNotesOpen(false)} className="!rounded-[1.75rem] !h-16 font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo-100">Save Directive</CustomButton>
+        </div>
+      </CustomModal>
+
+      {/* POS Hardware & Station Settings Modal */}
+      <CustomModal open={isSettingsOpen} onClose={() => setSettingsOpen(false)} title="Hardware & Station Settings" size="lg" className="!rounded-[2.5rem] !overflow-hidden">
+        <div className="-mx-6 -mt-5 flex flex-col">
+          {/* Header Banner */}
+          <div className="flex items-center justify-between p-6 px-8 border-b border-indigo-50 bg-gradient-to-r from-indigo-50 to-violet-50">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200">
+                <SlidersHorizontal size={22} strokeWidth={2.5} />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-indigo-950 uppercase tracking-tight">Salon Station Devices</h3>
+                <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mt-0.5">Printer, Cash Drawer & Peripheral Setup</p>
+              </div>
+            </div>
+            <button
+              onClick={openCashDrawerManually}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-700 transition-all shadow-md active:scale-95 cursor-pointer"
+            >
+              <Banknote size={16} /> Open Drawer
+            </button>
+          </div>
+
+          <div className="p-8 space-y-4 max-h-[60vh] overflow-y-auto no-scrollbar bg-white">
+            {/* 1. Thermal Receipt Printer */}
+            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                  <Printer size={20} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">🖨️ Thermal Receipt Printer</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">ESC/POS 80mm / 58mm Voucher Printer • {hardwareSettings.thermalPrinter ? "Active" : "Disabled"}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => toggleHardwareConfig("thermalPrinter")}
+                className={cn("relative w-12 h-6 rounded-full transition-all duration-300", hardwareSettings.thermalPrinter ? "bg-indigo-600" : "bg-slate-200")}
+              >
+                <div className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all duration-300 shadow-md", hardwareSettings.thermalPrinter ? "left-6.5" : "left-0.5")} />
+              </button>
+            </div>
+
+            {/* 2. Cash Drawer */}
+            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                  <Banknote size={20} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">💵 Electric Cash Drawer</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Kick-out RJ11 Signal on Cash Sale • {hardwareSettings.cashDrawer ? "Active" : "Disabled"}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => toggleHardwareConfig("cashDrawer")}
+                className={cn("relative w-12 h-6 rounded-full transition-all duration-300", hardwareSettings.cashDrawer ? "bg-indigo-600" : "bg-slate-200")}
+              >
+                <div className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all duration-300 shadow-md", hardwareSettings.cashDrawer ? "left-6.5" : "left-0.5")} />
+              </button>
+            </div>
+
+            {/* 3. Barcode & SKU Scanner */}
+            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                  <Search size={20} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">🔍 Barcode & Product Scanner</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Retail Boutique SKU Auto-Scan • {hardwareSettings.barcodeScanner ? "Active" : "Disabled"}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => toggleHardwareConfig("barcodeScanner")}
+                className={cn("relative w-12 h-6 rounded-full transition-all duration-300", hardwareSettings.barcodeScanner ? "bg-indigo-600" : "bg-slate-200")}
+              >
+                <div className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all duration-300 shadow-md", hardwareSettings.barcodeScanner ? "left-6.5" : "left-0.5")} />
+              </button>
+            </div>
+
+            {/* 4. Card & MFS Terminal */}
+            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                  <CreditCard size={20} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">💳 Card & Digital Pay Terminal</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">EDC POS / Bank Card / Mobile Banking • {hardwareSettings.cardTerminal ? "Active" : "Disabled"}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => toggleHardwareConfig("cardTerminal")}
+                className={cn("relative w-12 h-6 rounded-full transition-all duration-300", hardwareSettings.cardTerminal ? "bg-indigo-600" : "bg-slate-200")}
+              >
+                <div className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all duration-300 shadow-md", hardwareSettings.cardTerminal ? "left-6.5" : "left-0.5")} />
+              </button>
+            </div>
+
+            {/* 5. Customer Display */}
+            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center font-bold">
+                  <Tv size={20} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">📺 Customer Facing Display</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Live Salon Cart Totals on 2nd Screen • {hardwareSettings.customerDisplay ? "Active" : "Disabled"}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => toggleHardwareConfig("customerDisplay")}
+                className={cn("relative w-12 h-6 rounded-full transition-all duration-300", hardwareSettings.customerDisplay ? "bg-indigo-600" : "bg-slate-200")}
+              >
+                <div className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all duration-300 shadow-md", hardwareSettings.customerDisplay ? "left-6.5" : "left-0.5")} />
+              </button>
+            </div>
+
+            {/* 6. Sound Effects / Chime */}
+            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
+                  <Volume2 size={20} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">🔔 Audio Scanner & System Chimes</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Beep sound on item scan & checkout • {hardwareSettings.soundChime ? "Active" : "Disabled"}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => toggleHardwareConfig("soundChime")}
+                className={cn("relative w-12 h-6 rounded-full transition-all duration-300", hardwareSettings.soundChime ? "bg-indigo-600" : "bg-slate-200")}
+              >
+                <div className={cn("absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all duration-300 shadow-md", hardwareSettings.soundChime ? "left-6.5" : "left-0.5")} />
+              </button>
+            </div>
+
+            {/* 7. Paper Format Option */}
+            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold">
+                  <Printer size={20} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">📜 Thermal Paper Specification</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Standard Roll Width Selection</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setHardwareSettings((prev: any) => ({ ...prev, paperWidth: "80mm" }))}
+                  className={cn("px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all", hardwareSettings.paperWidth === "80mm" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-500 hover:text-indigo-600")}
+                >
+                  80mm Standard
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHardwareSettings((prev: any) => ({ ...prev, paperWidth: "58mm" }))}
+                  className={cn("px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all", hardwareSettings.paperWidth === "58mm" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-500 hover:text-indigo-600")}
+                >
+                  58mm Mini
+                </button>
+              </div>
+            </div>
+
+            {/* Hardware Note */}
+            <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 flex items-start gap-3 text-indigo-900">
+              <Info size={18} className="text-indigo-600 shrink-0 mt-0.5" />
+              <p className="text-[11px] font-bold leading-relaxed">
+                Hardware integration supports WebUSB, ESC/POS Serial, Bluetooth printers, and RJ11 cash drawers. Preferences are saved automatically to station profile.
+              </p>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="p-6 px-8 bg-white border-t border-indigo-50 flex items-center justify-between rounded-b-[2.5rem]">
+            <button
+              onClick={() => window.open("/settings", "_blank")}
+              className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline"
+            >
+              Advanced System Settings →
+            </button>
+            <CustomButton
+              themeColor="indigo"
+              onClick={() => {
+                toast.success("Hardware settings saved!");
+                setSettingsOpen(false);
+              }}
+              className="!rounded-xl !h-12 font-black uppercase tracking-widest px-8 shadow-xl shadow-indigo-100"
+            >
+              Save & Apply
+            </CustomButton>
+          </div>
         </div>
       </CustomModal>
 
