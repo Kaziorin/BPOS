@@ -203,21 +203,21 @@ export default function DashboardPage() {
                 className="group flex items-center justify-between p-2.5 rounded-sm border border-sky-100/90 bg-white hover:bg-sky-50/40 hover:border-sky-300/80 transition-all duration-150 shadow-2xs"
               >
                 <div className="min-w-0 pr-2">
-                  <p className="font-bold text-xs text-slate-900 group-hover:text-[#0284C7] transition-colors truncate">
+                  <p className="font-bold text-xs text-gray-600 group-hover:text-[#0284C7] transition-colors truncate">
                     {s.invoiceNo}
                   </p>
                   <div className="mt-0.5 flex items-center gap-1.5 text-xs truncate">
-                    <span className="font-semibold text-slate-700 truncate">
+                    <span className="font-medium text-gray-600 truncate">
                       {s.customer || "Walk-in Customer"}
                     </span>
                     <span className="text-slate-300 font-normal shrink-0">•</span>
-                    <span className="text-slate-500 font-medium shrink-0 text-[11px]">
+                    <span className="text-gray-500 font-medium shrink-0 text-[11px]">
                       {dateTime(s.createdAt)}
                     </span>
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-bold text-xs sm:text-sm text-slate-900 [font-variant-numeric:tabular-nums]">
+                  <p className="font-extrabold text-xs sm:text-sm text-[#0284C7] [font-variant-numeric:tabular-nums]">
                     {money(s.total)}
                   </p>
                   <div className="mt-0.5">
