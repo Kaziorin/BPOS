@@ -4,13 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useMemo } from "react";
 import {
-  ChevronDown, LogOut, Loader2, Search, X, Play,
+  ChevronDown, LogOut, Loader2, Search, X,
 } from "lucide-react";
 import { useDynamicNav, type NavItem, type NavChild } from "@/lib/dynamic-nav";
 import { siteConfig } from "@/config/site";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/cn";
-import { CustomInput } from "@/components/custom/CustomInput";
 
 const STORAGE_KEY = "modernpos_sidebar_collapsed";
 const EXPANDED_KEY = "modernpos_sidebar_expanded";
@@ -99,6 +98,7 @@ export function Sidebar() {
   const { navGroups, loading } = useDynamicNav();
 
   const [collapsed, setCollapsed] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
@@ -106,8 +106,10 @@ export function Sidebar() {
     item: NavItem;
     top: number;
   } | null>(null);
+
   const flyoutTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const didAutoExpand = useRef(false);
+  const collapsedNavRef = useRef<HTMLElement | null>(null);
+  const expandedNavRef = useRef<HTMLElement | null>(null);
 
   // Dynamic Role from User / Database
   const displayRole = user?.roleName || user?.role || "Staff";
@@ -134,20 +136,27 @@ export function Sidebar() {
     return set;
   }, [navGroups]);
 
-  // Restore collapsed state
+  // Restore collapsed state on mount and enable animations afterwards
   useEffect(() => {
-    if (localStorage.getItem(STORAGE_KEY) === "1") setCollapsed(true);
+    if (localStorage.getItem(STORAGE_KEY) === "1") {
+      setCollapsed(true);
+    }
     try {
       const saved = localStorage.getItem(EXPANDED_KEY);
       if (saved) {
         const parsed = JSON.parse(saved) as { modules: string[]; items: string[] };
-        // Strictly restore only 1 module and 1 item at most
         const lastMod = (parsed.modules ?? []).slice(-1);
         const lastItem = (parsed.items ?? []).slice(-1);
         setExpandedModules(new Set(lastMod));
         setExpandedItems(new Set(lastItem));
       }
     } catch {}
+
+    // Enable smooth CSS transitions after initial state restoration
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 50);
+    return () => clearTimeout(timer);
   }, []);
 
   // Auto-expand only the current active module + active menuItem
@@ -197,7 +206,6 @@ export function Sidebar() {
       if (!prev.has(label)) {
         next.add(label);
       }
-      // Close open sub-items when toggling module
       const nextItems = new Set<string>();
       setExpandedItems(nextItems);
       persist(next, nextItems);
@@ -222,6 +230,18 @@ export function Sidebar() {
       const next = !prev;
       setActiveFlyout(null);
       localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
+
+      // Seamlessly sync scroll position between both tracks
+      if (next) {
+        if (expandedNavRef.current && collapsedNavRef.current) {
+          collapsedNavRef.current.scrollTop = expandedNavRef.current.scrollTop;
+        }
+      } else {
+        if (collapsedNavRef.current && expandedNavRef.current) {
+          expandedNavRef.current.scrollTop = collapsedNavRef.current.scrollTop;
+        }
+      }
+
       return next;
     });
   }
@@ -288,13 +308,17 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "relative hidden shrink-0 flex-col border-r border-sky-100 bg-white text-[#0284C7] transition-[width] duration-300 ease-in-out lg:flex shadow-lg select-none overflow-x-hidden",
+        "relative hidden shrink-0 flex-col border-r border-sky-100 bg-white text-[#0284C7] lg:flex shadow-lg select-none overflow-hidden",
         collapsed ? "w-[72px]" : "w-64",
       )}
+      style={{
+        transition: isReady ? "width 240ms cubic-bezier(0.4, 0, 0.2, 1)" : "none",
+        willChange: "width",
+      }}
     >
-      {/* ── Ocean Breeze (Light) Subtle Gradient Backdrop ── */}
-      <div className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden z-0 bg-white">
-        {/* Very soft sky blue top glow */}
+      {/* ── Fixed-Width Gradient & SVG Backdrop (Zero Relayout During Width Animation) ── */}
+      <div className="pointer-events-none absolute inset-0 h-full w-64 overflow-hidden z-0 bg-white">
+        {/* Soft sky blue glow */}
         <div
           className="absolute inset-0 w-full h-full"
           style={{
@@ -305,9 +329,9 @@ export function Sidebar() {
           }}
         />
 
-        {/* Subtle wave at bottom */}
+        {/* Ocean wave backdrop */}
         <svg
-          className="absolute bottom-0 left-0 w-full h-48 opacity-30"
+          className="absolute bottom-0 left-0 w-64 h-48 opacity-30"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
           viewBox="0 0 256 120"
@@ -325,20 +349,118 @@ export function Sidebar() {
         </svg>
       </div>
 
-
-
-      {/* Brand Header */}
+      {/* ── TRACK 1: COLLAPSED RAIL (Fixed 72px Width, Mathematically Dead-Centered) ── */}
       <div
-        className={cn(
-          "relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-sky-100 px-4 bg-transparent",
-          collapsed && "justify-center px-0",
-        )}
+        className="absolute inset-y-0 left-0 w-[72px] flex flex-col z-10"
+        style={{
+          opacity: collapsed ? 1 : 0,
+          pointerEvents: collapsed ? "auto" : "none",
+          visibility: collapsed ? "visible" : "hidden",
+          transition: isReady ? "opacity 160ms ease-in-out, visibility 160ms ease-in-out" : "none",
+        }}
+        aria-hidden={!collapsed}
       >
-        <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60">
-            <Logo size={21} />
-          </div>
-          {!collapsed && (
+        {/* Centered Brand Header (72px wide, 40px icon centered with 16px margins) */}
+        <div className="flex h-16 shrink-0 items-center justify-center border-b border-sky-100 bg-transparent">
+          <Link href="/dashboard" className="flex items-center justify-center" title={siteConfig.name}>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs">
+              <Logo size={21} />
+            </div>
+          </Link>
+        </div>
+
+        {/* Centered Navigation Column (no scrollbar distortion, perfectly centered 40px squares) */}
+        <nav
+          ref={collapsedNavRef}
+          className="flex-1 overflow-y-auto overflow-x-hidden py-2.5 space-y-1.5 no-scrollbar"
+        >
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 size={18} className="animate-spin text-[#0284C7]" />
+            </div>
+          ) : (
+            filteredNavGroups.map((group) =>
+              group.items.map((item, idx) => {
+                const Icon = item.icon;
+                const hasChildren = !!item.children?.length;
+                const active = isModuleActive(item, pathname, allHrefs);
+                const isFlyoutOpen = activeFlyout?.item.label === item.label;
+
+                if (!hasChildren) {
+                  return (
+                    <div key={`col-${group.title}-${item.label}-${idx}`} className="flex w-full items-center justify-center">
+                      <Link
+                        href={item.href !== "#" ? item.href : "#"}
+                        title={item.label}
+                        className={cn(
+                          "flex h-10 w-10 items-center justify-center rounded-sm border transition-colors duration-150 shrink-0 shadow-2xs",
+                          active
+                            ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white shadow-2xs"
+                            : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
+                        )}
+                      >
+                        <Icon size={20} />
+                      </Link>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={`col-${group.title}-${item.label}-${idx}`}
+                    className="relative flex w-full items-center justify-center"
+                    onMouseEnter={(e) => handleOpenFlyout(item, e.currentTarget.getBoundingClientRect().top)}
+                    onMouseLeave={handleCloseFlyout}
+                  >
+                    <button
+                      type="button"
+                      onClick={(e) => handleToggleFlyout(item, e.currentTarget.getBoundingClientRect().top)}
+                      title={item.label}
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-sm border transition-colors duration-150 cursor-pointer shrink-0 shadow-2xs",
+                        active || isFlyoutOpen
+                          ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white shadow-2xs"
+                          : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
+                      )}
+                    >
+                      <Icon size={20} />
+                    </button>
+                  </div>
+                );
+              })
+            )
+          )}
+        </nav>
+
+        {/* Centered Footer (72px wide, 40px square logout icon centered with 16px margins) */}
+        <div className="flex h-14 shrink-0 items-center justify-center border-t border-sky-100 bg-white p-2">
+          <button
+            onClick={logout}
+            title="Sign Out / Logout"
+            className="flex h-10 w-10 items-center justify-center rounded-sm bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 cursor-pointer shadow-2xs"
+          >
+            <LogOut size={17} />
+          </button>
+        </div>
+      </div>
+
+      {/* ── TRACK 2: EXPANDED PANEL (Fixed 256px Width, Zero Layout Thrashing) ── */}
+      <div
+        className="absolute inset-y-0 left-0 w-64 min-w-[256px] max-w-[256px] flex flex-col z-20"
+        style={{
+          opacity: collapsed ? 0 : 1,
+          pointerEvents: collapsed ? "none" : "auto",
+          visibility: collapsed ? "hidden" : "visible",
+          transition: isReady ? "opacity 160ms ease-in-out, visibility 160ms ease-in-out" : "none",
+        }}
+        aria-hidden={collapsed}
+      >
+        {/* Brand Header */}
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-sky-100 px-4 bg-transparent">
+          <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs">
+              <Logo size={21} />
+            </div>
             <div className="flex flex-col min-w-0">
               <span className="truncate font-bold text-[#0369A1] tracking-tight text-sm">
                 {siteConfig.name}
@@ -347,13 +469,11 @@ export function Sidebar() {
                 Smart · Fast · All Industries
               </span>
             </div>
-          )}
-        </Link>
-      </div>
+          </Link>
+        </div>
 
-      {/* Menu Quick Search */}
-      {!collapsed && (
-        <div className="relative z-10 px-3 pt-3 pb-1">
+        {/* Menu Quick Search */}
+        <div className="px-3 pt-3 pb-1">
           <div className="relative flex items-center">
             <Search size={14} className="pointer-events-none absolute left-3 text-[#0284C7]" />
             <input
@@ -374,81 +494,66 @@ export function Sidebar() {
             )}
           </div>
         </div>
-      )}
 
-      {/* Main Navigation List */}
-      <nav className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-1 custom-scrollbar">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
-            <Loader2 size={20} className="animate-spin text-[#0284C7]" />
-            <span className="text-xs font-medium">Loading navigation...</span>
-          </div>
-        ) : filteredNavGroups.length === 0 ? (
-          <div className="px-3 py-8 text-center text-xs text-slate-400">
-            No matching menus found.
-          </div>
-        ) : (
-          filteredNavGroups.map((group) => (
-            <div key={group.title} className="space-y-1">
-              {/* Module Rows */}
-              {group.items.map((item, idx) => (
-                <ModuleRow
-                  key={`${group.title}-${item.label}-${idx}`}
-                  item={item}
-                  pathname={pathname}
-                  allHrefs={allHrefs}
-                  collapsed={collapsed}
-                  moduleExpanded={isSearching || expandedModules.has(item.label)}
-                  expandedItems={expandedItems}
-                  onToggleModule={() => toggleModule(item.label)}
-                  onToggleItem={toggleItem}
-                  isSearching={isSearching}
-                  onOpenFlyout={handleOpenFlyout}
-                  onCloseFlyout={handleCloseFlyout}
-                  onToggleFlyout={handleToggleFlyout}
-                  isFlyoutOpen={activeFlyout?.item.label === item.label}
-                />
-              ))}
+        {/* Main Navigation List */}
+        <nav
+          ref={expandedNavRef}
+          className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-1 custom-scrollbar"
+        >
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
+              <Loader2 size={20} className="animate-spin text-[#0284C7]" />
+              <span className="text-xs font-medium">Loading navigation...</span>
             </div>
-          ))
-        )}
-      </nav>
+          ) : filteredNavGroups.length === 0 ? (
+            <div className="px-3 py-8 text-center text-xs text-slate-400">
+              No matching menus found.
+            </div>
+          ) : (
+            filteredNavGroups.map((group) => (
+              <div key={group.title} className="space-y-1">
+                {group.items.map((item, idx) => (
+                  <ExpandedModuleRow
+                    key={`exp-${group.title}-${item.label}-${idx}`}
+                    item={item}
+                    pathname={pathname}
+                    allHrefs={allHrefs}
+                    moduleExpanded={isSearching || expandedModules.has(item.label)}
+                    expandedItems={expandedItems}
+                    onToggleModule={() => toggleModule(item.label)}
+                    onToggleItem={toggleItem}
+                    isSearching={isSearching}
+                  />
+                ))}
+              </div>
+            ))
+          )}
+        </nav>
 
-      {/* Sidebar Footer User Info & Logout */}
-      <div className="relative z-10 border-t border-sky-100 p-2.5 bg-white">
-        {!collapsed ? (
-          <div className="flex items-center justify-between rounded-sm border border-sky-100 bg-sky-50/60 p-2">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-xs font-bold text-white shadow-2xs">
-                {(user?.name || "A")[0].toUpperCase()}
-                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="truncate text-xs font-bold text-[#0369A1]">
-                  {user?.name || "Administrator"}
-                </span>
-                <span className="truncate text-[10px] text-[#0284C7] font-semibold">
-                  {displayRole}
-                </span>
-              </div>
+        {/* Sidebar Footer User Info & Logout */}
+        <div className="flex h-14 shrink-0 items-center justify-between border-t border-sky-100 px-2.5 bg-white">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-xs font-bold text-white shadow-2xs">
+              {(user?.name || "A")[0].toUpperCase()}
+              <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
             </div>
-            <button
-              onClick={logout}
-              title="Logout"
-              className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 shadow-2xs cursor-pointer"
-            >
-              <LogOut size={15} />
-            </button>
+            <div className="flex flex-col min-w-0">
+              <span className="truncate text-xs font-bold text-[#0369A1]">
+                {user?.name || "Administrator"}
+              </span>
+              <span className="truncate text-[10px] text-[#0284C7] font-semibold">
+                {displayRole}
+              </span>
+            </div>
           </div>
-        ) : (
           <button
             onClick={logout}
-            title="Logout"
-            className="flex h-9 w-full items-center justify-center rounded-sm bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 cursor-pointer"
+            title="Sign Out / Logout"
+            className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-50 border border-rose-200 text-rose-600 transition hover:bg-rose-600 hover:text-white hover:border-rose-600 shadow-2xs cursor-pointer shrink-0"
           >
-            <LogOut size={17} />
+            <LogOut size={15} />
           </button>
-        )}
+        </div>
       </div>
 
       {/* ── Collapsed Mode Floating Flyout Submenu ── */}
@@ -571,85 +676,32 @@ export function Sidebar() {
   );
 }
 
-// ─── ModuleRow (1st Level Category Item) ──────────────────────────────
+// ─── ExpandedModuleRow (Expanded Navigation Module Item) ──────────────
 
-interface ModuleRowProps {
+interface ExpandedModuleRowProps {
   item: NavItem;
   pathname: string;
   allHrefs: Set<string>;
-  collapsed: boolean;
   moduleExpanded: boolean;
   expandedItems: Set<string>;
   onToggleModule: () => void;
   onToggleItem: (href: string) => void;
   isSearching?: boolean;
-  onOpenFlyout: (item: NavItem, top: number) => void;
-  onCloseFlyout: () => void;
-  onToggleFlyout: (item: NavItem, top: number) => void;
-  isFlyoutOpen: boolean;
 }
 
-function ModuleRow({
+function ExpandedModuleRow({
   item,
   pathname,
   allHrefs,
-  collapsed,
   moduleExpanded,
   expandedItems,
   onToggleModule,
   onToggleItem,
   isSearching,
-  onOpenFlyout,
-  onCloseFlyout,
-  onToggleFlyout,
-  isFlyoutOpen,
-}: ModuleRowProps) {
+}: ExpandedModuleRowProps) {
   const Icon = item.icon;
   const hasChildren = !!item.children?.length;
   const active = isModuleActive(item, pathname, allHrefs);
-
-  // Collapsed Mode: Icon with border, rounded-md; if has children → hover/click opens flyout on right
-  if (collapsed) {
-    if (!hasChildren) {
-      return (
-        <Link
-          href={item.href !== "#" ? item.href : "#"}
-          title={item.label}
-          className={cn(
-            "mx-auto flex h-10 w-10 items-center justify-center rounded-sm border transition-all duration-200",
-            active
-              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white"
-              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
-          )}
-        >
-          <Icon size={20} />
-        </Link>
-      );
-    }
-
-    // Has children → icon button; hovering or clicking opens flyout to the right
-    return (
-      <div
-        className="relative mx-auto w-10"
-        onMouseEnter={(e) => onOpenFlyout(item, e.currentTarget.getBoundingClientRect().top)}
-        onMouseLeave={onCloseFlyout}
-      >
-        <button
-          type="button"
-          onClick={(e) => onToggleFlyout(item, e.currentTarget.getBoundingClientRect().top)}
-          title={item.label}
-          className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-sm border transition-all duration-200 cursor-pointer",
-            active || isFlyoutOpen
-              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white"
-              : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
-          )}
-        >
-          <Icon size={20} />
-        </button>
-      </div>
-    );
-  }
 
   // Direct Single Link (no sub-children)
   if (!hasChildren) {
@@ -657,7 +709,7 @@ function ModuleRow({
       <Link
         href={item.href}
         className={cn(
-          "group flex items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-200",
+          "group flex items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-150",
           active
             ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
             : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
@@ -667,7 +719,7 @@ function ModuleRow({
           <Icon
             size={16}
             className={cn(
-              "transition-colors duration-200 shrink-0",
+              "transition-colors shrink-0",
               active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
             )}
           />
@@ -691,7 +743,7 @@ function ModuleRow({
       <button
         onClick={onToggleModule}
         className={cn(
-          "group flex w-full items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
+          "group flex w-full items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-150 cursor-pointer",
           active
             ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
             : moduleExpanded
@@ -703,7 +755,7 @@ function ModuleRow({
           <Icon
             size={16}
             className={cn(
-              "transition-colors duration-200 shrink-0",
+              "transition-colors shrink-0",
               active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
             )}
           />
