@@ -708,7 +708,9 @@ async def list_sales_orders(
         r["total"] = round(float(r.get("total", 0) or 0), 2)
         r["paidTotal"] = round(float(r.get("paidTotal", 0) or 0), 2)
         r["dueTotal"] = round(float(r.get("dueTotal", 0) or 0), 2)
-        r["changeReturn"] = max(r["paidTotal"] - r["total"], 0.0)
+        r["changeReturn"] = max(round(r["paidTotal"] - r["total"], 2), 0.0)
+        r["change"] = r["changeReturn"]
+        r["returnAmount"] = r["changeReturn"]
         r["customer"] = {
             "id": r.get("customerId"),
             "name": r.pop("customerName", None) or "",

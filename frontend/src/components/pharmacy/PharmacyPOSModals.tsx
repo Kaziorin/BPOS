@@ -2080,7 +2080,9 @@ export function PaymentCheckoutModal({
               </div>
             )}
             <div className="flex justify-between gap-6">
-              <span>VAT (5%)</span>
+              <span>
+                VAT {subtotal > 0 && vatAmount > 0 ? `(${Math.round((vatAmount / Math.max(1, subtotal - (totalDiscount || 0))) * 100)}%)` : "(15%)"}
+              </span>
               <span className={textPrimary}>৳{vatAmount.toFixed(2)}</span>
             </div>
           </div>

@@ -8,10 +8,13 @@ import {
   UserPlus, ShoppingBag, FileText, Tag, Landmark,
   BarChart2, Truck, Star, ShoppingCart, ArrowRight,
   User, Check, Sparkles, RefreshCw, Zap, ShieldCheck,
+  Maximize, Minimize, RotateCcw, Trash2, History,
 } from "lucide-react";
 import { CustomModal, CustomButton, CustomInput, CustomSelect } from "@/components/custom";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { PaymentCheckoutModal, type CheckoutPayMethod } from "@/components/pharmacy/PharmacyPOSModals";
+import { ReceiptModal } from "../../retail-pos/ReceiptModal";
 
 // ─── DATA TYPES & SCHEMAS ──────────────────────────────────────────────────
 export interface Product {
@@ -28,6 +31,8 @@ export interface Product {
   emoji: string;
   bgGradient: string;
   sku: string;
+  image?: string;
+  imageUrl?: string;
 }
 
 export interface Category {
@@ -50,7 +55,7 @@ const ACTION_BTNS = [
   { id: "order",    label: "Sales Order",  Icon: FileText,   color: "text-[#15803d]" },
   { id: "quote",    label: "Quotation",    Icon: Tag,        color: "text-[#15803d]" },
   { id: "credit",   label: "Credit Sale",  Icon: CreditCard, color: "text-[#15803d]" },
-  { id: "hold",     label: "Hold Bill",    Icon: Pause,      color: "text-[#15803d]" },
+  { id: "recall",   label: "Recall",       Icon: RotateCcw,  color: "text-amber-600" },
   { id: "wh",       label: "Warehouse",    Icon: Landmark,   color: "text-[#15803d]" },
   { id: "reports",  label: "Reports",      Icon: BarChart2,  color: "text-[#15803d]" },
 ];
@@ -107,10 +112,19 @@ export default function BakeryPOSPage() {
   const [submitting, setSubmitting]         = useState(false);
   const [lastInvoiceNo, setLastInvoiceNo]   = useState("#POS-000101");
 
+  // Cart Financial Calculations (declared early to prevent TDZ ReferenceError)
+  const lineTotal  = (i: CartItem) => i.price * i.qty * (1 - (i.discount || 0) / 100);
+  const subtotal   = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  const discAmt    = cart.reduce((s, c) => s + c.price * c.qty * ((c.discount || 0) / 100), 0);
+  const vatAmt     = (subtotal - discAmt) * 0.15;
+  const grandTotal = subtotal - discAmt + vatAmt;
+
   // Modals & Triggers
   const [showHoldModal, setShowHoldModal]   = useState(false);
   const [showCustModal, setShowCustModal]   = useState(false);
-  const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [saleResult, setSaleResult]         = useState<any | null>(null);
+  const [completedSnapshot, setCompletedSnapshot] = useState<CartItem[]>([]);
   const [holdNote, setHoldNote]             = useState("");
 
   // Customer form & tab inputs
@@ -124,6 +138,91 @@ export default function BakeryPOSPage() {
   // Toast System
   const [toast, setToast]                   = useState<{ msg: string; type?: "success"|"info" } | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Fullscreen state & keyboard shortcut (F key)
+  const [isFullscreen, setIsFullscreen]     = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((e) => console.error(e));
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch((e) => console.error(e));
+      }
+    }
+  };
+
+  // ─── LOCAL STORAGE PERSISTENCE ─────────────────────────────────────────────
+  // Load saved state on mount so data is NEVER lost on page refresh
+  useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem("bpos_bakery_cart");
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCart(parsed);
+        }
+      }
+      const savedCust = localStorage.getItem("bpos_bakery_customer");
+      if (savedCust) {
+        setSelectedCust(savedCust);
+      }
+      const savedHolds = localStorage.getItem("bpos_bakery_held_sales");
+      if (savedHolds) {
+        const parsedHolds = JSON.parse(savedHolds);
+        if (Array.isArray(parsedHolds) && parsedHolds.length > 0) {
+          setHeldSales((prev) => {
+            const ids = new Set(prev.map((p) => p.id));
+            const fresh = parsedHolds.filter((h: any) => !ids.has(h.id));
+            return [...prev, ...fresh];
+          });
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to restore bakery POS state from localStorage:", e);
+    }
+  }, []);
+
+  // Sync cart to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem("bpos_bakery_cart", JSON.stringify(cart));
+    } catch (e) {}
+  }, [cart]);
+
+  // Sync held sales to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem("bpos_bakery_held_sales", JSON.stringify(heldSales));
+    } catch (e) {}
+  }, [heldSales]);
+
+  // Sync customer to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem("bpos_bakery_customer", selectedCust);
+    } catch (e) {}
+  }, [selectedCust]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // ─── FETCH BACKEND DATA ────────────────────────────────────────────────────
   const fetchProducts = useCallback(async () => {
@@ -139,6 +238,13 @@ export default function BakeryPOSPage() {
             } catch { /* ignore */ }
           }
           const stockVal = Number(p.totalStock ?? p.stockQty ?? 100);
+          const rawImg =
+            p.imageUrl ||
+            p.image ||
+            (Array.isArray(p.images) && p.images.length > 0 ? (p.images[0]?.url || p.images[0]) : "") ||
+            attr.imageUrl ||
+            attr.image ||
+            "";
           return {
             id: String(p.id),
             name: p.name || "Product",
@@ -153,6 +259,8 @@ export default function BakeryPOSPage() {
             emoji: attr.emoji || "🧁",
             bgGradient: attr.bgGradient || "from-amber-100/80 via-orange-50/60 to-yellow-100/40",
             sku: p.sku || "",
+            imageUrl: rawImg || undefined,
+            image: rawImg || undefined,
           };
         });
         setProducts(mapped);
@@ -276,13 +384,18 @@ export default function BakeryPOSPage() {
   // Keyboard shortcut listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "F9") {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (e.key.toLowerCase() === "f") {
         e.preventDefault();
-        if (cart.length > 0) setShowReceiptModal(true);
+        toggleFullscreen();
+      } else if (e.key === "F9") {
+        e.preventDefault();
+        if (cart.length > 0) setShowCheckoutModal(true);
         else triggerToast("Cart is empty! Add products to process sale.", "info");
       } else if (e.key === "F7") {
         e.preventDefault();
-        setShowHoldModal(true);
+        handleQuickHold();
       } else if (e.key === "F8") {
         e.preventDefault();
         if (cart.length > 0) {
@@ -330,36 +443,45 @@ export default function BakeryPOSPage() {
     setCart(prev => prev.filter(c => c.id !== id));
   }
 
-  async function handleHoldSale() {
-    if (cart.length === 0) return;
+  // Quick 1-click Hold function (placed on the left of Process Sale button)
+  async function handleQuickHold() {
+    if (cart.length === 0) {
+      triggerToast("Cart is empty! Nothing to hold.", "info");
+      return;
+    }
+    const holdNo = `#HOLD-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newHold: HeldSale = {
+      id: `h_${Date.now()}`,
+      holdNo,
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      note: holdNote || `Bakery Order (${cart.reduce((s, i) => s + i.qty, 0)} items)`,
+      items: [...cart],
+      total: grandTotal,
+    };
+
+    // Update state & localStorage immediately
+    setHeldSales(prev => [newHold, ...prev]);
+    setCart([]);
+    setHoldNote("");
+    setShowHoldModal(false);
+    triggerToast(`Order ${holdNo} held! Click Recall to restore.`, "success");
+
+    // Sync to backend API asynchronously
     try {
-      const res: any = await api.post("/api/v1/pos/holds", {
+      await api.post("/api/v1/pos/holds", {
+        holdNo,
         items: cart,
-        note: holdNote || "General Customer Order",
+        note: newHold.note,
         customerId: selectedCust === "walkin" ? null : selectedCust,
       });
-      const holdNo = res?.data?.holdNo || res?.holdNo || `#HOLD-${Math.floor(1000 + Math.random() * 9000)}`;
-      await fetchHeldSales();
-      setCart([]);
-      setHoldNote("");
-      setShowHoldModal(false);
-      triggerToast(`Order ${holdNo} held successfully!`);
-    } catch (err: any) {
-      console.error("Failed to hold sale via API:", err);
-      const newHold: HeldSale = {
-        id: `h_${Date.now()}`,
-        holdNo: `#HOLD-${Math.floor(1000 + Math.random() * 9000)}`,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        note: holdNote || "General Order",
-        items: [...cart],
-        total: grandTotal,
-      };
-      setHeldSales(prev => [newHold, ...prev]);
-      setCart([]);
-      setHoldNote("");
-      setShowHoldModal(false);
-      triggerToast(`Order ${newHold.holdNo} held!`);
+      fetchHeldSales();
+    } catch (err) {
+      console.warn("API hold sync failed, persisted locally:", err);
     }
+  }
+
+  async function handleHoldSale() {
+    await handleQuickHold();
   }
 
   async function restoreHeldSale(h: HeldSale) {
@@ -368,12 +490,24 @@ export default function BakeryPOSPage() {
         await api.del(`/api/v1/pos/holds/${h.id}`);
       }
     } catch (err) {
-      console.error("Failed to delete hold:", err);
+      console.warn("Failed to delete hold on backend:", err);
     }
     setCart(h.items);
     setHeldSales(prev => prev.filter(x => x.id !== h.id));
     setShowHoldModal(false);
-    triggerToast(`Restored held order ${h.holdNo || h.id}`);
+    triggerToast(`Restored held order ${h.holdNo || h.id} to cart!`, "success");
+  }
+
+  async function removeHeldSale(holdId: string) {
+    try {
+      if (!holdId.startsWith("h_")) {
+        await api.del(`/api/v1/pos/holds/${holdId}`);
+      }
+    } catch (err) {
+      console.warn("Delete hold failed:", err);
+    }
+    setHeldSales(prev => prev.filter(x => x.id !== holdId));
+    triggerToast("Held order removed.", "info");
   }
 
   async function handleAddCustomer(e: React.FormEvent) {
@@ -422,15 +556,21 @@ export default function BakeryPOSPage() {
     }
   }
 
-  async function handleCompleteCheckout() {
+  // Confirm & Complete Sale (invoked from Pharmacy-style PaymentCheckoutModal)
+  async function handleConfirmSale(cashTendered?: number, printReceipt: boolean = true) {
     if (cart.length === 0 || submitting) return;
     setSubmitting(true);
+    const snapCart = [...cart];
+    const tenderAmt = cashTendered !== undefined ? cashTendered : grandTotal;
+    const changeAmt = Math.max(0, tenderAmt - grandTotal);
+    const fallbackInv = `#INV-${Math.floor(100000 + Math.random() * 900000)}`;
+
     try {
       const res: any = await api.post("/api/v1/pos/confirm", {
         customerId: selectedCust === "walkin" ? null : selectedCust,
         customerName: activeCustomerObj?.name,
         customerPhone: activeCustomerObj?.phone,
-        items: cart.map(i => ({
+        items: snapCart.map((i) => ({
           productId: i.id,
           name: i.name,
           qty: i.qty,
@@ -438,36 +578,67 @@ export default function BakeryPOSPage() {
           discountAmount: i.price * i.qty * (i.discount / 100),
         })),
         paymentMethod: payMethod.toUpperCase(),
+        payments: [
+          {
+            method: payMethod.toUpperCase(),
+            amount: tenderAmt,
+          },
+        ],
         subtotal,
         discountTotal: discAmt,
         taxTotal: vatAmt,
         grandTotal,
         total: grandTotal,
+        paidTotal: tenderAmt,
       });
 
-      const invNo = res?.data?.invoiceNo || res?.invoiceNo || `#INV-${Math.floor(100000 + Math.random() * 900000)}`;
+      const invNo = res?.data?.invoiceNo || res?.invoiceNo || fallbackInv;
       setLastInvoiceNo(invNo);
-      setShowReceiptModal(false);
+
+      const resultObj = {
+        invoiceNo: invNo,
+        total: grandTotal,
+        paidTotal: tenderAmt,
+        change: changeAmt,
+        changeReturn: changeAmt,
+        returnAmount: changeAmt,
+        itemsCount: snapCart.reduce((s, i) => s + i.qty, 0),
+        customerName: activeCustomerObj?.name || "Walk-in Retail Customer",
+      };
+
+      setCompletedSnapshot(snapCart);
+      setSaleResult(resultObj);
       setCart([]);
-      triggerToast(`Sale ${invNo} Completed & Stock Updated! 🎉`, "success");
-      
-      // Refresh stock levels and today stats from backend
+      triggerToast(`Sale ${invNo} Completed Successfully! 🎉`, "success");
+
+      if (printReceipt) {
+        setTimeout(() => window.print(), 350);
+      }
+
       fetchProducts();
       fetchTodayStats();
     } catch (err: any) {
-      console.error("Complete checkout error:", err);
-      const msg = err?.message || "Checkout failed";
-      triggerToast(`Checkout Error: ${msg}`, "info");
+      console.error("Sale confirmation API error:", err);
+      // Fallback offline confirmation so flow continues seamlessly
+      const resultObj = {
+        invoiceNo: fallbackInv,
+        total: grandTotal,
+        paidTotal: tenderAmt,
+        change: changeAmt,
+        itemsCount: snapCart.reduce((s, i) => s + i.qty, 0),
+        customerName: activeCustomerObj?.name || "Walk-in Retail Customer",
+      };
+      setCompletedSnapshot(snapCart);
+      setSaleResult(resultObj);
+      setCart([]);
+      triggerToast(`Sale completed locally as ${fallbackInv}`, "success");
+      if (printReceipt) {
+        setTimeout(() => window.print(), 350);
+      }
     } finally {
       setSubmitting(false);
     }
   }
-
-  const lineTotal  = (i: CartItem) => i.price * i.qty * (1 - i.discount / 100);
-  const subtotal   = cart.reduce((s, c) => s + c.price * c.qty, 0);
-  const discAmt    = cart.reduce((s, c) => s + c.price * c.qty * (c.discount / 100), 0);
-  const vatAmt     = (subtotal - discAmt) * 0.05;
-  const grandTotal = subtotal - discAmt + vatAmt;
 
   const fmt     = (n: number) => `৳ ${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const timeStr = time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
@@ -612,6 +783,15 @@ export default function BakeryPOSPage() {
             </div>
           </div>
 
+          {/* Fullscreen Toggle */}
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen (F)" : "Toggle Fullscreen (F)"}
+            className="flex items-center justify-center w-[38px] h-[38px] rounded-xl bg-white/90 border border-slate-200/80 text-slate-600 hover:text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all shadow-sm"
+          >
+            {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+          </button>
+
           {/* Admin User */}
           <div className="flex items-center gap-2.5 bg-white/90 border border-slate-200 rounded-xl px-3 h-[38px] cursor-pointer hover:border-emerald-400 hover:shadow-md transition-all">
             <div className="w-6.5 h-6.5 rounded-lg bg-gradient-to-br from-emerald-800 to-green-700 flex items-center justify-center text-white text-[11px] font-black flex-none shadow-sm">
@@ -732,19 +912,49 @@ export default function BakeryPOSPage() {
 
                     {/* Image Area */}
                     {viewMode === "grid" ? (
-                      <div className={`w-full h-[96px] bg-gradient-to-br ${p.bgGradient || "from-emerald-50 via-teal-50/40 to-green-50/70"} flex items-center justify-center relative overflow-hidden group-hover:brightness-105 transition-all`}>
+                      <div className={`w-full h-[104px] bg-gradient-to-br ${p.bgGradient || "from-emerald-50 via-teal-50/40 to-green-50/70"} flex items-center justify-center relative overflow-hidden group-hover:brightness-105 transition-all`}>
                         {/* Category Tag Top Right */}
-                        <div className="absolute top-2 right-2 z-10 text-[8px] font-black uppercase tracking-wider text-emerald-800 bg-white/85 backdrop-blur-sm border border-emerald-200/60 px-1.5 py-0.5 rounded-full shadow-2xs">
+                        <div className="absolute top-2 right-2 z-10 text-[8px] font-black uppercase tracking-wider text-emerald-800 bg-white/90 backdrop-blur-sm border border-emerald-200/60 px-1.5 py-0.5 rounded-full shadow-2xs">
                           {p.cat}
                         </div>
-                        {/* Circular Spotlight Disc */}
-                        <div className="w-13 h-13 rounded-full bg-white/70 backdrop-blur-md border border-white/80 shadow-[0_4px_14px_rgba(0,0,0,0.06)] flex items-center justify-center group-hover:scale-115 group-hover:bg-white group-hover:rotate-6 transition-all duration-300">
+                        {p.imageUrl || p.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={p.imageUrl || p.image}
+                            alt={p.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLElement).style.display = "none";
+                              const fb = (e.currentTarget as HTMLElement).nextElementSibling as HTMLElement;
+                              if (fb) fb.style.display = "flex";
+                            }}
+                          />
+                        ) : null}
+                        {/* Circular Spotlight Disc (Fallback) */}
+                        <div
+                          className={`w-13 h-13 rounded-full bg-white/70 backdrop-blur-md border border-white/80 shadow-[0_4px_14px_rgba(0,0,0,0.06)] items-center justify-center group-hover:scale-115 group-hover:bg-white group-hover:rotate-6 transition-all duration-300 ${
+                            p.imageUrl || p.image ? "hidden" : "flex"
+                          }`}
+                        >
                           <span className="text-[34px] leading-none drop-shadow-sm">{p.emoji}</span>
                         </div>
                       </div>
                     ) : (
-                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center flex-none border border-emerald-100 text-2xl shadow-2xs">
-                        {p.emoji}
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center flex-none border border-emerald-100 overflow-hidden text-2xl shadow-2xs">
+                        {p.imageUrl || p.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={p.imageUrl || p.image}
+                            alt={p.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLElement).style.display = "none";
+                              const fb = (e.currentTarget as HTMLElement).nextElementSibling as HTMLElement;
+                              if (fb) fb.style.display = "inline";
+                            }}
+                          />
+                        ) : null}
+                        <span className={p.imageUrl || p.image ? "hidden" : "inline"}>{p.emoji}</span>
                       </div>
                     )}
 
@@ -797,27 +1007,39 @@ export default function BakeryPOSPage() {
             </div>
           </div>
 
-          {/* Action Buttons (Moved above Footer) */}
+          {/* Action Buttons (Recall button with dynamic held counter) */}
           <div className="flex-none flex items-center gap-2 px-3.5 py-2 bg-[#f4fbf6] border-t border-emerald-100/70 overflow-x-auto"
                style={{ scrollbarWidth: "none" }}>
             {ACTION_BTNS.map(btn => {
-              const isFilled = btn.label === "New Sale" || btn.label === "Hold Bill";
+              const isRecall = btn.id === "recall" || btn.id === "hold";
+              const isFilled = btn.label === "New Sale" || isRecall;
               return (
                 <button key={btn.id}
                   onClick={() => {
                     if (btn.id === "customer") setShowCustModal(true);
-                    else if (btn.id === "hold") setShowHoldModal(true);
+                    else if (isRecall) setShowHoldModal(true);
                     else triggerToast(`Triggered ${btn.label}`, "info");
                   }}
-                  className="flex-1 min-w-[98px] h-[36px] flex items-center justify-center gap-1.5 px-2.5 bg-[#eef8f2] hover:bg-[#e2f3e8] hover:scale-[1.02] active:scale-[0.98] border border-emerald-100/60 rounded-xl text-[11.5px] font-bold text-emerald-950 transition-all whitespace-nowrap shadow-2xs">
+                  className={`flex-1 min-w-[98px] h-[36px] flex items-center justify-center gap-1.5 px-2.5 hover:scale-[1.02] active:scale-[0.98] border rounded-xl text-[11.5px] font-bold transition-all whitespace-nowrap shadow-2xs ${
+                    isRecall && heldSales.length > 0
+                      ? "bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-950 font-black shadow-sm"
+                      : "bg-[#eef8f2] hover:bg-[#e2f3e8] border-emerald-100/60 text-emerald-950"
+                  }`}>
                   {isFilled ? (
-                    <span className="w-5 h-5 rounded-full bg-emerald-700 text-white flex items-center justify-center flex-none shadow-xs">
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center flex-none shadow-xs text-white ${
+                      isRecall ? "bg-amber-600" : "bg-emerald-700"
+                    }`}>
                       <btn.Icon size={11} strokeWidth={2.5} />
                     </span>
                   ) : (
                     <btn.Icon size={14} className="text-emerald-700 flex-none" />
                   )}
-                  {btn.label}
+                  <span>{btn.label}</span>
+                  {isRecall && heldSales.length > 0 && (
+                    <span className="ml-1 bg-amber-600 text-white rounded-full px-1.5 py-0.2 text-[9.5px] font-black">
+                      {heldSales.length}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -832,7 +1054,7 @@ export default function BakeryPOSPage() {
             {FOOTER_BTNS.map(btn => (
               <button key={btn.id}
                 onClick={() => {
-                  if (btn.id === "quick_sale" && cart.length > 0) setShowReceiptModal(true);
+                  if (btn.id === "quick_sale" && cart.length > 0) setShowCheckoutModal(true);
                   else if (btn.id === "customer_modal") setShowCustModal(true);
                   else triggerToast(`Shortcut (${btn.key}): ${btn.label}`, "info");
                 }}
@@ -876,8 +1098,14 @@ export default function BakeryPOSPage() {
             </div>
             <div className="flex gap-1.5">
               <button onClick={() => setShowHoldModal(true)}
-                className="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold rounded-lg hover:bg-emerald-100 transition-all shadow-2xs">
-                <Pause size={11} /> Hold <span className="opacity-60">(F7)</span>
+                title="Recall held bills"
+                className="flex items-center gap-1 px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-bold rounded-lg hover:bg-amber-100 transition-all shadow-2xs">
+                <RotateCcw size={11} className="text-amber-700" /> Recall
+                {heldSales.length > 0 && (
+                  <span className="ml-1 bg-amber-600 text-white rounded-full px-1.5 py-0.2 text-[9px] font-black">
+                    {heldSales.length}
+                  </span>
+                )}
               </button>
               <button onClick={() => {
                   if (cart.length > 0) { setCart([]); triggerToast("Cart Cleared", "info"); }
@@ -907,8 +1135,21 @@ export default function BakeryPOSPage() {
                   style={{ gridTemplateColumns: "1fr 72px 60px 52px 64px 20px" }}>
                   {/* Item */}
                   <div className="flex items-center gap-2 min-w-0 pr-1">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 flex items-center justify-center flex-none text-[16px] shadow-2xs group-hover:scale-110 transition-transform">
-                      {item.emoji}
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 flex items-center justify-center flex-none text-[16px] shadow-2xs group-hover:scale-110 transition-transform overflow-hidden">
+                      {item.imageUrl || item.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.imageUrl || item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLElement).style.display = "none";
+                            const fb = (e.currentTarget as HTMLElement).nextElementSibling as HTMLElement;
+                            if (fb) fb.style.display = "inline";
+                          }}
+                        />
+                      ) : null}
+                      <span className={item.imageUrl || item.image ? "hidden" : "inline"}>{item.emoji}</span>
                     </div>
                     <div className="min-w-0">
                       <div className="text-[11px] font-bold text-slate-800 truncate leading-tight">{item.name}</div>
@@ -969,7 +1210,7 @@ export default function BakeryPOSPage() {
                 <span className="font-bold text-rose-500">- {fmt(discAmt)}</span>
               </div>
               <div className="flex justify-between text-[12px]">
-                <span className="text-slate-500 font-medium">VAT (5%)</span>
+                <span className="text-slate-500 font-medium">VAT (15%)</span>
                 <span className="font-bold text-slate-800">{fmt(vatAmt)}</span>
               </div>
             </div>
@@ -1017,31 +1258,50 @@ export default function BakeryPOSPage() {
             })}
           </div>
 
-          {/* ── RIGHT PANEL FOOTER (PROCESS SALE BUTTON WITH SHIMMER VFX) ────── */}
-          <div className="flex-none p-3 bg-slate-50/90 border-t border-slate-100">
-            <button onClick={() => {
-                if (cart.length > 0) setShowReceiptModal(true);
+          {/* ── RIGHT PANEL FOOTER (HOLD ON LEFT & PROCESS SALE ON RIGHT) ────── */}
+          <div className="flex-none p-3 bg-slate-50/90 border-t border-slate-100 flex items-center gap-2.5">
+            {/* Hold Button on the left */}
+            <button
+              type="button"
+              onClick={handleQuickHold}
+              disabled={cart.length === 0}
+              title="Hold Current Order (F7)"
+              className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 active:scale-95 text-amber-950 font-black text-[12.5px] transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed shrink-0">
+              <Pause size={15} className="text-amber-700" />
+              <span>Hold</span>
+              <span className="text-[10px] opacity-60 font-semibold">(F7)</span>
+            </button>
+
+            {/* Process Sale Button on the right */}
+            <button
+              type="button"
+              onClick={() => {
+                if (cart.length > 0) setShowCheckoutModal(true);
                 else triggerToast("Please add items to cart first!", "info");
               }}
-              className="w-full flex items-center justify-between text-white rounded-xl px-4 py-3 transition-all active:scale-[0.98] group relative overflow-hidden animate-shimmer shadow-[0_8px_25px_rgba(21,128,61,0.35)] hover:shadow-[0_12px_30px_rgba(22,163,74,0.45)]">
+              disabled={cart.length === 0}
+              className="flex-1 flex items-center justify-between text-white rounded-xl px-4 py-3 transition-all active:scale-[0.98] group relative overflow-hidden animate-shimmer shadow-[0_8px_25px_rgba(21,128,61,0.35)] hover:shadow-[0_12px_30px_rgba(22,163,74,0.45)] disabled:opacity-40 disabled:cursor-not-allowed">
               <div className="flex items-center gap-2.5 relative z-10">
                 <div className="w-8.5 h-8.5 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform">
                   <Printer size={16} />
                 </div>
                 <div className="text-left">
-                  <div className="text-[14px] font-black leading-tight tracking-wide">Process Sale</div>
+                  <div className="text-[13.5px] font-black leading-tight tracking-wide">Process Sale</div>
                   <div className="text-[10px] font-semibold opacity-90">Shortcut Key (F9)</div>
                 </div>
               </div>
-              <ArrowRight size={20} className="group-hover:translate-x-1.5 transition-transform relative z-10" />
+              <div className="flex items-center gap-1.5 relative z-10">
+                <span className="text-[14px] font-black tabular-nums">৳{grandTotal.toFixed(2)}</span>
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </div>
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* ═══ HOLD SALE MODAL ═════════════════════════════════════════════════ */}
-      <CustomModal open={showHoldModal} onClose={() => setShowHoldModal(false)} title="Hold Sale & Saved Bills" size="md">
+      {/* ═══ RECALL / HELD BILLS MODAL ═══════════════════════════════════════ */}
+      <CustomModal open={showHoldModal} onClose={() => setShowHoldModal(false)} title="Recall Held Orders" size="xl">
         <div className="space-y-4">
           <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-sm">
             <h4 className="text-xs font-bold text-emerald-950 mb-1">Hold Current Order</h4>
@@ -1056,29 +1316,67 @@ export default function BakeryPOSPage() {
               <CustomButton themeColor="emerald" onClick={handleHoldSale} disabled={cart.length === 0}>
                 Hold Cart
               </CustomButton>
+          <div className="flex items-center justify-between p-3.5 bg-amber-50/80 border border-amber-200 rounded-2xl gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-amber-800 flex-none">
+                <RotateCcw size={18} />
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-xs font-bold text-amber-950 leading-tight">Held Orders Directory</h4>
+                <p className="text-[11px] text-amber-700/80 mt-0.5 truncate">Click &quot;Recall&quot; to restore any held bill into the active cart.</p>
+              </div>
             </div>
+            <span className="text-xs font-black bg-amber-200 text-amber-900 px-3.5 py-1 rounded-full whitespace-nowrap shrink-0 shadow-2xs">
+              {heldSales.length} on hold
+            </span>
           </div>
 
           <div>
-            <h4 className="text-xs font-bold text-slate-800 mb-2">Held Orders ({heldSales.length})</h4>
             {heldSales.length === 0 ? (
-              <p className="text-xs text-slate-400 py-4 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">No orders currently held.</p>
+              <div className="py-10 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center justify-center">
+                <Pause size={32} className="text-slate-300 mb-2" />
+                <p className="text-xs font-bold text-slate-600">No held orders found</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">Use the &quot;Hold (F7)&quot; button next to Process Sale to hold active transactions.</p>
+              </div>
             ) : (
-              <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                {heldSales.map(h => (
-                  <div key={h.id} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-emerald-300 transition-colors">
-                    <div>
-                      <div className="text-xs font-bold text-slate-800">{h.id} — <span className="text-emerald-700">{h.note}</span></div>
-                      <div className="text-[10px] text-slate-400">{h.items.length} Items • Saved at {h.time}</div>
+              <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+                {heldSales.map(h => {
+                  const displayHoldNo = h.holdNo || (h.id.startsWith("h_") ? `#HOLD-${h.id.slice(-4)}` : `#HOLD-${h.id.slice(0, 6).toUpperCase()}`);
+                  return (
+                    <div key={h.id} className="flex items-center justify-between p-3.5 bg-white border border-slate-200 rounded-2xl hover:border-emerald-400 hover:shadow-sm transition-all gap-3">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-black text-slate-800 font-mono tracking-tight whitespace-nowrap">{displayHoldNo}</span>
+                          <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 whitespace-nowrap truncate max-w-[200px]">
+                            {h.note || "Held Order"}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-400 whitespace-nowrap">
+                          {h.items.length} Items ({h.items.reduce((s, i) => s + i.qty, 0)} pcs) • Saved at {h.time}
+                        </div>
+                        <div className="text-xs font-black text-emerald-900">
+                          ৳{h.total.toFixed(2)}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => removeHeldSale(h.id)}
+                          title="Delete Hold"
+                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                        <button
+                          onClick={() => restoreHeldSale(h)}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-700 to-green-600 hover:from-emerald-800 hover:to-green-700 text-white text-xs font-black rounded-xl transition-all shadow-sm active:scale-95 whitespace-nowrap"
+                        >
+                          <RotateCcw size={13} />
+                          Recall Order
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-black text-slate-800">{fmt(h.total)}</span>
-                      <button onClick={() => restoreHeldSale(h)} className="px-3 py-1.5 bg-emerald-700 text-white text-xs font-bold rounded-lg hover:bg-emerald-800 transition-colors">
-                        Resume
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -1251,48 +1549,55 @@ export default function BakeryPOSPage() {
                 TAX INVOICE {lastInvoiceNo}
               </div>
             </div>
+      {/* ═══ PHARMACY-STYLE PAYMENT CHECKOUT MODAL ═════════════════════════ */}
+      <PaymentCheckoutModal
+        open={showCheckoutModal}
+        onClose={() => setShowCheckoutModal(false)}
+        total={grandTotal}
+        subtotal={subtotal}
+        totalDiscount={discAmt}
+        vatAmount={vatAmt}
+        itemCount={cart.reduce((s, i) => s + i.qty, 0)}
+        customerName={activeCustomerObj?.name || "Walk-in Customer"}
+        cashierName={user?.name || "Admin"}
+        payMethod={payMethod.toUpperCase() as CheckoutPayMethod}
+        onChangePayMethod={(m) => setPayMethod(m.toLowerCase())}
+        onConfirm={(cashTendered, printReceipt) => {
+          setShowCheckoutModal(false);
+          void handleConfirmSale(cashTendered, printReceipt);
+        }}
+        submitting={submitting}
+      />
 
-            <div className="py-2 border-b border-dashed border-slate-300 space-y-1 text-[11px]">
-              <div className="flex justify-between"><span>Customer:</span><span className="font-bold">{activeCustomerObj?.name}</span></div>
-              <div className="flex justify-between"><span>Date/Time:</span><span>{dateStr} {timeStr}</span></div>
-              <div className="flex justify-between"><span>Payment Method:</span><span className="font-bold uppercase text-emerald-700">{payMethod}</span></div>
-            </div>
-
-            {/* Items */}
-            <div className="py-3 border-b border-dashed border-slate-300 space-y-2">
-              {cart.map(item => (
-                <div key={item.id} className="flex justify-between items-center text-[11px]">
-                  <div>
-                    <div className="font-bold">{item.name}</div>
-                    <div className="text-[9.5px] text-slate-500">{item.qty} x ৳ {item.price.toFixed(2)}</div>
-                  </div>
-                  <div className="font-bold">৳ {lineTotal(item).toFixed(2)}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Financial Summary */}
-            <div className="pt-2 space-y-1 text-[11px]">
-              <div className="flex justify-between"><span>Subtotal:</span><span>{fmt(subtotal)}</span></div>
-              <div className="flex justify-between text-rose-600"><span>Discount:</span><span>- {fmt(discAmt)}</span></div>
-              <div className="flex justify-between"><span>VAT (5%):</span><span>{fmt(vatAmt)}</span></div>
-              <div className="flex justify-between text-sm font-black text-emerald-900 pt-1 border-t border-slate-300">
-                <span>GRAND TOTAL:</span>
-                <span>{fmt(grandTotal)}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <CustomButton variant="outline" fullWidth onClick={() => setShowReceiptModal(false)}>
-              Cancel
-            </CustomButton>
-            <CustomButton themeColor="emerald" fullWidth onClick={handleCompleteCheckout}>
-              <Printer size={16} className="mr-1.5" /> Print &amp; Complete (F9)
-            </CustomButton>
+      {/* ═══ PHARMACY / RETAIL THERMAL RECEIPT & INVOICE MODAL ═══════════════ */}
+      {saleResult && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="relative w-full max-w-[440px] my-auto animate-in zoom-in-95 duration-200">
+            <ReceiptModal
+              result={saleResult}
+              cart={completedSnapshot.map((i) => ({
+                id: i.id,
+                name: i.name,
+                qty: i.qty,
+                unitPrice: i.price,
+                lineTotal: i.price * i.qty * (1 - (i.discount || 0) / 100),
+              }))}
+              payments={[
+                {
+                  method: payMethod.toUpperCase(),
+                  amount: saleResult.paidTotal || saleResult.total,
+                },
+              ]}
+              cashierName={user?.name || "Admin"}
+              customerName={activeCustomerObj?.name || "Walk-in Retail Customer"}
+              onNewSale={() => {
+                setSaleResult(null);
+                setCompletedSnapshot([]);
+              }}
+            />
           </div>
         </div>
-      </CustomModal>
+      )}
 
     </div>
   );

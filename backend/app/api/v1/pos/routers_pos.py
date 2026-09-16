@@ -118,7 +118,7 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     if not payments:
         pm = body.get("paymentMethod") or "CASH"
         calc_sub = sum(float(i.get("qty", 0)) * float(i.get("unitPrice", 0)) - float(i.get("discountAmount", 0) or 0) for i in items)
-        tot_amt = float(body.get("grandTotal") or body.get("total") or calc_sub)
+        tot_amt = float(body.get("paidTotal") or body.get("tenderedAmount") or body.get("cashTendered") or body.get("grandTotal") or body.get("total") or calc_sub)
         payments = [{"method": pm, "amount": tot_amt}]
 
     # Auto-create missing products for demo/frontend resilience
@@ -454,7 +454,9 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     return ok({"saleId": saleId, "invoiceNo": invoiceNo, "invoiceId": invoiceId,
                "total": total, "subtotal": subtotal, "taxTotal": taxTotal,
                "serviceCharge": service, "discountTotal": discountTotal,
-               "paidTotal": paid, "dueTotal": due, "paymentIds": payment_ids,
+               "paidTotal": paid, "dueTotal": due, "changeReturn": change_return,
+               "change": change_return, "returnAmount": change_return,
+               "paymentIds": payment_ids,
                **override_extra})
 
 

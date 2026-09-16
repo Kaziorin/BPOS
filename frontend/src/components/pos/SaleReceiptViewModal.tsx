@@ -28,6 +28,10 @@ export interface ReceiptViewData {
   total: number;
   paidTotal: number;
   dueTotal: number;
+  changeReturn?: number;
+  change?: number;
+  changeAmount?: number;
+  returnAmount?: number;
   paymentMethod?: string;
   payments?: ReceiptViewPayment[];
 }
@@ -79,9 +83,17 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
       ? data.payments[0].method.toUpperCase()
       : (data.paymentMethod || "CASH").toUpperCase();
 
-  const paidTotal = data.paidTotal ?? data.total ?? 0;
-  const tenderText = `${primaryMethod} (Paid: ৳${Number(paidTotal).toFixed(2)})`;
-  const changeReturn = paidTotal > data.total ? paidTotal - data.total : 0;
+  const paidTotal = Number(data.paidTotal ?? data.total ?? 0);
+  const changeReturn = Math.max(
+    0,
+    Number(
+      data.changeReturn ??
+      data.change ??
+      data.changeAmount ??
+      data.returnAmount ??
+      (paidTotal > data.total ? paidTotal - data.total : 0)
+    )
+  );
 
   return (
     <div
@@ -207,22 +219,25 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
 
               <div className="flex justify-between items-baseline gap-2">
                 <span className="text-gray-500 shrink-0">Tender Method:</span>
-                <span className="font-bold text-gray-900 text-right font-mono">{tenderText}</span>
+                <span className="font-bold text-gray-900 text-right font-mono">{primaryMethod}</span>
               </div>
 
-              {data.dueTotal > 0 && (
+              <div className="flex justify-between items-baseline gap-2">
+                <span className="text-gray-500 shrink-0">Paid Amount:</span>
+                <span className="font-bold text-gray-900 text-right font-mono">৳{paidTotal.toFixed(2)}</span>
+              </div>
+
+              {Number(data.dueTotal || 0) > 0 && (
                 <div className="flex justify-between font-bold text-amber-700">
                   <span>Remaining Due:</span>
                   <span className="font-mono">৳{Number(data.dueTotal).toFixed(2)}</span>
                 </div>
               )}
 
-              {changeReturn > 0 && (
-                <div className="flex justify-between font-bold text-emerald-700">
-                  <span>Change Return:</span>
-                  <span className="font-mono">৳{changeReturn.toFixed(2)}</span>
-                </div>
-              )}
+              <div className="flex justify-between font-bold text-emerald-700">
+                <span>Return Amount:</span>
+                <span className="font-mono">৳{changeReturn.toFixed(2)}</span>
+              </div>
             </div>
 
             <div className="border-t border-dashed border-gray-300" />
