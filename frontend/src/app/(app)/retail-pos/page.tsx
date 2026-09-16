@@ -1331,6 +1331,7 @@ export default function PosPage() {
               </div>
               <span className="text-xl font-black text-teal-600">{fmt(total)}</span>
             </div>
+          </div>
 
             {/* Payment Methods */}
             <div className="grid grid-cols-5 gap-1.5">
@@ -1357,13 +1358,14 @@ export default function PosPage() {
             {/* Action Buttons: Save & Hold, Pay Now */}
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={holdSale}
                 disabled={cart.length === 0}
-                className="w-full text-teal-700 border-teal-200 bg-teal-50/50 hover:bg-teal-100 font-bold rounded-sm py-2 text-xs flex items-center justify-center gap-1 cursor-pointer"
+                className="w-full text-teal-700 border border-teal-200 bg-teal-50/50 hover:bg-teal-100 font-bold rounded-sm py-2 text-xs flex items-center justify-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <PauseCircle size={14} />
                 <span>Hold Sale</span>
-              </CustomButton>
+              </button>
               <CustomButton
                 variant="danger"
                 size="sm"
@@ -1380,7 +1382,7 @@ export default function PosPage() {
             <button
               type="button"
               disabled={cart.length === 0 || submitting}
-              onClick={confirmSale}
+              onClick={() => confirmSale()}
               className="w-full flex items-center justify-between px-4 py-2.5 rounded-sm font-extrabold text-sm shadow-md cursor-pointer bg-teal-600 hover:bg-teal-700 text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <div className="flex items-center gap-1.5">
@@ -1422,60 +1424,61 @@ export default function PosPage() {
           ))}
         </div>
 
-          {/* Bottom Toolbar (8 Buttons spanning 100% of left column) */}
-          <div className="grid grid-cols-8 gap-1.5">
-            {[
-              { label: "Hold Orders", fkey: "F10", icon: PauseCircle, action: () => { loadHolds(); setShowHolds(true); } },
-              { label: "Recent Orders", fkey: "F11", icon: Clock, action: () => { fetchRecentOrders(); setShowRecentOrders(true); } },
-              { label: "Price Check", fkey: "", icon: Search, action: () => { setPriceCheckSearch(""); setShowPriceCheck(true); } },
-              { label: "Stock Lookup", fkey: "", icon: Package, action: () => { setPriceCheckSearch(""); setShowPriceCheck(true); } },
-              { label: "Return", fkey: "", icon: RotateCcw, action: () => setShowReturn(true) },
-              { label: "Discount", fkey: "", icon: Tag, action: () => setShowExtras(true) },
-              { label: "Note", fkey: "", icon: FileText, action: () => setShowExtras(true) },
-              { label: "Calculator", fkey: "", icon: Calculator, action: () => setShowCalculator(true) },
-            ].map((btn, i) => (
-              <button
-                key={i}
-                onClick={btn.action}
-                className="h-7.5 px-3 rounded-sm border border-slate-200 bg-white hover:bg-teal-50/80 hover:border-teal-400 text-slate-700 hover:text-teal-700 text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer transition whitespace-nowrap"
-              >
-                <btn.icon size={13} className="text-teal-600 shrink-0" />
-                <span>{btn.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+          {/* Bottom Toolbar & Summary Row */}
+          <div className="flex items-center justify-between gap-3">
+            {/* Bottom Toolbar (8 Buttons) */}
+            <div className="grid grid-cols-8 gap-1.5 flex-1">
+              {[
+                { label: "Hold Orders", fkey: "F10", icon: PauseCircle, action: () => { loadHolds(); setShowHolds(true); } },
+                { label: "Recent Orders", fkey: "F11", icon: Clock, action: () => { fetchRecentOrders(); setShowRecentOrders(true); } },
+                { label: "Price Check", fkey: "", icon: Search, action: () => { setPriceCheckSearch(""); setShowPriceCheck(true); } },
+                { label: "Stock Lookup", fkey: "", icon: Package, action: () => { setPriceCheckSearch(""); setShowPriceCheck(true); } },
+                { label: "Return", fkey: "", icon: RotateCcw, action: () => setShowReturn(true) },
+                { label: "Discount", fkey: "", icon: Tag, action: () => setShowExtras(true) },
+                { label: "Note", fkey: "", icon: FileText, action: () => setShowExtras(true) },
+                { label: "Calculator", fkey: "", icon: Calculator, action: () => setShowCalculator(true) },
+              ].map((btn, i) => (
+                <button
+                  key={i}
+                  onClick={btn.action}
+                  className="h-7.5 px-3 rounded-sm border border-slate-200 bg-white hover:bg-teal-50/80 hover:border-teal-400 text-slate-700 hover:text-teal-700 text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer transition whitespace-nowrap"
+                >
+                  <btn.icon size={13} className="text-teal-600 shrink-0" />
+                  <span>{btn.label}</span>
+                </button>
+              ))}
+            </div>
 
-          {/* Today's Summary + System Status */}
-          <div className="flex items-center gap-2.5">
-            <div className="flex items-center gap-3 px-3 py-1 rounded-sm bg-slate-50 border border-slate-200">
-              <span className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Summary</span>
-              <div className="flex items-center gap-3">
-                <div className="text-center">
-                  <p className="text-[9px] text-gray-500 font-medium">Sales</p>
-                  <p className="text-xs font-extrabold text-slate-900">{fmt(todaySales)}</p>
+            {/* Today's Summary + System Status */}
+            <div className="flex items-center gap-2.5 shrink-0">
+              <div className="flex items-center gap-3 px-3 py-1 rounded-sm bg-slate-50 border border-slate-200">
+                <span className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Summary</span>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <p className="text-[9px] text-gray-500 font-medium">Sales</p>
+                    <p className="text-xs font-extrabold text-slate-900">{fmt(todaySales)}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[9px] text-gray-500 font-medium">Txns</p>
+                    <p className="text-xs font-extrabold text-slate-900">{todayTxCount}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[9px] text-gray-500 font-medium">Avg. Sale</p>
+                    <p className="text-xs font-extrabold text-slate-900">{fmt(avgSale)}</p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-[9px] text-gray-500 font-medium">Txns</p>
-                  <p className="text-xs font-extrabold text-slate-900">{todayTxCount}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[9px] text-gray-500 font-medium">Avg. Sale</p>
-                  <p className="text-xs font-extrabold text-slate-900">{fmt(avgSale)}</p>
+              </div>
+
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-emerald-50 border border-emerald-200">
+                <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Status</span>
+                <div className="flex items-center gap-1 text-emerald-700 font-bold text-xs">
+                  <CheckCircle2 size={13} />
+                  <span>Normal</span>
                 </div>
               </div>
             </div>
-
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-emerald-50 border border-emerald-200">
-              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Status</span>
-              <div className="flex items-center gap-1 text-emerald-700 font-bold text-xs">
-                <CheckCircle2 size={13} />
-                <span>Normal</span>
-              </div>
-            </div>
           </div>
         </div>
-      </div>
 
       {/* ── MODALS ────────────────────────────────────────────────── */}
 
