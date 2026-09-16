@@ -86,7 +86,7 @@ const STATUS_CONFIG: Record<string, { label: string; badge: string; dot: string;
   },
   CANCELLED: {
     label: "Cancelled",
-    badge: "border-gray-200 bg-gray-100 text-gray-600",
+    badge: "border-sky-100/90 bg-gray-100 text-gray-600",
     dot: "bg-gray-400",
     bg: "bg-gray-400/10",
   },
@@ -382,7 +382,7 @@ export default function RequisitionsPage() {
   }
 
   const fmt = (n: number) => `৳${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const inputCls = "mt-1 block w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-white text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition";
+  const inputCls = "mt-1 block w-full rounded-sm border border-sky-100/90 px-3.5 py-2.5 text-sm bg-white text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition";
 
   // KPIs
   const totalCount = requisitions.length;
@@ -414,7 +414,7 @@ export default function RequisitionsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
-            <Link href="/purchasing" className="hover:text-primary-600 transition">Purchasing Hub</Link>
+            <Link href="/purchasing" className="hover:text-sky-600 transition">Purchasing Hub</Link>
             <ChevronRight size={13} className="text-gray-400" />
             <span className="text-gray-900 font-bold">Purchase Requisitions</span>
           </div>
@@ -428,14 +428,14 @@ export default function RequisitionsPage() {
           <button
             onClick={load}
             disabled={loading}
-            className="rounded-xl border border-gray-200 bg-white p-2.5 text-gray-600 shadow-sm transition hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50"
+            className="rounded-sm border border-sky-100/90 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50"
             title="Refresh Data"
           >
-            <RefreshCw size={17} className={loading ? "animate-spin text-primary-600" : ""} />
+            <RefreshCw size={17} className={loading ? "animate-spin text-sky-600" : ""} />
           </button>
           <button
             onClick={openCreateModal}
-            className="flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary-600/25 transition hover:bg-primary-700 active:scale-[0.98]"
+            className="flex items-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary-600/25 transition hover:bg-primary-700 active:scale-[0.98]"
           >
             <Plus size={18} /> New Requisition
           </button>
@@ -443,7 +443,7 @@ export default function RequisitionsPage() {
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto rounded-2xl border border-gray-200/80 bg-white p-1.5 shadow-sm">
+      <div className="flex items-center gap-1.5 overflow-x-auto rounded-sm border border-sky-100/90 bg-white p-1.5 shadow-2xs">
         {[
           { href: "/purchasing", label: "Overview", icon: Layers },
           { href: "/purchasing/requisitions", label: "Requisitions (PR)", icon: ClipboardList, active: true },
@@ -454,9 +454,9 @@ export default function RequisitionsPage() {
           <Link
             key={tab.href}
             href={tab.href}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition whitespace-nowrap ${
+            className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition whitespace-nowrap ${
               tab.active
-                ? "bg-primary-600 text-white shadow-sm"
+                ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs"
                 : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             }`}
           >
@@ -468,19 +468,19 @@ export default function RequisitionsPage() {
 
       {/* Toast Notification */}
       {toast && (
-        <div className={`flex items-center gap-2.5 rounded-2xl border p-4 text-sm font-bold shadow-md transition animate-in fade-in slide-in-from-top-2 ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-rose-200 bg-rose-50 text-rose-900"}`}>
+        <div className={`flex items-center gap-2.5 rounded-sm border p-4 text-sm font-bold shadow-2xs transition animate-in fade-in slide-in-from-top-2 ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-rose-200 bg-rose-50 text-rose-900"}`}>
           {toast.ok ? <CheckCircle size={20} className="text-emerald-600 shrink-0" /> : <XCircle size={20} className="text-rose-600 shrink-0" />}
           <span>{toast.text}</span>
         </div>
       )}
 
       {error && (
-        <div className="flex items-center justify-between rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-semibold text-rose-800 shadow-sm">
+        <div className="flex items-center justify-between rounded-sm border border-rose-200 bg-rose-50 p-4 text-sm font-semibold text-rose-800 shadow-2xs">
           <div className="flex items-center gap-2">
             <AlertCircle size={18} className="text-rose-600" />
             <span>{error}</span>
           </div>
-          <button onClick={load} className="rounded-lg bg-rose-100 px-3 py-1 text-xs font-bold text-rose-800 hover:bg-rose-200">
+          <button onClick={load} className="rounded-sm bg-rose-100 px-3 py-1 text-xs font-bold text-rose-800 hover:bg-rose-200">
             Retry
           </button>
         </div>
@@ -527,11 +527,11 @@ export default function RequisitionsPage() {
         ].map((card, i) => (
           <div
             key={i}
-            className="group relative overflow-hidden rounded-3xl border border-gray-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"
+            className="group relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-2xs"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{card.label}</span>
-              <div className={`flex h-10 w-10 items-center justify-center rounded-2xl border ${card.bg}`}>
+              <div className={`flex h-10 w-10 items-center justify-center rounded-sm border ${card.bg}`}>
                 <card.icon size={19} />
               </div>
             </div>
@@ -554,7 +554,7 @@ export default function RequisitionsPage() {
       {/* ========================================================================= */}
       {/* 3. ENTERPRISE FILTER & SEARCH TOOLBAR                                    */}
       {/* ========================================================================= */}
-      <div className="flex flex-col gap-3 rounded-3xl border border-gray-200/80 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-wrap items-center gap-2.5">
           {/* Search bar */}
           <div className="relative min-w-[260px] flex-1">
@@ -564,7 +564,7 @@ export default function RequisitionsPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by PR #, product, or note…"
-              className="w-full rounded-2xl border border-gray-200 bg-gray-50/50 py-2.5 pl-10 pr-4 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              className="w-full rounded-sm border border-sky-100/90 bg-gray-50/50 py-2.5 pl-10 pr-4 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
             {searchTerm && (
               <button
@@ -580,7 +580,7 @@ export default function RequisitionsPage() {
           <select
             value={warehouseFilter}
             onChange={(e) => setWarehouseFilter(e.target.value)}
-            className="rounded-2xl border border-gray-200 bg-gray-50/50 px-3.5 py-2.5 text-sm font-semibold text-gray-700 focus:border-primary-500 focus:bg-white focus:outline-none"
+            className="rounded-sm border border-sky-100/90 bg-gray-50/50 px-3.5 py-2.5 text-sm font-semibold text-gray-700 focus:border-primary-500 focus:bg-white focus:outline-none"
           >
             <option value="">All Warehouses</option>
             {warehouses.map((w) => (
@@ -593,7 +593,7 @@ export default function RequisitionsPage() {
 
         {/* Status Pill Filters & View Toggle */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 overflow-x-auto rounded-2xl bg-gray-100 p-1">
+          <div className="flex items-center gap-1 overflow-x-auto rounded-sm bg-gray-100 p-1">
             {[
               { key: "ALL", label: "All" },
               { key: "SUBMITTED", label: "Pending" },
@@ -605,9 +605,9 @@ export default function RequisitionsPage() {
               <button
                 key={st.key}
                 onClick={() => setStatusFilter(st.key)}
-                className={`rounded-xl px-3 py-1.5 text-xs font-bold transition whitespace-nowrap ${
+                className={`rounded-sm px-3 py-1.5 text-xs font-bold transition whitespace-nowrap ${
                   statusFilter === st.key
-                    ? "bg-white text-gray-900 shadow-sm"
+                    ? "bg-white text-gray-900 shadow-2xs"
                     : "text-gray-500 hover:text-gray-900"
                 }`}
               >
@@ -617,17 +617,17 @@ export default function RequisitionsPage() {
           </div>
 
           {/* View mode toggle */}
-          <div className="hidden sm:flex items-center gap-1 rounded-2xl border border-gray-200 bg-white p-1">
+          <div className="hidden sm:flex items-center gap-1 rounded-sm border border-sky-100/90 bg-white p-1">
             <button
               onClick={() => setViewMode("table")}
-              className={`rounded-xl p-1.5 transition ${viewMode === "table" ? "bg-primary-50 text-primary-600" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1.5 transition ${viewMode === "table" ? "bg-sky-50 text-sky-600" : "text-gray-400 hover:text-gray-700"}`}
               title="Table View"
             >
               <ListFilter size={17} />
             </button>
             <button
               onClick={() => setViewMode("cards")}
-              className={`rounded-xl p-1.5 transition ${viewMode === "cards" ? "bg-primary-50 text-primary-600" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1.5 transition ${viewMode === "cards" ? "bg-sky-50 text-sky-600" : "text-gray-400 hover:text-gray-700"}`}
               title="Card View"
             >
               <LayoutGrid size={17} />
@@ -641,12 +641,12 @@ export default function RequisitionsPage() {
       {/* ========================================================================= */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-28 space-y-3">
-          <Loader2 size={36} className="animate-spin text-primary-600" />
+          <Loader2 size={36} className="animate-spin text-sky-600" />
           <p className="text-sm font-semibold text-gray-500">Loading purchase requisitions…</p>
         </div>
       ) : filteredRequisitions.length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-gray-200 bg-white p-16 text-center shadow-sm">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-primary-50 text-primary-600">
+        <div className="rounded-sm border-2 border-dashed border-sky-100/90 bg-white p-16 text-center shadow-2xs">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-sm bg-sky-50 text-sky-600">
             <ClipboardList size={32} />
           </div>
           <h3 className="mt-4 text-lg font-bold text-gray-900">No Purchase Requisitions Found</h3>
@@ -659,14 +659,14 @@ export default function RequisitionsPage() {
             {searchTerm || statusFilter !== "ALL" || warehouseFilter ? (
               <button
                 onClick={() => { setSearchTerm(""); setStatusFilter("ALL"); setWarehouseFilter(""); }}
-                className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50"
+                className="rounded-sm border border-sky-100/90 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50"
               >
                 Clear Filters
               </button>
             ) : null}
             <button
               onClick={openCreateModal}
-              className="flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-primary-600/20 hover:bg-primary-700"
+              className="flex items-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-2.5 text-sm font-bold text-white shadow-2xs shadow-primary-600/20 hover:bg-primary-700"
             >
               <Plus size={16} /> Create Requisition
             </button>
@@ -674,10 +674,10 @@ export default function RequisitionsPage() {
         </div>
       ) : viewMode === "table" ? (
         /* TABLE VIEW (HIGH-DENSITY ENTERPRISE GRID) */
-        <div className="overflow-hidden rounded-3xl border border-gray-200/80 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-gray-200 bg-gray-50/70 text-[11px] font-black uppercase tracking-wider text-gray-500">
+              <thead className="border-b border-sky-100/90 bg-gray-50/70 text-[11px] font-black uppercase tracking-wider text-gray-500">
                 <tr>
                   <th className="py-3.5 pl-6 pr-3">PR Number</th>
                   <th className="py-3.5 px-4">Warehouse & Request Date</th>
@@ -700,13 +700,13 @@ export default function RequisitionsPage() {
                       {/* PR Number */}
                       <td className="py-4 pl-6 pr-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 font-mono text-xs font-bold text-blue-700">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-blue-50 font-mono text-xs font-bold text-blue-700">
                             PR
                           </div>
                           <div>
                             <button
                               onClick={() => setViewReq(req)}
-                              className="font-mono text-sm font-black text-gray-900 hover:text-primary-600 transition"
+                              className="font-mono text-sm font-black text-gray-900 hover:text-sky-600 transition"
                             >
                               {req.prNo}
                             </button>
@@ -731,13 +731,13 @@ export default function RequisitionsPage() {
                           {items.slice(0, 3).map((it, idx) => (
                             <span
                               key={idx}
-                              className="inline-flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-700"
+                              className="inline-flex items-center rounded-sm border border-sky-100/90 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-700"
                             >
                               {it.productName || it.product?.name || "Product"} × <strong className="ml-1 text-gray-900">{Number(it.qty)}</strong>
                             </span>
                           ))}
                           {items.length > 3 && (
-                            <span className="rounded-lg bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-500">
+                            <span className="rounded-sm bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-500">
                               +{items.length - 3} more
                             </span>
                           )}
@@ -772,7 +772,7 @@ export default function RequisitionsPage() {
                             <button
                               onClick={() => act(req.id, "submit", `PR ${req.prNo} submitted for approval`)}
                               disabled={busy === req.id + "submit"}
-                              className="inline-flex items-center gap-1 rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
+                              className="inline-flex items-center gap-1 rounded-sm bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-2xs hover:bg-blue-700 disabled:opacity-50"
                             >
                               {busy === req.id + "submit" ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
                               Submit
@@ -784,14 +784,14 @@ export default function RequisitionsPage() {
                               <button
                                 onClick={() => act(req.id, "approve", `PR ${req.prNo} approved`)}
                                 disabled={busy === req.id + "approve"}
-                                className="inline-flex items-center gap-1 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
+                                className="inline-flex items-center gap-1 rounded-sm bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-2xs hover:bg-emerald-700 disabled:opacity-50"
                               >
                                 {busy === req.id + "approve" ? <Loader2 size={12} className="animate-spin" /> : <Check size={13} />}
                                 Approve
                               </button>
                               <button
                                 onClick={() => { setRejectingReq(req); setRejectReason(""); }}
-                                className="rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100"
+                                className="rounded-sm border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100"
                               >
                                 Reject
                               </button>
@@ -801,7 +801,7 @@ export default function RequisitionsPage() {
                           {req.status === "APPROVED" && (
                             <button
                               onClick={() => openConvert(req)}
-                              className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-purple-700"
+                              className="inline-flex items-center gap-1.5 rounded-sm bg-purple-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs hover:bg-purple-700"
                             >
                               <ShoppingCart size={13} /> Convert to PO
                             </button>
@@ -809,7 +809,7 @@ export default function RequisitionsPage() {
 
                           <button
                             onClick={() => setViewReq(req)}
-                            className="rounded-xl border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                            className="rounded-sm border border-sky-100/90 p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                             title="View Voucher"
                           >
                             <Eye size={15} />
@@ -836,7 +836,7 @@ export default function RequisitionsPage() {
             return (
               <div
                 key={req.id}
-                className="flex flex-col justify-between rounded-3xl border border-gray-200/80 bg-white p-5 shadow-sm transition hover:border-gray-300 hover:shadow-md"
+                className="flex flex-col justify-between rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs transition hover:border-gray-300 hover:shadow-2xs"
               >
                 <div>
                   <div className="flex items-start justify-between gap-3">
@@ -866,7 +866,7 @@ export default function RequisitionsPage() {
                   </div>
                 </div>
 
-                <div className="mt-5 border-t border-gray-100 pt-3.5">
+                <div className="mt-5 border-t border-sky-100/70 pt-3.5">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Est. Total</span>
@@ -876,14 +876,14 @@ export default function RequisitionsPage() {
                       {req.status === "APPROVED" && (
                         <button
                           onClick={() => openConvert(req)}
-                          className="rounded-xl bg-purple-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-purple-700"
+                          className="rounded-sm bg-purple-600 px-3 py-1.5 text-xs font-bold text-white shadow-2xs hover:bg-purple-700"
                         >
                           Convert PO
                         </button>
                       )}
                       <button
                         onClick={() => setViewReq(req)}
-                        className="rounded-xl border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-100"
+                        className="rounded-sm border border-sky-100/90 p-1.5 text-gray-500 hover:bg-gray-100"
                       >
                         <Eye size={15} />
                       </button>
@@ -902,13 +902,13 @@ export default function RequisitionsPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-md" onClick={() => setShowModal(false)}>
           <div
-            className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
+            className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-sm bg-white shadow-2xs"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/70 px-7 py-5">
+            <div className="flex items-center justify-between border-b border-sky-100/70 bg-gray-50/70 px-7 py-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-50 text-primary-600">
+                <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-sky-50 text-sky-600">
                   <ClipboardList size={22} />
                 </div>
                 <div>
@@ -918,7 +918,7 @@ export default function RequisitionsPage() {
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="rounded-2xl border border-gray-200 bg-white p-2 text-gray-400 shadow-sm transition hover:bg-gray-100 hover:text-gray-600"
+                className="rounded-sm border border-sky-100/90 bg-white p-2 text-gray-400 shadow-2xs transition hover:bg-gray-100 hover:text-gray-600"
               >
                 <X size={18} />
               </button>
@@ -926,7 +926,7 @@ export default function RequisitionsPage() {
 
             {/* Modal Error */}
             {modalError && (
-              <div className="mx-7 mt-4 flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 p-3.5 text-sm font-semibold text-rose-700">
+              <div className="mx-7 mt-4 flex items-center gap-2 rounded-sm border border-rose-200 bg-rose-50 p-3.5 text-sm font-semibold text-rose-700">
                 <AlertCircle size={18} /> {modalError}
               </div>
             )}
@@ -934,7 +934,7 @@ export default function RequisitionsPage() {
             {/* Modal Body */}
             <form onSubmit={handleCreate} className="flex flex-1 flex-col overflow-y-auto p-7 space-y-6">
               {/* Top Configuration Card */}
-              <div className="grid grid-cols-1 gap-5 rounded-3xl border border-gray-200/80 bg-gray-50/60 p-5 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-5 rounded-sm border border-sky-100/90 bg-gray-50/60 p-5 sm:grid-cols-3">
                 <div>
                   <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Target Warehouse *</label>
                   <select
@@ -974,7 +974,7 @@ export default function RequisitionsPage() {
                           target.setDate(target.getDate() + d.days);
                           setForm({ ...form, expectedDate: target.toISOString().split("T")[0] });
                         }}
-                        className="rounded-lg bg-white border border-gray-200 px-2 py-0.5 text-[10px] font-bold text-gray-600 hover:bg-gray-100 shadow-2xs"
+                        className="rounded-sm bg-white border border-sky-100/90 px-2 py-0.5 text-[10px] font-bold text-gray-600 hover:bg-gray-100 shadow-2xs"
                       >
                         {d.label}
                       </button>
@@ -997,7 +997,7 @@ export default function RequisitionsPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Barcode size={17} className="text-primary-600" />
+                    <Barcode size={17} className="text-sky-600" />
                     <label className="text-xs font-bold uppercase tracking-wider text-gray-800">Scan or Quick Add Products</label>
                   </div>
                   <span className="text-xs font-medium text-gray-400">Press enter after typing to auto-add</span>
@@ -1006,7 +1006,7 @@ export default function RequisitionsPage() {
                 <div className="flex flex-wrap gap-3">
                   {/* Barcode Scanner Input */}
                   <div className="relative min-w-[280px] flex-1">
-                    <Barcode size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-600" />
+                    <Barcode size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sky-600" />
                     <input
                       ref={scanInputRef}
                       type="text"
@@ -1014,7 +1014,7 @@ export default function RequisitionsPage() {
                       onChange={(e) => setScanInput(e.target.value)}
                       onKeyDown={handleScan}
                       placeholder="Scan Barcode or Type SKU & press Enter…"
-                      className="w-full rounded-2xl border-2 border-primary-500/30 bg-primary-50/20 py-2.5 pl-10 pr-4 text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-500/10"
+                      className="w-full rounded-sm border-2 border-primary-500/30 bg-sky-50/20 py-2.5 pl-10 pr-4 text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-500/10"
                     />
                   </div>
 
@@ -1025,7 +1025,7 @@ export default function RequisitionsPage() {
                         addProductToLines(e.target.value);
                         e.target.value = "";
                       }}
-                      className="w-full rounded-2xl border border-gray-200 bg-white py-2.5 px-3.5 text-sm font-semibold text-gray-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                      className="w-full rounded-sm border border-sky-100/90 bg-white py-2.5 px-3.5 text-sm font-semibold text-gray-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                       defaultValue=""
                     >
                       <option value="" disabled>+ Choose product from catalog…</option>
@@ -1040,9 +1040,9 @@ export default function RequisitionsPage() {
               </div>
 
               {/* Items Table */}
-              <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+              <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
                 <table className="w-full text-left text-sm">
-                  <thead className="border-b border-gray-200 bg-gray-50/80 text-[11px] font-black uppercase tracking-wider text-gray-600">
+                  <thead className="border-b border-sky-100/90 bg-gray-50/80 text-[11px] font-black uppercase tracking-wider text-gray-600">
                     <tr>
                       <th className="py-3 pl-4 pr-2 w-10">#</th>
                       <th className="py-3 px-4">Product Name & SKU</th>
@@ -1074,7 +1074,7 @@ export default function RequisitionsPage() {
                               <select
                                 value={line.productId}
                                 onChange={(e) => updateLine(idx, "productId", e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-sm font-bold text-gray-900 focus:border-primary-500 focus:outline-none"
+                                className="w-full rounded-sm border border-sky-100/90 bg-white px-3 py-1.5 text-sm font-bold text-gray-900 focus:border-primary-500 focus:outline-none"
                               >
                                 {products.map((p) => (
                                   <option key={p.id} value={p.id}>
@@ -1088,7 +1088,7 @@ export default function RequisitionsPage() {
                                 <button
                                   type="button"
                                   onClick={() => updateLine(idx, "qty", String(Math.max(qtyNum - 1, 1)))}
-                                  className="h-8 w-8 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 flex items-center justify-center font-bold"
+                                  className="h-8 w-8 rounded-sm border border-sky-100/90 bg-gray-50 text-gray-600 hover:bg-gray-100 flex items-center justify-center font-bold"
                                 >
                                   -
                                 </button>
@@ -1097,13 +1097,13 @@ export default function RequisitionsPage() {
                                   min="1"
                                   value={line.qty}
                                   onChange={(e) => updateLine(idx, "qty", e.target.value)}
-                                  className="w-20 rounded-xl border border-gray-200 bg-white px-2 py-1.5 text-center text-sm font-black tabular-nums text-gray-900 focus:border-primary-500 focus:outline-none"
+                                  className="w-20 rounded-sm border border-sky-100/90 bg-white px-2 py-1.5 text-center text-sm font-black tabular-nums text-gray-900 focus:border-primary-500 focus:outline-none"
                                   required
                                 />
                                 <button
                                   type="button"
                                   onClick={() => updateLine(idx, "qty", String(qtyNum + 1))}
-                                  className="h-8 w-8 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 flex items-center justify-center font-bold"
+                                  className="h-8 w-8 rounded-sm border border-sky-100/90 bg-gray-50 text-gray-600 hover:bg-gray-100 flex items-center justify-center font-bold"
                                 >
                                   +
                                 </button>
@@ -1116,7 +1116,7 @@ export default function RequisitionsPage() {
                                 step="0.01"
                                 value={line.estUnitPrice}
                                 onChange={(e) => updateLine(idx, "estUnitPrice", e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-right text-sm font-bold tabular-nums text-gray-900 focus:border-primary-500 focus:outline-none"
+                                className="w-full rounded-sm border border-sky-100/90 bg-white px-3 py-1.5 text-right text-sm font-bold tabular-nums text-gray-900 focus:border-primary-500 focus:outline-none"
                                 placeholder="0.00"
                                 required
                               />
@@ -1128,7 +1128,7 @@ export default function RequisitionsPage() {
                               <button
                                 type="button"
                                 onClick={() => removeLine(idx)}
-                                className="rounded-xl p-2 text-gray-400 transition hover:bg-rose-50 hover:text-rose-600"
+                                className="rounded-sm p-2 text-gray-400 transition hover:bg-rose-50 hover:text-rose-600"
                               >
                                 <Trash2 size={16} />
                               </button>
@@ -1142,7 +1142,7 @@ export default function RequisitionsPage() {
               </div>
 
               {/* Bottom Sticky Summary & Action Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 bg-gray-50/80 p-5 rounded-3xl shadow-inner">
+              <div className="flex flex-wrap items-center justify-between gap-4 border-t border-sky-100/70 bg-gray-50/80 p-5 rounded-sm shadow-inner">
                 <div className="flex items-center gap-6">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Total Items</span>
@@ -1150,8 +1150,8 @@ export default function RequisitionsPage() {
                   </div>
                   <div className="h-8 w-px bg-gray-200" />
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-primary-600">Est. Total Amount</span>
-                    <p className="text-2xl font-black text-primary-700">{fmt(grandEstTotal)}</p>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-sky-600">Est. Total Amount</span>
+                    <p className="text-2xl font-black text-sky-700">{fmt(grandEstTotal)}</p>
                   </div>
                 </div>
 
@@ -1159,14 +1159,14 @@ export default function RequisitionsPage() {
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="rounded-2xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50"
+                    className="rounded-sm border border-sky-100/90 bg-white px-6 py-2.5 text-sm font-bold text-gray-700 shadow-2xs hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={saving || lines.length === 0}
-                    className="flex items-center gap-2 rounded-2xl bg-primary-600 px-7 py-2.5 text-sm font-black text-white shadow-lg shadow-primary-600/25 transition hover:bg-primary-700 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-7 py-2.5 text-sm font-black text-white shadow-lg shadow-primary-600/25 transition hover:bg-primary-700 disabled:opacity-50"
                   >
                     {saving ? <Loader2 size={16} className="animate-spin" /> : <ClipboardList size={17} />}
                     Create Requisition
@@ -1183,8 +1183,8 @@ export default function RequisitionsPage() {
       {/* ========================================================================= */}
       {convertingReq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-md" onClick={() => setConvertingReq(null)}>
-          <div className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-3xl bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+          <div className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-sm bg-white p-7 shadow-2xs" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-sky-100/70 pb-4">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-bold text-purple-700">1-Click Convert</span>
@@ -1192,17 +1192,17 @@ export default function RequisitionsPage() {
                 </div>
                 <p className="text-xs font-medium text-gray-500">Select supplier and confirm negotiated purchase order prices</p>
               </div>
-              <button onClick={() => setConvertingReq(null)} className="rounded-2xl border border-gray-200 p-2 text-gray-400 hover:bg-gray-100"><X size={18} /></button>
+              <button onClick={() => setConvertingReq(null)} className="rounded-sm border border-sky-100/90 p-2 text-gray-400 hover:bg-gray-100"><X size={18} /></button>
             </div>
 
             {convertError && (
-              <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3.5 text-sm font-semibold text-rose-700">
+              <div className="mt-4 rounded-sm border border-rose-200 bg-rose-50 p-3.5 text-sm font-semibold text-rose-700">
                 <AlertCircle size={17} className="inline mr-1.5" /> {convertError}
               </div>
             )}
 
             <form onSubmit={handleConvert} className="mt-5 space-y-5">
-              <div className="grid grid-cols-1 gap-4 rounded-3xl border border-gray-200 bg-gray-50/60 p-5 sm:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 rounded-sm border border-sky-100/90 bg-gray-50/60 p-5 sm:grid-cols-4">
                 <div>
                   <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Supplier *</label>
                   <select
@@ -1251,9 +1251,9 @@ export default function RequisitionsPage() {
               </div>
 
               {/* Lines Grid */}
-              <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+              <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white">
                 <table className="w-full text-left text-sm">
-                  <thead className="border-b border-gray-200 bg-gray-50 text-[11px] font-black uppercase text-gray-600">
+                  <thead className="border-b border-sky-100/90 bg-gray-50 text-[11px] font-black uppercase text-gray-600">
                     <tr>
                       <th className="py-3 px-4">Product Name</th>
                       <th className="py-3 px-4 w-36 text-center">Confirmed Qty</th>
@@ -1274,7 +1274,7 @@ export default function RequisitionsPage() {
                               min="1"
                               value={line.qty}
                               onChange={(e) => setConvertLines(convertLines.map((l, j) => j === i ? { ...l, qty: e.target.value } : l))}
-                              className="w-24 rounded-xl border border-gray-200 bg-white px-2.5 py-1.5 text-center text-sm font-bold tabular-nums"
+                              className="w-24 rounded-sm border border-sky-100/90 bg-white px-2.5 py-1.5 text-center text-sm font-bold tabular-nums"
                             />
                           </td>
                           <td className="py-3 px-4 text-right">
@@ -1284,7 +1284,7 @@ export default function RequisitionsPage() {
                               step="0.01"
                               value={line.unitPrice}
                               onChange={(e) => setConvertLines(convertLines.map((l, j) => j === i ? { ...l, unitPrice: e.target.value } : l))}
-                              className="w-28 rounded-xl border border-gray-200 bg-white px-2.5 py-1.5 text-right text-sm font-bold tabular-nums"
+                              className="w-28 rounded-sm border border-sky-100/90 bg-white px-2.5 py-1.5 text-right text-sm font-bold tabular-nums"
                             />
                           </td>
                           <td className="py-3 px-4 text-right font-black tabular-nums text-gray-900">{fmt(lineTot)}</td>
@@ -1296,7 +1296,7 @@ export default function RequisitionsPage() {
               </div>
 
               {/* Bottom Summary & Actions */}
-              <div className="flex items-center justify-between border-t border-gray-100 pt-5">
+              <div className="flex items-center justify-between border-t border-sky-100/70 pt-5">
                 <div>
                   <span className="text-xs text-gray-500">Calculated PO Grand Total (after rebate):</span>
                   <p className="text-2xl font-black text-purple-700">
@@ -1304,8 +1304,8 @@ export default function RequisitionsPage() {
                   </p>
                 </div>
                 <div className="flex gap-3">
-                  <button type="button" onClick={() => setConvertingReq(null)} className="rounded-2xl border border-gray-200 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50">Cancel</button>
-                  <button type="submit" disabled={convertSaving} className="flex items-center gap-2 rounded-2xl bg-purple-600 px-7 py-2.5 text-sm font-black text-white shadow-lg shadow-purple-600/25 hover:bg-purple-700">
+                  <button type="button" onClick={() => setConvertingReq(null)} className="rounded-sm border border-sky-100/90 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50">Cancel</button>
+                  <button type="submit" disabled={convertSaving} className="flex items-center gap-2 rounded-sm bg-purple-600 px-7 py-2.5 text-sm font-black text-white shadow-lg shadow-purple-600/25 hover:bg-purple-700">
                     {convertSaving && <Loader2 size={16} className="animate-spin" />} <ShoppingCart size={17} /> Confirm & Generate PO
                   </button>
                 </div>
@@ -1318,10 +1318,10 @@ export default function RequisitionsPage() {
       {/* Reject Modal */}
       {rejectingReq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-md" onClick={() => setRejectingReq(null)}>
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+          <div className="w-full max-w-md rounded-sm bg-white p-6 shadow-2xs" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-sky-100/70 pb-3">
               <h3 className="text-lg font-black text-gray-900">Reject Requisition {rejectingReq.prNo}</h3>
-              <button onClick={() => setRejectingReq(null)} className="rounded-xl p-1 text-gray-400 hover:bg-gray-100"><X size={18} /></button>
+              <button onClick={() => setRejectingReq(null)} className="rounded-sm p-1 text-gray-400 hover:bg-gray-100"><X size={18} /></button>
             </div>
             <form onSubmit={handleReject} className="mt-4 space-y-4">
               <div>
@@ -1330,14 +1330,14 @@ export default function RequisitionsPage() {
                   rows={3}
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
-                  className="mt-1 block w-full rounded-2xl border border-gray-200 p-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                  className="mt-1 block w-full rounded-sm border border-sky-100/90 p-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                   placeholder="Budget limit exceeded, duplicate request, etc."
                   required
                 />
               </div>
-              <div className="flex justify-end gap-2 border-t border-gray-100 pt-4">
-                <button type="button" onClick={() => setRejectingReq(null)} className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50">Cancel</button>
-                <button type="submit" disabled={rejectSaving} className="flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-sm font-bold text-white hover:bg-rose-700 disabled:opacity-50">
+              <div className="flex justify-end gap-2 border-t border-sky-100/70 pt-4">
+                <button type="button" onClick={() => setRejectingReq(null)} className="rounded-sm border border-sky-100/90 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50">Cancel</button>
+                <button type="submit" disabled={rejectSaving} className="flex items-center gap-2 rounded-sm bg-rose-600 px-4 py-2 text-sm font-bold text-white hover:bg-rose-700 disabled:opacity-50">
                   {rejectSaving && <Loader2 size={15} className="animate-spin" />} Reject PR
                 </button>
               </div>
@@ -1349,10 +1349,10 @@ export default function RequisitionsPage() {
       {/* View Slip / Details Modal */}
       {viewReq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-md" onClick={() => setViewReq(null)}>
-          <div id="printable-slip" className="printable-document max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white shadow-2xl border border-gray-100 flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <div id="printable-slip" className="printable-document max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-sm bg-white shadow-2xs border border-sky-100/70 flex flex-col" onClick={(e) => e.stopPropagation()}>
             
             {/* Header */}
-            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 bg-gradient-to-r from-blue-50/50 via-white to-gray-50/50 p-6 sm:p-7">
+            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-sky-100/70 bg-gradient-to-r from-blue-50/50 via-white to-gray-50/50 p-6 sm:p-7">
               <div>
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <span className={`rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wider ${STATUS_CONFIG[viewReq.status]?.badge}`}>
@@ -1360,7 +1360,7 @@ export default function RequisitionsPage() {
                   </span>
                   <span className="font-mono text-xl sm:text-2xl font-black text-gray-900">{viewReq.prNo}</span>
                   {viewReq.warehouseName && (
-                    <span className="rounded-xl bg-gray-100 border border-gray-200 px-2.5 py-0.5 text-xs font-semibold text-gray-700">
+                    <span className="rounded-sm bg-gray-100 border border-sky-100/90 px-2.5 py-0.5 text-xs font-semibold text-gray-700">
                       📍 {viewReq.warehouseName}
                     </span>
                   )}
@@ -1374,13 +1374,13 @@ export default function RequisitionsPage() {
               <div className="flex items-center gap-2 no-print">
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 shadow-sm transition hover:bg-gray-50 hover:text-gray-900"
+                  className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900"
                 >
                   <Printer size={15} /> Print Slip
                 </button>
                 <button
                   onClick={() => setViewReq(null)}
-                  className="rounded-xl p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                  className="rounded-sm p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
                 >
                   <X size={19} />
                 </button>
@@ -1389,7 +1389,7 @@ export default function RequisitionsPage() {
 
             <div className="p-6 sm:p-7 space-y-6 flex-1">
               {/* Procurement Workflow Step Tracker */}
-              <div className="rounded-2xl border border-gray-200/80 bg-gray-50/70 p-4">
+              <div className="rounded-sm border border-sky-100/90 bg-gray-50/70 p-4">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Requisition Lifecycle</p>
                 <div className="grid grid-cols-4 gap-2 text-center text-xs">
                   {[
@@ -1400,12 +1400,12 @@ export default function RequisitionsPage() {
                   ].map((st, i) => (
                     <div
                       key={i}
-                      className={`rounded-xl p-2.5 border transition ${
+                      className={`rounded-sm p-2.5 border transition ${
                         st.current
-                          ? "bg-primary-600 text-white font-bold border-primary-600 shadow-sm"
+                          ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold border-primary-600 shadow-2xs"
                           : st.done
                           ? "bg-emerald-50 text-emerald-800 font-bold border-emerald-200"
-                          : "bg-white text-gray-400 border-gray-200/60 font-medium"
+                          : "bg-white text-gray-400 border-sky-100/90/60 font-medium"
                       }`}
                     >
                       <span className="block text-[10px] opacity-75">{st.done && !st.current ? "✓ Done" : st.current ? "● Active" : "○ Pending"}</span>
@@ -1417,14 +1417,14 @@ export default function RequisitionsPage() {
 
               {/* 2-Column Info Summary */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm">
+                <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Request & Location Details</p>
                   <div className="mt-2.5 space-y-2 text-xs text-gray-700">
-                    <div className="flex justify-between py-1 border-b border-gray-100">
+                    <div className="flex justify-between py-1 border-b border-sky-100/70">
                       <span className="text-gray-500">Destination Warehouse:</span>
                       <strong className="text-gray-900">{viewReq.warehouseName || warehouses.find(w => w.id === viewReq.warehouseId)?.name || "Central Warehouse"}</strong>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-gray-100">
+                    <div className="flex justify-between py-1 border-b border-sky-100/70">
                       <span className="text-gray-500">Requested By:</span>
                       <strong className="text-gray-900">{viewReq.requestedBy || "Department Lead"}</strong>
                     </div>
@@ -1435,13 +1435,13 @@ export default function RequisitionsPage() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm">
+                <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Notes & Business Justification</p>
                   <p className="mt-2.5 text-xs text-gray-700 leading-relaxed min-h-[50px] italic">
                     {viewReq.note ? `"${viewReq.note}"` : "No internal justification notes provided for this requisition."}
                   </p>
                   {viewReq.rejectionReason && (
-                    <div className="mt-2 rounded-xl bg-rose-50 border border-rose-200 p-2.5 text-xs text-rose-800 font-medium">
+                    <div className="mt-2 rounded-sm bg-rose-50 border border-rose-200 p-2.5 text-xs text-rose-800 font-medium">
                       <strong>Rejection Reason:</strong> {viewReq.rejectionReason}
                     </div>
                   )}
@@ -1449,8 +1449,8 @@ export default function RequisitionsPage() {
               </div>
 
               {/* Requested Items Table */}
-              <div className="rounded-2xl border border-gray-200/80 bg-white overflow-hidden shadow-sm">
-                <div className="bg-gray-50/80 px-4 py-3 border-b border-gray-200/80 flex items-center justify-between">
+              <div className="rounded-sm border border-sky-100/90 bg-white overflow-hidden shadow-2xs">
+                <div className="bg-gray-50/80 px-4 py-3 border-b border-sky-100/90 flex items-center justify-between">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700">Requested Product Items ({(viewReq.items || []).length})</h4>
                   <span className="text-xs font-semibold text-gray-500">
                     Total Units: {(viewReq.items || []).reduce((s, i) => s + Number(i.qty), 0)}
@@ -1458,7 +1458,7 @@ export default function RequisitionsPage() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-gray-50/40 text-[11px] font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100">
+                    <thead className="bg-gray-50/40 text-[11px] font-bold uppercase tracking-wider text-gray-400 border-b border-sky-100/70">
                       <tr>
                         <th className="py-2.5 px-4 w-12 text-center">#</th>
                         <th className="py-2.5 px-4">Product Name & SKU</th>
@@ -1478,7 +1478,7 @@ export default function RequisitionsPage() {
                               <p className="text-[11px] font-mono text-gray-400">{it.sku || it.product?.sku || "—"}</p>
                             </td>
                             <td className="py-3 px-4 text-center">
-                              <span className="inline-block rounded-xl bg-blue-50 border border-blue-200/70 px-2.5 py-1 font-bold text-blue-800">
+                              <span className="inline-block rounded-sm bg-blue-50 border border-blue-200/70 px-2.5 py-1 font-bold text-blue-800">
                                 {Number(it.qty)} Units
                               </span>
                             </td>
@@ -1492,12 +1492,12 @@ export default function RequisitionsPage() {
                         );
                       })}
                     </tbody>
-                    <tfoot className="bg-gray-50/80 border-t-2 border-gray-200">
+                    <tfoot className="bg-gray-50/80 border-t-2 border-sky-100/90">
                       <tr>
                         <td colSpan={4} className="py-3.5 px-4 text-right font-bold text-gray-700 uppercase tracking-wider">
                           Estimated Grand Total
                         </td>
-                        <td className="py-3.5 px-4 text-right font-black text-base text-primary-700 tabular-nums">
+                        <td className="py-3.5 px-4 text-right font-black text-base text-sky-700 tabular-nums">
                           {fmt((viewReq.items || []).reduce((s, i) => s + Number(i.qty) * Number(i.estUnitPrice), 0))}
                         </td>
                       </tr>
@@ -1508,7 +1508,7 @@ export default function RequisitionsPage() {
 
               {/* Linked Purchase Orders (if any) */}
               {viewReq.purchaseOrders && viewReq.purchaseOrders.length > 0 && (
-                <div className="rounded-2xl border border-indigo-200 bg-indigo-50/40 p-4">
+                <div className="rounded-sm border border-indigo-200 bg-indigo-50/40 p-4">
                   <p className="text-xs font-bold text-indigo-900 flex items-center gap-2">
                     <ShoppingCart size={15} /> Generated Purchase Orders ({viewReq.purchaseOrders.length})
                   </p>
@@ -1517,7 +1517,7 @@ export default function RequisitionsPage() {
                       <Link
                         key={po.id}
                         href="/purchasing/orders"
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-white px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-sm hover:bg-indigo-50"
+                        className="inline-flex items-center gap-1.5 rounded-sm border border-indigo-200 bg-white px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-2xs hover:bg-indigo-50"
                       >
                         <FileText size={13} /> {po.poNo} · {fmt(Number(po.total))}
                       </Link>
@@ -1528,13 +1528,13 @@ export default function RequisitionsPage() {
             </div>
 
             {/* Footer Action Controls */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-3xl no-print">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-sky-100/70 bg-gray-50/80 p-5 sm:px-7 rounded-b-3xl no-print">
               <div className="flex items-center gap-2">
                 {viewReq.status === "DRAFT" && (
                   <button
                     onClick={() => { act(viewReq.id, "submit", "Submitted PR for approval"); setViewReq(null); }}
                     disabled={!!busy}
-                    className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition"
+                    className="flex items-center gap-2 rounded-sm bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-blue-700 transition"
                   >
                     <Send size={14} /> Submit for Approval
                   </button>
@@ -1544,13 +1544,13 @@ export default function RequisitionsPage() {
                     <button
                       onClick={() => { act(viewReq.id, "approve", "Approved Requisition"); setViewReq(null); }}
                       disabled={!!busy}
-                      className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition"
+                      className="flex items-center gap-2 rounded-sm bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-emerald-700 transition"
                     >
                       <CheckCircle size={14} /> Approve Requisition
                     </button>
                     <button
                       onClick={() => { setRejectingReq(viewReq); setViewReq(null); }}
-                      className="flex items-center gap-2 rounded-xl bg-rose-50 border border-rose-200 px-4 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 transition"
+                      className="flex items-center gap-2 rounded-sm bg-rose-50 border border-rose-200 px-4 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 transition"
                     >
                       <XCircle size={14} /> Reject
                     </button>
@@ -1559,7 +1559,7 @@ export default function RequisitionsPage() {
                 {viewReq.status === "APPROVED" && (
                   <button
                     onClick={() => { openConvert(viewReq); setViewReq(null); }}
-                    className="flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-primary-700 transition"
+                    className="flex items-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-primary-700 transition"
                   >
                     <ShoppingCart size={14} /> Convert to Purchase Order
                   </button>
@@ -1568,7 +1568,7 @@ export default function RequisitionsPage() {
 
               <button
                 onClick={() => setViewReq(null)}
-                className="rounded-xl bg-gray-900 px-6 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-gray-800 transition"
+                className="rounded-sm bg-gray-900 px-6 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-gray-800 transition"
               >
                 Close Slip
               </button>

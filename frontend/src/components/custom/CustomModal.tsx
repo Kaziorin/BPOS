@@ -5,11 +5,13 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 export interface CustomModalProps {
-  open: boolean;
+  open?: boolean;
+  isOpen?: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
   size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "full";
+  maxWidth?: string;
   className?: string;
   darkMode?: boolean;
 }
@@ -28,8 +30,9 @@ const sizeClasses: Record<string, string> = {
   full: "max-w-[95vw]",
 };
 
-export function CustomModal({ open, onClose, title, children, size = "md", className, darkMode = false }: CustomModalProps) {
-  if (!open) return null;
+export function CustomModal({ open, isOpen, onClose, title, children, size = "md", maxWidth, className, darkMode = false }: CustomModalProps) {
+  const isModalOpen = open ?? isOpen ?? false;
+  if (!isModalOpen) return null;
 
   return (
     <div
@@ -40,7 +43,7 @@ export function CustomModal({ open, onClose, title, children, size = "md", class
         onClick={(e) => e.stopPropagation()}
         className={cn(
           "w-full rounded-sm shadow-2xl animate-[scale-in_180ms_ease-out] flex flex-col max-h-[90vh] overflow-hidden",
-          sizeClasses[size] ?? "max-w-md",
+          maxWidth ?? sizeClasses[size] ?? "max-w-md",
           darkMode ? "bg-slate-900 border border-slate-800" : "bg-white border border-sky-200/90",
           className
         )}

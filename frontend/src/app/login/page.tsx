@@ -40,10 +40,10 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#738496] via-[#8fa3b5] to-[#687a8b] px-4 py-8">
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#0c4a6e] via-[#0369a1] to-[#0284c7] px-4 py-8">
       {/* ── Center White Radial Spotlight Glow ── */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.45)_0%,transparent_60%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25)_0%,transparent_65%)]"
         aria-hidden
       />
 
@@ -119,15 +119,15 @@ export default function LoginPage() {
       <div className="relative z-10 flex flex-col items-center max-w-[420px] w-full">
         <form
           onSubmit={formik.handleSubmit}
-          className="relative w-full rounded-lg border border-white/80 bg-white/92 backdrop-blur-2xl pt-7 sm:pt-8 px-7 sm:px-8 pb-4 sm:pb-5 shadow-[0_25px_60px_rgba(0,0,0,0.18)] space-y-4 transition-all"
+          className="relative w-full rounded-sm border border-sky-100/90 bg-white/95 backdrop-blur-2xl pt-7 sm:pt-8 px-7 sm:px-8 pb-4 sm:pb-5 shadow-2xl space-y-4 transition-all"
         >
           {/* Brand Logo & Header */}
           <div className="flex flex-col items-center text-center pb-1">
-            <div className="flex h-13 w-13 items-center justify-center rounded-md bg-[#00c9b7]/15 text-[#12a597] shadow-inner mb-2.5">
+            <div className="flex h-13 w-13 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-white shadow-md mb-2.5">
               <Store size={26} />
             </div>
-            <h1 className="text-lg font-bold tracking-tight text-slate-700">Blue Oceans POS</h1>
-            <h2 className="mt-1 text-xs font-semibold text-gray-600">Sign In</h2>
+            <h1 className="text-lg font-bold tracking-tight text-slate-800">Blue Oceans POS</h1>
+            <h2 className="mt-1 text-xs font-semibold text-sky-800">Sign In to Workspace</h2>
           </div>
 
           <div className="space-y-3.5">
@@ -136,7 +136,7 @@ export default function LoginPage() {
               name="email"
               type="email"
               darkMode={false}
-              rounded="md"
+              rounded="sm"
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -150,7 +150,7 @@ export default function LoginPage() {
               name="password"
               type={showPassword ? "text" : "password"}
               darkMode={false}
-              rounded="md"
+              rounded="sm"
               value={formik.values.password}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -176,21 +176,21 @@ export default function LoginPage() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-[#14a397] accent-[#14a397] focus:ring-[#14a397] cursor-pointer shadow-2xs"
+                  className="w-4 h-4 rounded-xs border-sky-300 text-[#0284C7] accent-[#0284C7] focus:ring-[#0284C7] cursor-pointer shadow-2xs"
                 />
                 <span>Remember me</span>
               </label>
 
               <button
                 type="button"
-                className="text-xs font-medium text-[#12a597] hover:underline"
+                className="text-xs font-medium text-[#0284C7] hover:text-[#0369A1] hover:underline"
               >
                 Forgot password?
               </button>
             </div>
 
             {error && (
-              <div className="rounded-md border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-600 text-center">
+              <div className="rounded-sm border border-rose-200 bg-rose-50 p-3 text-xs font-medium text-rose-600 text-center">
                 {error}
               </div>
             )}
@@ -201,16 +201,16 @@ export default function LoginPage() {
               size="lg"
               fullWidth
               loading={formik.isSubmitting}
-              className="mt-1 text-sm font-semibold rounded-md bg-gradient-to-r from-[#14a397] via-[#1bb5a9] to-[#25c4b8] hover:opacity-95 text-white shadow-md shadow-[#14a397]/25 border-0 py-3"
+              className="mt-1 text-sm font-semibold rounded-sm py-3"
             >
               {formik.isSubmitting ? "Authenticating..." : "Sign In"}
             </CustomButton>
           </div>
 
           {/* Copyright text inside card with compact bottom padding & slightly larger text */}
-          <div className="pt-2 mt-1.5 border-t border-slate-100/90 text-center">
-            <p className="text-xs font-semibold text-gray-600 tracking-wide">
-              © Blue Oceans {currentYear}. All rights reserved. Support
+          <div className="pt-2 mt-1.5 border-t border-sky-100 text-center">
+            <p className="text-xs font-semibold text-gray-500 tracking-wide">
+              © Blue Oceans {currentYear}. All rights reserved.
             </p>
           </div>
         </form>

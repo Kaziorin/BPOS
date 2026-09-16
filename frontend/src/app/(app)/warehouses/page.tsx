@@ -304,7 +304,7 @@ export default function WarehousesPage() {
       </div>
 
       {/* Warehouses Table */}
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xs">
+      <div className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
@@ -551,7 +551,7 @@ export default function WarehousesPage() {
                   <div className="space-y-6 max-h-[65vh] overflow-y-auto pr-2">
                     {locationData?.hierarchy && locationData.hierarchy.length > 0 ? (
                       locationData.hierarchy.map((row) => (
-                        <div key={row.rowCode} className="rounded-2xl border border-gray-200 bg-gray-50/70 p-5 shadow-xs">
+                        <div key={row.rowCode} className="rounded-sm border border-gray-200 bg-gray-50/70 p-5 shadow-xs">
                           {/* Row Header */}
                           <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-gray-200/80">
                             <div className="flex items-center gap-2.5">
@@ -657,7 +657,7 @@ export default function WarehousesPage() {
                         </div>
                       ))
                     ) : (
-                      <div className="rounded-2xl border-2 border-dashed border-gray-200 py-16 text-center bg-gray-50/50">
+                      <div className="rounded-sm border-2 border-dashed border-gray-200 py-16 text-center bg-gray-50/50">
                         <Layers size={40} className="mx-auto text-gray-300 mb-3" />
                         <h3 className="text-sm font-bold text-gray-800">No Bin Locations configured yet</h3>
                         <p className="text-xs text-gray-500 max-w-md mx-auto mt-1 mb-5">

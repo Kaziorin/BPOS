@@ -35,6 +35,8 @@ import {
   ArrowUpRight
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
 import {
   UniversalInvoiceModal,
   type InvoiceData,
@@ -180,8 +182,8 @@ export default function SalesPage() {
       case "grocery": return { label: "Grocery", bg: "bg-lime-50 text-lime-700 border-lime-200" };
       case "wholesale": return { label: "Wholesale", bg: "bg-purple-50 text-purple-700 border-purple-200" };
       case "salon": return { label: "Salon", bg: "bg-pink-50 text-pink-700 border-pink-200" };
-      case "repair": return { label: "Repair", bg: "bg-sky-50 text-sky-700 border-sky-200" };
-      default: return { label: "Retail POS", bg: "bg-primary-50 text-primary-700 border-primary-200" };
+      case "repair": return { label: "Repair", bg: "bg-sky-50 text-[#0369A1] border-sky-200" };
+      default: return { label: "Retail POS", bg: "bg-sky-50 text-[#0284C7] border-sky-200/80" };
     }
   };
 
@@ -301,59 +303,65 @@ export default function SalesPage() {
     <div className="space-y-5 w-full px-4 sm:px-8 pb-12">
       
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200/70 pb-4">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-            <ShoppingCart size={22} className="text-primary-600" />
-            Sales & Invoice Management
-          </h1>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Centralized sales transactions, omnichannel invoices, cash collection & receivables directory.
-          </p>
-        </div>
+      <CustomBreadcrumb
+        title="Sales & Invoice Management"
+        subtitle="Centralized sales transactions, omnichannel invoices, cash collection & receivables directory."
+        icon={<ShoppingCart size={20} />}
+        breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Sales" }]}
+        actions={
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link href="/sales/quotations">
+              <CustomButton
+                variant="outline"
+                size="sm"
+                className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50"
+              >
+                <FileText size={14} className="text-[#0284C7]" />
+                Quotations
+              </CustomButton>
+            </Link>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <Link
-            href="/sales/quotations"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 transition"
-          >
-            <FileText size={14} className="text-gray-500" />
-            Quotations
-          </Link>
+            <Link href="/invoices/collection">
+              <CustomButton
+                variant="outline"
+                size="sm"
+                className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50"
+              >
+                <CreditCard size={14} className="text-[#0284C7]" />
+                Due Collection
+              </CustomButton>
+            </Link>
 
-          <Link
-            href="/invoices/collection"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 transition"
-          >
-            <CreditCard size={14} className="text-gray-500" />
-            Due Collection
-          </Link>
+            <CustomButton
+              variant="outline"
+              size="sm"
+              onClick={exportCSV}
+              className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50"
+            >
+              <Download size={14} className="text-[#0284C7]" />
+              Export CSV
+            </CustomButton>
 
-          <button
-            onClick={exportCSV}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 transition"
-          >
-            <Download size={14} className="text-gray-500" />
-            Export CSV
-          </button>
-
-          <Link
-            href="/retail-pos"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-primary-700 transition"
-          >
-            <Store size={14} />
-            Open POS
-          </Link>
-        </div>
-      </div>
+            <Link href="/retail-pos">
+              <CustomButton
+                variant="primary"
+                size="sm"
+              >
+                <Store size={14} />
+                Open POS
+              </CustomButton>
+            </Link>
+          </div>
+        }
+      />
 
       {/* ── KPI Analytics Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* Total Sales Revenue */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300/80 transition">
           <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Total Sales Revenue</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#0369A1]">Total Sales Revenue</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80">
               <TrendingUp size={16} />
             </div>
           </div>
@@ -371,10 +379,10 @@ export default function SalesPage() {
         </div>
 
         {/* Collected Revenue */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300/80 transition">
           <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-medium uppercase tracking-wider text-emerald-700">Collected Revenue</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Collected Revenue</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-50 text-emerald-600 border border-emerald-200/80">
               <DollarSign size={16} />
             </div>
           </div>
@@ -397,17 +405,17 @@ export default function SalesPage() {
             setSelectedVertical(selectedVertical === "WITH_DUE" ? "ALL" : "WITH_DUE");
             setPage(1);
           }}
-          className={`rounded-xl border p-4 shadow-xs transition cursor-pointer ${
+          className={`rounded-sm border p-4 shadow-xs transition cursor-pointer ${
             selectedVertical === "WITH_DUE"
               ? "border-rose-500 bg-rose-50/40 ring-1 ring-rose-500/20"
-              : "border-gray-200 bg-white hover:border-rose-300"
+              : "border-sky-100/90 bg-white hover:border-rose-300"
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-rose-700 flex items-center gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-rose-700 flex items-center gap-1">
               <AlertTriangle size={13} /> Outstanding Due
             </span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-50 text-rose-600 border border-rose-200/80">
               <CreditCard size={16} />
             </div>
           </div>
@@ -422,10 +430,10 @@ export default function SalesPage() {
         </div>
 
         {/* Average Order Value */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300/80 transition">
           <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Avg Order Value (AOV)</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#0369A1]">Avg Order Value (AOV)</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-amber-50 text-amber-600 border border-amber-200/80">
               <CheckCircle2 size={16} />
             </div>
           </div>
@@ -441,7 +449,7 @@ export default function SalesPage() {
       </div>
 
       {/* ── Channel Segment Navigation Tabs ── */}
-      <div className="flex items-center gap-1.5 overflow-x-auto border-b border-gray-200 pb-2 scrollbar-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto border-b border-sky-100/90 pb-2 scrollbar-none">
         {VERTICAL_TABS.map((tab) => {
           const isActive = selectedVertical === tab.key;
           const Icon = tab.icon;
@@ -452,16 +460,16 @@ export default function SalesPage() {
                 setSelectedVertical(tab.key);
                 setPage(1);
               }}
-              className={`flex items-center gap-1.5 shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+              className={`flex items-center gap-1.5 shrink-0 rounded-sm px-3 py-1.5 text-xs font-medium transition ${
                 isActive
-                  ? "bg-primary-600 text-white shadow-xs font-semibold"
-                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs font-semibold"
+                  : "bg-white text-gray-600 border border-sky-100/90 hover:bg-sky-50/60 hover:text-gray-900"
               }`}
             >
-              <Icon size={13} className={isActive ? "text-white" : "text-gray-400"} />
+              <Icon size={13} className={isActive ? "text-white" : "text-[#0284C7]"} />
               <span>{tab.label}</span>
               {tab.isDue && totalWithDueCount > 0 && (
-                <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                <span className={`rounded-sm px-1.5 py-0.2 text-[10px] font-bold ${
                   isActive ? "bg-white/20 text-white" : "bg-rose-100 text-rose-700"
                 }`}>
                   {totalWithDueCount}
@@ -473,7 +481,7 @@ export default function SalesPage() {
       </div>
 
       {/* ── Filter & Search Toolbar ── */}
-      <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="rounded-sm border border-sky-100/90 bg-white p-3 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Search Input */}
         <div className="relative w-full md:w-80">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -485,7 +493,7 @@ export default function SalesPage() {
               setSearchQuery(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-lg border border-gray-300 py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 transition"
+            className="w-full rounded-sm border border-sky-200/90 py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition"
           />
           {searchQuery && (
             <button
@@ -505,7 +513,7 @@ export default function SalesPage() {
               setPaymentStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
           >
             <option value="">All Payment Status</option>
             <option value="PAID">Paid in Full</option>
@@ -519,7 +527,7 @@ export default function SalesPage() {
               setSortBy(e.target.value);
               setPage(1);
             }}
-            className="rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
           >
             <option value="date">Date & Time</option>
             <option value="total">Total Amount</option>
@@ -529,24 +537,24 @@ export default function SalesPage() {
 
           <button
             onClick={() => setSortDir((prev) => (prev === "asc" ? "desc" : "asc"))}
-            className="rounded-lg border border-gray-300 p-1.5 text-gray-600 hover:bg-gray-50 transition"
+            className="rounded-sm border border-sky-200/90 p-1.5 text-[#0369A1] hover:bg-sky-50 transition"
             title={`Sort Direction: ${sortDir.toUpperCase()}`}
           >
             <ArrowUpDown size={14} />
           </button>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center rounded-lg border border-gray-200 p-0.5 bg-gray-50">
+          <div className="flex items-center rounded-sm border border-sky-200/90 p-0.5 bg-sky-50/40">
             <button
               onClick={() => setViewMode("table")}
-              className={`rounded p-1 transition ${viewMode === "table" ? "bg-white text-primary-600 shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-xs p-1 transition ${viewMode === "table" ? "bg-white text-[#0284C7] shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
               title="Table View"
             >
               <LayoutList size={14} />
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`rounded p-1 transition ${viewMode === "grid" ? "bg-white text-primary-600 shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-xs p-1 transition ${viewMode === "grid" ? "bg-white text-[#0284C7] shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
               title="Grid View"
             >
               <LayoutGrid size={14} />
@@ -555,23 +563,23 @@ export default function SalesPage() {
 
           <button
             onClick={loadSales}
-            className="rounded-lg border border-gray-300 p-1.5 text-gray-600 hover:bg-gray-50 transition"
+            className="rounded-sm border border-sky-200/90 p-1.5 text-[#0369A1] hover:bg-sky-50 transition"
             title="Refresh List"
           >
-            <RefreshCw size={14} className={loading ? "animate-spin text-primary-600" : ""} />
+            <RefreshCw size={14} className={loading ? "animate-spin text-[#0284C7]" : ""} />
           </button>
         </div>
       </div>
 
       {/* ── Sales Transactions Data List ── */}
       {loading ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-xs">
-          <RefreshCw size={24} className="mx-auto animate-spin text-primary-600 mb-2" />
-          <p className="text-xs font-semibold text-gray-700">Loading sales transactions...</p>
+        <div className="rounded-sm border border-sky-100/90 bg-white p-12 text-center shadow-xs">
+          <RefreshCw size={24} className="mx-auto animate-spin text-[#0284C7] mb-2" />
+          <p className="text-xs font-semibold text-[#0369A1]">Loading sales transactions...</p>
         </div>
       ) : paginatedSales.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 bg-white p-12 text-center shadow-xs">
-          <ShoppingCart size={32} className="mx-auto text-gray-300 mb-3" />
+        <div className="rounded-sm border-2 border-dashed border-sky-200/70 bg-white p-12 text-center shadow-xs">
+          <ShoppingCart size={32} className="mx-auto text-sky-300 mb-3" />
           <h3 className="text-sm font-bold text-gray-900">No Sales Invoices Found</h3>
           <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
             {searchQuery || selectedVertical !== "ALL" || paymentStatusFilter
@@ -580,33 +588,37 @@ export default function SalesPage() {
           </p>
           <div className="mt-4 flex items-center justify-center gap-2">
             {(searchQuery || selectedVertical !== "ALL" || paymentStatusFilter) && (
-              <button
+              <CustomButton
+                variant="outline"
+                size="sm"
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedVertical("ALL");
                   setPaymentStatusFilter("");
                   setPage(1);
                 }}
-                className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                className="border-sky-200/90 text-[#0369A1]"
               >
                 Clear Filters
-              </button>
+              </CustomButton>
             )}
-            <Link
-              href="/retail-pos"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-primary-700"
-            >
-              <Store size={14} /> Open POS Checkout
+            <Link href="/retail-pos">
+              <CustomButton
+                variant="primary"
+                size="sm"
+              >
+                <Store size={14} /> Open POS Checkout
+              </CustomButton>
             </Link>
           </div>
         </div>
       ) : viewMode === "table" ? (
         /* ── CLEAN ENTERPRISE TABLE VIEW ── */
-        <div className="rounded-xl border border-gray-200 bg-white shadow-xs overflow-hidden">
+        <div className="rounded-sm border border-sky-100/90 bg-white shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-50/75 text-[11px] font-semibold uppercase tracking-wider text-gray-600">
+                <tr className="border-b border-sky-100/90 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 text-[11px] font-semibold uppercase tracking-wider text-[#0369A1]">
                   <th className="px-4 py-3">Invoice & Channel</th>
                   <th className="px-3 py-3">Customer</th>
                   <th className="px-3 py-3">Date & Time</th>
@@ -617,7 +629,7 @@ export default function SalesPage() {
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-sky-100/60">
                 {paginatedSales.map((s) => {
                   const vert = getSaleVertical(s);
                   const vertBadge = getVerticalBadge(vert);
@@ -627,24 +639,24 @@ export default function SalesPage() {
                   const isDue = due > 0;
 
                   return (
-                    <tr key={s.id || s.invoiceNo} className="hover:bg-gray-50/70 transition-colors">
+                    <tr key={s.id || s.invoiceNo} className="hover:bg-sky-50/40 transition-colors">
                       {/* Invoice No & Channel */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
                           <button
                             onClick={() => handleOpenInvoice(s)}
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700 border border-primary-200/50 text-xs font-bold hover:bg-primary-100 transition"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 text-xs font-bold hover:bg-sky-100 transition"
                           >
                             <FileText size={14} />
                           </button>
                           <div>
                             <button
                               onClick={() => handleOpenInvoice(s)}
-                              className="font-bold text-gray-900 hover:text-primary-600 text-left transition block"
+                              className="font-bold text-gray-900 hover:text-[#0284C7] text-left transition block"
                             >
                               {s.invoiceNo}
                             </button>
-                            <span className={`inline-flex items-center rounded-full border px-2 py-0.2 text-[9px] font-semibold mt-0.5 ${vertBadge.bg}`}>
+                            <span className={`inline-flex items-center rounded-sm border px-2 py-0.2 text-[9px] font-semibold mt-0.5 ${vertBadge.bg}`}>
                               {vertBadge.label}
                             </span>
                           </div>
@@ -657,14 +669,14 @@ export default function SalesPage() {
                           <p className="font-semibold text-gray-800">{s.customer?.name || "Walk-in Customer"}</p>
                           {s.customer?.phone ? (
                             <div className="flex items-center gap-1.5 text-[11px] text-gray-500 mt-0.5">
-                              <a href={`tel:${s.customer.phone}`} className="hover:text-primary-600 transition">
+                              <a href={`tel:${s.customer.phone}`} className="hover:text-[#0284C7] transition">
                                 {s.customer.phone}
                               </a>
                               <a
                                 href={`https://wa.me/${s.customer.phone.replace(/[^0-9]/g, "")}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-block text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1 rounded hover:bg-emerald-100 transition"
+                                className="inline-block text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1 rounded-sm hover:bg-emerald-100 transition"
                                 title="WhatsApp"
                               >
                                 WA
@@ -726,7 +738,7 @@ export default function SalesPage() {
 
                       {/* Payment Status */}
                       <td className="px-3 py-3 text-center">
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        <span className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-semibold ${
                           s.paymentStatus === "PAID" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" :
                           s.paymentStatus === "PARTIAL" ? "bg-amber-50 text-amber-700 border border-amber-100" :
                           "bg-rose-50 text-rose-700 border border-rose-100"
@@ -744,7 +756,7 @@ export default function SalesPage() {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => handleOpenInvoice(s)}
-                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
                             title="Preview Invoice"
                           >
                             <Eye size={14} />
@@ -752,7 +764,7 @@ export default function SalesPage() {
 
                           <button
                             onClick={() => handleOpenInvoice(s)}
-                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-primary-600 transition"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
                             title="Print Invoice"
                           >
                             <Printer size={14} />
@@ -763,7 +775,7 @@ export default function SalesPage() {
                               href={`https://wa.me/${s.customer.phone.replace(/[^0-9]/g, "")}?text=Dear%20${encodeURIComponent(s.customer.name || "Customer")},%20your%20invoice%20${s.invoiceNo}%20total%20is%20Tk%20${s.total}.%20Thank%20you.`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="rounded p-1 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600 transition"
+                              className="rounded-sm p-1 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600 transition"
                               title="Share on WhatsApp"
                             >
                               <MessageSquare size={14} />
@@ -792,14 +804,14 @@ export default function SalesPage() {
             return (
               <div
                 key={s.id || s.invoiceNo}
-                className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition flex flex-col justify-between"
+                className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300 transition flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <h3
                         onClick={() => handleOpenInvoice(s)}
-                        className="font-bold text-gray-900 hover:text-primary-600 cursor-pointer transition text-xs"
+                        className="font-bold text-gray-900 hover:text-[#0284C7] cursor-pointer transition text-xs"
                       >
                         {s.invoiceNo}
                       </h3>
@@ -808,22 +820,22 @@ export default function SalesPage() {
                       </p>
                     </div>
 
-                    <span className={`inline-flex items-center rounded-full border px-2 py-0.2 text-[9px] font-semibold ${vertBadge.bg}`}>
+                    <span className={`inline-flex items-center rounded-sm border px-2 py-0.2 text-[9px] font-semibold ${vertBadge.bg}`}>
                       {vertBadge.label}
                     </span>
                   </div>
 
                   {/* 3-Col Financial Breakdown */}
-                  <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-gray-100 text-center">
-                    <div className="rounded bg-gray-50 p-1.5">
+                  <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-sky-100/80 text-center">
+                    <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Total</p>
                       <p className="text-xs font-bold text-gray-900">৳{total.toLocaleString()}</p>
                     </div>
-                    <div className="rounded bg-gray-50 p-1.5">
+                    <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Paid</p>
                       <p className="text-xs font-bold text-emerald-600">৳{paid.toLocaleString()}</p>
                     </div>
-                    <div className="rounded bg-gray-50 p-1.5">
+                    <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Due</p>
                       <p className={`text-xs font-bold ${isDue ? "text-rose-600" : "text-gray-600"}`}>
                         ৳{due.toLocaleString()}
@@ -833,8 +845,8 @@ export default function SalesPage() {
                 </div>
 
                 {/* Card Action Footer */}
-                <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between">
-                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                <div className="mt-3 pt-2.5 border-t border-sky-100/80 flex items-center justify-between">
+                  <span className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-semibold ${
                     s.paymentStatus === "PAID" ? "bg-emerald-50 text-emerald-700" :
                     s.paymentStatus === "PARTIAL" ? "bg-amber-50 text-amber-700" : "bg-rose-50 text-rose-700"
                   }`}>
@@ -845,14 +857,14 @@ export default function SalesPage() {
                     {isDue && s.customer && (
                       <button
                         onClick={() => handleOpenCollectDue(s)}
-                        className="rounded bg-rose-50 text-rose-700 px-2 py-0.5 text-[11px] font-semibold hover:bg-rose-100"
+                        className="rounded-sm bg-rose-50 text-rose-700 border border-rose-200/60 px-2 py-0.5 text-[11px] font-semibold hover:bg-rose-100 transition"
                       >
                         Collect Due
                       </button>
                     )}
                     <button
                       onClick={() => handleOpenInvoice(s)}
-                      className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
                       title="View Invoice"
                     >
                       <Eye size={14} />
@@ -867,7 +879,7 @@ export default function SalesPage() {
 
       {/* ── Pagination Footer ── */}
       {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-xs">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-sm border border-sky-100/90 bg-white p-3 shadow-xs">
           <p className="text-xs text-gray-500">
             Showing <span className="font-semibold text-gray-800">{(page - 1) * perPage + 1}</span> -{" "}
             <span className="font-semibold text-gray-800">
@@ -883,7 +895,7 @@ export default function SalesPage() {
                 setPerPage(Number(e.target.value));
                 setPage(1);
               }}
-              className="rounded-lg border border-gray-300 px-2 py-1 text-xs text-gray-700 focus:outline-none"
+              className="rounded-sm border border-sky-200/90 px-2 py-1 text-xs text-gray-700 focus:outline-none"
             >
               <option value="10">10 / page</option>
               <option value="20">20 / page</option>
@@ -894,19 +906,19 @@ export default function SalesPage() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+              className="flex items-center gap-1 rounded-sm border border-sky-200/90 px-2.5 py-1 text-xs font-medium text-[#0369A1] hover:bg-sky-50 disabled:opacity-40 transition"
             >
               <ChevronLeft size={13} /> Prev
             </button>
 
-            <span className="text-xs text-gray-600 font-medium px-1">
+            <span className="text-xs text-[#0369A1] font-medium px-1">
               Page {page} / {totalPages}
             </span>
 
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+              className="flex items-center gap-1 rounded-sm border border-sky-200/90 px-2.5 py-1 text-xs font-medium text-[#0369A1] hover:bg-sky-50 disabled:opacity-40 transition"
             >
               Next <ChevronRight size={13} />
             </button>

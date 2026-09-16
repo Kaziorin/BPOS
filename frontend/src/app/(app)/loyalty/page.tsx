@@ -32,7 +32,7 @@ const TIER_COLORS: Record<string, string> = {
   BRONZE: "bg-orange-50 text-orange-700 border-orange-200",
   SILVER: "bg-slate-100 text-slate-600 border-slate-300",
   GOLD: "bg-yellow-50 text-yellow-700 border-yellow-300",
-  VIP: "bg-violet-50 text-violet-700 border-violet-300",
+  VIP: "bg-violet-50 text-sky-700 border-violet-300",
 };
 
 export default function LoyaltyPage() {
@@ -261,34 +261,31 @@ export default function LoyaltyPage() {
 
   return (
     <div className="space-y-8 p-1">
-      {message && <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-5 py-4 text-base font-semibold text-emerald-700 shadow">{message}</div>}
+      {message && <div className="rounded-sm border border-emerald-500/40 bg-emerald-500/10 px-5 py-4 text-base font-semibold text-emerald-700 shadow">{message}</div>}
 
-      {/* ── Premium Header Banner ── */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950 via-violet-900 to-purple-950 p-8 shadow-2xl border border-violet-500/20">
-        {/* Background blobs */}
-        <div className="pointer-events-none absolute -top-20 -right-20 h-72 w-72 rounded-full bg-violet-600/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-indigo-600/20 blur-3xl" />
+      {/* ── Blue Ocean Header Banner ── */}
+      <div className="relative overflow-hidden rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] p-6 shadow-2xs border border-sky-200/70">
         <div className="relative flex flex-wrap items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 border border-white/20 shadow-inner backdrop-blur-md">
-              <Star className="h-9 w-9 text-yellow-300 drop-shadow-[0_0_12px_rgba(253,224,71,0.8)]" />
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-white/15 border border-white/30 shadow-inner">
+              <Star className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md">Loyalty / Wallet / Gift Cards</h1>
-              <p className="mt-1.5 text-base text-violet-300/80">Points, tiers, digital wallets and gift cards — every movement on a full ledger</p>
+              <h1 className="text-2xl font-extrabold text-white tracking-tight">Customer Loyalty, Wallets & Gift Cards</h1>
+              <p className="mt-1 text-xs sm:text-sm text-white/90">Points, membership tiers, digital customer wallets, and gift vouchers</p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             {tab === "loyalty" && (<>
-              <button onClick={() => setShowSettings(true)} className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-bold text-white backdrop-blur-md hover:bg-white/20 transition-all shadow">
-                <Coins size={16} /> Earn Rules
+              <button onClick={() => setShowSettings(true)} className="flex items-center gap-2 rounded-sm border border-white/30 bg-white/15 px-4 py-2 text-xs font-bold text-white hover:bg-white/25 transition-all shadow-2xs">
+                <Coins size={14} /> Earn Rules
               </button>
-              <button onClick={() => { setTierForm({ name: "", code: "", minPoints: "", multiplier: "1.0", cashbackRate: "0", benefits: "", color: "amber" }); setShowTier(true); }} className="flex items-center gap-2 rounded-xl bg-violet-500 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-violet-500/40 hover:bg-violet-400 transition-all border border-violet-400/30">
-                <Plus size={16} /> New Tier
+              <button onClick={() => { setTierForm({ name: "", code: "", minPoints: "", multiplier: "1.0", cashbackRate: "0", benefits: "", color: "amber" }); setShowTier(true); }} className="flex items-center gap-2 rounded-sm bg-white text-sky-700 px-4 py-2 text-xs font-bold shadow-2xs hover:bg-sky-50 transition-all">
+                <Plus size={14} /> New Tier
               </button>
             </>)}
-            {tab === "gift" && <button onClick={() => { loadCustomers(); setGcForm({ cardNo: "", cardType: "DIGITAL", initialAmount: "", expiryDate: "", issuedToCustomerId: "" }); setShowGc(true); }} className="flex items-center gap-2 rounded-xl bg-violet-500 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-violet-500/40 hover:bg-violet-400 transition-all border border-violet-400/30">
-              <Plus size={16} /> Issue Gift Card
+            {tab === "gift" && <button onClick={() => { loadCustomers(); setGcForm({ cardNo: "", cardType: "DIGITAL", initialAmount: "", expiryDate: "", issuedToCustomerId: "" }); setShowGc(true); }} className="flex items-center gap-2 rounded-sm bg-white text-sky-700 px-4 py-2 text-xs font-bold shadow-2xs hover:bg-sky-50 transition-all">
+              <Plus size={14} /> Issue Gift Card
             </button>}
           </div>
         </div>
@@ -300,26 +297,26 @@ export default function LoyaltyPage() {
           { label: "Total Members", value: accounts.length, icon: Users, gradient: "from-blue-50 to-slate-50", border: "border-blue-100", iconColor: "text-blue-400", textColor: "text-slate-800" },
           { label: "Points in Circulation", value: totalPoints.toLocaleString(), icon: Coins, gradient: "from-amber-50 to-orange-50", border: "border-amber-100", iconColor: "text-amber-400", textColor: "text-amber-700" },
           { label: "Wallet Balance", value: currency(walletTotal), icon: WalletIcon, gradient: "from-emerald-50 to-teal-50", border: "border-emerald-100", iconColor: "text-emerald-400", textColor: "text-emerald-700" },
-          { label: "Gift Cards Active", value: currency(gcBalance), icon: Gift, gradient: "from-violet-50 to-purple-50", border: "border-violet-100", iconColor: "text-violet-400", textColor: "text-violet-700" },
+          { label: "Gift Cards Active", value: currency(gcBalance), icon: Gift, gradient: "from-violet-50 to-purple-50", border: "border-violet-100", iconColor: "text-violet-400", textColor: "text-sky-700" },
         ].map(({ label, value, icon: Icon, gradient, border, iconColor, textColor }) => (
-          <div key={label} className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-6 border ${border} shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}>
+          <div key={label} className={`group relative overflow-hidden rounded-sm bg-gradient-to-br ${gradient} p-6 border ${border} shadow-2xs hover:shadow-2xs hover:-translate-y-1 transition-all duration-300`}>
             <div className="absolute right-3 top-3 opacity-15 group-hover:opacity-25 group-hover:scale-110 transition-all duration-500">
               <Icon size={72} className={iconColor} />
             </div>
             <p className={`text-xs font-bold uppercase tracking-widest ${iconColor} opacity-80`}>{label}</p>
-            <p className={`mt-3 text-4xl font-black ${textColor} leading-none drop-shadow-sm`}>{value}</p>
+            <p className={`mt-3 text-4xl font-black ${textColor} leading-none drop-shadow-2xs`}>{value}</p>
           </div>
         ))}
       </div>
 
       {/* ── Tabs ── */}
-      <div className="flex gap-1.5 rounded-2xl bg-slate-100/80 p-1.5">
+      <div className="flex gap-1.5 rounded-sm bg-sky-50/70 border border-sky-100/90 p-1.5">
         {([["loyalty", "Points & Tiers", Star], ["wallet", "Wallet", WalletIcon], ["gift", "Gift Cards", Gift]] as [Tab, string, any][]).map(([id, label, Icon]) => (
           <button key={id} onClick={() => setTab(id)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-all ${tab === id
-              ? "bg-white text-violet-700 shadow-md shadow-violet-100 border border-violet-100"
-              : "text-slate-500 hover:text-slate-700 hover:bg-white/60"}`}>
-            <Icon size={16} /> {label}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-sm px-5 py-2.5 text-xs font-bold transition-all ${tab === id
+              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs"
+              : "text-slate-600 hover:text-sky-700 hover:bg-white/80"}`}>
+            <Icon size={14} /> {label}
           </button>
         ))}
       </div>
@@ -340,12 +337,12 @@ export default function LoyaltyPage() {
                 ? { g: "from-violet-500 to-purple-600", badge: "bg-violet-100 text-violet-800 border-violet-300", glow: "shadow-violet-200" }
                 : { g: "from-slate-500 to-gray-600", badge: "bg-gray-100 text-gray-700 border-gray-300", glow: "shadow-gray-200" };
               return (
-                <div key={t.id} className={`relative overflow-hidden rounded-2xl border border-white/30 shadow-xl ${cfg.glow} hover:-translate-y-1.5 transition-all duration-300 group`}>
+                <div key={t.id} className={`relative overflow-hidden rounded-sm border border-white/30 shadow-2xs ${cfg.glow} hover:-translate-y-1.5 transition-all duration-300 group`}>
                   {/* Colored top strip */}
                   <div className={`h-2 w-full bg-gradient-to-r ${cfg.g}`} />
                   <div className="bg-white p-5">
                     <div className="flex items-center justify-between">
-                      <span className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1 text-xs font-black uppercase tracking-widest ${cfg.badge}`}>
+                      <span className={`inline-flex items-center gap-1.5 rounded-sm border px-3 py-1 text-xs font-black uppercase tracking-widest ${cfg.badge}`}>
                         <Crown size={11} /> {t.name}
                       </span>
                       <button onClick={() => toggleTier(t)} title={t.isActive ? "Deactivate" : "Activate"}
@@ -355,11 +352,11 @@ export default function LoyaltyPage() {
                     </div>
                     <p className="mt-3 text-sm font-medium text-slate-600 leading-snug min-h-[32px]">{t.benefits || "—"}</p>
                     <div className="mt-3 grid grid-cols-2 gap-2">
-                      <div className="rounded-lg bg-slate-50 p-2.5 text-center border border-slate-100">
+                      <div className="rounded-sm bg-slate-50 p-2.5 text-center border border-sky-100/70">
                         <p className="text-[10px] font-bold uppercase text-slate-400">Min Points</p>
                         <p className="text-base font-black text-slate-700 mt-0.5">{t.minPoints.toLocaleString()}</p>
                       </div>
-                      <div className="rounded-lg bg-slate-50 p-2.5 text-center border border-slate-100">
+                      <div className="rounded-sm bg-slate-50 p-2.5 text-center border border-sky-100/70">
                         <p className="text-[10px] font-bold uppercase text-slate-400">Multiplier</p>
                         <p className="text-base font-black text-slate-700 mt-0.5">{t.multiplier}×</p>
                       </div>
@@ -368,11 +365,11 @@ export default function LoyaltyPage() {
                     {/* Edit / Delete buttons — appear on hover */}
                     <div className="mt-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <button onClick={() => openEditTier(t)}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 py-1.5 text-xs font-bold text-slate-600 hover:bg-violet-50 hover:border-violet-200 hover:text-violet-700 transition-all">
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-sm border border-sky-100/90 bg-slate-50 py-1.5 text-xs font-bold text-slate-600 hover:bg-violet-50 hover:border-violet-200 hover:text-sky-700 transition-all">
                         <Pencil size={12} /> Edit
                       </button>
                       <button onClick={() => deleteTier(t)}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 py-1.5 text-xs font-bold text-slate-600 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 transition-all">
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-sm border border-sky-100/90 bg-slate-50 py-1.5 text-xs font-bold text-slate-600 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 transition-all">
                         <Trash2 size={12} /> Delete
                       </button>
                     </div>
@@ -387,18 +384,18 @@ export default function LoyaltyPage() {
             <div className="relative flex-1 min-w-[200px] max-w-sm">
               <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input value={accSearch} onChange={(e) => setAccSearch(e.target.value)} placeholder="Search customer…"
-                className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm font-medium outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all shadow-sm" />
+                className="h-11 w-full rounded-sm border border-sky-100/90 bg-white pl-11 pr-4 text-sm font-medium outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all shadow-2xs" />
             </div>
-            <button onClick={() => loadLoyalty()} className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-violet-700 shadow-sm transition-all">
+            <button onClick={() => loadLoyalty()} className="flex h-11 items-center gap-2 rounded-sm border border-sky-100/90 bg-white px-5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-sky-700 shadow-2xs transition-all">
               <RefreshCw size={15} /> Refresh
             </button>
           </div>
 
           {/* Loyalty table */}
-          <div className="overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-xl shadow-slate-100">
+          <div className="overflow-x-auto rounded-sm border border-sky-100/70 bg-white shadow-2xs shadow-slate-100">
             <table className="w-full">
               <thead>
-                <tr className="border-b-2 border-slate-100 bg-slate-50/70">
+                <tr className="border-b-2 border-sky-100/70 bg-slate-50/70">
                   <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Customer</th>
                   <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Tier</th>
                   <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Points</th>
@@ -417,7 +414,7 @@ export default function LoyaltyPage() {
                         <p className="text-xs text-slate-400 font-medium mt-0.5">{a.phone || ""}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1 text-xs font-black uppercase tracking-wide ${color}`}><Crown size={10} /> {a.tier}</span>
+                        <span className={`inline-flex items-center gap-1.5 rounded-sm border px-3 py-1 text-xs font-black uppercase tracking-wide ${color}`}><Crown size={10} /> {a.tier}</span>
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-xl font-black text-amber-600">{a.pointsBalance?.toLocaleString() ?? 0}</span>
@@ -427,9 +424,9 @@ export default function LoyaltyPage() {
                       <td className="px-6 py-4 text-base font-semibold text-slate-600">{a.lifetimeRedeemed?.toLocaleString() ?? 0}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
-                          <button onClick={() => { setEarnAcc(a); setEarnAmount(""); }} className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-600 shadow-sm transition-all">+ Earn</button>
-                          <button onClick={() => { setRedeemAcc(a); setRedeemPts(""); }} className="rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-white hover:bg-amber-600 shadow-sm transition-all">Redeem</button>
-                          <button onClick={() => openLedger(a)} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 shadow-sm transition-all">Ledger</button>
+                          <button onClick={() => { setEarnAcc(a); setEarnAmount(""); }} className="rounded-sm bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-600 shadow-2xs transition-all">+ Earn</button>
+                          <button onClick={() => { setRedeemAcc(a); setRedeemPts(""); }} className="rounded-sm bg-amber-500 px-4 py-2 text-xs font-bold text-white hover:bg-amber-600 shadow-2xs transition-all">Redeem</button>
+                          <button onClick={() => openLedger(a)} className="rounded-sm border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 shadow-2xs transition-all">Ledger</button>
                         </div>
                       </td>
                     </tr>
@@ -451,16 +448,16 @@ export default function LoyaltyPage() {
             <div className="relative flex-1 min-w-[200px] max-w-sm">
               <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input value={walSearch} onChange={(e) => setWalSearch(e.target.value)} placeholder="Search customer…"
-                className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm font-medium outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all shadow-sm" />
+                className="h-11 w-full rounded-sm border border-sky-100/90 bg-white pl-11 pr-4 text-sm font-medium outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all shadow-2xs" />
             </div>
-            <button onClick={() => loadWallets()} className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-violet-700 shadow-sm transition-all">
+            <button onClick={() => loadWallets()} className="flex h-11 items-center gap-2 rounded-sm border border-sky-100/90 bg-white px-5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-sky-700 shadow-2xs transition-all">
               <RefreshCw size={15} /> Refresh
             </button>
           </div>
-          <div className="overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-xl shadow-slate-100">
+          <div className="overflow-x-auto rounded-sm border border-sky-100/70 bg-white shadow-2xs shadow-slate-100">
             <table className="w-full">
               <thead>
-                <tr className="border-b-2 border-slate-100 bg-slate-50/70">
+                <tr className="border-b-2 border-sky-100/70 bg-slate-50/70">
                   <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Customer</th>
                   <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Balance</th>
                   <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Lifetime Credited</th>
@@ -480,13 +477,13 @@ export default function LoyaltyPage() {
                     <td className="px-6 py-4 text-base font-semibold text-slate-600">{currency(w.lifetimeCredited)}</td>
                     <td className="px-6 py-4 text-base font-semibold text-slate-600">{currency(w.lifetimeDebited)}</td>
                     <td className="px-6 py-4">
-                      <span className={`rounded-lg px-3 py-1 text-xs font-bold ${w.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{w.status}</span>
+                      <span className={`rounded-sm px-3 py-1 text-xs font-bold ${w.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{w.status}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => { setWalTxModal({ mode: "credit", account: w }); setWalForm({ type: "ADD", amount: "", note: "" }); }} className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-600 shadow-sm transition-all">Credit</button>
-                        <button onClick={() => { setWalTxModal({ mode: "debit", account: w }); setWalForm({ type: "ADD", amount: "", note: "" }); }} className="rounded-xl bg-rose-500 px-4 py-2 text-xs font-bold text-white hover:bg-rose-600 shadow-sm transition-all">Debit</button>
-                        <button onClick={() => openWalletDetail(w)} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 shadow-sm transition-all">Ledger</button>
+                        <button onClick={() => { setWalTxModal({ mode: "credit", account: w }); setWalForm({ type: "ADD", amount: "", note: "" }); }} className="rounded-sm bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-600 shadow-2xs transition-all">Credit</button>
+                        <button onClick={() => { setWalTxModal({ mode: "debit", account: w }); setWalForm({ type: "ADD", amount: "", note: "" }); }} className="rounded-sm bg-rose-500 px-4 py-2 text-xs font-bold text-white hover:bg-rose-600 shadow-2xs transition-all">Debit</button>
+                        <button onClick={() => openWalletDetail(w)} className="rounded-sm border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 shadow-2xs transition-all">Ledger</button>
                       </div>
                     </td>
                   </tr>
@@ -505,16 +502,16 @@ export default function LoyaltyPage() {
             <div className="relative flex-1 min-w-[200px] max-w-sm">
               <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input value={gcSearch} onChange={(e) => setGcSearch(e.target.value)} placeholder="Search card no / holder…"
-                className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm font-medium outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all shadow-sm" />
+                className="h-11 w-full rounded-sm border border-sky-100/90 bg-white pl-11 pr-4 text-sm font-medium outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all shadow-2xs" />
             </div>
-            <button onClick={() => loadGiftCards()} className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-violet-700 shadow-sm transition-all">
+            <button onClick={() => loadGiftCards()} className="flex h-11 items-center gap-2 rounded-sm border border-sky-100/90 bg-white px-5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-sky-700 shadow-2xs transition-all">
               <RefreshCw size={15} /> Refresh
             </button>
           </div>
-          <div className="overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-xl shadow-slate-100">
+          <div className="overflow-x-auto rounded-sm border border-sky-100/70 bg-white shadow-2xs shadow-slate-100">
             <table className="w-full">
               <thead>
-                <tr className="border-b-2 border-slate-100 bg-slate-50/70">
+                <tr className="border-b-2 border-sky-100/70 bg-slate-50/70">
                   <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Card No</th>
                   <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Holder</th>
                   <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Initial</th>
@@ -533,16 +530,16 @@ export default function LoyaltyPage() {
                     </td>
                     <td className="px-6 py-4 text-base font-semibold text-slate-700">{g.issuedToName || "—"}</td>
                     <td className="px-6 py-4 text-base font-semibold text-slate-600">{currency(g.initialAmount)}</td>
-                    <td className="px-6 py-4"><span className="text-xl font-black text-violet-600">{currency(g.balance)}</span></td>
+                    <td className="px-6 py-4"><span className="text-xl font-black text-sky-600">{currency(g.balance)}</span></td>
                     <td className="px-6 py-4 text-sm font-semibold text-slate-600">{g.expiryDate ? new Date(g.expiryDate).toLocaleDateString("en-GB") : "—"}</td>
                     <td className="px-6 py-4">
-                      <span className={`rounded-lg px-3 py-1 text-xs font-bold ${g.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : g.status === "EXPIRED" ? "bg-slate-100 text-slate-500" : "bg-rose-100 text-rose-600"}`}>{g.status}</span>
+                      <span className={`rounded-sm px-3 py-1 text-xs font-bold ${g.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : g.status === "EXPIRED" ? "bg-slate-100 text-slate-500" : "bg-rose-100 text-rose-600"}`}>{g.status}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => { setGcTxModal({ mode: "redeem", card: g }); setGcTxForm({ amount: "" }); }} className="rounded-xl bg-violet-500 px-4 py-2 text-xs font-bold text-white hover:bg-violet-600 shadow-sm transition-all">Redeem</button>
-                        <button onClick={() => { setGcTxModal({ mode: "reload", card: g }); setGcTxForm({ amount: "" }); }} className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-600 shadow-sm transition-all">Reload</button>
-                        <button onClick={() => openGcDetail(g)} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 shadow-sm transition-all">History</button>
+                        <button onClick={() => { setGcTxModal({ mode: "redeem", card: g }); setGcTxForm({ amount: "" }); }} className="rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-bold text-white hover:bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] shadow-2xs transition-all">Redeem</button>
+                        <button onClick={() => { setGcTxModal({ mode: "reload", card: g }); setGcTxForm({ amount: "" }); }} className="rounded-sm bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-600 shadow-2xs transition-all">Reload</button>
+                        <button onClick={() => openGcDetail(g)} className="rounded-sm border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 shadow-2xs transition-all">History</button>
                       </div>
                     </td>
                   </tr>
@@ -575,15 +572,15 @@ export default function LoyaltyPage() {
             <label className="mb-1.5 block text-[15px] font-semibold text-gray-600">Benefits / Description</label>
             <textarea rows={3} value={tierForm.benefits} placeholder="e.g. Free delivery, priority support…"
               onChange={(e) => setTierForm({ ...tierForm, benefits: e.target.value })}
-              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
+              className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button onClick={() => setShowTier(false)}
-              className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+              className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
               Cancel
             </button>
             <button onClick={createTier}
-              className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-violet-500/30 hover:bg-violet-500 transition-all">
+              className="rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-violet-500/30 hover:bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] transition-all">
               Create Tier
             </button>
           </div>
@@ -612,15 +609,15 @@ export default function LoyaltyPage() {
               <label className="mb-1.5 block text-[15px] font-semibold text-gray-600">Benefits / Description</label>
               <textarea rows={3} value={editTierForm.benefits} placeholder="e.g. Free delivery, priority support…"
                 onChange={(e) => setEditTierForm({ ...editTierForm, benefits: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
+                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
             </div>
             <div className="flex justify-end gap-3 pt-2">
               <button onClick={() => setEditingTier(null)}
-                className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+                className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
                 Cancel
               </button>
               <button onClick={saveEditTier}
-                className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-violet-500/30 hover:bg-violet-500 transition-all">
+                className="rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-violet-500/30 hover:bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] transition-all">
                 Save Changes
               </button>
             </div>
@@ -631,7 +628,7 @@ export default function LoyaltyPage() {
       {/* ══════════ MODAL: Earn Rules (Settings) ══════════ */}
       <CustomModal open={showSettings} onClose={() => setShowSettings(false)} title="Loyalty Earn Rules & Settings" size="md">
         <div className="space-y-4">
-          <div className="rounded-xl bg-violet-50 border border-violet-100 p-4">
+          <div className="rounded-sm bg-violet-50 border border-violet-100 p-4">
             <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-1">Points Earning</p>
             <p className="text-xs text-slate-500">How many points a customer earns per ৳1 spent</p>
           </div>
@@ -642,14 +639,14 @@ export default function LoyaltyPage() {
               <label className="mb-1.5 block text-[13px] font-semibold text-gray-600">Points per ৳1 spent</label>
               <input type="number" step="0.01" value={settingsForm.pointsPerAmount ?? ""}
                 onChange={(e) => setSettingsForm({ ...settingsForm, pointsPerAmount: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
+                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
               <p className="mt-1 text-xs text-gray-400">e.g. 1 = 1 pt per ৳1</p>
             </div>
             <div>
               <label className="mb-1.5 block text-[13px] font-semibold text-gray-600">৳ value per point</label>
               <input type="number" step="0.01" value={settingsForm.redeemValuePerPoint ?? ""}
                 onChange={(e) => setSettingsForm({ ...settingsForm, redeemValuePerPoint: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
+                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
               <p className="mt-1 text-xs text-gray-400">e.g. 0.25 = ৳0.25/pt</p>
             </div>
           </div>
@@ -660,20 +657,20 @@ export default function LoyaltyPage() {
               <label className="mb-1.5 block text-[13px] font-semibold text-gray-600">Min points to redeem</label>
               <input type="number" value={settingsForm.minRedeemPoints ?? ""}
                 onChange={(e) => setSettingsForm({ ...settingsForm, minRedeemPoints: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
+                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
               <p className="mt-1 text-xs text-gray-400">Minimum to redeem</p>
             </div>
             <div>
               <label className="mb-1.5 block text-[13px] font-semibold text-gray-600">Points expiry (months)</label>
               <input type="number" value={settingsForm.expiryMonths ?? ""}
                 onChange={(e) => setSettingsForm({ ...settingsForm, expiryMonths: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
+                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
               <p className="mt-1 text-xs text-gray-400">0 = never expire</p>
             </div>
           </div>
 
           {/* Toggles */}
-          <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 flex flex-col gap-3">
+          <div className="rounded-sm border border-sky-100/70 bg-slate-50 p-4 flex flex-col gap-3">
             <label className="flex items-center justify-between cursor-pointer">
               <span className="text-sm font-semibold text-slate-700">Points Earning Enabled</span>
               <button type="button" onClick={() => setSettingsForm({ ...settingsForm, earnEnabled: !settingsForm.earnEnabled })}
@@ -681,7 +678,7 @@ export default function LoyaltyPage() {
                 <span className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-all ${settingsForm.earnEnabled ? "left-6" : "left-1"}`} />
               </button>
             </label>
-            <div className="border-t border-slate-200" />
+            <div className="border-t border-sky-100/90" />
             <label className="flex items-center justify-between cursor-pointer">
               <span className="text-sm font-semibold text-slate-700">Redemption Enabled</span>
               <button type="button" onClick={() => setSettingsForm({ ...settingsForm, redeemEnabled: !settingsForm.redeemEnabled })}
@@ -693,11 +690,11 @@ export default function LoyaltyPage() {
 
           <div className="flex justify-end gap-3 pt-1">
             <button onClick={() => setShowSettings(false)}
-              className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+              className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
               Cancel
             </button>
             <button onClick={saveSettings}
-              className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-violet-500/30 hover:bg-violet-500 transition-all">
+              className="rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-violet-500/30 hover:bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] transition-all">
               Save Settings
             </button>
           </div>
@@ -708,7 +705,7 @@ export default function LoyaltyPage() {
       <CustomModal open={!!earnAcc} onClose={() => setEarnAcc(null)} title="Earn Points" size="sm">
         {earnAcc && (
           <div className="space-y-4">
-            <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-4">
+            <div className="rounded-sm bg-emerald-50 border border-emerald-100 p-4">
               <p className="text-sm font-bold text-slate-700">{earnAcc.customerName}</p>
               <p className="text-xs text-slate-400 mt-0.5">{earnAcc.phone} · {earnAcc.pointsBalance?.toLocaleString()} pts current</p>
             </div>
@@ -716,9 +713,9 @@ export default function LoyaltyPage() {
               onChange={(e) => setEarnAmount(e.target.value)} hint="Points will be auto-calculated based on earn rules" />
             <div className="flex justify-end gap-3 pt-2">
               <button onClick={() => setEarnAcc(null)}
-                className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
+                className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
               <button onClick={earnPoints} disabled={!earnAmount}
-                className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-500 disabled:opacity-50 transition-all">
+                className="rounded-sm bg-emerald-600 px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-emerald-500/30 hover:bg-emerald-500 disabled:opacity-50 transition-all">
                 Earn Points
               </button>
             </div>
@@ -730,7 +727,7 @@ export default function LoyaltyPage() {
       <CustomModal open={!!redeemAcc} onClose={() => setRedeemAcc(null)} title="Redeem Points" size="sm">
         {redeemAcc && (
           <div className="space-y-4">
-            <div className="rounded-xl bg-amber-50 border border-amber-100 p-4">
+            <div className="rounded-sm bg-amber-50 border border-amber-100 p-4">
               <p className="text-sm font-bold text-slate-700">{redeemAcc.customerName}</p>
               <p className="text-xs text-slate-400 mt-0.5">{redeemAcc.phone} · <span className="font-semibold text-amber-600">{redeemAcc.pointsBalance?.toLocaleString()} pts available</span></p>
             </div>
@@ -738,9 +735,9 @@ export default function LoyaltyPage() {
               onChange={(e) => setRedeemPts(e.target.value)} hint="Discount value will be calculated from earn rules" />
             <div className="flex justify-end gap-3 pt-2">
               <button onClick={() => setRedeemAcc(null)}
-                className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
+                className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
               <button onClick={redeemPoints} disabled={!redeemPts}
-                className="rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-amber-500/30 hover:bg-amber-400 disabled:opacity-50 transition-all">
+                className="rounded-sm bg-amber-500 px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-amber-500/30 hover:bg-amber-400 disabled:opacity-50 transition-all">
                 Redeem
               </button>
             </div>
@@ -754,7 +751,7 @@ export default function LoyaltyPage() {
           <div className="space-y-3">
             {ledger.length === 0 && <p className="text-center text-sm text-slate-400 py-8">No transactions found.</p>}
             {ledger.map((row) => (
-              <div key={row.id} className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+              <div key={row.id} className="flex items-center justify-between rounded-sm border border-sky-100/70 bg-slate-50 px-4 py-3">
                 <div>
                   <p className="text-sm font-bold text-slate-700 capitalize">{row.type.replace(/_/g, " ")}</p>
                   {row.note && <p className="text-xs text-slate-400 mt-0.5">{row.note}</p>}
@@ -776,7 +773,7 @@ export default function LoyaltyPage() {
         title={walTxModal?.mode === "credit" ? "Credit Wallet" : "Debit Wallet"} size="sm">
         {walTxModal && (
           <div className="space-y-4">
-            <div className={`rounded-xl p-4 border ${walTxModal.mode === "credit" ? "bg-emerald-50 border-emerald-100" : "bg-rose-50 border-rose-100"}`}>
+            <div className={`rounded-sm p-4 border ${walTxModal.mode === "credit" ? "bg-emerald-50 border-emerald-100" : "bg-rose-50 border-rose-100"}`}>
               <p className="text-sm font-bold text-slate-700">{walTxModal.account.customerName}</p>
               <p className="text-xs text-slate-400 mt-0.5">Current balance: <span className="font-bold text-slate-600">{currency(walTxModal.account.balance)}</span></p>
             </div>
@@ -786,7 +783,7 @@ export default function LoyaltyPage() {
               <div>
                 <label className="mb-1.5 block text-[15px] font-semibold text-gray-600">Transaction Type</label>
                 <select value={walForm.type} onChange={(e) => setWalForm({ ...walForm, type: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100">
+                  className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100">
                   <option value="ADD">Add Funds</option>
                   <option value="CASHBACK">Cashback</option>
                   <option value="REFUND">Refund</option>
@@ -798,9 +795,9 @@ export default function LoyaltyPage() {
               onChange={(e) => setWalForm({ ...walForm, note: e.target.value })} />
             <div className="flex justify-end gap-3 pt-2">
               <button onClick={() => setWalTxModal(null)}
-                className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
+                className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
               <button onClick={walTxModal.mode === "credit" ? walletCredit : walletDebit} disabled={!walForm.amount}
-                className={`rounded-xl px-5 py-2.5 text-sm font-black text-white shadow-lg disabled:opacity-50 transition-all ${walTxModal.mode === "credit" ? "bg-emerald-600 shadow-emerald-500/30 hover:bg-emerald-500" : "bg-rose-500 shadow-rose-500/30 hover:bg-rose-400"}`}>
+                className={`rounded-sm px-5 py-2.5 text-sm font-black text-white shadow-2xs disabled:opacity-50 transition-all ${walTxModal.mode === "credit" ? "bg-emerald-600 shadow-emerald-500/30 hover:bg-emerald-500" : "bg-rose-500 shadow-rose-500/30 hover:bg-rose-400"}`}>
                 {walTxModal.mode === "credit" ? "Credit" : "Debit"}
               </button>
             </div>
@@ -814,22 +811,22 @@ export default function LoyaltyPage() {
         {walletDetail && (
           <div className="space-y-3">
             <div className="flex gap-4 mb-4">
-              <div className="rounded-xl bg-emerald-50 border border-emerald-100 px-5 py-3 text-center flex-1">
+              <div className="rounded-sm bg-emerald-50 border border-emerald-100 px-5 py-3 text-center flex-1">
                 <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Balance</p>
                 <p className="text-2xl font-black text-emerald-700 mt-1">{currency(walletDetail.balance)}</p>
               </div>
-              <div className="rounded-xl bg-slate-50 border border-slate-100 px-5 py-3 text-center flex-1">
+              <div className="rounded-sm bg-slate-50 border border-sky-100/70 px-5 py-3 text-center flex-1">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Credited</p>
                 <p className="text-2xl font-black text-slate-700 mt-1">{currency(walletDetail.lifetimeCredited)}</p>
               </div>
-              <div className="rounded-xl bg-rose-50 border border-rose-100 px-5 py-3 text-center flex-1">
+              <div className="rounded-sm bg-rose-50 border border-rose-100 px-5 py-3 text-center flex-1">
                 <p className="text-xs font-bold text-rose-400 uppercase tracking-widest">Total Debited</p>
                 <p className="text-2xl font-black text-rose-700 mt-1">{currency(walletDetail.lifetimeDebited)}</p>
               </div>
             </div>
             {(walletDetail.transactions ?? []).length === 0 && <p className="text-center text-sm text-slate-400 py-8">No transactions found.</p>}
             {(walletDetail.transactions ?? []).map((tx: any) => (
-              <div key={tx.id} className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+              <div key={tx.id} className="flex items-center justify-between rounded-sm border border-sky-100/70 bg-slate-50 px-4 py-3">
                 <div>
                   <p className="text-sm font-bold text-slate-700 capitalize">{tx.type?.replace(/_/g, " ")}</p>
                   {tx.note && <p className="text-xs text-slate-400 mt-0.5">{tx.note}</p>}
@@ -856,7 +853,7 @@ export default function LoyaltyPage() {
             <div>
               <label className="mb-1.5 block text-[15px] font-semibold text-gray-600">Card Type</label>
               <select value={gcForm.cardType} onChange={(e) => setGcForm({ ...gcForm, cardType: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100">
+                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100">
                 <option value="DIGITAL">Digital</option>
                 <option value="PHYSICAL">Physical</option>
               </select>
@@ -871,7 +868,7 @@ export default function LoyaltyPage() {
           <div>
             <label className="mb-1.5 block text-[15px] font-semibold text-gray-600">Issue to Customer (optional)</label>
             <select value={gcForm.issuedToCustomerId} onChange={(e) => setGcForm({ ...gcForm, issuedToCustomerId: e.target.value })}
-              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100">
+              className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100">
               <option value="">— Anonymous —</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}{c.phone ? ` (${c.phone})` : ""}</option>
@@ -880,9 +877,9 @@ export default function LoyaltyPage() {
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button onClick={() => setShowGc(false)}
-              className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
+              className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
             <button onClick={createGiftCard} disabled={!gcForm.initialAmount}
-              className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-violet-500/30 hover:bg-violet-500 disabled:opacity-50 transition-all">
+              className="rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-violet-500/30 hover:bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] disabled:opacity-50 transition-all">
               Issue Card
             </button>
           </div>
@@ -894,7 +891,7 @@ export default function LoyaltyPage() {
         title={gcTxModal?.mode === "redeem" ? "Redeem Gift Card" : "Reload Gift Card"} size="sm">
         {gcTxModal && (
           <div className="space-y-4">
-            <div className={`rounded-xl p-4 border ${gcTxModal.mode === "redeem" ? "bg-violet-50 border-violet-100" : "bg-emerald-50 border-emerald-100"}`}>
+            <div className={`rounded-sm p-4 border ${gcTxModal.mode === "redeem" ? "bg-violet-50 border-violet-100" : "bg-emerald-50 border-emerald-100"}`}>
               <p className="font-mono text-sm font-bold text-slate-700">{gcTxModal.card.cardNo}</p>
               <p className="text-xs text-slate-400 mt-0.5">Balance: <span className="font-bold text-slate-600">{currency(gcTxModal.card.balance)}</span></p>
             </div>
@@ -902,9 +899,9 @@ export default function LoyaltyPage() {
               onChange={(e) => setGcTxForm({ ...gcTxForm, amount: e.target.value })} />
             <div className="flex justify-end gap-3 pt-2">
               <button onClick={() => setGcTxModal(null)}
-                className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
+                className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
               <button onClick={gcTx} disabled={!gcTxForm.amount}
-                className={`rounded-xl px-5 py-2.5 text-sm font-black text-white shadow-lg disabled:opacity-50 transition-all ${gcTxModal.mode === "redeem" ? "bg-violet-600 shadow-violet-500/30 hover:bg-violet-500" : "bg-emerald-600 shadow-emerald-500/30 hover:bg-emerald-500"}`}>
+                className={`rounded-sm px-5 py-2.5 text-sm font-black text-white shadow-2xs disabled:opacity-50 transition-all ${gcTxModal.mode === "redeem" ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] shadow-violet-500/30 hover:bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8]" : "bg-emerald-600 shadow-emerald-500/30 hover:bg-emerald-500"}`}>
                 {gcTxModal.mode === "redeem" ? "Redeem" : "Reload"}
               </button>
             </div>
@@ -918,15 +915,15 @@ export default function LoyaltyPage() {
         {gcDetail && (
           <div className="space-y-3">
             <div className="flex gap-3 mb-4 flex-wrap">
-              <div className="rounded-xl bg-violet-50 border border-violet-100 px-5 py-3 text-center flex-1 min-w-[120px]">
+              <div className="rounded-sm bg-violet-50 border border-violet-100 px-5 py-3 text-center flex-1 min-w-[120px]">
                 <p className="text-xs font-bold text-violet-500 uppercase tracking-widest">Balance</p>
-                <p className="text-2xl font-black text-violet-700 mt-1">{currency(gcDetail.balance)}</p>
+                <p className="text-2xl font-black text-sky-700 mt-1">{currency(gcDetail.balance)}</p>
               </div>
-              <div className="rounded-xl bg-slate-50 border border-slate-100 px-5 py-3 text-center flex-1 min-w-[120px]">
+              <div className="rounded-sm bg-slate-50 border border-sky-100/70 px-5 py-3 text-center flex-1 min-w-[120px]">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Initial</p>
                 <p className="text-2xl font-black text-slate-700 mt-1">{currency(gcDetail.initialAmount)}</p>
               </div>
-              <div className={`rounded-xl px-5 py-3 text-center flex-1 min-w-[120px] border ${gcDetail.status === "ACTIVE" ? "bg-emerald-50 border-emerald-100" : "bg-rose-50 border-rose-100"}`}>
+              <div className={`rounded-sm px-5 py-3 text-center flex-1 min-w-[120px] border ${gcDetail.status === "ACTIVE" ? "bg-emerald-50 border-emerald-100" : "bg-rose-50 border-rose-100"}`}>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Status</p>
                 <p className={`text-lg font-black mt-1 ${gcDetail.status === "ACTIVE" ? "text-emerald-700" : "text-rose-600"}`}>{gcDetail.status}</p>
               </div>
@@ -934,14 +931,14 @@ export default function LoyaltyPage() {
             {gcDetail.status === "ACTIVE" && (
               <div className="flex justify-end pb-2">
                 <button onClick={() => disableGc(gcDetail)}
-                  className="flex items-center gap-2 rounded-xl bg-rose-500 px-4 py-2 text-xs font-bold text-white hover:bg-rose-600 shadow-sm transition-all">
+                  className="flex items-center gap-2 rounded-sm bg-rose-500 px-4 py-2 text-xs font-bold text-white hover:bg-rose-600 shadow-2xs transition-all">
                   <Ban size={13} /> Disable Card
                 </button>
               </div>
             )}
             {(gcDetail.transactions ?? []).length === 0 && <p className="text-center text-sm text-slate-400 py-8">No transactions found.</p>}
             {(gcDetail.transactions ?? []).map((tx: any) => (
-              <div key={tx.id} className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+              <div key={tx.id} className="flex items-center justify-between rounded-sm border border-sky-100/70 bg-slate-50 px-4 py-3">
                 <div>
                   <p className="text-sm font-bold text-slate-700 capitalize">{tx.type?.replace(/_/g, " ")}</p>
                   {tx.note && <p className="text-xs text-slate-400 mt-0.5">{tx.note}</p>}

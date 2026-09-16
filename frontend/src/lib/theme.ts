@@ -27,13 +27,13 @@ export interface GlobalThemeConfig {
 export const GLOBAL_THEMES: Record<GlobalThemeId, GlobalThemeConfig> = {
   "ocean-teal": {
     id: "ocean-teal",
-    name: "OmniPOS Teal (Default)",
-    subtitle: "Modern · Clean · Professional",
-    primaryHex: "#14B8A6",
-    secondaryHex: "#0EA5A0",
-    accentHex: "#6366F1",
-    previewBg: "from-teal-600 via-emerald-600 to-indigo-900",
-    description: "A perfect balance of trust and freshness, designed to work beautifully for all industries — Restaurant, Pharmacy, Grocery, Retail, Wholesale, Salon and more.",
+    name: "Blue Ocean (Default)",
+    subtitle: "Modern Ocean Azure · Clean",
+    primaryHex: "#0284C7",
+    secondaryHex: "#0369A1",
+    accentHex: "#38BDF8",
+    previewBg: "from-sky-600 via-blue-600 to-sky-900",
+    description: "Blue Ocean executive theme with vibrant ocean azure gradients, high readability, and clean modern card styling.",
   },
   retail: {
     id: "retail",

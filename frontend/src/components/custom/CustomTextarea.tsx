@@ -18,7 +18,7 @@ export const CustomTextarea = forwardRef<HTMLTextAreaElement, CustomTextareaProp
     return (
       <div className={cn("w-full", containerClassName)}>
         {label && (
-          <label htmlFor={textareaId} className="mb-1.5 block text-[15px] font-semibold text-gray-600 capitalize">
+          <label htmlFor={textareaId} className="mb-1.5 block text-xs font-semibold capitalize text-[#0369A1]">
             {label}
           </label>
         )}
@@ -27,9 +27,9 @@ export const CustomTextarea = forwardRef<HTMLTextAreaElement, CustomTextareaProp
           id={textareaId}
           rows={rows}
           className={cn(
-            "w-full resize-y rounded-lg border bg-white px-3 py-2 text-sm text-gray-900 outline-none transition placeholder:text-gray-400",
-            "focus:border-primary-500 focus:ring-2 focus:ring-primary-100",
-            error ? "border-red-300" : "border-gray-300",
+            "w-full resize-y rounded-sm border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 shadow-2xs",
+            "border-sky-200/90 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
+            error ? "border-red-400 focus:border-red-500" : "",
             className
           )}
           {...props}

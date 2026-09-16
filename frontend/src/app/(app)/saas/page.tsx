@@ -433,7 +433,7 @@ function SaaSContent() {
       />
 
       {/* ── Hero Executive Glow Banner ── */}
-      <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/20 text-white p-6 sm:p-8 shadow-xl">
+      <div className="relative overflow-hidden rounded-sm bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/20 text-white p-6 sm:p-8 shadow-xl">
         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-1/3 -mb-8 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -466,7 +466,7 @@ function SaaSContent() {
 
           {/* Banner Metric Gauges */}
           <div className="flex flex-wrap sm:flex-nowrap gap-3 shrink-0">
-            <div className="px-4 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md min-w-[130px]">
+            <div className="px-4 py-3 rounded-sm bg-white/5 border border-white/10 backdrop-blur-md min-w-[130px]">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Tenants</span>
               <div className="text-lg font-black text-white mt-0.5">
                 {overview?.totalTenants ?? platformTenants.length ?? 0}
@@ -476,7 +476,7 @@ function SaaSContent() {
               </span>
             </div>
 
-            <div className="px-4 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md min-w-[130px]">
+            <div className="px-4 py-3 rounded-sm bg-white/5 border border-white/10 backdrop-blur-md min-w-[130px]">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Platform Users</span>
               <div className="text-lg font-black text-indigo-300 mt-0.5">
                 {overview?.totalUsers ?? 48}
@@ -484,7 +484,7 @@ function SaaSContent() {
               <span className="text-[10px] text-slate-400 font-medium">Across Outlets</span>
             </div>
 
-            <div className="px-4 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md min-w-[140px]">
+            <div className="px-4 py-3 rounded-sm bg-white/5 border border-white/10 backdrop-blur-md min-w-[140px]">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Monthly MRR</span>
               <div className="text-lg font-black text-amber-300 mt-0.5">
                 {currency(overview?.monthlySubscriptionRevenue || 148500)}
@@ -496,7 +496,7 @@ function SaaSContent() {
       </div>
 
       {/* ── Segmented Master Tabs Navigation Bar ── */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-2 shadow-sm">
+      <div className="bg-white rounded-sm border border-sky-100/90 p-2 shadow-sm">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
           {TABS.map((tab) => {
             const Icon = tab.icon;
@@ -509,7 +509,7 @@ function SaaSContent() {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition whitespace-nowrap shrink-0",
                   isAct
-                    ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
+                    ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-md shadow-primary-500/20"
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 )}
               >
@@ -534,7 +534,7 @@ function SaaSContent() {
       {/* ── Master Tab Content Area ── */}
       <div className="space-y-6">
         {loading && (
-          <div className="flex flex-col items-center justify-center p-12 bg-white rounded-3xl border border-slate-200/80 shadow-2xs space-y-2">
+          <div className="flex flex-col items-center justify-center p-12 bg-white rounded-sm border border-sky-100/90 shadow-2xs space-y-2">
             <RefreshCw size={24} className="animate-spin text-primary-600" />
             <span className="text-xs font-bold text-slate-500">Loading SaaS platform data...</span>
           </div>
@@ -549,7 +549,7 @@ function SaaSContent() {
               <div className="space-y-6 text-xs animate-in fade-in">
                 {/* 4 Stat Cards Row 1 */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
+                  <div className="p-4 rounded-sm bg-white border border-sky-100/90 shadow-2xs space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Total Tenants</span>
                       <Building2 size={16} className="text-slate-400" />
@@ -558,7 +558,7 @@ function SaaSContent() {
                     <span className="text-[11px] text-slate-500">Registered SaaS clients</span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 shadow-2xs space-y-1">
+                  <div className="p-4 rounded-sm bg-emerald-50/60 border border-emerald-200/80 shadow-2xs space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold text-emerald-800 uppercase">Active Subscriptions</span>
                       <CheckCircle2 size={16} className="text-emerald-600" />
@@ -567,7 +567,7 @@ function SaaSContent() {
                     <span className="text-[11px] text-emerald-700">In good standing</span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 shadow-2xs space-y-1">
+                  <div className="p-4 rounded-sm bg-amber-50/60 border border-amber-200/80 shadow-2xs space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold text-amber-800 uppercase">Free Trial Period</span>
                       <Zap size={16} className="text-amber-600" />
@@ -576,7 +576,7 @@ function SaaSContent() {
                     <span className="text-[11px] text-amber-700">14-day evaluations</span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-rose-50/60 border border-rose-200/80 shadow-2xs space-y-1">
+                  <div className="p-4 rounded-sm bg-rose-50/60 border border-rose-200/80 shadow-2xs space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold text-rose-800 uppercase">Suspended / Past Due</span>
                       <XCircle size={16} className="text-rose-600" />
@@ -588,7 +588,7 @@ function SaaSContent() {
 
                 {/* 4 Stat Cards Row 2 */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
+                  <div className="p-4 rounded-sm bg-white border border-sky-100/90 shadow-2xs space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Total Users</span>
                       <Users size={16} className="text-slate-400" />
@@ -597,7 +597,7 @@ function SaaSContent() {
                     <span className="text-[11px] text-slate-500">Active credentials</span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
+                  <div className="p-4 rounded-sm bg-white border border-sky-100/90 shadow-2xs space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Total Outlets</span>
                       <Building2 size={16} className="text-slate-400" />
@@ -606,7 +606,7 @@ function SaaSContent() {
                     <span className="text-[11px] text-slate-500">Physical store locations</span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
+                  <div className="p-4 rounded-sm bg-white border border-sky-100/90 shadow-2xs space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Today's Sales Volume</span>
                       <BarChart3 size={16} className="text-primary-600" />
@@ -615,7 +615,7 @@ function SaaSContent() {
                     <span className="text-[11px] text-slate-500">Completed POS tickets</span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200/80 shadow-2xs space-y-1">
+                  <div className="p-4 rounded-sm bg-indigo-50/60 border border-indigo-200/80 shadow-2xs space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold text-indigo-800 uppercase">Monthly Platform MRR</span>
                       <CreditCard size={16} className="text-indigo-600" />
@@ -626,7 +626,7 @@ function SaaSContent() {
                 </div>
 
                 {/* Tenants Directory Table */}
-                <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs space-y-4">
+                <div className="bg-white rounded-sm border border-sky-100/90 p-6 shadow-2xs space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                       <h3 className="text-base font-black text-slate-900">Tenant Client Directory</h3>
@@ -641,14 +641,14 @@ function SaaSContent() {
                           value={tenantSearch}
                           onChange={(e) => setTenantSearch(e.target.value)}
                           placeholder="Search tenants..."
-                          className="pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-primary-500 bg-slate-50"
+                          className="pl-8 pr-3 py-1.5 rounded-xl border border-sky-100/90 text-xs font-semibold focus:outline-none focus:border-primary-500 bg-slate-50"
                         />
                       </div>
 
                       <select
                         value={tenantStatusFilter}
                         onChange={(e) => setTenantStatusFilter(e.target.value)}
-                        className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold focus:outline-none bg-slate-50"
+                        className="px-3 py-1.5 rounded-xl border border-sky-100/90 text-xs font-bold focus:outline-none bg-slate-50"
                       >
                         <option value="ALL">All Statuses</option>
                         <option value="ACTIVE">Active</option>
@@ -658,10 +658,10 @@ function SaaSContent() {
                     </div>
                   </div>
 
-                  <div className="overflow-x-auto border border-slate-200/80 rounded-2xl">
+                  <div className="overflow-x-auto border border-sky-100/90 rounded-sm">
                     <table className="w-full text-xs">
                       <thead>
-                        <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-left font-bold">
+                        <tr className="bg-slate-50 border-b border-sky-100/90 text-slate-600 text-left font-bold">
                           <th className="py-3 px-4">Tenant Name</th>
                           <th className="py-3 px-4">Status</th>
                           <th className="py-3 px-4">Industry Vertical</th>
@@ -688,7 +688,7 @@ function SaaSContent() {
                                     ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                     : t.status === "TRIAL"
                                     ? "bg-amber-50 text-amber-700 border-amber-200"
-                                    : "bg-slate-100 text-slate-700 border-slate-200"
+                                    : "bg-slate-100 text-slate-700 border-sky-100/90"
                                 )}
                               >
                                 {t.status}
@@ -731,7 +731,7 @@ function SaaSContent() {
                   {plans.map((p: any) => (
                     <div
                       key={p.id}
-                      className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition space-y-5 flex flex-col justify-between"
+                      className="bg-white rounded-sm border border-sky-100/90 p-6 shadow-sm hover:shadow-md transition space-y-5 flex flex-col justify-between"
                     >
                       <div className="space-y-4">
                         <div className="flex justify-between items-start">
@@ -746,7 +746,7 @@ function SaaSContent() {
                           </span>
                         </div>
 
-                        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+                        <div className="p-4 rounded-sm bg-slate-50 border border-slate-100 space-y-1.5">
                           <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-black text-slate-900">{currency(p.monthlyPrice)}</span>
                             <span className="text-slate-400 text-xs">/month</span>
@@ -794,7 +794,7 @@ function SaaSContent() {
                   ))}
 
                   {plans.length === 0 && (
-                    <div className="col-span-3 p-12 bg-white rounded-3xl border border-slate-200 text-center text-slate-400">
+                    <div className="col-span-3 p-12 bg-white rounded-sm border border-sky-100/90 text-center text-slate-400">
                       No commercial plans found.
                     </div>
                   )}
@@ -806,10 +806,10 @@ function SaaSContent() {
             {/* 3. CURRENT TENANT SUBSCRIPTION                                  */}
             {/* ═══════════════════════════════════════════════════════════════ */}
             {activeTab === "subscription" && (
-              <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-2xs space-y-6 text-xs animate-in fade-in">
+              <div className="bg-white rounded-sm border border-sky-100/90 p-6 sm:p-8 shadow-2xs space-y-6 text-xs animate-in fade-in">
                 {subscription ? (
                   <div className="space-y-6">
-                    <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 text-white">
+                    <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-sm bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 text-white">
                       <div>
                         <span className="text-[10px] font-bold text-primary-400 uppercase tracking-widest">Active Plan</span>
                         <h3 className="text-2xl font-black">{subscription.planName || "Enterprise Pro Plan"}</h3>
@@ -831,28 +831,28 @@ function SaaSContent() {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div className="p-4 rounded-sm bg-slate-50 border border-sky-100/90 space-y-1">
                         <span className="text-[10px] font-bold text-slate-400 uppercase">Billing Period Start</span>
                         <p className="text-sm font-bold text-slate-800 font-mono">
                           {subscription.currentPeriodStart?.split("T")[0] || "2026-09-01"}
                         </p>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div className="p-4 rounded-sm bg-slate-50 border border-sky-100/90 space-y-1">
                         <span className="text-[10px] font-bold text-slate-400 uppercase">Next Renewal Date</span>
                         <p className="text-sm font-bold text-slate-800 font-mono">
                           {subscription.currentPeriodEnd?.split("T")[0] || "2026-10-01"}
                         </p>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div className="p-4 rounded-sm bg-slate-50 border border-sky-100/90 space-y-1">
                         <span className="text-[10px] font-bold text-slate-400 uppercase">Trial Expiration</span>
                         <p className="text-sm font-bold text-slate-800 font-mono">
                           {subscription.trialEndsAt?.split("T")[0] || "N/A (Subscribed)"}
                         </p>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                      <div className="p-4 rounded-sm bg-slate-50 border border-sky-100/90 space-y-1">
                         <span className="text-[10px] font-bold text-slate-400 uppercase">Payment Method</span>
                         <p className="text-sm font-bold text-slate-800 font-mono">
                           Direct Bank / Card POS
@@ -884,7 +884,7 @@ function SaaSContent() {
                     { label: "Product SKUs", current: usage?.products || 148, limit: usage?.limits?.maxProducts || 5000, icon: Database },
                     { label: "Total Sales", current: usage?.transactions || 42, limit: "∞", icon: Activity },
                   ].map((gauge, i) => (
-                    <div key={i} className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-2">
+                    <div key={i} className="p-4 rounded-sm bg-white border border-sky-100/90 shadow-2xs space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-bold uppercase text-slate-400">{gauge.label}</span>
                         <gauge.icon size={14} className="text-slate-400" />
@@ -899,7 +899,7 @@ function SaaSContent() {
 
                 {/* Warning Card */}
                 {(usage?.warnings?.length || 0) > 0 && (
-                  <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center gap-3">
+                  <div className="p-4 rounded-sm bg-amber-50 border border-amber-200 text-amber-900 flex items-center gap-3">
                     <AlertTriangle size={18} className="text-amber-600 shrink-0" />
                     <div>
                       <h4 className="font-bold text-xs">Approaching Quota Limits</h4>
@@ -916,7 +916,7 @@ function SaaSContent() {
             {/* 5. FEATURE FLAGS                                                */}
             {/* ═══════════════════════════════════════════════════════════════ */}
             {activeTab === "features" && (
-              <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs space-y-4 text-xs animate-in fade-in">
+              <div className="bg-white rounded-sm border border-sky-100/90 p-6 shadow-2xs space-y-4 text-xs animate-in fade-in">
                 <div>
                   <h3 className="text-base font-black text-slate-900">Dynamic Feature Flags</h3>
                   <p className="text-slate-500 text-[11px]">Enable or disable vertical engines and platform modules in real-time</p>
@@ -927,8 +927,8 @@ function SaaSContent() {
                     <div
                       key={f.moduleCode}
                       className={cn(
-                        "p-4 rounded-2xl border transition flex items-center justify-between gap-4",
-                        f.isEnabled ? "border-emerald-200 bg-emerald-50/30" : "border-slate-200 bg-slate-50/40"
+                        "p-4 rounded-sm border transition flex items-center justify-between gap-4",
+                        f.isEnabled ? "border-emerald-200 bg-emerald-50/30" : "border-sky-100/90 bg-slate-50/40"
                       )}
                     >
                       <div>
@@ -968,7 +968,7 @@ function SaaSContent() {
             {activeTab === "fields" && (
               <div className="space-y-6 text-xs animate-in fade-in">
                 {/* Entity Selector Pills */}
-                <div className="flex gap-2 flex-wrap bg-white p-3 rounded-2xl border border-slate-200/80 shadow-2xs">
+                <div className="flex gap-2 flex-wrap bg-white p-3 rounded-sm border border-sky-100/90 shadow-2xs">
                   {ENTITY_TYPES.map((et) => (
                     <button
                       key={et.value}
@@ -976,7 +976,7 @@ function SaaSContent() {
                       className={cn(
                         "px-3.5 py-1.5 rounded-xl text-xs font-bold transition",
                         selectedEntityType === et.value
-                          ? "bg-primary-600 text-white shadow-xs"
+                          ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-xs"
                           : "text-slate-600 hover:bg-slate-100"
                       )}
                     >
@@ -986,7 +986,7 @@ function SaaSContent() {
                 </div>
 
                 {/* Entity Fields Grid */}
-                <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs space-y-4">
+                <div className="bg-white rounded-sm border border-sky-100/90 p-6 shadow-2xs space-y-4">
                   <div className="flex justify-between items-center">
                     <div>
                       <h4 className="text-base font-black text-slate-900">{selectedEntityType} Custom Attributes</h4>
@@ -1009,7 +1009,7 @@ function SaaSContent() {
                       .map((f: any) => (
                         <div
                           key={f.id}
-                          className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/60 flex items-center justify-between"
+                          className="p-3.5 rounded-sm border border-sky-100/90 bg-slate-50/60 flex items-center justify-between"
                         >
                           <div>
                             <div className="flex items-center gap-1.5">
@@ -1048,7 +1048,7 @@ function SaaSContent() {
                   {forms.map((f: any) => (
                     <div
                       key={f.id}
-                      className="p-5 rounded-3xl bg-white border border-slate-200/80 shadow-2xs space-y-3"
+                      className="p-5 rounded-sm bg-white border border-sky-100/90 shadow-2xs space-y-3"
                     >
                       <div className="flex items-start justify-between">
                         <div>
@@ -1079,7 +1079,7 @@ function SaaSContent() {
                   ))}
 
                   {forms.length === 0 && (
-                    <div className="col-span-2 p-12 bg-white rounded-3xl border border-slate-200 text-center text-slate-400">
+                    <div className="col-span-2 p-12 bg-white rounded-sm border border-sky-100/90 text-center text-slate-400">
                       No custom form templates created yet.
                     </div>
                   )}
@@ -1096,7 +1096,7 @@ function SaaSContent() {
                   {health.map((h: any) => (
                     <div
                       key={h.id || h.checkType}
-                      className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between"
+                      className="p-4 rounded-sm bg-white border border-sky-100/90 shadow-2xs flex items-center justify-between"
                     >
                       <div className="flex items-center gap-3">
                         {h.status === "OK" ? (
@@ -1130,7 +1130,7 @@ function SaaSContent() {
                   ))}
 
                   {health.length === 0 && (
-                    <div className="col-span-2 p-8 text-center text-slate-400 bg-white rounded-3xl border border-slate-200">
+                    <div className="col-span-2 p-8 text-center text-slate-400 bg-white rounded-sm border border-sky-100/90">
                       No health diagnostics run yet. Click "Run Health Diagnostic" above.
                     </div>
                   )}
@@ -1147,7 +1147,7 @@ function SaaSContent() {
                   {tickets.map((t: any) => (
                     <div
                       key={t.id}
-                      className="p-5 rounded-3xl bg-white border border-slate-200/80 shadow-2xs space-y-3"
+                      className="p-5 rounded-sm bg-white border border-sky-100/90 shadow-2xs space-y-3"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-1">
@@ -1169,7 +1169,7 @@ function SaaSContent() {
                                   ? "bg-rose-50 text-rose-700 border-rose-200"
                                   : t.priority === "HIGH"
                                   ? "bg-amber-50 text-amber-700 border-amber-200"
-                                  : "bg-slate-100 text-slate-600 border-slate-200"
+                                  : "bg-slate-100 text-slate-600 border-sky-100/90"
                               )}
                             >
                               {t.priority}
@@ -1193,7 +1193,7 @@ function SaaSContent() {
                   ))}
 
                   {tickets.length === 0 && (
-                    <div className="col-span-2 p-12 bg-white rounded-3xl border border-slate-200 text-center text-slate-400">
+                    <div className="col-span-2 p-12 bg-white rounded-sm border border-sky-100/90 text-center text-slate-400">
                       No support tickets open.
                     </div>
                   )}
@@ -1320,7 +1320,7 @@ function SaaSContent() {
             <textarea
               value={newTicketDescription}
               onChange={(e) => setNewTicketDescription(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60 text-xs"
+              className="w-full rounded-xl border border-sky-100/90 px-3.5 py-2.5 font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60 text-xs"
               rows={3}
               placeholder="Describe what occurred, steps to reproduce, or requested assistance..."
               required

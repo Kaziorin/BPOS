@@ -126,7 +126,7 @@ export const STATUS_CONFIG: Record<
   },
   CANCELLED: {
     label: "Cancelled / Withdrawn",
-    badgeCls: "bg-slate-100 text-slate-600 border-slate-200",
+    badgeCls: "bg-slate-100 text-slate-600 border-sky-100/90",
     borderCls: "border-slate-300",
     dotCls: "bg-slate-400",
     icon: Ban,
@@ -342,7 +342,7 @@ export default function ApprovalCenter({
     <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
       <button
         onClick={() => openDetail(row)}
-        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 hover:text-primary-700 transition"
+        className="inline-flex items-center gap-1 rounded-lg border border-sky-100/90 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 hover:text-primary-700 transition"
       >
         <Eye size={12} /> View
       </button>
@@ -382,7 +382,7 @@ export default function ApprovalCenter({
               setComment("");
             }}
             title="Cancel / Withdraw"
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-500 shadow-xs hover:bg-slate-200 transition"
+            className="inline-flex items-center gap-1 rounded-lg border border-sky-100/90 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-500 shadow-xs hover:bg-slate-200 transition"
           >
             <Ban size={12} />
           </button>
@@ -445,7 +445,7 @@ export default function ApprovalCenter({
             size="sm"
             onClick={sweepTimeouts}
             disabled={sweeping}
-            className="border-slate-200 bg-white hover:bg-slate-50 shadow-xs"
+            className="border-sky-100/90 bg-white hover:bg-slate-50 shadow-xs"
           >
             {sweeping ? <Loader2 size={13} className="animate-spin" /> : <Clock size={13} className="text-amber-600" />}
             <span>Sweep Timeouts</span>
@@ -456,7 +456,7 @@ export default function ApprovalCenter({
             size="sm"
             onClick={load}
             disabled={loading}
-            className="border-slate-200 bg-white hover:bg-slate-50 shadow-xs"
+            className="border-sky-100/90 bg-white hover:bg-slate-50 shadow-xs"
           >
             <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
             <span>Refresh</span>
@@ -480,10 +480,10 @@ export default function ApprovalCenter({
         {/* Pending Card */}
         <div
           onClick={() => setStatus(status === "PENDING" ? "" : "PENDING")}
-          className={`group cursor-pointer rounded-2xl border p-4.5 transition-all shadow-xs hover:shadow-md ${
+          className={`group cursor-pointer rounded-sm border p-4.5 transition-all shadow-xs hover:shadow-md ${
             status === "PENDING"
               ? "border-amber-400 bg-amber-50/40 ring-2 ring-amber-400/20"
-              : "border-slate-200/80 bg-white hover:border-amber-300"
+              : "border-sky-100/90 bg-white hover:border-amber-300"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -505,10 +505,10 @@ export default function ApprovalCenter({
         {/* Total Requests Card */}
         <div
           onClick={() => setStatus("")}
-          className={`group cursor-pointer rounded-2xl border p-4.5 transition-all shadow-xs hover:shadow-md ${
+          className={`group cursor-pointer rounded-sm border p-4.5 transition-all shadow-xs hover:shadow-md ${
             status === ""
               ? "border-primary-400 bg-primary-50/30 ring-2 ring-primary-400/20"
-              : "border-slate-200/80 bg-white hover:border-primary-300"
+              : "border-sky-100/90 bg-white hover:border-primary-300"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -530,10 +530,10 @@ export default function ApprovalCenter({
         {/* Approved Card */}
         <div
           onClick={() => setStatus(status === "APPROVED" ? "" : "APPROVED")}
-          className={`group cursor-pointer rounded-2xl border p-4.5 transition-all shadow-xs hover:shadow-md ${
+          className={`group cursor-pointer rounded-sm border p-4.5 transition-all shadow-xs hover:shadow-md ${
             status === "APPROVED"
               ? "border-emerald-400 bg-emerald-50/40 ring-2 ring-emerald-400/20"
-              : "border-slate-200/80 bg-white hover:border-emerald-300"
+              : "border-sky-100/90 bg-white hover:border-emerald-300"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -555,10 +555,10 @@ export default function ApprovalCenter({
         {/* Rejected & Expired Card */}
         <div
           onClick={() => setStatus(status === "REJECTED" ? "" : "REJECTED")}
-          className={`group cursor-pointer rounded-2xl border p-4.5 transition-all shadow-xs hover:shadow-md ${
+          className={`group cursor-pointer rounded-sm border p-4.5 transition-all shadow-xs hover:shadow-md ${
             status === "REJECTED"
               ? "border-rose-400 bg-rose-50/40 ring-2 ring-rose-400/20"
-              : "border-slate-200/80 bg-white hover:border-rose-300"
+              : "border-sky-100/90 bg-white hover:border-rose-300"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -581,7 +581,7 @@ export default function ApprovalCenter({
       </div>
 
       {/* Filter Toolbar */}
-      <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+      <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           {/* Status Pills */}
           <div className="flex flex-wrap items-center gap-1.5">
@@ -605,7 +605,7 @@ export default function ApprovalCenter({
                 <span>{st.label}</span>
                 <span
                   className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                    status === st.id ? "bg-white/25 text-white" : "bg-white text-slate-600 border border-slate-200"
+                    status === st.id ? "bg-white/25 text-white" : "bg-white text-slate-600 border border-sky-100/90"
                   }`}
                 >
                   {st.count}
@@ -622,7 +622,7 @@ export default function ApprovalCenter({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search request #, submitter, item…"
-                className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-8 pr-3 text-xs text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
+                className="h-9 w-full rounded-xl border border-sky-100/90 bg-slate-50/50 pl-8 pr-3 text-xs text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
               />
               {search && (
                 <button
@@ -648,7 +648,7 @@ export default function ApprovalCenter({
       </div>
 
       {/* Approval Requests Table */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">
+      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
@@ -689,7 +689,7 @@ export default function ApprovalCenter({
                           setEntity("");
                           setSearch("");
                         }}
-                        className="mt-3 rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                        className="mt-3 rounded-lg border border-sky-100/90 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50"
                       >
                         Clear Filters
                       </button>
@@ -840,13 +840,13 @@ export default function ApprovalCenter({
             </div>
 
             {/* Summary description */}
-            <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-xs">
+            <div className="rounded-xl border border-sky-100/90 bg-white p-3.5 shadow-xs">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Change Description</p>
               <p className="mt-1 text-sm font-medium text-slate-800">{detail.summary || "No description provided"}</p>
             </div>
 
             {/* Visual Step-by-Step Approval Chain */}
-            <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs">
+            <div className="rounded-xl border border-sky-100/90 bg-white p-4 shadow-xs">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                   <GitMerge size={14} className="text-primary-600" />
@@ -941,7 +941,7 @@ export default function ApprovalCenter({
 
             {/* Proposed Payload Inspection */}
             {detail.payload && Object.keys(detail.payload).length > 0 && (
-              <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs">
+              <div className="rounded-xl border border-sky-100/90 bg-white p-4 shadow-xs">
                 <p className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <SlidersHorizontal size={13} className="text-primary-600" />
                   Proposed Commercial Change Payload
@@ -1023,7 +1023,7 @@ export default function ApprovalCenter({
         } — #${act?.row.requestNo ?? ""}`}
       >
         <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 text-xs text-slate-700">
+          <div className="rounded-xl border border-sky-100/90 bg-slate-50/70 p-3.5 text-xs text-slate-700">
             <p className="font-bold text-slate-900">{act?.row.entityLabel ?? act?.row.entityType}</p>
             <p className="mt-0.5 text-slate-600">{act?.row.summary}</p>
             <p className="mt-1 font-semibold text-slate-800">Evaluated Value: {taka(act?.row.amount)}</p>

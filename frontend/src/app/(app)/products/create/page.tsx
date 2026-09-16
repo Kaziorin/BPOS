@@ -105,7 +105,7 @@ export default function CreateProductPage() {
   const isEditMode = Boolean(editId);
   const { user } = useAuth();
   const isSuperAdmin = Boolean(
-    user?.isSuperAdmin ||
+    (user as any)?.isSuperAdmin ||
     user?.role?.toLowerCase().includes("super") ||
     user?.roleName?.toLowerCase().includes("super")
   );

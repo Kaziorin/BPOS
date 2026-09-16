@@ -15,6 +15,8 @@ import { SupplierModal } from "@/components/suppliers/SupplierModal";
 import { SupplierDrawer } from "@/components/suppliers/SupplierDrawer";
 import { PaySupplierDueModal } from "@/components/suppliers/PaySupplierDueModal";
 import { ConfirmModal } from "@/components/custom/ConfirmModal";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
 
 interface Supplier {
   id: string;
@@ -243,53 +245,55 @@ export default function SuppliersPage() {
   return (
     <div className="space-y-5 w-full px-4 sm:px-8 pb-12">
       
-      {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200/70 pb-4">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-            <Truck size={22} className="text-primary-600" />
-            Supplier & Vendor Management
-          </h1>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Maintain procurement vendor directories, credit limits, accounts payable balances & purchase history.
-          </p>
-        </div>
+      {/* ── Page Header via CustomBreadcrumb ── */}
+      <CustomBreadcrumb
+        title="Supplier & Vendor Management"
+        subtitle="Maintain procurement vendor directories, credit limits, accounts payable balances & purchase history."
+        icon={<Truck size={20} />}
+        action={
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link href="/purchasing/orders">
+              <CustomButton
+                variant="outline"
+                size="sm"
+                className="rounded-sm"
+                leftIcon={<ShoppingBag size={14} className="text-gray-500" />}
+              >
+                Purchase Orders
+              </CustomButton>
+            </Link>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <Link
-            href="/purchasing/orders"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 transition"
-          >
-            <ShoppingBag size={14} className="text-gray-500" />
-            Purchase Orders
-          </Link>
+            <CustomButton
+              variant="outline"
+              size="sm"
+              onClick={exportCSV}
+              className="rounded-sm"
+              leftIcon={<Download size={14} className="text-gray-500" />}
+            >
+              Export CSV
+            </CustomButton>
 
-          <button
-            onClick={exportCSV}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 transition"
-          >
-            <Download size={14} className="text-gray-500" />
-            Export CSV
-          </button>
-
-          <button
-            onClick={handleOpenAdd}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-primary-700 transition"
-          >
-            <Plus size={15} />
-            Add Supplier
-          </button>
-        </div>
-      </div>
+            <CustomButton
+              variant="primary"
+              size="sm"
+              onClick={handleOpenAdd}
+              className="rounded-sm font-semibold"
+              leftIcon={<Plus size={15} />}
+            >
+              Add Supplier
+            </CustomButton>
+          </div>
+        }
+      />
 
       {/* ── Production KPI Analytics Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         
         {/* Total Suppliers */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs hover:border-sky-300 transition">
           <div className="flex items-center justify-between text-gray-500">
             <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Total Suppliers</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7]">
               <Truck size={16} />
             </div>
           </div>
@@ -312,17 +316,17 @@ export default function SuppliersPage() {
             setActiveTab(activeTab === "WITH_DUE" ? "ALL" : "WITH_DUE");
             setPage(1);
           }}
-          className={`rounded-xl border p-4 shadow-xs transition cursor-pointer ${
+          className={`rounded-sm border p-4 shadow-2xs transition cursor-pointer ${
             activeTab === "WITH_DUE"
               ? "border-rose-500 bg-rose-50/40 ring-1 ring-rose-500/20"
-              : "border-gray-200 bg-white hover:border-rose-300"
+              : "border-sky-100/90 bg-white hover:border-rose-300"
           }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium uppercase tracking-wider text-rose-700 flex items-center gap-1">
               <AlertTriangle size={13} /> Accounts Payable Due
             </span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-50 text-rose-600">
               <DollarSign size={16} />
             </div>
           </div>
@@ -337,10 +341,10 @@ export default function SuppliersPage() {
         </div>
 
         {/* Total Purchase Volume */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs hover:border-sky-300 transition">
           <div className="flex items-center justify-between text-gray-500">
             <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Procurement Volume</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-50 text-emerald-600">
               <TrendingUp size={16} />
             </div>
           </div>
@@ -355,10 +359,10 @@ export default function SuppliersPage() {
         </div>
 
         {/* On-Time Delivery & Quality */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs hover:border-sky-300 transition">
           <div className="flex items-center justify-between text-gray-500">
             <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Vendor Reliability</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-amber-50 text-amber-600">
               <ShieldCheck size={16} />
             </div>
           </div>
@@ -373,7 +377,7 @@ export default function SuppliersPage() {
       </div>
 
       {/* ── Navigation Segment Tabs ── */}
-      <div className="flex items-center gap-1.5 overflow-x-auto border-b border-gray-200 pb-2 scrollbar-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto border-b border-sky-100 pb-2 scrollbar-none">
         {navTabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -383,16 +387,16 @@ export default function SuppliersPage() {
                 setActiveTab(tab.id);
                 setPage(1);
               }}
-              className={`flex items-center gap-1.5 shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+              className={`flex items-center gap-1.5 shrink-0 rounded-sm px-3 py-1.5 text-xs font-medium transition cursor-pointer ${
                 isActive
-                  ? "bg-primary-600 text-white shadow-xs font-semibold"
-                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs font-semibold"
+                  : "bg-white text-slate-600 border border-sky-100 hover:bg-sky-50/50 hover:text-slate-900"
               }`}
             >
               <span>{tab.label}</span>
               {tab.count !== undefined && (
-                <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                  isActive ? "bg-white/20 text-white" : tab.isDue ? "bg-rose-100 text-rose-700" : "bg-gray-100 text-gray-600"
+                <span className={`rounded-sm px-1.5 py-0.2 text-[10px] font-bold ${
+                  isActive ? "bg-white/20 text-white" : tab.isDue ? "bg-rose-100 text-rose-700" : "bg-sky-100 text-sky-800"
                 }`}>
                   {tab.count}
                 </span>
@@ -403,7 +407,7 @@ export default function SuppliersPage() {
       </div>
 
       {/* ── Filter & Search Toolbar ── */}
-      <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Search Input */}
         <div className="relative w-full md:w-80">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -415,12 +419,12 @@ export default function SuppliersPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-lg border border-gray-300 py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 transition"
+            className="w-full rounded-sm border border-sky-200/90 py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7] transition"
           />
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
             >
               <X size={13} />
             </button>
@@ -435,7 +439,7 @@ export default function SuppliersPage() {
               setFilterStatus(e.target.value);
               setPage(1);
             }}
-            className="rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
           >
             <option value="">All Statuses</option>
             <option value="ACTIVE">Active</option>
@@ -448,7 +452,7 @@ export default function SuppliersPage() {
               setSortBy(e.target.value);
               setPage(1);
             }}
-            className="rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
           >
             <option value="createdAt">Newest First</option>
             <option value="name">Supplier Name (A-Z)</option>
@@ -459,24 +463,24 @@ export default function SuppliersPage() {
 
           <button
             onClick={() => setSortDir((prev) => (prev === "asc" ? "desc" : "asc"))}
-            className="rounded-lg border border-gray-300 p-1.5 text-gray-600 hover:bg-gray-50 transition"
+            className="rounded-sm border border-sky-200 p-1.5 text-gray-600 hover:bg-sky-50 transition cursor-pointer"
             title={`Sort Direction: ${sortDir.toUpperCase()}`}
           >
             <ArrowUpDown size={14} />
           </button>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center rounded-lg border border-gray-200 p-0.5 bg-gray-50">
+          <div className="flex items-center rounded-sm border border-sky-200 p-0.5 bg-sky-50/50">
             <button
               onClick={() => setViewMode("table")}
-              className={`rounded p-1 transition ${viewMode === "table" ? "bg-white text-primary-600 shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1 transition cursor-pointer ${viewMode === "table" ? "bg-white text-[#0284C7] shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
               title="Table View"
             >
               <LayoutList size={14} />
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`rounded p-1 transition ${viewMode === "grid" ? "bg-white text-primary-600 shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1 transition cursor-pointer ${viewMode === "grid" ? "bg-white text-[#0284C7] shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
               title="Grid View"
             >
               <LayoutGrid size={14} />
@@ -488,22 +492,22 @@ export default function SuppliersPage() {
               loadSuppliers();
               loadStats();
             }}
-            className="rounded-lg border border-gray-300 p-1.5 text-gray-600 hover:bg-gray-50 transition"
+            className="rounded-sm border border-sky-200 p-1.5 text-gray-600 hover:bg-sky-50 transition cursor-pointer"
             title="Refresh List"
           >
-            <RefreshCw size={14} className={loading ? "animate-spin text-primary-600" : ""} />
+            <RefreshCw size={14} className={loading ? "animate-spin text-[#0284C7]" : ""} />
           </button>
         </div>
       </div>
 
       {/* ── Error Banner ── */}
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 flex items-center justify-between">
+        <div className="rounded-sm border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-700 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <AlertTriangle size={15} />
             <span>{error}</span>
           </div>
-          <button onClick={loadSuppliers} className="font-semibold underline hover:text-red-900">
+          <button onClick={loadSuppliers} className="font-semibold underline hover:text-rose-900 cursor-pointer">
             Retry
           </button>
         </div>
@@ -511,13 +515,13 @@ export default function SuppliersPage() {
 
       {/* ── Suppliers Data List ── */}
       {loading ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-xs">
-          <RefreshCw size={24} className="mx-auto animate-spin text-primary-600 mb-2" />
+        <div className="rounded-sm border border-sky-100/90 bg-white p-12 text-center shadow-2xs">
+          <RefreshCw size={24} className="mx-auto animate-spin text-[#0284C7] mb-2" />
           <p className="text-xs font-semibold text-gray-700">Loading suppliers directory...</p>
         </div>
       ) : suppliers.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 bg-white p-12 text-center shadow-xs">
-          <Truck size={32} className="mx-auto text-gray-300 mb-3" />
+        <div className="rounded-sm border-2 border-dashed border-sky-200 bg-white p-12 text-center shadow-2xs">
+          <Truck size={32} className="mx-auto text-sky-300 mb-3" />
           <h3 className="text-sm font-bold text-gray-900">No Suppliers Found</h3>
           <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
             {search || activeTab !== "ALL" || filterStatus
@@ -526,7 +530,9 @@ export default function SuppliersPage() {
           </p>
           <div className="mt-4 flex items-center justify-center gap-2">
             {(search || activeTab !== "ALL" || filterStatus) && (
-              <button
+              <CustomButton
+                variant="outline"
+                size="sm"
                 onClick={() => {
                   setSearch("");
                   setActiveTab("ALL");
@@ -534,26 +540,29 @@ export default function SuppliersPage() {
                   setFilterCity("");
                   setPage(1);
                 }}
-                className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-sm"
               >
                 Clear Filters
-              </button>
+              </CustomButton>
             )}
-            <button
+            <CustomButton
+              variant="primary"
+              size="sm"
               onClick={handleOpenAdd}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-primary-700"
+              className="rounded-sm font-semibold"
+              leftIcon={<Plus size={14} />}
             >
-              <Plus size={14} /> Add Supplier
-            </button>
+              Add Supplier
+            </CustomButton>
           </div>
         </div>
       ) : viewMode === "table" ? (
         /* ── CLEAN ENTERPRISE TABLE VIEW ── */
-        <div className="rounded-xl border border-gray-200 bg-white shadow-xs overflow-hidden">
+        <div className="rounded-sm border border-sky-100/90 bg-white shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-50/75 text-[11px] font-semibold uppercase tracking-wider text-gray-600">
+                <tr className="border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 text-[11px] font-bold uppercase tracking-wider text-[#0369A1]">
                   <th className="px-4 py-3">Supplier / Vendor</th>
                   <th className="px-3 py-3">Contact Person</th>
                   <th className="px-3 py-3">Purchases / POs</th>
@@ -563,27 +572,27 @@ export default function SuppliersPage() {
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-sky-100/70">
                 {suppliers.map((s) => {
                   const due = Number(s.currentDue || 0);
                   const isDue = due > 0;
                   const totalPurchased = Number(s.totalPurchased || 0);
 
                   return (
-                    <tr key={s.id} className="hover:bg-gray-50/70 transition-colors">
+                    <tr key={s.id} className="hover:bg-sky-50/40 transition-colors">
                       {/* Name & Initials */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
                           <button
                             onClick={() => handleOpenDrawer(s.id)}
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700 border border-primary-200/50 text-xs font-bold hover:bg-primary-100 transition"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/60 text-xs font-bold hover:bg-sky-100 transition cursor-pointer"
                           >
                             {getInitials(s.name)}
                           </button>
                           <div className="min-w-0">
                             <button
                               onClick={() => handleOpenDrawer(s.id)}
-                              className="font-semibold text-gray-900 hover:text-primary-600 text-left transition truncate max-w-[190px] block"
+                              className="font-semibold text-gray-900 hover:text-[#0284C7] text-left transition truncate max-w-[190px] block cursor-pointer"
                             >
                               {s.name}
                             </button>
@@ -607,14 +616,14 @@ export default function SuppliersPage() {
                           <p className="font-medium text-gray-800 text-xs">{s.contactPerson || "—"}</p>
                           {s.phone ? (
                             <div className="flex items-center gap-1.5 text-[11px] text-gray-600 mt-0.5">
-                              <a href={`tel:${s.phone}`} className="hover:text-primary-600 transition">
+                              <a href={`tel:${s.phone}`} className="hover:text-[#0284C7] transition">
                                 {s.phone}
                               </a>
                               <a
                                 href={`https://wa.me/${s.phone.replace(/[^0-9]/g, "")}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-block text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1 rounded hover:bg-emerald-100 transition"
+                                className="inline-block text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1 rounded-xs hover:bg-emerald-100 transition"
                                 title="WhatsApp"
                               >
                                 WA
@@ -657,7 +666,7 @@ export default function SuppliersPage() {
                           {isDue && (
                             <button
                               onClick={() => handleOpenPayDue(s)}
-                              className="mt-0.5 text-[10px] font-semibold text-rose-700 hover:text-rose-800 underline"
+                              className="mt-0.5 text-[10px] font-semibold text-rose-700 hover:text-rose-800 underline cursor-pointer"
                             >
                               Pay Due
                             </button>
@@ -667,7 +676,7 @@ export default function SuppliersPage() {
 
                       {/* Status */}
                       <td className="px-3 py-3 text-center">
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        <span className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-semibold ${
                           s.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-gray-100 text-gray-600 border border-gray-200"
                         }`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${s.status === "ACTIVE" ? "bg-emerald-500" : "bg-gray-400"}`} />
@@ -680,7 +689,7 @@ export default function SuppliersPage() {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => handleOpenDrawer(s.id)}
-                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
                             title="Quick Drawer"
                           >
                             <Eye size={14} />
@@ -688,7 +697,7 @@ export default function SuppliersPage() {
 
                           <button
                             onClick={() => handleOpenEdit(s)}
-                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
                             title="Edit Supplier"
                           >
                             <Edit3 size={14} />
@@ -696,7 +705,7 @@ export default function SuppliersPage() {
 
                           <Link
                             href={`/suppliers/${s.id}`}
-                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-primary-600 transition"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
                             title="Full Details & Ledger"
                           >
                             <ArrowUpRight size={14} />
@@ -704,7 +713,7 @@ export default function SuppliersPage() {
 
                           <button
                             onClick={() => setDeleteTarget(s)}
-                            className="rounded p-1 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
                             title="Deactivate / Delete"
                           >
                             <Trash2 size={14} />
@@ -729,21 +738,21 @@ export default function SuppliersPage() {
             return (
               <div
                 key={s.id}
-                className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition flex flex-col justify-between"
+                className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs hover:border-sky-300 transition flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2.5">
                       <button
                         onClick={() => handleOpenDrawer(s.id)}
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700 border border-primary-200/50 text-xs font-bold"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/60 text-xs font-bold cursor-pointer"
                       >
                         {getInitials(s.name)}
                       </button>
                       <div className="min-w-0">
                         <h3
                           onClick={() => handleOpenDrawer(s.id)}
-                          className="font-bold text-gray-900 hover:text-primary-600 cursor-pointer transition text-xs truncate max-w-[160px]"
+                          className="font-bold text-gray-900 hover:text-[#0284C7] cursor-pointer transition text-xs truncate max-w-[160px]"
                         >
                           {s.name}
                         </h3>
@@ -753,7 +762,7 @@ export default function SuppliersPage() {
                       </div>
                     </div>
 
-                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                    <span className={`inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] font-semibold ${
                       s.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-gray-100 text-gray-600"
                     }`}>
                       {s.status || "ACTIVE"}
@@ -761,20 +770,20 @@ export default function SuppliersPage() {
                   </div>
 
                   {/* 3-Col Stats Grid */}
-                  <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-gray-100 text-center">
-                    <div className="rounded bg-gray-50 p-1.5">
+                  <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-sky-100 text-center">
+                    <div className="rounded-sm bg-sky-50/50 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Payable Due</p>
                       <p className={`text-xs font-bold ${isDue ? "text-rose-600" : "text-gray-700"}`}>
                         ৳{due.toLocaleString()}
                       </p>
                     </div>
-                    <div className="rounded bg-gray-50 p-1.5">
+                    <div className="rounded-sm bg-sky-50/50 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Orders</p>
                       <p className="text-xs font-bold text-gray-700">
                         {s._count?.purchaseOrders || 0}
                       </p>
                     </div>
-                    <div className="rounded bg-gray-50 p-1.5">
+                    <div className="rounded-sm bg-sky-50/50 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Purchased</p>
                       <p className="text-xs font-bold text-emerald-700 truncate">
                         ৳{totalPurchased > 1000 ? `${(totalPurchased/1000).toFixed(1)}k` : totalPurchased}
@@ -784,14 +793,14 @@ export default function SuppliersPage() {
                 </div>
 
                 {/* Card Action Footer */}
-                <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between">
+                <div className="mt-3 pt-2.5 border-t border-sky-100 flex items-center justify-between">
                   <div className="flex gap-1.5">
                     {s.phone && (
                       <a
                         href={`https://wa.me/${s.phone.replace(/[^0-9]/g, "")}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded bg-emerald-50 text-emerald-700 px-2 py-0.5 text-[11px] font-medium hover:bg-emerald-100"
+                        className="rounded-sm bg-emerald-50 text-emerald-700 px-2 py-0.5 text-[11px] font-medium hover:bg-emerald-100"
                       >
                         WhatsApp
                       </a>
@@ -799,7 +808,7 @@ export default function SuppliersPage() {
                     {isDue && (
                       <button
                         onClick={() => handleOpenPayDue(s)}
-                        className="rounded bg-rose-50 text-rose-700 px-2 py-0.5 text-[11px] font-semibold hover:bg-rose-100"
+                        className="rounded-sm bg-rose-50 text-rose-700 px-2 py-0.5 text-[11px] font-semibold hover:bg-rose-100 cursor-pointer"
                       >
                         Pay Due
                       </button>
@@ -809,21 +818,21 @@ export default function SuppliersPage() {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleOpenDrawer(s.id)}
-                      className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] cursor-pointer"
                       title="Drawer"
                     >
                       <Eye size={14} />
                     </button>
                     <button
                       onClick={() => handleOpenEdit(s)}
-                      className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] cursor-pointer"
                       title="Edit"
                     >
                       <Edit3 size={14} />
                     </button>
                     <Link
                       href={`/suppliers/${s.id}`}
-                      className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-primary-600"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7]"
                       title="Full Profile"
                     >
                       <ArrowUpRight size={14} />
@@ -838,7 +847,7 @@ export default function SuppliersPage() {
 
       {/* ── Clean Pagination Footer ── */}
       {pagination.totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-xs">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs">
           <p className="text-xs text-gray-500">
             Showing <span className="font-semibold text-gray-800">{(page - 1) * perPage + 1}</span> -{" "}
             <span className="font-semibold text-gray-800">
@@ -854,7 +863,7 @@ export default function SuppliersPage() {
                 setPerPage(Number(e.target.value));
                 setPage(1);
               }}
-              className="rounded-lg border border-gray-300 px-2 py-1 text-xs text-gray-700 focus:outline-none"
+              className="rounded-sm border border-sky-200/90 px-2 py-1 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
             >
               <option value="10">10 / page</option>
               <option value="20">20 / page</option>
@@ -865,7 +874,7 @@ export default function SuppliersPage() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+              className="flex items-center gap-1 rounded-sm border border-sky-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-sky-50 disabled:opacity-40 transition cursor-pointer"
             >
               <ChevronLeft size={13} /> Prev
             </button>
@@ -877,7 +886,7 @@ export default function SuppliersPage() {
             <button
               onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
               disabled={page >= pagination.totalPages}
-              className="flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+              className="flex items-center gap-1 rounded-sm border border-sky-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-sky-50 disabled:opacity-40 transition cursor-pointer"
             >
               Next <ChevronRight size={13} />
             </button>

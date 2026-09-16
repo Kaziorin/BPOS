@@ -377,7 +377,7 @@ export default function CashRegisterPage() {
                 <select
                   value={branchId}
                   onChange={(e) => setBranchId(e.target.value)}
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs hover:border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                  className="rounded-lg border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs hover:border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
                 >
                   {branches.map((b) => (
                     <option key={b.id} value={b.id}>
@@ -462,7 +462,7 @@ export default function CashRegisterPage() {
       {/* ── ACTIVE SHIFT HERO OR EMPTY STATE ── */}
       {!isOpen ? (
         <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-2xs">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-50 text-teal-600">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-sm bg-teal-50 text-teal-600">
             <Lock className="h-8 w-8" />
           </div>
           <h3 className="mt-4 text-lg font-bold text-slate-800">No Shift Currently Open for {selectedBranchName}</h3>
@@ -486,7 +486,7 @@ export default function CashRegisterPage() {
       ) : (
         <div className="space-y-4">
           {/* Main Active Shift Panel */}
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs">
+          <div className="rounded-xl border border-sky-100/90 bg-white p-5 shadow-2xs">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3.5">
                 <div
@@ -666,7 +666,7 @@ export default function CashRegisterPage() {
       )}
 
       {/* ─── SHIFT HISTORY & RECONCILIATION TABLE ─── */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
+      <div className="rounded-xl border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2">
             <History className="w-5 h-5 text-teal-600" />
@@ -682,14 +682,14 @@ export default function CashRegisterPage() {
                 value={historySearch}
                 onChange={(e) => setHistorySearch(e.target.value)}
                 placeholder="Search Shift # or note..."
-                className="h-9 w-48 rounded-lg border border-slate-200 bg-slate-50/50 pl-8 pr-3 text-xs text-slate-700 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                className="h-9 w-48 rounded-lg border border-sky-100/90 bg-slate-50/50 pl-8 pr-3 text-xs text-slate-700 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
               />
             </div>
 
             <select
               value={historyStatusFilter}
               onChange={(e) => setHistoryStatusFilter(e.target.value)}
-              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="h-9 rounded-lg border border-sky-100/90 bg-white px-3 text-xs font-medium text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
             >
               <option value="ALL">All Statuses</option>
               <option value="OPEN">Open</option>
@@ -855,7 +855,7 @@ export default function CashRegisterPage() {
               value={openingCash}
               onChange={(e) => setOpeningCash(e.target.value)}
               placeholder="5000"
-              className="w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-base font-bold font-mono text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="w-full rounded-lg border border-sky-100/90 px-3.5 py-2.5 text-base font-bold font-mono text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
               autoFocus
               required
             />
@@ -865,7 +865,7 @@ export default function CashRegisterPage() {
                   key={amt}
                   type="button"
                   onClick={() => setOpeningCash(String(amt))}
-                  className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-teal-50 hover:border-teal-200 hover:text-teal-700 transition"
+                  className="rounded-md border border-sky-100/90 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-teal-50 hover:border-teal-200 hover:text-teal-700 transition"
                 >
                   +{money(amt)}
                 </button>
@@ -882,7 +882,7 @@ export default function CashRegisterPage() {
               value={openShiftNote}
               onChange={(e) => setOpenShiftNote(e.target.value)}
               placeholder="e.g. Morning shift counter 1 opening"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="w-full rounded-lg border border-sky-100/90 px-3 py-2 text-xs text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
             />
           </div>
 
@@ -946,7 +946,7 @@ export default function CashRegisterPage() {
               value={cashMoveAmount}
               onChange={(e) => setCashMoveAmount(e.target.value)}
               placeholder="1000"
-              className="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-base font-bold font-mono text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="w-full rounded-lg border border-sky-100/90 px-3.5 py-2 text-base font-bold font-mono text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
               autoFocus
               required
             />
@@ -968,7 +968,7 @@ export default function CashRegisterPage() {
                   className={`rounded-md border px-2.5 py-1 text-xs font-medium transition ${
                     cashMoveReason === reason
                       ? "border-teal-600 bg-teal-50 text-teal-700"
-                      : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                      : "border-sky-100/90 bg-slate-50 text-slate-600 hover:bg-slate-100"
                   }`}
                 >
                   {reason}
@@ -980,7 +980,7 @@ export default function CashRegisterPage() {
               value={cashMoveNote}
               onChange={(e) => setCashMoveNote(e.target.value)}
               placeholder="Additional memo or reference..."
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="w-full rounded-lg border border-sky-100/90 px-3 py-2 text-xs text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
             />
           </div>
 
@@ -1041,22 +1041,22 @@ export default function CashRegisterPage() {
                 value={countedCash}
                 onChange={(e) => setCountedCash(e.target.value)}
                 placeholder="Enter physical cash counted in drawer"
-                className="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-base font-bold font-mono text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                className="w-full rounded-lg border border-sky-100/90 px-3.5 py-2 text-base font-bold font-mono text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
                 autoFocus
                 required
               />
 
               {/* Denominations Calculator Grid */}
               {showDenomCalc && (
-                <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <div className="mt-3 rounded-xl border border-sky-100/90 bg-slate-50/80 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-sky-100/90 pb-2">
                     <span className="text-xs font-bold text-slate-700">Cash Note / Coin Counter</span>
                     <span className="font-mono text-xs font-bold text-teal-700">Tally Sum: {money(denomTotal)}</span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                     {DENOMINATIONS.map((d) => (
-                      <div key={d} className="rounded-lg border border-slate-200 bg-white p-2 text-center">
+                      <div key={d} className="rounded-lg border border-sky-100/90 bg-white p-2 text-center">
                         <span className="text-[11px] font-bold text-slate-600">Tk {d}</span>
                         <input
                           type="number"
@@ -1064,7 +1064,7 @@ export default function CashRegisterPage() {
                           value={denoms[d] || ""}
                           onChange={(e) => handleDenomChange(d, e.target.value)}
                           placeholder="0"
-                          className="mt-1 w-full rounded border border-slate-200 px-1.5 py-1 text-center font-mono text-xs focus:border-teal-600 focus:outline-hidden"
+                          className="mt-1 w-full rounded border border-sky-100/90 px-1.5 py-1 text-center font-mono text-xs focus:border-teal-600 focus:outline-hidden"
                         />
                         <span className="text-[10px] font-medium text-slate-400 block mt-0.5">
                           ={money(d * (denoms[d] || 0))}
@@ -1155,7 +1155,7 @@ export default function CashRegisterPage() {
                 onChange={(e) => setCloseNote(e.target.value)}
                 rows={2}
                 placeholder="Explain any cash discrepancy, safe drops, or shift handoff notes..."
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                className="w-full rounded-lg border border-sky-100/90 px-3 py-2 text-xs text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
               />
             </div>
 
@@ -1188,7 +1188,7 @@ export default function CashRegisterPage() {
         {detail && (
           <div className="space-y-5">
             {/* Shift Header Meta */}
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 p-4 border border-slate-200">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 p-4 border border-sky-100/90">
               <div>
                 <p className="text-xs text-slate-500">
                   Shift Period: <span className="font-semibold text-slate-800">{dateTime(detail.shift.openedAt)}</span> →{" "}
@@ -1214,12 +1214,12 @@ export default function CashRegisterPage() {
 
             {/* Reconciliation KPI Strip */}
             <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div className="rounded-xl border border-sky-100/90 bg-slate-50 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Expected in Drawer</p>
                 <p className="mt-1 font-mono text-base font-bold text-slate-800">{money(detail.summary.expectedCash)}</p>
               </div>
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div className="rounded-xl border border-sky-100/90 bg-slate-50 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Physical Counted</p>
                 <p className="mt-1 font-mono text-base font-bold text-slate-800">
                   {detail.shift.countedCash != null ? money(detail.shift.countedCash) : "—"}
@@ -1255,11 +1255,11 @@ export default function CashRegisterPage() {
               </div>
 
               {detail.txns.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-slate-200 p-6 text-center text-xs text-slate-400">
+                <div className="rounded-lg border border-dashed border-sky-100/90 p-6 text-center text-xs text-slate-400">
                   No individual transactions recorded in this shift yet.
                 </div>
               ) : (
-                <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 rounded-lg border border-slate-200">
+                <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 rounded-lg border border-sky-100/90">
                   {detail.txns.map((t) => {
                     const meta = TXN_META[t.type] || TXN_META.CASH_IN;
                     const Icon = meta.icon;
@@ -1289,7 +1289,7 @@ export default function CashRegisterPage() {
 
             {/* Note & Remarks */}
             {detail.shift.note && (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+              <div className="rounded-lg border border-sky-100/90 bg-slate-50 p-3 text-xs text-slate-600">
                 <span className="font-semibold text-slate-800">Shift Notes: </span>
                 {detail.shift.note}
               </div>

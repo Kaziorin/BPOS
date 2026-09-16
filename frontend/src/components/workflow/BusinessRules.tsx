@@ -363,7 +363,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
             size="sm"
             onClick={refreshAll}
             disabled={loading}
-            className="border-slate-200 bg-white hover:bg-slate-50 shadow-xs"
+            className="border-sky-100/90 bg-white hover:bg-slate-50 shadow-xs"
           >
             <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
             <span>Refresh</span>
@@ -381,13 +381,13 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
+      <div className="flex flex-wrap items-center gap-2 border-b border-sky-100/90 pb-2">
         <button
           onClick={() => setTab("rules")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
             tab === "rules"
               ? "bg-primary-600 text-white shadow-xs"
-              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+              : "bg-white text-slate-600 hover:bg-slate-100 border border-sky-100/90"
           }`}
         >
           <Settings2 size={14} />
@@ -400,7 +400,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
             tab === "recommendations"
               ? "bg-primary-600 text-white shadow-xs"
-              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+              : "bg-white text-slate-600 hover:bg-slate-100 border border-sky-100/90"
           }`}
         >
           <ShoppingCart size={14} />
@@ -417,7 +417,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
             tab === "test"
               ? "bg-primary-600 text-white shadow-xs"
-              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+              : "bg-white text-slate-600 hover:bg-slate-100 border border-sky-100/90"
           }`}
         >
           <TestTube2 size={14} />
@@ -434,7 +434,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
               <button
                 key={t.type}
                 onClick={() => openNew(t.type)}
-                className="group flex flex-col justify-between rounded-xl border border-dashed border-slate-200 bg-white p-3.5 text-left shadow-xs transition hover:border-primary-400 hover:bg-primary-50/20 hover:shadow-sm"
+                className="group flex flex-col justify-between rounded-xl border border-dashed border-sky-100/90 bg-white p-3.5 text-left shadow-xs transition hover:border-primary-400 hover:bg-primary-50/20 hover:shadow-sm"
               >
                 <div>
                   <span className={`inline-flex rounded-md border px-2 py-0.5 text-[10px] font-bold ${t.tagColor}`}>
@@ -453,7 +453,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
           {/* Rules List */}
           <div className="space-y-3">
             {rules.length === 0 ? (
-              <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-12 text-center">
+              <div className="rounded-sm border-2 border-dashed border-sky-100/90 bg-white p-12 text-center">
                 <Zap size={24} className="mx-auto text-slate-300" />
                 <p className="mt-2 text-sm font-semibold text-slate-700">No active business automation rules</p>
                 <p className="text-xs text-slate-400 mt-1">Configure automated triggers above to enforce commercial logic.</p>
@@ -462,7 +462,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
               rules.map((r) => (
                 <div
                   key={r.id}
-                  className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs hover:shadow-md transition"
+                  className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:shadow-md transition"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
@@ -493,13 +493,13 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => toggleActive(r)}
-                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        className="rounded-lg border border-sky-100/90 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                       >
                         {r.isActive ? "Pause" : "Activate"}
                       </button>
                       <button
                         onClick={() => openEdit(r)}
-                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        className="rounded-lg border border-sky-100/90 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                       >
                         <Edit3 size={12} className="inline mr-1" /> Edit
                       </button>
@@ -516,7 +516,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
                   <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 p-3 text-xs border border-slate-100">
                     <span className="font-bold text-slate-400 uppercase text-[10px]">Conditions:</span>
                     {Object.entries(r.conditions || {}).map(([k, v]: [string, any]) => (
-                      <span key={k} className="rounded bg-white px-2 py-0.5 font-mono text-[11px] font-bold text-slate-700 border border-slate-200">
+                      <span key={k} className="rounded bg-white px-2 py-0.5 font-mono text-[11px] font-bold text-slate-700 border border-sky-100/90">
                         {k} {typeof v === "object" ? `${v.op} ${v.value}` : `= ${v}`}
                       </span>
                     ))}
@@ -540,7 +540,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
       {/* TAB 2: PURCHASE RECOMMENDATIONS */}
       {tab === "recommendations" && (
         <div className="space-y-4">
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs">
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="text-sm font-bold text-slate-900">Inventory Reorder Queue</h3>
@@ -590,7 +590,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
                             </button>
                             <button
                               onClick={() => dismissRec(rec)}
-                              className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-100"
+                              className="rounded-lg border border-sky-100/90 bg-white px-2 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-100"
                             >
                               Dismiss
                             </button>
@@ -610,7 +610,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
       {tab === "test" && (
         <div className="grid gap-4 lg:grid-cols-2">
           {/* Simulator Input Box */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs space-y-4">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-xs space-y-4">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
                 <TestTube2 size={16} />
@@ -702,7 +702,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
           </div>
 
           {/* Simulator Output Box */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-xs flex flex-col justify-between">
             <div>
               <h3 className="text-sm font-bold text-slate-900 mb-1">Evaluation Verdict & Action Output</h3>
               <p className="text-xs text-slate-500 mb-3">Live trace of rule matches and executed actions.</p>
@@ -760,7 +760,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
             />
 
             {/* Conditions */}
-            <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 space-y-2">
+            <div className="rounded-xl border border-sky-100/90 bg-slate-50/50 p-3 space-y-2">
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Trigger Conditions</span>
               {(form.conds || []).map((c: any, i: number) => (
                 <div key={i} className="grid grid-cols-3 gap-2">
@@ -796,7 +796,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
             </div>
 
             {/* Actions */}
-            <div className="rounded-xl border border-slate-200/80 bg-white p-3 space-y-2">
+            <div className="rounded-xl border border-sky-100/90 bg-white p-3 space-y-2">
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Executed Actions</span>
               {(form.actions || []).map((a: any, i: number) => (
                 <div key={i} className="space-y-2">

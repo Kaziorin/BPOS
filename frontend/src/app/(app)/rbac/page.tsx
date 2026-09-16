@@ -424,7 +424,7 @@ export default function RBACPage() {
 
       {/* ── Executive KPI Cards (Light Application Theme) ── */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Security Roles</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
@@ -441,7 +441,7 @@ export default function RBACPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Assigned Staff</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
@@ -458,7 +458,7 @@ export default function RBACPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Permission Nodes</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
@@ -475,7 +475,7 @@ export default function RBACPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Governance Engine</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
@@ -492,7 +492,7 @@ export default function RBACPage() {
       </div>
 
       {/* ── Sub-Navigation Tabs ── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-100/90 pb-2">
         <div className="flex gap-2">
           {[
             { id: "matrix", label: "Roles & Permission Matrix", icon: Sliders, badge: roles.length },
@@ -508,7 +508,7 @@ export default function RBACPage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
                   active
-                    ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
+                    ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-md shadow-primary-500/20"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
@@ -546,7 +546,7 @@ export default function RBACPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Role Selector Directory */}
           <div className="lg:col-span-4 space-y-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-sm">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Configured Roles</span>
                 <span className="text-[11px] font-bold text-slate-400">{filteredRoles.length} Available</span>
@@ -559,7 +559,7 @@ export default function RBACPage() {
                   placeholder="Filter roles..."
                   value={roleSearch}
                   onChange={(e) => setRoleSearch(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
@@ -577,7 +577,7 @@ export default function RBACPage() {
                       className={`group relative flex flex-col gap-2 rounded-xl p-3.5 border transition cursor-pointer ${
                         isSelected
                           ? "border-primary-500 bg-primary-50/60 shadow-sm"
-                          : "border-slate-100 hover:border-slate-200 hover:bg-slate-50/50"
+                          : "border-slate-100 hover:border-sky-100/90 hover:bg-slate-50/50"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -656,12 +656,12 @@ export default function RBACPage() {
           {/* Right Column: Permission Matrix */}
           <div className="lg:col-span-8 space-y-4">
             {selectedRole ? (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="rounded-sm border border-sky-100/90 bg-white shadow-sm overflow-hidden">
                 {/* Header & Role Controls */}
                 <div className="p-5 border-b border-slate-100 bg-slate-50/70">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-600 text-white shadow-md shadow-primary-500/20">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-md shadow-primary-500/20">
                         <Shield size={20} />
                       </div>
                       <div>
@@ -690,7 +690,7 @@ export default function RBACPage() {
                         disabled={saving || !hasUnsavedPermChanges}
                         className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition shadow-sm cursor-pointer ${
                           hasUnsavedPermChanges
-                            ? "bg-primary-600 text-white hover:bg-primary-700 shadow-primary-500/20 active:scale-95"
+                            ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs hover:bg-primary-700 shadow-primary-500/20 active:scale-95"
                             : "bg-slate-100 text-slate-400 cursor-not-allowed"
                         }`}
                       >
@@ -701,18 +701,18 @@ export default function RBACPage() {
                   </div>
 
                   {/* Preset Buttons & Search bar */}
-                  <div className="mt-4 pt-4 border-t border-slate-200/60 flex flex-wrap items-center justify-between gap-3">
+                  <div className="mt-4 pt-4 border-t border-sky-100/90/60 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2 text-xs">
                       <span className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Quick Presets:</span>
                       <button
                         onClick={() => applyPreset("ALL")}
-                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                        className="rounded-lg border border-sky-100/90 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
                       >
                         Select All ({totalPermNodes})
                       </button>
                       <button
                         onClick={() => applyPreset("VIEW_ONLY")}
-                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                        className="rounded-lg border border-sky-100/90 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
                       >
                         Read-Only View
                       </button>
@@ -731,7 +731,7 @@ export default function RBACPage() {
                         placeholder="Search permissions..."
                         value={permSearch}
                         onChange={(e) => setPermSearch(e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white pl-8 pr-3 py-1 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className="w-full rounded-xl border border-sky-100/90 bg-white pl-8 pr-3 py-1 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
                       />
                     </div>
                   </div>
@@ -772,7 +772,7 @@ export default function RBACPage() {
                         const checkedCount = perms.filter((p) => selectedRolePerms.has(p.code)).length;
 
                         return (
-                          <div key={moduleKey} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                          <div key={moduleKey} className="rounded-xl border border-sky-100/90 bg-white p-4 shadow-sm">
                             {/* Module Header */}
                             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                               <div className="flex items-center gap-3">
@@ -807,7 +807,7 @@ export default function RBACPage() {
                                 const actColor = ACTION_COLORS[perm.action] || {
                                   bg: "bg-slate-50",
                                   text: "text-slate-700",
-                                  border: "border-slate-200",
+                                  border: "border-sky-100/90",
                                 };
 
                                 return (
@@ -816,7 +816,7 @@ export default function RBACPage() {
                                     className={`relative flex items-center justify-between gap-2 p-2.5 rounded-xl border transition cursor-pointer select-none ${
                                       isChecked
                                         ? "border-primary-400 bg-primary-50/50 shadow-xs"
-                                        : "border-slate-100 hover:border-slate-200 bg-slate-50/40"
+                                        : "border-slate-100 hover:border-sky-100/90 bg-slate-50/40"
                                     }`}
                                   >
                                     <div className="flex items-center gap-2.5 min-w-0">
@@ -858,7 +858,7 @@ export default function RBACPage() {
 
                 {/* Sticky Action Footer */}
                 {hasUnsavedPermChanges && (
-                  <div className="p-4 border-t border-slate-200 bg-amber-50 flex items-center justify-between animate-in slide-in-from-bottom duration-200">
+                  <div className="p-4 border-t border-sky-100/90 bg-amber-50 flex items-center justify-between animate-in slide-in-from-bottom duration-200">
                     <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
                       <AlertTriangle size={15} className="text-amber-600" />
                       <span>You have unsaved changes in the permission matrix.</span>
@@ -882,7 +882,7 @@ export default function RBACPage() {
                 )}
               </div>
             ) : (
-              <div className="rounded-2xl border-2 border-dashed border-slate-200 p-16 text-center">
+              <div className="rounded-sm border-2 border-dashed border-sky-100/90 p-16 text-center">
                 <Shield size={48} className="mx-auto text-slate-300" />
                 <h4 className="mt-4 text-sm font-bold text-slate-800">Select a Role Profile</h4>
                 <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
@@ -898,7 +898,7 @@ export default function RBACPage() {
       {/* TAB 2: STAFF ROLE ASSIGNMENTS & DIRECTORY                             */}
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "users" && (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden space-y-4 p-5">
+        <div className="rounded-sm border border-sky-100/90 bg-white shadow-sm overflow-hidden space-y-4 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <div>
               <h3 className="text-sm font-black text-slate-900">Staff Member Access Directory</h3>
@@ -912,7 +912,7 @@ export default function RBACPage() {
               <select
                 value={userRoleFilter}
                 onChange={(e) => setUserRoleFilter(e.target.value)}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="rounded-xl border border-sky-100/90 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option value="ALL">All Roles ({users.length})</option>
                 {roles.map((r) => (
@@ -930,7 +930,7 @@ export default function RBACPage() {
                   placeholder="Search user name, email..."
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
             </div>
@@ -939,7 +939,7 @@ export default function RBACPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-black uppercase tracking-wider text-slate-500">
+                <tr className="border-b border-sky-100/90 bg-slate-50 text-[11px] font-black uppercase tracking-wider text-slate-500">
                   <th className="px-4 py-3">Staff Member</th>
                   <th className="px-4 py-3">Contact Email</th>
                   <th className="px-4 py-3">Assigned Role</th>
@@ -1008,7 +1008,7 @@ export default function RBACPage() {
                                 setAssignRoleTarget(user);
                                 setNewAssignedRoleId(user.roleId || user.role?.id || roles[0]?.id || "");
                               }}
-                              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-50 shadow-xs cursor-pointer"
+                              className="rounded-lg border border-sky-100/90 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-50 shadow-xs cursor-pointer"
                             >
                               Change Role
                             </button>
@@ -1035,7 +1035,7 @@ export default function RBACPage() {
       {/* TAB 3: COMPLETE PERMISSION REGISTRY & AUDIT EXPLORER                  */}
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "registry" && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <div>
               <h3 className="text-sm font-black text-slate-900">Master Permission Registry (§5)</h3>
@@ -1051,7 +1051,7 @@ export default function RBACPage() {
                   placeholder="Search code, module, or description..."
                   value={permSearch}
                   onChange={(e) => setPermSearch(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
             </div>
@@ -1060,7 +1060,7 @@ export default function RBACPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-black uppercase tracking-wider text-slate-500">
+                <tr className="border-b border-sky-100/90 bg-slate-50 text-[11px] font-black uppercase tracking-wider text-slate-500">
                   <th className="px-4 py-3">Permission Code</th>
                   <th className="px-4 py-3">Module</th>
                   <th className="px-4 py-3">Action</th>
@@ -1084,7 +1084,7 @@ export default function RBACPage() {
                     const actColor = ACTION_COLORS[perm.action] || {
                       bg: "bg-slate-50",
                       text: "text-slate-700",
-                      border: "border-slate-200",
+                      border: "border-sky-100/90",
                     };
 
                     return (
@@ -1131,7 +1131,7 @@ export default function RBACPage() {
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "governance" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
             <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-100 text-purple-600">
                 <ShieldCheck size={18} />
@@ -1161,7 +1161,7 @@ export default function RBACPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
             <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
                 <Lock size={18} />
@@ -1198,7 +1198,7 @@ export default function RBACPage() {
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
+          <div className="w-full max-w-md rounded-sm bg-white p-6 shadow-2xl border border-sky-100/90 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
@@ -1219,7 +1219,7 @@ export default function RBACPage() {
                   placeholder="e.g. Senior Shift Supervisor"
                   value={newRoleName}
                   onChange={(e) => setNewRoleName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
@@ -1230,7 +1230,7 @@ export default function RBACPage() {
                   placeholder="Describe the responsibility and scope of this role..."
                   value={newRoleDesc}
                   onChange={(e) => setNewRoleDesc(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
@@ -1239,7 +1239,7 @@ export default function RBACPage() {
                 <select
                   value={newRolePreset}
                   onChange={(e) => setNewRolePreset(e.target.value as any)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="BLANK">Blank (0 Permissions)</option>
                   <option value="CASHIER">POS Cashier Standard Preset</option>
@@ -1252,7 +1252,7 @@ export default function RBACPage() {
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                className="rounded-xl border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
               >
                 Cancel
               </button>
@@ -1273,7 +1273,7 @@ export default function RBACPage() {
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {showEditModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
+          <div className="w-full max-w-md rounded-sm bg-white p-6 shadow-2xl border border-sky-100/90 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
@@ -1293,7 +1293,7 @@ export default function RBACPage() {
                   type="text"
                   value={editRoleName}
                   onChange={(e) => setEditRoleName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
@@ -1303,7 +1303,7 @@ export default function RBACPage() {
                   rows={2}
                   value={editRoleDesc}
                   onChange={(e) => setEditRoleDesc(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
             </div>
@@ -1311,7 +1311,7 @@ export default function RBACPage() {
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
               <button
                 onClick={() => setShowEditModal(false)}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                className="rounded-xl border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
               >
                 Cancel
               </button>
@@ -1332,7 +1332,7 @@ export default function RBACPage() {
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {assignRoleTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
+          <div className="w-full max-w-md rounded-sm bg-white p-6 shadow-2xl border border-sky-100/90 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
@@ -1357,7 +1357,7 @@ export default function RBACPage() {
                 <select
                   value={newAssignedRoleId}
                   onChange={(e) => setNewAssignedRoleId(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   {roles.map((r) => (
                     <option key={r.id} value={r.id}>
@@ -1371,7 +1371,7 @@ export default function RBACPage() {
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
               <button
                 onClick={() => setAssignRoleTarget(null)}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                className="rounded-xl border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
               >
                 Cancel
               </button>
@@ -1392,7 +1392,7 @@ export default function RBACPage() {
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {userInspectTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
+          <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-2xl border border-sky-100/90 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">

@@ -589,7 +589,7 @@ function WholesalePOSInner() {
         <div className="flex min-h-0 flex-1 gap-2.5 flex-col md:flex-row overflow-hidden">
           <div
             className={cn(
-              "flex min-w-0 flex-1 flex-col rounded-[20px] p-3 backdrop-blur-md transition-all md:min-h-0",
+              "flex min-w-0 flex-1 flex-col rounded-sm p-3 backdrop-blur-md transition-all md:min-h-0",
               darkMode
                 ? "border border-slate-700/80 bg-slate-900/70 shadow-lg"
                 : "shadow-[0_2px_16px_rgba(20,110,245,0.08)]",
@@ -712,7 +712,7 @@ function WholesalePOSInner() {
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4">
             <div
               className={cn(
-                "flex h-[520px] w-full max-w-2xl flex-col rounded-[24px] overflow-hidden shadow-2xl transition-colors",
+                "flex h-[520px] w-full max-w-2xl flex-col rounded-sm overflow-hidden shadow-2xl transition-colors",
                 darkMode ? "bg-slate-900 border border-slate-700" : "bg-white border border-slate-100",
               )}
             >
@@ -787,7 +787,7 @@ function WholesalePOSInner() {
                       <div
                         key={s.id || s.invoiceNo}
                         className={cn(
-                          "flex items-center justify-between rounded-[18px] border p-4 transition-all",
+                          "flex items-center justify-between rounded-sm border p-4 transition-all",
                           darkMode
                             ? "border-slate-800 bg-slate-800/40"
                             : "border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-200 hover:shadow-md",
@@ -840,7 +840,7 @@ function WholesalePOSInner() {
                     <div
                       key={held.id}
                       className={cn(
-                        "group flex items-center justify-between rounded-[18px] border p-4 transition-all hover:scale-[1.01]",
+                        "group flex items-center justify-between rounded-sm border p-4 transition-all hover:scale-[1.01]",
                         darkMode
                           ? "border-slate-800 bg-slate-800/40 hover:bg-slate-800 hover:border-slate-700"
                           : "border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-200 hover:shadow-md",
@@ -873,7 +873,7 @@ function WholesalePOSInner() {
                           className={cn(
                             "flex h-10 items-center justify-center rounded-xl px-5 text-xs font-bold transition-all active:scale-95",
                             darkMode
-                              ? "bg-primary-600 text-white hover:bg-primary-500"
+                              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs hover:bg-primary-500"
                               : "bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-200",
                           )}
                         >

@@ -68,13 +68,13 @@ export function PosToast({ message, type = "success", onClose }: ToastProps) {
   const colors = {
     success: "bg-emerald-600",
     error: "bg-rose-600",
-    info: "bg-[#00796b]",
+    info: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8]",
   };
 
   return (
     <div
       className={cn(
-        "fixed bottom-14 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2 rounded-2xl px-5 py-3 text-white shadow-xl text-[13px] font-bold animate-in slide-in-from-bottom-4 duration-300",
+        "fixed bottom-14 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2 rounded-sm px-5 py-3 text-white shadow-xl text-[13px] font-bold animate-in slide-in-from-bottom-4 duration-300",
         colors[type],
       )}
     >
@@ -105,8 +105,8 @@ export function SlideOver({
   title,
   subtitle,
   Icon,
-  iconColor = "text-[#00796b]",
-  iconBg = "bg-[#e0f2f1]",
+  iconColor = "text-[#0284C7]",
+  iconBg = "bg-sky-50 border border-sky-200/80",
   children,
   width = "w-[480px]",
 }: SlideOverProps) {
@@ -115,31 +115,32 @@ export function SlideOver({
     <div className="fixed inset-0 z-50 flex">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+        className="absolute inset-0 bg-sky-950/40 backdrop-blur-xs"
         onClick={onClose}
       />
       {/* Panel */}
       <div
         className={cn(
-          "relative ml-auto flex h-full flex-col bg-white shadow-2xl",
+          "relative ml-auto flex h-full flex-col bg-white shadow-2xl border-l border-sky-100",
           width,
         )}
       >
         {/* Header */}
-        <div className="flex flex-none items-center gap-3 border-b border-slate-200 px-5 py-4">
+        <div className="flex flex-none items-center gap-3 border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-5 py-4">
           {Icon && (
-            <div className={cn("flex h-9 w-9 items-center justify-center rounded-xl", iconBg)}>
+            <div className={cn("flex h-9 w-9 items-center justify-center rounded-sm shrink-0", iconBg)}>
               <Icon size={18} className={iconColor} />
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h2 className="text-[15px] font-black text-slate-900">{title}</h2>
+            <h2 className="text-[15px] font-bold text-[#0369A1]">{title}</h2>
             {subtitle && <p className="text-[11px] font-medium text-slate-400">{subtitle}</p>}
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+            className="rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shadow-2xs"
+            aria-label="Close"
           >
             <X size={17} />
           </button>
@@ -172,31 +173,32 @@ export function ModalWrapper({
   title,
   subtitle,
   Icon,
-  iconColor = "text-[#00796b]",
-  iconBg = "bg-[#e0f2f1]",
+  iconColor = "text-[#0284C7]",
+  iconBg = "bg-sky-50 border border-sky-200/80",
   children,
   maxWidth = "max-w-md",
 }: ModalWrapperProps) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      <div className={cn("relative w-full rounded-2xl bg-white shadow-2xl overflow-hidden", maxWidth)}>
+      <div className="absolute inset-0 bg-sky-950/40 backdrop-blur-xs" onClick={onClose} />
+      <div className={cn("relative w-full rounded-sm border border-sky-200/90 bg-white shadow-2xl overflow-hidden", maxWidth)}>
         {/* Header */}
-        <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4">
+        <div className="flex items-center gap-3 border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-5 py-4">
           {Icon && (
-            <div className={cn("flex h-9 w-9 items-center justify-center rounded-xl shrink-0", iconBg)}>
+            <div className={cn("flex h-9 w-9 items-center justify-center rounded-sm shrink-0", iconBg)}>
               <Icon size={18} className={iconColor} />
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h2 className="text-[15px] font-black text-slate-900 leading-tight">{title}</h2>
+            <h2 className="text-[15px] font-bold text-[#0369A1] leading-tight">{title}</h2>
             {subtitle && <p className="text-[11px] font-medium text-slate-400 leading-tight mt-0.5">{subtitle}</p>}
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 transition shrink-0"
+            className="rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-600 hover:text-white transition shrink-0 cursor-pointer shadow-2xs"
+            aria-label="Close"
           >
             <X size={17} />
           </button>
@@ -381,7 +383,7 @@ export function SalesHistoryPanel({ open, onClose }: SalesHistoryPanelProps) {
             type="button"
             onClick={fetchSales}
             disabled={loading}
-            className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 hover:text-teal-700 bg-white border border-slate-200 px-2.5 py-1.5 rounded-xl shadow-xs transition active:scale-95 disabled:opacity-50"
+            className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 hover:text-teal-700 bg-white border border-sky-100/90 px-2.5 py-1.5 rounded-xl shadow-xs transition active:scale-95 disabled:opacity-50"
             title="Refresh sales list"
           >
             <RefreshCw size={13} className={cn(loading && "animate-spin text-teal-600")} />
@@ -416,7 +418,7 @@ export function SalesHistoryPanel({ open, onClose }: SalesHistoryPanelProps) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by invoice, customer, phone, payment..."
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 py-2 text-[12px] font-medium text-slate-800 placeholder-slate-400 focus:border-[#00897b] focus:bg-white focus:outline-none transition"
+              className="w-full rounded-xl border border-sky-100/90 bg-slate-50 pl-8 pr-3 py-2 text-[12px] font-medium text-slate-800 placeholder-slate-400 focus:border-[#00897b] focus:bg-white focus:outline-none transition"
             />
           </div>
         </div>
@@ -429,7 +431,7 @@ export function SalesHistoryPanel({ open, onClose }: SalesHistoryPanelProps) {
               <p className="text-[12px] font-medium">Loading sales history...</p>
             </div>
           ) : error ? (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-4 text-center">
+            <div className="rounded-sm border border-rose-200 bg-rose-50/70 p-4 text-center">
               <AlertTriangle size={24} className="mx-auto text-rose-500 mb-1" />
               <p className="text-[12px] font-bold text-rose-700">{error}</p>
               <button
@@ -442,7 +444,7 @@ export function SalesHistoryPanel({ open, onClose }: SalesHistoryPanelProps) {
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400">
-              <div className="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-2 text-slate-400">
+              <div className="h-12 w-12 rounded-sm bg-slate-100 flex items-center justify-center mb-2 text-slate-400">
                 <ReceiptText size={24} />
               </div>
               <p className="text-[13px] font-extrabold text-slate-600">No transactions found</p>
@@ -475,10 +477,10 @@ export function SalesHistoryPanel({ open, onClose }: SalesHistoryPanelProps) {
                 <div
                   key={sale.id}
                   className={cn(
-                    "rounded-2xl border transition overflow-hidden bg-white",
+                    "rounded-sm border transition overflow-hidden bg-white",
                     isExpanded
                       ? "border-teal-300 ring-2 ring-teal-50 shadow-sm"
-                      : "border-slate-200/80 hover:border-teal-200 hover:shadow-xs"
+                      : "border-sky-100/90 hover:border-teal-200 hover:shadow-xs"
                   )}
                 >
                   <div
@@ -528,7 +530,7 @@ export function SalesHistoryPanel({ open, onClose }: SalesHistoryPanelProps) {
                   {/* Expanded Details */}
                   {isExpanded && (
                     <div className="border-t border-slate-100 bg-slate-50/70 p-3 text-[11px] space-y-2">
-                      <div className="grid grid-cols-2 gap-2 text-slate-600 pb-2 border-b border-slate-200/60">
+                      <div className="grid grid-cols-2 gap-2 text-slate-600 pb-2 border-b border-sky-100/90/60">
                         <div>
                           <span className="font-semibold text-slate-400">Cashier: </span>
                           <span className="font-bold text-slate-700">{sale.cashier?.name || "System"}</span>
@@ -554,7 +556,7 @@ export function SalesHistoryPanel({ open, onClose }: SalesHistoryPanelProps) {
                       {sale.items && sale.items.length > 0 ? (
                         <div className="space-y-1 pt-1">
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Purchased Items</p>
-                          <div className="divide-y divide-slate-100 bg-white rounded-xl border border-slate-200/70 overflow-hidden">
+                          <div className="divide-y divide-slate-100 bg-white rounded-xl border border-sky-100/90/70 overflow-hidden">
                             {sale.items.map((it, idx) => (
                               <div key={it.id || idx} className="flex items-center justify-between p-2">
                                 <div className="min-w-0 flex-1 pr-2">
@@ -621,7 +623,7 @@ export function PrescriptionModal({ open, onClose, onAttach }: PrescriptionModal
             value={rxNo}
             onChange={(e) => setRxNo(e.target.value)}
             placeholder="e.g. RX-2024-00123"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+            className="w-full rounded-xl border border-sky-100/90 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
           />
         </div>
         <div>
@@ -631,7 +633,7 @@ export function PrescriptionModal({ open, onClose, onAttach }: PrescriptionModal
             value={doctorName}
             onChange={(e) => setDoctorName(e.target.value)}
             placeholder="e.g. Dr. Abdul Karim"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+            className="w-full rounded-xl border border-sky-100/90 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
           />
         </div>
         <div>
@@ -641,14 +643,14 @@ export function PrescriptionModal({ open, onClose, onAttach }: PrescriptionModal
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Any special instructions..."
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-purple-500 focus:outline-none resize-none"
+            className="w-full rounded-xl border border-sky-100/90 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-purple-500 focus:outline-none resize-none"
           />
         </div>
         <div className="flex gap-2 pt-1">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-xl border border-slate-200 py-2.5 text-[13px] font-bold text-slate-700 hover:bg-slate-50 transition"
+            className="flex-1 rounded-xl border border-sky-100/90 py-2.5 text-[13px] font-bold text-slate-700 hover:bg-slate-50 transition"
           >
             Cancel
           </button>
@@ -703,7 +705,7 @@ export function AddDoctorModal({ open, onClose, onSave }: AddDoctorModalProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Dr. Abdul Karim"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+            className="w-full rounded-xl border border-sky-100/90 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
           />
         </div>
         <div>
@@ -713,7 +715,7 @@ export function AddDoctorModal({ open, onClose, onSave }: AddDoctorModalProps) {
             value={regNo}
             onChange={(e) => setRegNo(e.target.value)}
             placeholder="e.g. BMDC-12345"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-sky-500 focus:outline-none"
+            className="w-full rounded-xl border border-sky-100/90 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-sky-500 focus:outline-none"
           />
         </div>
         <div>
@@ -721,7 +723,7 @@ export function AddDoctorModal({ open, onClose, onSave }: AddDoctorModalProps) {
           <select
             value={specialty}
             onChange={(e) => setSpecialty(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 focus:border-sky-500 focus:outline-none cursor-pointer"
+            className="w-full rounded-xl border border-sky-100/90 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 focus:border-sky-500 focus:outline-none cursor-pointer"
           >
             {["General", "Cardiology", "Dermatology", "Endocrinology", "Gastroenterology", "Neurology", "Orthopedics", "Pediatrics", "Pulmonology"].map((s) => (
               <option key={s} value={s}>{s}</option>
@@ -729,7 +731,7 @@ export function AddDoctorModal({ open, onClose, onSave }: AddDoctorModalProps) {
           </select>
         </div>
         <div className="flex gap-2 pt-1">
-          <button type="button" onClick={onClose} className="flex-1 rounded-xl border border-slate-200 py-2.5 text-[13px] font-bold text-slate-700 hover:bg-slate-50 transition">
+          <button type="button" onClick={onClose} className="flex-1 rounded-xl border border-sky-100/90 py-2.5 text-[13px] font-bold text-slate-700 hover:bg-slate-50 transition">
             Cancel
           </button>
           <button type="button" onClick={handleSave} disabled={!name.trim()} className="flex-1 rounded-xl bg-sky-600 py-2.5 text-[13px] font-bold text-white hover:bg-sky-700 transition shadow-sm disabled:opacity-40">
@@ -774,7 +776,7 @@ export function LoyaltyModal({ open, onClose, customerName, currentPoints, onRed
     >
       <div className="space-y-4">
         {/* Points card */}
-        <div className="rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 p-5 text-white text-center">
+        <div className="rounded-sm bg-gradient-to-br from-rose-500 to-pink-600 p-5 text-white text-center">
           <p className="text-[11px] font-semibold opacity-80">{customerName || "Walk-in Customer"}</p>
           <p className="text-[38px] font-black tabular-nums">{currentPoints}</p>
           <p className="text-[11px] font-semibold opacity-80">Available Points</p>
@@ -792,7 +794,7 @@ export function LoyaltyModal({ open, onClose, customerName, currentPoints, onRed
               placeholder={`Max ${currentPoints}`}
               min={1}
               max={currentPoints}
-              className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 focus:border-rose-500 focus:outline-none"
+              className="flex-1 rounded-xl border border-sky-100/90 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 focus:border-rose-500 focus:outline-none"
             />
             <button
               type="button"
@@ -814,7 +816,7 @@ export function LoyaltyModal({ open, onClose, customerName, currentPoints, onRed
           </p>
         </div>
 
-        <button type="button" onClick={onClose} className="w-full rounded-xl border border-slate-200 py-2.5 text-[13px] font-bold text-slate-700 hover:bg-slate-50 transition">
+        <button type="button" onClick={onClose} className="w-full rounded-xl border border-sky-100/90 py-2.5 text-[13px] font-bold text-slate-700 hover:bg-slate-50 transition">
           Close
         </button>
       </div>
@@ -879,12 +881,12 @@ export function QuickReturnModal({ open, onClose, cart, onReturn }: QuickReturnM
               {cart.map((item) => {
                 const returnQty = returnQtys[item.productId] ?? 0;
                 return (
-                  <div key={item.productId} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3">
+                  <div key={item.productId} className="flex items-center gap-3 rounded-xl border border-sky-100/90 p-3">
                     <div className="flex-1 min-w-0">
                       <p className="text-[12.5px] font-extrabold text-slate-800 truncate">{item.name}</p>
                       <p className="text-[10.5px] text-slate-400">৳{item.unitPrice.toFixed(2)} × {item.qty} ordered</p>
                     </div>
-                    <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
+                    <div className="flex items-center gap-1 bg-slate-50 border border-sky-100/90 rounded-lg p-1">
                       <button
                         type="button"
                         onClick={() => setQty(item.productId, Math.max(0, returnQty - 1))}
@@ -914,7 +916,7 @@ export function QuickReturnModal({ open, onClose, cart, onReturn }: QuickReturnM
             )}
 
             <div className="flex gap-2 pt-1">
-              <button type="button" onClick={onClose} className="flex-1 rounded-xl border border-slate-200 py-2.5 text-[13px] font-bold text-slate-700 hover:bg-slate-50 transition">
+              <button type="button" onClick={onClose} className="flex-1 rounded-xl border border-sky-100/90 py-2.5 text-[13px] font-bold text-slate-700 hover:bg-slate-50 transition">
                 Cancel
               </button>
               <button
@@ -1021,7 +1023,7 @@ export function AddCustomerModal({
     >
       <div className="space-y-4">
         {/* Navigation Tabs */}
-        <div className={cn("flex rounded-xl p-1 border", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-slate-200")}>
+        <div className={cn("flex rounded-xl p-1 border", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-sky-100/90")}>
           <button
             type="button"
             onClick={() => setTab("view")}
@@ -1068,7 +1070,7 @@ export function AddCustomerModal({
                   "w-full rounded-xl border pl-9 pr-3 py-2 text-xs font-medium focus:outline-none transition",
                   darkMode
                     ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500 focus:border-teal-500"
-                    : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-[#00897b]"
+                    : "border-sky-100/90 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-[#00897b]"
                 )}
               />
             </div>
@@ -1084,7 +1086,7 @@ export function AddCustomerModal({
                     ? "border-teal-500 bg-teal-50/50 dark:bg-teal-950/30"
                     : darkMode
                     ? "border-slate-800 bg-slate-900 hover:border-slate-700"
-                    : "border-slate-200 bg-white hover:border-teal-200"
+                    : "border-sky-100/90 bg-white hover:border-teal-200"
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -1134,7 +1136,7 @@ export function AddCustomerModal({
                           ? "border-teal-500 bg-teal-50/50 dark:bg-teal-950/30"
                           : darkMode
                           ? "border-slate-800 bg-slate-900 hover:border-slate-700"
-                          : "border-slate-200 bg-white hover:border-teal-200"
+                          : "border-sky-100/90 bg-white hover:border-teal-200"
                       )}
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -1163,7 +1165,7 @@ export function AddCustomerModal({
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); handleSelect(c.id); }}
-                          className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 text-[10px] font-bold text-slate-700 dark:text-slate-200 hover:bg-teal-50 hover:text-[#00796b] transition shrink-0"
+                          className="rounded-lg border border-sky-100/90 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 text-[10px] font-bold text-slate-700 dark:text-slate-200 hover:bg-teal-50 hover:text-[#00796b] transition shrink-0"
                         >
                           Select
                         </button>
@@ -1190,7 +1192,7 @@ export function AddCustomerModal({
                     "w-full rounded-xl border pl-8 pr-3 py-2 text-[13px] font-semibold focus:outline-none transition",
                     darkMode
                       ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500 focus:border-teal-500"
-                      : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-[#00897b]"
+                      : "border-sky-100/90 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-[#00897b]"
                   )}
                 />
               </div>
@@ -1208,7 +1210,7 @@ export function AddCustomerModal({
                     "w-full rounded-xl border pl-8 pr-3 py-2 text-[13px] font-semibold focus:outline-none transition",
                     darkMode
                       ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500 focus:border-teal-500"
-                      : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-[#00897b]"
+                      : "border-sky-100/90 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-[#00897b]"
                   )}
                 />
               </div>
@@ -1226,7 +1228,7 @@ export function AddCustomerModal({
                     "w-full rounded-xl border pl-8 pr-3 py-2 text-[13px] font-semibold focus:outline-none transition",
                     darkMode
                       ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500 focus:border-teal-500"
-                      : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-[#00897b]"
+                      : "border-sky-100/90 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-[#00897b]"
                   )}
                 />
               </div>
@@ -1244,7 +1246,7 @@ export function AddCustomerModal({
                     "w-full rounded-xl border pl-8 pr-3 py-2 text-[13px] font-semibold focus:outline-none resize-none transition",
                     darkMode
                       ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500 focus:border-teal-500"
-                      : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-[#00897b]"
+                      : "border-sky-100/90 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-[#00897b]"
                   )}
                 />
               </div>
@@ -1257,7 +1259,7 @@ export function AddCustomerModal({
                   "flex-1 rounded-xl border py-2.5 text-[13px] font-bold transition",
                   darkMode
                     ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
-                    : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                    : "border-sky-100/90 bg-slate-50 text-slate-700 hover:bg-slate-100"
                 )}
               >
                 Back to Directory
@@ -1342,10 +1344,10 @@ export function HardwareSettingsModal({
       <div className="absolute inset-0 bg-black/40 backdrop-blur-xs" onClick={onClose} />
 
       {/* Main Card Dialog */}
-      <div className="relative w-full max-w-md rounded-3xl bg-[#fbf5f2] p-6 shadow-2xl overflow-hidden border border-amber-100/60 dark:bg-slate-900 dark:border-slate-800">
+      <div className="relative w-full max-w-md rounded-sm bg-[#fbf5f2] p-6 shadow-2xl overflow-hidden border border-amber-100/60 dark:bg-slate-900 dark:border-slate-800">
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#ffe6dc] text-[#ff5722] shadow-2xs dark:bg-orange-950/60 dark:text-orange-400">
+          <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-[#ffe6dc] text-[#ff5722] shadow-2xs dark:bg-orange-950/60 dark:text-orange-400">
             <Sliders size={22} strokeWidth={2.2} />
           </div>
           <div>
@@ -1356,13 +1358,13 @@ export function HardwareSettingsModal({
         </div>
 
         {/* Hardware Items List */}
-        <div className="divide-y divide-slate-200/70 border-y border-slate-200/70 py-1 dark:divide-slate-800 dark:border-slate-800">
+        <div className="divide-y divide-slate-200/70 border-y border-sky-100/90/70 py-1 dark:divide-slate-800 dark:border-slate-800">
           {items.map(({ key, label, IconComp }) => {
             const enabled = draft[key];
             return (
               <div key={key} className="flex items-center justify-between py-3.5 px-1">
                 <div className="flex items-center gap-3.5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/90 shadow-2xs border border-slate-200/60 dark:bg-slate-800 dark:border-slate-700">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/90 shadow-2xs border border-sky-100/90/60 dark:bg-slate-800 dark:border-slate-700">
                     <IconComp size={19} className="text-slate-600 dark:text-slate-300" />
                   </div>
                   <div>
@@ -1397,7 +1399,7 @@ export function HardwareSettingsModal({
         </div>
 
         {/* Info Alert Box */}
-        <div className="mt-5 rounded-2xl bg-[#e3f2fd] border border-[#bbdefb] p-3.5 flex items-start gap-3 dark:bg-sky-950/40 dark:border-sky-900/60">
+        <div className="mt-5 rounded-sm bg-[#e3f2fd] border border-[#bbdefb] p-3.5 flex items-start gap-3 dark:bg-sky-950/40 dark:border-sky-900/60">
           <Info size={18} className="text-[#1976d2] shrink-0 mt-0.5" />
           <p className="text-[11.5px] font-medium text-[#1565c0] dark:text-sky-200 leading-snug">
             Full hardware activation requires SDK/driver integration. UI is ready — connect ESC/POS, Bluetooth or USB packages in the backend to activate.
@@ -1416,7 +1418,7 @@ export function HardwareSettingsModal({
           <button
             type="button"
             onClick={handleSave}
-            className="flex items-center gap-2 rounded-2xl bg-[#ff5722] hover:bg-[#e64a19] text-white px-5 py-2.5 text-[13px] font-bold shadow-md transition active:scale-95"
+            className="flex items-center gap-2 rounded-sm bg-[#ff5722] hover:bg-[#e64a19] text-white px-5 py-2.5 text-[13px] font-bold shadow-md transition active:scale-95"
           >
             <Save size={15} />
             Save Settings
@@ -1473,7 +1475,7 @@ export function NotificationDropdown({
   return (
     <div
       ref={ref}
-      className="absolute right-0 top-full z-50 mt-1.5 w-84 rounded-2xl border border-slate-200 bg-white shadow-2xl overflow-hidden"
+      className="absolute right-0 top-full z-50 mt-1.5 w-84 rounded-sm border border-sky-100/90 bg-white shadow-2xl overflow-hidden"
     >
       <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 bg-slate-50/80">
         <div className="flex items-center gap-2">
@@ -1588,7 +1590,7 @@ export function ProfileDropdown({
   return (
     <div
       ref={ref}
-      className="absolute right-0 top-full z-50 mt-1.5 w-56 rounded-2xl border border-slate-200 bg-white shadow-xl overflow-hidden"
+      className="absolute right-0 top-full z-50 mt-1.5 w-56 rounded-sm border border-sky-100/90 bg-white shadow-xl overflow-hidden"
     >
       <div className="border-b border-slate-100 px-4 py-3">
         <p className="text-[12px] font-extrabold text-slate-800">{cashierName}</p>
@@ -1683,7 +1685,7 @@ export function AdvancedFilterPanel({ open, onClose, onApply }: AdvancedFilterPa
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
               placeholder="Min"
-              className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#00897b] focus:outline-none"
+              className="flex-1 rounded-xl border border-sky-100/90 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#00897b] focus:outline-none"
             />
             <span className="text-slate-400 font-semibold">—</span>
             <input
@@ -1691,7 +1693,7 @@ export function AdvancedFilterPanel({ open, onClose, onApply }: AdvancedFilterPa
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
               placeholder="Max"
-              className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#00897b] focus:outline-none"
+              className="flex-1 rounded-xl border border-sky-100/90 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#00897b] focus:outline-none"
             />
           </div>
         </div>
@@ -1702,10 +1704,10 @@ export function AdvancedFilterPanel({ open, onClose, onApply }: AdvancedFilterPa
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
             placeholder="e.g. Square, Beximco, ACI..."
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#00897b] focus:outline-none"
+            className="w-full rounded-xl border border-sky-100/90 bg-slate-50 px-3 py-2.5 text-[13px] font-semibold text-slate-800 placeholder-slate-400 focus:border-[#00897b] focus:outline-none"
           />
         </div>
-        <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+        <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-sky-100/90 bg-slate-50 px-4 py-3">
           <input
             type="checkbox"
             checked={inStockOnly}
@@ -1715,7 +1717,7 @@ export function AdvancedFilterPanel({ open, onClose, onApply }: AdvancedFilterPa
           <span className="text-[12.5px] font-semibold text-slate-700">In Stock Only</span>
         </label>
         <div className="flex gap-2 pt-1">
-          <button type="button" onClick={handleReset} className="flex-1 rounded-xl border border-slate-200 py-2.5 text-[13px] font-bold text-slate-700 hover:bg-slate-50 transition">
+          <button type="button" onClick={handleReset} className="flex-1 rounded-xl border border-sky-100/90 py-2.5 text-[13px] font-bold text-slate-700 hover:bg-slate-50 transition">
             Reset
           </button>
           <button type="button" onClick={handleApply} className="flex-1 rounded-xl bg-[#00796b] py-2.5 text-[13px] font-bold text-white hover:bg-[#005a50] transition shadow-sm">
@@ -1751,9 +1753,9 @@ export function GenericAlternativesModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-lg rounded-sm bg-white shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4 bg-[#f0faf8]">
+        <div className="flex items-center gap-3 border-b border-sky-100/90 px-5 py-4 bg-[#f0faf8]">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00796b] text-white shadow-sm">
             <Leaf size={20} />
           </div>
@@ -1800,7 +1802,7 @@ export function GenericAlternativesModal({
               return (
                 <div
                   key={alt.id}
-                  className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 hover:border-[#00796b]/40 hover:bg-[#f0faf8] transition"
+                  className="flex items-center gap-3 rounded-sm border border-sky-100/90 bg-white p-3.5 hover:border-[#00796b]/40 hover:bg-[#f0faf8] transition"
                 >
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#00796b]">
                     <Leaf size={22} />
@@ -1852,7 +1854,7 @@ export function GenericAlternativesModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-200 px-4 py-2 text-[12px] font-bold text-slate-700 hover:bg-slate-100 transition"
+            className="rounded-xl border border-sky-100/90 px-4 py-2 text-[12px] font-bold text-slate-700 hover:bg-slate-100 transition"
           >
             Close
           </button>
@@ -2006,7 +2008,7 @@ export function PaymentCheckoutModal({
 
   const textPrimary = darkMode ? "text-slate-100" : "text-slate-900";
   const textSub = darkMode ? "text-slate-400" : "text-slate-500";
-  const cardBg = darkMode ? "bg-slate-800/60 border-slate-700" : "bg-slate-50/50 border-slate-200";
+  const cardBg = darkMode ? "bg-slate-800/60 border-slate-700" : "bg-slate-50/50 border-sky-100/90";
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-3">
@@ -2019,8 +2021,8 @@ export function PaymentCheckoutModal({
       {/* Modal Card */}
       <div
         className={cn(
-          "relative w-full max-w-[480px] rounded-3xl shadow-2xl overflow-hidden border animate-in zoom-in-95 fade-in duration-200",
-          darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"
+          "relative w-full max-w-[480px] rounded-sm shadow-2xl overflow-hidden border animate-in zoom-in-95 fade-in duration-200",
+          darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-sky-100/90"
         )}
       >
         {/* ── HEADER ── */}
@@ -2029,7 +2031,7 @@ export function PaymentCheckoutModal({
           darkMode ? "border-slate-800 bg-slate-900" : "border-slate-100 bg-gradient-to-r from-[#e0f7f4] to-white"
         )}>
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#00796b] text-white shadow-md">
+            <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-[#00796b] text-white shadow-md">
               <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="6" y="4" width="12" height="5" rx="1" />
                 <path d="M5 9h14l1 9H4l1-9z" />
@@ -2100,12 +2102,12 @@ export function PaymentCheckoutModal({
                     onClick={() => onChangePayMethod(id)}
                     title={desc}
                     className={cn(
-                      "flex flex-col items-center justify-center gap-1.5 rounded-2xl border py-3.5 text-center transition",
+                      "flex flex-col items-center justify-center gap-1.5 rounded-sm border py-3.5 text-center transition",
                       active
                         ? "border-[#00796b] bg-[#00796b] text-white shadow-lg scale-[1.03]"
                         : darkMode
                           ? "border-slate-700 bg-slate-800 text-slate-400 hover:border-teal-700 hover:bg-slate-700 hover:text-teal-300"
-                          : "border-slate-200 bg-white text-slate-500 hover:border-teal-300 hover:bg-teal-50 hover:text-[#00796b]"
+                          : "border-sky-100/90 bg-white text-slate-500 hover:border-teal-300 hover:bg-teal-50 hover:text-[#00796b]"
                     )}
                   >
                     {icon}
@@ -2118,7 +2120,7 @@ export function PaymentCheckoutModal({
 
           {/* CASH TENDERING */}
           {payMethod === "CASH" && (
-            <div className={cn("rounded-2xl border p-4 space-y-3", cardBg)}>
+            <div className={cn("rounded-sm border p-4 space-y-3", cardBg)}>
               <div className="flex items-center justify-between">
                 <p className={cn("text-[10px] font-black uppercase tracking-widest", textSub)}>Cash Tendered</p>
                 <button
@@ -2143,7 +2145,7 @@ export function PaymentCheckoutModal({
                   placeholder="0.00"
                   className={cn(
                     "w-full rounded-xl border pl-9 pr-4 py-3 text-[24px] font-black text-right tabular-nums focus:outline-none focus:ring-2 focus:ring-[#00796b]/30 focus:border-[#00796b] transition",
-                    darkMode ? "bg-slate-800 border-slate-700 text-slate-100 placeholder-slate-600" : "bg-white border-slate-200 text-slate-900 placeholder-slate-300",
+                    darkMode ? "bg-slate-800 border-slate-700 text-slate-100 placeholder-slate-600" : "bg-white border-sky-100/90 text-slate-900 placeholder-slate-300",
                     isExact ? "border-emerald-400 focus:ring-emerald-200" : ""
                   )}
                 />
@@ -2165,7 +2167,7 @@ export function PaymentCheckoutModal({
                       "rounded-xl border py-2.5 text-[11.5px] font-black transition",
                       darkMode
                         ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-teal-900/60 hover:border-teal-800 hover:text-teal-300"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-teal-400 hover:bg-teal-50 hover:text-[#00796b]"
+                        : "border-sky-100/90 bg-white text-slate-700 hover:border-teal-400 hover:bg-teal-50 hover:text-[#00796b]"
                     )}
                   >
                     +৳{d >= 1000 ? `${d / 1000}k` : d}
@@ -2180,7 +2182,7 @@ export function PaymentCheckoutModal({
                   ? "border-emerald-300 bg-emerald-50"
                   : darkMode
                     ? "border-slate-700 bg-slate-800/60"
-                    : "border-slate-200 bg-white"
+                    : "border-sky-100/90 bg-white"
               )}>
                 <span className={cn(
                   "text-[12.5px] font-bold",
@@ -2201,7 +2203,7 @@ export function PaymentCheckoutModal({
           {/* NON-CASH NOTICE */}
           {payMethod !== "CASH" && (
             <div className={cn(
-              "flex items-center gap-3 rounded-2xl border px-4 py-3.5",
+              "flex items-center gap-3 rounded-sm border px-4 py-3.5",
               darkMode ? "border-teal-900/60 bg-teal-950/30" : "border-teal-200 bg-teal-50"
             )}>
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#00796b] text-white">
@@ -2221,7 +2223,7 @@ export function PaymentCheckoutModal({
           {/* PRINT TOGGLE */}
           <div className={cn(
             "flex items-center justify-between rounded-xl border px-4 py-3",
-            darkMode ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-white"
+            darkMode ? "border-slate-700 bg-slate-800/40" : "border-sky-100/90 bg-white"
           )}>
             <div className="flex items-center gap-3">
               <div className={cn(
@@ -2264,10 +2266,10 @@ export function PaymentCheckoutModal({
             type="button"
             onClick={onClose}
             className={cn(
-              "rounded-2xl border px-5 py-3 text-[13px] font-bold transition",
+              "rounded-sm border px-5 py-3 text-[13px] font-bold transition",
               darkMode
                 ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
-                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                : "border-sky-100/90 bg-white text-slate-700 hover:bg-slate-50"
             )}
           >
             Cancel
@@ -2278,7 +2280,7 @@ export function PaymentCheckoutModal({
             disabled={!canPay || !!submitting}
             onClick={handleConfirm}
             className={cn(
-              "flex-1 flex items-center justify-between rounded-2xl px-5 py-3 text-white shadow-lg transition-all active:scale-[0.99]",
+              "flex-1 flex items-center justify-between rounded-sm px-5 py-3 text-white shadow-lg transition-all active:scale-[0.99]",
               canPay
                 ? "bg-[#00695c] hover:bg-[#005247]"
                 : "bg-slate-300 cursor-not-allowed",
@@ -2333,7 +2335,7 @@ export function PharmacyPOSHeldBillsModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
       <div className={cn(
-        "relative flex h-[75vh] max-h-[600px] w-[90vw] max-w-2xl flex-col overflow-hidden sm:rounded-[2rem]",
+        "relative flex h-[75vh] max-h-[600px] w-[90vw] max-w-2xl flex-col overflow-hidden sm:rounded-sm",
         darkMode ? "bg-slate-900" : "bg-white"
       )}>
         {/* ── HEADER ── */}
@@ -2343,7 +2345,7 @@ export function PharmacyPOSHeldBillsModal({
         )}>
           <div className="flex items-center gap-3">
             <div className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-2xl",
+              "flex h-10 w-10 items-center justify-center rounded-sm",
               darkMode ? "bg-teal-900/50 text-teal-400" : "bg-teal-50 text-[#00796b]"
             )}>
               <RotateCcw size={20} />
@@ -2389,8 +2391,8 @@ export function PharmacyPOSHeldBillsModal({
                 <div
                   key={bill.id}
                   className={cn(
-                    "flex flex-col gap-3 rounded-2xl border p-4 transition-all hover:shadow-md sm:flex-row sm:items-center sm:justify-between",
-                    darkMode ? "border-slate-800 bg-slate-900 hover:border-teal-700" : "border-slate-200 bg-white hover:border-teal-300"
+                    "flex flex-col gap-3 rounded-sm border p-4 transition-all hover:shadow-md sm:flex-row sm:items-center sm:justify-between",
+                    darkMode ? "border-slate-800 bg-slate-900 hover:border-teal-700" : "border-sky-100/90 bg-white hover:border-teal-300"
                   )}
                 >
                   {/* Bill Info */}
@@ -2422,7 +2424,7 @@ export function PharmacyPOSHeldBillsModal({
                       onClick={() => onRemove(bill.id)}
                       className={cn(
                         "flex h-9 items-center justify-center rounded-xl border px-3 text-xs font-bold transition",
-                        darkMode ? "border-slate-700 bg-slate-800 text-rose-400 hover:bg-slate-700/80" : "border-slate-200 bg-white text-rose-500 hover:bg-rose-50 hover:border-rose-200"
+                        darkMode ? "border-slate-700 bg-slate-800 text-rose-400 hover:bg-slate-700/80" : "border-sky-100/90 bg-white text-rose-500 hover:bg-rose-50 hover:border-rose-200"
                       )}
                     >
                       <Trash2 size={14} className="sm:mr-1.5" />

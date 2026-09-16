@@ -795,12 +795,13 @@ function ExportTab({
   const handleExport = async () => {
     setExporting(true);
     try {
-      const r = await api.post(
+      const r: any = await api.post<any>(
         "/api/v1/export",
         { entityType, format, filters: {} },
-        { responseType: "blob" } as any
+        { responseType: "blob" }
       );
-      const url = URL.createObjectURL(new Blob([r.data]));
+      const blobData = r?.data || r;
+      const url = URL.createObjectURL(new Blob([blobData]));
       const a = document.createElement("a");
       a.href = url;
       a.download = `${entityType.toLowerCase()}_export.${format.toLowerCase() === "csv" ? "csv" : "xlsx"}`;

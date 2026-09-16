@@ -13,3 +13,5 @@ export * from "./SearchableSelect";
 export * from "./CustomCheckbox";
 export * from "./CustomBreadcrumb";
 export * from "./CustomTabs";
+export * from "./CustomCard";
+export * from "./ImageUploader";

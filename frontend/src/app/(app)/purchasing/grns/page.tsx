@@ -264,7 +264,7 @@ export default function GrnsPage() {
   }
 
   const fmt = (n: number) => `৳${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const inputCls = "mt-1 block w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-white text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition";
+  const inputCls = "mt-1 block w-full rounded-sm border border-sky-100/90 px-3.5 py-2.5 text-sm bg-white text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition";
 
   // KPIs
   const totalCount = grns.length;
@@ -294,7 +294,7 @@ export default function GrnsPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
-            <Link href="/purchasing" className="hover:text-primary-600 transition">Purchasing Hub</Link>
+            <Link href="/purchasing" className="hover:text-sky-600 transition">Purchasing Hub</Link>
             <ChevronRight size={13} className="text-gray-400" />
             <span className="text-gray-900 font-bold">Goods Received Notes (GRN)</span>
           </div>
@@ -308,14 +308,14 @@ export default function GrnsPage() {
           <button
             onClick={load}
             disabled={loading}
-            className="rounded-xl border border-gray-200 bg-white p-2.5 text-gray-600 shadow-sm transition hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50"
+            className="rounded-sm border border-sky-100/90 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50"
             title="Refresh Data"
           >
             <RefreshCw size={17} className={loading ? "animate-spin text-violet-600" : ""} />
           </button>
           <button
             onClick={openDirectModal}
-            className="flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-600/25 transition hover:bg-violet-700 active:scale-[0.98]"
+            className="flex items-center gap-2 rounded-sm bg-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-600/25 transition hover:bg-violet-700 active:scale-[0.98]"
           >
             <Plus size={18} /> New Direct GRN
           </button>
@@ -323,7 +323,7 @@ export default function GrnsPage() {
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto rounded-2xl border border-gray-200/80 bg-white p-1.5 shadow-sm">
+      <div className="flex items-center gap-1.5 overflow-x-auto rounded-sm border border-sky-100/90 bg-white p-1.5 shadow-2xs">
         {[
           { href: "/purchasing", label: "Overview", icon: Layers },
           { href: "/purchasing/requisitions", label: "Requisitions (PR)", icon: ClipboardList },
@@ -334,9 +334,9 @@ export default function GrnsPage() {
           <Link
             key={tab.href}
             href={tab.href}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition whitespace-nowrap ${
+            className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition whitespace-nowrap ${
               tab.active
-                ? "bg-primary-600 text-white shadow-sm"
+                ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs"
                 : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             }`}
           >
@@ -348,22 +348,22 @@ export default function GrnsPage() {
 
       {/* Toast Notification */}
       {toast && (
-        <div className={`flex items-center gap-2 rounded-2xl border p-4 text-sm font-semibold shadow-sm transition ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800"}`}>
+        <div className={`flex items-center gap-2 rounded-sm border p-4 text-sm font-semibold shadow-2xs transition ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800"}`}>
           {toast.ok ? <CheckCircle size={18} /> : <AlertCircle size={18} />} {toast.text}
         </div>
       )}
       {error && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 shadow-sm">
+        <div className="rounded-sm border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 shadow-2xs">
           {error} <button onClick={load} className="ml-2 font-bold underline">Retry</button>
         </div>
       )}
 
       {/* 4 Executive KPI Metric Cards */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <div className="rounded-2xl border border-gray-200/80 bg-white p-4 sm:p-5 shadow-sm">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Total GRNs</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-violet-50 text-violet-600">
               <PackageCheck size={18} />
             </div>
           </div>
@@ -374,10 +374,10 @@ export default function GrnsPage() {
           <p className="mt-1 text-xs text-gray-400 font-medium">From POs: <strong className="text-gray-700">{fromPoCount}</strong></p>
         </div>
 
-        <div className="rounded-2xl border border-gray-200/80 bg-white p-4 sm:p-5 shadow-sm">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Total Received Value</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-emerald-50 text-emerald-600">
               <TrendingUp size={18} />
             </div>
           </div>
@@ -387,10 +387,10 @@ export default function GrnsPage() {
           <p className="mt-1 text-xs text-gray-400 font-medium">Added to warehouse inventory</p>
         </div>
 
-        <div className="rounded-2xl border border-gray-200/80 bg-white p-4 sm:p-5 shadow-sm">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Total Units Received</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-blue-50 text-blue-600">
               <Boxes size={18} />
             </div>
           </div>
@@ -401,10 +401,10 @@ export default function GrnsPage() {
           <p className="mt-1 text-xs text-gray-400">Verified & stocked</p>
         </div>
 
-        <div className="rounded-2xl border border-gray-200/80 bg-white p-4 sm:p-5 shadow-sm">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Active Warehouses</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-indigo-50 text-indigo-600">
               <Building2 size={18} />
             </div>
           </div>
@@ -417,7 +417,7 @@ export default function GrnsPage() {
       </div>
 
       {/* Control & Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
         <div className="flex min-w-[280px] flex-1 items-center gap-2.5">
           <div className="relative flex-1">
             <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -426,14 +426,14 @@ export default function GrnsPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by GRN #, PO #, supplier, or product name…"
-              className="w-full rounded-xl border border-gray-200 bg-gray-50/50 py-2.5 pl-10 pr-4 text-sm focus:border-violet-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+              className="w-full rounded-sm border border-sky-100/90 bg-gray-50/50 py-2.5 pl-10 pr-4 text-sm focus:border-violet-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20"
             />
           </div>
 
           <select
             value={supplierFilter}
             onChange={(e) => setSupplierFilter(e.target.value)}
-            className="rounded-xl border border-gray-200 bg-gray-50/50 px-3 py-2.5 text-xs sm:text-sm font-medium focus:border-violet-500 focus:bg-white focus:outline-none"
+            className="rounded-sm border border-sky-100/90 bg-gray-50/50 px-3 py-2.5 text-xs sm:text-sm font-medium focus:border-violet-500 focus:bg-white focus:outline-none"
           >
             <option value="">All Suppliers</option>
             {suppliers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -442,7 +442,7 @@ export default function GrnsPage() {
           <select
             value={warehouseFilter}
             onChange={(e) => setWarehouseFilter(e.target.value)}
-            className="rounded-xl border border-gray-200 bg-gray-50/50 px-3 py-2.5 text-xs sm:text-sm font-medium focus:border-violet-500 focus:bg-white focus:outline-none"
+            className="rounded-sm border border-sky-100/90 bg-gray-50/50 px-3 py-2.5 text-xs sm:text-sm font-medium focus:border-violet-500 focus:bg-white focus:outline-none"
           >
             <option value="">All Warehouses</option>
             {warehouses.map((w) => <option key={w.id} value={w.id}>{w.name} {w.code ? `(${w.code})` : ""}</option>)}
@@ -450,17 +450,17 @@ export default function GrnsPage() {
         </div>
 
         {/* View Switcher */}
-        <div className="flex items-center rounded-xl border border-gray-200 bg-gray-50/70 p-1">
+        <div className="flex items-center rounded-sm border border-sky-100/90 bg-gray-50/70 p-1">
           <button
             onClick={() => setViewMode("table")}
-            className={`rounded-lg p-1.5 transition ${viewMode === "table" ? "bg-white text-violet-600 shadow-sm" : "text-gray-400 hover:text-gray-700"}`}
+            className={`rounded-sm p-1.5 transition ${viewMode === "table" ? "bg-white text-violet-600 shadow-2xs" : "text-gray-400 hover:text-gray-700"}`}
             title="Table View"
           >
             <ListFilter size={16} />
           </button>
           <button
             onClick={() => setViewMode("cards")}
-            className={`rounded-lg p-1.5 transition ${viewMode === "cards" ? "bg-white text-violet-600 shadow-sm" : "text-gray-400 hover:text-gray-700"}`}
+            className={`rounded-sm p-1.5 transition ${viewMode === "cards" ? "bg-white text-violet-600 shadow-2xs" : "text-gray-400 hover:text-gray-700"}`}
             title="Grid Card View"
           >
             <LayoutGrid size={16} />
@@ -472,8 +472,8 @@ export default function GrnsPage() {
       {loading ? (
         <div className="flex justify-center py-24"><Loader2 size={32} className="animate-spin text-violet-500" /></div>
       ) : filteredGrns.length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-gray-200 bg-white p-16 text-center shadow-sm">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
+        <div className="rounded-sm border-2 border-dashed border-sky-100/90 bg-white p-16 text-center shadow-2xs">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-sm bg-violet-50 text-violet-600">
             <PackageCheck size={32} />
           </div>
           <h3 className="mt-4 text-lg font-bold text-gray-900">No Goods Received Notes (GRN) Found</h3>
@@ -481,10 +481,10 @@ export default function GrnsPage() {
             Receive goods against an approved purchase order or post a direct GRN to increase inventory.
           </p>
           <div className="mt-5 flex justify-center gap-3">
-            <button onClick={openDirectModal} className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-violet-700">
+            <button onClick={openDirectModal} className="rounded-sm bg-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-2xs hover:bg-violet-700">
               <Plus size={16} className="mr-1.5 inline" /> Post Direct GRN
             </button>
-            <Link href="/purchasing/orders" className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50">
+            <Link href="/purchasing/orders" className="rounded-sm border border-sky-100/90 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50">
               Go to Purchase Orders →
             </Link>
           </div>
@@ -493,10 +493,10 @@ export default function GrnsPage() {
         /* ========================================================================= */
         /* HIGH DENSITY ERP TABLE VIEW                                               */
         /* ========================================================================= */
-        <div className="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="border-b border-gray-200 bg-gray-50/80 text-[11px] font-bold uppercase tracking-wider text-gray-500">
+              <thead className="border-b border-sky-100/90 bg-gray-50/80 text-[11px] font-bold uppercase tracking-wider text-gray-500">
                 <tr>
                   <th className="py-3.5 px-4 w-12 text-center">#</th>
                   <th className="py-3.5 px-4">GRN # & Date</th>
@@ -527,7 +527,7 @@ export default function GrnsPage() {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <span className="inline-flex items-center gap-1 rounded-lg bg-gray-100 border border-gray-200 px-2 py-1 text-[11px] font-semibold text-gray-700">
+                        <span className="inline-flex items-center gap-1 rounded-sm bg-gray-100 border border-sky-100/90 px-2 py-1 text-[11px] font-semibold text-gray-700">
                           📍 {grn.warehouse?.name || "Warehouse"}
                         </span>
                       </td>
@@ -563,7 +563,7 @@ export default function GrnsPage() {
                       <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={() => setViewGrn(grn)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 shadow-sm transition hover:bg-gray-50 hover:text-gray-900"
+                          className="inline-flex items-center gap-1 rounded-sm border border-sky-100/90 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900"
                         >
                           <Eye size={13} /> View Slip
                         </button>
@@ -586,7 +586,7 @@ export default function GrnsPage() {
             const totalUnits = items.reduce((s, i) => s + Number(i.qty), 0);
 
             return (
-              <div key={grn.id} className="rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm transition hover:border-gray-300 hover:shadow-md flex flex-col justify-between">
+              <div key={grn.id} className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs transition hover:border-gray-300 hover:shadow-2xs flex flex-col justify-between">
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -607,7 +607,7 @@ export default function GrnsPage() {
                   </div>
 
                   <div className="mt-3 flex items-center justify-between text-xs text-gray-600">
-                    <span className="rounded-lg bg-gray-100 border border-gray-200 px-2 py-0.5 font-medium">
+                    <span className="rounded-sm bg-gray-100 border border-sky-100/90 px-2 py-0.5 font-medium">
                       📍 {grn.warehouse?.name || "Warehouse"}
                     </span>
                     {grn.purchaseOrder && (
@@ -619,7 +619,7 @@ export default function GrnsPage() {
 
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {items.slice(0, 3).map((item, idx) => (
-                      <span key={idx} className="rounded-lg bg-gray-50 border border-gray-200 px-2 py-1 text-[11px] font-medium text-gray-700">
+                      <span key={idx} className="rounded-sm bg-gray-50 border border-sky-100/90 px-2 py-1 text-[11px] font-medium text-gray-700">
                         {item.productName || item.product?.name || "Item"} × {item.qty}
                       </span>
                     ))}
@@ -627,7 +627,7 @@ export default function GrnsPage() {
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center justify-end border-t border-gray-100 pt-3">
+                <div className="mt-4 flex items-center justify-end border-t border-sky-100/70 pt-3">
                   <button
                     onClick={() => setViewGrn(grn)}
                     className="flex items-center gap-1.5 text-xs font-bold text-violet-600 hover:text-violet-700"
@@ -647,28 +647,28 @@ export default function GrnsPage() {
       {showDirectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-md" onClick={() => setShowDirectModal(false)}>
           <div
-            className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl border border-gray-100"
+            className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-sm bg-white shadow-2xs border border-sky-100/70"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-100 bg-violet-50/70 px-7 py-5">
+            <div className="flex items-center justify-between border-b border-sky-100/70 bg-violet-50/70 px-7 py-5">
               <div>
                 <h2 className="text-xl font-black tracking-tight text-gray-900">Direct Goods Received Note (GRN)</h2>
                 <p className="text-xs font-medium text-gray-500">Receive stock directly into warehouse without prior purchase order</p>
               </div>
-              <button onClick={() => setShowDirectModal(false)} className="rounded-xl border border-gray-200 bg-white p-2 text-gray-400 hover:bg-gray-100">
+              <button onClick={() => setShowDirectModal(false)} className="rounded-sm border border-sky-100/90 bg-white p-2 text-gray-400 hover:bg-gray-100">
                 <X size={18} />
               </button>
             </div>
 
             {directError && (
-              <div className="mx-7 mt-4 flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 p-3.5 text-sm font-semibold text-rose-700">
+              <div className="mx-7 mt-4 flex items-center gap-2 rounded-sm border border-rose-200 bg-rose-50 p-3.5 text-sm font-semibold text-rose-700">
                 <AlertCircle size={18} /> {directError}
               </div>
             )}
 
             <form onSubmit={handleDirectGrn} className="flex flex-1 flex-col overflow-y-auto p-7 space-y-6">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 rounded-2xl border border-gray-200/80 bg-gray-50/50 p-5">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 rounded-sm border border-sky-100/90 bg-gray-50/50 p-5">
                 <div>
                   <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Supplier (Optional)</label>
                   <select
@@ -709,7 +709,7 @@ export default function GrnsPage() {
               </div>
 
               {/* Fast Barcode & SKU Scanner Bar */}
-              <div className="rounded-2xl border-2 border-dashed border-violet-200 bg-violet-50/30 p-4">
+              <div className="rounded-sm border-2 border-dashed border-violet-200 bg-violet-50/30 p-4">
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <div className="relative flex-1">
                     <Barcode size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-violet-500" />
@@ -720,7 +720,7 @@ export default function GrnsPage() {
                       onChange={(e) => setScanInput(e.target.value)}
                       onKeyDown={handleScanAdd}
                       placeholder="Scan Barcode or Type SKU / Name & press Enter to auto-add item…"
-                      className="w-full rounded-xl border border-violet-200 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                      className="w-full rounded-sm border border-violet-200 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
                     />
                   </div>
                   <div className="flex items-center gap-2">
@@ -731,7 +731,7 @@ export default function GrnsPage() {
                           e.target.value = "";
                         }
                       }}
-                      className="rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-xs font-bold text-gray-700 shadow-sm focus:border-violet-500 focus:outline-none"
+                      className="rounded-sm border border-sky-100/90 bg-white px-3.5 py-2.5 text-xs font-bold text-gray-700 shadow-2xs focus:border-violet-500 focus:outline-none"
                     >
                       <option value="">+ Quick Pick Item…</option>
                       {products.map((p) => (
@@ -745,8 +745,8 @@ export default function GrnsPage() {
               </div>
 
               {/* Tabular Direct GRN Lines */}
-              <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm">
-                <div className="bg-gray-50/80 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+              <div className="rounded-sm border border-sky-100/90 bg-white overflow-hidden shadow-2xs">
+                <div className="bg-gray-50/80 px-4 py-3 border-b border-sky-100/90 flex items-center justify-between">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700">Received Product Line Items ({directLines.length})</h4>
                   <button
                     type="button"
@@ -764,7 +764,7 @@ export default function GrnsPage() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-gray-50/40 text-[11px] font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100">
+                    <thead className="bg-gray-50/40 text-[11px] font-bold uppercase tracking-wider text-gray-400 border-b border-sky-100/70">
                       <tr>
                         <th className="py-2.5 px-4 w-12 text-center">#</th>
                         <th className="py-2.5 px-4">Product Item *</th>
@@ -786,7 +786,7 @@ export default function GrnsPage() {
                               <select
                                 value={line.productId}
                                 onChange={(e) => updateDirectLine(idx, "productId", e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-900 focus:border-violet-500 focus:outline-none"
+                                className="w-full rounded-sm border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-gray-900 focus:border-violet-500 focus:outline-none"
                                 required
                               >
                                 <option value="">Select Product…</option>
@@ -803,7 +803,7 @@ export default function GrnsPage() {
                                 min="1"
                                 value={line.qty}
                                 onChange={(e) => updateDirectLine(idx, "qty", e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-2 py-2 text-center text-xs font-black text-gray-900 focus:border-violet-500 focus:outline-none"
+                                className="w-full rounded-sm border border-sky-100/90 bg-white px-2 py-2 text-center text-xs font-black text-gray-900 focus:border-violet-500 focus:outline-none"
                                 required
                               />
                             </td>
@@ -814,7 +814,7 @@ export default function GrnsPage() {
                                 step="0.01"
                                 value={line.costPrice}
                                 onChange={(e) => updateDirectLine(idx, "costPrice", e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-2 py-2 text-right text-xs font-semibold text-gray-900 focus:border-violet-500 focus:outline-none"
+                                className="w-full rounded-sm border border-sky-100/90 bg-white px-2 py-2 text-right text-xs font-semibold text-gray-900 focus:border-violet-500 focus:outline-none"
                                 required
                               />
                             </td>
@@ -823,7 +823,7 @@ export default function GrnsPage() {
                                 type="text"
                                 value={line.batchNo}
                                 onChange={(e) => updateDirectLine(idx, "batchNo", e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-2 py-2 text-xs font-mono"
+                                className="w-full rounded-sm border border-sky-100/90 bg-white px-2 py-2 text-xs font-mono"
                                 placeholder="Batch #"
                               />
                             </td>
@@ -832,7 +832,7 @@ export default function GrnsPage() {
                                 type="date"
                                 value={line.expiryDate}
                                 onChange={(e) => updateDirectLine(idx, "expiryDate", e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 bg-white px-2 py-2 text-xs"
+                                className="w-full rounded-sm border border-sky-100/90 bg-white px-2 py-2 text-xs"
                               />
                             </td>
                             <td className="py-3 px-4 text-right font-black tabular-nums text-gray-900 text-sm">
@@ -842,7 +842,7 @@ export default function GrnsPage() {
                               <button
                                 type="button"
                                 onClick={() => removeDirectLine(idx)}
-                                className="rounded-lg p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                                className="rounded-sm p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition"
                               >
                                 <Trash2 size={15} />
                               </button>
@@ -856,17 +856,17 @@ export default function GrnsPage() {
               </div>
 
               {/* Bottom Sticky Financial Summary & Actions */}
-              <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-200/80 bg-gray-50/80 p-5">
+              <div className="flex flex-wrap items-center justify-between gap-4 rounded-sm border border-sky-100/90 bg-gray-50/80 p-5">
                 <div className="flex items-center gap-6">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Total Lines</span>
                     <p className="text-lg font-black text-gray-900">{totalLinesCount}</p>
                   </div>
-                  <div className="border-l border-gray-200 pl-6">
+                  <div className="border-l border-sky-100/90 pl-6">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Total Units</span>
                     <p className="text-lg font-black text-gray-900">{totalDirectUnits}</p>
                   </div>
-                  <div className="border-l border-gray-200 pl-6">
+                  <div className="border-l border-sky-100/90 pl-6">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Grand Received Cost</span>
                     <p className="text-2xl font-black text-violet-700">{fmt(totalCostValue)}</p>
                   </div>
@@ -876,14 +876,14 @@ export default function GrnsPage() {
                   <button
                     type="button"
                     onClick={() => setShowDirectModal(false)}
-                    className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50"
+                    className="rounded-sm border border-sky-100/90 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={directSaving}
-                    className="flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-black text-white shadow-lg shadow-violet-600/25 hover:bg-violet-700 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-sm bg-violet-600 px-6 py-2.5 text-sm font-black text-white shadow-lg shadow-violet-600/25 hover:bg-violet-700 disabled:opacity-50"
                   >
                     {directSaving && <Loader2 size={16} className="animate-spin" />} Confirm & Post Direct GRN
                   </button>
@@ -899,10 +899,10 @@ export default function GrnsPage() {
       {/* ========================================================================= */}
       {viewGrn && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-md" onClick={() => setViewGrn(null)}>
-          <div id="printable-slip" className="printable-document max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white shadow-2xl border border-gray-100 flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <div id="printable-slip" className="printable-document max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-sm bg-white shadow-2xs border border-sky-100/70 flex flex-col" onClick={(e) => e.stopPropagation()}>
             
             {/* Header */}
-            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 bg-gradient-to-r from-violet-50/50 via-white to-gray-50/50 p-6 sm:p-7">
+            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-sky-100/70 bg-gradient-to-r from-violet-50/50 via-white to-gray-50/50 p-6 sm:p-7">
               <div>
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <span className="rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-black uppercase tracking-wider text-emerald-700">
@@ -910,7 +910,7 @@ export default function GrnsPage() {
                   </span>
                   <span className="font-mono text-xl sm:text-2xl font-black text-gray-900">{viewGrn.grnNo}</span>
                   {viewGrn.purchaseOrder && (
-                    <span className="rounded-xl bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-xs font-bold text-indigo-700">
+                    <span className="rounded-sm bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-xs font-bold text-indigo-700">
                       PO #{viewGrn.purchaseOrder.poNo}
                     </span>
                   )}
@@ -923,13 +923,13 @@ export default function GrnsPage() {
               <div className="flex items-center gap-2 no-print">
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 shadow-sm transition hover:bg-gray-50 hover:text-gray-900"
+                  className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900"
                 >
                   <Printer size={15} /> Print Receipt Slip
                 </button>
                 <button
                   onClick={() => setViewGrn(null)}
-                  className="rounded-xl p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                  className="rounded-sm p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
                 >
                   <X size={19} />
                 </button>
@@ -939,14 +939,14 @@ export default function GrnsPage() {
             <div className="p-6 sm:p-7 space-y-6 flex-1">
               {/* 2-Column Info Summary */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm">
+                <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Warehouse & Supplier Details</p>
                   <div className="mt-2.5 space-y-2 text-xs text-gray-700">
-                    <div className="flex justify-between py-1 border-b border-gray-100">
+                    <div className="flex justify-between py-1 border-b border-sky-100/70">
                       <span className="text-gray-500">Receiving Warehouse:</span>
                       <strong className="text-gray-900">{viewGrn.warehouse?.name || "Main Warehouse"}</strong>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-gray-100">
+                    <div className="flex justify-between py-1 border-b border-sky-100/70">
                       <span className="text-gray-500">Supplier:</span>
                       <strong className="text-gray-900">{viewGrn.supplier?.name || "Direct Vendor"}</strong>
                     </div>
@@ -957,7 +957,7 @@ export default function GrnsPage() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm">
+                <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Receiving Notes & Challan</p>
                   <p className="mt-2.5 text-xs text-gray-700 leading-relaxed min-h-[50px] italic">
                     {viewGrn.note ? `"${viewGrn.note}"` : "No special challan notes recorded on receipt."}
@@ -966,8 +966,8 @@ export default function GrnsPage() {
               </div>
 
               {/* Received Items Table */}
-              <div className="rounded-2xl border border-gray-200/80 bg-white overflow-hidden shadow-sm">
-                <div className="bg-gray-50/80 px-4 py-3 border-b border-gray-200/80 flex items-center justify-between">
+              <div className="rounded-sm border border-sky-100/90 bg-white overflow-hidden shadow-2xs">
+                <div className="bg-gray-50/80 px-4 py-3 border-b border-sky-100/90 flex items-center justify-between">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700">Inwarded Product Items ({(viewGrn.items || []).length})</h4>
                   <span className="text-xs font-semibold text-gray-500">
                     Total Units: {(viewGrn.items || []).reduce((s, i) => s + Number(i.qty), 0)}
@@ -975,7 +975,7 @@ export default function GrnsPage() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-gray-50/40 text-[11px] font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100">
+                    <thead className="bg-gray-50/40 text-[11px] font-bold uppercase tracking-wider text-gray-400 border-b border-sky-100/70">
                       <tr>
                         <th className="py-2.5 px-4 w-12 text-center">#</th>
                         <th className="py-2.5 px-4">Product Name & SKU</th>
@@ -996,7 +996,7 @@ export default function GrnsPage() {
                               <p className="text-[11px] font-mono text-gray-400">{it.product?.sku || "—"}</p>
                             </td>
                             <td className="py-3 px-4 text-center">
-                              <span className="inline-block rounded-xl bg-violet-50 border border-violet-200/70 px-2.5 py-1 font-bold text-violet-800">
+                              <span className="inline-block rounded-sm bg-violet-50 border border-violet-200/70 px-2.5 py-1 font-bold text-violet-800">
                                 {Number(it.qty)} Units
                               </span>
                             </td>
@@ -1013,7 +1013,7 @@ export default function GrnsPage() {
                         );
                       })}
                     </tbody>
-                    <tfoot className="bg-gray-50/80 border-t-2 border-gray-200">
+                    <tfoot className="bg-gray-50/80 border-t-2 border-sky-100/90">
                       <tr>
                         <td colSpan={5} className="py-3.5 px-4 text-right font-bold text-gray-700 uppercase tracking-wider">
                           Total Received Value
@@ -1029,10 +1029,10 @@ export default function GrnsPage() {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-end border-t border-gray-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-3xl no-print">
+            <div className="flex items-center justify-end border-t border-sky-100/70 bg-gray-50/80 p-5 sm:px-7 rounded-b-3xl no-print">
               <button
                 onClick={() => setViewGrn(null)}
-                className="rounded-xl bg-gray-900 px-6 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-gray-800 transition"
+                className="rounded-sm bg-gray-900 px-6 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-gray-800 transition"
               >
                 Close Slip
               </button>

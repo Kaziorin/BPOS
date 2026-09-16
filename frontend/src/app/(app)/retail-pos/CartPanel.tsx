@@ -25,7 +25,7 @@ export function CartPanel({ items, selfCheckout, onQtyChange, onRemove, onDiscou
   return (
     <div className="flex-1 overflow-y-auto space-y-1 pr-1">
       {items.map((item, idx) => (
-        <div key={idx} className="rounded-lg border border-gray-100 bg-white p-2.5">
+        <div key={idx} className="rounded-sm border border-sky-100/90 bg-white p-2.5 shadow-2xs">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
@@ -39,14 +39,14 @@ export function CartPanel({ items, selfCheckout, onQtyChange, onRemove, onDiscou
             <div className="flex items-center gap-1 shrink-0">
               <button
                 onClick={() => onQtyChange(idx, item.qty - 1)}
-                className="h-6 w-6 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-50"
+                className="h-6 w-6 flex items-center justify-center rounded-sm border border-sky-200 text-gray-500 hover:bg-sky-50 transition"
               >
                 <Minus size={11} />
               </button>
               <span className="w-6 text-center text-xs font-medium tabular-nums">{item.qty}</span>
               <button
                 onClick={() => onQtyChange(idx, item.qty + 1)}
-                className="h-6 w-6 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-50"
+                className="h-6 w-6 flex items-center justify-center rounded-sm border border-sky-200 text-gray-500 hover:bg-sky-50 transition"
               >
                 <Plus size={11} />
               </button>

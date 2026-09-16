@@ -10,6 +10,8 @@ import {
   Layers, ArrowUpRight, TrendingUp, CreditCard, ChevronDown
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomerModal } from "@/components/customers/CustomerModal";
 import { CustomerDrawer } from "@/components/customers/CustomerDrawer";
 import { CollectDueModal } from "@/components/customers/CollectDueModal";
@@ -256,51 +258,52 @@ export default function CustomersPage() {
     <div className="w-full space-y-5 pb-12">
       
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200/70 pb-4">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-            <Users size={22} className="text-primary-600" />
-            Customer Management
-          </h1>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Maintain customer directories, credit limits, outstanding balances & CRM loyalty.
-          </p>
-        </div>
+      <CustomBreadcrumb
+        title="Customer Management"
+        subtitle="Maintain customer directories, credit limits, outstanding balances & CRM loyalty."
+        icon={<Users size={20} />}
+        breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Customers" }]}
+        actions={
+          <div className="flex items-center gap-2 flex-wrap">
+            <CustomButton
+              variant="outline"
+              size="sm"
+              onClick={() => setIsGroupsModalOpen(true)}
+              className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50"
+            >
+              <Layers size={14} className="text-[#0284C7]" />
+              Groups ({groups.length})
+            </CustomButton>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => setIsGroupsModalOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition"
-          >
-            <Layers size={14} className="text-gray-500" />
-            Groups ({groups.length})
-          </button>
+            <CustomButton
+              variant="outline"
+              size="sm"
+              onClick={exportCSV}
+              className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50"
+            >
+              <Download size={14} className="text-[#0284C7]" />
+              Export CSV
+            </CustomButton>
 
-          <button
-            onClick={exportCSV}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition"
-          >
-            <Download size={14} className="text-gray-500" />
-            Export CSV
-          </button>
-
-          <button
-            onClick={handleOpenAdd}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 transition"
-          >
-            <UserPlus size={15} />
-            Add Customer
-          </button>
-        </div>
-      </div>
+            <CustomButton
+              variant="primary"
+              size="sm"
+              onClick={handleOpenAdd}
+            >
+              <UserPlus size={15} />
+              Add Customer
+            </CustomButton>
+          </div>
+        }
+      />
 
       {/* ── Clean KPI Analytics Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* Total Customers */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:border-gray-300 transition">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300/80 transition">
           <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Total Customers</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#0369A1]">Total Customers</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80">
               <Users size={16} />
             </div>
           </div>
@@ -323,17 +326,17 @@ export default function CustomersPage() {
             setActiveSegmentTab(activeSegmentTab === "WITH_DUE" ? "ALL" : "WITH_DUE");
             setPage(1);
           }}
-          className={`rounded-xl border p-4 shadow-sm transition cursor-pointer ${
+          className={`rounded-sm border p-4 shadow-xs transition cursor-pointer ${
             activeSegmentTab === "WITH_DUE"
               ? "border-rose-500 bg-rose-50/40 ring-1 ring-rose-500/20"
-              : "border-gray-200 bg-white hover:border-rose-300"
+              : "border-sky-100/90 bg-white hover:border-rose-300"
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-rose-700 flex items-center gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-rose-700 flex items-center gap-1">
               <AlertTriangle size={13} /> Outstanding Due
             </span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-50 text-rose-600 border border-rose-200/80">
               <DollarSign size={16} />
             </div>
           </div>
@@ -348,10 +351,10 @@ export default function CustomersPage() {
         </div>
 
         {/* VIP & High-Value */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:border-gray-300 transition">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300/80 transition">
           <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-medium uppercase tracking-wider text-gray-500">VIP & Top Tier</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#0369A1]">VIP & Top Tier</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-amber-50 text-amber-600 border border-amber-200/80">
               <Award size={16} />
             </div>
           </div>
@@ -369,10 +372,10 @@ export default function CustomersPage() {
         </div>
 
         {/* Loyalty Points */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:border-gray-300 transition">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300/80 transition">
           <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Loyalty Points</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#0369A1]">Loyalty Points</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80">
               <Sparkles size={16} />
             </div>
           </div>
@@ -380,7 +383,7 @@ export default function CustomersPage() {
             <span className="text-2xl font-bold text-gray-900">
               {statsLoading ? "—" : (stats?.totalPoints || 0).toLocaleString()}
             </span>
-            <span className="text-xs font-medium text-primary-600">points</span>
+            <span className="text-xs font-semibold text-[#0284C7]">points</span>
           </div>
           <p className="mt-1 text-[11px] text-gray-400">
             Redeemable in POS checkouts
@@ -389,7 +392,7 @@ export default function CustomersPage() {
       </div>
 
       {/* ── Segment Navigation Bar ── */}
-      <div className="flex items-center gap-1.5 overflow-x-auto border-b border-gray-200 pb-2 scrollbar-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto border-b border-sky-100/90 pb-2 scrollbar-none">
         {segmentTabs.map((tab) => {
           const isActive = activeSegmentTab === tab.id;
           return (
@@ -399,16 +402,16 @@ export default function CustomersPage() {
                 setActiveSegmentTab(tab.id);
                 setPage(1);
               }}
-              className={`flex items-center gap-1.5 shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+              className={`flex items-center gap-1.5 shrink-0 rounded-sm px-3 py-1.5 text-xs font-medium transition ${
                 isActive
-                  ? "bg-primary-600 text-white shadow-sm font-semibold"
-                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs font-semibold"
+                  : "bg-white text-gray-600 border border-sky-100/90 hover:bg-sky-50/60 hover:text-gray-900"
               }`}
             >
               <span>{tab.label}</span>
               {tab.count !== undefined && (
-                <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                  isActive ? "bg-white/20 text-white" : tab.isDue ? "bg-rose-100 text-rose-700" : "bg-gray-100 text-gray-600"
+                <span className={`rounded-sm px-1.5 py-0.2 text-[10px] font-bold ${
+                  isActive ? "bg-white/20 text-white" : tab.isDue ? "bg-rose-100 text-rose-700" : "bg-sky-50 text-[#0284C7] border border-sky-200/60"
                 }`}>
                   {tab.count}
                 </span>
@@ -419,7 +422,7 @@ export default function CustomersPage() {
       </div>
 
       {/* ── Filter & Search Toolbar ── */}
-      <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="rounded-sm border border-sky-100/90 bg-white p-3 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Search input */}
         <div className="relative w-full md:w-80">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -431,7 +434,7 @@ export default function CustomersPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-lg border border-gray-300 py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 transition"
+            className="w-full rounded-sm border border-sky-200/90 py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition"
           />
           {search && (
             <button
@@ -451,7 +454,7 @@ export default function CustomersPage() {
               setFilterGroup(e.target.value);
               setPage(1);
             }}
-            className="rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
           >
             <option value="">All Groups</option>
             {groups.map((g) => (
@@ -467,7 +470,7 @@ export default function CustomersPage() {
               setFilterStatus(e.target.value);
               setPage(1);
             }}
-            className="rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
           >
             <option value="">All Statuses</option>
             <option value="ACTIVE">Active</option>
@@ -480,7 +483,7 @@ export default function CustomersPage() {
               setSortBy(e.target.value);
               setPage(1);
             }}
-            className="rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
           >
             <option value="createdAt">Newest First</option>
             <option value="name">Name (A-Z)</option>
@@ -491,24 +494,24 @@ export default function CustomersPage() {
 
           <button
             onClick={() => setSortDir((prev) => (prev === "asc" ? "desc" : "asc"))}
-            className="rounded-lg border border-gray-300 p-1.5 text-gray-600 hover:bg-gray-50 transition"
+            className="rounded-sm border border-sky-200/90 p-1.5 text-[#0369A1] hover:bg-sky-50 transition"
             title={`Sort: ${sortDir.toUpperCase()}`}
           >
             <ArrowUpDown size={14} />
           </button>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center rounded-lg border border-gray-200 p-0.5 bg-gray-50">
+          <div className="flex items-center rounded-sm border border-sky-200/90 p-0.5 bg-sky-50/40">
             <button
               onClick={() => setViewMode("table")}
-              className={`rounded p-1 transition ${viewMode === "table" ? "bg-white text-primary-600 shadow-xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-xs p-1 transition ${viewMode === "table" ? "bg-white text-[#0284C7] shadow-xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
               title="Table View"
             >
               <LayoutList size={14} />
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`rounded p-1 transition ${viewMode === "grid" ? "bg-white text-primary-600 shadow-xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-xs p-1 transition ${viewMode === "grid" ? "bg-white text-[#0284C7] shadow-xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
               title="Grid View"
             >
               <LayoutGrid size={14} />
@@ -520,17 +523,17 @@ export default function CustomersPage() {
               loadCustomers();
               loadStats();
             }}
-            className="rounded-lg border border-gray-300 p-1.5 text-gray-600 hover:bg-gray-50 transition"
+            className="rounded-sm border border-sky-200/90 p-1.5 text-[#0369A1] hover:bg-sky-50 transition"
             title="Refresh"
           >
-            <RefreshCw size={14} className={loading ? "animate-spin text-primary-600" : ""} />
+            <RefreshCw size={14} className={loading ? "animate-spin text-[#0284C7]" : ""} />
           </button>
         </div>
       </div>
 
       {/* ── Error Banner ── */}
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 flex items-center justify-between">
+        <div className="rounded-sm border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <AlertTriangle size={15} />
             <span>{error}</span>
@@ -543,13 +546,13 @@ export default function CustomersPage() {
 
       {/* ── Customers List Data View ── */}
       {loading ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-xs">
-          <RefreshCw size={24} className="mx-auto animate-spin text-primary-600 mb-2" />
-          <p className="text-xs font-semibold text-gray-700">Loading customers...</p>
+        <div className="rounded-sm border border-sky-100/90 bg-white p-12 text-center shadow-xs">
+          <RefreshCw size={24} className="mx-auto animate-spin text-[#0284C7] mb-2" />
+          <p className="text-xs font-semibold text-[#0369A1]">Loading customers...</p>
         </div>
       ) : customers.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 bg-white p-12 text-center shadow-xs">
-          <Users size={32} className="mx-auto text-gray-300 mb-3" />
+        <div className="rounded-sm border-2 border-dashed border-sky-200/70 bg-white p-12 text-center shadow-xs">
+          <Users size={32} className="mx-auto text-sky-300 mb-3" />
           <h3 className="text-sm font-bold text-gray-900">No Customers Found</h3>
           <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
             {search || activeSegmentTab !== "ALL" || filterGroup || filterStatus
@@ -558,7 +561,9 @@ export default function CustomersPage() {
           </p>
           <div className="mt-4 flex items-center justify-center gap-2">
             {(search || activeSegmentTab !== "ALL" || filterGroup || filterStatus) && (
-              <button
+              <CustomButton
+                variant="outline"
+                size="sm"
                 onClick={() => {
                   setSearch("");
                   setActiveSegmentTab("ALL");
@@ -566,26 +571,27 @@ export default function CustomersPage() {
                   setFilterStatus("");
                   setPage(1);
                 }}
-                className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                className="border-sky-200/90 text-[#0369A1]"
               >
                 Clear Filters
-              </button>
+              </CustomButton>
             )}
-            <button
+            <CustomButton
+              variant="primary"
+              size="sm"
               onClick={handleOpenAdd}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-primary-700"
             >
               <UserPlus size={14} /> Add Customer
-            </button>
+            </CustomButton>
           </div>
         </div>
       ) : viewMode === "table" ? (
         /* ── CLEAN ENTERPRISE TABLE VIEW ── */
-        <div className="rounded-xl border border-gray-200 bg-white shadow-xs overflow-hidden">
+        <div className="rounded-sm border border-sky-100/90 bg-white shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-50/75 text-[11px] font-semibold uppercase tracking-wider text-gray-600">
+                <tr className="border-b border-sky-100/90 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 text-[11px] font-semibold uppercase tracking-wider text-[#0369A1]">
                   <th className="px-4 py-3">Customer</th>
                   <th className="px-3 py-3">Contact</th>
                   <th className="px-3 py-3">Segment</th>
@@ -597,27 +603,27 @@ export default function CustomersPage() {
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-sky-100/60">
                 {customers.map((c) => {
                   const seg = segBadgeMap[c.segmentation || "REGULAR"] || segBadgeMap.REGULAR;
                   const due = Number(c.currentDue || 0);
                   const isDue = due > 0;
 
                   return (
-                    <tr key={c.id} className="hover:bg-gray-50/70 transition-colors">
+                    <tr key={c.id} className="hover:bg-sky-50/40 transition-colors">
                       {/* Name & Initials */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
                           <button
                             onClick={() => handleOpenDrawer(c.id)}
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700 border border-primary-200/50 text-xs font-bold hover:bg-primary-100 transition"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 text-xs font-bold hover:bg-sky-100 transition"
                           >
                             {getInitials(c.name)}
                           </button>
                           <div className="min-w-0">
                             <button
                               onClick={() => handleOpenDrawer(c.id)}
-                              className="font-semibold text-gray-900 hover:text-primary-600 text-left transition truncate max-w-[170px] block"
+                              className="font-semibold text-gray-900 hover:text-[#0284C7] text-left transition truncate max-w-[170px] block"
                             >
                               {c.name}
                             </button>
@@ -634,14 +640,14 @@ export default function CustomersPage() {
                       <td className="px-3 py-3">
                         {c.phone ? (
                           <div className="flex items-center gap-1.5 text-gray-700 font-medium">
-                            <a href={`tel:${c.phone}`} className="hover:text-primary-600 transition">
+                            <a href={`tel:${c.phone}`} className="hover:text-[#0284C7] transition">
                               {c.phone}
                             </a>
                             <a
                               href={`https://wa.me/${c.phone.replace(/[^0-9]/g, "")}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-block text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded hover:bg-emerald-100 transition"
+                              className="inline-block text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1 py-0.2 rounded-sm hover:bg-emerald-100 transition"
                               title="WhatsApp"
                             >
                               WA
@@ -654,7 +660,7 @@ export default function CustomersPage() {
 
                       {/* Segment */}
                       <td className="px-3 py-3">
-                        <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${seg.bg}`}>
+                        <span className={`inline-flex items-center rounded-sm border px-2 py-0.5 text-[10px] font-semibold ${seg.bg}`}>
                           {seg.label}
                         </span>
                       </td>
@@ -695,8 +701,8 @@ export default function CustomersPage() {
 
                       {/* Status */}
                       <td className="px-3 py-3 text-center">
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                          c.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-600"
+                        <span className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-semibold ${
+                          c.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60" : "bg-gray-100 text-gray-600 border border-gray-200"
                         }`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${c.status === "ACTIVE" ? "bg-emerald-500" : "bg-gray-400"}`} />
                           {c.status || "ACTIVE"}
@@ -708,7 +714,7 @@ export default function CustomersPage() {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => handleOpenDrawer(c.id)}
-                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
                             title="Quick Drawer"
                           >
                             <Eye size={14} />
@@ -716,7 +722,7 @@ export default function CustomersPage() {
 
                           <button
                             onClick={() => handleOpenEdit(c)}
-                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
                             title="Edit"
                           >
                             <Edit3 size={14} />
@@ -724,7 +730,7 @@ export default function CustomersPage() {
 
                           <Link
                             href={`/customers/${c.id}`}
-                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-primary-600 transition"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
                             title="Full Details"
                           >
                             <ArrowUpRight size={14} />
@@ -732,7 +738,7 @@ export default function CustomersPage() {
 
                           <button
                             onClick={() => handleDelete(c)}
-                            className="rounded p-1 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition"
                             title="Deactivate"
                           >
                             <Trash2 size={14} />
@@ -757,21 +763,21 @@ export default function CustomersPage() {
             return (
               <div
                 key={c.id}
-                className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition flex flex-col justify-between"
+                className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300 transition flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2.5">
                       <button
                         onClick={() => handleOpenDrawer(c.id)}
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700 border border-primary-200/50 text-xs font-bold"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 text-xs font-bold"
                       >
                         {getInitials(c.name)}
                       </button>
                       <div className="min-w-0">
                         <h3
                           onClick={() => handleOpenDrawer(c.id)}
-                          className="font-bold text-gray-900 hover:text-primary-600 cursor-pointer transition text-xs truncate max-w-[150px]"
+                          className="font-bold text-gray-900 hover:text-[#0284C7] cursor-pointer transition text-xs truncate max-w-[150px]"
                         >
                           {c.name}
                         </h3>
@@ -781,25 +787,25 @@ export default function CustomersPage() {
                       </div>
                     </div>
 
-                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${seg.bg}`}>
+                    <span className={`inline-flex items-center rounded-sm border px-2 py-0.5 text-[10px] font-semibold ${seg.bg}`}>
                       {seg.label}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-gray-100 text-center">
-                    <div className="rounded bg-gray-50 p-1.5">
+                  <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-sky-100/80 text-center">
+                    <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Due</p>
                       <p className={`text-xs font-bold ${isDue ? "text-rose-600" : "text-gray-700"}`}>
                         ৳{due.toLocaleString()}
                       </p>
                     </div>
-                    <div className="rounded bg-gray-50 p-1.5">
+                    <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Orders</p>
                       <p className="text-xs font-bold text-gray-700">
                         {c._count?.sales || 0}
                       </p>
                     </div>
-                    <div className="rounded bg-gray-50 p-1.5">
+                    <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Points</p>
                       <p className="text-xs font-bold text-amber-700">
                         {c.loyaltyPoints || 0}
@@ -808,14 +814,14 @@ export default function CustomersPage() {
                   </div>
                 </div>
 
-                <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between">
+                <div className="mt-3 pt-2.5 border-t border-sky-100/80 flex items-center justify-between">
                   <div className="flex gap-1.5">
                     {c.phone && (
                       <a
                         href={`https://wa.me/${c.phone.replace(/[^0-9]/g, "")}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded bg-emerald-50 text-emerald-700 px-2 py-0.5 text-[11px] font-medium hover:bg-emerald-100"
+                        className="rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-2 py-0.5 text-[11px] font-medium hover:bg-emerald-100 transition"
                       >
                         WhatsApp
                       </a>
@@ -823,7 +829,7 @@ export default function CustomersPage() {
                     {isDue && (
                       <button
                         onClick={() => handleOpenCollectDue(c)}
-                        className="rounded bg-rose-50 text-rose-700 px-2 py-0.5 text-[11px] font-semibold hover:bg-rose-100"
+                        className="rounded-sm bg-rose-50 text-rose-700 border border-rose-200/60 px-2 py-0.5 text-[11px] font-semibold hover:bg-rose-100 transition"
                       >
                         Collect Due
                       </button>
@@ -833,14 +839,14 @@ export default function CustomersPage() {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleOpenDrawer(c.id)}
-                      className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
                       title="Drawer"
                     >
                       <Eye size={14} />
                     </button>
                     <button
                       onClick={() => handleOpenEdit(c)}
-                      className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
                       title="Edit"
                     >
                       <Edit3 size={14} />
@@ -855,7 +861,7 @@ export default function CustomersPage() {
 
       {/* ── Clean Pagination Footer ── */}
       {pagination.totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-xs">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-sm border border-sky-100/90 bg-white p-3 shadow-xs">
           <p className="text-xs text-gray-500">
             Showing <span className="font-semibold text-gray-800">{(page - 1) * perPage + 1}</span> -{" "}
             <span className="font-semibold text-gray-800">
@@ -871,7 +877,7 @@ export default function CustomersPage() {
                 setPerPage(Number(e.target.value));
                 setPage(1);
               }}
-              className="rounded-lg border border-gray-300 px-2 py-1 text-xs text-gray-700 focus:outline-none"
+              className="rounded-sm border border-sky-200/90 px-2 py-1 text-xs text-gray-700 focus:outline-none"
             >
               <option value="10">10 / page</option>
               <option value="20">20 / page</option>
@@ -882,19 +888,19 @@ export default function CustomersPage() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+              className="flex items-center gap-1 rounded-sm border border-sky-200/90 px-2.5 py-1 text-xs font-medium text-[#0369A1] hover:bg-sky-50 disabled:opacity-40 transition"
             >
               <ChevronLeft size={13} /> Prev
             </button>
 
-            <span className="text-xs text-gray-600 font-medium px-1">
+            <span className="text-xs text-[#0369A1] font-medium px-1">
               Page {page} / {pagination.totalPages}
             </span>
 
             <button
               onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
               disabled={page >= pagination.totalPages}
-              className="flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+              className="flex items-center gap-1 rounded-sm border border-sky-200/90 px-2.5 py-1 text-xs font-medium text-[#0369A1] hover:bg-sky-50 disabled:opacity-40 transition"
             >
               Next <ChevronRight size={13} />
             </button>

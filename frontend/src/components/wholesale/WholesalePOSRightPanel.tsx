@@ -70,7 +70,7 @@ export function WholesalePOSRightPanel({
   return (
     <aside
       className={cn(
-        "flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[22px] backdrop-blur-xl transition-all",
+        "flex h-full min-h-0 w-full flex-col overflow-hidden rounded-sm backdrop-blur-xl transition-all",
         darkMode
           ? "border border-slate-700 bg-slate-900/95 shadow-[0_8px_40px_rgba(0,0,0,0.4)]"
           : "shadow-[0_4px_24px_rgba(20,110,245,0.1)]",
@@ -123,7 +123,7 @@ export function WholesalePOSRightPanel({
           >
             <div
               className={cn(
-                "flex h-12 w-12 items-center justify-center rounded-2xl border shadow-xs",
+                "flex h-12 w-12 items-center justify-center rounded-sm border shadow-xs",
                 darkMode ? "bg-slate-800 border-slate-700 text-slate-400" : "",
               )}
               style={darkMode ? undefined : { background: "#EBF3FE", border: `1px solid #BEDCFD`, color: iceBlue }}

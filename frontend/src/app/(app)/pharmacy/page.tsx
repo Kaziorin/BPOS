@@ -42,7 +42,7 @@ import {
 function getCustomerTier(pts: number) {
   if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-100" };
   if (pts >= 1500) return { name: "Gold", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" };
-  if (pts >= 500) return { name: "Silver", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-100" };
+  if (pts >= 500) return { name: "Silver", color: "text-slate-700", bg: "bg-slate-50", border: "border-sky-100/70" };
   return { name: "Bronze", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-100" };
 }
 
@@ -123,21 +123,21 @@ export default function PharmacyHubPage() {
       </div>
 
       {/* Header Banner: Glassmorphic & Curved */}
-      <div className="relative group overflow-hidden rounded-[2.5rem] bg-white/70 backdrop-blur-xl border border-white shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] p-8 flex flex-col md:flex-row items-center justify-between gap-8 transition-all hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.15)]">
+      <div className="relative group overflow-hidden rounded-sm border border-sky-200/70 bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] p-6 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-6">
         <div className={`absolute -left-20 -top-20 w-64 h-64 blur-3xl opacity-20 rounded-full bg-cyan-400 group-hover:scale-125 transition-transform duration-700`} />
 
         <div className="relative flex items-center gap-6 z-10">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center text-white shadow-lg transform rotate-3 group-hover:rotate-6 transition-transform duration-500">
+          <div className="w-14 h-14 rounded-sm bg-white/15 border border-sky-100/90/30 text-white flex items-center justify-center text-white shadow-2xs transform rotate-3 group-hover:rotate-6 transition-transform duration-500">
             <HeartPulse size={40} strokeWidth={2.2} />
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-black text-slate-900 tracking-tight">Pharmacy Hub</h1>
-              <span className="px-3 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] bg-cyan-100 text-cyan-700 border border-cyan-200 rounded-full shadow-sm">
+              <h1 className="text-2xl font-extrabold text-white tracking-tight">Pharmacy Hub</h1>
+              <span className="px-3 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] bg-cyan-100 text-cyan-700 border border-cyan-200 rounded-full shadow-2xs">
                 Rx Control
               </span>
             </div>
-            <p className="text-slate-500 font-medium max-w-xl mt-2 leading-relaxed">
+            <p className="text-white/90 text-xs sm:text-sm max-w-xl mt-1 leading-relaxed">
               Clinical-grade dispense monitoring. Manage prescription batches, track medicine expiry dates, and oversee pharmacy lane throughput with real-time stock sync.
             </p>
           </div>
@@ -146,7 +146,7 @@ export default function PharmacyHubPage() {
         <div className="relative flex flex-col sm:flex-row items-center gap-3 z-10">
           <Link
             href="/pharmacy/pos"
-            className="group/btn flex items-center gap-3 px-6 py-3.5 rounded-2xl text-sm font-black bg-slate-900 text-white shadow-xl shadow-slate-900/20 hover:bg-cyan-600 hover:shadow-cyan-500/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
+            className="group/btn flex items-center gap-3 px-5 py-2.5 rounded-sm text-xs font-bold bg-white text-sky-700 shadow-2xs hover:bg-sky-50 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
           >
             <Zap size={18} className="text-cyan-400 group-hover/btn:animate-pulse" />
             Open Rx Register
@@ -156,7 +156,7 @@ export default function PharmacyHubPage() {
           <Link
             href="/pharmacy/patient-display"
             target="_blank"
-            className="group/cd flex items-center gap-3 px-6 py-3.5 rounded-2xl text-sm font-black bg-white text-slate-700 border border-slate-200 shadow-lg shadow-slate-200/20 hover:bg-slate-50 hover:border-cyan-300 hover:text-cyan-700 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
+            className="group/cd flex items-center gap-3 px-6 py-3.5 rounded-sm text-sm font-black bg-white text-slate-700 border border-sky-100/90 shadow-2xs shadow-slate-200/20 hover:bg-slate-50 hover:border-cyan-300 hover:text-cyan-700 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
           >
             <Monitor size={18} className="text-slate-400 group-hover/cd:text-cyan-500" />
             Patient Display
@@ -172,17 +172,17 @@ export default function PharmacyHubPage() {
           { label: "Units Dispensed", val: totalItemsSold, sub: "Medicine units sold", icon: Pill, color: "indigo", iconColor: "text-indigo-600", bg: "bg-indigo-50" },
           { label: "Active Medicines", val: products.length, sub: "FEFO tracked stock", icon: Activity, color: "amber", iconColor: "text-amber-600", bg: "bg-amber-50" },
         ].map((stat, i) => (
-          <div key={i} className="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-1">
+          <div key={i} className="group relative overflow-hidden rounded-sm bg-white border border-sky-100/70 p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-1">
             <div className={`absolute -right-4 -bottom-4 w-24 h-24 blur-2xl opacity-[0.05] rounded-full ${stat.bg}`} />
             <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 rounded-2xl ${stat.bg} flex items-center justify-center ${stat.iconColor} shadow-sm group-hover:scale-110 transition-transform`}>
+              <div className={`w-12 h-12 rounded-sm ${stat.bg} flex items-center justify-center ${stat.iconColor} shadow-2xs group-hover:scale-110 transition-transform`}>
                 <stat.icon size={24} strokeWidth={2.5} />
               </div>
-              <div className="px-2 py-1 rounded-lg bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-slate-100">
+              <div className="px-2 py-1 rounded-sm bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-sky-100/70">
                 Live
               </div>
             </div>
-            <p className="text-3xl font-black text-slate-900 tracking-tighter">{stat.val}</p>
+            <p className="text-2xl font-extrabold text-white tracking-tighter">{stat.val}</p>
             <div className="flex flex-col mt-1">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{stat.label}</span>
               <span className="text-[10px] text-slate-400 font-medium">{stat.sub}</span>
@@ -195,7 +195,7 @@ export default function PharmacyHubPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
 
         {/* Left 2 Cols: Recent Pharmacy Transactions */}
-        <div className="lg:col-span-2 rounded-[2.5rem] bg-white border border-slate-100 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
+        <div className="lg:col-span-2 rounded-sm bg-white border border-sky-100/70 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
           <div className="p-8 border-b border-slate-50 flex flex-wrap items-center justify-between gap-4">
             <div>
               <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
@@ -212,12 +212,12 @@ export default function PharmacyHubPage() {
                   placeholder="Search Rx #, patient..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="rounded-2xl border border-slate-200 bg-slate-50/50 py-2.5 pl-11 pr-4 text-xs font-bold focus:border-cyan-500 focus:outline-none focus:bg-white transition-all w-64 shadow-inner"
+                  className="rounded-sm border border-sky-100/90 bg-slate-50/50 py-2.5 pl-11 pr-4 text-xs font-bold focus:border-cyan-500 focus:outline-none focus:bg-white transition-all w-64 shadow-inner"
                 />
               </div>
               <button
                 onClick={loadData}
-                className="rounded-2xl border border-slate-100 p-2.5 text-slate-500 hover:bg-cyan-50 hover:text-cyan-600 transition-all shadow-sm active:scale-90"
+                className="rounded-sm border border-sky-100/70 p-2.5 text-slate-500 hover:bg-cyan-50 hover:text-cyan-600 transition-all shadow-2xs active:scale-90"
               >
                 <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
               </button>
@@ -264,7 +264,7 @@ export default function PharmacyHubPage() {
                         <tr key={s.id} className="group hover:bg-cyan-50/40 transition-colors">
                           <td className="py-5 px-6">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center font-mono font-black text-[10px] border border-cyan-100">
+                              <div className="w-8 h-8 rounded-sm bg-cyan-50 text-cyan-600 flex items-center justify-center font-mono font-black text-[10px] border border-cyan-100">
                                 Rx
                               </div>
                               <span className="font-mono font-black text-xs text-slate-700">{s.invoiceNo || s.id.slice(0, 8).toUpperCase()}</span>
@@ -298,7 +298,7 @@ export default function PharmacyHubPage() {
                           <td className="py-5 px-6 text-center">
                             <button
                               onClick={() => setSelectedSale(s)}
-                              className="rounded-xl bg-slate-900 text-white hover:bg-cyan-600 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95"
+                              className="rounded-sm bg-slate-900 text-white hover:bg-cyan-600 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all shadow-2xs active:scale-95"
                             >
                               Receipt
                             </button>
@@ -314,7 +314,7 @@ export default function PharmacyHubPage() {
         </div>
 
         {/* Right Col: Medicine Inventory & Expiry Alerts */}
-        <div className="rounded-[2.5rem] bg-white border border-slate-100 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
+        <div className="rounded-sm bg-white border border-sky-100/70 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
           <div className="p-8 border-b border-slate-50 bg-slate-50/30">
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
@@ -322,7 +322,7 @@ export default function PharmacyHubPage() {
               </h3>
               <Link
                 href="/products/create"
-                className="w-8 h-8 rounded-xl bg-cyan-600 text-white flex items-center justify-center hover:bg-cyan-700 transition shadow-lg shadow-cyan-500/20 active:scale-90"
+                className="w-8 h-8 rounded-sm bg-cyan-600 text-white flex items-center justify-center hover:bg-cyan-700 transition shadow-2xs shadow-cyan-500/20 active:scale-90"
               >
                 <PlusCircle size={18} />
               </Link>
@@ -336,10 +336,10 @@ export default function PharmacyHubPage() {
               return (
                 <div
                   key={p.id}
-                  className="group flex items-center justify-between p-4 rounded-3xl bg-white border border-slate-100 hover:border-cyan-200 hover:shadow-md transition-all duration-300"
+                  className="group flex items-center justify-between p-4 rounded-sm bg-white border border-sky-100/70 hover:border-cyan-200 hover:shadow-2xs transition-all duration-300"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:bg-cyan-600 group-hover:text-white transition-colors shrink-0 font-bold text-sm overflow-hidden border border-slate-100/50 shadow-inner">
+                    <div className="w-10 h-10 rounded-sm bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:bg-cyan-600 group-hover:text-white transition-colors shrink-0 font-bold text-sm overflow-hidden border border-sky-100/70/50 shadow-inner">
                       {p.imageUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={p.imageUrl} alt={p.name} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
@@ -371,7 +371,7 @@ export default function PharmacyHubPage() {
           <div className="p-6 bg-slate-50/50">
             <Link
               href="/pharmacy/pos"
-              className="group w-full flex items-center justify-center gap-2 rounded-2xl bg-slate-900 p-4 text-xs font-black text-white hover:bg-cyan-600 transition-all shadow-lg shadow-slate-900/10 active:scale-95"
+              className="group w-full flex items-center justify-center gap-2 rounded-sm bg-slate-900 p-4 text-xs font-black text-white hover:bg-cyan-600 transition-all shadow-2xs shadow-slate-900/10 active:scale-95"
             >
               Dispatch Register
               <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
@@ -388,7 +388,7 @@ export default function PharmacyHubPage() {
           onClick={() => setSelectedSale(null)}
         >
           <div
-            className="bg-white rounded-3xl p-4 max-w-md w-full my-auto shadow-2xl overflow-hidden"
+            className="bg-white rounded-sm p-4 max-w-md w-full my-auto shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <ReceiptModal

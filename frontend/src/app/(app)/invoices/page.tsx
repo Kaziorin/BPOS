@@ -130,7 +130,7 @@ interface BranchOption {
 
 const TYPE_CONFIG: Record<string, { label: string; badge: string; border: string; icon: any }> = {
   TAX: { label: "Mushak 6.3 Tax", badge: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200", border: "border-indigo-200", icon: ShieldCheck },
-  STANDARD: { label: "Commercial Standard", badge: "bg-slate-100 text-slate-700 ring-1 ring-slate-200", border: "border-slate-200", icon: FileText },
+  STANDARD: { label: "Commercial Standard", badge: "bg-slate-100 text-slate-700 ring-1 ring-slate-200", border: "border-sky-100/90", icon: FileText },
   CREDIT_NOTE: { label: "Credit Note (Refund)", badge: "bg-rose-50 text-rose-700 ring-1 ring-rose-200", border: "border-rose-200", icon: RotateCcw },
   DEBIT_NOTE: { label: "Debit Note (Adj.)", badge: "bg-amber-50 text-amber-700 ring-1 ring-amber-200", border: "border-amber-200", icon: AlertCircle },
   PROFORMA: { label: "Proforma Estimate", badge: "bg-purple-50 text-purple-700 ring-1 ring-purple-200", border: "border-purple-200", icon: Sparkles },
@@ -140,7 +140,7 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; d
   PAID: { label: "Paid in Full", bg: "bg-emerald-50 border-emerald-200", text: "text-emerald-700", dot: "bg-emerald-500" },
   PARTIALLY_PAID: { label: "Partially Paid", bg: "bg-sky-50 border-sky-200", text: "text-sky-700", dot: "bg-sky-500" },
   ISSUED: { label: "Unpaid / Issued", bg: "bg-amber-50 border-amber-200", text: "text-amber-700", dot: "bg-amber-500" },
-  VOID: { label: "Voided", bg: "bg-slate-100 border-slate-200", text: "text-slate-500", dot: "bg-slate-400" },
+  VOID: { label: "Voided", bg: "bg-slate-100 border-sky-100/90", text: "text-slate-500", dot: "bg-slate-400" },
   OVERDUE: { label: "Overdue", bg: "bg-rose-50 border-rose-200", text: "text-rose-700", dot: "bg-rose-500" },
 };
 
@@ -804,7 +804,7 @@ export default function InvoicesPage() {
       {/* Toast notification */}
       {toastMessage && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-sm px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
             toastMessage.type === "success" ? "bg-slate-900 ring-1 ring-slate-800" : "bg-rose-600"
           }`}
         >
@@ -814,11 +814,11 @@ export default function InvoicesPage() {
       )}
 
       {/* Top Banner / Header */}
-      <div className="border-b border-slate-200/80 bg-white px-4 sm:px-8 py-5 shadow-xs w-full">
+      <div className="border-b border-sky-100/90 bg-white px-4 sm:px-8 py-5 shadow-2xs w-full">
         <div className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-md shadow-primary-500/25">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-2xs shadow-primary-500/25">
                 <Receipt size={22} className="stroke-[2.2]" />
               </div>
               <div>
@@ -838,15 +838,15 @@ export default function InvoicesPage() {
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/invoices/collection"
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
             >
-              <Wallet size={14} className="text-primary-600" />
+              <Wallet size={14} className="text-sky-600" />
               Collections Hub
             </Link>
 
             <button
               onClick={() => setShowAllocateModal(true)}
-              className="flex items-center gap-1.5 rounded-xl border border-primary-200 bg-primary-50/70 px-3.5 py-2 text-xs font-semibold text-primary-700 shadow-xs transition hover:bg-primary-100/80 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-sky-200/80 bg-sky-50/70 px-3.5 py-2 text-xs font-semibold text-sky-700 shadow-2xs transition hover:bg-sky-100/80 active:scale-95"
             >
               <CreditCard size={14} />
               Bulk Settle
@@ -854,7 +854,7 @@ export default function InvoicesPage() {
 
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-primary-600 via-primary-500 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-primary-500/25 transition hover:brightness-110 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-primary-600 via-primary-500 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-2xs shadow-primary-500/25 transition hover:brightness-110 active:scale-95"
             >
               <Plus size={16} className="stroke-[2.5]" />
               New Invoice
@@ -863,7 +863,7 @@ export default function InvoicesPage() {
         </div>
 
         {/* Module Sub-Navigation Bar */}
-        <div className="w-full mt-5 flex items-center gap-2 overflow-x-auto border-t border-slate-100 pt-3 pb-1 no-scrollbar">
+        <div className="w-full mt-5 flex items-center gap-2 overflow-x-auto border-t border-sky-100/70 pt-3 pb-1 no-scrollbar">
           {[
             { id: "all", label: "Invoice Management", icon: FileText },
             { id: "aging", label: "Aging & Due Intelligence", icon: Clock },
@@ -880,9 +880,9 @@ export default function InvoicesPage() {
                   setActiveTab("ALL");
                   setPage(1);
                 }}
-                className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition whitespace-nowrap ${
+                className={`flex items-center gap-2 rounded-sm px-3.5 py-2 text-xs font-bold transition whitespace-nowrap ${
                   active
-                    ? "bg-primary-600 text-white shadow-sm shadow-primary-500/25"
+                    ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/25"
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
@@ -898,10 +898,10 @@ export default function InvoicesPage() {
         {/* Executive KPI Stats Cards */}
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {/* 1. Total Invoiced */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Invoiced</span>
-              <div className="rounded-lg bg-primary-50 p-1.5 text-primary-600">
+              <div className="rounded-sm bg-sky-50 p-1.5 text-sky-600">
                 <FileText size={14} />
               </div>
             </div>
@@ -914,10 +914,10 @@ export default function InvoicesPage() {
           </div>
 
           {/* 2. Total Paid / Collections */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Collected</span>
-              <div className="rounded-lg bg-emerald-50 p-1.5 text-emerald-600">
+              <div className="rounded-sm bg-emerald-50 p-1.5 text-emerald-600">
                 <CheckCircle2 size={14} />
               </div>
             </div>
@@ -930,10 +930,10 @@ export default function InvoicesPage() {
           </div>
 
           {/* 3. Outstanding Receivables */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-sky-600">Outstanding</span>
-              <div className="rounded-lg bg-sky-50 p-1.5 text-sky-600">
+              <div className="rounded-sm bg-sky-50 p-1.5 text-sky-600">
                 <Clock size={14} />
               </div>
             </div>
@@ -946,10 +946,10 @@ export default function InvoicesPage() {
           </div>
 
           {/* 4. Overdue Invoices */}
-          <div className="rounded-2xl border border-rose-200/80 bg-rose-50/40 p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-rose-200/80 bg-rose-50/40 p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-rose-600">
               <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700">Overdue Alert</span>
-              <div className="rounded-lg bg-rose-100 p-1.5 text-rose-700">
+              <div className="rounded-sm bg-rose-100 p-1.5 text-rose-700">
                 <AlertTriangle size={14} />
               </div>
             </div>
@@ -962,26 +962,26 @@ export default function InvoicesPage() {
           </div>
 
           {/* 5. Mushak 6.3 Tax Invoices */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-primary-700">Mushak 6.3</span>
-              <div className="rounded-lg bg-primary-50 p-1.5 text-primary-700">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700">Mushak 6.3</span>
+              <div className="rounded-sm bg-sky-50 p-1.5 text-sky-700">
                 <ShieldCheck size={14} />
               </div>
             </div>
             <div className="mt-2 text-lg sm:text-xl font-black text-slate-900">
               {statsLoading ? "—" : stats?.taxCount ?? 0}
             </div>
-            <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-primary-700">
+            <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-sky-700">
               <span>Govt NBR Registered</span>
             </div>
           </div>
 
           {/* 6. Collection Recovery Rate */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Recovery Rate</span>
-              <div className="rounded-lg bg-slate-100 p-1.5 text-slate-600">
+              <div className="rounded-sm bg-slate-100 p-1.5 text-slate-600">
                 <TrendingUp size={14} />
               </div>
             </div>
@@ -997,7 +997,7 @@ export default function InvoicesPage() {
         </div>
 
         {/* Executive Aging Intelligence Bar */}
-        <div className="mb-5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+        <div className="mb-5 rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -1008,23 +1008,23 @@ export default function InvoicesPage() {
 
             {/* Buckets grid */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 text-xs">
-              <div className="rounded-xl bg-slate-50 p-2.5 text-center">
+              <div className="rounded-sm bg-slate-50 p-2.5 text-center">
                 <span className="text-[10px] font-bold text-slate-500">Current (Not Due)</span>
                 <p className="font-black text-slate-800">৳{agingBuckets.notDue.toLocaleString()}</p>
               </div>
-              <div className="rounded-xl bg-amber-50/70 p-2.5 text-center border border-amber-100">
+              <div className="rounded-sm bg-amber-50/70 p-2.5 text-center border border-amber-100">
                 <span className="text-[10px] font-bold text-amber-700">1 - 30 Days</span>
                 <p className="font-black text-amber-800">৳{agingBuckets.b1_30.toLocaleString()}</p>
               </div>
-              <div className="rounded-xl bg-orange-50/70 p-2.5 text-center border border-orange-100">
+              <div className="rounded-sm bg-orange-50/70 p-2.5 text-center border border-orange-100">
                 <span className="text-[10px] font-bold text-orange-700">31 - 60 Days</span>
                 <p className="font-black text-orange-800">৳{agingBuckets.b31_60.toLocaleString()}</p>
               </div>
-              <div className="rounded-xl bg-rose-50/70 p-2.5 text-center border border-rose-100">
+              <div className="rounded-sm bg-rose-50/70 p-2.5 text-center border border-rose-100">
                 <span className="text-[10px] font-bold text-rose-700">61 - 90 Days</span>
                 <p className="font-black text-rose-800">৳{agingBuckets.b61_90.toLocaleString()}</p>
               </div>
-              <div className="rounded-xl bg-rose-100 p-2.5 text-center border border-rose-200">
+              <div className="rounded-sm bg-rose-100 p-2.5 text-center border border-rose-200">
                 <span className="text-[10px] font-black text-rose-800">90+ Days Critical</span>
                 <p className="font-black text-rose-900">৳{agingBuckets.b90_plus.toLocaleString()}</p>
               </div>
@@ -1034,7 +1034,7 @@ export default function InvoicesPage() {
 
         {/* Batch Operations Floating Bar (When rows are checked) */}
         {selectedIds.length > 0 && (
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-primary-800 via-primary-700 to-indigo-800 px-5 py-3 text-xs text-white shadow-xl animate-in fade-in slide-in-from-top-2">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-sm bg-gradient-to-r from-primary-800 via-primary-700 to-indigo-800 px-5 py-3 text-xs text-white shadow-xl animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-2">
               <CheckSquare size={16} className="text-primary-200" />
               <span className="font-bold">{selectedIds.length} invoices selected</span>
@@ -1042,14 +1042,14 @@ export default function InvoicesPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleExportCSV}
-                className="flex items-center gap-1 rounded-xl bg-white/15 px-3 py-1.5 font-bold hover:bg-white/25 transition"
+                className="flex items-center gap-1 rounded-sm bg-white/15 px-3 py-1.5 font-bold hover:bg-white/25 transition"
               >
                 <Download size={13} />
                 Export Selected
               </button>
               <button
                 onClick={() => setSelectedIds([])}
-                className="rounded-xl px-2.5 py-1.5 text-primary-200 hover:text-white transition"
+                className="rounded-sm px-2.5 py-1.5 text-primary-200 hover:text-white transition"
               >
                 Clear Selection
               </button>
@@ -1058,9 +1058,9 @@ export default function InvoicesPage() {
         )}
 
         {/* Filter Toolbar & Quick Status Tabs */}
-        <div className="mb-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+        <div className="mb-4 rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
           {/* Quick Status Tabs */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-100/70 pb-3.5">
             <div className="flex flex-wrap items-center gap-1.5">
               {[
                 { id: "ALL", label: "All Records" },
@@ -1077,9 +1077,9 @@ export default function InvoicesPage() {
                     setActiveTab(tab.id);
                     setPage(1);
                   }}
-                  className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                  className={`rounded-sm px-3 py-1.5 text-xs font-bold transition ${
                     activeTab === tab.id
-                      ? "bg-primary-600 text-white shadow-xs shadow-primary-500/20"
+                      ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/20"
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   }`}
                 >
@@ -1089,11 +1089,11 @@ export default function InvoicesPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
+              <div className="flex items-center rounded-sm border border-sky-100/90 bg-slate-50 p-1">
                 <button
                   onClick={() => setViewMode("table")}
-                  className={`rounded-lg p-1.5 transition ${
-                    viewMode === "table" ? "bg-white text-primary-700 shadow-xs" : "text-slate-400 hover:text-slate-700"
+                  className={`rounded-sm p-1.5 transition ${
+                    viewMode === "table" ? "bg-white text-sky-700 shadow-2xs" : "text-slate-400 hover:text-slate-700"
                   }`}
                   title="Table View"
                 >
@@ -1101,8 +1101,8 @@ export default function InvoicesPage() {
                 </button>
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`rounded-lg p-1.5 transition ${
-                    viewMode === "grid" ? "bg-white text-primary-700 shadow-xs" : "text-slate-400 hover:text-slate-700"
+                  className={`rounded-sm p-1.5 transition ${
+                    viewMode === "grid" ? "bg-white text-sky-700 shadow-2xs" : "text-slate-400 hover:text-slate-700"
                   }`}
                   title="Grid Card View"
                 >
@@ -1112,7 +1112,7 @@ export default function InvoicesPage() {
 
               <button
                 onClick={handleExportCSV}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                 title="Export to CSV"
               >
                 <Download size={14} />
@@ -1124,10 +1124,10 @@ export default function InvoicesPage() {
                   loadInvoices();
                   loadStats();
                 }}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 active:scale-95"
+                className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 active:scale-95"
                 title="Refresh"
               >
-                <RefreshCw size={14} className={loading ? "animate-spin text-primary-600" : ""} />
+                <RefreshCw size={14} className={loading ? "animate-spin text-sky-600" : ""} />
                 <span className="hidden sm:inline">Refresh</span>
               </button>
             </div>
@@ -1146,7 +1146,7 @@ export default function InvoicesPage() {
                   setSearchQuery(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-10 pr-4 text-xs font-medium text-slate-800 placeholder-slate-400 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 py-2 pl-10 pr-4 text-xs font-medium text-slate-800 placeholder-slate-400 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               />
               {searchQuery && (
                 <button
@@ -1166,7 +1166,7 @@ export default function InvoicesPage() {
                   setFilterType(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               >
                 <option value="">All Invoice Types</option>
                 <option value="TAX">Mushak 6.3 Tax Invoice</option>
@@ -1185,7 +1185,7 @@ export default function InvoicesPage() {
                   setFilterBranch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               >
                 <option value="">All Outlets / Branches</option>
                 {branches.map((b) => (
@@ -1204,7 +1204,7 @@ export default function InvoicesPage() {
                   setDateRange(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               >
                 <option value="all">All Dates</option>
                 <option value="today">Today</option>
@@ -1217,13 +1217,13 @@ export default function InvoicesPage() {
 
         {/* Invoices List Content */}
         {loading ? (
-          <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-xs">
-            <RefreshCw size={28} className="animate-spin text-primary-600" />
+          <div className="flex h-64 flex-col items-center justify-center rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+            <RefreshCw size={28} className="animate-spin text-sky-600" />
             <p className="mt-3 text-xs font-semibold text-slate-500">Loading invoice engine data...</p>
           </div>
         ) : invoices.length === 0 ? (
-          <div className="flex h-72 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-xs">
-            <div className="rounded-2xl bg-primary-50 p-4 text-primary-600">
+          <div className="flex h-72 flex-col items-center justify-center rounded-sm border border-dashed border-slate-300 bg-white p-8 text-center shadow-2xs">
+            <div className="rounded-sm bg-sky-50 p-4 text-sky-600">
               <FileText size={36} />
             </div>
             <h3 className="mt-3 text-sm font-bold text-slate-800">No invoices found</h3>
@@ -1232,7 +1232,7 @@ export default function InvoicesPage() {
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="mt-4 flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-primary-500/25 hover:bg-primary-700"
+              className="mt-4 flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-bold text-white shadow-2xs shadow-primary-500/25 hover:bg-primary-700"
             >
               <Plus size={15} />
               Create First Invoice
@@ -1240,15 +1240,15 @@ export default function InvoicesPage() {
           </div>
         ) : viewMode === "table" ? (
           /* Table View */
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">
+          <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <tr className="border-b border-sky-100/70 bg-slate-50/75 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                     <th className="py-3.5 pl-4 pr-2 w-8">
                       <button onClick={toggleSelectAll} className="text-slate-400 hover:text-slate-700">
                         {selectedIds.length === invoices.length && invoices.length > 0 ? (
-                          <CheckSquare size={16} className="text-primary-600" />
+                          <CheckSquare size={16} className="text-sky-600" />
                         ) : (
                           <Square size={16} />
                         )}
@@ -1274,11 +1274,11 @@ export default function InvoicesPage() {
                     const isSelected = selectedIds.includes(inv.id);
 
                     return (
-                      <tr key={inv.id} className={`group transition ${isSelected ? "bg-primary-50/30" : "hover:bg-slate-50/70"}`}>
+                      <tr key={inv.id} className={`group transition ${isSelected ? "bg-sky-50/30" : "hover:bg-slate-50/70"}`}>
                         {/* Checkbox */}
                         <td className="py-3.5 pl-4 pr-2">
                           <button onClick={() => toggleSelectRow(inv.id)} className="text-slate-400 hover:text-slate-700">
-                            {isSelected ? <CheckSquare size={16} className="text-primary-600" /> : <Square size={16} />}
+                            {isSelected ? <CheckSquare size={16} className="text-sky-600" /> : <Square size={16} />}
                           </button>
                         </td>
 
@@ -1288,7 +1288,7 @@ export default function InvoicesPage() {
                             <div className="flex items-center gap-1.5">
                               <span
                                 onClick={() => copyToClipboard(inv.invoiceNo, inv.id)}
-                                className="cursor-pointer font-mono font-bold text-slate-900 transition hover:text-primary-600"
+                                className="cursor-pointer font-mono font-bold text-slate-900 transition hover:text-sky-600"
                                 title="Click to copy invoice number"
                               >
                                 {inv.invoiceNo}
@@ -1320,7 +1320,7 @@ export default function InvoicesPage() {
                               <div className="flex items-center gap-2 text-[11px] text-slate-400">
                                 {inv.customer.phone && <span>{inv.customer.phone}</span>}
                                 {inv.customer.binVatNo && (
-                                  <span className="font-mono text-[10px] text-primary-700 font-semibold">BIN: {inv.customer.binVatNo}</span>
+                                  <span className="font-mono text-[10px] text-sky-700 font-semibold">BIN: {inv.customer.binVatNo}</span>
                                 )}
                               </div>
                             </div>
@@ -1405,7 +1405,7 @@ export default function InvoicesPage() {
                             <button
                               onClick={() => launchPrintModal(inv)}
                               title="Print Layouts (Thermal / A4 / Mushak 6.3)"
-                              className="rounded-lg p-1.5 text-slate-600 transition hover:bg-primary-50 hover:text-primary-700 active:scale-95"
+                              className="rounded-sm p-1.5 text-slate-600 transition hover:bg-sky-50 hover:text-sky-700 active:scale-95"
                             >
                               <Printer size={15} />
                             </button>
@@ -1414,7 +1414,7 @@ export default function InvoicesPage() {
                             <button
                               onClick={() => openInvoiceDrawer(inv.id)}
                               title="Invoice Breakdown & Ledger"
-                              className="rounded-lg p-1.5 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95"
+                              className="rounded-sm p-1.5 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95"
                             >
                               <Eye size={15} />
                             </button>
@@ -1424,7 +1424,7 @@ export default function InvoicesPage() {
                               <button
                                 onClick={() => openCollectPaymentModal(inv)}
                                 title="Collect Due Payment"
-                                className="rounded-lg p-1.5 text-emerald-600 transition hover:bg-emerald-50 hover:text-emerald-700 active:scale-95"
+                                className="rounded-sm p-1.5 text-emerald-600 transition hover:bg-emerald-50 hover:text-emerald-700 active:scale-95"
                               >
                                 <CreditCard size={15} />
                               </button>
@@ -1435,7 +1435,7 @@ export default function InvoicesPage() {
                               <button
                                 onClick={() => openReminderModal(inv)}
                                 title="Send Payment Reminder (SMS / WhatsApp)"
-                                className="rounded-lg p-1.5 text-primary-600 transition hover:bg-primary-50 hover:text-primary-700 active:scale-95"
+                                className="rounded-sm p-1.5 text-sky-600 transition hover:bg-sky-50 hover:text-sky-700 active:scale-95"
                               >
                                 <MessageSquare size={15} />
                               </button>
@@ -1446,7 +1446,7 @@ export default function InvoicesPage() {
                               <button
                                 onClick={() => handleVoidInvoice(inv.id, inv.invoiceNo)}
                                 title="Void Invoice"
-                                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 active:scale-95"
+                                className="rounded-sm p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 active:scale-95"
                               >
                                 <Ban size={15} />
                               </button>
@@ -1461,7 +1461,7 @@ export default function InvoicesPage() {
             </div>
 
             {/* Pagination footer */}
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-4 sm:px-6 py-3.5 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-sky-100/70 px-4 sm:px-6 py-3.5 text-xs text-slate-500">
               <span>
                 Showing {invoices.length} of {totalRecords} invoices (Page {page} of {totalPages})
               </span>
@@ -1469,14 +1469,14 @@ export default function InvoicesPage() {
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-lg border border-slate-200 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-sky-100/90 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   <ChevronLeft size={14} />
                 </button>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-lg border border-slate-200 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-sky-100/90 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -1497,7 +1497,7 @@ export default function InvoicesPage() {
                 return (
                   <div
                     key={inv.id}
-                    className="group flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs transition hover:border-slate-300 hover:shadow-md"
+                    className="group flex flex-col justify-between rounded-sm border border-sky-100/90 bg-white p-4 sm:p-5 shadow-2xs transition hover:border-slate-300 hover:shadow-2xs"
                   >
                     <div>
                       {/* Top row */}
@@ -1519,7 +1519,7 @@ export default function InvoicesPage() {
                       </div>
 
                       {/* Customer Info */}
-                      <div className="mt-4 rounded-xl bg-slate-50 p-3">
+                      <div className="mt-4 rounded-sm bg-slate-50 p-3">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Customer</p>
                         <p className="text-xs font-bold text-slate-800">{inv.customer?.name || "Walk-in Customer"}</p>
                         {inv.customer?.phone && <p className="text-[11px] text-slate-500">{inv.customer.phone}</p>}
@@ -1557,21 +1557,21 @@ export default function InvoicesPage() {
                     </div>
 
                     {/* Bottom Action Footer */}
-                    <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
+                    <div className="mt-5 flex items-center justify-between border-t border-sky-100/70 pt-3 text-xs">
                       <span className="text-[11px] text-slate-400">
                         {new Date(inv.issueDate).toLocaleDateString()}
                       </span>
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => launchPrintModal(inv)}
-                          className="flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 font-bold text-slate-700 hover:bg-slate-50"
+                          className="flex items-center gap-1 rounded-sm border border-sky-100/90 px-2.5 py-1.5 font-bold text-slate-700 hover:bg-slate-50"
                         >
                           <Printer size={13} />
                           Print
                         </button>
                         <button
                           onClick={() => openInvoiceDrawer(inv.id)}
-                          className="flex items-center gap-1 rounded-lg bg-primary-600 px-2.5 py-1.5 font-bold text-white shadow-xs hover:bg-primary-700"
+                          className="flex items-center gap-1 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-2.5 py-1.5 font-bold text-white shadow-2xs hover:bg-primary-700"
                         >
                           <Eye size={13} />
                           Details
@@ -1584,7 +1584,7 @@ export default function InvoicesPage() {
             </div>
 
             {/* Pagination footer */}
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-white px-4 sm:px-6 py-3 text-xs text-slate-500 shadow-xs">
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-4 sm:px-6 py-3 text-xs text-slate-500 shadow-2xs">
               <span>
                 Page {page} of {totalPages} ({totalRecords} total invoices)
               </span>
@@ -1592,14 +1592,14 @@ export default function InvoicesPage() {
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-lg border border-slate-200 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-sky-100/90 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   Previous
                 </button>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-lg border border-slate-200 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-sky-100/90 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   Next
                 </button>
@@ -1614,11 +1614,11 @@ export default function InvoicesPage() {
       {/* ========================================================= */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl sm:rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200/80 animate-in zoom-in-95">
+          <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
             {/* Sticky Header */}
-            <div className="shrink-0 flex items-center justify-between border-b border-slate-100 px-4 py-3.5 sm:px-6 sm:py-4 bg-white">
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-4 py-3.5 sm:px-6 sm:py-4 bg-white">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+                <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-sm bg-sky-50 text-sky-600">
                   <PlusCircle size={20} />
                 </div>
                 <div>
@@ -1628,7 +1628,7 @@ export default function InvoicesPage() {
               </div>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-sm p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
               >
                 <X size={18} />
               </button>
@@ -1644,7 +1644,7 @@ export default function InvoicesPage() {
                   <select
                     value={form.branchId}
                     onChange={(e) => setForm((p) => ({ ...p, branchId: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                    className="w-full rounded-sm border border-sky-100/90 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   >
                     {branches.map((b) => (
                       <option key={b.id} value={b.id}>
@@ -1660,7 +1660,7 @@ export default function InvoicesPage() {
                   <select
                     value={form.invoiceType}
                     onChange={(e) => setForm((p) => ({ ...p, invoiceType: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                    className="w-full rounded-sm border border-sky-100/90 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   >
                     <option value="TAX">Mushak 6.3 Tax Invoice (VAT Registered)</option>
                     <option value="STANDARD">Standard Commercial Invoice</option>
@@ -1677,7 +1677,7 @@ export default function InvoicesPage() {
                     type="date"
                     value={form.issueDate}
                     onChange={(e) => setForm((p) => ({ ...p, issueDate: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                    className="w-full rounded-sm border border-sky-100/90 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   />
                 </div>
 
@@ -1688,19 +1688,19 @@ export default function InvoicesPage() {
                     type="date"
                     value={form.dueDate}
                     onChange={(e) => setForm((p) => ({ ...p, dueDate: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                    className="w-full rounded-sm border border-sky-100/90 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   />
                 </div>
               </div>
 
               {/* Customer Row */}
-              <div className="rounded-2xl border border-slate-200/80 bg-slate-50/60 p-3.5 sm:p-4">
+              <div className="rounded-sm border border-sky-100/90 bg-slate-50/60 p-3.5 sm:p-4">
                 <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
                   <label className="text-xs font-bold text-slate-800">Customer & Tax Identity</label>
                   <button
                     type="button"
                     onClick={() => setShowQuickAddCust(!showQuickAddCust)}
-                    className="flex items-center gap-1 text-xs font-bold text-primary-600 hover:underline"
+                    className="flex items-center gap-1 text-xs font-bold text-sky-600 hover:underline"
                   >
                     <UserPlus size={14} />
                     {showQuickAddCust ? "Choose Existing Customer" : "+ Register New Customer"}
@@ -1714,21 +1714,21 @@ export default function InvoicesPage() {
                       placeholder="Company / Client Name *"
                       value={quickCustName}
                       onChange={(e) => setQuickCustName(e.target.value)}
-                      className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium focus:border-primary-500 focus:outline-none"
+                      className="rounded-sm border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium focus:border-primary-500 focus:outline-none"
                     />
                     <input
                       type="text"
                       placeholder="Phone Number"
                       value={quickCustPhone}
                       onChange={(e) => setQuickCustPhone(e.target.value)}
-                      className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium focus:border-primary-500 focus:outline-none"
+                      className="rounded-sm border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium focus:border-primary-500 focus:outline-none"
                     />
                     <input
                       type="text"
                       placeholder="BIN / VAT No (Optional)"
                       value={quickCustBin}
                       onChange={(e) => setQuickCustBin(e.target.value)}
-                      className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium focus:border-primary-500 focus:outline-none font-mono"
+                      className="rounded-sm border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium focus:border-primary-500 focus:outline-none font-mono"
                     />
                     <div className="flex gap-2">
                       <input
@@ -1736,13 +1736,13 @@ export default function InvoicesPage() {
                         placeholder="Address"
                         value={quickCustAddress}
                         onChange={(e) => setQuickCustAddress(e.target.value)}
-                        className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium focus:border-primary-500 focus:outline-none"
+                        className="flex-1 rounded-sm border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium focus:border-primary-500 focus:outline-none"
                       />
                       <button
                         type="button"
                         disabled={quickCustSaving}
                         onClick={handleCreateQuickCustomer}
-                        className="rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white hover:bg-primary-700 disabled:opacity-50"
+                        className="rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-bold text-white hover:bg-primary-700 disabled:opacity-50"
                       >
                         Save
                       </button>
@@ -1752,7 +1752,7 @@ export default function InvoicesPage() {
                   <select
                     value={form.customerId}
                     onChange={(e) => setForm((p) => ({ ...p, customerId: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none"
+                    className="w-full rounded-sm border border-sky-100/90 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none"
                   >
                     <option value="">Walk-in Customer (General Public)</option>
                     {customers.map((c) => (
@@ -1772,10 +1772,10 @@ export default function InvoicesPage() {
                 </div>
 
                 {/* Desktop View Table (md and up) */}
-                <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-200">
+                <div className="hidden md:block overflow-x-auto rounded-sm border border-sky-100/90">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase">
+                      <tr className="border-b border-sky-100/90 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase">
                         <th className="py-2.5 pl-4 pr-2 w-44">Product Autocomplete</th>
                         <th className="px-2 py-2.5">Description *</th>
                         <th className="px-2 py-2.5 w-20 text-center">Qty</th>
@@ -1794,7 +1794,7 @@ export default function InvoicesPage() {
                             <select
                               value={item.productId}
                               onChange={(e) => handleProductSelect(idx, e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 bg-slate-50/50 p-1.5 text-[11px] focus:bg-white focus:outline-none"
+                              className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 p-1.5 text-[11px] focus:bg-white focus:outline-none"
                             >
                               <option value="">-- Custom item --</option>
                               {products.map((p) => (
@@ -1812,7 +1812,7 @@ export default function InvoicesPage() {
                               placeholder="Item description *"
                               value={item.description}
                               onChange={(e) => updateLineItem(idx, "description", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-medium focus:border-primary-500 focus:outline-none"
+                              className="w-full rounded-sm border border-sky-100/90 px-2 py-1.5 text-xs font-medium focus:border-primary-500 focus:outline-none"
                             />
                           </td>
 
@@ -1823,7 +1823,7 @@ export default function InvoicesPage() {
                               min={1}
                               value={item.qty}
                               onChange={(e) => updateLineItem(idx, "qty", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-center text-xs font-bold focus:border-primary-500 focus:outline-none"
+                              className="w-full rounded-sm border border-sky-100/90 px-2 py-1.5 text-center text-xs font-bold focus:border-primary-500 focus:outline-none"
                             />
                           </td>
 
@@ -1834,7 +1834,7 @@ export default function InvoicesPage() {
                               min={0}
                               value={item.unitPrice}
                               onChange={(e) => updateLineItem(idx, "unitPrice", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-right text-xs font-bold focus:border-primary-500 focus:outline-none"
+                              className="w-full rounded-sm border border-sky-100/90 px-2 py-1.5 text-right text-xs font-bold focus:border-primary-500 focus:outline-none"
                             />
                           </td>
 
@@ -1845,7 +1845,7 @@ export default function InvoicesPage() {
                               min={0}
                               value={item.discountAmount}
                               onChange={(e) => updateLineItem(idx, "discountAmount", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-right text-xs text-rose-600 focus:border-primary-500 focus:outline-none"
+                              className="w-full rounded-sm border border-sky-100/90 px-2 py-1.5 text-right text-xs text-rose-600 focus:border-primary-500 focus:outline-none"
                             />
                           </td>
 
@@ -1856,7 +1856,7 @@ export default function InvoicesPage() {
                               min={0}
                               value={item.taxAmount}
                               onChange={(e) => updateLineItem(idx, "taxAmount", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-right text-xs text-primary-700 font-semibold focus:border-primary-500 focus:outline-none"
+                              className="w-full rounded-sm border border-sky-100/90 px-2 py-1.5 text-right text-xs text-sky-700 font-semibold focus:border-primary-500 focus:outline-none"
                             />
                           </td>
 
@@ -1885,16 +1885,16 @@ export default function InvoicesPage() {
                 {/* Mobile / Tablet Friendly Card View (Screen < md) */}
                 <div className="block md:hidden space-y-3">
                   {form.items.map((item, idx) => (
-                    <div key={idx} className="rounded-2xl border border-slate-200 bg-white p-3.5 space-y-2.5 shadow-xs">
+                    <div key={idx} className="rounded-sm border border-sky-100/90 bg-white p-3.5 space-y-2.5 shadow-2xs">
                       <div className="flex items-center justify-between">
-                        <span className="rounded-lg bg-primary-50 px-2 py-0.5 text-[11px] font-bold text-primary-700">
+                        <span className="rounded-sm bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-700">
                           Item #{idx + 1}
                         </span>
                         <button
                           type="button"
                           onClick={() => removeLineItem(idx)}
                           disabled={form.items.length <= 1}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30"
+                          className="rounded-sm p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -1905,7 +1905,7 @@ export default function InvoicesPage() {
                         <select
                           value={item.productId}
                           onChange={(e) => handleProductSelect(idx, e.target.value)}
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50/70 p-2 text-xs font-semibold focus:bg-white focus:outline-none"
+                          className="w-full rounded-sm border border-sky-100/90 bg-slate-50/70 p-2 text-xs font-semibold focus:bg-white focus:outline-none"
                         >
                           <option value="">-- Choose from inventory --</option>
                           {products.map((p) => (
@@ -1919,7 +1919,7 @@ export default function InvoicesPage() {
                           placeholder="Item Description *"
                           value={item.description}
                           onChange={(e) => updateLineItem(idx, "description", e.target.value)}
-                          className="w-full rounded-xl border border-slate-200 bg-white p-2 text-xs font-medium focus:border-primary-500 focus:outline-none"
+                          className="w-full rounded-sm border border-sky-100/90 bg-white p-2 text-xs font-medium focus:border-primary-500 focus:outline-none"
                         />
                       </div>
 
@@ -1932,7 +1932,7 @@ export default function InvoicesPage() {
                             min={1}
                             value={item.qty}
                             onChange={(e) => updateLineItem(idx, "qty", e.target.value)}
-                            className="w-full rounded-xl border border-slate-200 p-2 text-center text-xs font-bold focus:outline-none"
+                            className="w-full rounded-sm border border-sky-100/90 p-2 text-center text-xs font-bold focus:outline-none"
                           />
                         </div>
                         <div>
@@ -1942,7 +1942,7 @@ export default function InvoicesPage() {
                             min={0}
                             value={item.unitPrice}
                             onChange={(e) => updateLineItem(idx, "unitPrice", e.target.value)}
-                            className="w-full rounded-xl border border-slate-200 p-2 text-right text-xs font-bold focus:outline-none"
+                            className="w-full rounded-sm border border-sky-100/90 p-2 text-right text-xs font-bold focus:outline-none"
                           />
                         </div>
                         <div>
@@ -1952,23 +1952,23 @@ export default function InvoicesPage() {
                             min={0}
                             value={item.discountAmount}
                             onChange={(e) => updateLineItem(idx, "discountAmount", e.target.value)}
-                            className="w-full rounded-xl border border-slate-200 p-2 text-right text-xs font-semibold text-rose-600 focus:outline-none"
+                            className="w-full rounded-sm border border-sky-100/90 p-2 text-right text-xs font-semibold text-rose-600 focus:outline-none"
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] font-bold text-primary-600 block mb-0.5">Tax/VAT (৳)</label>
+                          <label className="text-[10px] font-bold text-sky-600 block mb-0.5">Tax/VAT (৳)</label>
                           <input
                             type="number"
                             min={0}
                             value={item.taxAmount}
                             onChange={(e) => updateLineItem(idx, "taxAmount", e.target.value)}
-                            className="w-full rounded-xl border border-slate-200 p-2 text-right text-xs font-semibold text-primary-700 focus:outline-none"
+                            className="w-full rounded-sm border border-sky-100/90 p-2 text-right text-xs font-semibold text-sky-700 focus:outline-none"
                           />
                         </div>
                       </div>
 
                       {/* Card Total */}
-                      <div className="flex items-center justify-between rounded-xl bg-slate-50 p-2 text-xs border border-slate-100">
+                      <div className="flex items-center justify-between rounded-sm bg-slate-50 p-2 text-xs border border-sky-100/70">
                         <span className="font-semibold text-slate-500">Line Subtotal:</span>
                         <span className="font-black text-slate-900">৳{Number(item.lineTotal || 0).toLocaleString()}</span>
                       </div>
@@ -1979,7 +1979,7 @@ export default function InvoicesPage() {
                 <button
                   type="button"
                   onClick={addLineItem}
-                  className="mt-3 flex items-center gap-1.5 rounded-xl border border-primary-200 bg-primary-50/60 px-3.5 py-2 text-xs font-bold text-primary-700 hover:bg-primary-100/80 transition"
+                  className="mt-3 flex items-center gap-1.5 rounded-sm border border-sky-200/80 bg-sky-50/60 px-3.5 py-2 text-xs font-bold text-sky-700 hover:bg-sky-100/80 transition"
                 >
                   <Plus size={14} />
                   Add another item line
@@ -1989,7 +1989,7 @@ export default function InvoicesPage() {
               {/* Summary and Payment row */}
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 {/* Notes & Immediate Payment */}
-                <div className="space-y-3 rounded-2xl border border-slate-200/80 bg-slate-50/60 p-3.5 sm:p-4">
+                <div className="space-y-3 rounded-sm border border-sky-100/90 bg-slate-50/60 p-3.5 sm:p-4">
                   <h4 className="text-xs font-bold text-slate-800">Payment Terms & Initial Settlement</h4>
                   <div>
                     <label className="mb-1 block text-[11px] font-semibold text-slate-600">
@@ -2002,7 +2002,7 @@ export default function InvoicesPage() {
                       value={form.initialPayment}
                       onChange={(e) => setForm((p) => ({ ...p, initialPayment: Number(e.target.value) }))}
                       placeholder="0.00 (Leave 0 for full credit)"
-                      className="w-full rounded-xl border border-slate-200 bg-white p-2 text-xs font-bold text-emerald-700 focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-sm border border-sky-100/90 bg-white p-2 text-xs font-bold text-emerald-700 focus:border-emerald-500 focus:outline-none"
                     />
                   </div>
 
@@ -2012,7 +2012,7 @@ export default function InvoicesPage() {
                       <select
                         value={form.paymentMethod}
                         onChange={(e) => setForm((p) => ({ ...p, paymentMethod: e.target.value }))}
-                        className="w-full rounded-xl border border-slate-200 bg-white p-2 text-xs font-semibold focus:outline-none"
+                        className="w-full rounded-sm border border-sky-100/90 bg-white p-2 text-xs font-semibold focus:outline-none"
                       >
                         <option value="CASH">Cash Drawer</option>
                         <option value="BKASH">bKash Merchant</option>
@@ -2028,7 +2028,7 @@ export default function InvoicesPage() {
                     <select
                       value={form.paymentTerms}
                       onChange={(e) => setForm((p) => ({ ...p, paymentTerms: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 bg-white p-2 text-xs font-semibold focus:outline-none"
+                      className="w-full rounded-sm border border-sky-100/90 bg-white p-2 text-xs font-semibold focus:outline-none"
                     >
                       <option value="Due on Receipt">Due on Receipt (Standard)</option>
                       <option value="Net 7 Days">Net 7 Days</option>
@@ -2045,13 +2045,13 @@ export default function InvoicesPage() {
                       value={form.note}
                       onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))}
                       placeholder="Delivery remarks, transport challan details, bank account info..."
-                      className="w-full rounded-xl border border-slate-200 bg-white p-2 text-xs text-slate-700 focus:outline-none"
+                      className="w-full rounded-sm border border-sky-100/90 bg-white p-2 text-xs text-slate-700 focus:outline-none"
                     />
                   </div>
                 </div>
 
                 {/* Themed Calculated Invoice Breakdown */}
-                <div className="flex flex-col justify-between rounded-2xl border border-primary-100 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 sm:p-5 shadow-xs">
+                <div className="flex flex-col justify-between rounded-sm border border-sky-200/70 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 sm:p-5 shadow-2xs">
                   <div className="space-y-2.5">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">Financial Calculation</h4>
                     <div className="flex justify-between text-xs text-slate-600">
@@ -2062,17 +2062,17 @@ export default function InvoicesPage() {
                       <span>Total Discounts</span>
                       <span className="font-bold tabular-nums">- ৳{formDiscountTotal.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-xs text-primary-700 font-semibold">
+                    <div className="flex justify-between text-xs text-sky-700 font-semibold">
                       <span>Total Tax / Mushak VAT</span>
                       <span className="font-bold tabular-nums">+ ৳{formTaxTotal.toLocaleString()}</span>
                     </div>
-                    <div className="border-t border-slate-200/80 pt-2.5 flex justify-between text-base font-black text-slate-900">
+                    <div className="border-t border-sky-100/90 pt-2.5 flex justify-between text-base font-black text-slate-900">
                       <span>Grand Total</span>
-                      <span className="tabular-nums text-primary-700">৳{formGrandTotal.toLocaleString()}</span>
+                      <span className="tabular-nums text-sky-700">৳{formGrandTotal.toLocaleString()}</span>
                     </div>
                   </div>
 
-                  <div className="mt-4 rounded-xl bg-white border border-slate-200/80 p-3 text-xs flex justify-between items-center shadow-2xs">
+                  <div className="mt-4 rounded-sm bg-white border border-sky-100/90 p-3 text-xs flex justify-between items-center shadow-2xs">
                     <span className="text-slate-500 font-medium">Due Balance After Deposit:</span>
                     <span className="font-black text-rose-600 tabular-nums text-sm">
                       ৳{Math.max(0, formGrandTotal - form.initialPayment).toLocaleString()}
@@ -2083,18 +2083,18 @@ export default function InvoicesPage() {
             </div>
 
             {/* Sticky Action Footer */}
-            <div className="shrink-0 flex flex-wrap items-center justify-between sm:justify-end gap-2 border-t border-slate-100 px-4 py-3 sm:px-6 sm:py-4 bg-slate-50/80">
+            <div className="shrink-0 flex flex-wrap items-center justify-between sm:justify-end gap-2 border-t border-sky-100/70 px-4 py-3 sm:px-6 sm:py-4 bg-slate-50/80">
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-sm border border-sky-100/90 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleCreateInvoice}
-                className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-primary-600 via-primary-500 to-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-primary-500/25 hover:brightness-110 active:scale-95"
+                className="flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-primary-600 via-primary-500 to-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-2xs shadow-primary-500/25 hover:brightness-110 active:scale-95"
               >
                 <CheckCircle2 size={16} />
                 Confirm & Issue Invoice
@@ -2109,11 +2109,11 @@ export default function InvoicesPage() {
       {/* ========================================================= */}
       {showCollectModal && selectedInvoiceForCollect && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-2xl sm:rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in zoom-in-95">
+          <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
             {/* Header */}
-            <div className="shrink-0 flex items-center justify-between border-b border-slate-100 px-5 py-3.5 bg-slate-50/80">
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/60 font-bold">
+                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-50 text-emerald-600 border border-emerald-200/60 font-bold">
                   <CreditCard size={16} />
                 </div>
                 <div>
@@ -2123,7 +2123,7 @@ export default function InvoicesPage() {
               </div>
               <button
                 onClick={() => setShowCollectModal(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100"
+                className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100"
               >
                 <X size={16} />
               </button>
@@ -2132,7 +2132,7 @@ export default function InvoicesPage() {
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
               {/* Invoice snapshot */}
-              <div className="rounded-2xl bg-slate-50 p-3.5 space-y-1.5 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-3.5 space-y-1.5 border border-sky-100/70">
                 <div className="flex justify-between text-slate-600">
                   <span>Customer:</span>
                   <span className="font-bold text-slate-900">{selectedInvoiceForCollect.customer?.name || "Walk-in"}</span>
@@ -2145,7 +2145,7 @@ export default function InvoicesPage() {
                   <span>Already Paid:</span>
                   <span className="font-bold text-emerald-700">৳{Number(selectedInvoiceForCollect.paidTotal).toLocaleString()}</span>
                 </div>
-                <div className="border-t border-slate-200 pt-1.5 flex justify-between font-black text-slate-900">
+                <div className="border-t border-sky-100/90 pt-1.5 flex justify-between font-black text-slate-900">
                   <span>Current Due:</span>
                   <span className="text-rose-600">
                     ৳{Math.max(0, Number(selectedInvoiceForCollect.total) - Number(selectedInvoiceForCollect.paidTotal)).toLocaleString()}
@@ -2162,7 +2162,7 @@ export default function InvoicesPage() {
                     onClick={() =>
                       setCollectAmount(Math.max(0, Number(selectedInvoiceForCollect.total) - Number(selectedInvoiceForCollect.paidTotal)))
                     }
-                    className="text-[11px] font-bold text-primary-600 hover:underline"
+                    className="text-[11px] font-bold text-sky-600 hover:underline"
                   >
                     Pay Full Due
                   </button>
@@ -2172,7 +2172,7 @@ export default function InvoicesPage() {
                   min={1}
                   value={collectAmount}
                   onChange={(e) => setCollectAmount(Number(e.target.value))}
-                  className="w-full rounded-xl border border-slate-200 p-2.5 text-sm font-black text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                  className="w-full rounded-sm border border-sky-100/90 p-2.5 text-sm font-black text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                 />
               </div>
 
@@ -2181,7 +2181,7 @@ export default function InvoicesPage() {
                 <select
                   value={collectMethod}
                   onChange={(e) => setCollectMethod(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 p-2.5 text-xs font-semibold focus:outline-none"
+                  className="w-full rounded-sm border border-sky-100/90 p-2.5 text-xs font-semibold focus:outline-none"
                 >
                   <option value="CASH">Cash Drawer</option>
                   <option value="BKASH">bKash</option>
@@ -2199,17 +2199,17 @@ export default function InvoicesPage() {
                   placeholder="Slip # / Trx ID / Check ref"
                   value={collectRef}
                   onChange={(e) => setCollectRef(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 p-2.5 text-xs focus:outline-none"
+                  className="w-full rounded-sm border border-sky-100/90 p-2.5 text-xs focus:outline-none"
                 />
               </div>
             </div>
 
             {/* Footer */}
-            <div className="shrink-0 flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-3.5 bg-slate-50/80">
+            <div className="shrink-0 flex items-center justify-end gap-2 border-t border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
               <button
                 type="button"
                 onClick={() => setShowCollectModal(false)}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-sm border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -2217,7 +2217,7 @@ export default function InvoicesPage() {
                 type="button"
                 disabled={collectSubmitting}
                 onClick={handleCollectPayment}
-                className="flex items-center gap-1 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700 disabled:opacity-50"
+                className="flex items-center gap-1 rounded-sm bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700 disabled:opacity-50"
               >
                 {collectSubmitting ? "Recording..." : "Record Payment"}
               </button>
@@ -2231,11 +2231,11 @@ export default function InvoicesPage() {
       {/* ========================================================= */}
       {showAllocateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl sm:rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in zoom-in-95">
+          <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
             {/* Header */}
-            <div className="shrink-0 flex items-center justify-between border-b border-slate-100 px-5 py-3.5 bg-slate-50/80">
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-50 text-primary-600 font-bold border border-primary-200/60">
+                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-sky-600 font-bold border border-sky-200/80/60">
                   <CreditCard size={16} />
                 </div>
                 <div>
@@ -2245,7 +2245,7 @@ export default function InvoicesPage() {
               </div>
               <button
                 onClick={() => setShowAllocateModal(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100"
+                className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100"
               >
                 <X size={16} />
               </button>
@@ -2260,7 +2260,7 @@ export default function InvoicesPage() {
                   <select
                     value={allocCustId}
                     onChange={(e) => handleCustomerSelectForAlloc(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 p-2 text-xs font-semibold focus:outline-none"
+                    className="w-full rounded-sm border border-sky-100/90 p-2 text-xs font-semibold focus:outline-none"
                   >
                     <option value="">-- Choose Customer --</option>
                     {customers.map((c) => (
@@ -2279,7 +2279,7 @@ export default function InvoicesPage() {
                     value={allocAmount}
                     onChange={(e) => setAllocAmount(Number(e.target.value))}
                     placeholder="e.g. 5000"
-                    className="w-full rounded-xl border border-slate-200 p-2 text-xs font-black text-slate-900 focus:outline-none"
+                    className="w-full rounded-sm border border-sky-100/90 p-2 text-xs font-black text-slate-900 focus:outline-none"
                   />
                 </div>
               </div>
@@ -2290,7 +2290,7 @@ export default function InvoicesPage() {
                   <select
                     value={allocMethod}
                     onChange={(e) => setAllocMethod(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 p-2 text-xs font-semibold focus:outline-none"
+                    className="w-full rounded-sm border border-sky-100/90 p-2 text-xs font-semibold focus:outline-none"
                   >
                     <option value="CASH">Cash Drawer</option>
                     <option value="BKASH">bKash</option>
@@ -2306,7 +2306,7 @@ export default function InvoicesPage() {
                     value={allocRef}
                     onChange={(e) => setAllocRef(e.target.value)}
                     placeholder="Transaction ID or Cheque #"
-                    className="w-full rounded-xl border border-slate-200 p-2 text-xs focus:outline-none"
+                    className="w-full rounded-sm border border-sky-100/90 p-2 text-xs focus:outline-none"
                   />
                 </div>
               </div>
@@ -2319,7 +2319,7 @@ export default function InvoicesPage() {
                     <button
                       type="button"
                       onClick={handleAutoDistributeAlloc}
-                      className="flex items-center gap-1 text-[11px] font-bold text-primary-600 hover:underline"
+                      className="flex items-center gap-1 text-[11px] font-bold text-sky-600 hover:underline"
                     >
                       <Sparkles size={13} />
                       Auto-Distribute (FIFO / Oldest First)
@@ -2328,14 +2328,14 @@ export default function InvoicesPage() {
                 </div>
 
                 {allocRows.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-slate-200 py-8 text-center text-slate-400">
+                  <div className="rounded-sm border border-dashed border-sky-100/90 py-8 text-center text-slate-400">
                     {allocCustId ? "No unpaid invoices found for this customer" : "Select a customer to view open invoices"}
                   </div>
                 ) : (
-                  <div className="max-h-60 overflow-y-auto rounded-xl border border-slate-200">
+                  <div className="max-h-60 overflow-y-auto rounded-sm border border-sky-100/90">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-bold uppercase text-slate-500">
+                        <tr className="border-b border-sky-100/90 bg-slate-50 text-[10px] font-bold uppercase text-slate-500">
                           <th className="py-2 pl-3">Invoice #</th>
                           <th className="py-2 text-right">Total</th>
                           <th className="py-2 text-right">Paid</th>
@@ -2362,7 +2362,7 @@ export default function InvoicesPage() {
                                   updated[idx].allocated = val;
                                   setAllocRows(updated);
                                 }}
-                                className="w-24 rounded-lg border border-slate-200 p-1 text-right text-xs font-bold text-primary-700 focus:border-primary-500 focus:outline-none"
+                                className="w-24 rounded-sm border border-sky-100/90 p-1 text-right text-xs font-bold text-sky-700 focus:border-primary-500 focus:outline-none"
                               />
                             </td>
                           </tr>
@@ -2375,7 +2375,7 @@ export default function InvoicesPage() {
             </div>
 
             {/* Footer */}
-            <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-5 py-3.5 bg-slate-50/80">
+            <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 border-t border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
               <div className="text-xs">
                 <span className="text-slate-500">Total Allocated: </span>
                 <span className="font-black text-slate-900">
@@ -2387,7 +2387,7 @@ export default function InvoicesPage() {
                 <button
                   type="button"
                   onClick={() => setShowAllocateModal(false)}
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                  className="rounded-sm border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
                 >
                   Cancel
                 </button>
@@ -2395,7 +2395,7 @@ export default function InvoicesPage() {
                   type="button"
                   disabled={allocSubmitting || allocRows.length === 0}
                   onClick={handleSubmitAllocation}
-                  className="flex items-center gap-1 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-primary-700 disabled:opacity-50"
+                  className="flex items-center gap-1 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-bold text-white shadow hover:bg-primary-700 disabled:opacity-50"
                 >
                   {allocSubmitting ? "Settling..." : "Settle Invoices"}
                 </button>
@@ -2410,10 +2410,10 @@ export default function InvoicesPage() {
       {/* ========================================================= */}
       {showReminderModal && selectedInvoiceForReminder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-2xl sm:rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in zoom-in-95">
-            <div className="shrink-0 flex items-center justify-between border-b border-slate-100 px-5 py-3.5 bg-slate-50/80">
+          <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-50 text-primary-600 font-bold border border-primary-200/60">
+                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-sky-600 font-bold border border-sky-200/80/60">
                   <MessageSquare size={16} />
                 </div>
                 <div>
@@ -2423,14 +2423,14 @@ export default function InvoicesPage() {
               </div>
               <button
                 onClick={() => setShowReminderModal(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100"
+                className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100"
               >
                 <X size={16} />
               </button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-5 space-y-3 text-xs">
-              <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-3 border border-sky-100/70">
                 <p className="text-[10px] font-bold text-slate-400 uppercase">Recipient</p>
                 <p className="font-bold text-slate-800">{selectedInvoiceForReminder.customer?.name || "Customer"}</p>
                 <p className="font-mono text-slate-600">{selectedInvoiceForReminder.customer?.phone || "No phone provided"}</p>
@@ -2438,7 +2438,7 @@ export default function InvoicesPage() {
 
               <div>
                 <label className="mb-1 block font-bold text-slate-700">Reminder Message Preview</label>
-                <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 font-mono text-[11px] text-slate-700">
+                <div className="rounded-sm border border-sky-100/90 bg-slate-50/70 p-3 font-mono text-[11px] text-slate-700">
                   Dear {selectedInvoiceForReminder.customer?.name || "Customer"}, your invoice{" "}
                   <strong>{selectedInvoiceForReminder.invoiceNo}</strong> has an outstanding balance of ৳
                   {Math.max(
@@ -2460,7 +2460,7 @@ export default function InvoicesPage() {
                     )}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 font-bold text-white shadow hover:bg-emerald-700"
+                    className="flex items-center justify-center gap-2 rounded-sm bg-emerald-600 py-2.5 font-bold text-white shadow hover:bg-emerald-700"
                   >
                     <Send size={14} />
                     Send via WhatsApp
@@ -2473,7 +2473,7 @@ export default function InvoicesPage() {
                     showToast("SMS reminder sent to customer queue!");
                     setShowReminderModal(false);
                   }}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-primary-600 py-2.5 font-bold text-white shadow hover:bg-primary-700"
+                  className="flex items-center justify-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] py-2.5 font-bold text-white shadow hover:bg-primary-700"
                 >
                   <MessageSquare size={14} />
                   Send Instant SMS
@@ -2491,7 +2491,7 @@ export default function InvoicesPage() {
         <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-xs">
           <div className="h-full w-full sm:max-w-md md:max-w-lg bg-white shadow-2xl flex flex-col overflow-hidden transition-all animate-in slide-in-from-right duration-200">
             {/* Drawer Sticky Header */}
-            <div className="shrink-0 flex items-center justify-between border-b border-slate-100 px-5 py-4 bg-white">
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-5 py-4 bg-white">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Invoice Ledger View</span>
                 <h3 className="font-mono text-lg font-black text-slate-900">{selectedInvoiceForDrawer.invoiceNo}</h3>
@@ -2499,14 +2499,14 @@ export default function InvoicesPage() {
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => launchPrintModal(selectedInvoiceForDrawer)}
-                  className="flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                  className="flex items-center gap-1 rounded-sm border border-sky-100/90 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
                 >
                   <Printer size={14} />
                   Print
                 </button>
                 <button
                   onClick={() => setSelectedInvoiceForDrawer(null)}
-                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100"
+                  className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100"
                 >
                   <X size={18} />
                 </button>
@@ -2516,7 +2516,7 @@ export default function InvoicesPage() {
             {/* Scrollable Body */}
             <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
               {/* Customer & Info Cards */}
-              <div className="rounded-2xl bg-slate-50 p-4 space-y-2 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-4 space-y-2 border border-sky-100/70">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-slate-400 uppercase text-[10px]">Client / Buyer Info</span>
                   <span
@@ -2536,7 +2536,7 @@ export default function InvoicesPage() {
                   </p>
                 )}
                 {selectedInvoiceForDrawer.customer?.binVatNo && (
-                  <p className="flex items-center gap-1 font-mono text-primary-700 font-semibold">
+                  <p className="flex items-center gap-1 font-mono text-sky-700 font-semibold">
                     <ShieldCheck size={13} /> BIN/VAT: {selectedInvoiceForDrawer.customer.binVatNo}
                   </p>
                 )}
@@ -2547,11 +2547,11 @@ export default function InvoicesPage() {
 
               {/* Dates & Status */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-slate-100 bg-white p-3">
+                <div className="rounded-sm border border-sky-100/70 bg-white p-3">
                   <span className="text-[10px] text-slate-400">Issue Date</span>
                   <p className="font-bold text-slate-800">{new Date(selectedInvoiceForDrawer.issueDate).toLocaleDateString()}</p>
                 </div>
-                <div className="rounded-xl border border-slate-100 bg-white p-3">
+                <div className="rounded-sm border border-sky-100/70 bg-white p-3">
                   <span className="text-[10px] text-slate-400">Due Date</span>
                   <p className="font-bold text-slate-800">
                     {selectedInvoiceForDrawer.dueDate
@@ -2564,10 +2564,10 @@ export default function InvoicesPage() {
               {/* Line Items Table */}
               <div>
                 <span className="font-bold text-slate-800 uppercase text-[11px]">Itemized Lines</span>
-                <div className="mt-2 overflow-hidden rounded-xl border border-slate-200">
+                <div className="mt-2 overflow-hidden rounded-sm border border-sky-100/90">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-bold uppercase text-slate-500">
+                      <tr className="border-b border-sky-100/90 bg-slate-50 text-[10px] font-bold uppercase text-slate-500">
                         <th className="py-2 pl-3">Description</th>
                         <th className="py-2 text-center">Qty</th>
                         <th className="py-2 text-right">Price</th>
@@ -2589,7 +2589,7 @@ export default function InvoicesPage() {
               </div>
 
               {/* Themed Financial Totals */}
-              <div className="rounded-2xl border border-primary-100 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 text-slate-800 space-y-2 shadow-2xs">
+              <div className="rounded-sm border border-sky-200/70 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 text-slate-800 space-y-2 shadow-2xs">
                 <div className="flex justify-between text-slate-600">
                   <span>Subtotal:</span>
                   <span className="font-bold">৳{Number(selectedInvoiceForDrawer.subtotal ?? selectedInvoiceForDrawer.total).toLocaleString()}</span>
@@ -2601,14 +2601,14 @@ export default function InvoicesPage() {
                   </div>
                 )}
                 {Number(selectedInvoiceForDrawer.taxTotal || 0) > 0 && (
-                  <div className="flex justify-between text-primary-700 font-semibold">
+                  <div className="flex justify-between text-sky-700 font-semibold">
                     <span>Tax / VAT (Mushak):</span>
                     <span>+ ৳{Number(selectedInvoiceForDrawer.taxTotal).toLocaleString()}</span>
                   </div>
                 )}
-                <div className="border-t border-slate-200 pt-2 flex justify-between text-sm font-black text-slate-900">
+                <div className="border-t border-sky-100/90 pt-2 flex justify-between text-sm font-black text-slate-900">
                   <span>Grand Total:</span>
-                  <span className="text-primary-700">৳{Number(selectedInvoiceForDrawer.total).toLocaleString()}</span>
+                  <span className="text-sky-700">৳{Number(selectedInvoiceForDrawer.total).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-xs text-emerald-700">
                   <span>Paid Total:</span>
@@ -2626,7 +2626,7 @@ export default function InvoicesPage() {
                   <span className="font-bold text-slate-800 uppercase text-[11px]">Payment Transaction History</span>
                   <div className="mt-2 space-y-2">
                     {selectedInvoiceForDrawer.payments.map((p) => (
-                      <div key={p.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-2.5 shadow-2xs">
+                      <div key={p.id} className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-2.5 shadow-2xs">
                         <div>
                           <p className="font-bold text-slate-800">{p.method}</p>
                           <p className="text-[10px] text-slate-400">{new Date(p.createdAt).toLocaleString()}</p>
@@ -2641,11 +2641,11 @@ export default function InvoicesPage() {
             </div>
 
             {/* Drawer Bottom Actions */}
-            <div className="shrink-0 flex items-center justify-end gap-2 border-t border-slate-100 p-4 bg-slate-50/80">
+            <div className="shrink-0 flex items-center justify-end gap-2 border-t border-sky-100/70 p-4 bg-slate-50/80">
               {selectedInvoiceForDrawer.status !== "PAID" && selectedInvoiceForDrawer.status !== "VOID" && (
                 <button
                   onClick={() => openCollectPaymentModal(selectedInvoiceForDrawer)}
-                  className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700"
+                  className="flex items-center gap-1.5 rounded-sm bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700"
                 >
                   <CreditCard size={14} />
                   Collect Due
@@ -2654,7 +2654,7 @@ export default function InvoicesPage() {
               {selectedInvoiceForDrawer.status !== "VOID" && (
                 <button
                   onClick={() => handleVoidInvoice(selectedInvoiceForDrawer.id, selectedInvoiceForDrawer.invoiceNo)}
-                  className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50"
+                  className="rounded-sm border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50"
                 >
                   Void
                 </button>

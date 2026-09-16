@@ -121,14 +121,14 @@ function CurrencyTab() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-2xs">
+      <div className="bg-white rounded-sm border border-sky-100/90 p-5 shadow-2xs">
         <h3 className="font-bold text-slate-900 text-sm mb-1">
           Store Base Reporting Currency: <span className="text-primary-600 font-black">{tenantCurrency}</span>
         </h3>
         <p className="text-xs text-slate-500">The base currency is used for all general journals, profit & loss, and POS default calculations.</p>
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-2xs">
+      <div className="bg-white rounded-sm border border-sky-100/90 overflow-hidden shadow-2xs">
         <table className="w-full text-xs text-left">
           <thead className="bg-slate-50 border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400">
             <tr>
@@ -167,7 +167,7 @@ function CurrencyTab() {
       </div>
 
       {/* Quick Currency Converter */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-2xs space-y-3">
+      <div className="bg-white rounded-sm border border-sky-100/90 p-5 shadow-2xs space-y-3">
         <h3 className="font-bold text-slate-900 text-sm">Quick Real-Time Currency Converter</h3>
         <div className="flex flex-wrap gap-3 items-end text-xs">
           <div>
@@ -176,7 +176,7 @@ function CurrencyTab() {
               type="number"
               value={convertForm.amount}
               onChange={(e) => setConvertForm((f) => ({ ...f, amount: Number(e.target.value) }))}
-              className="w-28 border border-slate-200 rounded-xl px-3 py-2 font-bold focus:outline-none"
+              className="w-28 border border-sky-100/90 rounded-xl px-3 py-2 font-bold focus:outline-none"
             />
           </div>
           <div>
@@ -184,7 +184,7 @@ function CurrencyTab() {
             <select
               value={convertForm.fromCurrency}
               onChange={(e) => setConvertForm((f) => ({ ...f, fromCurrency: e.target.value }))}
-              className="border border-slate-200 rounded-xl px-3 py-2 font-bold focus:outline-none"
+              className="border border-sky-100/90 rounded-xl px-3 py-2 font-bold focus:outline-none"
             >
               {currencies.map((c) => (
                 <option key={c.code} value={c.code}>
@@ -199,7 +199,7 @@ function CurrencyTab() {
             <select
               value={convertForm.toCurrency}
               onChange={(e) => setConvertForm((f) => ({ ...f, toCurrency: e.target.value }))}
-              className="border border-slate-200 rounded-xl px-3 py-2 font-bold focus:outline-none"
+              className="border border-sky-100/90 rounded-xl px-3 py-2 font-bold focus:outline-none"
             >
               {currencies.map((c) => (
                 <option key={c.code} value={c.code}>
@@ -218,7 +218,7 @@ function CurrencyTab() {
         </div>
 
         {convertResult && (
-          <div className="bg-emerald-50 rounded-2xl p-4 text-xs text-emerald-900 border border-emerald-200 animate-in fade-in">
+          <div className="bg-emerald-50 rounded-sm p-4 text-xs text-emerald-900 border border-emerald-200 animate-in fade-in">
             {typeof convertResult === 'string' ? (
               <span className="text-red-600 font-bold">{convertResult}</span>
             ) : (
@@ -285,7 +285,7 @@ function RatesTab() {
         </button>
       </div>
 
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-amber-900 space-y-0.5">
+      <div className="bg-amber-50 border border-amber-200 rounded-sm p-3.5 text-amber-900 space-y-0.5">
         <p className="font-bold">⚠️ Accounting Immutability Principle</p>
         <p className="text-[11px] text-amber-800">
           Historical transactions always preserve the exchange rate active at checkout. Adding a new rate automatically supersedes the previous active pair.
@@ -293,13 +293,13 @@ function RatesTab() {
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+        <div className="bg-white rounded-sm border border-sky-100/90 p-4 space-y-3">
           <h4 className="font-bold text-slate-900">Define Exchange Rate</h4>
           <div className="grid grid-cols-4 gap-3">
             <select
               value={form.fromCurrency}
               onChange={(e) => setForm((f) => ({ ...f, fromCurrency: e.target.value }))}
-              className="border border-slate-200 rounded-xl px-3 py-2 font-bold focus:outline-none"
+              className="border border-sky-100/90 rounded-xl px-3 py-2 font-bold focus:outline-none"
             >
               {['BDT', 'USD', 'EUR', 'GBP', 'INR', 'SAR', 'AED'].map((c) => (
                 <option key={c}>{c}</option>
@@ -308,7 +308,7 @@ function RatesTab() {
             <select
               value={form.toCurrency}
               onChange={(e) => setForm((f) => ({ ...f, toCurrency: e.target.value }))}
-              className="border border-slate-200 rounded-xl px-3 py-2 font-bold focus:outline-none"
+              className="border border-sky-100/90 rounded-xl px-3 py-2 font-bold focus:outline-none"
             >
               {['USD', 'BDT', 'EUR', 'GBP', 'INR', 'SAR', 'AED'].map((c) => (
                 <option key={c}>{c}</option>
@@ -319,7 +319,7 @@ function RatesTab() {
               step="0.000001"
               value={form.rate}
               onChange={(e) => setForm((f) => ({ ...f, rate: Number(e.target.value) }))}
-              className="border border-slate-200 rounded-xl px-3 py-2 font-bold focus:outline-none"
+              className="border border-sky-100/90 rounded-xl px-3 py-2 font-bold focus:outline-none"
               placeholder="Rate"
             />
             <button
@@ -332,7 +332,7 @@ function RatesTab() {
         </div>
       )}
 
-      <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-2xs">
+      <div className="bg-white rounded-sm border border-sky-100/90 overflow-hidden shadow-2xs">
         <table className="w-full text-xs text-left">
           <thead className="bg-slate-50 border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400">
             <tr>
@@ -383,7 +383,7 @@ function LocalizationTab() {
 
   return (
     <div className="space-y-4 text-xs">
-      <div className="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-2xs space-y-4">
+      <div className="bg-white rounded-sm border border-sky-100/90 p-5 shadow-2xs space-y-4">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">System Locale & Date Format</h3>
           <p className="text-slate-500">UI language and calendar numbering representation</p>
@@ -394,7 +394,7 @@ function LocalizationTab() {
             <select
               value={localeSettings.locale || 'en'}
               onChange={(e) => setLocaleSettings((s: any) => ({ ...s, locale: e.target.value }))}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 font-bold focus:outline-none"
+              className="w-full border border-sky-100/90 rounded-xl px-3 py-2 font-bold focus:outline-none"
             >
               {supportedLocales.map((l) => (
                 <option key={l.code} value={l.code}>
@@ -408,7 +408,7 @@ function LocalizationTab() {
             <select
               value={localeSettings.dateFormat || 'YYYY-MM-DD'}
               onChange={(e) => setLocaleSettings((s: any) => ({ ...s, dateFormat: e.target.value }))}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 font-bold focus:outline-none"
+              className="w-full border border-sky-100/90 rounded-xl px-3 py-2 font-bold focus:outline-none"
             >
               {['YYYY-MM-DD', 'DD/MM/YYYY', 'MM/DD/YYYY', 'DD-MM-YYYY'].map((f) => (
                 <option key={f}>{f}</option>
@@ -420,7 +420,7 @@ function LocalizationTab() {
             <select
               value={localeSettings.timezone || 'Asia/Dhaka'}
               onChange={(e) => setLocaleSettings((s: any) => ({ ...s, timezone: e.target.value }))}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 font-bold focus:outline-none"
+              className="w-full border border-sky-100/90 rounded-xl px-3 py-2 font-bold focus:outline-none"
             >
               {['Asia/Dhaka', 'Asia/Kolkata', 'Asia/Riyadh', 'Europe/London', 'America/New_York'].map((t) => (
                 <option key={t}>{t}</option>

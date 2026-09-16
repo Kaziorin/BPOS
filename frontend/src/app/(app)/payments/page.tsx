@@ -130,7 +130,7 @@ const STATUS_CONFIG: Record<
   COMPLETED: { label: "Settled / Paid", bg: "bg-emerald-50 border-emerald-200", text: "text-emerald-700", dot: "bg-emerald-500" },
   REFUNDED: { label: "Refunded / Void", bg: "bg-rose-50 border-rose-200", text: "text-rose-700", dot: "bg-rose-500" },
   PENDING: { label: "Pending Processing", bg: "bg-amber-50 border-amber-200", text: "text-amber-700", dot: "bg-amber-500" },
-  FAILED: { label: "Failed / Declined", bg: "bg-slate-100 border-slate-200", text: "text-slate-500", dot: "bg-slate-400" },
+  FAILED: { label: "Failed / Declined", bg: "bg-slate-100 border-sky-100/90", text: "text-slate-500", dot: "bg-slate-400" },
 };
 
 export default function PaymentsPage() {
@@ -489,7 +489,7 @@ export default function PaymentsPage() {
       {/* Toast notification */}
       {toastMessage && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-sm px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
             toastMessage.type === "success" ? "bg-slate-900 ring-1 ring-slate-800" : "bg-rose-600"
           }`}
         >
@@ -499,11 +499,11 @@ export default function PaymentsPage() {
       )}
 
       {/* Top Banner / Header */}
-      <div className="border-b border-slate-200/80 bg-white px-4 sm:px-8 py-5 shadow-xs w-full">
+      <div className="border-b border-sky-100/90 bg-white px-4 sm:px-8 py-5 shadow-xs w-full">
         <div className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-md shadow-primary-500/25">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-md shadow-primary-500/25">
                 <Wallet size={22} className="stroke-[2.2]" />
               </div>
               <div>
@@ -523,7 +523,7 @@ export default function PaymentsPage() {
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/invoices"
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-xl border border-sky-100/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
             >
               <FileText size={14} className="text-primary-600" />
               Invoices Engine
@@ -552,7 +552,7 @@ export default function PaymentsPage() {
         {/* Executive KPI Stats Cards */}
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {/* 1. Total Collections */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Total Collected</span>
               <div className="rounded-lg bg-emerald-50 p-1.5 text-emerald-600">
@@ -568,7 +568,7 @@ export default function PaymentsPage() {
           </div>
 
           {/* 2. Today's Collections */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-primary-700">Today's Inflow</span>
               <div className="rounded-lg bg-primary-50 p-1.5 text-primary-700">
@@ -584,7 +584,7 @@ export default function PaymentsPage() {
           </div>
 
           {/* 3. Cash in Hand */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Cash Drawer</span>
               <div className="rounded-lg bg-slate-100 p-1.5 text-slate-600">
@@ -600,7 +600,7 @@ export default function PaymentsPage() {
           </div>
 
           {/* 4. Digital MFS (bKash/Nagad) */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-pink-600">Mobile MFS</span>
               <div className="rounded-lg bg-pink-50 p-1.5 text-pink-600">
@@ -616,7 +616,7 @@ export default function PaymentsPage() {
           </div>
 
           {/* 5. Cards & POS */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-sky-600">Cards / POS</span>
               <div className="rounded-lg bg-sky-50 p-1.5 text-sky-600">
@@ -632,7 +632,7 @@ export default function PaymentsPage() {
           </div>
 
           {/* 6. Refunds & Voids */}
-          <div className="rounded-2xl border border-rose-200/80 bg-rose-50/30 p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-rose-200/80 bg-rose-50/30 p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-rose-600">
               <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700">Refunds</span>
               <div className="rounded-lg bg-rose-100 p-1.5 text-rose-700">
@@ -650,7 +650,7 @@ export default function PaymentsPage() {
 
         {/* Channel Breakdown Intelligence Bar */}
         {stats?.byMethod && stats.byMethod.length > 0 && (
-          <div className="mb-5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+          <div className="mb-5 rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -685,7 +685,7 @@ export default function PaymentsPage() {
 
         {/* Batch Operations Floating Bar */}
         {selectedIds.length > 0 && (
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-primary-800 via-primary-700 to-indigo-800 px-5 py-3 text-xs text-white shadow-xl animate-in fade-in slide-in-from-top-2">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-sm bg-gradient-to-r from-primary-800 via-primary-700 to-indigo-800 px-5 py-3 text-xs text-white shadow-xl animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-2">
               <CheckSquare size={16} className="text-primary-200" />
               <span className="font-bold">{selectedIds.length} payment records selected</span>
@@ -709,7 +709,7 @@ export default function PaymentsPage() {
         )}
 
         {/* Filter Toolbar & Quick Status Tabs */}
-        <div className="mb-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+        <div className="mb-4 rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs">
           {/* Quick Status Tabs */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
             <div className="flex flex-wrap items-center gap-1.5">
@@ -730,7 +730,7 @@ export default function PaymentsPage() {
                   }}
                   className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
                     activeTab === tab.id
-                      ? "bg-primary-600 text-white shadow-xs shadow-primary-500/20"
+                      ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-xs shadow-primary-500/20"
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   }`}
                 >
@@ -740,7 +740,7 @@ export default function PaymentsPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
+              <div className="flex items-center rounded-xl border border-sky-100/90 bg-slate-50 p-1">
                 <button
                   onClick={() => setViewMode("table")}
                   className={`rounded-lg p-1.5 transition ${
@@ -763,7 +763,7 @@ export default function PaymentsPage() {
 
               <button
                 onClick={handleExportCSV}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                className="flex items-center gap-1.5 rounded-xl border border-sky-100/90 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                 title="Export to CSV"
               >
                 <Download size={14} />
@@ -775,7 +775,7 @@ export default function PaymentsPage() {
                   loadPayments();
                   loadStats();
                 }}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 active:scale-95"
+                className="flex items-center gap-1.5 rounded-xl border border-sky-100/90 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 active:scale-95"
                 title="Refresh"
               >
                 <RefreshCw size={14} className={loading ? "animate-spin text-primary-600" : ""} />
@@ -797,7 +797,7 @@ export default function PaymentsPage() {
                   setSearchQuery(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-10 pr-4 text-xs font-medium text-slate-800 placeholder-slate-400 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-xl border border-sky-100/90 bg-slate-50/50 py-2 pl-10 pr-4 text-xs font-medium text-slate-800 placeholder-slate-400 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               />
               {searchQuery && (
                 <button
@@ -817,7 +817,7 @@ export default function PaymentsPage() {
                   setFilterMethod(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-xl border border-sky-100/90 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               >
                 <option value="">All Payment Methods</option>
                 <option value="CASH">Cash Drawer</option>
@@ -838,7 +838,7 @@ export default function PaymentsPage() {
                   setFilterBranch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-xl border border-sky-100/90 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               >
                 <option value="">All Outlets / Branches</option>
                 {branches.map((b) => (
@@ -857,7 +857,7 @@ export default function PaymentsPage() {
                   setDateRange(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-xl border border-sky-100/90 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               >
                 <option value="all">All Dates</option>
                 <option value="today">Today</option>
@@ -870,13 +870,13 @@ export default function PaymentsPage() {
 
         {/* Payments Table / Grid */}
         {loading ? (
-          <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-xs">
+          <div className="flex h-64 flex-col items-center justify-center rounded-sm border border-sky-100/90 bg-white shadow-xs">
             <RefreshCw size={28} className="animate-spin text-primary-600" />
             <p className="mt-3 text-xs font-semibold text-slate-500">Loading payment records...</p>
           </div>
         ) : payments.length === 0 ? (
-          <div className="flex h-72 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-xs">
-            <div className="rounded-2xl bg-primary-50 p-4 text-primary-600">
+          <div className="flex h-72 flex-col items-center justify-center rounded-sm border border-dashed border-slate-300 bg-white p-8 text-center shadow-xs">
+            <div className="rounded-sm bg-primary-50 p-4 text-primary-600">
               <Receipt size={36} />
             </div>
             <h3 className="mt-3 text-sm font-bold text-slate-800">No payment records found</h3>
@@ -893,7 +893,7 @@ export default function PaymentsPage() {
           </div>
         ) : viewMode === "table" ? (
           /* Table View */
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">
+          <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
@@ -1056,14 +1056,14 @@ export default function PaymentsPage() {
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-lg border border-slate-200 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-lg border border-sky-100/90 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   <ChevronLeft size={14} />
                 </button>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-lg border border-slate-200 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-lg border border-sky-100/90 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -1083,7 +1083,7 @@ export default function PaymentsPage() {
                 return (
                   <div
                     key={p.id}
-                    className="group flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs transition hover:border-slate-300 hover:shadow-md"
+                    className="group flex flex-col justify-between rounded-sm border border-sky-100/90 bg-white p-4 sm:p-5 shadow-xs transition hover:border-slate-300 hover:shadow-md"
                   >
                     <div>
                       {/* Top row */}
@@ -1142,7 +1142,7 @@ export default function PaymentsPage() {
             </div>
 
             {/* Pagination footer */}
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-white px-4 sm:px-6 py-3 text-xs text-slate-500 shadow-xs">
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-4 sm:px-6 py-3 text-xs text-slate-500 shadow-xs">
               <span>
                 Page {page} of {totalPages} ({totalRecords} total records)
               </span>
@@ -1150,14 +1150,14 @@ export default function PaymentsPage() {
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-lg border border-slate-200 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-lg border border-sky-100/90 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   Previous
                 </button>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-lg border border-slate-200 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-lg border border-sky-100/90 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   Next
                 </button>
@@ -1172,7 +1172,7 @@ export default function PaymentsPage() {
       {/* ========================================================= */}
       {showRecordModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col rounded-2xl sm:rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in zoom-in-95">
+          <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
             {/* Header */}
             <div className="shrink-0 flex items-center justify-between border-b border-slate-100 px-4 py-3.5 sm:px-6 sm:py-4 bg-white">
               <div className="flex items-center gap-2.5">
@@ -1201,7 +1201,7 @@ export default function PaymentsPage() {
                   <select
                     value={recordForm.branchId}
                     onChange={(e) => setRecordForm((p) => ({ ...p, branchId: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-semibold focus:border-primary-500 focus:outline-none"
+                    className="w-full rounded-xl border border-sky-100/90 bg-white p-2.5 text-xs font-semibold focus:border-primary-500 focus:outline-none"
                   >
                     {branches.map((b) => (
                       <option key={b.id} value={b.id}>
@@ -1216,7 +1216,7 @@ export default function PaymentsPage() {
                   <select
                     value={recordForm.customerId}
                     onChange={(e) => setRecordForm((p) => ({ ...p, customerId: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-semibold focus:border-primary-500 focus:outline-none"
+                    className="w-full rounded-xl border border-sky-100/90 bg-white p-2.5 text-xs font-semibold focus:border-primary-500 focus:outline-none"
                   >
                     <option value="">Walk-in Customer (General Public)</option>
                     {customers.map((c) => (
@@ -1254,7 +1254,7 @@ export default function PaymentsPage() {
                   placeholder="0.00"
                   value={recordForm.amount}
                   onChange={(e) => setRecordForm((p) => ({ ...p, amount: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 p-3 text-base font-black text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                  className="w-full rounded-xl border border-sky-100/90 p-3 text-base font-black text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                 />
               </div>
 
@@ -1280,7 +1280,7 @@ export default function PaymentsPage() {
                         className={`flex items-center gap-2 rounded-xl p-2.5 text-xs font-bold border transition ${
                           active
                             ? "bg-primary-50 border-primary-500 text-primary-700 ring-2 ring-primary-500/20 shadow-xs"
-                            : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                            : "bg-white border-sky-100/90 text-slate-700 hover:bg-slate-50"
                         }`}
                       >
                         <Icon size={15} className={active ? "text-primary-600" : "text-slate-400"} />
@@ -1300,7 +1300,7 @@ export default function PaymentsPage() {
                     placeholder="Auto-generated if empty"
                     value={recordForm.reference}
                     onChange={(e) => setRecordForm((p) => ({ ...p, reference: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 p-2.5 text-xs focus:outline-none"
+                    className="w-full rounded-xl border border-sky-100/90 p-2.5 text-xs focus:outline-none"
                   />
                 </div>
 
@@ -1309,7 +1309,7 @@ export default function PaymentsPage() {
                   <select
                     value={recordForm.invoiceId}
                     onChange={(e) => setRecordForm((p) => ({ ...p, invoiceId: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-semibold focus:outline-none"
+                    className="w-full rounded-xl border border-sky-100/90 bg-white p-2.5 text-xs font-semibold focus:outline-none"
                   >
                     <option value="">-- Standalone / General Credit --</option>
                     {openInvoices.map((inv) => (
@@ -1328,7 +1328,7 @@ export default function PaymentsPage() {
                   value={recordForm.note}
                   onChange={(e) => setRecordForm((p) => ({ ...p, note: e.target.value }))}
                   placeholder="Additional settlement remarks..."
-                  className="w-full rounded-xl border border-slate-200 p-2 text-xs focus:outline-none"
+                  className="w-full rounded-xl border border-sky-100/90 p-2 text-xs focus:outline-none"
                 />
               </div>
             </div>
@@ -1338,7 +1338,7 @@ export default function PaymentsPage() {
               <button
                 type="button"
                 onClick={() => setShowRecordModal(false)}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-xl border border-sky-100/90 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -1361,9 +1361,9 @@ export default function PaymentsPage() {
       {/* ========================================================= */}
       {showRefundModal && selectedPaymentForRefund && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md rounded-2xl sm:rounded-3xl bg-white shadow-2xl p-6 border border-slate-200 animate-in zoom-in-95">
+          <div className="relative w-full max-w-md rounded-sm sm:rounded-sm bg-white shadow-2xl p-6 border border-sky-100/90 animate-in zoom-in-95">
             <div className="flex items-center gap-3 text-rose-600">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-50">
+              <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-rose-50">
                 <RotateCcw size={22} />
               </div>
               <div>
@@ -1395,7 +1395,7 @@ export default function PaymentsPage() {
               <button
                 type="button"
                 onClick={() => setShowRefundModal(false)}
-                className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-xl border border-sky-100/90 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -1416,7 +1416,7 @@ export default function PaymentsPage() {
       {/* ========================================================= */}
       {showAllocateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl sm:rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in zoom-in-95">
+          <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
             <div className="shrink-0 flex items-center justify-between border-b border-slate-100 px-5 py-3.5 bg-slate-50/80">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-50 text-primary-600 font-bold border border-primary-200/60">
@@ -1442,7 +1442,7 @@ export default function PaymentsPage() {
                   <select
                     value={allocCustId}
                     onChange={(e) => handleCustomerSelectForAlloc(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 p-2 text-xs font-semibold focus:outline-none"
+                    className="w-full rounded-xl border border-sky-100/90 p-2 text-xs font-semibold focus:outline-none"
                   >
                     <option value="">-- Choose Customer --</option>
                     {customers.map((c) => (
@@ -1461,7 +1461,7 @@ export default function PaymentsPage() {
                     value={allocAmount}
                     onChange={(e) => setAllocAmount(Number(e.target.value))}
                     placeholder="e.g. 5000"
-                    className="w-full rounded-xl border border-slate-200 p-2 text-xs font-black text-slate-900 focus:outline-none"
+                    className="w-full rounded-xl border border-sky-100/90 p-2 text-xs font-black text-slate-900 focus:outline-none"
                   />
                 </div>
               </div>
@@ -1472,7 +1472,7 @@ export default function PaymentsPage() {
                   <select
                     value={allocMethod}
                     onChange={(e) => setAllocMethod(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 p-2 text-xs font-semibold focus:outline-none"
+                    className="w-full rounded-xl border border-sky-100/90 p-2 text-xs font-semibold focus:outline-none"
                   >
                     <option value="CASH">Cash Drawer</option>
                     <option value="BKASH">bKash</option>
@@ -1488,7 +1488,7 @@ export default function PaymentsPage() {
                     value={allocRef}
                     onChange={(e) => setAllocRef(e.target.value)}
                     placeholder="Transaction ID or Cheque #"
-                    className="w-full rounded-xl border border-slate-200 p-2 text-xs focus:outline-none"
+                    className="w-full rounded-xl border border-sky-100/90 p-2 text-xs focus:outline-none"
                   />
                 </div>
               </div>
@@ -1510,14 +1510,14 @@ export default function PaymentsPage() {
                 </div>
 
                 {allocRows.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-slate-200 py-8 text-center text-slate-400">
+                  <div className="rounded-xl border border-dashed border-sky-100/90 py-8 text-center text-slate-400">
                     {allocCustId ? "No unpaid invoices found for this customer" : "Select a customer to view open invoices"}
                   </div>
                 ) : (
-                  <div className="max-h-60 overflow-y-auto rounded-xl border border-slate-200">
+                  <div className="max-h-60 overflow-y-auto rounded-xl border border-sky-100/90">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-bold uppercase text-slate-500">
+                        <tr className="border-b border-sky-100/90 bg-slate-50 text-[10px] font-bold uppercase text-slate-500">
                           <th className="py-2 pl-3">Invoice #</th>
                           <th className="py-2 text-right">Total</th>
                           <th className="py-2 text-right">Paid</th>
@@ -1544,7 +1544,7 @@ export default function PaymentsPage() {
                                   updated[idx].allocated = val;
                                   setAllocRows(updated);
                                 }}
-                                className="w-24 rounded-lg border border-slate-200 p-1 text-right text-xs font-bold text-primary-700 focus:border-primary-500 focus:outline-none"
+                                className="w-24 rounded-lg border border-sky-100/90 p-1 text-right text-xs font-bold text-primary-700 focus:border-primary-500 focus:outline-none"
                               />
                             </td>
                           </tr>
@@ -1568,7 +1568,7 @@ export default function PaymentsPage() {
                 <button
                   type="button"
                   onClick={() => setShowAllocateModal(false)}
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                  className="rounded-xl border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
                 >
                   Cancel
                 </button>
@@ -1611,7 +1611,7 @@ export default function PaymentsPage() {
             {/* Body */}
             <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
               {/* Receipt Amount Hero */}
-              <div className="rounded-2xl border border-primary-100 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-5 text-center shadow-2xs">
+              <div className="rounded-sm border border-primary-100 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-5 text-center shadow-2xs">
                 <span className="text-[11px] font-bold uppercase text-slate-500">Collected Amount</span>
                 <div className="mt-1 text-3xl font-black text-primary-700">
                   ৳{Number(selectedPaymentForDrawer.amount).toLocaleString()}
@@ -1630,7 +1630,7 @@ export default function PaymentsPage() {
               </div>
 
               {/* Customer Info */}
-              <div className="rounded-2xl bg-slate-50 p-4 space-y-2 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-4 space-y-2 border border-slate-100">
                 <span className="font-bold text-slate-400 uppercase text-[10px]">Client / Payer Details</span>
                 <p className="text-sm font-bold text-slate-800">
                   {selectedPaymentForDrawer.customer?.name || "Walk-in Customer"}
@@ -1647,7 +1647,7 @@ export default function PaymentsPage() {
 
               {/* Invoice Link */}
               {selectedPaymentForDrawer.invoice && (
-                <div className="rounded-2xl bg-slate-50 p-4 space-y-2 border border-slate-100">
+                <div className="rounded-sm bg-slate-50 p-4 space-y-2 border border-slate-100">
                   <span className="font-bold text-slate-400 uppercase text-[10px]">Target Invoice</span>
                   <div className="flex justify-between items-center">
                     <span className="font-mono font-bold text-slate-800">{selectedPaymentForDrawer.invoice.invoiceNo}</span>
@@ -1657,7 +1657,7 @@ export default function PaymentsPage() {
               )}
 
               {/* Transaction Metadata */}
-              <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-2 text-xs">
+              <div className="rounded-sm border border-slate-100 bg-white p-4 space-y-2 text-xs">
                 <span className="font-bold text-slate-400 uppercase text-[10px]">Audit & Trace</span>
                 <div className="flex justify-between text-slate-600">
                   <span>Transaction ID:</span>

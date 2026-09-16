@@ -587,7 +587,7 @@ export default function FranchisePOSPage() {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`pointer-events-auto flex items-center gap-2 px-4 py-2.5 rounded-2xl shadow-xl border text-xs font-bold transition-all transform animate-in slide-in-from-right duration-300 ${
+            className={`pointer-events-auto flex items-center gap-2 px-4 py-2.5 rounded-sm shadow-xl border text-xs font-bold transition-all transform animate-in slide-in-from-right duration-300 ${
               t.type === "success"
                 ? "bg-white/95 text-indigo-900 border-indigo-300 shadow-indigo-500/10"
                 : t.type === "error"
@@ -604,7 +604,7 @@ export default function FranchisePOSPage() {
       </div>
 
       {/* ── TOP HEADER CONTROL BAR ──────────────────────────────── */}
-      <header className="flex-none flex flex-wrap items-center justify-between gap-3 bg-white/80 backdrop-blur-md border border-indigo-100/80 rounded-2xl p-3 sm:px-4 shadow-md shadow-indigo-500/5">
+      <header className="flex-none flex flex-wrap items-center justify-between gap-3 bg-white/80 backdrop-blur-md border border-indigo-100/80 rounded-sm p-3 sm:px-4 shadow-md shadow-indigo-500/5">
         <div className="flex items-center gap-3">
           <Link
             href="/franchise"
@@ -675,7 +675,7 @@ export default function FranchisePOSPage() {
       </header>
 
       {/* ── SELECTED OUTLET METRICS BANNER ─────────────────────── */}
-      <div className="flex-none grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white/75 backdrop-blur-md border border-indigo-100/60 rounded-2xl p-2.5 shadow-xs">
+      <div className="flex-none grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white/75 backdrop-blur-md border border-indigo-100/60 rounded-sm p-2.5 shadow-xs">
         <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-indigo-50/50 border border-indigo-100">
           <div className="rounded-lg bg-indigo-600/10 p-1.5 text-indigo-700">
             <Building2 size={16} />
@@ -721,7 +721,7 @@ export default function FranchisePOSPage() {
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-3 overflow-hidden">
         
         {/* LEFT 7 COLS: HQ BRAND SUPPLY CATALOG */}
-        <div className="lg:col-span-7 flex flex-col rounded-3xl border border-indigo-100/90 bg-white/85 backdrop-blur-xl shadow-xl shadow-indigo-950/5 overflow-hidden">
+        <div className="lg:col-span-7 flex flex-col rounded-sm border border-indigo-100/90 bg-white/85 backdrop-blur-xl shadow-xl shadow-indigo-950/5 overflow-hidden">
           
           {/* Search Bar & Category Filter Header */}
           <div className="flex-none p-3.5 border-b border-indigo-100/80 space-y-2.5 bg-gradient-to-r from-indigo-50/40 via-white to-violet-50/30">
@@ -734,7 +734,7 @@ export default function FranchisePOSPage() {
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
                   placeholder="Search HQ brand supplies by item name, SKU, barcode... (Ctrl+K)"
-                  className="w-full rounded-2xl border border-indigo-200/80 bg-white py-2 pl-9 pr-10 text-xs font-semibold text-slate-800 placeholder-slate-400 shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition"
+                  className="w-full rounded-sm border border-indigo-200/80 bg-white py-2 pl-9 pr-10 text-xs font-semibold text-slate-800 placeholder-slate-400 shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition"
                 />
                 {searchFilter && (
                   <button
@@ -793,7 +793,7 @@ export default function FranchisePOSPage() {
               filteredCatalog.map((item) => (
                 <div
                   key={item.id}
-                  className="group relative p-3 rounded-2xl bg-white border border-slate-100 hover:border-indigo-500/60 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 flex items-center justify-between gap-3"
+                  className="group relative p-3 rounded-sm bg-white border border-slate-100 hover:border-indigo-500/60 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 flex items-center justify-between gap-3"
                 >
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex items-center gap-2">
@@ -840,7 +840,7 @@ export default function FranchisePOSPage() {
         </div>
 
         {/* RIGHT 5 COLS: REQUISITION CART & ROYALTY BREAKDOWN */}
-        <div className="lg:col-span-5 flex flex-col rounded-3xl border border-indigo-100/90 bg-white/90 backdrop-blur-xl shadow-2xl shadow-indigo-950/10 overflow-hidden">
+        <div className="lg:col-span-5 flex flex-col rounded-sm border border-indigo-100/90 bg-white/90 backdrop-blur-xl shadow-2xl shadow-indigo-950/10 overflow-hidden">
           
           {/* Cart Header */}
           <div className="flex-none p-3.5 border-b border-indigo-100/80 bg-gradient-to-r from-indigo-50/60 via-white to-violet-50/40 flex items-center justify-between">
@@ -885,7 +885,7 @@ export default function FranchisePOSPage() {
               cart.map((item) => (
                 <div
                   key={item.id}
-                  className="p-2.5 rounded-2xl bg-white border border-slate-100 shadow-xs space-y-1.5"
+                  className="p-2.5 rounded-sm bg-white border border-slate-100 shadow-xs space-y-1.5"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
@@ -902,7 +902,7 @@ export default function FranchisePOSPage() {
 
                   <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-50">
                     {/* Quantity Selector */}
-                    <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-0.5 border border-slate-200/80">
+                    <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-0.5 border border-sky-100/90">
                       <button
                         onClick={() => updateQty(item.id, -1)}
                         className="w-6 h-6 rounded-lg bg-white text-slate-700 font-bold hover:bg-slate-200 transition flex items-center justify-center text-xs shadow-xs"
@@ -928,7 +928,7 @@ export default function FranchisePOSPage() {
                           type="number"
                           value={item.unitPrice}
                           onChange={(e) => updateUnitPrice(item.id, parseFloat(e.target.value) || 0)}
-                          className="w-14 rounded-md border border-slate-200 px-1 py-0.5 text-[10px] font-mono text-slate-700 focus:border-indigo-500 focus:outline-none"
+                          className="w-14 rounded-md border border-sky-100/90 px-1 py-0.5 text-[10px] font-mono text-slate-700 focus:border-indigo-500 focus:outline-none"
                         />
                       </div>
                       <span className="w-20 font-black text-indigo-700 tabular-nums text-xs sm:text-sm">
@@ -1027,10 +1027,10 @@ export default function FranchisePOSPage() {
                     setShowOutletModal(false);
                     addToast("info", `Selected outlet: ${o.name}`);
                   }}
-                  className={`cursor-pointer rounded-2xl p-3.5 border transition-all ${
+                  className={`cursor-pointer rounded-sm p-3.5 border transition-all ${
                     isSelected
                       ? "bg-indigo-50/90 border-indigo-500 ring-2 ring-indigo-500/20 shadow-md"
-                      : "bg-white border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30"
+                      : "bg-white border-sky-100/90 hover:border-indigo-300 hover:bg-indigo-50/30"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -1071,7 +1071,7 @@ export default function FranchisePOSPage() {
             Manage customer profiles, search directory, or register new franchisee account
           </p>
           {/* Modal Tab Switcher */}
-          <div className="flex border-b border-slate-200">
+          <div className="flex border-b border-sky-100/90">
             <button
               onClick={() => setCustomerModalTab("view")}
               className={`flex-1 py-2 text-xs font-bold text-center border-b-2 transition ${
@@ -1121,7 +1121,7 @@ export default function FranchisePOSPage() {
                         setShowCustomerModal(false);
                         addToast("info", `Selected customer: ${c.name}`);
                       }}
-                      className="p-3 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/40 transition cursor-pointer flex items-center justify-between gap-3"
+                      className="p-3 rounded-xl border border-sky-100/90 hover:border-indigo-500 hover:bg-indigo-50/40 transition cursor-pointer flex items-center justify-between gap-3"
                     >
                       <div>
                         <p className="font-bold text-xs text-slate-900">{c.name}</p>
@@ -1201,7 +1201,7 @@ export default function FranchisePOSPage() {
               {holds.map((h) => (
                 <div
                   key={h.id}
-                  className="p-3 rounded-2xl border border-slate-200 bg-white hover:border-amber-400 transition flex items-center justify-between gap-3 shadow-xs"
+                  className="p-3 rounded-sm border border-sky-100/90 bg-white hover:border-amber-400 transition flex items-center justify-between gap-3 shadow-xs"
                 >
                   <div>
                     <div className="flex items-center gap-2">
@@ -1230,7 +1230,7 @@ export default function FranchisePOSPage() {
       {/* ── 4. PRINTABLE HQ TRANSFER INVOICE MODAL ──────────────── */}
       {completedTransfer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl text-slate-900 space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-md rounded-sm bg-white p-6 shadow-2xl text-slate-900 space-y-4 max-h-[90vh] overflow-y-auto">
             
             {/* Invoice Header */}
             <div className="text-center border-b border-dashed border-slate-300 pb-3">
@@ -1249,7 +1249,7 @@ export default function FranchisePOSPage() {
             </div>
 
             {/* Destination & Customer Meta */}
-            <div className="p-3 bg-indigo-50/70 rounded-2xl text-xs space-y-1 border border-indigo-100">
+            <div className="p-3 bg-indigo-50/70 rounded-sm text-xs space-y-1 border border-indigo-100">
               <div className="flex justify-between">
                 <span className="text-slate-500">Destination Branch:</span>
                 <span className="font-bold text-slate-900">{completedTransfer.outlet?.name}</span>
@@ -1298,7 +1298,7 @@ export default function FranchisePOSPage() {
                 <span>Marketing Fund Levy ({completedTransfer.outlet?.marketingFeePct}%):</span>
                 <span>{fmt(completedTransfer.marketingLevy)}</span>
               </div>
-              <div className="flex justify-between font-black text-base text-indigo-800 pt-1.5 border-t border-slate-200">
+              <div className="flex justify-between font-black text-base text-indigo-800 pt-1.5 border-t border-sky-100/90">
                 <span>Total Invoice Settled:</span>
                 <span>{fmt(completedTransfer.totalSupplyInvoice)}</span>
               </div>

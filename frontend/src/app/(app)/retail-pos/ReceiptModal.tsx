@@ -63,7 +63,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
       {/* 80mm Thermal Receipt Container */}
       <div
         id="thermal-receipt"
-        className="w-full rounded-2xl border border-gray-300 bg-white p-6 shadow-lg font-mono text-xs text-gray-800 space-y-3"
+        className="w-full rounded-sm border border-sky-200/90 bg-white p-6 shadow-md font-mono text-xs text-gray-800 space-y-3"
       >
         {/* Header */}
         <div className="text-center">
@@ -202,7 +202,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
         <button
           type="button"
           onClick={() => window.print()}
-          className="flex-1 flex items-center justify-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2.5 text-xs font-bold text-gray-700 shadow-2xs hover:bg-slate-50 transition cursor-pointer"
+          className="flex-1 flex items-center justify-center gap-1.5 rounded-sm border border-sky-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-sky-50 transition cursor-pointer"
         >
           <Printer size={15} />
           Print Thermal (80mm)
@@ -210,7 +210,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
         <button
           type="button"
           onClick={onNewSale}
-          className="flex-1 flex items-center justify-center gap-1.5 rounded-md bg-teal-600 px-3 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-teal-700 transition cursor-pointer"
+          className="flex-1 flex items-center justify-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3 py-2.5 text-xs font-bold text-white shadow-sm hover:brightness-105 transition cursor-pointer"
         >
           <RotateCcw size={15} />
           New Sale

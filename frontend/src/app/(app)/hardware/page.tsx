@@ -102,7 +102,7 @@ function DevicesTab() {
   const [form, setForm] = useState({ name: '', deviceType: 'THERMAL_PRINTER', driver: 'mock', connectionType: 'VIRTUAL', connectionConfig: {} });
 
   const load = async () => {
-    const [d, dt] = await Promise.all([api.get('/api/v1/hardware/devices'), api.get('/api/v1/hardware/device-types')]);
+    const [d, dt] = await Promise.all([api.get<any>('/api/v1/hardware/devices'), api.get<any>('/api/v1/hardware/device-types')]);
     setDevices(d.data?.data || []);
     setDeviceTypes(dt.data?.data || {});
   };
@@ -175,11 +175,11 @@ function DevicesTab() {
 
 function JobsTab() {
   const [jobs, setJobs] = useState<any[]>([]);
-  const load = async () => { const r = await api.get('/api/v1/hardware/jobs'); setJobs(r.data?.data || []); };
+  const load = async () => { const r = await api.get<any>('/api/v1/hardware/jobs'); setJobs(r.data?.data || []); };
   useEffect(() => { load(); }, []);
 
   return (
-    <div className="bg-white rounded-lg border overflow-hidden">
+    <div className="bg-white rounded-sm border overflow-hidden">
       <table className="w-full text-sm">
         <thead className="bg-gray-50"><tr>
           <th className="px-4 py-2 text-left">Job ID</th><th className="px-4 py-2 text-left">Type</th>
@@ -192,7 +192,7 @@ function JobsTab() {
               <td className="px-4 py-2 font-mono text-xs">{j.id.slice(0, 8)}</td>
               <td className="px-4 py-2 text-xs">{j.jobType}</td>
               <td className="px-4 py-2 text-xs">{j.deviceType}</td>
-              <td className="px-4 py-2 text-center"><span className={`text-xs px-2 py-0.5 rounded ${STATUS_COLORS[j.status] || ''}`}>{j.status}</span></td>
+              <td className="px-4 py-2 text-center"><span className={`text-xs px-2 py-0.5 rounded-sm ${STATUS_COLORS[j.status] || ''}`}>{j.status}</span></td>
               <td className="px-4 py-2 text-xs text-gray-500">{new Date(j.createdAt).toLocaleString()}</td>
             </tr>
           ))}
@@ -209,23 +209,23 @@ function ScannerTab() {
 
   const process = async () => {
     if (!code) return;
-    const r = await api.post('/api/v1/hardware/scan/process', { code });
+    const r = await api.post<any>('/api/v1/hardware/scan/process', { code });
     setResults(prev => [r.data?.data, ...prev].slice(0, 20));
     setCode('');
   };
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-lg border p-4">
+      <div className="bg-white rounded-sm border p-4">
         <h3 className="font-semibold mb-3">Barcode / QR Scanner</h3>
         <div className="flex gap-3">
           <input value={code} onChange={e => setCode(e.target.value)} placeholder="Scan or type barcode..." onKeyDown={e => e.key === 'Enter' && process()}
-            className="flex-1 border rounded px-3 py-2 text-sm" autoFocus />
-          <button onClick={process} className="px-4 py-2 bg-blue-600 text-white rounded text-sm">Process</button>
+            className="flex-1 border rounded-sm px-3 py-2 text-sm" autoFocus />
+          <button onClick={process} className="px-4 py-2 bg-sky-600 text-white rounded-sm text-sm">Process</button>
         </div>
       </div>
       {results.length > 0 && (
-        <div className="bg-white rounded-lg border overflow-hidden">
+        <div className="bg-white rounded-sm border overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-50"><tr><th className="px-4 py-2 text-left">Code</th><th className="px-4 py-2 text-left">Type</th><th className="px-4 py-2 text-center">Status</th></tr></thead>
             <tbody>
@@ -248,8 +248,8 @@ function RealtimeTab() {
   const esRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
-    api.get('/api/v1/realtime/stats').then(r => setStats(r.data?.data || {}));
-    api.get('/api/v1/realtime/events?limit=20').then(r => setEvents(r.data?.data || []));
+    api.get<any>('/api/v1/realtime/stats').then(r => setStats(r.data?.data || {}));
+    api.get<any>('/api/v1/realtime/events?limit=20').then(r => setEvents(r.data?.data || []));
   }, []);
 
   const connect = () => {
@@ -271,8 +271,8 @@ function RealtimeTab() {
   };
 
   const publishTest = async () => {
-    await api.post('/api/v1/realtime/publish', { channel, eventType: 'TEST_EVENT', payload: { message: 'Hello from real-time engine!' } });
-    api.get('/api/v1/realtime/events?limit=20').then(r => setEvents(r.data?.data || []));
+    await api.post<any>('/api/v1/realtime/publish', { channel, eventType: 'TEST_EVENT', payload: { message: 'Hello from real-time engine!' } });
+    api.get<any>('/api/v1/realtime/events?limit=20').then(r => setEvents(r.data?.data || []));
   };
 
   return (

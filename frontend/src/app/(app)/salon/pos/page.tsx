@@ -473,10 +473,10 @@ export default function SalonPOSPage() {
       {/* --- TOP HEADER --- */}
       <header className="flex-none h-[72px] px-8 flex items-center justify-between gap-8 bg-white/70 backdrop-blur-xl border-b border-indigo-50 z-30 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4">
-          <Link href="/" className="w-12 h-12 rounded-2xl bg-white border border-indigo-50 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm">
+          <Link href="/" className="w-12 h-12 rounded-sm bg-white border border-indigo-50 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm">
             <ChevronLeft size={24} />
           </Link>
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-xl shadow-indigo-200 rotate-3 transform transition hover:rotate-0">
+          <div className="w-12 h-12 rounded-sm bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-xl shadow-indigo-200 rotate-3 transform transition hover:rotate-0">
             <Smile size={28} strokeWidth={2.5} />
           </div>
           <div>
@@ -494,12 +494,12 @@ export default function SalonPOSPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search premium services or luxury products..."
-            className="w-full h-[46px] rounded-2xl bg-white/80 border border-indigo-50/50 px-12 text-sm font-semibold text-slate-700 focus:border-indigo-400 focus:ring-8 focus:ring-indigo-50/50 transition-all outline-none shadow-sm"
+            className="w-full h-[46px] rounded-sm bg-white/80 border border-indigo-50/50 px-12 text-sm font-semibold text-slate-700 focus:border-indigo-400 focus:ring-8 focus:ring-indigo-50/50 transition-all outline-none shadow-sm"
           />
         </div>
 
         <div className="flex items-center gap-5">
-          <div className="hidden xl:flex items-center gap-4 bg-white/80 px-5 py-2.5 rounded-2xl shadow-sm border border-indigo-50/50">
+          <div className="hidden xl:flex items-center gap-4 bg-white/80 px-5 py-2.5 rounded-sm shadow-sm border border-indigo-50/50">
             <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
               <Calendar size={18} />
             </div>
@@ -519,10 +519,10 @@ export default function SalonPOSPage() {
             </div>
           </div>
 
-          <button onClick={() => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }} className="w-10 h-10 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center shadow-sm border border-slate-200 transition-all active:scale-95">
+          <button onClick={() => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }} className="w-10 h-10 rounded-sm bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center shadow-sm border border-sky-100/90 transition-all active:scale-95">
             <Maximize size={20} />
           </button>
-          <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100/50">
+          <div className="w-10 h-10 rounded-sm bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100/50">
             <Wifi size={20} />
           </div>
         </div>
@@ -540,14 +540,14 @@ export default function SalonPOSPage() {
                 key={cat.id}
                 onClick={() => handleCategoryClick(cat.id)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-2.5 p-4 rounded-[2rem] transition-all duration-300 group relative",
+                  "flex flex-col items-center justify-center gap-2.5 p-4 rounded-sm transition-all duration-300 group relative",
                   active
                     ? "bg-indigo-600 text-white shadow-[0_15px_30px_-5px_rgba(79,70,229,0.3)] -translate-y-1"
                     : "text-slate-400 hover:bg-white hover:text-indigo-600 hover:shadow-xl hover:shadow-indigo-100/50"
                 )}
               >
                 <div className={cn(
-                  "w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-500",
+                  "w-11 h-11 rounded-sm flex items-center justify-center transition-all duration-500",
                   active ? "bg-white/20 rotate-12" : "bg-slate-100 group-hover:bg-indigo-50 group-hover:rotate-6"
                 )}>
                   <Icon size={22} strokeWidth={active ? 2.5 : 2} className={cn(active ? "text-white" : "text-slate-500 group-hover:text-indigo-600")} />
@@ -563,11 +563,11 @@ export default function SalonPOSPage() {
         <main className="flex-1 flex flex-col min-w-0 overflow-hidden bg-white/20 backdrop-blur-sm">
           {/* Section Header with Mode Toggles */}
           <div className="flex-none px-8 py-8 flex items-center justify-between">
-            <div className="flex items-center gap-3 bg-white/80 p-1.5 rounded-[2.5rem] border border-indigo-50/50 shadow-xl shadow-indigo-100/20 backdrop-blur-md">
+            <div className="flex items-center gap-3 bg-white/80 p-1.5 rounded-sm border border-indigo-50/50 shadow-xl shadow-indigo-100/20 backdrop-blur-md">
               <button
                 onClick={() => setActiveTab("services")}
                 className={cn(
-                  "px-8 py-2.5 rounded-[2rem] text-xs font-black uppercase tracking-widest transition-all duration-500",
+                  "px-8 py-2.5 rounded-sm text-xs font-black uppercase tracking-widest transition-all duration-500",
                   activeTab === "services" ? "bg-indigo-600 text-white shadow-xl shadow-indigo-200" : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
                 )}
               >
@@ -576,7 +576,7 @@ export default function SalonPOSPage() {
               <button
                 onClick={() => setActiveTab("products")}
                 className={cn(
-                  "px-8 py-2.5 rounded-[2rem] text-xs font-black uppercase tracking-widest transition-all duration-500",
+                  "px-8 py-2.5 rounded-sm text-xs font-black uppercase tracking-widest transition-all duration-500",
                   activeTab === "products" ? "bg-indigo-600 text-white shadow-xl shadow-indigo-200" : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
                 )}
               >
@@ -585,7 +585,7 @@ export default function SalonPOSPage() {
             </div>
 
             <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3 bg-white/60 p-1 rounded-2xl border border-indigo-50/50">
+              <div className="flex items-center gap-3 bg-white/60 p-1 rounded-sm border border-indigo-50/50">
                 <button
                   onClick={() => setViewMode("grid")}
                   className={cn("p-2 rounded-xl transition-all duration-300", viewMode === "grid" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-400 hover:text-indigo-600")}
@@ -631,12 +631,12 @@ export default function SalonPOSPage() {
                       key={s.id}
                       onClick={() => addToCart(s)}
                       className={cn(
-                        "group relative bg-white rounded-[3rem] border border-white p-5 shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_40px_80px_rgba(79,70,229,0.15)] hover:-translate-y-3 transition-all duration-700 cursor-pointer flex overflow-hidden",
+                        "group relative bg-white rounded-sm border border-white p-5 shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_40px_80px_rgba(79,70,229,0.15)] hover:-translate-y-3 transition-all duration-700 cursor-pointer flex overflow-hidden",
                         viewMode === "grid" ? "flex-col" : "flex-row items-center gap-8"
                       )}
                     >
                       <div className={cn(
-                        "relative rounded-[2.5rem] overflow-hidden bg-slate-50 shrink-0",
+                        "relative rounded-sm overflow-hidden bg-slate-50 shrink-0",
                         viewMode === "grid" ? "aspect-[4/3] w-full mb-6" : "h-32 w-44"
                       )}>
                         <img src={s.image} alt={s.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
@@ -662,7 +662,7 @@ export default function SalonPOSPage() {
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Fee</p>
                             <p className="text-2xl font-black text-indigo-600 tracking-tight">৳{s.price.toLocaleString()}</p>
                           </div>
-                          <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-xl shadow-indigo-100 group-hover:scale-110 group-hover:rotate-[360deg] transition-all duration-700">
+                          <div className="w-12 h-12 rounded-sm bg-indigo-600 text-white flex items-center justify-center shadow-xl shadow-indigo-100 group-hover:scale-110 group-hover:rotate-[360deg] transition-all duration-700">
                             <Plus size={24} strokeWidth={3.5} />
                           </div>
                         </div>
@@ -691,9 +691,9 @@ export default function SalonPOSPage() {
                     <div
                       key={p.id}
                       onClick={() => addToCart(p)}
-                      className="group bg-white rounded-[2.5rem] border border-white p-4 shadow-[0_15px_40px_rgba(0,0,0,0.03)] hover:shadow-2xl hover:shadow-violet-100 hover:-translate-y-3 transition-all duration-700 cursor-pointer flex flex-col items-start relative overflow-hidden"
+                      className="group bg-white rounded-sm border border-white p-4 shadow-[0_15px_40px_rgba(0,0,0,0.03)] hover:shadow-2xl hover:shadow-violet-100 hover:-translate-y-3 transition-all duration-700 cursor-pointer flex flex-col items-start relative overflow-hidden"
                     >
-                      <div className="aspect-[5/4] w-full rounded-[2rem] bg-[#F8F9FF] flex items-center justify-center p-6 mb-4 overflow-hidden shadow-inner">
+                      <div className="aspect-[5/4] w-full rounded-sm bg-[#F8F9FF] flex items-center justify-center p-6 mb-4 overflow-hidden shadow-inner">
                         <img
                           src={p.image}
                           alt={p.name}
@@ -758,8 +758,8 @@ export default function SalonPOSPage() {
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 mt-6">Empty Basket</p>
                 </div>
               ) : cart.map((item, idx) => (
-                <div key={item.id} className="group relative flex items-center gap-4 p-3 rounded-3xl bg-white border border-indigo-50 shadow-sm hover:shadow-md transition-all duration-500 border-l-4 border-l-indigo-600/0 hover:border-l-indigo-600 animate-fade-in-up">
-                  <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-50 flex-none shadow-xs">
+                <div key={item.id} className="group relative flex items-center gap-4 p-3 rounded-sm bg-white border border-indigo-50 shadow-sm hover:shadow-md transition-all duration-500 border-l-4 border-l-indigo-600/0 hover:border-l-indigo-600 animate-fade-in-up">
+                  <div className="w-14 h-14 rounded-sm overflow-hidden bg-slate-50 flex-none shadow-xs">
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   </div>
 
@@ -804,7 +804,7 @@ export default function SalonPOSPage() {
 
             {/* Compact Stylish Add-ons Panel */}
             <div className="pt-2">
-              <div className="flex items-center justify-between mb-4 bg-gradient-to-br from-indigo-600 to-violet-50 p-4 rounded-[1.75rem] text-white shadow-xl shadow-indigo-100 group cursor-pointer hover:shadow-indigo-200 transition-all duration-500">
+              <div className="flex items-center justify-between mb-4 bg-gradient-to-br from-indigo-600 to-violet-50 p-4 rounded-sm text-white shadow-xl shadow-indigo-100 group cursor-pointer hover:shadow-indigo-200 transition-all duration-500">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner group-hover:rotate-12 transition-transform duration-700">
                     <Sparkles size={18} strokeWidth={2.5} className="text-white" />
@@ -824,7 +824,7 @@ export default function SalonPOSPage() {
                       key={ao.id}
                       onClick={() => toggleAddOn(ao.id)}
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-[1.5rem] transition-all duration-500 cursor-pointer border-2 group/ao",
+                        "flex items-center gap-3 p-3 rounded-sm transition-all duration-500 cursor-pointer border-2 group/ao",
                         isSelected
                           ? "bg-white border-indigo-600 shadow-lg scale-[1.01]"
                           : "bg-white border-transparent hover:border-indigo-50 hover:bg-slate-50/50"
@@ -940,7 +940,7 @@ export default function SalonPOSPage() {
             <button
               onClick={() => setCheckoutOpen(true)}
               disabled={cart.length === 0 || submitting}
-              className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-4 group disabled:opacity-50 disabled:pointer-events-none"
+              className="w-full h-14 rounded-sm bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-4 group disabled:opacity-50 disabled:pointer-events-none"
             >
               <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:rotate-12 transition-transform duration-500 shadow-inner">
                 <CreditCard size={20} strokeWidth={2.5} />
@@ -956,7 +956,7 @@ export default function SalonPOSPage() {
       <footer className="flex-none h-[80px] bg-white/80 backdrop-blur-2xl border-t border-indigo-50 flex items-center justify-between px-10 z-30 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-12">
           <button onClick={() => setCustomerOpen(true)} className="flex items-center gap-4 group transition-all">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm group-active:scale-90 group-hover:-translate-y-1 duration-500 ring-4 ring-indigo-50/50">
+            <div className="w-12 h-12 rounded-sm bg-indigo-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm group-active:scale-90 group-hover:-translate-y-1 duration-500 ring-4 ring-indigo-50/50">
               <UserPlus size={22} strokeWidth={2.5} />
             </div>
             <div className="text-left leading-tight">
@@ -968,7 +968,7 @@ export default function SalonPOSPage() {
           <div className="w-px h-10 bg-indigo-100/50" />
 
           <button onClick={() => { setSelectedCartIdx(null); setStaffOpen(true); }} className="flex items-center gap-4 group transition-all">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm group-active:scale-90 group-hover:-translate-y-1 duration-500 ring-4 ring-emerald-50/50">
+            <div className="w-12 h-12 rounded-sm bg-emerald-50 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm group-active:scale-90 group-hover:-translate-y-1 duration-500 ring-4 ring-emerald-50/50">
               <Sparkles size={22} strokeWidth={2.5} />
             </div>
             <div className="text-left leading-tight">
@@ -979,7 +979,7 @@ export default function SalonPOSPage() {
 
           <div className="w-px h-10 bg-indigo-100/50 hidden lg:block" />
 
-          <div className="flex items-center gap-3 bg-slate-50/50 p-1.5 rounded-[1.5rem] border border-indigo-50/50">
+          <div className="flex items-center gap-3 bg-slate-50/50 p-1.5 rounded-sm border border-indigo-50/50">
             {[
               { label: "Hold", icon: PauseCircle, onClick: holdOrder, color: "text-amber-500", bg: "bg-amber-50" },
               { label: "Recall", icon: History, onClick: () => setHeldOrdersOpen(true), color: "text-emerald-500", bg: "bg-emerald-50" },
@@ -991,7 +991,7 @@ export default function SalonPOSPage() {
                 key={tool.label}
                 onClick={tool.onClick}
                 className={cn(
-                  "flex items-center gap-3 px-6 py-2.5 rounded-2xl font-black transition-all duration-500 hover:scale-105 active:scale-95 group shadow-sm",
+                  "flex items-center gap-3 px-6 py-2.5 rounded-sm font-black transition-all duration-500 hover:scale-105 active:scale-95 group shadow-sm",
                   tool.color, tool.bg, "hover:bg-white ring-1 ring-transparent hover:ring-indigo-100"
                 )}
               >
@@ -1006,11 +1006,11 @@ export default function SalonPOSPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button onClick={() => setNotesOpen(true)} className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-500 group relative active:scale-95 shadow-sm ring-1 ring-indigo-100">
+          <button onClick={() => setNotesOpen(true)} className="flex items-center gap-3 px-6 py-3 rounded-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-500 group relative active:scale-95 shadow-sm ring-1 ring-indigo-100">
             <Bell size={18} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform duration-700" />
             <span className="text-[10px] font-black uppercase tracking-[0.25em]">Notes</span>
           </button>
-          <button className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all duration-500 group relative active:scale-95 shadow-sm ring-1 ring-rose-100">
+          <button className="flex items-center gap-3 px-6 py-3 rounded-sm bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all duration-500 group relative active:scale-95 shadow-sm ring-1 ring-rose-100">
             <Gift size={18} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform duration-700" />
             <span className="text-[10px] font-black uppercase tracking-[0.25em]">Rewards</span>
           </button>
@@ -1026,9 +1026,9 @@ export default function SalonPOSPage() {
             <button
               key={s.id}
               onClick={() => assignStaff(s)}
-              className="flex items-center gap-5 p-6 rounded-[2.5rem] border-2 border-slate-50 bg-white hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-500 group shadow-sm hover:shadow-2xl hover:shadow-indigo-100"
+              className="flex items-center gap-5 p-6 rounded-sm border-2 border-slate-50 bg-white hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-500 group shadow-sm hover:shadow-2xl hover:shadow-indigo-100"
             >
-              <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-indigo-600 to-violet-500 text-white flex items-center justify-center text-xl font-black uppercase shadow-xl shadow-indigo-100 group-hover:rotate-6 transition-transform">{s.name.charAt(0)}</div>
+              <div className="w-16 h-16 rounded-sm bg-gradient-to-br from-indigo-600 to-violet-500 text-white flex items-center justify-center text-xl font-black uppercase shadow-xl shadow-indigo-100 group-hover:rotate-6 transition-transform">{s.name.charAt(0)}</div>
               <div className="text-left">
                 <p className="text-base font-black text-slate-800 uppercase tracking-tight">{s.name}</p>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">{s.role}</p>
@@ -1041,16 +1041,16 @@ export default function SalonPOSPage() {
       {/* Customer Management */}
       <CustomModal open={isCustomerOpen} onClose={() => setCustomerOpen(false)} title="Client Relationship Hub" size="md">
         <div className="space-y-8 p-2">
-          <div className="flex items-center gap-3 bg-slate-100 p-1.5 rounded-[2rem]">
+          <div className="flex items-center gap-3 bg-slate-100 p-1.5 rounded-sm">
             <button
               onClick={() => setCustomerModalTab("view")}
-              className={cn("flex-1 py-3 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500", customerModalTab === "view" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-500 hover:text-indigo-600")}
+              className={cn("flex-1 py-3 rounded-sm text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500", customerModalTab === "view" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-500 hover:text-indigo-600")}
             >
               Find Client
             </button>
             <button
               onClick={() => setCustomerModalTab("add")}
-              className={cn("flex-1 py-3 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500", customerModalTab === "add" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-500 hover:text-indigo-600")}
+              className={cn("flex-1 py-3 rounded-sm text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500", customerModalTab === "add" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-500 hover:text-indigo-600")}
             >
               New Profile
             </button>
@@ -1063,7 +1063,7 @@ export default function SalonPOSPage() {
                 leftIcon={<Search size={18} className="text-indigo-400" />}
                 value={customerSearch}
                 onChange={(e) => setCustomerSearch(e.target.value)}
-                className="!h-14 !rounded-[1.5rem] !text-base"
+                className="!h-14 !rounded-sm !text-base"
               />
               <div className="max-h-96 overflow-y-auto space-y-3 pr-2 no-scrollbar">
                 {filteredCustomers.length === 0 ? (
@@ -1076,12 +1076,12 @@ export default function SalonPOSPage() {
                     key={c.id || c._id || `cust-${idx}`}
                     onClick={() => { setCustomerId(c.id || c._id); setCustomerOpen(false); }}
                     className={cn(
-                      "w-full flex items-center justify-between p-5 rounded-[2rem] border transition-all duration-500 shadow-sm",
+                      "w-full flex items-center justify-between p-5 rounded-sm border transition-all duration-500 shadow-sm",
                       customerId === (c.id || c._id) ? "bg-indigo-50 border-indigo-300 shadow-indigo-100" : "bg-white border-slate-50 hover:border-indigo-100 hover:shadow-xl"
                     )}
                   >
                     <div className="flex items-center gap-5">
-                      <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-lg uppercase border-2 border-white shadow-md">{c.name.charAt(0)}</div>
+                      <div className="w-14 h-14 rounded-sm bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-lg uppercase border-2 border-white shadow-md">{c.name.charAt(0)}</div>
                       <div className="text-left">
                         <p className="text-base font-black text-slate-800 uppercase tracking-tight">{c.name}</p>
                         <p className="text-[10px] text-indigo-400 font-black uppercase tracking-widest mt-1">{c.phone || "Privacy Shielded"}</p>
@@ -1095,27 +1095,27 @@ export default function SalonPOSPage() {
           ) : (
             <div className="space-y-6 animate-fade-in-up">
               <div className="grid grid-cols-2 gap-5">
-                <CustomInput label="Full Name" placeholder="First Last..." value={newCustomer.name} onChange={(e) => setNewCustomer(prev => ({ ...prev, name: e.target.value }))} className="!h-12 !rounded-2xl" />
-                <CustomInput label="Direct Line" placeholder="01XXX-XXXXXX" value={newCustomer.phone} onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))} className="!h-12 !rounded-2xl" />
+                <CustomInput label="Full Name" placeholder="First Last..." value={newCustomer.name} onChange={(e) => setNewCustomer(prev => ({ ...prev, name: e.target.value }))} className="!h-12 !rounded-sm" />
+                <CustomInput label="Direct Line" placeholder="01XXX-XXXXXX" value={newCustomer.phone} onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))} className="!h-12 !rounded-sm" />
               </div>
-              <CustomInput label="Digital Email" placeholder="client@luxury.com" value={newCustomer.email} onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value }))} className="!h-12 !rounded-2xl" />
+              <CustomInput label="Digital Email" placeholder="client@luxury.com" value={newCustomer.email} onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value }))} className="!h-12 !rounded-sm" />
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] px-1">Residency Address</label>
                 <textarea
                   placeholder="Street details, Landmark, City..."
-                  className="w-full h-28 p-5 rounded-[1.75rem] bg-slate-50 border border-transparent text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-400 focus:ring-8 focus:ring-indigo-50 transition-all resize-none shadow-inner"
+                  className="w-full h-28 p-5 rounded-sm bg-slate-50 border border-transparent text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-400 focus:ring-8 focus:ring-indigo-50 transition-all resize-none shadow-inner"
                   value={newCustomer.address}
                   onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value }))}
                 />
               </div>
-              <CustomButton fullWidth themeColor="indigo" size="lg" onClick={handleAddCustomer} loading={submitting} className="!h-16 !rounded-[1.75rem] font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo-100 mt-4">Create Membership</CustomButton>
+              <CustomButton fullWidth themeColor="indigo" size="lg" onClick={handleAddCustomer} loading={submitting} className="!h-16 !rounded-sm font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo-100 mt-4">Create Membership</CustomButton>
             </div>
           )}
         </div>
       </CustomModal>
 
       {/* Checkout Interface */}
-      <CustomModal open={isCheckoutOpen} onClose={() => setCheckoutOpen(false)} title="Luxury Settle & Finalize" size="xl" className="!rounded-[2.5rem] !overflow-hidden">
+      <CustomModal open={isCheckoutOpen} onClose={() => setCheckoutOpen(false)} title="Luxury Settle & Finalize" size="xl" className="!rounded-sm !overflow-hidden">
         <div className="-mx-6 -mt-5 flex flex-col">
           {/* ── TOTAL DUE STRIP ── */}
           <div className="flex items-center justify-between gap-4 p-7 border-b border-indigo-50 bg-indigo-50/30">
@@ -1162,7 +1162,7 @@ export default function SalonPOSPage() {
                       type="button"
                       onClick={() => setCheckoutPayMethod(m.id)}
                       className={cn(
-                        "flex flex-col items-center justify-center gap-2 rounded-2xl border-2 py-4 text-center transition-all duration-500",
+                        "flex flex-col items-center justify-center gap-2 rounded-sm border-2 py-4 text-center transition-all duration-500",
                         active
                           ? "border-indigo-600 bg-indigo-600 text-white shadow-lg scale-[1.03]"
                           : "border-slate-50 bg-white text-slate-400 hover:border-indigo-100 hover:bg-indigo-50/30 hover:text-indigo-600"
@@ -1198,7 +1198,7 @@ export default function SalonPOSPage() {
                     value={cashTenderedInput}
                     onChange={(e) => setCashTenderedInput(e.target.value)}
                     placeholder="0.00"
-                    className="w-full h-16 rounded-2xl border-2 border-slate-50 bg-slate-50/50 pl-12 pr-6 text-[28px] font-black text-right tabular-nums focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 outline-none transition-all duration-500 shadow-inner"
+                    className="w-full h-16 rounded-sm border-2 border-slate-50 bg-slate-50/50 pl-12 pr-6 text-[28px] font-black text-right tabular-nums focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 outline-none transition-all duration-500 shadow-inner"
                   />
                 </div>
 
@@ -1220,7 +1220,7 @@ export default function SalonPOSPage() {
 
                 {/* Change */}
                 {(parseFloat(cashTenderedInput) || 0) > total && (
-                  <div className="flex items-center justify-between p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-100 animate-bounce-in">
+                  <div className="flex items-center justify-between p-5 rounded-sm bg-emerald-50 border-2 border-emerald-100 animate-bounce-in">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">Change</span>
                     <span className="text-2xl font-black text-emerald-600 tabular-nums">৳{(parseFloat(cashTenderedInput) - total).toFixed(0)}</span>
                   </div>
@@ -1229,7 +1229,7 @@ export default function SalonPOSPage() {
             )}
 
             {/* PRINT TOGGLE */}
-            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 bg-white">
+            <div className="flex items-center justify-between p-4 rounded-sm border-2 border-slate-50 bg-white">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
                   <Printer size={16} strokeWidth={2.5} />
@@ -1264,7 +1264,7 @@ export default function SalonPOSPage() {
               loading={submitting}
               disabled={checkoutPayMethod === "CASH" && (parseFloat(cashTenderedInput) || 0) < total}
               onClick={() => confirmSale(checkoutPayMethod)}
-              className="!rounded-2xl !h-16 font-black uppercase tracking-[0.3em] text-base shadow-xl shadow-indigo-100 flex items-center justify-center group whitespace-nowrap"
+              className="!rounded-sm !h-16 font-black uppercase tracking-[0.3em] text-base shadow-xl shadow-indigo-100 flex items-center justify-center group whitespace-nowrap"
             >
               <div className="flex items-center gap-3">
                 <CheckCircle2 size={24} strokeWidth={3} className="group-hover:rotate-12 transition-transform duration-500 shrink-0" />
@@ -1286,9 +1286,9 @@ export default function SalonPOSPage() {
             </div>
           ) : (
             heldOrders.map((held, idx) => (
-              <div key={held.id || `held-${idx}`} className="p-6 rounded-[2.5rem] border border-slate-50 bg-white hover:border-indigo-100 transition-all duration-700 shadow-sm flex items-center justify-between group">
+              <div key={held.id || `held-${idx}`} className="p-6 rounded-sm border border-slate-50 bg-white hover:border-indigo-100 transition-all duration-700 shadow-sm flex items-center justify-between group">
                 <div className="flex items-center gap-5">
-                   <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center border border-amber-100 group-hover:rotate-12 transition-transform duration-700"><PauseCircle size={26} strokeWidth={2.5} /></div>
+                   <div className="w-14 h-14 rounded-sm bg-amber-50 text-amber-500 flex items-center justify-center border border-amber-100 group-hover:rotate-12 transition-transform duration-700"><PauseCircle size={26} strokeWidth={2.5} /></div>
                    <div>
                     <p className="text-sm font-black text-indigo-950 uppercase tracking-tight mb-1">{held.id}</p>
                     <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{held.time} • {held.items.length} sessions</p>
@@ -1296,7 +1296,7 @@ export default function SalonPOSPage() {
                 </div>
                 <div className="flex items-center gap-6">
                   <span className="text-lg font-black text-indigo-600 tabular-nums">৳{held.total.toFixed(0)}</span>
-                  <button onClick={() => recallOrder(held)} className="px-6 py-3 rounded-2xl bg-indigo-600 text-white text-[11px] font-black uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-90">Recall</button>
+                  <button onClick={() => recallOrder(held)} className="px-6 py-3 rounded-sm bg-indigo-600 text-white text-[11px] font-black uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-90">Recall</button>
                 </div>
               </div>
             ))
@@ -1313,7 +1313,7 @@ export default function SalonPOSPage() {
               <p className="text-sm font-black uppercase tracking-[0.3em] text-slate-400">Vault is Empty</p>
             </div>
           ) : (
-            <div className="overflow-x-auto border border-slate-50 rounded-[3rem] shadow-xl shadow-indigo-100/10">
+            <div className="overflow-x-auto border border-slate-50 rounded-sm shadow-xl shadow-indigo-100/10">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50/50 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-50">
                   <tr>
@@ -1367,9 +1367,9 @@ export default function SalonPOSPage() {
             value={orderNote}
             onChange={(e) => setOrderNote(e.target.value)}
             placeholder="Document special instructions, allergies, or stylistic requests..."
-            className="w-full h-48 p-7 rounded-[2.5rem] bg-slate-50/50 border border-transparent text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-400 focus:ring-[12px] focus:ring-indigo-50/50 transition-all resize-none placeholder:text-slate-300 shadow-inner leading-relaxed"
+            className="w-full h-48 p-7 rounded-sm bg-slate-50/50 border border-transparent text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-400 focus:ring-[12px] focus:ring-indigo-50/50 transition-all resize-none placeholder:text-slate-300 shadow-inner leading-relaxed"
           />
-          <CustomButton fullWidth themeColor="indigo" onClick={() => setNotesOpen(false)} className="!rounded-[1.75rem] !h-16 font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo-100">Save Directive</CustomButton>
+          <CustomButton fullWidth themeColor="indigo" onClick={() => setNotesOpen(false)} className="!rounded-sm !h-16 font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo-100">Save Directive</CustomButton>
         </div>
       </CustomModal>
 

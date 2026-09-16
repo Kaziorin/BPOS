@@ -313,7 +313,7 @@ export default function PatientDisplayPage() {
         <div className="flex flex-col gap-3 flex-1 min-h-0 max-w-[1700px] w-full mx-auto">
 
           {/* ══ 1. HEADER ══ */}
-          <header className="rounded-2xl border border-slate-200/80 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
+          <header className="rounded-sm border border-sky-100/90 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl border bg-teal-50 border-teal-200 text-teal-600 shrink-0">
                 <Pill size={22} />
@@ -346,7 +346,7 @@ export default function PatientDisplayPage() {
               <button
                 id="pdisp-sound"
                 onClick={() => setSoundOn((v) => !v)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-gray-600 hover:text-teal-700 transition shadow-2xs cursor-pointer"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100/90 bg-white text-gray-600 hover:text-teal-700 transition shadow-2xs cursor-pointer"
                 title={soundOn ? "Mute" : "Enable sound"}
               >
                 {soundOn ? <Volume2 size={17} /> : <VolumeX size={17} />}
@@ -363,7 +363,7 @@ export default function PatientDisplayPage() {
           </header>
 
           {/* ══ 2. WELCOME BANNER ══ */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
+          <div className="rounded-sm border border-sky-100/90 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3.5">
               <div className="flex h-11 w-11 items-center justify-center rounded-full font-black text-lg shadow-2xs shrink-0 bg-teal-100 text-teal-800">
                 {customerName.charAt(0).toUpperCase()}
@@ -393,7 +393,7 @@ export default function PatientDisplayPage() {
           <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
 
             {/* ── LEFT: Medicine Items ── */}
-            <div className="col-span-12 lg:col-span-7 rounded-2xl border border-slate-200/80 bg-white shadow-xs p-5 flex flex-col min-h-0 overflow-hidden">
+            <div className="col-span-12 lg:col-span-7 rounded-sm border border-sky-100/90 bg-white shadow-xs p-5 flex flex-col min-h-0 overflow-hidden">
               <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 shrink-0">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border bg-teal-50 border-teal-200 text-teal-600 shrink-0">
@@ -405,7 +405,7 @@ export default function PatientDisplayPage() {
                   </div>
                 </div>
                 {isLive && (
-                  <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-gray-700 border border-slate-200/80">
+                  <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-gray-700 border border-sky-100/90">
                     {displayLines.reduce((s, l) => s + l.qty, 0)} Items
                   </span>
                 )}
@@ -415,7 +415,7 @@ export default function PatientDisplayPage() {
                 {!isLive ? (
                   /* ── Standby / Empty State ── */
                   <div className="flex flex-col items-center justify-center h-full gap-4 text-center py-12">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-teal-50 border border-teal-100 text-4xl">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-sm bg-teal-50 border border-teal-100 text-4xl">
                       💊
                     </div>
                     <div>
@@ -433,14 +433,14 @@ export default function PatientDisplayPage() {
                       const lineTotal = (line.unitPrice - (line.discountAmount ?? 0)) * line.qty;
                       const emoji = CAT_EMOJI[line.category || ""] || "💊";
                       return (
-                        <div key={idx} className="flex items-center justify-between p-3.5 rounded-2xl border border-slate-100 bg-white shadow-2xs hover:border-teal-200 transition">
+                        <div key={idx} className="flex items-center justify-between p-3.5 rounded-sm border border-slate-100 bg-white shadow-2xs hover:border-teal-200 transition">
                           <div className="flex items-center gap-3.5 min-w-0 flex-1 pr-4">
                             {line.image ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
                                 src={line.image}
                                 alt={line.name}
-                                className="h-14 w-14 shrink-0 rounded-xl object-cover border border-slate-200"
+                                className="h-14 w-14 shrink-0 rounded-xl object-cover border border-sky-100/90"
                               />
                             ) : (
                               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-teal-100 bg-teal-50 text-2xl">
@@ -471,7 +471,7 @@ export default function PatientDisplayPage() {
             </div>
 
             {/* ── RIGHT: Bill Summary & Payment ── */}
-            <div className="col-span-12 lg:col-span-5 rounded-2xl border border-slate-200/80 bg-white shadow-xs p-5 flex flex-col justify-between min-h-0 overflow-y-auto">
+            <div className="col-span-12 lg:col-span-5 rounded-sm border border-sky-100/90 bg-white shadow-xs p-5 flex flex-col justify-between min-h-0 overflow-y-auto">
               <div>
                 {/* Header */}
                 <div className="flex items-center gap-2 pb-3.5 border-b border-slate-100">
@@ -500,7 +500,7 @@ export default function PatientDisplayPage() {
                 </div>
 
                 {/* Grand Total Hero */}
-                <div className="rounded-2xl p-5 text-white shadow-md my-2" style={{ backgroundColor: "#0d9488" }}>
+                <div className="rounded-sm p-5 text-white shadow-md my-2" style={{ backgroundColor: "#0d9488" }}>
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-black uppercase tracking-widest" style={{ color: "#99f6e4" }}>GRAND TOTAL</span>
                     <span className="text-xs font-bold" style={{ color: "#99f6e4" }}>BDT (৳)</span>
@@ -528,7 +528,7 @@ export default function PatientDisplayPage() {
                             "py-2 rounded-xl text-xs font-bold transition-all text-center cursor-pointer border",
                             isActive
                               ? "bg-teal-600 text-white border-transparent shadow-xs"
-                              : "bg-slate-50 text-gray-600 border-slate-200 hover:bg-slate-100"
+                              : "bg-slate-50 text-gray-600 border-sky-100/90 hover:bg-slate-100"
                           )}
                         >
                           {m.label}
@@ -539,7 +539,7 @@ export default function PatientDisplayPage() {
 
                   {/* QR Panel — only when UPI/QR selected */}
                   {selectedPayment === "qr" ? (
-                    <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 flex flex-col items-center gap-3">
+                    <div className="rounded-sm border border-slate-100 bg-slate-50/50 p-4 flex flex-col items-center gap-3">
                       {/* Wallet selector */}
                       <div className="flex items-center gap-2 w-full justify-center">
                         {QR_WALLETS.map(({ id, label, Logo }) => (
@@ -550,7 +550,7 @@ export default function PatientDisplayPage() {
                               "flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer",
                               selectedWallet === id
                                 ? "border-teal-500 bg-white shadow-sm"
-                                : "border-slate-200 bg-white/60 text-gray-500 hover:bg-white"
+                                : "border-sky-100/90 bg-white/60 text-gray-500 hover:bg-white"
                             )}
                           >
                             <Logo size={22} />
@@ -561,7 +561,7 @@ export default function PatientDisplayPage() {
 
                       {/* QR Code */}
                       <div
-                        className="rounded-2xl border border-slate-200/90 bg-white p-3 shadow-xs"
+                        className="rounded-sm border border-sky-100/90/90 bg-white p-3 shadow-xs"
                         dangerouslySetInnerHTML={{ __html: qrSvg(qrPayload, 155) }}
                       />
                       <p className="text-xs text-gray-400 font-medium">
@@ -572,7 +572,7 @@ export default function PatientDisplayPage() {
                       </p>
                     </div>
                   ) : (
-                    <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-6 flex flex-col items-center justify-center gap-2 min-h-[160px]">
+                    <div className="rounded-sm border border-slate-100 bg-slate-50/50 p-6 flex flex-col items-center justify-center gap-2 min-h-[160px]">
                       <div className="text-3xl">
                         {selectedPayment === "cash" ? "💵" : selectedPayment === "card" ? "💳" : selectedPayment === "wallet" ? "👛" : "🔀"}
                       </div>

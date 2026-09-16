@@ -16,8 +16,8 @@ interface BsData {
 
 function StatementSection({ title, rows, tone, emptyIcon }: { title: string; rows: BsRow[]; tone: string; emptyIcon: typeof FileText }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-      <div className="border-b border-gray-50 px-5 py-4"><h2 className={`font-semibold ${tone}`}>{title}</h2></div>
+    <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+      <div className="border-b border-sky-100/70 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-5 py-4"><h2 className={`font-semibold ${tone}`}>{title}</h2></div>
       <CustomTable
         columns={[
           { key: "code", header: "Code", render: (r) => <span className="font-mono text-xs text-gray-500">{r.code}</span> },
@@ -59,7 +59,7 @@ export default function BalanceSheetPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-700"><FileText size={19} /></div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-sky-50 text-sky-700"><FileText size={19} /></div>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-gray-900">Balance Sheet</h1>
             <p className="text-sm text-gray-500">Assets = Liabilities + Equity</p>
@@ -73,18 +73,18 @@ export default function BalanceSheetPage() {
         )}
       </div>
 
-      {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+      {error && <div className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
       {data && (
         <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Assets</p><p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{money(data.totalAssets)}</p></div>
-          <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Liabilities</p><p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{money(data.totalLiabilities)}</p></div>
-          <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Equity</p><p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{money(data.totalEquity)}</p></div>
+          <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs"><p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Assets</p><p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{money(data.totalAssets)}</p></div>
+          <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs"><p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Liabilities</p><p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{money(data.totalLiabilities)}</p></div>
+          <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs"><p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Equity</p><p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{money(data.totalEquity)}</p></div>
         </div>
       )}
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <StatementSection title="Assets" rows={data?.assets ?? []} tone="text-primary-700" emptyIcon={FileText} />
+        <StatementSection title="Assets" rows={data?.assets ?? []} tone="text-sky-700" emptyIcon={FileText} />
         <StatementSection title="Liabilities" rows={data?.liabilities ?? []} tone="text-amber-700" emptyIcon={FileText} />
         <StatementSection title="Equity" rows={eqRows} tone="text-emerald-700" emptyIcon={FileText} />
       </div>

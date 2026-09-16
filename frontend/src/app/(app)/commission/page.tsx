@@ -25,7 +25,7 @@ interface Commission {
 }
 
 const STATUS_META: Record<string, { label: string; cls: string; dot: string; icon: any }> = {
-  CALCULATED: { label: "Calculated", cls: "bg-slate-100 text-slate-700 border-slate-200", dot: "bg-slate-400", icon: Percent },
+  CALCULATED: { label: "Calculated", cls: "bg-slate-100 text-slate-700 border-sky-100/90", dot: "bg-slate-400", icon: Percent },
   PENDING: { label: "Pending Review", cls: "bg-amber-50 text-amber-700 border-amber-200", dot: "bg-amber-500", icon: Clock },
   APPROVED: { label: "Approved", cls: "bg-blue-50 text-blue-700 border-blue-200", dot: "bg-blue-500", icon: BadgeCheck },
   PAYABLE: { label: "Payable", cls: "bg-violet-50 text-violet-700 border-violet-200", dot: "bg-violet-500", icon: DollarSign },
@@ -140,7 +140,7 @@ export default function CommissionPage() {
           { label: "Paid Out", value: fmt(stats.totalPaid), icon: CheckCircle, accent: "text-emerald-600", bg: "bg-emerald-50" },
           { label: "Reversed", value: fmt(stats.totalReversed), icon: Undo2, accent: "text-rose-600", bg: "bg-rose-50" },
         ].map((s) => (
-          <div key={s.label} className="flex items-center justify-between rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+          <div key={s.label} className="flex items-center justify-between rounded-sm border border-gray-100 bg-white p-5 shadow-sm">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-400">{s.label}</p>
               <p className="mt-1.5 text-2xl font-bold text-gray-900">{s.value}</p>
@@ -153,7 +153,7 @@ export default function CommissionPage() {
       </div>
 
       {/* Approval queue */}
-      <div className="rounded-2xl border border-amber-100 bg-gradient-to-r from-amber-50/80 to-white p-5 shadow-sm">
+      <div className="rounded-sm border border-amber-100 bg-gradient-to-r from-amber-50/80 to-white p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock size={18} className="text-amber-600" />
@@ -224,7 +224,7 @@ export default function CommissionPage() {
               onClick={() => setStatusFilter(s)}
               className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition ${
                 active
-                  ? "border-primary-600 bg-primary-600 text-white shadow-sm"
+                  ? "border-primary-600 bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-sm"
                   : meta
                     ? `${meta.cls} hover:shadow-sm`
                     : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
@@ -249,7 +249,7 @@ export default function CommissionPage() {
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 size={26} className="animate-spin text-gray-300" /></div>
       ) : commissions.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-white p-14 text-center">
+        <div className="rounded-sm border-2 border-dashed border-gray-200 bg-white p-14 text-center">
           <Percent size={44} className="mx-auto text-gray-300" />
           <p className="mt-4 font-medium text-gray-500">No commissions yet</p>
           <p className="mt-1 text-sm text-gray-400">Commissions calculate automatically when a sale completes and a rule matches the agent.</p>
@@ -258,7 +258,7 @@ export default function CommissionPage() {
           </Link>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-sm border border-gray-100 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -353,7 +353,7 @@ export default function CommissionPage() {
       )}
 
       {/* Lifecycle legend */}
-      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="rounded-sm border border-gray-100 bg-white p-5 shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Lifecycle</p>
         <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-medium text-gray-600">
           {["CALCULATED", "PENDING", "APPROVED", "PAYABLE", "PAID"].map((s, i) => (

@@ -126,7 +126,7 @@ export function WholesaleCheckoutModal({
 
   const textPrimary = darkMode ? "text-slate-100" : "text-slate-900";
   const textSub = darkMode ? "text-slate-400" : "text-slate-500";
-  const cardBg = darkMode ? "bg-slate-800/60 border-slate-700" : "bg-slate-50/50 border-slate-200";
+  const cardBg = darkMode ? "bg-slate-800/60 border-slate-700" : "bg-slate-50/50 border-sky-100/90";
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-3">
@@ -134,7 +134,7 @@ export function WholesaleCheckoutModal({
 
       <div
         className={cn(
-          "relative w-full max-w-[480px] rounded-[32px] shadow-2xl overflow-hidden border animate-in zoom-in-95 fade-in duration-200",
+          "relative w-full max-w-[480px] rounded-sm shadow-2xl overflow-hidden border animate-in zoom-in-95 fade-in duration-200",
           darkMode ? "bg-slate-900 border-slate-700" : "bg-white border-slate-100"
         )}
       >
@@ -144,7 +144,7 @@ export function WholesaleCheckoutModal({
           darkMode ? "border-slate-800 bg-slate-900" : "border-slate-50 bg-gradient-to-r from-blue-50/50 to-white"
         )}>
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
+            <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-blue-600 text-white shadow-lg shadow-blue-600/20">
               <CreditCard size={24} strokeWidth={2.5} />
             </div>
             <div>
@@ -157,12 +157,10 @@ export function WholesaleCheckoutModal({
           <button
             type="button"
             onClick={onClose}
-            className={cn(
-              "rounded-xl p-2 transition-all active:scale-95",
-              darkMode ? "text-slate-400 hover:bg-slate-800 hover:text-white" : "text-slate-400 hover:bg-slate-100 hover:text-slate-900"
-            )}
+            className="rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-600 hover:text-white shadow-2xs transition cursor-pointer"
+            aria-label="Close"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
@@ -210,7 +208,7 @@ export function WholesaleCheckoutModal({
                     onClick={() => onChangePayMethod(id)}
                     title={desc}
                     className={cn(
-                      "flex flex-col items-center justify-center gap-2 rounded-2xl border py-4 text-center transition-all duration-200",
+                      "flex flex-col items-center justify-center gap-2 rounded-sm border py-4 text-center transition-all duration-200",
                       active
                         ? "border-blue-600 bg-blue-600 text-white shadow-xl shadow-blue-600/20 scale-[1.05]"
                         : darkMode
@@ -228,7 +226,7 @@ export function WholesaleCheckoutModal({
 
           {/* CASH TENDERING */}
           {payMethod === "CASH" ? (
-            <div className={cn("rounded-[24px] border p-5 space-y-4 transition-all duration-300", cardBg)}>
+            <div className={cn("rounded-sm border p-5 space-y-4 transition-all duration-300", cardBg)}>
               <div className="flex items-center justify-between">
                 <p className={cn("text-[10px] font-black uppercase tracking-widest", textSub)}>Cash Amount Tendered</p>
                 <button
@@ -251,8 +249,8 @@ export function WholesaleCheckoutModal({
                   onChange={(e) => setCashInput(e.target.value)}
                   placeholder="0.00"
                   className={cn(
-                    "w-full rounded-2xl border pl-10 pr-5 py-4 text-[28px] font-black text-right tabular-nums focus:outline-none focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 transition-all",
-                    darkMode ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-800" : "bg-white border-slate-200 text-slate-900 placeholder-slate-100",
+                    "w-full rounded-sm border pl-10 pr-5 py-4 text-[28px] font-black text-right tabular-nums focus:outline-none focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 transition-all",
+                    darkMode ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-800" : "bg-white border-sky-100/90 text-slate-900 placeholder-slate-100",
                     isExact ? "border-emerald-400 focus:ring-emerald-600/10" : ""
                   )}
                 />
@@ -282,7 +280,7 @@ export function WholesaleCheckoutModal({
               </div>
 
               <div className={cn(
-                "flex items-center justify-between rounded-2xl border px-5 py-4 transition-all duration-300",
+                "flex items-center justify-between rounded-sm border px-5 py-4 transition-all duration-300",
                 cashChange > 0
                   ? "border-emerald-200 bg-emerald-50/50 shadow-inner"
                   : remainingDue > 0
@@ -306,7 +304,7 @@ export function WholesaleCheckoutModal({
               </div>
             </div>
           ) : (
-            <div className={cn("rounded-[24px] border p-5 space-y-4 transition-all duration-300", cardBg)}>
+            <div className={cn("rounded-sm border p-5 space-y-4 transition-all duration-300", cardBg)}>
               <div className="flex items-center justify-between">
                 <p className={cn("text-[10px] font-black uppercase tracking-widest", textSub)}>Partial Payment / Amount Paid</p>
                 <button
@@ -329,14 +327,14 @@ export function WholesaleCheckoutModal({
                   onChange={(e) => setTenderedInput(e.target.value)}
                   placeholder="0.00"
                   className={cn(
-                    "w-full rounded-2xl border pl-10 pr-5 py-4 text-[28px] font-black text-right tabular-nums focus:outline-none focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 transition-all",
-                    darkMode ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-800" : "bg-white border-slate-200 text-slate-900 placeholder-slate-100",
+                    "w-full rounded-sm border pl-10 pr-5 py-4 text-[28px] font-black text-right tabular-nums focus:outline-none focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 transition-all",
+                    darkMode ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-800" : "bg-white border-sky-100/90 text-slate-900 placeholder-slate-100",
                   )}
                 />
               </div>
 
               <div className={cn(
-                "flex items-center justify-between rounded-2xl border px-5 py-4 transition-all duration-300",
+                "flex items-center justify-between rounded-sm border px-5 py-4 transition-all duration-300",
                 remainingDue > 0
                   ? "border-rose-200 bg-rose-50/50 shadow-inner"
                   : darkMode
@@ -362,7 +360,7 @@ export function WholesaleCheckoutModal({
           {/* NON-CASH NOTICE */}
           {payMethod !== "CASH" && (
             <div className={cn(
-              "flex items-center gap-4 rounded-[24px] border px-5 py-4 shadow-sm",
+              "flex items-center gap-4 rounded-sm border px-5 py-4 shadow-sm",
               darkMode ? "border-blue-900/30 bg-blue-950/20" : "border-blue-100 bg-blue-50/30"
             )}>
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-600/20">
@@ -381,7 +379,7 @@ export function WholesaleCheckoutModal({
 
           {/* PRINT TOGGLE */}
           <div className={cn(
-            "flex items-center justify-between rounded-2xl border px-5 py-4 transition-all hover:shadow-sm",
+            "flex items-center justify-between rounded-sm border px-5 py-4 transition-all hover:shadow-sm",
             darkMode ? "border-slate-700 bg-slate-800/30" : "border-slate-100 bg-white"
           )}>
             <div className="flex items-center gap-4">
@@ -425,10 +423,10 @@ export function WholesaleCheckoutModal({
             type="button"
             onClick={onClose}
             className={cn(
-              "rounded-2xl border px-6 py-3.5 text-[14px] font-black transition-all active:scale-95",
+              "rounded-sm border px-6 py-3.5 text-[14px] font-black transition-all active:scale-95",
               darkMode
                 ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
-                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                : "border-sky-100/90 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             )}
           >
             CANCEL
@@ -439,7 +437,7 @@ export function WholesaleCheckoutModal({
             disabled={!canPay || !!submitting}
             onClick={handleConfirm}
             className={cn(
-              "flex-1 flex items-center justify-between rounded-2xl px-6 py-3.5 text-white shadow-2xl transition-all active:scale-[0.98]",
+              "flex-1 flex items-center justify-between rounded-sm px-6 py-3.5 text-white shadow-2xl transition-all active:scale-[0.98]",
               canPay
                 ? "bg-blue-600 hover:bg-blue-700 shadow-blue-600/30"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed",

@@ -840,7 +840,7 @@ export default function GroceryPOSPage() {
                 const item = CAT_ICON_MAP[cat] || { icon: <Package size={15} />, color: "text-emerald-600" };
                 return (
                   <button key={cat} onClick={() => { setSelectedCat(cat); setMoreOpen(false); }}
-                    className={`flex items-center justify-center gap-1.5 px-2 py-2 rounded-2xl text-xs font-black transition-all duration-200 transform truncate ${on
+                    className={`flex items-center justify-center gap-1.5 px-2 py-2 rounded-sm text-xs font-black transition-all duration-200 transform truncate ${on
                         ? "bg-emerald-600 text-white shadow-md scale-[1.03] active:scale-95"
                         : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:-translate-y-0.5 shadow-2xs active:scale-95"
                       }`}>
@@ -852,7 +852,7 @@ export default function GroceryPOSPage() {
 
               {/* More Categories Button */}
               <button onClick={() => setMoreOpen(p => !p)}
-                className={`flex items-center justify-center gap-1 px-2 py-2 rounded-2xl text-xs font-black transition-all duration-200 transform truncate ${MORE_CATS.includes(selectedCat) || moreOpen
+                className={`flex items-center justify-center gap-1 px-2 py-2 rounded-sm text-xs font-black transition-all duration-200 transform truncate ${MORE_CATS.includes(selectedCat) || moreOpen
                     ? "bg-emerald-600 text-white shadow-md scale-[1.03]"
                     : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:-translate-y-0.5 shadow-2xs active:scale-95"
                   }`}>
@@ -934,7 +934,7 @@ export default function GroceryPOSPage() {
 
                 return (
                   <button key={p.id} onClick={() => isKg ? openScale(p) : addToCart(p)}
-                    className={`flex flex-col rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md hover:border-emerald-500 hover:-translate-y-1 active:translate-y-0.5 active:scale-[0.98] transition-all duration-200 overflow-hidden p-2.5 text-left group cursor-pointer relative bg-white ${inCartQty > 0
+                    className={`flex flex-col rounded-sm border border-gray-200 shadow-2xs hover:shadow-md hover:border-emerald-500 hover:-translate-y-1 active:translate-y-0.5 active:scale-[0.98] transition-all duration-200 overflow-hidden p-2.5 text-left group cursor-pointer relative bg-white ${inCartQty > 0
                         ? "ring-2 ring-emerald-500 border-emerald-500"
                         : ""
                       }`}>
@@ -981,7 +981,7 @@ export default function GroceryPOSPage() {
                 );
               })}
               {filteredProducts.length === 0 && (
-                <div className="col-span-6 py-12 text-center bg-white rounded-2xl border border-gray-200 shadow-2xs">
+                <div className="col-span-6 py-12 text-center bg-white rounded-sm border border-gray-200 shadow-2xs">
                   <Package size={36} className="mx-auto mb-2 opacity-40 text-gray-400" />
                   <p className="text-xs font-bold text-gray-500">No products found</p>
                 </div>
@@ -993,13 +993,13 @@ export default function GroceryPOSPage() {
           <div className="flex-none bg-transparent p-3 flex flex-col gap-2.5 relative z-10">
 
             {/* Status Summary Bar — Pure White */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-md px-4 py-2.5 flex items-center justify-between divide-x divide-gray-100">
+            <div className="bg-white rounded-sm border border-gray-200 shadow-md px-4 py-2.5 flex items-center justify-between divide-x divide-gray-100">
               {[
-                { icon: <ShoppingBag size={16} />, label: "Total Items", val: totalItems, bg: "bg-slate-100 text-slate-700 border border-slate-200" },
-                { icon: <Package size={16} />, label: "Total Qty", val: Math.round(totalQty * 100) / 100, bg: "bg-slate-100 text-slate-700 border border-slate-200" },
-                { icon: <FileText size={16} />, label: "Subtotal", val: fmt(subTotal), bg: "bg-slate-100 text-slate-700 border border-slate-200" },
-                { icon: <Tag size={16} />, label: "Discount", val: fmt(discAmt), bg: "bg-slate-100 text-slate-700 border border-slate-200" },
-                { icon: <Gift size={16} />, label: "Total Savings", val: fmt(discAmt), bg: "bg-slate-100 text-slate-700 border border-slate-200" },
+                { icon: <ShoppingBag size={16} />, label: "Total Items", val: totalItems, bg: "bg-slate-100 text-slate-700 border border-sky-100/90" },
+                { icon: <Package size={16} />, label: "Total Qty", val: Math.round(totalQty * 100) / 100, bg: "bg-slate-100 text-slate-700 border border-sky-100/90" },
+                { icon: <FileText size={16} />, label: "Subtotal", val: fmt(subTotal), bg: "bg-slate-100 text-slate-700 border border-sky-100/90" },
+                { icon: <Tag size={16} />, label: "Discount", val: fmt(discAmt), bg: "bg-slate-100 text-slate-700 border border-sky-100/90" },
+                { icon: <Gift size={16} />, label: "Total Savings", val: fmt(discAmt), bg: "bg-slate-100 text-slate-700 border border-sky-100/90" },
               ].map((s, idx) => (
                 <div key={s.label} className={`flex items-center gap-2.5 ${idx === 0 ? "" : "pl-3.5"} ${idx === 4 ? "" : "pr-3.5"} flex-1`}>
                   <div className={`w-8 h-8 rounded-xl ${s.bg} flex items-center justify-center shrink-0 shadow-2xs`}>
@@ -1049,7 +1049,7 @@ export default function GroceryPOSPage() {
         <div className="flex flex-col gap-2 p-2 bg-transparent border-l border-emerald-100/50 overflow-hidden shrink-0 w-[35%] relative z-10" style={{ width: "35%" }}>
 
           {/* ── 1. CART CARD — flex-1 so it fills remaining space ── */}
-          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col flex-1 min-h-0">
+          <div className="bg-white rounded-sm border border-gray-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col flex-1 min-h-0">
 
             {/* Cart header */}
             <div className="shrink-0 flex items-center justify-between px-4 pt-3 pb-2">
@@ -1227,7 +1227,7 @@ export default function GroceryPOSPage() {
           </div>
 
           {/* ── 3. BOTTOM — Numpad with Live Digital Readout Display | Payment + Pay CTA ── shrink-0 */}
-          <div className="shrink-0 bg-white rounded-2xl border border-gray-200 shadow-md overflow-hidden" style={{ height: 235 }}>
+          <div className="shrink-0 bg-white rounded-sm border border-gray-200 shadow-md overflow-hidden" style={{ height: 235 }}>
             <div className="grid grid-cols-12 divide-x divide-gray-100 h-full">
 
               {/* LEFT: Function Keys + Numpad (6 columns) */}
@@ -1246,7 +1246,7 @@ export default function GroceryPOSPage() {
                         <Icon size={14} className="text-emerald-600 group-hover:scale-110 transition-transform shrink-0" />
                         <div className="min-w-0 flex-1">
                           <p className="text-[11px] font-bold text-slate-800 truncate leading-tight group-hover:text-emerald-700">{label}</p>
-                          <span className="text-[8px] font-bold font-mono bg-slate-100 text-slate-700 border border-slate-200 px-1 py-0.1 rounded inline-block mt-0.5">{key}</span>
+                          <span className="text-[8px] font-bold font-mono bg-slate-100 text-slate-700 border border-sky-100/90 px-1 py-0.1 rounded inline-block mt-0.5">{key}</span>
                         </div>
                       </button>
                     ))}
@@ -1293,7 +1293,7 @@ export default function GroceryPOSPage() {
 
                   {/* Top: Hero Pay CTA Card */}
                   <button onClick={handleCheckout} disabled={!cart.length || submitting}
-                    className="flex-1 w-full rounded-2xl text-white flex items-center justify-between px-3.5 py-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 bg-emerald-600 hover:bg-emerald-500 border border-emerald-700 relative overflow-hidden group min-w-0 cursor-pointer">
+                    className="flex-1 w-full rounded-sm text-white flex items-center justify-between px-3.5 py-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 bg-emerald-600 hover:bg-emerald-500 border border-emerald-700 relative overflow-hidden group min-w-0 cursor-pointer">
                     <div className="text-left flex flex-col justify-center relative z-10 min-w-0 flex-1 mr-1">
                       <p className="text-xs font-bold text-white/90 leading-none">Pay</p>
                       {(() => {
@@ -1437,7 +1437,7 @@ export default function GroceryPOSPage() {
                     const tier = getCustomerTier(c.points);
                     return (
                       <button key={idx} onClick={() => { setSelectedCustomer(c); setCustomerModalOpen(false); setCouponToast(`Customer set to ${c.name}`); setTimeout(() => setCouponToast(""), 2500); }}
-                        className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${selectedCustomer.name === c.name ? "border-emerald-500 bg-emerald-50/80 shadow-xs ring-2 ring-emerald-500/20" : "border-gray-200/80 bg-white hover:bg-gray-50"
+                        className={`w-full p-3 rounded-sm border text-left flex items-center justify-between transition-all cursor-pointer ${selectedCustomer.name === c.name ? "border-emerald-500 bg-emerald-50/80 shadow-xs ring-2 ring-emerald-500/20" : "border-gray-200/80 bg-white hover:bg-gray-50"
                           }`}>
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-black flex items-center justify-center text-sm">
@@ -1475,8 +1475,8 @@ export default function GroceryPOSPage() {
         size="lg"
       >
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3 bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shadow-inner">
+          <div className="flex items-center gap-3 bg-emerald-50 p-4 rounded-sm border border-emerald-100">
+            <div className="w-10 h-10 rounded-sm bg-emerald-600 flex items-center justify-center text-white shadow-inner">
               <FileText size={22} strokeWidth={2.2} />
             </div>
             <div>
@@ -1485,7 +1485,7 @@ export default function GroceryPOSPage() {
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm font-mono text-xs text-slate-800 space-y-3">
+          <div className="bg-white p-5 rounded-sm border border-gray-200 shadow-sm font-mono text-xs text-slate-800 space-y-3">
             {cart.length === 0 ? (
               <div className="py-12 text-center text-slate-400">
                 <ShoppingCart size={40} className="mx-auto mb-3 text-slate-300" />
@@ -1604,7 +1604,7 @@ export default function GroceryPOSPage() {
           />
           <div className="max-h-[350px] overflow-y-auto space-y-2 custom-scrollbar pr-1">
             {products.filter(p => !priceCheckQuery || p.name.toLowerCase().includes(priceCheckQuery.toLowerCase()) || p.sku.toLowerCase().includes(priceCheckQuery.toLowerCase())).slice(0, 8).map(p => (
-              <div key={p.id} className="p-3.5 rounded-2xl border border-gray-100 bg-slate-50/50 flex items-center justify-between group hover:bg-white hover:border-emerald-200 transition-all">
+              <div key={p.id} className="p-3.5 rounded-sm border border-gray-100 bg-slate-50/50 flex items-center justify-between group hover:bg-white hover:border-emerald-200 transition-all">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl group-hover:scale-110 transition-transform">{getEmoji(p.name)}</span>
                   <div>
@@ -1640,7 +1640,7 @@ export default function GroceryPOSPage() {
       >
         <div className="space-y-3 max-h-[450px] overflow-y-auto pr-1 custom-scrollbar">
           {products.slice(0, 15).map((p) => (
-            <div key={p.id} className="p-3.5 rounded-2xl border border-gray-100 bg-white flex items-center justify-between shadow-xs hover:border-emerald-200 transition-all">
+            <div key={p.id} className="p-3.5 rounded-sm border border-gray-100 bg-white flex items-center justify-between shadow-xs hover:border-emerald-200 transition-all">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-xl">
                   {getEmoji(p.name)}
@@ -1692,7 +1692,7 @@ export default function GroceryPOSPage() {
                 );
               })
               .map((s, idx) => (
-                <div key={idx} className="p-4 rounded-2xl border border-gray-100 bg-white flex items-center justify-between shadow-xs hover:border-emerald-200 transition-all">
+                <div key={idx} className="p-4 rounded-sm border border-gray-100 bg-white flex items-center justify-between shadow-xs hover:border-emerald-200 transition-all">
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] font-black text-slate-900 uppercase font-mono tracking-tighter">#{s.invoiceNo}</span>
@@ -1762,7 +1762,7 @@ export default function GroceryPOSPage() {
             { code: "FLAT50", title: "15% Off Family Shopping", desc: "Special weekend promo discount", disc: "15% OFF" },
             { code: "SUPER20", title: "20% Super Store Sale", desc: "Applicable on orders over ৳1,000", disc: "20% OFF" },
           ].map(o => (
-            <div key={o.code} className="p-4 rounded-2xl border border-emerald-100 bg-emerald-50/50 flex items-center justify-between group hover:bg-white transition-all">
+            <div key={o.code} className="p-4 rounded-sm border border-emerald-100 bg-emerald-50/50 flex items-center justify-between group hover:bg-white transition-all">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-black text-emerald-800 font-mono bg-white px-2 py-0.5 rounded border border-emerald-200">{o.code}</span>
@@ -1796,7 +1796,7 @@ export default function GroceryPOSPage() {
               <p className="text-sm font-bold uppercase tracking-widest">No held bills found</p>
             </div>
           ) : heldCarts.map(h => (
-            <div key={h.id} className="p-4 rounded-2xl border border-amber-100 bg-amber-50/30 flex items-center justify-between group hover:bg-white hover:border-amber-300 transition-all">
+            <div key={h.id} className="p-4 rounded-sm border border-amber-100 bg-amber-50/30 flex items-center justify-between group hover:bg-white hover:border-amber-300 transition-all">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-black text-amber-900 uppercase font-mono tracking-tighter">#{h.id}</span>
@@ -1826,7 +1826,7 @@ export default function GroceryPOSPage() {
         size="md"
       >
         <div className="space-y-5">
-          <div className="divide-y divide-gray-100 bg-slate-50 rounded-2xl p-2 border border-gray-100">
+          <div className="divide-y divide-gray-100 bg-slate-50 rounded-sm p-2 border border-gray-100">
             {[
               { key: "receiptPrinter", emoji: "🖨️", label: "Thermal Receipt Printer", desc: hardwareSettings.receiptPrinter ? "Enabled" : "Disabled" },
               { key: "cashDrawer", emoji: "💵", label: "Cash Drawer", desc: hardwareSettings.cashDrawer ? "Enabled" : "Disabled" },
@@ -1857,7 +1857,7 @@ export default function GroceryPOSPage() {
             })}
           </div>
 
-          <div className="rounded-2xl bg-blue-50/50 border border-blue-100 p-4 flex items-start gap-3">
+          <div className="rounded-sm bg-blue-50/50 border border-blue-100 p-4 flex items-start gap-3">
             <div className="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5 italic">i</div>
             <p className="text-[11px] font-bold text-blue-700 leading-relaxed uppercase tracking-tight">
               Full hardware activation requires SDK/driver integration. UI is ready — connect ESC/POS or USB packages to activate.
@@ -1878,8 +1878,8 @@ export default function GroceryPOSPage() {
       {/* ══ CASH DRAWER TOAST ══ */}
       {drawerToast && (
         <div className="fixed top-6 right-6 z-[100] max-w-[360px] w-full animate-in slide-in-from-top-4 duration-300">
-          <div className="relative overflow-hidden rounded-3xl bg-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.2)] border border-emerald-100 flex p-4 gap-4">
-            <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-2xl shadow-sm">
+          <div className="relative overflow-hidden rounded-sm bg-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.2)] border border-emerald-100 flex p-4 gap-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-sm bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-2xl shadow-sm">
               <Wallet size={24} strokeWidth={2.5} />
             </div>
             <div>
@@ -1894,7 +1894,7 @@ export default function GroceryPOSPage() {
       {/* ══ NOTIFICATION / COUPON TOAST ══ */}
       {couponToast && (
         <div className="fixed top-6 right-6 z-[100] max-w-[400px] w-full animate-in slide-in-from-top-4 duration-300">
-          <div className="relative group overflow-hidden rounded-3xl bg-white/95 backdrop-blur-xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.2)] border border-white/40 flex p-4.5 gap-4 ring-1 ring-black/5">
+          <div className="relative group overflow-hidden rounded-sm bg-white/95 backdrop-blur-xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.2)] border border-white/40 flex p-4.5 gap-4 ring-1 ring-black/5">
 
             {/* Status-based Glow Effect */}
             <div className={`absolute -left-10 -top-10 w-32 h-32 blur-3xl opacity-20 rounded-full ${
@@ -1904,7 +1904,7 @@ export default function GroceryPOSPage() {
             }`} />
 
             {/* Icon Container */}
-            <div className={`relative flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transform group-hover:scale-110 transition-transform duration-300 ${
+            <div className={`relative flex-shrink-0 w-12 h-12 rounded-sm flex items-center justify-center shadow-sm transform group-hover:scale-110 transition-transform duration-300 ${
               couponToast.includes("⚠️") ? "bg-amber-100 text-amber-600 border border-amber-200" :
               couponToast.includes("Loyalty") ? "bg-indigo-100 text-indigo-600 border border-indigo-200" :
               "bg-emerald-100 text-emerald-600 border border-emerald-200"
@@ -1958,12 +1958,12 @@ export default function GroceryPOSPage() {
       {/* ══ SALE COMPLETED & THERMAL RECEIPT MODAL ══ */}
       {completedInv && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md animate-in fade-in p-4">
-          <div className="w-[450px] max-h-[90vh] rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100 flex flex-col animate-in zoom-in-95">
+          <div className="w-[450px] max-h-[90vh] rounded-sm bg-white shadow-2xl overflow-hidden border border-gray-100 flex flex-col animate-in zoom-in-95">
             
             {/* Header Banner */}
             <div className="px-6 py-4 text-white flex items-center justify-between shrink-0" style={{ background: "linear-gradient(135deg,#16a34a,#15803d)" }}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-white backdrop-blur-xs shadow-inner">
+                <div className="w-10 h-10 rounded-sm bg-white/20 flex items-center justify-center text-white backdrop-blur-xs shadow-inner">
                   <CheckCircle2 size={24} strokeWidth={2.5} className="animate-pulse" />
                 </div>
                 <div>
@@ -1980,7 +1980,7 @@ export default function GroceryPOSPage() {
             <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50">
               
               {/* Payment Summary Box */}
-              <div className="bg-white rounded-2xl p-4 border border-emerald-200 shadow-2xs text-center space-y-2">
+              <div className="bg-white rounded-sm p-4 border border-emerald-200 shadow-2xs text-center space-y-2">
                 <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Transaction Completed</p>
                 <div className="flex items-center justify-center gap-3 text-center">
                   <div>
@@ -2001,7 +2001,7 @@ export default function GroceryPOSPage() {
               </div>
 
               {/* Printable 80mm Receipt Slip Container */}
-              <div id="printable-thermal-receipt" className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm font-mono text-xs text-slate-800 space-y-3">
+              <div id="printable-thermal-receipt" className="bg-white p-5 rounded-sm border border-gray-200 shadow-sm font-mono text-xs text-slate-800 space-y-3">
                 
                 {/* Shop Header */}
                 <div className="text-center border-b border-dashed border-gray-300 pb-3 space-y-1">
@@ -2102,10 +2102,10 @@ export default function GroceryPOSPage() {
 
             {/* Actions */}
             <div className="p-4 bg-white border-t border-gray-100 flex gap-2.5 shrink-0">
-              <button onClick={() => window.print()} className="flex-1 py-3 rounded-2xl border border-gray-300 bg-white hover:bg-gray-50 text-slate-800 font-extrabold text-xs flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer active:scale-95">
+              <button onClick={() => window.print()} className="flex-1 py-3 rounded-sm border border-gray-300 bg-white hover:bg-gray-50 text-slate-800 font-extrabold text-xs flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer active:scale-95">
                 <Printer size={16} /> Print Receipt (80mm)
               </button>
-              <button onClick={() => setCompletedInv(null)} className="flex-1 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-600/30 transition cursor-pointer active:scale-95">
+              <button onClick={() => setCompletedInv(null)} className="flex-1 py-3 rounded-sm bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-600/30 transition cursor-pointer active:scale-95">
                 <RotateCcw size={16} /> New Sale (F1)
               </button>
             </div>

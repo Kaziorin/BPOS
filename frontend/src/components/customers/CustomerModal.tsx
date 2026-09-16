@@ -143,45 +143,46 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
   }
 
   const inputClass =
-    "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 transition";
-  const labelClass = "block text-[11px] font-semibold text-gray-700 mb-1";
+    "w-full rounded-sm border border-sky-200/90 bg-white px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 transition shadow-2xs";
+  const labelClass = "block text-xs font-semibold text-[#0369A1] mb-1";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100">
-      <div className="relative w-full max-w-xl rounded-xl bg-white shadow-xl border border-gray-200 overflow-hidden my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100 select-none">
+      <div className="relative w-full max-w-xl rounded-sm bg-white shadow-xl border border-sky-200/90 overflow-hidden my-6">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3.5 bg-gray-50/70">
+        <div className="flex items-center justify-between border-b border-sky-100 px-5 py-3.5 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600 font-semibold border border-primary-200/50">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] font-semibold border border-sky-200/80 shadow-2xs">
               <User size={16} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-gray-900">
+              <h2 className="text-sm font-bold text-[#0369A1]">
                 {isEdit ? "Edit Customer" : "New Customer"}
               </h2>
-              <p className="text-[11px] text-gray-500">
+              <p className="text-[11px] text-[#0284C7] font-medium">
                 {isEdit ? `Updating profile for ${customer?.name}` : "Create a new customer profile"}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-200/60 hover:text-gray-700 transition"
+            className="flex h-7 w-7 items-center justify-center rounded-sm border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shadow-2xs"
+            aria-label="Close"
           >
-            <X size={16} />
+            <X size={15} />
           </button>
         </div>
 
         {/* Tab Selection */}
-        <div className="flex border-b border-gray-200 bg-white px-5 pt-1">
+        <div className="flex border-b border-sky-100 bg-white px-5 pt-1">
           <button
             type="button"
             onClick={() => setActiveTab("basic")}
-            className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-medium transition ${
+            className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-semibold transition cursor-pointer ${
               activeTab === "basic"
-                ? "border-primary-600 text-primary-700 font-semibold"
-                : "border-transparent text-gray-500 hover:text-gray-900"
+                ? "border-[#0284C7] text-[#0284C7] font-bold"
+                : "border-transparent text-slate-500 hover:text-[#0284C7]"
             }`}
           >
             <User size={13} /> Basic Info
@@ -447,13 +448,13 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
           )}
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-between border-t border-gray-200 pt-3.5">
+          <div className="flex items-center justify-between border-t border-sky-100 pt-3.5">
             <div className="flex gap-1.5">
               {activeTab !== "basic" && (
                 <button
                   type="button"
                   onClick={() => setActiveTab(activeTab === "notes" ? "credit" : "basic")}
-                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  className="rounded-sm border border-sky-200/80 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer shadow-2xs"
                 >
                   Back
                 </button>
@@ -464,14 +465,14 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg border border-gray-300 px-3.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-sm border border-sky-200/80 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer shadow-2xs"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-primary-700 transition disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-98 transition disabled:opacity-50 cursor-pointer"
               >
                 {saving ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
                 {saving ? "Saving..." : isEdit ? "Update Customer" : "Save Customer"}

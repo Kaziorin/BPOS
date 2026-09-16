@@ -91,29 +91,30 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
         <div className="w-screen max-w-lg bg-white shadow-2xl border-l border-gray-200 flex flex-col animate-in slide-in-from-right duration-150">
           
           {/* Drawer Top Header */}
-          <div className="border-b border-gray-200 bg-gray-50/80 p-5 relative">
+          <div className="border-b border-sky-100/90 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 p-5 relative">
             <button
               onClick={onClose}
-              className="absolute right-4 top-4 rounded-lg p-1.5 text-gray-400 hover:bg-gray-200/60 hover:text-gray-700 transition"
+              className="absolute right-4 top-4 rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-600 hover:text-white transition"
+              title="Close drawer"
             >
               <X size={18} />
             </button>
 
             {loading ? (
               <div className="flex items-center gap-2 py-3">
-                <Loader2 size={18} className="animate-spin text-primary-600" />
+                <Loader2 size={18} className="animate-spin text-[#0284C7]" />
                 <span className="text-xs text-gray-500 font-medium">Loading details...</span>
               </div>
             ) : customer ? (
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700 border border-primary-200 text-base font-bold">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/90 text-base font-bold">
                     {getInitials(customer.name)}
                   </div>
                   <div className="flex-1 min-w-0 pr-6">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h2 className="text-base font-bold text-gray-900 truncate">{customer.name}</h2>
-                      <span className={`inline-flex items-center rounded-full border px-2 py-0.2 text-[10px] font-semibold ${segBadgeClass[customer.segmentation || "REGULAR"] || segBadgeClass.REGULAR}`}>
+                      <span className={`inline-flex items-center rounded-sm border px-2 py-0.5 text-[10px] font-semibold ${segBadgeClass[customer.segmentation || "REGULAR"] || segBadgeClass.REGULAR}`}>
                         {customer.segmentation || "REGULAR"}
                       </span>
                     </div>
@@ -128,7 +129,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                   {customer.phone && (
                     <a
                       href={`tel:${customer.phone}`}
-                      className="inline-flex items-center gap-1 rounded-md bg-white border border-gray-300 px-2.5 py-1 text-[11px] font-medium text-gray-700 hover:bg-gray-50"
+                      className="inline-flex items-center gap-1 rounded-sm bg-white border border-sky-200/90 px-2.5 py-1 text-[11px] font-medium text-[#0369A1] hover:bg-sky-50 transition"
                     >
                       <Phone size={12} /> {customer.phone}
                     </a>
@@ -138,7 +139,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                       href={`https://wa.me/${customer.phone.replace(/[^0-9]/g, "")}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 text-[11px] font-medium hover:bg-emerald-100"
+                      className="inline-flex items-center gap-1 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 text-[11px] font-medium hover:bg-emerald-100 transition"
                     >
                       WhatsApp
                     </a>
@@ -146,7 +147,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                   {customer.email && (
                     <a
                       href={`mailto:${customer.email}`}
-                      className="inline-flex items-center gap-1 rounded-md bg-white border border-gray-300 px-2.5 py-1 text-[11px] font-medium text-gray-700 hover:bg-gray-50"
+                      className="inline-flex items-center gap-1 rounded-sm bg-white border border-sky-200/90 px-2.5 py-1 text-[11px] font-medium text-[#0369A1] hover:bg-sky-50 transition"
                     >
                       <Mail size={12} /> Email
                     </a>
@@ -160,22 +161,22 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
 
           {/* Key Metric Strip */}
           {customer && (
-            <div className="grid grid-cols-3 gap-2 p-3 bg-gray-50/50 border-b border-gray-200">
-              <div className="rounded-lg border border-gray-200 bg-white p-2.5 text-center">
+            <div className="grid grid-cols-3 gap-2 p-3 bg-sky-50/40 border-b border-sky-100/90">
+              <div className="rounded-sm border border-sky-100/90 bg-white p-2.5 text-center shadow-xs">
                 <p className="text-[10px] uppercase font-semibold text-gray-400">Current Due</p>
                 <p className={`text-sm font-bold mt-0.5 ${due > 0 ? "text-rose-600" : "text-gray-900"}`}>
                   ৳{due.toLocaleString()}
                 </p>
               </div>
 
-              <div className="rounded-lg border border-gray-200 bg-white p-2.5 text-center">
+              <div className="rounded-sm border border-sky-100/90 bg-white p-2.5 text-center shadow-xs">
                 <p className="text-[10px] uppercase font-semibold text-gray-400">Total Orders</p>
                 <p className="text-sm font-bold text-gray-900 mt-0.5">
                   {customer.purchaseHistory?.totalOrders || 0}
                 </p>
               </div>
 
-              <div className="rounded-lg border border-gray-200 bg-white p-2.5 text-center">
+              <div className="rounded-sm border border-sky-100/90 bg-white p-2.5 text-center shadow-xs">
                 <p className="text-[10px] uppercase font-semibold text-gray-400">Loyalty</p>
                 <p className="text-sm font-bold text-amber-600 mt-0.5">
                   {customer.loyaltyPoints || 0} pts
@@ -185,11 +186,11 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
           )}
 
           {/* Tab Navigation */}
-          <div className="flex border-b border-gray-200 bg-white px-5">
+          <div className="flex border-b border-sky-100/90 bg-white px-5">
             <button
               onClick={() => setActiveTab("overview")}
               className={`border-b-2 py-2.5 px-3 text-xs font-medium transition ${
-                activeTab === "overview" ? "border-primary-600 text-primary-700 font-semibold" : "border-transparent text-gray-500 hover:text-gray-900"
+                activeTab === "overview" ? "border-[#0284C7] text-[#0284C7] font-semibold" : "border-transparent text-gray-500 hover:text-gray-900"
               }`}
             >
               Overview
@@ -197,12 +198,12 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
             <button
               onClick={() => setActiveTab("sales")}
               className={`border-b-2 py-2.5 px-3 text-xs font-medium transition flex items-center gap-1 ${
-                activeTab === "sales" ? "border-primary-600 text-primary-700 font-semibold" : "border-transparent text-gray-500 hover:text-gray-900"
+                activeTab === "sales" ? "border-[#0284C7] text-[#0284C7] font-semibold" : "border-transparent text-gray-500 hover:text-gray-900"
               }`}
             >
               Recent Orders
               {customer?.recentSales?.length > 0 && (
-                <span className="rounded bg-gray-100 px-1 text-[10px] font-bold text-gray-600">
+                <span className="rounded-sm bg-sky-50 px-1 text-[10px] font-bold text-[#0284C7] border border-sky-200/60">
                   {customer.recentSales.length}
                 </span>
               )}
@@ -210,12 +211,12 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
             <button
               onClick={() => setActiveTab("notes")}
               className={`border-b-2 py-2.5 px-3 text-xs font-medium transition flex items-center gap-1 ${
-                activeTab === "notes" ? "border-primary-600 text-primary-700 font-semibold" : "border-transparent text-gray-500 hover:text-gray-900"
+                activeTab === "notes" ? "border-[#0284C7] text-[#0284C7] font-semibold" : "border-transparent text-gray-500 hover:text-gray-900"
               }`}
             >
               Activity & Notes
               {customer?.customerNotes?.length > 0 && (
-                <span className="rounded bg-primary-50 px-1 text-[10px] font-bold text-primary-700">
+                <span className="rounded-sm bg-sky-50 px-1 text-[10px] font-bold text-[#0284C7] border border-sky-200/60">
                   {customer.customerNotes.length}
                 </span>
               )}
@@ -229,8 +230,8 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                 {activeTab === "overview" && (
                   <div className="space-y-4">
                     {/* Contact details */}
-                    <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 space-y-2.5 text-xs">
-                      <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wider">Contact & Address</h4>
+                    <div className="rounded-sm border border-sky-100/90 bg-sky-50/30 p-3.5 space-y-2.5 text-xs">
+                      <h4 className="text-[11px] font-semibold text-[#0369A1] uppercase tracking-wider">Contact & Address</h4>
                       <div className="grid grid-cols-2 gap-2 text-gray-600">
                         <div>
                           <p className="text-[10px] text-gray-400">Phone</p>
@@ -256,8 +257,8 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                     </div>
 
                     {/* Credit Terms */}
-                    <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 space-y-2.5 text-xs">
-                      <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wider">Credit Terms</h4>
+                    <div className="rounded-sm border border-sky-100/90 bg-sky-50/30 p-3.5 space-y-2.5 text-xs">
+                      <h4 className="text-[11px] font-semibold text-[#0369A1] uppercase tracking-wider">Credit Terms</h4>
                       <div className="grid grid-cols-2 gap-2 text-gray-600">
                         <div>
                           <p className="text-[10px] text-gray-400">Credit Limit</p>
@@ -281,8 +282,8 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                     </div>
 
                     {customer.notes && (
-                      <div className="rounded-xl border border-gray-200 bg-white p-3.5 text-xs">
-                        <h4 className="text-[11px] font-semibold text-gray-700 uppercase tracking-wider mb-1">Notes</h4>
+                      <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 text-xs shadow-xs">
+                        <h4 className="text-[11px] font-semibold text-[#0369A1] uppercase tracking-wider mb-1">Notes</h4>
                         <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{customer.notes}</p>
                       </div>
                     )}
@@ -295,10 +296,10 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                       customer.recentSales.map((sale: any) => (
                         <div
                           key={sale.id}
-                          className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 text-xs hover:border-gray-300 transition"
+                          className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3 text-xs hover:border-sky-300 transition shadow-xs"
                         >
                           <div>
-                            <p className="font-semibold text-gray-900">{sale.invoiceNo}</p>
+                            <p className="font-semibold text-[#0369A1]">{sale.invoiceNo}</p>
                             <p className="text-[11px] text-gray-400">
                               {sale.createdAt ? new Date(sale.createdAt).toLocaleDateString() : "—"}
                             </p>
@@ -327,13 +328,13 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                         placeholder="Add interaction note or reminder..."
                         value={newNote}
                         onChange={(e) => setNewNote(e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 p-2.5 text-xs text-gray-800 placeholder-gray-400 focus:border-primary-500 focus:outline-none"
+                        className="w-full rounded-sm border border-sky-200/90 p-2.5 text-xs text-gray-800 placeholder-gray-400 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none"
                       />
                       <div className="flex justify-end">
                         <button
                           type="submit"
                           disabled={addingNote || !newNote.trim()}
-                          className="inline-flex items-center gap-1 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-700 disabled:opacity-50"
+                          className="inline-flex items-center gap-1 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:brightness-105 active:scale-98 disabled:opacity-50 transition"
                         >
                           {addingNote ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
                           Save Note
@@ -344,7 +345,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                     <div className="space-y-2 pt-1">
                       {customer.customerNotes && customer.customerNotes.length > 0 ? (
                         customer.customerNotes.map((note: any) => (
-                          <div key={note.id} className="rounded-lg border border-gray-200 bg-gray-50/70 p-3 text-xs space-y-1">
+                          <div key={note.id} className="rounded-sm border border-sky-100/90 bg-sky-50/30 p-3 text-xs space-y-1">
                             <p className="text-gray-800 leading-relaxed">{note.note}</p>
                             <p className="text-[10px] text-gray-400 flex items-center gap-1 pt-0.5">
                               <Clock size={10} />
@@ -364,10 +365,10 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
 
           {/* Drawer Bottom Actions */}
           {customer && (
-            <div className="border-t border-gray-200 bg-gray-50/50 p-3.5 flex items-center justify-between gap-2">
+            <div className="border-t border-sky-100/90 bg-sky-50/40 p-3.5 flex items-center justify-between gap-2">
               <Link
                 href={`/customers/${customer.id}`}
-                className="text-xs font-semibold text-primary-600 hover:text-primary-700 hover:underline flex items-center gap-1"
+                className="text-xs font-semibold text-[#0284C7] hover:text-[#0369A1] hover:underline flex items-center gap-1"
               >
                 Full CRM Page <ChevronRight size={13} />
               </Link>
@@ -379,7 +380,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                       onClose();
                       onCollectDue(customer);
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-700 transition"
+                    className="inline-flex items-center gap-1 rounded-sm bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-700 transition"
                   >
                     <DollarSign size={13} /> Collect Due
                   </button>
@@ -389,7 +390,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                     onClose();
                     onEdit(customer);
                   }}
-                  className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition"
+                  className="inline-flex items-center gap-1 rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-medium text-[#0369A1] hover:bg-sky-50 transition"
                 >
                   <Edit3 size={13} /> Edit
                 </button>

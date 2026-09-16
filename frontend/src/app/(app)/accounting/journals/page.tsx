@@ -58,7 +58,7 @@ export default function JournalsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-700"><BookMarked size={19} /></div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-sky-50 text-sky-700"><BookMarked size={19} /></div>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-gray-900">Journals</h1>
             <p className="text-sm text-gray-500">{journals.length} posted journals · append-only, reversible (§10.20)</p>
@@ -70,18 +70,18 @@ export default function JournalsPage() {
       </div>
 
       {toast && (
-        <div className={`rounded-xl border px-4 py-3 text-sm ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700"}`}>
+        <div className={`rounded-sm border px-4 py-3 text-sm ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700"}`}>
           {toast.text}
         </div>
       )}
-      {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+      {error && <div className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
-      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
         <CustomTable
           columns={[
             { key: "no", header: "Journal", render: (j) => (
               <button onClick={() => setExpanded(expanded === j.id ? null : j.id)} className="flex items-center gap-2 text-left">
-                <span className="font-mono text-xs font-semibold text-primary-700">{j.journalNo}</span>
+                <span className="font-mono text-xs font-semibold text-sky-700">{j.journalNo}</span>
                 {expanded === j.id ? <ChevronUp size={14} className="text-gray-400" /> : <ChevronDown size={14} className="text-gray-400" />}
               </button>
             )},
@@ -108,11 +108,11 @@ export default function JournalsPage() {
         const j = journals.find((x) => x.id === expanded);
         if (!j) return null;
         return (
-          <div key={j.id} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+          <div key={j.id} className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs">
             <h3 className="font-semibold text-gray-900">{j.journalNo} — entries</h3>
             <div className="mt-3 overflow-x-auto">
               <table className="w-full text-sm">
-                <thead><tr className="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-400">
+                <thead><tr className="border-b border-sky-100/90 text-xs uppercase tracking-wide text-gray-400">
                   <th className="px-3 py-2 text-left">Account</th>
                   <th className="px-3 py-2 text-right">Debit</th>
                   <th className="px-3 py-2 text-right">Credit</th>

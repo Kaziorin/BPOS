@@ -82,7 +82,7 @@ export function WholesaleCustomerModal({
       <div className="flex flex-col gap-5">
         {/* Modern Tab Switcher */}
         <div className={cn(
-          "p-1.5 rounded-2xl transition-colors",
+          "p-1.5 rounded-sm transition-colors",
           darkMode ? "bg-slate-800/80" : "bg-slate-100"
         )}>
           <div className="grid grid-cols-2 gap-1.5">
@@ -123,8 +123,8 @@ export function WholesaleCustomerModal({
             <div className="max-h-[380px] overflow-y-auto space-y-2.5 pr-1 custom-scrollbar">
               {filteredCustomers.length === 0 ? (
                 <div className={cn(
-                  "py-16 text-center rounded-2xl border border-dashed transition-colors",
-                  darkMode ? "bg-slate-900/40 border-slate-800 text-slate-500" : "bg-slate-50 border-slate-200 text-slate-400"
+                  "py-16 text-center rounded-sm border border-dashed transition-colors",
+                  darkMode ? "bg-slate-900/40 border-slate-800 text-slate-500" : "bg-slate-50 border-sky-100/90 text-slate-400"
                 )}>
                   <Users size={40} className="mx-auto mb-3 opacity-20" />
                   <p className="text-sm font-bold uppercase tracking-wider">No customers found</p>
@@ -139,7 +139,7 @@ export function WholesaleCustomerModal({
                       onClose();
                     }}
                     className={cn(
-                      "group flex w-full items-center justify-between p-3.5 rounded-2xl border transition-all text-left",
+                      "group flex w-full items-center justify-between p-3.5 rounded-sm border transition-all text-left",
                       darkMode
                         ? "bg-slate-800 border-slate-700 hover:border-primary-500/50 hover:bg-slate-700/40"
                         : "bg-white border-slate-100 hover:border-primary-200 hover:shadow-md hover:shadow-primary-500/5"

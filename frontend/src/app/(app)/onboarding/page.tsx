@@ -237,7 +237,7 @@ export default function OnboardingPage() {
         </div>
 
         {/* Stepper Navigation */}
-        <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+        <div className="mb-8 rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs">
           <div className="flex items-center justify-between overflow-x-auto pb-2 scrollbar-none">
             {STEPS.map((step, index) => {
               const isCompleted = completedSteps.has(step.id);
@@ -261,7 +261,7 @@ export default function OnboardingPage() {
                         isCompleted
                           ? "border-emerald-600 bg-emerald-600 text-white shadow-emerald-200"
                           : isCurrent
-                          ? "border-primary-600 bg-primary-600 text-white shadow-primary-200 ring-4 ring-primary-100"
+                          ? "border-primary-600 bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-200 ring-4 ring-primary-100"
                           : "border-slate-300 bg-slate-50 text-slate-400"
                       }`}
                     >
@@ -310,7 +310,7 @@ export default function OnboardingPage() {
         )}
 
         {/* Main Card Content */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-6 sm:p-8 shadow-sm">
           {currentStep === "business-type" && (
             <BusinessTypeStep
               selected={selectedBusinessType}
@@ -442,12 +442,12 @@ function BusinessTypeStep({
               className={`p-4 rounded-xl border-2 text-left transition-all duration-150 flex items-start gap-3.5 ${
                 isSelected
                   ? "border-primary-600 bg-primary-50/50 shadow-xs ring-2 ring-primary-100"
-                  : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
+                  : "border-sky-100/90 bg-white hover:border-slate-300 hover:bg-slate-50/50"
               }`}
             >
               <div
                 className={`p-2.5 rounded-lg shrink-0 ${
-                  isSelected ? "bg-primary-600 text-white" : "bg-slate-100 text-slate-600"
+                  isSelected ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs" : "bg-slate-100 text-slate-600"
                 }`}
               >
                 <Icon size={20} />
@@ -673,7 +673,7 @@ function TaxSetupStep({
         </p>
       </div>
 
-      <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50/60">
+      <div className="flex items-center gap-3 p-3 rounded-lg border border-sky-100/90 bg-slate-50/60">
         <input
           type="checkbox"
           id="taxEnabled"
@@ -758,7 +758,7 @@ function PaymentSetupStep({
               className={`flex items-center justify-between p-3.5 rounded-xl border transition cursor-pointer ${
                 isEnabled
                   ? "border-primary-400 bg-primary-50/40"
-                  : "border-slate-200 bg-white opacity-70"
+                  : "border-sky-100/90 bg-white opacity-70"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -912,8 +912,8 @@ Login URL: ${window.location.origin}/login
         </p>
 
         {/* Credentials Card */}
-        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/90 p-5 text-left max-w-xl mx-auto space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div className="mt-6 rounded-sm border border-sky-100/90 bg-slate-50/90 p-5 text-left max-w-xl mx-auto space-y-3">
+          <div className="flex items-center justify-between border-b border-sky-100/90 pb-3">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Business Client</span>
               <h3 className="text-lg font-bold text-slate-900">{provisionResult.tenant?.name}</h3>
@@ -942,7 +942,7 @@ Login URL: ${window.location.origin}/login
             </div>
           </div>
 
-          <div className="pt-2 border-t border-slate-200 flex items-center justify-between gap-3">
+          <div className="pt-2 border-t border-sky-100/90 flex items-center justify-between gap-3">
             <CustomButton
               variant="outline"
               size="sm"
@@ -987,7 +987,7 @@ Login URL: ${window.location.origin}/login
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Business & Company Info */}
-        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+        <div className="p-4 rounded-xl border border-sky-100/90 bg-slate-50 space-y-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Business &amp; Vertical</span>
           <div className="text-sm font-semibold text-slate-900">{company.name || "Untitled Business"}</div>
           <div className="text-xs text-slate-600">Type: <span className="font-semibold text-teal-700">{businessType}</span></div>
@@ -996,7 +996,7 @@ Login URL: ${window.location.origin}/login
         </div>
 
         {/* Branch & Warehouse */}
-        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+        <div className="p-4 rounded-xl border border-sky-100/90 bg-slate-50 space-y-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Branch &amp; Stock Ledger</span>
           <div className="text-sm font-semibold text-slate-900">Branch: {branch.name} ({branch.code})</div>
           <div className="text-xs text-slate-600">Warehouse: <span className="font-semibold">{warehouse.name} ({warehouse.code})</span></div>

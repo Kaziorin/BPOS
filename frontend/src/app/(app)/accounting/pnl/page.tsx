@@ -35,16 +35,16 @@ export default function PnlPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-700"><BarChart3 size={19} /></div>
+        <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-sky-50 text-sky-700"><BarChart3 size={19} /></div>
         <div>
           <h1 className="text-xl font-bold tracking-tight text-gray-900">Profit &amp; Loss</h1>
           <p className="text-sm text-gray-500">Revenue minus expenses for the period</p>
         </div>
       </div>
 
-      {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+      {error && <div className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
-      <div className={`flex items-center justify-between rounded-2xl p-6 text-white shadow-sm ${net >= 0 ? "bg-gradient-to-br from-emerald-500 to-emerald-600" : "bg-gradient-to-br from-red-500 to-red-600"}`}>
+      <div className={`flex items-center justify-between rounded-sm p-6 text-white shadow-2xs ${net >= 0 ? "bg-gradient-to-br from-emerald-500 to-emerald-600" : "bg-gradient-to-br from-red-500 to-red-600"}`}>
         <div className="flex items-center gap-3">
           {net >= 0 ? <TrendingUp size={22} /> : <TrendingDown size={22} />}
           <div>
@@ -59,8 +59,8 @@ export default function PnlPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <div className="border-b border-gray-50 px-5 py-4"><h2 className="font-semibold text-emerald-700">Revenue</h2></div>
+        <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+          <div className="border-b border-sky-100/70 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-5 py-4"><h2 className="font-semibold text-emerald-700">Revenue</h2></div>
           <CustomTable
             columns={[
               { key: "code", header: "Code", render: (r) => <span className="font-mono text-xs text-gray-500">{r.code}</span> },
@@ -74,8 +74,8 @@ export default function PnlPage() {
             emptyMessage="No revenue posted yet."
           />
         </div>
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <div className="border-b border-gray-50 px-5 py-4"><h2 className="font-semibold text-red-600">Expenses</h2></div>
+        <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+          <div className="border-b border-sky-100/70 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-5 py-4"><h2 className="font-semibold text-red-600">Expenses</h2></div>
           <CustomTable
             columns={[
               { key: "code", header: "Code", render: (r) => <span className="font-mono text-xs text-gray-500">{r.code}</span> },

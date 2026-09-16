@@ -345,7 +345,7 @@ export default function CreditPage() {
       {/* Toast notification */}
       {toastMessage && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-sm px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
             toastMessage.type === "success" ? "bg-slate-900 ring-1 ring-slate-800" : "bg-rose-600"
           }`}
         >
@@ -355,11 +355,11 @@ export default function CreditPage() {
       )}
 
       {/* Top Banner / Header */}
-      <div className="border-b border-slate-200/80 bg-white px-4 sm:px-8 py-5 shadow-xs w-full">
+      <div className="border-b border-sky-100/90 bg-white px-4 sm:px-8 py-5 shadow-2xs w-full">
         <div className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-md shadow-primary-500/25">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-2xs shadow-primary-500/25">
                 <ShieldCheck size={22} className="stroke-[2.2]" />
               </div>
               <div>
@@ -379,15 +379,15 @@ export default function CreditPage() {
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/invoices"
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
             >
-              <FileText size={14} className="text-primary-600" />
+              <FileText size={14} className="text-sky-600" />
               Invoices
             </Link>
 
             <Link
               href="/payments"
-              className="flex items-center gap-1.5 rounded-xl border border-primary-200 bg-primary-50/70 px-3.5 py-2 text-xs font-semibold text-primary-700 shadow-xs transition hover:bg-primary-100/80 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-sky-200/80 bg-sky-50/70 px-3.5 py-2 text-xs font-semibold text-sky-700 shadow-2xs transition hover:bg-sky-100/80 active:scale-95"
             >
               <Wallet size={14} />
               Payments Hub
@@ -400,10 +400,10 @@ export default function CreditPage() {
         {/* Executive KPI Stats Cards */}
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {/* 1. Total Credit Facility */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Credit Limit</span>
-              <div className="rounded-lg bg-primary-50 p-1.5 text-primary-600">
+              <div className="rounded-sm bg-sky-50 p-1.5 text-sky-600">
                 <CreditCard size={14} />
               </div>
             </div>
@@ -416,10 +416,10 @@ export default function CreditPage() {
           </div>
 
           {/* 2. Utilized Due Balance */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">Utilized Balance</span>
-              <div className="rounded-lg bg-amber-50 p-1.5 text-amber-600">
+              <div className="rounded-sm bg-amber-50 p-1.5 text-amber-600">
                 <Clock size={14} />
               </div>
             </div>
@@ -432,10 +432,10 @@ export default function CreditPage() {
           </div>
 
           {/* 3. Available Credit Capacity */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Available Credit</span>
-              <div className="rounded-lg bg-emerald-50 p-1.5 text-emerald-600">
+              <div className="rounded-sm bg-emerald-50 p-1.5 text-emerald-600">
                 <CheckCircle2 size={14} />
               </div>
             </div>
@@ -448,10 +448,10 @@ export default function CreditPage() {
           </div>
 
           {/* 4. Over Limit Accounts */}
-          <div className="rounded-2xl border border-rose-200/80 bg-rose-50/30 p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-rose-200/80 bg-rose-50/30 p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-rose-600">
               <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700">Over Limit</span>
-              <div className="rounded-lg bg-rose-100 p-1.5 text-rose-700">
+              <div className="rounded-sm bg-rose-100 p-1.5 text-rose-700">
                 <AlertTriangle size={14} />
               </div>
             </div>
@@ -464,10 +464,10 @@ export default function CreditPage() {
           </div>
 
           {/* 5. Accounts on Credit Hold */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">Frozen on Hold</span>
-              <div className="rounded-lg bg-slate-100 p-1.5 text-slate-700">
+              <div className="rounded-sm bg-slate-100 p-1.5 text-slate-700">
                 <Lock size={14} />
               </div>
             </div>
@@ -480,10 +480,10 @@ export default function CreditPage() {
           </div>
 
           {/* 6. Overall Credit Utilization */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-primary-700">Utilization Rate</span>
-              <div className="rounded-lg bg-primary-50 p-1.5 text-primary-700">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700">Utilization Rate</span>
+              <div className="rounded-sm bg-sky-50 p-1.5 text-sky-700">
                 <TrendingUp size={14} />
               </div>
             </div>
@@ -500,7 +500,7 @@ export default function CreditPage() {
 
         {/* Batch Operations Floating Bar */}
         {selectedIds.length > 0 && (
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-primary-800 via-primary-700 to-indigo-800 px-5 py-3 text-xs text-white shadow-xl animate-in fade-in slide-in-from-top-2">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-sm bg-gradient-to-r from-primary-800 via-primary-700 to-indigo-800 px-5 py-3 text-xs text-white shadow-xl animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-2">
               <CheckSquare size={16} className="text-primary-200" />
               <span className="font-bold">{selectedIds.length} credit accounts selected</span>
@@ -508,14 +508,14 @@ export default function CreditPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleExportCSV}
-                className="flex items-center gap-1 rounded-xl bg-white/15 px-3 py-1.5 font-bold hover:bg-white/25 transition"
+                className="flex items-center gap-1 rounded-sm bg-white/15 px-3 py-1.5 font-bold hover:bg-white/25 transition"
               >
                 <Download size={13} />
                 Export Selected
               </button>
               <button
                 onClick={() => setSelectedIds([])}
-                className="rounded-xl px-2.5 py-1.5 text-primary-200 hover:text-white transition"
+                className="rounded-sm px-2.5 py-1.5 text-primary-200 hover:text-white transition"
               >
                 Clear Selection
               </button>
@@ -524,9 +524,9 @@ export default function CreditPage() {
         )}
 
         {/* Filter Toolbar & Quick Status Tabs */}
-        <div className="mb-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+        <div className="mb-4 rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
           {/* Quick Status Tabs */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-100/70 pb-3.5">
             <div className="flex flex-wrap items-center gap-1.5">
               {[
                 { id: "ALL", label: "All Accounts" },
@@ -541,9 +541,9 @@ export default function CreditPage() {
                     setActiveTab(tab.id);
                     setPage(1);
                   }}
-                  className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                  className={`rounded-sm px-3 py-1.5 text-xs font-bold transition ${
                     activeTab === tab.id
-                      ? "bg-primary-600 text-white shadow-xs shadow-primary-500/20"
+                      ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/20"
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   }`}
                 >
@@ -553,11 +553,11 @@ export default function CreditPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
+              <div className="flex items-center rounded-sm border border-sky-100/90 bg-slate-50 p-1">
                 <button
                   onClick={() => setViewMode("table")}
-                  className={`rounded-lg p-1.5 transition ${
-                    viewMode === "table" ? "bg-white text-primary-700 shadow-xs" : "text-slate-400 hover:text-slate-700"
+                  className={`rounded-sm p-1.5 transition ${
+                    viewMode === "table" ? "bg-white text-sky-700 shadow-2xs" : "text-slate-400 hover:text-slate-700"
                   }`}
                   title="Table View"
                 >
@@ -565,8 +565,8 @@ export default function CreditPage() {
                 </button>
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`rounded-lg p-1.5 transition ${
-                    viewMode === "grid" ? "bg-white text-primary-700 shadow-xs" : "text-slate-400 hover:text-slate-700"
+                  className={`rounded-sm p-1.5 transition ${
+                    viewMode === "grid" ? "bg-white text-sky-700 shadow-2xs" : "text-slate-400 hover:text-slate-700"
                   }`}
                   title="Grid Card View"
                 >
@@ -576,7 +576,7 @@ export default function CreditPage() {
 
               <button
                 onClick={handleExportCSV}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                 title="Export to CSV"
               >
                 <Download size={14} />
@@ -588,10 +588,10 @@ export default function CreditPage() {
                   loadCustomers();
                   loadStats();
                 }}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 active:scale-95"
+                className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 active:scale-95"
                 title="Refresh"
               >
-                <RefreshCw size={14} className={loading ? "animate-spin text-primary-600" : ""} />
+                <RefreshCw size={14} className={loading ? "animate-spin text-sky-600" : ""} />
                 <span className="hidden sm:inline">Refresh</span>
               </button>
             </div>
@@ -609,7 +609,7 @@ export default function CreditPage() {
                   setSearchQuery(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-10 pr-4 text-xs font-medium text-slate-800 placeholder-slate-400 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 py-2 pl-10 pr-4 text-xs font-medium text-slate-800 placeholder-slate-400 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               />
               {searchQuery && (
                 <button
@@ -628,7 +628,7 @@ export default function CreditPage() {
                   setSortBy(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               >
                 <option value="currentDue">Sort by: Highest Outstanding Due</option>
                 <option value="creditLimit">Sort by: Highest Credit Limit</option>
@@ -641,13 +641,13 @@ export default function CreditPage() {
 
         {/* Content Table / Grid */}
         {loading ? (
-          <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-xs">
-            <RefreshCw size={28} className="animate-spin text-primary-600" />
+          <div className="flex h-64 flex-col items-center justify-center rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+            <RefreshCw size={28} className="animate-spin text-sky-600" />
             <p className="mt-3 text-xs font-semibold text-slate-500">Loading credit profiles...</p>
           </div>
         ) : customers.length === 0 ? (
-          <div className="flex h-72 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-xs">
-            <div className="rounded-2xl bg-primary-50 p-4 text-primary-600">
+          <div className="flex h-72 flex-col items-center justify-center rounded-sm border border-dashed border-slate-300 bg-white p-8 text-center shadow-2xs">
+            <div className="rounded-sm bg-sky-50 p-4 text-sky-600">
               <ShieldCheck size={36} />
             </div>
             <h3 className="mt-3 text-sm font-bold text-slate-800">No credit accounts found</h3>
@@ -657,15 +657,15 @@ export default function CreditPage() {
           </div>
         ) : viewMode === "table" ? (
           /* Table View */
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">
+          <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <tr className="border-b border-sky-100/70 bg-slate-50/75 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                     <th className="py-3.5 pl-4 pr-2 w-8">
                       <button onClick={toggleSelectAll} className="text-slate-400 hover:text-slate-700">
                         {selectedIds.length === customers.length && customers.length > 0 ? (
-                          <CheckSquare size={16} className="text-primary-600" />
+                          <CheckSquare size={16} className="text-sky-600" />
                         ) : (
                           <Square size={16} />
                         )}
@@ -684,11 +684,11 @@ export default function CreditPage() {
                   {customers.map((c) => {
                     const isSelected = selectedIds.includes(c.id);
                     return (
-                      <tr key={c.id} className={`group transition ${isSelected ? "bg-primary-50/30" : "hover:bg-slate-50/70"}`}>
+                      <tr key={c.id} className={`group transition ${isSelected ? "bg-sky-50/30" : "hover:bg-slate-50/70"}`}>
                         {/* Checkbox */}
                         <td className="py-3.5 pl-4 pr-2">
                           <button onClick={() => toggleSelectRow(c.id)} className="text-slate-400 hover:text-slate-700">
-                            {isSelected ? <CheckSquare size={16} className="text-primary-600" /> : <Square size={16} />}
+                            {isSelected ? <CheckSquare size={16} className="text-sky-600" /> : <Square size={16} />}
                           </button>
                         </td>
 
@@ -787,7 +787,7 @@ export default function CreditPage() {
                             <button
                               onClick={() => setSelectedForDrawer(c)}
                               title="Customer Credit Profile"
-                              className="rounded-lg p-1.5 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95"
+                              className="rounded-sm p-1.5 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95"
                             >
                               <Eye size={15} />
                             </button>
@@ -796,7 +796,7 @@ export default function CreditPage() {
                             <button
                               onClick={() => openManageModal(c)}
                               title="Configure Credit Limit & Terms"
-                              className="rounded-lg p-1.5 text-primary-600 transition hover:bg-primary-50 hover:text-primary-700 active:scale-95"
+                              className="rounded-sm p-1.5 text-sky-600 transition hover:bg-sky-50 hover:text-sky-700 active:scale-95"
                             >
                               <SlidersHorizontal size={15} />
                             </button>
@@ -806,7 +806,7 @@ export default function CreditPage() {
                               <button
                                 onClick={() => openCollectDueModal(c)}
                                 title="Collect Due Payment"
-                                className="rounded-lg p-1.5 text-emerald-600 transition hover:bg-emerald-50 hover:text-emerald-700 active:scale-95"
+                                className="rounded-sm p-1.5 text-emerald-600 transition hover:bg-emerald-50 hover:text-emerald-700 active:scale-95"
                               >
                                 <CreditCard size={15} />
                               </button>
@@ -817,7 +817,7 @@ export default function CreditPage() {
                               <button
                                 onClick={() => openReminderModal(c)}
                                 title="Send Payment Reminder"
-                                className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95"
+                                className="rounded-sm p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95"
                               >
                                 <MessageSquare size={15} />
                               </button>
@@ -832,7 +832,7 @@ export default function CreditPage() {
             </div>
 
             {/* Pagination footer */}
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-4 sm:px-6 py-3.5 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-sky-100/70 px-4 sm:px-6 py-3.5 text-xs text-slate-500">
               <span>
                 Showing {customers.length} of {totalRecords} credit accounts (Page {page} of {totalPages})
               </span>
@@ -840,14 +840,14 @@ export default function CreditPage() {
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-lg border border-slate-200 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-sky-100/90 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   <ChevronLeft size={14} />
                 </button>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-lg border border-slate-200 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-sky-100/90 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -862,7 +862,7 @@ export default function CreditPage() {
                 return (
                   <div
                     key={c.id}
-                    className="group flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs transition hover:border-slate-300 hover:shadow-md"
+                    className="group flex flex-col justify-between rounded-sm border border-sky-100/90 bg-white p-4 sm:p-5 shadow-2xs transition hover:border-slate-300 hover:shadow-2xs"
                   >
                     <div>
                       {/* Top row */}
@@ -918,21 +918,21 @@ export default function CreditPage() {
                     </div>
 
                     {/* Bottom Action Footer */}
-                    <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
+                    <div className="mt-5 flex items-center justify-between border-t border-sky-100/70 pt-3 text-xs">
                       <span className="text-[11px] text-slate-400">
                         {c.creditPeriodDays ? `${c.creditPeriodDays}d terms` : "Immediate"}
                       </span>
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => openManageModal(c)}
-                          className="flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 font-bold text-slate-700 hover:bg-slate-50"
+                          className="flex items-center gap-1 rounded-sm border border-sky-100/90 px-2.5 py-1.5 font-bold text-slate-700 hover:bg-slate-50"
                         >
                           <SlidersHorizontal size={13} />
                           Configure
                         </button>
                         <button
                           onClick={() => setSelectedForDrawer(c)}
-                          className="flex items-center gap-1 rounded-lg bg-primary-600 px-2.5 py-1.5 font-bold text-white shadow-xs hover:bg-primary-700"
+                          className="flex items-center gap-1 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-2.5 py-1.5 font-bold text-white shadow-2xs hover:bg-primary-700"
                         >
                           <Eye size={13} />
                           Profile
@@ -945,7 +945,7 @@ export default function CreditPage() {
             </div>
 
             {/* Pagination footer */}
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-white px-4 sm:px-6 py-3 text-xs text-slate-500 shadow-xs">
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-4 sm:px-6 py-3 text-xs text-slate-500 shadow-2xs">
               <span>
                 Page {page} of {totalPages} ({totalRecords} total credit profiles)
               </span>
@@ -953,14 +953,14 @@ export default function CreditPage() {
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-lg border border-slate-200 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-sky-100/90 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   Previous
                 </button>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-lg border border-slate-200 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-sky-100/90 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   Next
                 </button>
@@ -975,11 +975,11 @@ export default function CreditPage() {
       {/* ========================================================= */}
       {showManageModal && selectedCustomer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl sm:rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in zoom-in-95">
+          <div className="relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
             {/* Header */}
-            <div className="shrink-0 flex items-center justify-between border-b border-slate-100 px-5 py-4 bg-slate-50/80">
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-5 py-4 bg-slate-50/80">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-primary-600 font-bold border border-primary-200/60">
+                <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-sky-50 text-sky-600 font-bold border border-sky-200/80/60">
                   <SlidersHorizontal size={18} />
                 </div>
                 <div>
@@ -989,7 +989,7 @@ export default function CreditPage() {
               </div>
               <button
                 onClick={() => setShowManageModal(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100"
+                className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100"
               >
                 <X size={16} />
               </button>
@@ -998,7 +998,7 @@ export default function CreditPage() {
             {/* Body */}
             <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs">
               {/* Snapshot */}
-              <div className="rounded-2xl border border-primary-100 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 space-y-2">
+              <div className="rounded-sm border border-sky-200/70 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 space-y-2">
                 <div className="flex justify-between text-slate-600">
                   <span>Current Outstanding Due:</span>
                   <span className="font-bold text-slate-900">৳{Number(selectedCustomer.currentDue).toLocaleString()}</span>
@@ -1024,7 +1024,7 @@ export default function CreditPage() {
                       min={0}
                       value={limitForm.creditLimit}
                       onChange={(e) => setLimitForm((p) => ({ ...p, creditLimit: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 p-2.5 text-xs font-black text-slate-900 focus:border-primary-500 focus:outline-none"
+                      className="w-full rounded-sm border border-sky-100/90 p-2.5 text-xs font-black text-slate-900 focus:border-primary-500 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -1035,7 +1035,7 @@ export default function CreditPage() {
                       placeholder="e.g. 30"
                       value={limitForm.creditPeriodDays}
                       onChange={(e) => setLimitForm((p) => ({ ...p, creditPeriodDays: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 p-2.5 text-xs font-bold text-slate-900 focus:border-primary-500 focus:outline-none"
+                      className="w-full rounded-sm border border-sky-100/90 p-2.5 text-xs font-bold text-slate-900 focus:border-primary-500 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1044,14 +1044,14 @@ export default function CreditPage() {
                   type="button"
                   disabled={savingAction}
                   onClick={handleSaveLimit}
-                  className="w-full rounded-xl bg-primary-600 py-2.5 font-bold text-white shadow-xs hover:bg-primary-700 disabled:opacity-50"
+                  className="w-full rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] py-2.5 font-bold text-white shadow-2xs hover:bg-primary-700 disabled:opacity-50"
                 >
                   {savingAction ? "Updating..." : "Update Credit Limits"}
                 </button>
               </div>
 
               {/* Credit Hold Governance */}
-              <div className="space-y-3 border-t border-slate-100 pt-4">
+              <div className="space-y-3 border-t border-sky-100/70 pt-4">
                 <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Credit Freeze / Hold Governance</h4>
                 <p className="text-[11px] text-slate-500">
                   Placing an account on credit hold instantly prevents cashiers and POS terminals from billing credit invoices to this customer.
@@ -1064,7 +1064,7 @@ export default function CreditPage() {
                     placeholder="Reason for placing/lifting hold..."
                     value={holdForm.reason}
                     onChange={(e) => setHoldForm({ reason: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 p-2.5 text-xs focus:outline-none"
+                    className="w-full rounded-sm border border-sky-100/90 p-2.5 text-xs focus:outline-none"
                   />
                 </div>
 
@@ -1073,7 +1073,7 @@ export default function CreditPage() {
                     type="button"
                     disabled={savingAction || selectedCustomer.isOnCreditHold}
                     onClick={() => handleToggleHold(true)}
-                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-rose-600 py-2.5 font-bold text-white shadow-xs hover:bg-rose-700 disabled:opacity-40"
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-sm bg-rose-600 py-2.5 font-bold text-white shadow-2xs hover:bg-rose-700 disabled:opacity-40"
                   >
                     <Lock size={14} />
                     Place on Hold
@@ -1082,7 +1082,7 @@ export default function CreditPage() {
                     type="button"
                     disabled={savingAction || !selectedCustomer.isOnCreditHold}
                     onClick={() => handleToggleHold(false)}
-                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-2.5 font-bold text-white shadow-xs hover:bg-emerald-700 disabled:opacity-40"
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-sm bg-emerald-600 py-2.5 font-bold text-white shadow-2xs hover:bg-emerald-700 disabled:opacity-40"
                   >
                     <Unlock size={14} />
                     Lift Hold & Activate
@@ -1099,10 +1099,10 @@ export default function CreditPage() {
       {/* ========================================================= */}
       {showCollectModal && selectedCustomer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-2xl sm:rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in zoom-in-95">
-            <div className="shrink-0 flex items-center justify-between border-b border-slate-100 px-5 py-3.5 bg-slate-50/80">
+          <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 font-bold border border-emerald-200/60">
+                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-50 text-emerald-600 font-bold border border-emerald-200/60">
                   <CreditCard size={16} />
                 </div>
                 <div>
@@ -1112,14 +1112,14 @@ export default function CreditPage() {
               </div>
               <button
                 onClick={() => setShowCollectModal(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100"
+                className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100"
               >
                 <X size={16} />
               </button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
-              <div className="rounded-2xl bg-slate-50 p-3.5 space-y-1.5 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-3.5 space-y-1.5 border border-sky-100/70">
                 <div className="flex justify-between text-slate-600">
                   <span>Customer:</span>
                   <span className="font-bold text-slate-900">{selectedCustomer.name}</span>
@@ -1136,7 +1136,7 @@ export default function CreditPage() {
                   <button
                     type="button"
                     onClick={() => setCollectAmount(Number(selectedCustomer.currentDue))}
-                    className="text-[11px] font-bold text-primary-600 hover:underline"
+                    className="text-[11px] font-bold text-sky-600 hover:underline"
                   >
                     Pay Full Due
                   </button>
@@ -1146,7 +1146,7 @@ export default function CreditPage() {
                   min={1}
                   value={collectAmount}
                   onChange={(e) => setCollectAmount(Number(e.target.value))}
-                  className="w-full rounded-xl border border-slate-200 p-2.5 text-sm font-black text-slate-900 focus:border-primary-500 focus:outline-none"
+                  className="w-full rounded-sm border border-sky-100/90 p-2.5 text-sm font-black text-slate-900 focus:border-primary-500 focus:outline-none"
                 />
               </div>
 
@@ -1155,7 +1155,7 @@ export default function CreditPage() {
                 <select
                   value={collectMethod}
                   onChange={(e) => setCollectMethod(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 p-2.5 text-xs font-semibold focus:outline-none"
+                  className="w-full rounded-sm border border-sky-100/90 p-2.5 text-xs font-semibold focus:outline-none"
                 >
                   <option value="CASH">Cash Drawer</option>
                   <option value="BKASH">bKash</option>
@@ -1173,16 +1173,16 @@ export default function CreditPage() {
                   placeholder="Slip # / Trx ID / Check ref"
                   value={collectRef}
                   onChange={(e) => setCollectRef(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 p-2.5 text-xs focus:outline-none"
+                  className="w-full rounded-sm border border-sky-100/90 p-2.5 text-xs focus:outline-none"
                 />
               </div>
             </div>
 
-            <div className="shrink-0 flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-3.5 bg-slate-50/80">
+            <div className="shrink-0 flex items-center justify-end gap-2 border-t border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
               <button
                 type="button"
                 onClick={() => setShowCollectModal(false)}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-sm border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -1190,7 +1190,7 @@ export default function CreditPage() {
                 type="button"
                 disabled={collectSubmitting}
                 onClick={handleCollectPayment}
-                className="flex items-center gap-1 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700 disabled:opacity-50"
+                className="flex items-center gap-1 rounded-sm bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700 disabled:opacity-50"
               >
                 {collectSubmitting ? "Recording..." : "Record Settlement"}
               </button>
@@ -1204,10 +1204,10 @@ export default function CreditPage() {
       {/* ========================================================= */}
       {showReminderModal && selectedCustomer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-2xl sm:rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in zoom-in-95">
-            <div className="shrink-0 flex items-center justify-between border-b border-slate-100 px-5 py-3.5 bg-slate-50/80">
+          <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-50 text-primary-600 font-bold border border-primary-200/60">
+                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-sky-600 font-bold border border-sky-200/80/60">
                   <MessageSquare size={16} />
                 </div>
                 <div>
@@ -1217,14 +1217,14 @@ export default function CreditPage() {
               </div>
               <button
                 onClick={() => setShowReminderModal(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100"
+                className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100"
               >
                 <X size={16} />
               </button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-5 space-y-3 text-xs">
-              <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-3 border border-sky-100/70">
                 <p className="text-[10px] font-bold text-slate-400 uppercase">Recipient</p>
                 <p className="font-bold text-slate-800">{selectedCustomer.name}</p>
                 <p className="font-mono text-slate-600">{selectedCustomer.phone || "No phone provided"}</p>
@@ -1232,7 +1232,7 @@ export default function CreditPage() {
 
               <div>
                 <label className="mb-1 block font-bold text-slate-700">Reminder Message Preview</label>
-                <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 font-mono text-[11px] text-slate-700">
+                <div className="rounded-sm border border-sky-100/90 bg-slate-50/70 p-3 font-mono text-[11px] text-slate-700">
                   Dear {selectedCustomer.name}, your account has an outstanding credit balance of ৳
                   {Number(selectedCustomer.currentDue).toLocaleString()}. Please settle at your earliest convenience. Thank you!
                 </div>
@@ -1246,7 +1246,7 @@ export default function CreditPage() {
                     )}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 font-bold text-white shadow hover:bg-emerald-700"
+                    className="flex items-center justify-center gap-2 rounded-sm bg-emerald-600 py-2.5 font-bold text-white shadow hover:bg-emerald-700"
                   >
                     <Send size={14} />
                     Send via WhatsApp
@@ -1259,7 +1259,7 @@ export default function CreditPage() {
                     showToast("SMS reminder sent to customer queue!");
                     setShowReminderModal(false);
                   }}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-primary-600 py-2.5 font-bold text-white shadow hover:bg-primary-700"
+                  className="flex items-center justify-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] py-2.5 font-bold text-white shadow hover:bg-primary-700"
                 >
                   <MessageSquare size={14} />
                   Send Instant SMS
@@ -1277,14 +1277,14 @@ export default function CreditPage() {
         <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-xs">
           <div className="h-full w-full sm:max-w-md bg-white shadow-2xl flex flex-col overflow-hidden transition-all animate-in slide-in-from-right duration-200">
             {/* Header */}
-            <div className="shrink-0 flex items-center justify-between border-b border-slate-100 px-5 py-4 bg-white">
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-5 py-4 bg-white">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Credit Profile View</span>
                 <h3 className="text-base font-black text-slate-900">{selectedForDrawer.name}</h3>
               </div>
               <button
                 onClick={() => setSelectedForDrawer(null)}
-                className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100"
+                className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100"
               >
                 <X size={18} />
               </button>
@@ -1293,7 +1293,7 @@ export default function CreditPage() {
             {/* Body */}
             <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
               {/* Status Banner */}
-              <div className="rounded-2xl border border-primary-100 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 text-center shadow-2xs">
+              <div className="rounded-sm border border-sky-200/70 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 text-center shadow-2xs">
                 <span className="text-[10px] font-bold uppercase text-slate-500">Utilized Credit Due</span>
                 <div className="mt-1 text-3xl font-black text-slate-900">
                   ৳{Number(selectedForDrawer.currentDue).toLocaleString()}
@@ -1317,7 +1317,7 @@ export default function CreditPage() {
               </div>
 
               {/* Limits breakdown */}
-              <div className="rounded-2xl bg-slate-50 p-4 space-y-2 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-4 space-y-2 border border-sky-100/70">
                 <span className="font-bold text-slate-400 uppercase text-[10px]">Credit Terms & Limits</span>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Approved Credit Limit:</span>
@@ -1334,7 +1334,7 @@ export default function CreditPage() {
               </div>
 
               {/* Customer Contact */}
-              <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-2 text-xs">
+              <div className="rounded-sm border border-sky-100/70 bg-white p-4 space-y-2 text-xs">
                 <span className="font-bold text-slate-400 uppercase text-[10px]">Contact Info</span>
                 {selectedForDrawer.phone && (
                   <p className="flex items-center gap-1.5 text-slate-700">
@@ -1353,12 +1353,12 @@ export default function CreditPage() {
             </div>
 
             {/* Footer */}
-            <div className="shrink-0 flex items-center justify-end gap-2 border-t border-slate-100 p-4 bg-slate-50/80">
+            <div className="shrink-0 flex items-center justify-end gap-2 border-t border-sky-100/70 p-4 bg-slate-50/80">
               <button
                 onClick={() => {
                   openManageModal(selectedForDrawer);
                 }}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-sm border border-sky-100/90 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
               >
                 Configure
               </button>
@@ -1367,7 +1367,7 @@ export default function CreditPage() {
                   onClick={() => {
                     openCollectDueModal(selectedForDrawer);
                   }}
-                  className="flex items-center gap-1 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700"
+                  className="flex items-center gap-1 rounded-sm bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700"
                 >
                   <CreditCard size={14} />
                   Collect Due

@@ -250,7 +250,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
               </Link>
               <button
                 onClick={() => onOpenChange(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-sm border border-sky-200 bg-sky-50/60 text-[#0284C7] hover:bg-[#E0F2FE] transition cursor-pointer"
+                className="flex h-8 w-8 items-center justify-center rounded-sm border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition cursor-pointer shadow-2xs"
                 aria-label="Close menu"
               >
                 <X size={16} />

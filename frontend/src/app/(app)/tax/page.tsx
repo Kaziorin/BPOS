@@ -283,7 +283,7 @@ export default function TaxPage() {
       {/* Toast Notification */}
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl px-5 py-3.5 shadow-xl transition-all duration-300 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-sm px-5 py-3.5 shadow-2xs transition-all duration-300 ${
             toast.type === "success"
               ? "bg-slate-900 text-white border border-slate-700"
               : "bg-red-600 text-white border border-red-700"
@@ -315,13 +315,13 @@ export default function TaxPage() {
               variant="outline"
               leftIcon={<Layers size={14} />}
               onClick={() => { setEditRule(null); setShowRuleForm(true); }}
-              className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
+              className="border-sky-100/90 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
             >
               Add Rule
             </CustomButton>
             <button
               onClick={() => loadData()}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
+              className="flex h-7 w-7 items-center justify-center rounded-md border border-sky-100/90 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
               title="Refresh Data"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
@@ -372,7 +372,7 @@ export default function TaxPage() {
       </div>
 
       {/* Tab Selector Bar */}
-      <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-md border border-slate-200 shadow-2xs overflow-x-auto">
+      <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-md border border-sky-100/90 shadow-2xs overflow-x-auto">
         {[
           { id: "rates", label: "Tax Rates", icon: DollarSign, badge: rates.length },
           { id: "rules", label: "Tax Rules & Hierarchy", icon: Shield, badge: rules.length },
@@ -431,7 +431,7 @@ export default function TaxPage() {
                   placeholder="Search rates..."
                   value={rateSearch}
                   onChange={(e) => setRateSearch(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-1.5 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-sm border border-sky-100/90 bg-white pl-9 pr-3 py-1.5 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
 
@@ -439,7 +439,7 @@ export default function TaxPage() {
               <select
                 value={rateStatusFilter}
                 onChange={(e) => setRateStatusFilter(e.target.value)}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 focus:border-indigo-500 focus:outline-none"
+                className="rounded-sm border border-sky-100/90 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="ALL">All Rates</option>
                 <option value="ACTIVE">Active Only</option>
@@ -449,7 +449,7 @@ export default function TaxPage() {
 
               <button
                 onClick={() => { setEditRate(null); setShowRateForm(true); }}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700"
+                className="inline-flex items-center gap-1.5 rounded-sm bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-indigo-700"
               >
                 <Plus size={14} /> Add Rate
               </button>
@@ -457,7 +457,7 @@ export default function TaxPage() {
           </div>
 
           {/* Rates Table */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
             <CustomTable
               columns={[
                 {
@@ -465,7 +465,7 @@ export default function TaxPage() {
                   header: "Code & Identifier",
                   render: (r: TaxRate) => (
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold rounded-lg bg-indigo-50 px-2 py-1 text-indigo-700 border border-indigo-100">
+                      <span className="font-mono text-xs font-bold rounded-sm bg-indigo-50 px-2 py-1 text-indigo-700 border border-indigo-100">
                         {r.code}
                       </span>
                       {r.isDefault && (
@@ -506,7 +506,7 @@ export default function TaxPage() {
                   header: "Pricing Mode",
                   render: (r: TaxRate) => (
                     <span
-                      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium ${
+                      className={`inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-xs font-medium ${
                         r.taxInclusive
                           ? "bg-purple-50 text-purple-700 border border-purple-200/60"
                           : "bg-sky-50 text-sky-700 border border-sky-200/60"
@@ -537,7 +537,7 @@ export default function TaxPage() {
                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold transition hover:opacity-80 ${
                         r.status === "ACTIVE"
                           ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : "bg-slate-100 text-slate-500 border border-slate-200"
+                          : "bg-slate-100 text-slate-500 border border-sky-100/90"
                       }`}
                       title="Click to toggle status"
                     >
@@ -555,7 +555,7 @@ export default function TaxPage() {
                       {!r.isDefault && (
                         <button
                           onClick={() => handleSetDefaultRate(r)}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-amber-50 hover:text-amber-700"
+                          className="rounded-sm p-1.5 text-slate-400 hover:bg-amber-50 hover:text-amber-700"
                           title="Set as Default Rate"
                         >
                           <CheckCircle2 size={15} />
@@ -563,14 +563,14 @@ export default function TaxPage() {
                       )}
                       <button
                         onClick={() => { setEditRate(r); setShowRateForm(true); }}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
+                        className="rounded-sm p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
                         title="Edit Rate"
                       >
                         <Edit3 size={15} />
                       </button>
                       <button
                         onClick={() => setDeleteConfirm({ type: "rate", id: r.id, name: `${r.name} (${r.code})` })}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                        className="rounded-sm p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
                         title="Delete Rate"
                       >
                         <Trash2 size={15} />
@@ -593,7 +593,7 @@ export default function TaxPage() {
       {tab === "rules" && (
         <div className="space-y-4">
           {/* Explanation Banner */}
-          <div className="rounded-2xl bg-indigo-50/70 border border-indigo-100 p-4 text-xs text-indigo-900 flex items-start gap-3">
+          <div className="rounded-sm bg-indigo-50/70 border border-indigo-100 p-4 text-xs text-indigo-900 flex items-start gap-3">
             <Layers size={18} className="text-indigo-600 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-indigo-950">How Rules & Priority Resolution Work</p>
@@ -620,14 +620,14 @@ export default function TaxPage() {
                   placeholder="Search rules..."
                   value={ruleSearch}
                   onChange={(e) => setRuleSearch(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-1.5 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-sm border border-sky-100/90 bg-white pl-9 pr-3 py-1.5 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
 
               <select
                 value={ruleTypeFilter}
                 onChange={(e) => setRuleTypeFilter(e.target.value)}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 focus:border-indigo-500 focus:outline-none"
+                className="rounded-sm border border-sky-100/90 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="ALL">All Rule Types</option>
                 {RULE_TYPES.map((t) => (
@@ -637,7 +637,7 @@ export default function TaxPage() {
 
               <button
                 onClick={() => { setEditRule(null); setShowRuleForm(true); }}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700"
+                className="inline-flex items-center gap-1.5 rounded-sm bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-indigo-700"
               >
                 <Plus size={14} /> Add Rule
               </button>
@@ -645,14 +645,14 @@ export default function TaxPage() {
           </div>
 
           {/* Rules Table */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
             <CustomTable
               columns={[
                 {
                   key: "priority",
                   header: "Priority",
                   render: (r: TaxRule) => (
-                    <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-slate-100 font-bold text-xs text-slate-800 border border-slate-200">
+                    <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-slate-100 font-bold text-xs text-slate-800 border border-sky-100/90">
                       {r.priority}
                     </span>
                   ),
@@ -676,12 +676,12 @@ export default function TaxPage() {
                     const badgeColors: Record<string, string> = {
                       STANDARD: "bg-emerald-50 text-emerald-700 border-emerald-200",
                       ZERO_RATED: "bg-blue-50 text-blue-700 border-blue-200",
-                      EXEMPT: "bg-slate-100 text-slate-600 border-slate-200",
+                      EXEMPT: "bg-slate-100 text-slate-600 border-sky-100/90",
                       REVERSE_CHARGE: "bg-purple-50 text-purple-700 border-purple-200",
                       SPECIAL: "bg-amber-50 text-amber-700 border-amber-200",
                     };
                     return (
-                      <span className={`inline-flex rounded-lg px-2.5 py-0.5 text-xs font-semibold border ${badgeColors[r.ruleType] || "bg-gray-50 text-gray-700"}`}>
+                      <span className={`inline-flex rounded-sm px-2.5 py-0.5 text-xs font-semibold border ${badgeColors[r.ruleType] || "bg-gray-50 text-gray-700"}`}>
                         {r.ruleType.replace("_", " ")}
                       </span>
                     );
@@ -719,7 +719,7 @@ export default function TaxPage() {
                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold transition hover:opacity-80 ${
                         r.isActive
                           ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : "bg-slate-100 text-slate-500 border border-slate-200"
+                          : "bg-slate-100 text-slate-500 border border-sky-100/90"
                       }`}
                       title="Click to toggle status"
                     >
@@ -736,21 +736,21 @@ export default function TaxPage() {
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() => setVersionHistoryRule(r)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-indigo-600"
+                        className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100 hover:text-indigo-600"
                         title="Audit & Version History"
                       >
                         <History size={15} />
                       </button>
                       <button
                         onClick={() => { setEditRule(r); setShowRuleForm(true); }}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
+                        className="rounded-sm p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
                         title="Edit Rule"
                       >
                         <Edit3 size={15} />
                       </button>
                       <button
                         onClick={() => setDeleteConfirm({ type: "rule", id: r.id, name: r.name })}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                        className="rounded-sm p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
                         title="Delete Rule"
                       >
                         <Trash2 size={15} />
@@ -923,10 +923,10 @@ function RateFormModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="w-full max-w-xl rounded-3xl bg-white p-7 shadow-2xl border border-slate-100 transition-all my-8"
+        className="w-full max-w-xl rounded-sm bg-white p-7 shadow-2xs border border-sky-100/70 transition-all my-8"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="flex items-center justify-between border-b border-sky-100/70 pb-4">
           <div>
             <h3 className="text-xl font-bold text-slate-900">
               {rate ? "Edit Tax Rate" : "New Tax Rate"}
@@ -935,14 +935,12 @@ function RateFormModal({
               Configure VAT rate percentage, pricing inclusiveness, and validity period.
             </p>
           </div>
-          <button onClick={onClose} className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
-            <XCircle size={20} />
-          </button>
+          <button onClick={onClose} className="rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-600 hover:text-white shadow-2xs transition"><XCircle size={18} /></button>
         </div>
 
         {/* Quick Presets for New Rates */}
         {!rate && (
-          <div className="mt-4 rounded-2xl bg-amber-50/60 border border-amber-200/60 p-3.5">
+          <div className="mt-4 rounded-sm bg-amber-50/60 border border-amber-200/60 p-3.5">
             <p className="text-xs font-bold text-amber-900 flex items-center gap-1 mb-2">
               <Sparkles size={13} className="text-amber-600" /> Standard Bangladesh / Global VAT Presets:
             </p>
@@ -952,7 +950,7 @@ function RateFormModal({
                   key={p.code}
                   type="button"
                   onClick={() => applyPreset(p)}
-                  className="rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-amber-900 border border-amber-300/80 shadow-xs hover:bg-amber-100 active:scale-95 transition"
+                  className="rounded-sm bg-white px-2.5 py-1 text-xs font-semibold text-amber-900 border border-amber-300/80 shadow-2xs hover:bg-amber-100 active:scale-95 transition"
                 >
                   {p.name}
                 </button>
@@ -962,7 +960,7 @@ function RateFormModal({
         )}
 
         {error && (
-          <div className="mt-4 rounded-xl bg-red-50 border border-red-200 p-3 text-xs text-red-700 flex items-center gap-2">
+          <div className="mt-4 rounded-sm bg-red-50 border border-red-200 p-3 text-xs text-red-700 flex items-center gap-2">
             <AlertCircle size={15} className="shrink-0 text-red-500" />
             <span>{error}</span>
           </div>
@@ -979,7 +977,7 @@ function RateFormModal({
                 required
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 placeholder="Standard 15% VAT"
               />
             </div>
@@ -992,7 +990,7 @@ function RateFormModal({
                 required
                 value={form.code}
                 onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 uppercase"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 uppercase"
                 placeholder="VAT15"
               />
             </div>
@@ -1011,7 +1009,7 @@ function RateFormModal({
                   required
                   value={form.rate}
                   onChange={(e) => setForm({ ...form, rate: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 pl-3.5 pr-8 py-2 text-sm font-semibold focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-sm border border-slate-300 pl-3.5 pr-8 py-2 text-sm font-semibold focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
                   {form.rateType === "PERCENTAGE" ? "%" : "৳"}
@@ -1025,7 +1023,7 @@ function RateFormModal({
               <select
                 value={form.rateType}
                 onChange={(e) => setForm({ ...form, rateType: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium"
               >
                 <option value="PERCENTAGE">Percentage (%)</option>
                 <option value="FIXED">Fixed Amount (৳)</option>
@@ -1042,7 +1040,7 @@ function RateFormModal({
                 type="date"
                 value={form.effectiveFrom}
                 onChange={(e) => setForm({ ...form, effectiveFrom: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
             <div>
@@ -1053,13 +1051,13 @@ function RateFormModal({
                 type="date"
                 value={form.effectiveTo}
                 onChange={(e) => setForm({ ...form, effectiveTo: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
           </div>
 
           {/* Inclusive & Default Toggles */}
-          <div className="rounded-2xl bg-slate-50 border border-slate-200/80 p-4 space-y-3">
+          <div className="rounded-sm bg-slate-50 border border-sky-100/90 p-4 space-y-3">
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -1077,7 +1075,7 @@ function RateFormModal({
               </div>
             </label>
 
-            <label className="flex items-start gap-3 cursor-pointer pt-2 border-t border-slate-200">
+            <label className="flex items-start gap-3 cursor-pointer pt-2 border-t border-sky-100/90">
               <input
                 type="checkbox"
                 checked={form.isDefault}
@@ -1103,23 +1101,23 @@ function RateFormModal({
               rows={2}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               placeholder="e.g. Applicable under SRO 186/2023 or standard retail VAT"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-sky-100/70">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100"
+              className="rounded-sm px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-sm bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-2xs hover:bg-indigo-700 active:scale-95 disabled:opacity-50"
             >
               {saving ? "Saving..." : rate ? "Update Rate" : "Create Rate"}
             </button>
@@ -1198,10 +1196,10 @@ function RuleFormModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="w-full max-w-xl rounded-3xl bg-white p-7 shadow-2xl border border-slate-100 transition-all my-8"
+        className="w-full max-w-xl rounded-sm bg-white p-7 shadow-2xs border border-sky-100/70 transition-all my-8"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="flex items-center justify-between border-b border-sky-100/70 pb-4">
           <div>
             <h3 className="text-xl font-bold text-slate-900">
               {rule ? "Edit Tax Rule" : "New Tax Rule"}
@@ -1210,13 +1208,11 @@ function RuleFormModal({
               Set evaluation priority, rule scheme, and assigned VAT rate.
             </p>
           </div>
-          <button onClick={onClose} className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
-            <XCircle size={20} />
-          </button>
+          <button onClick={onClose} className="rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-600 hover:text-white shadow-2xs transition"><XCircle size={18} /></button>
         </div>
 
         {error && (
-          <div className="mt-4 rounded-xl bg-red-50 border border-red-200 p-3 text-xs text-red-700 flex items-center gap-2">
+          <div className="mt-4 rounded-sm bg-red-50 border border-red-200 p-3 text-xs text-red-700 flex items-center gap-2">
             <AlertCircle size={15} className="shrink-0 text-red-500" />
             <span>{error}</span>
           </div>
@@ -1233,7 +1229,7 @@ function RuleFormModal({
                 required
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 placeholder="Standard Sales VAT"
               />
             </div>
@@ -1244,7 +1240,7 @@ function RuleFormModal({
               <select
                 value={form.ruleType}
                 onChange={(e) => setForm({ ...form, ruleType: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium"
               >
                 {RULE_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
@@ -1262,7 +1258,7 @@ function RuleFormModal({
                 required
                 value={form.taxRateId}
                 onChange={(e) => setForm({ ...form, taxRateId: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
               >
                 <option value="">Select a rate...</option>
                 {activeRates.map((r) => (
@@ -1279,7 +1275,7 @@ function RuleFormModal({
               <select
                 value={form.appliesTo}
                 onChange={(e) => setForm({ ...form, appliesTo: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium"
               >
                 {APPLIES_TO.map((a) => (
                   <option key={a.value} value={a.value}>{a.label}</option>
@@ -1297,7 +1293,7 @@ function RuleFormModal({
                 type="number"
                 value={form.priority}
                 onChange={(e) => setForm({ ...form, priority: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 placeholder="10"
               />
             </div>
@@ -1309,7 +1305,7 @@ function RuleFormModal({
                 type="date"
                 value={form.effectiveFrom}
                 onChange={(e) => setForm({ ...form, effectiveFrom: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
           </div>
@@ -1322,12 +1318,12 @@ function RuleFormModal({
               rows={2}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               placeholder="e.g. Standard rate applied across retail POS sales"
             />
           </div>
 
-          <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200">
+          <div className="rounded-sm bg-slate-50 p-3.5 border border-sky-100/90">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -1341,18 +1337,18 @@ function RuleFormModal({
             </label>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-sky-100/70">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100"
+              className="rounded-sm px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-sm bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-2xs hover:bg-indigo-700 active:scale-95 disabled:opacity-50"
             >
               {saving ? "Saving..." : rule ? "Update Rule & Create Version" : "Create Rule"}
             </button>
@@ -1394,12 +1390,12 @@ function RuleVersionHistoryModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="w-full max-w-2xl rounded-3xl bg-white p-7 shadow-2xl border border-slate-100 transition-all my-8"
+        className="w-full max-w-2xl rounded-sm bg-white p-7 shadow-2xs border border-sky-100/70 transition-all my-8"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="flex items-center justify-between border-b border-sky-100/70 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="rounded-xl bg-indigo-50 p-2 text-indigo-700">
+            <div className="rounded-sm bg-indigo-50 p-2 text-indigo-700">
               <History size={20} />
             </div>
             <div>
@@ -1411,9 +1407,7 @@ function RuleVersionHistoryModal({
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
-            <XCircle size={20} />
-          </button>
+          <button onClick={onClose} className="rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-600 hover:text-white shadow-2xs transition"><XCircle size={18} /></button>
         </div>
 
         <div className="mt-5 space-y-3 max-h-96 overflow-y-auto pr-1">
@@ -1433,7 +1427,7 @@ function RuleVersionHistoryModal({
               } catch {}
 
               return (
-                <div key={v.id} className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 transition hover:bg-white hover:shadow-xs">
+                <div key={v.id} className="rounded-sm border border-sky-100/90 bg-slate-50/50 p-4 transition hover:bg-white hover:shadow-2xs">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-bold text-indigo-900">
@@ -1447,15 +1441,15 @@ function RuleVersionHistoryModal({
                   </div>
 
                   <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
-                    <div className="rounded-lg bg-white p-2 border border-slate-200/60">
+                    <div className="rounded-sm bg-white p-2 border border-sky-100/90/60">
                       <span className="text-slate-400 block">Rule Type</span>
                       <span className="font-semibold text-slate-700">{v.ruleType}</span>
                     </div>
-                    <div className="rounded-lg bg-white p-2 border border-slate-200/60">
+                    <div className="rounded-sm bg-white p-2 border border-sky-100/90/60">
                       <span className="text-slate-400 block">Applies To</span>
                       <span className="font-semibold text-slate-700">{v.appliesTo}</span>
                     </div>
-                    <div className="rounded-lg bg-white p-2 border border-slate-200/60">
+                    <div className="rounded-sm bg-white p-2 border border-sky-100/90/60">
                       <span className="text-slate-400 block">Snapshot Time</span>
                       <span className="font-semibold text-slate-700">{v.createdAt ? v.createdAt.split("T")[0] : "Recorded"}</span>
                     </div>
@@ -1466,8 +1460,8 @@ function RuleVersionHistoryModal({
           )}
         </div>
 
-        <div className="mt-6 flex justify-end border-t border-slate-100 pt-4">
-          <button onClick={onClose} className="rounded-xl bg-slate-100 px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">
+        <div className="mt-6 flex justify-end border-t border-sky-100/70 pt-4">
+          <button onClick={onClose} className="rounded-sm bg-slate-100 px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">
             Close
           </button>
         </div>
@@ -1564,9 +1558,9 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       {/* Left Input Configuration */}
-      <div className="lg:col-span-6 rounded-3xl bg-white p-6 shadow-sm border border-slate-200 space-y-5">
+      <div className="lg:col-span-6 rounded-sm bg-white p-6 shadow-2xs border border-sky-100/90 space-y-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-amber-500/10 text-amber-600">
             <Calculator size={22} />
           </div>
           <div>
@@ -1589,7 +1583,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
                 min="0"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full rounded-2xl border border-slate-300 pl-4 pr-12 py-3 text-lg font-bold text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 tabular-nums"
+                className="w-full rounded-sm border border-slate-300 pl-4 pr-12 py-3 text-lg font-bold text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 tabular-nums"
                 placeholder="1000"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
@@ -1606,7 +1600,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
               <select
                 value={appliesTo}
                 onChange={(e) => setAppliesTo(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="SALE">POS / Customer Sale</option>
                 <option value="PURCHASE">GRN / Supplier Purchase</option>
@@ -1624,7 +1618,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
                   setSelectedRuleId(e.target.value);
                   setSelectedRateId("");
                 }}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="">Auto-resolve highest priority rule</option>
                 {rules.map((r) => (
@@ -1637,7 +1631,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
           </div>
 
           {/* Pricing Mode Toggle */}
-          <div className="rounded-2xl bg-slate-50 p-4 border border-slate-200/80">
+          <div className="rounded-sm bg-slate-50 p-4 border border-sky-100/90">
             <p className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
               Tax Inclusiveness Mode
             </p>
@@ -1645,9 +1639,9 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
               <button
                 type="button"
                 onClick={() => setIsInclusive(false)}
-                className={`rounded-xl py-2 px-3 text-xs font-bold transition ${
+                className={`rounded-sm py-2 px-3 text-xs font-bold transition ${
                   !isInclusive
-                    ? "bg-white text-indigo-700 shadow-sm ring-1 ring-indigo-200"
+                    ? "bg-white text-indigo-700 shadow-2xs ring-1 ring-indigo-200"
                     : "text-slate-600 hover:bg-white/50"
                 }`}
               >
@@ -1656,9 +1650,9 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
               <button
                 type="button"
                 onClick={() => setIsInclusive(true)}
-                className={`rounded-xl py-2 px-3 text-xs font-bold transition ${
+                className={`rounded-sm py-2 px-3 text-xs font-bold transition ${
                   isInclusive
-                    ? "bg-white text-indigo-700 shadow-sm ring-1 ring-indigo-200"
+                    ? "bg-white text-indigo-700 shadow-2xs ring-1 ring-indigo-200"
                     : "text-slate-600 hover:bg-white/50"
                 }`}
               >
@@ -1671,7 +1665,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
             <button
               onClick={testBackendApi}
               disabled={computing}
-              className="w-full rounded-2xl bg-slate-900 py-3 text-sm font-bold text-white shadow-md transition hover:bg-slate-800 active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full rounded-sm bg-slate-900 py-3 text-sm font-bold text-white shadow-2xs transition hover:bg-slate-800 active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <RefreshCw size={16} className={computing ? "animate-spin" : ""} />
               {computing ? "Calling Backend API..." : "Verify with Backend Engine (/tax/calculate)"}
@@ -1683,7 +1677,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
       {/* Right Result Card */}
       <div className="lg:col-span-6 space-y-4">
         {/* Real-time Math Breakdown Card */}
-        <div className="rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 p-6 text-white shadow-xl border border-indigo-800">
+        <div className="rounded-sm bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 p-6 text-white shadow-2xs border border-indigo-800">
           <div className="flex items-center justify-between border-b border-indigo-800/80 pb-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-indigo-300">
@@ -1722,7 +1716,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
           </div>
 
           {/* Formula explanation box */}
-          <div className="mt-5 rounded-2xl bg-white/10 p-3.5 ring-1 ring-white/10 text-xs text-indigo-100 space-y-1">
+          <div className="mt-5 rounded-sm bg-white/10 p-3.5 ring-1 ring-white/10 text-xs text-indigo-100 space-y-1">
             <p className="font-bold text-amber-300 flex items-center gap-1">
               <Sparkles size={12} /> Computation Formula:
             </p>
@@ -1744,19 +1738,19 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
 
         {/* Live Backend Response View */}
         {liveResult && (
-          <div className="rounded-3xl border border-emerald-200 bg-emerald-50/60 p-5 shadow-sm">
+          <div className="rounded-sm border border-emerald-200 bg-emerald-50/60 p-5 shadow-2xs">
             <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm mb-2">
               <CheckCircle2 size={16} className="text-emerald-600" />
               <span>Backend API Parity Verified (HTTP 200 OK)</span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs text-emerald-950 font-mono">
-              <div className="bg-white p-2 rounded-xl border border-emerald-200">
+              <div className="bg-white p-2 rounded-sm border border-emerald-200">
                 Taxable: {money(liveResult.taxableAmount)}
               </div>
-              <div className="bg-white p-2 rounded-xl border border-emerald-200">
+              <div className="bg-white p-2 rounded-sm border border-emerald-200">
                 Tax Amount: {money(liveResult.taxAmount)}
               </div>
-              <div className="bg-white p-2 rounded-xl border border-emerald-200 col-span-2">
+              <div className="bg-white p-2 rounded-sm border border-emerald-200 col-span-2">
                 Total With Tax: {money(liveResult.totalWithTax)}
               </div>
             </div>
@@ -1841,7 +1835,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
   return (
     <div className="space-y-6">
       {/* Filter and Export Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-sm border border-sky-100/90 shadow-2xs">
         <div>
           <h3 className="font-bold text-slate-900">VAT & Mushak Filing Reports</h3>
           <p className="text-xs text-slate-500">
@@ -1855,7 +1849,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
             <select
               value={branchId}
               onChange={(e) => setBranchId(e.target.value)}
-              className="rounded-xl border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-indigo-500 focus:outline-none"
+              className="rounded-sm border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-indigo-500 focus:outline-none"
             >
               <option value="">All Branches</option>
               {branches.map((b) => (
@@ -1868,7 +1862,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
           <select
             value={month}
             onChange={(e) => setMonth(parseInt(e.target.value))}
-            className="rounded-xl border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-indigo-500 focus:outline-none"
+            className="rounded-sm border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-indigo-500 focus:outline-none"
           >
             {MONTHS.map((m, i) => (
               <option key={i} value={i + 1}>{m}</option>
@@ -1879,7 +1873,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
           <select
             value={year}
             onChange={(e) => setYear(parseInt(e.target.value))}
-            className="rounded-xl border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-indigo-500 focus:outline-none"
+            className="rounded-sm border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-indigo-500 focus:outline-none"
           >
             {[year - 2, year - 1, year, year + 1].map((y) => (
               <option key={y} value={y}>{y}</option>
@@ -1888,7 +1882,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
 
           <button
             onClick={exportCSV}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"
+            className="inline-flex items-center gap-1.5 rounded-sm bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"
             title="Export to CSV"
           >
             <FileSpreadsheet size={14} className="text-emerald-600" /> Export CSV
@@ -1896,7 +1890,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
 
           <button
             onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"
+            className="inline-flex items-center gap-1.5 rounded-sm bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"
             title="Print Summary"
           >
             <Printer size={14} /> Print
@@ -1929,12 +1923,12 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
       )}
 
       {/* Report Breakdown Tabs */}
-      <div className="flex gap-2 border-b border-slate-200 pb-2">
+      <div className="flex gap-2 border-b border-sky-100/90 pb-2">
         <button
           onClick={() => setReportTab("consolidated")}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${
+          className={`px-4 py-2 text-xs font-bold rounded-sm transition cursor-pointer ${
             reportTab === "consolidated"
-              ? "bg-primary-600 text-white shadow-xs"
+              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs"
               : "text-slate-600 hover:bg-slate-100"
           }`}
         >
@@ -1942,9 +1936,9 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
         </button>
         <button
           onClick={() => setReportTab("sales")}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${
+          className={`px-4 py-2 text-xs font-bold rounded-sm transition cursor-pointer ${
             reportTab === "sales"
-              ? "bg-primary-600 text-white shadow-xs"
+              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs"
               : "text-slate-600 hover:bg-slate-100"
           }`}
         >
@@ -1952,9 +1946,9 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
         </button>
         <button
           onClick={() => setReportTab("purchases")}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${
+          className={`px-4 py-2 text-xs font-bold rounded-sm transition cursor-pointer ${
             reportTab === "purchases"
-              ? "bg-primary-600 text-white shadow-xs"
+              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs"
               : "text-slate-600 hover:bg-slate-100"
           }`}
         >
@@ -1969,10 +1963,10 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
       ) : data ? (
         <div className="space-y-4">
           {reportTab === "consolidated" && (
-            <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div className="rounded-sm border border-sky-100/90 bg-white p-7 shadow-2xs">
+              <div className="flex items-center justify-between border-b border-sky-100/70 pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-indigo-50 p-2.5 text-indigo-700">
+                  <div className="rounded-sm bg-indigo-50 p-2.5 text-indigo-700">
                     <BarChart3 size={22} />
                   </div>
                   <div>
@@ -1999,7 +1993,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
 
               <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Sales Column */}
-                <div className="rounded-2xl bg-emerald-50/40 border border-emerald-100 p-5 space-y-3">
+                <div className="rounded-sm bg-emerald-50/40 border border-emerald-100 p-5 space-y-3">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-bold text-emerald-900">1. Sales Output VAT</h4>
                     <span className="text-xs font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
@@ -2019,7 +2013,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
                 </div>
 
                 {/* Purchase Column */}
-                <div className="rounded-2xl bg-amber-50/40 border border-amber-100 p-5 space-y-3">
+                <div className="rounded-sm bg-amber-50/40 border border-amber-100 p-5 space-y-3">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-bold text-amber-900">2. Purchase Input VAT</h4>
                     <span className="text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
@@ -2040,9 +2034,9 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
               </div>
 
               {/* Net Total Footer */}
-              <div className="mt-8 rounded-2xl bg-primary-50 border border-primary-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="mt-8 rounded-sm bg-sky-50 border border-primary-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <p className="text-xs text-primary-700 font-bold uppercase tracking-wider">Final Net Balance for Period</p>
+                  <p className="text-xs text-sky-700 font-bold uppercase tracking-wider">Final Net Balance for Period</p>
                   <p className="text-xl font-black text-slate-900 mt-0.5">
                     {data.status === "PAYABLE" ? "Payable to Treasury / NBR" : data.status === "REFUNDABLE" ? "Refundable Credit Balance" : "Zero Net Liability"}
                   </p>
@@ -2057,8 +2051,8 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
           )}
 
           {reportTab === "sales" && (
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+              <div className="p-4 border-b border-sky-100/70 flex items-center justify-between">
                 <h4 className="font-bold text-slate-900 text-sm">Sales VAT by Tax Rate</h4>
                 <span className="text-xs text-slate-500 font-semibold">{data.sales?.byRate?.length || 0} rate categories</span>
               </div>
@@ -2079,8 +2073,8 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
           )}
 
           {reportTab === "purchases" && (
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+              <div className="p-4 border-b border-sky-100/70 flex items-center justify-between">
                 <h4 className="font-bold text-slate-900 text-sm">Purchase Input VAT by Tax Rate</h4>
                 <span className="text-xs text-slate-500 font-semibold">{data.purchases?.byRate?.length || 0} rate categories</span>
               </div>
@@ -2146,7 +2140,7 @@ function B2BVatDirectory({ rules }: { rules: TaxRule[] }) {
   return (
     <div className="space-y-4">
       {/* Sub tabs & header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-sm border border-sky-100/90 shadow-2xs">
         <div>
           <h3 className="font-bold text-slate-900">B2B VAT Registration & BIN Directory</h3>
           <p className="text-xs text-slate-500">
@@ -2155,19 +2149,19 @@ function B2BVatDirectory({ rules }: { rules: TaxRule[] }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex rounded-xl bg-slate-100 p-1">
+          <div className="flex rounded-sm bg-slate-100 p-1">
             <button
               onClick={() => setB2bTab("customers")}
-              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-                b2bTab === "customers" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600"
+              className={`rounded-sm px-3 py-1.5 text-xs font-bold transition ${
+                b2bTab === "customers" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600"
               }`}
             >
               Customers (Buyers)
             </button>
             <button
               onClick={() => setB2bTab("suppliers")}
-              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-                b2bTab === "suppliers" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600"
+              className={`rounded-sm px-3 py-1.5 text-xs font-bold transition ${
+                b2bTab === "suppliers" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600"
               }`}
             >
               Suppliers (Vendors)
@@ -2181,14 +2175,14 @@ function B2BVatDirectory({ rules }: { rules: TaxRule[] }) {
               placeholder="Search entity..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white pl-8 pr-3 py-1.5 text-xs focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-sm border border-sky-100/90 bg-white pl-8 pr-3 py-1.5 text-xs focus:border-indigo-500 focus:outline-none"
             />
           </div>
         </div>
       </div>
 
       {/* Directory Table */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
         <CustomTable
           columns={[
             {
@@ -2242,7 +2236,7 @@ function B2BVatDirectory({ rules }: { rules: TaxRule[] }) {
               render: (r: any) => (
                 <button
                   onClick={() => setEditingItem({ id: r.id, name: r.name, type: b2bTab === "customers" ? "customer" : "supplier" })}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition"
+                  className="inline-flex items-center gap-1.5 rounded-sm bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition"
                 >
                   <Edit3 size={13} /> Edit VAT / BIN
                 </button>
@@ -2342,10 +2336,10 @@ function EditB2BVatModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="w-full max-w-lg rounded-3xl bg-white p-7 shadow-2xl border border-slate-100 transition-all my-8"
+        className="w-full max-w-lg rounded-sm bg-white p-7 shadow-2xs border border-sky-100/70 transition-all my-8"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="flex items-center justify-between border-b border-sky-100/70 pb-4">
           <div>
             <h3 className="text-xl font-bold text-slate-900">
               VAT & BIN Info: {item.name}
@@ -2354,13 +2348,11 @@ function EditB2BVatModal({
               Statutory taxpayer details for Mushak 6.3 Tax Invoices.
             </p>
           </div>
-          <button onClick={onClose} className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
-            <XCircle size={20} />
-          </button>
+          <button onClick={onClose} className="rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-600 hover:text-white shadow-2xs transition"><XCircle size={18} /></button>
         </div>
 
         {error && (
-          <div className="mt-4 rounded-xl bg-red-50 border border-red-200 p-3 text-xs text-red-700 flex items-center gap-2">
+          <div className="mt-4 rounded-sm bg-red-50 border border-red-200 p-3 text-xs text-red-700 flex items-center gap-2">
             <AlertCircle size={15} className="shrink-0 text-red-500" />
             <span>{error}</span>
           </div>
@@ -2372,7 +2364,7 @@ function EditB2BVatModal({
           </div>
         ) : (
           <form onSubmit={submit} className="mt-5 space-y-4">
-            <div className="rounded-xl bg-slate-50 p-3 border border-slate-200">
+            <div className="rounded-sm bg-slate-50 p-3 border border-sky-100/90">
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -2395,7 +2387,7 @@ function EditB2BVatModal({
                   type="text"
                   value={form.vatRegNo}
                   onChange={(e) => setForm({ ...form, vatRegNo: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none"
                   placeholder="000123456-0101"
                 />
               </div>
@@ -2407,7 +2399,7 @@ function EditB2BVatModal({
                   type="text"
                   value={form.tin}
                   onChange={(e) => setForm({ ...form, tin: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none"
                   placeholder="123456789012"
                 />
               </div>
@@ -2421,7 +2413,7 @@ function EditB2BVatModal({
                 type="text"
                 value={form.businessName}
                 onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none"
                 placeholder="Apex Holdings Ltd."
               />
             </div>
@@ -2434,7 +2426,7 @@ function EditB2BVatModal({
                 rows={2}
                 value={form.businessAddress}
                 onChange={(e) => setForm({ ...form, businessAddress: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none"
                 placeholder="Plot 12, Road 4, Gulshan-1, Dhaka"
               />
             </div>
@@ -2446,7 +2438,7 @@ function EditB2BVatModal({
               <select
                 value={form.taxRuleId}
                 onChange={(e) => setForm({ ...form, taxRuleId: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none"
               >
                 <option value="">Default Tenant Rule</option>
                 {rules.map((r) => (
@@ -2457,18 +2449,18 @@ function EditB2BVatModal({
               </select>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-sky-100/70">
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100"
+                className="rounded-sm px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 active:scale-95 disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-sm bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-2xs hover:bg-indigo-700 active:scale-95 disabled:opacity-50"
               >
                 {saving ? "Saving..." : "Save VAT Profile"}
               </button>

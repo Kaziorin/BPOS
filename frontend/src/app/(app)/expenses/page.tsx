@@ -190,7 +190,7 @@ export default function ExpensesPage() {
       {/* Toast Alert */}
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl px-5 py-3.5 shadow-xl transition-all duration-300 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-sm px-5 py-3.5 shadow-xl transition-all duration-300 ${
             toast.type === "success"
               ? "bg-slate-900 text-white border border-slate-700"
               : "bg-red-600 text-white border border-red-700"
@@ -338,9 +338,9 @@ export default function ExpensesPage() {
                         {money(c.total)} <span className="text-[10px] text-teal-600 font-semibold">({pct}%)</span>
                       </span>
                     </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+                    <div className="h-1.5 w-full overflow-hidden rounded-sm bg-sky-100">
                       <div
-                        className="h-full rounded-full bg-teal-600 transition-all duration-500"
+                        className="h-full rounded-sm bg-[#0284C7] transition-all duration-500"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -352,7 +352,7 @@ export default function ExpensesPage() {
       )}
 
       {/* Main Expenses Table Container */}
-      <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+      <div className="bg-white rounded-sm border border-sky-100/90 p-4 shadow-2xs space-y-3">
         {/* Search & Multi-Filters Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div className="relative flex-1 min-w-[200px] max-w-md">
@@ -678,163 +678,169 @@ function ExpenseFormModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="w-full max-w-lg rounded-xl bg-white p-5 sm:p-6 shadow-xl border border-slate-200 transition-all my-8"
+        className="w-full max-w-lg rounded-sm bg-white shadow-2xl border border-sky-100/90 overflow-hidden my-8"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="flex items-center justify-between border-b border-sky-100 px-5 py-3.5 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50">
           <div>
-            <h3 className="text-base font-bold text-gray-700">
+            <h3 className="text-base font-bold text-[#0369A1]">
               {expense ? "Edit Expense" : "Record New Expense"}
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-gray-500 mt-0.5">
               Enter expense details, category classification, and payment method.
             </p>
           </div>
-          <button onClick={onClose} className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
-            <XCircle size={18} />
+          <button
+            onClick={onClose}
+            className="rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-600 hover:text-white transition shadow-2xs cursor-pointer"
+          >
+            <XCircle size={16} />
           </button>
         </div>
 
-        {error && (
-          <div className="mt-3 rounded-md bg-red-50 border border-red-200 p-2.5 text-xs text-red-700 flex items-center gap-2">
-            <AlertCircle size={14} className="shrink-0 text-red-500" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Expense Title *
-            </label>
-            <input
-              type="text"
-              required
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
-              placeholder="e.g. Office Electricity Bill - September"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Amount (৳) *
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0.01"
-                required
-                value={form.amount}
-                onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition tabular-nums"
-                placeholder="2500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Expense Date
-              </label>
-              <input
-                type="date"
-                value={form.expenseDate}
-                onChange={(e) => setForm({ ...form, expenseDate: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Category
-              </label>
-              <select
-                value={form.categoryId}
-                onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
-              >
-                <option value="">Uncategorized</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name} ({c.group})</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Payment Method
-              </label>
-              <select
-                value={form.paymentMethod}
-                onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
-              >
-                {PAYMENT_METHODS.map((m) => (
-                  <option key={m.value} value={m.value}>{m.icon} {m.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {branches.length > 0 && (
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Branch / Outlet
-              </label>
-              <select
-                value={form.branchId}
-                onChange={(e) => setForm({ ...form, branchId: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
-              >
-                <option value="">All / Headquarters</option>
-                {branches.map((b) => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
-                ))}
-              </select>
+        <div className="p-5 sm:p-6">
+          {error && (
+            <div className="mb-3 rounded-sm bg-rose-50 border border-rose-200 p-2.5 text-xs text-rose-700 flex items-center gap-2">
+              <AlertCircle size={14} className="shrink-0 text-rose-500" />
+              <span>{error}</span>
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Description / Notes
-            </label>
-            <textarea
-              rows={2}
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
-              placeholder="e.g. Paid cash from register during morning shift"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Expense Title *
+              </label>
+              <input
+                type="text"
+                required
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className="w-full rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition"
+                placeholder="e.g. Office Electricity Bill - September"
+              />
+            </div>
 
-          <div className="rounded-md bg-teal-50/60 p-2.5 border border-teal-200/60 text-[11px] text-teal-800 font-medium">
-            💡 Cash expenses recorded in an active shift are automatically posted as a <code>CASH_EXPENSE</code> movement in the cashier ledger.
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Amount (৳) *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  required
+                  value={form.amount}
+                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                  className="w-full rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition tabular-nums"
+                  placeholder="2500"
+                />
+              </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-            <CustomButton
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onClose}
-              className="text-xs font-semibold"
-            >
-              Cancel
-            </CustomButton>
-            <CustomButton
-              type="submit"
-              size="sm"
-              loading={saving}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
-            >
-              {expense ? "Update Expense" : "Record Expense"}
-            </CustomButton>
-          </div>
-        </form>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Expense Date
+                </label>
+                <input
+                  type="date"
+                  value={form.expenseDate}
+                  onChange={(e) => setForm({ ...form, expenseDate: e.target.value })}
+                  className="w-full rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Category
+                </label>
+                <select
+                  value={form.categoryId}
+                  onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-[#0284C7] focus:outline-none transition"
+                >
+                  <option value="">Uncategorized</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name} ({c.group})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Payment Method
+                </label>
+                <select
+                  value={form.paymentMethod}
+                  onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}
+                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-[#0284C7] focus:outline-none transition"
+                >
+                  {PAYMENT_METHODS.map((m) => (
+                    <option key={m.value} value={m.value}>{m.icon} {m.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {branches.length > 0 && (
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Branch / Outlet
+                </label>
+                <select
+                  value={form.branchId}
+                  onChange={(e) => setForm({ ...form, branchId: e.target.value })}
+                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-[#0284C7] focus:outline-none transition"
+                >
+                  <option value="">All / Headquarters</option>
+                  {branches.map((b) => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Description / Notes
+              </label>
+              <textarea
+                rows={2}
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                className="w-full rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition"
+                placeholder="e.g. Paid cash from register during morning shift"
+              />
+            </div>
+
+            <div className="rounded-sm bg-sky-50/70 p-2.5 border border-sky-200/70 text-[11px] text-[#0369A1] font-medium">
+              💡 Cash expenses recorded in an active shift are automatically posted as a <code>CASH_EXPENSE</code> movement in the cashier ledger.
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-sky-100">
+              <CustomButton
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onClose}
+                className="text-xs font-semibold rounded-sm"
+              >
+                Cancel
+              </CustomButton>
+              <CustomButton
+                type="submit"
+                variant="primary"
+                size="sm"
+                loading={saving}
+                className="text-xs font-semibold rounded-sm"
+              >
+                {expense ? "Update Expense" : "Save Expense"}
+              </CustomButton>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

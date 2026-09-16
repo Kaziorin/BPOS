@@ -285,7 +285,7 @@ export default function CollectionPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200/70 pb-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-            <Wallet size={22} className="text-primary-600" />
+            <Wallet size={22} className="text-sky-600" />
             Due Invoices & Field Collection Manager
           </h1>
           <p className="text-xs text-gray-500 mt-0.5">
@@ -296,7 +296,7 @@ export default function CollectionPage() {
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => setShowTargetModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 transition"
+            className="inline-flex items-center gap-1.5 rounded-sm border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition"
           >
             <Target size={14} className="text-gray-500" />
             Set Target
@@ -304,7 +304,7 @@ export default function CollectionPage() {
 
           <button
             onClick={() => setShowScheduleModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 transition"
+            className="inline-flex items-center gap-1.5 rounded-sm border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition"
           >
             <Clock size={14} className="text-gray-500" />
             Schedule Visit
@@ -312,7 +312,7 @@ export default function CollectionPage() {
 
           <button
             onClick={exportCSV}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 transition"
+            className="inline-flex items-center gap-1.5 rounded-sm border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition"
           >
             <Download size={14} className="text-gray-500" />
             Export CSV
@@ -320,7 +320,7 @@ export default function CollectionPage() {
 
           <button
             onClick={() => setShowCreateEntry(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-primary-700 transition"
+            className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-2 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700 transition"
           >
             <Plus size={15} />
             Record Collection
@@ -331,10 +331,10 @@ export default function CollectionPage() {
       {/* ── KPI Analytics Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* Total Collected */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition">
+        <div className="rounded-sm border border-gray-200 bg-white p-4 shadow-2xs hover:border-gray-300 transition">
           <div className="flex items-center justify-between text-gray-500">
             <span className="text-xs font-medium uppercase tracking-wider text-emerald-700">Total Collected</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-50 text-emerald-600">
               <DollarSign size={16} />
             </div>
           </div>
@@ -354,7 +354,7 @@ export default function CollectionPage() {
         {/* Pending Field Schedules */}
         <div 
           onClick={() => setTab("schedules")}
-          className={`rounded-xl border p-4 shadow-xs transition cursor-pointer ${
+          className={`rounded-sm border p-4 shadow-2xs transition cursor-pointer ${
             tab === "schedules"
               ? "border-amber-500 bg-amber-50/40 ring-1 ring-amber-500/20"
               : "border-gray-200 bg-white hover:border-amber-300"
@@ -362,7 +362,7 @@ export default function CollectionPage() {
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium uppercase tracking-wider text-amber-700">Pending Visits</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-amber-50 text-amber-600">
               <Clock size={16} />
             </div>
           </div>
@@ -378,10 +378,10 @@ export default function CollectionPage() {
         </div>
 
         {/* Active Collectors */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition">
+        <div className="rounded-sm border border-gray-200 bg-white p-4 shadow-2xs hover:border-gray-300 transition">
           <div className="flex items-center justify-between text-gray-500">
             <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Active Field Agents</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-sky-600">
               <User size={16} />
             </div>
           </div>
@@ -397,10 +397,10 @@ export default function CollectionPage() {
         </div>
 
         {/* Target Achievement */}
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition">
+        <div className="rounded-sm border border-gray-200 bg-white p-4 shadow-2xs hover:border-gray-300 transition">
           <div className="flex items-center justify-between text-gray-500">
             <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Target Recovery</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-50 text-teal-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-teal-50 text-teal-600">
               <ShieldCheck size={16} />
             </div>
           </div>
@@ -420,9 +420,9 @@ export default function CollectionPage() {
       <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
         <button
           onClick={() => setTab("entries")}
-          className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-medium transition ${
+          className={`flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 text-xs font-medium transition ${
             tab === "entries"
-              ? "bg-primary-600 text-white shadow-xs font-semibold"
+              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs font-semibold"
               : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
           }`}
         >
@@ -432,9 +432,9 @@ export default function CollectionPage() {
 
         <button
           onClick={() => setTab("schedules")}
-          className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-medium transition ${
+          className={`flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 text-xs font-medium transition ${
             tab === "schedules"
-              ? "bg-primary-600 text-white shadow-xs font-semibold"
+              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs font-semibold"
               : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
           }`}
         >
@@ -444,9 +444,9 @@ export default function CollectionPage() {
 
         <button
           onClick={() => setTab("performance")}
-          className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-medium transition ${
+          className={`flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 text-xs font-medium transition ${
             tab === "performance"
-              ? "bg-primary-600 text-white shadow-xs font-semibold"
+              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs font-semibold"
               : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
           }`}
         >
@@ -459,7 +459,7 @@ export default function CollectionPage() {
       {tab === "entries" && (
         <div className="space-y-3">
           {/* Search toolbar */}
-          <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-xs flex items-center justify-between gap-3">
+          <div className="rounded-sm border border-gray-200 bg-white p-3 shadow-2xs flex items-center justify-between gap-3">
             <div className="relative w-full max-w-sm">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
@@ -467,7 +467,7 @@ export default function CollectionPage() {
                 placeholder="Search collection #, receipt #, customer, method..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                className="w-full rounded-sm border border-gray-300 py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
               />
               {searchQuery && (
                 <button onClick={() => setSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400">
@@ -476,18 +476,18 @@ export default function CollectionPage() {
               )}
             </div>
 
-            <button onClick={loadAll} className="rounded-lg border border-gray-300 p-1.5 text-gray-600 hover:bg-gray-50" title="Refresh">
-              <RefreshCw size={14} className={loading ? "animate-spin text-primary-600" : ""} />
+            <button onClick={loadAll} className="rounded-sm border border-gray-300 p-1.5 text-gray-600 hover:bg-gray-50" title="Refresh">
+              <RefreshCw size={14} className={loading ? "animate-spin text-sky-600" : ""} />
             </button>
           </div>
 
           {loading ? (
-            <div className="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-xs">
-              <RefreshCw size={24} className="mx-auto animate-spin text-primary-600 mb-2" />
+            <div className="rounded-sm border border-gray-200 bg-white p-12 text-center shadow-2xs">
+              <RefreshCw size={24} className="mx-auto animate-spin text-sky-600 mb-2" />
               <p className="text-xs font-semibold text-gray-700">Loading collection entries...</p>
             </div>
           ) : filteredEntries.length === 0 ? (
-            <div className="rounded-xl border-2 border-dashed border-gray-200 bg-white p-12 text-center shadow-xs">
+            <div className="rounded-sm border-2 border-dashed border-gray-200 bg-white p-12 text-center shadow-2xs">
               <Wallet size={32} className="mx-auto text-gray-300 mb-3" />
               <h3 className="text-sm font-bold text-gray-900">No Collection Entries Found</h3>
               <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
@@ -495,13 +495,13 @@ export default function CollectionPage() {
               </p>
               <button
                 onClick={() => setShowCreateEntry(true)}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-primary-700"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700"
               >
                 <Plus size={14} /> Record First Collection
               </button>
             </div>
           ) : (
-            <div className="rounded-xl border border-gray-200 bg-white shadow-xs overflow-hidden">
+            <div className="rounded-sm border border-gray-200 bg-white shadow-2xs overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
@@ -524,7 +524,7 @@ export default function CollectionPage() {
                         <tr key={e.id} className="hover:bg-gray-50/70 transition-colors">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
-                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
                                 <Receipt size={14} />
                               </div>
                               <div>
@@ -591,7 +591,7 @@ export default function CollectionPage() {
       {tab === "schedules" && (
         <div className="space-y-3">
           {schedules.length === 0 ? (
-            <div className="rounded-xl border-2 border-dashed border-gray-200 bg-white p-12 text-center shadow-xs">
+            <div className="rounded-sm border-2 border-dashed border-gray-200 bg-white p-12 text-center shadow-2xs">
               <Clock size={32} className="mx-auto text-gray-300 mb-3" />
               <h3 className="text-sm font-bold text-gray-900">No Scheduled Field Visits</h3>
               <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
@@ -599,7 +599,7 @@ export default function CollectionPage() {
               </p>
               <button
                 onClick={() => setShowScheduleModal(true)}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-primary-700"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700"
               >
                 <Plus size={14} /> Schedule New Visit
               </button>
@@ -609,7 +609,7 @@ export default function CollectionPage() {
               {schedules.map((s) => {
                 const cfg = SCHED_STATUS[s.status] || SCHED_STATUS.PENDING;
                 return (
-                  <div key={s.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs hover:border-gray-300 transition space-y-3">
+                  <div key={s.id} className="rounded-sm border border-gray-200 bg-white p-4 shadow-2xs hover:border-gray-300 transition space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <h4 className="font-bold text-gray-900 text-xs">{s.customer?.name || "Customer Visit"}</h4>
@@ -622,7 +622,7 @@ export default function CollectionPage() {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 bg-gray-50 p-2.5 rounded-lg text-center text-xs">
+                    <div className="grid grid-cols-2 gap-2 bg-gray-50 p-2.5 rounded-sm text-center text-xs">
                       <div>
                         <span className="text-[10px] text-gray-400 block font-medium">Expected ৳</span>
                         <span className="font-bold text-gray-900">৳{Number(s.expectedAmount || 0).toLocaleString()}</span>
@@ -648,9 +648,9 @@ export default function CollectionPage() {
       {tab === "performance" && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-xs space-y-4">
+            <div className="rounded-sm border border-gray-200 bg-white p-5 shadow-2xs space-y-4">
               <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
-                <Target size={15} className="text-primary-600" />
+                <Target size={15} className="text-sky-600" />
                 Monthly Target vs Achievement Leaderboard
               </h3>
 
@@ -669,7 +669,7 @@ export default function CollectionPage() {
                     </div>
                     <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
                       <div
-                        className="h-full bg-primary-600 rounded-full transition-all duration-500"
+                        className="h-full bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] rounded-full transition-all duration-500"
                         style={{ width: `${Math.min(100, p.achievementPct || Math.round((p.collectedAmount/p.targetAmount)*100))}%` }}
                       />
                     </div>
@@ -678,7 +678,7 @@ export default function CollectionPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-xs flex flex-col justify-between">
+            <div className="rounded-sm border border-gray-200 bg-white p-5 shadow-2xs flex flex-col justify-between">
               <div>
                 <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Field Collection Guidelines</h3>
                 <ul className="text-xs text-gray-600 space-y-2 list-disc pl-4 leading-relaxed">
@@ -691,7 +691,7 @@ export default function CollectionPage() {
               <div className="pt-4 border-t border-gray-100 flex gap-2">
                 <button
                   onClick={() => setShowTargetModal(true)}
-                  className="w-full rounded-lg bg-primary-600 py-2 text-xs font-semibold text-white shadow-xs hover:bg-primary-700 transition"
+                  className="w-full rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] py-2 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700 transition"
                 >
                   Set New Collector Target
                 </button>
@@ -704,10 +704,10 @@ export default function CollectionPage() {
       {/* ── RECORD COLLECTION MODAL ── */}
       {showCreateEntry && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100">
-          <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl border border-gray-200 overflow-hidden my-8 animate-in zoom-in-95 duration-150">
+          <div className="relative w-full max-w-md rounded-sm bg-white shadow-2xl border border-gray-200 overflow-hidden my-8 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3.5 bg-gray-50/80">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
                   <Receipt size={16} />
                 </div>
                 <div>
@@ -715,7 +715,7 @@ export default function CollectionPage() {
                   <p className="text-[11px] text-gray-500">Log customer payment recovery against invoice.</p>
                 </div>
               </div>
-              <button onClick={() => setShowCreateEntry(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-200/60">
+              <button onClick={() => setShowCreateEntry(false)} className="rounded-sm p-1.5 text-gray-400 hover:bg-gray-200/60">
                 <X size={16} />
               </button>
             </div>
@@ -734,7 +734,7 @@ export default function CollectionPage() {
                   placeholder="0.00"
                   value={entryForm.amount}
                   onChange={(e) => setEntryForm({ ...entryForm, amount: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-bold text-gray-900 focus:outline-none focus:border-primary-500"
+                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm font-bold text-gray-900 focus:outline-none focus:border-primary-500"
                 />
               </div>
 
@@ -743,7 +743,7 @@ export default function CollectionPage() {
                 <select
                   value={entryForm.method}
                   onChange={(e) => setEntryForm({ ...entryForm, method: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
+                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                 >
                   <option value="CASH">Cash</option>
                   <option value="BKASH">bKash</option>
@@ -760,7 +760,7 @@ export default function CollectionPage() {
                   placeholder="e.g. Officer Rafiq (ID: COL-102)"
                   value={entryForm.collectorId}
                   onChange={(e) => setEntryForm({ ...entryForm, collectorId: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
+                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                 />
               </div>
 
@@ -771,7 +771,7 @@ export default function CollectionPage() {
                   placeholder="e.g. MR-90214"
                   value={entryForm.receiptNo}
                   onChange={(e) => setEntryForm({ ...entryForm, receiptNo: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
+                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                 />
               </div>
 
@@ -781,7 +781,7 @@ export default function CollectionPage() {
                   id="offlineCheck"
                   checked={entryForm.isOffline}
                   onChange={(e) => setEntryForm({ ...entryForm, isOffline: e.target.checked })}
-                  className="rounded text-primary-600 focus:ring-primary-500"
+                  className="rounded text-sky-600 focus:ring-primary-500"
                 />
                 <label htmlFor="offlineCheck" className="text-gray-700 text-xs">
                   Offline field collection (sync with ledger)
@@ -792,13 +792,13 @@ export default function CollectionPage() {
                 <button
                   type="button"
                   onClick={() => setShowCreateEntry(false)}
-                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                  className="rounded-sm border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-700"
+                  className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700"
                 >
                   Confirm & Save Receipt
                 </button>
@@ -811,10 +811,10 @@ export default function CollectionPage() {
       {/* ── SCHEDULE VISIT MODAL ── */}
       {showScheduleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100">
-          <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl border border-gray-200 overflow-hidden my-8 animate-in zoom-in-95 duration-150">
+          <div className="relative w-full max-w-md rounded-sm bg-white shadow-2xl border border-gray-200 overflow-hidden my-8 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3.5 bg-gray-50/80">
               <h2 className="text-sm font-bold text-gray-900">Schedule Field Collection Visit</h2>
-              <button onClick={() => setShowScheduleModal(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-200/60">
+              <button onClick={() => setShowScheduleModal(false)} className="rounded-sm p-1.5 text-gray-400 hover:bg-gray-200/60">
                 <X size={16} />
               </button>
             </div>
@@ -827,7 +827,7 @@ export default function CollectionPage() {
                   required
                   value={schedForm.scheduledAt}
                   onChange={(e) => setSchedForm({ ...schedForm, scheduledAt: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
+                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                 />
               </div>
 
@@ -839,7 +839,7 @@ export default function CollectionPage() {
                   placeholder="0.00"
                   value={schedForm.expectedAmount}
                   onChange={(e) => setSchedForm({ ...schedForm, expectedAmount: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
+                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                 />
               </div>
 
@@ -850,7 +850,7 @@ export default function CollectionPage() {
                   placeholder="e.g. Call before arrival at Gulshan office"
                   value={schedForm.note}
                   onChange={(e) => setSchedForm({ ...schedForm, note: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
+                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                 />
               </div>
 
@@ -858,13 +858,13 @@ export default function CollectionPage() {
                 <button
                   type="button"
                   onClick={() => setShowScheduleModal(false)}
-                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                  className="rounded-sm border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-700"
+                  className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700"
                 >
                   Schedule Appointment
                 </button>
@@ -877,10 +877,10 @@ export default function CollectionPage() {
       {/* ── SET TARGET MODAL ── */}
       {showTargetModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100">
-          <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl border border-gray-200 overflow-hidden my-8 animate-in zoom-in-95 duration-150">
+          <div className="relative w-full max-w-md rounded-sm bg-white shadow-2xl border border-gray-200 overflow-hidden my-8 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3.5 bg-gray-50/80">
               <h2 className="text-sm font-bold text-gray-900">Set Monthly Collection Target</h2>
-              <button onClick={() => setShowTargetModal(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-200/60">
+              <button onClick={() => setShowTargetModal(false)} className="rounded-sm p-1.5 text-gray-400 hover:bg-gray-200/60">
                 <X size={16} />
               </button>
             </div>
@@ -893,7 +893,7 @@ export default function CollectionPage() {
                   required
                   value={targetForm.period}
                   onChange={(e) => setTargetForm({ ...targetForm, period: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
+                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                 />
               </div>
 
@@ -906,7 +906,7 @@ export default function CollectionPage() {
                   placeholder="e.g. 500000"
                   value={targetForm.targetAmount}
                   onChange={(e) => setTargetForm({ ...targetForm, targetAmount: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
+                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                 />
               </div>
 
@@ -914,13 +914,13 @@ export default function CollectionPage() {
                 <button
                   type="button"
                   onClick={() => setShowTargetModal(false)}
-                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                  className="rounded-sm border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-700"
+                  className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700"
                 >
                   Set Target Goal
                 </button>

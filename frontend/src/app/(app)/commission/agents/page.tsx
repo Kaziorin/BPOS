@@ -88,7 +88,7 @@ export default function CommissionAgentsPage() {
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 size={26} className="animate-spin text-gray-300" /></div>
       ) : agents.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-white p-14 text-center">
+        <div className="rounded-sm border-2 border-dashed border-gray-200 bg-white p-14 text-center">
           <Users size={44} className="mx-auto text-gray-300" />
           <p className="mt-4 font-medium text-gray-500">No agents with commissions yet</p>
           <p className="mt-1 text-sm text-gray-400">Agents appear here once they earn their first commission from a completed sale.</p>
@@ -99,11 +99,11 @@ export default function CommissionAgentsPage() {
             const s = agent.stats;
             const hasPayable = s.totalPayable > 0;
             return (
-              <div key={agent.id} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+              <div key={agent.id} className="rounded-sm border border-gray-100 bg-white p-5 shadow-sm transition hover:shadow-md">
                 {/* Header */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-base font-bold text-white">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-gradient-to-br from-primary-500 to-primary-700 text-base font-bold text-white">
                       {agent.name.charAt(0)}
                     </div>
                     <div>
@@ -153,7 +153,7 @@ export default function CommissionAgentsPage() {
                     disabled={!hasPayable || payingOut === agent.id}
                     className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                       hasPayable
-                        ? "bg-primary-600 text-white hover:bg-primary-700"
+                        ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs hover:bg-primary-700"
                         : "cursor-not-allowed bg-gray-100 text-gray-400"
                     }`}
                   >

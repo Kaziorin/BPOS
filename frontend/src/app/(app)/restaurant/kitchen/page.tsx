@@ -349,13 +349,13 @@ export default function KitchenManagementPage() {
       }`}
     >
       {/* ── 1. TOP NAVBAR (MATCHING SCREENSHOT HEADER) ────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-3 shadow-xs">
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-sky-100/90 px-4 sm:px-6 py-3 shadow-xs">
         <div className="mx-auto flex flex-wrap items-center justify-between gap-4">
           {/* Left Title & Search */}
           <div className="flex items-center gap-4 flex-1 min-w-[280px]">
             <Link
               href="/restaurant"
-              className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-700 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition"
+              className="rounded-xl border border-sky-100/90 bg-slate-50 p-2 text-slate-700 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition"
               title="Back to Restaurant Hub"
             >
               <ArrowLeft size={18} />
@@ -369,7 +369,7 @@ export default function KitchenManagementPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products, orders, tokens..."
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 py-2 pl-9 pr-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition"
+                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/70 py-2 pl-9 pr-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition"
               />
             </div>
           </div>
@@ -377,7 +377,7 @@ export default function KitchenManagementPage() {
           {/* Right User & Control Widgets */}
           <div className="flex items-center gap-3">
             {/* View Mode Switcher: Operator vs Facing TV */}
-            <div className="flex items-center rounded-2xl border border-slate-200 bg-slate-100 p-1 shadow-inner">
+            <div className="flex items-center rounded-sm border border-sky-100/90 bg-slate-100 p-1 shadow-inner">
               <button
                 id="btn-switch-operator-mode"
                 onClick={() => setViewMode("OPERATOR")}
@@ -410,7 +410,7 @@ export default function KitchenManagementPage() {
               className={`rounded-xl border p-2 transition ${
                 soundEnabled
                   ? "border-orange-500/40 bg-orange-50 text-orange-600"
-                  : "border-slate-200 bg-slate-100 text-slate-400"
+                  : "border-sky-100/90 bg-slate-100 text-slate-400"
               }`}
               title={soundEnabled ? "Audio Chime Enabled" : "Muted"}
             >
@@ -422,7 +422,7 @@ export default function KitchenManagementPage() {
             {/* Manual Sync */}
             <button
               onClick={fetchTickets}
-              className="rounded-xl border border-slate-200 bg-white p-2 text-slate-700 hover:bg-slate-50 transition"
+              className="rounded-xl border border-sky-100/90 bg-white p-2 text-slate-700 hover:bg-slate-50 transition"
               title="Refresh KDS"
             >
               <RefreshCw size={16} className={loading ? "animate-spin text-orange-500" : ""} />
@@ -439,13 +439,13 @@ export default function KitchenManagementPage() {
             </button>
 
             {/* Notification & User Profile Badge */}
-            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-              <button className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100 transition relative">
+            <div className="flex items-center gap-2 pl-2 border-l border-sky-100/90">
+              <button className="rounded-xl border border-sky-100/90 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100 transition relative">
                 <Bell size={16} />
                 <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-orange-500" />
               </button>
               
-              <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-2xl">
+              <div className="flex items-center gap-2.5 bg-slate-50 border border-sky-100/90 px-3 py-1.5 rounded-sm">
                 <div className="h-7 w-7 rounded-full bg-gradient-to-tr from-orange-500 to-amber-500 text-white font-bold text-xs flex items-center justify-center shadow-xs">
                   EG
                 </div>
@@ -466,45 +466,45 @@ export default function KitchenManagementPage() {
             {/* KPI SCORECARDS ROW (MATCHING SCREENSHOT) */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: New Orders */}
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
               <p className="text-xs font-bold text-slate-500">New Orders</p>
               <h3 className="text-3xl font-black text-slate-900 mt-1">{newOrdersCount.toString().padStart(2, "0")}</h3>
             </div>
-            <div className="rounded-2xl bg-orange-50 p-3 text-orange-500 border border-orange-100">
+            <div className="rounded-sm bg-orange-50 p-3 text-orange-500 border border-orange-100">
               <FileText size={22} />
             </div>
           </div>
 
           {/* Card 2: Preparing */}
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
               <p className="text-xs font-bold text-slate-500">Preparing</p>
               <h3 className="text-3xl font-black text-slate-900 mt-1">{preparingCount.toString().padStart(2, "0")}</h3>
             </div>
-            <div className="rounded-2xl bg-amber-50 p-3 text-amber-500 border border-amber-100">
+            <div className="rounded-sm bg-amber-50 p-3 text-amber-500 border border-amber-100">
               <Flame size={22} />
             </div>
           </div>
 
           {/* Card 3: Completed Orders */}
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
               <p className="text-xs font-bold text-slate-500">Completed Orders</p>
               <h3 className="text-3xl font-black text-slate-900 mt-1">{completedCount.toString().padStart(2, "0")}</h3>
             </div>
-            <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-500 border border-emerald-100">
+            <div className="rounded-sm bg-emerald-50 p-3 text-emerald-500 border border-emerald-100">
               <CheckCircle2 size={22} />
             </div>
           </div>
 
           {/* Card 4: Cancelled Orders */}
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
               <p className="text-xs font-bold text-slate-500">Cancelled Orders</p>
               <h3 className="text-3xl font-black text-slate-900 mt-1">{cancelledCount.toString().padStart(2, "0")}</h3>
             </div>
-            <div className="rounded-2xl bg-rose-50 p-3 text-rose-500 border border-rose-100">
+            <div className="rounded-sm bg-rose-50 p-3 text-rose-500 border border-rose-100">
               <Ban size={22} />
             </div>
           </div>
@@ -518,7 +518,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "ALL"
                   ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-500 shadow-md shadow-orange-500/20"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  : "bg-white text-slate-700 border-sky-100/90 hover:bg-slate-50"
               }`}
             >
               <UtensilsCrossed size={14} />
@@ -530,7 +530,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "QUEUED"
                   ? "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-600/20"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  : "bg-white text-slate-700 border-sky-100/90 hover:bg-slate-50"
               }`}
             >
               <FileText size={14} className="text-purple-600" />
@@ -542,7 +542,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "PREPARING"
                   ? "bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  : "bg-white text-slate-700 border-sky-100/90 hover:bg-slate-50"
               }`}
             >
               <Flame size={14} className="text-amber-600" />
@@ -554,7 +554,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "READY"
                   ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  : "bg-white text-slate-700 border-sky-100/90 hover:bg-slate-50"
               }`}
             >
               <Bell size={14} className="text-emerald-600" />
@@ -566,7 +566,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "SERVED"
                   ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  : "bg-white text-slate-700 border-sky-100/90 hover:bg-slate-50"
               }`}
             >
               <BadgeCheck size={14} className="text-blue-600" />
@@ -579,7 +579,7 @@ export default function KitchenManagementPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
             
             {/* 🟣 COLUMN 1: QUEUED */}
-            <div className="flex flex-col rounded-3xl bg-[#efedf8] border border-purple-200/80 overflow-hidden shadow-xs">
+            <div className="flex flex-col rounded-sm bg-[#efedf8] border border-purple-200/80 overflow-hidden shadow-xs">
               {/* Header */}
               <div className="bg-[#701a75] px-5 py-3.5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
@@ -598,7 +598,7 @@ export default function KitchenManagementPage() {
                   return (
                     <div
                       key={t.id}
-                      className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm space-y-3.5 transition hover:shadow-md"
+                      className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-sm space-y-3.5 transition hover:shadow-md"
                     >
                       {/* Ticket Title & Badge */}
                       <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
@@ -636,7 +636,7 @@ export default function KitchenManagementPage() {
                         <select
                           value={t.chefRole || "Sous chef"}
                           onChange={(e) => changeChefRole(t.id, e.target.value)}
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:outline-none cursor-pointer"
+                          className="w-full rounded-sm border border-sky-100/90 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:outline-none cursor-pointer"
                         >
                           {CHEF_ROLES.map((role) => (
                             <option key={role} value={role}>
@@ -708,7 +708,7 @@ export default function KitchenManagementPage() {
             </div>
 
             {/* 🟠 COLUMN 2: PREPARING */}
-            <div className="flex flex-col rounded-3xl bg-[#fff5ea] border border-orange-200/80 overflow-hidden shadow-xs">
+            <div className="flex flex-col rounded-sm bg-[#fff5ea] border border-orange-200/80 overflow-hidden shadow-xs">
               {/* Header */}
               <div className="bg-[#ea580c] px-5 py-3.5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
@@ -731,7 +731,7 @@ export default function KitchenManagementPage() {
                   return (
                     <div
                       key={t.id}
-                      className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm space-y-3.5 transition hover:shadow-md"
+                      className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-sm space-y-3.5 transition hover:shadow-md"
                     >
                       {/* Header */}
                       <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
@@ -782,7 +782,7 @@ export default function KitchenManagementPage() {
                         <select
                           value={t.chefRole || "Head chef"}
                           onChange={(e) => changeChefRole(t.id, e.target.value)}
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:outline-none cursor-pointer"
+                          className="w-full rounded-sm border border-sky-100/90 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:outline-none cursor-pointer"
                         >
                           {CHEF_ROLES.map((role) => (
                             <option key={role} value={role}>
@@ -868,7 +868,7 @@ export default function KitchenManagementPage() {
             </div>
 
             {/* 🟢 COLUMN 3: READY */}
-            <div className="flex flex-col rounded-3xl bg-[#ecfdf5] border border-emerald-200/80 overflow-hidden shadow-xs">
+            <div className="flex flex-col rounded-sm bg-[#ecfdf5] border border-emerald-200/80 overflow-hidden shadow-xs">
               {/* Header */}
               <div className="bg-[#16a34a] px-5 py-3.5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
@@ -885,7 +885,7 @@ export default function KitchenManagementPage() {
                 {readyColumnTickets.map((t) => (
                   <div
                     key={t.id}
-                    className="rounded-3xl border border-emerald-200 bg-white p-4 shadow-sm space-y-3 transition hover:shadow-md"
+                    className="rounded-sm border border-emerald-200 bg-white p-4 shadow-sm space-y-3 transition hover:shadow-md"
                   >
                     {/* Header */}
                     <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
@@ -990,7 +990,7 @@ export default function KitchenManagementPage() {
             </div>
 
             {/* 🔵 COLUMN 4: SERVED */}
-            <div className="flex flex-col rounded-3xl bg-[#edf4ff] border border-blue-200/80 overflow-hidden shadow-xs">
+            <div className="flex flex-col rounded-sm bg-[#edf4ff] border border-blue-200/80 overflow-hidden shadow-xs">
               {/* Header */}
               <div className="bg-[#1d4ed8] px-5 py-3.5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
@@ -1007,7 +1007,7 @@ export default function KitchenManagementPage() {
                 {servedColumnTickets.map((t) => (
                   <div
                     key={t.id}
-                    className="rounded-3xl border border-blue-200 bg-white p-4 shadow-sm space-y-3 transition hover:shadow-md"
+                    className="rounded-sm border border-blue-200 bg-white p-4 shadow-sm space-y-3 transition hover:shadow-md"
                   >
                     {/* Header */}
                     <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
@@ -1109,7 +1109,7 @@ export default function KitchenManagementPage() {
         {/* ── 5. FACING MODE: KITCHEN FACING DISPLAY ─────────────────────── */}
         {viewMode === "FACING" && (
           <div className="space-y-6">
-            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div className="bg-white p-6 rounded-sm border border-sky-100/90 shadow-sm flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                   <Tv className="text-indigo-600" size={24} />
@@ -1119,7 +1119,7 @@ export default function KitchenManagementPage() {
                   Live Facing Screen — Track order progress from In Kitchen to Ready to Serve
                 </p>
               </div>
-              <div className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-2xl text-right">
+              <div className="bg-slate-50 border border-sky-100/90 px-4 py-2 rounded-sm text-right">
                 <span className="font-mono text-2xl font-black text-indigo-600">
                   {nowTime.toLocaleTimeString()}
                 </span>
@@ -1132,7 +1132,7 @@ export default function KitchenManagementPage() {
             {/* 3-COLUMN OVERHEAD FACING DISPLAY */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[65vh]">
               {/* Left: Preparing Orders */}
-              <div className="rounded-3xl border border-amber-200 bg-white p-5 shadow-md space-y-4">
+              <div className="rounded-sm border border-amber-200 bg-white p-5 shadow-md space-y-4">
                 <div className="flex flex-wrap items-center justify-between border-b border-amber-100 pb-3 gap-2">
                   <div className="flex items-center gap-2.5">
                     <div className="h-9 w-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-sm shrink-0">
@@ -1160,7 +1160,7 @@ export default function KitchenManagementPage() {
                     return (
                       <div
                         key={t.id}
-                        className="rounded-2xl border border-amber-200/80 bg-amber-50/50 p-4 shadow-xs space-y-2.5"
+                        className="rounded-sm border border-amber-200/80 bg-amber-50/50 p-4 shadow-xs space-y-2.5"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <h4 className="font-mono font-black text-base sm:text-lg text-amber-900 truncate max-w-[70%]" title={`Order # ${t.orderNo}`}>
@@ -1221,7 +1221,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Middle: Ready to Serve Orders */}
-              <div className="rounded-3xl border border-emerald-300 bg-white p-5 shadow-md space-y-4">
+              <div className="rounded-sm border border-emerald-300 bg-white p-5 shadow-md space-y-4">
                 <div className="flex flex-wrap items-center justify-between border-b border-emerald-100 pb-3 gap-2">
                   <div className="flex items-center gap-2.5">
                     <div className="h-9 w-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
@@ -1243,7 +1243,7 @@ export default function KitchenManagementPage() {
                   {readyColumnTickets.map((t) => (
                     <div
                       key={t.id}
-                      className="rounded-2xl border-2 border-emerald-500 bg-emerald-50/80 p-4 shadow-md space-y-2.5 animate-in zoom-in-95 duration-200"
+                      className="rounded-sm border-2 border-emerald-500 bg-emerald-50/80 p-4 shadow-md space-y-2.5 animate-in zoom-in-95 duration-200"
                     >
                       {/* Top Row: Order No & Table Badge */}
                       <div className="flex items-center justify-between gap-2">
@@ -1303,7 +1303,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Right: Served Orders */}
-              <div className="rounded-3xl border border-blue-300 bg-white p-5 shadow-md space-y-4">
+              <div className="rounded-sm border border-blue-300 bg-white p-5 shadow-md space-y-4">
                 <div className="flex flex-wrap items-center justify-between border-b border-blue-100 pb-3 gap-2">
                   <div className="flex items-center gap-2.5">
                     <div className="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
@@ -1325,7 +1325,7 @@ export default function KitchenManagementPage() {
                   {servedColumnTickets.map((t) => (
                     <div
                       key={t.id}
-                      className="rounded-2xl border border-blue-200 bg-blue-50/50 p-4 shadow-xs space-y-2.5"
+                      className="rounded-sm border border-blue-200 bg-blue-50/50 p-4 shadow-xs space-y-2.5"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <h4 className="font-mono font-black text-base sm:text-lg text-blue-900 truncate max-w-[70%]" title={`Order # ${t.orderNo}`}>

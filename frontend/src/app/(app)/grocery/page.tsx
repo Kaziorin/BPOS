@@ -27,13 +27,15 @@ import {
   Monitor,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
 import { UniversalInvoiceModal } from "@/components/invoices/UniversalInvoiceModal";
 
 function getCustomerTier(pts: number) {
-  if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-100" };
-  if (pts >= 1500) return { name: "Gold", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" };
-  if (pts >= 500) return { name: "Silver", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-100" };
-  return { name: "Bronze", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-100" };
+  if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-200/80" };
+  if (pts >= 1500) return { name: "Gold", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200/80" };
+  if (pts >= 500) return { name: "Silver", color: "text-sky-700", bg: "bg-sky-50", border: "border-sky-200/80" };
+  return { name: "Bronze", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-200/80" };
 }
 
 export default function GroceryHubPage() {
@@ -92,283 +94,241 @@ export default function GroceryHubPage() {
     );
   });
 
-
   return (
-    <div className="relative w-full min-h-screen overflow-hidden p-6 space-y-8" style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}>
+    <div className="w-full space-y-6 pb-12">
+      {/* ── Breadcrumb & Actions ── */}
+      <CustomBreadcrumb
+        title="Grocery & Supermarket Hub"
+        subtitle="Real-time supermarket lanes monitoring, weighing scale PLUs, and checkout throughput."
+        icon={<Scale size={20} />}
+        breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Grocery Hub" }]}
+        actions={
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link href="/customer-display" target="_blank">
+              <CustomButton
+                variant="outline"
+                size="sm"
+                className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50"
+              >
+                <Monitor size={14} className="text-[#0284C7]" />
+                Customer Display
+              </CustomButton>
+            </Link>
 
-      {/* ══ POS-Style Background Waves ══ */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-        <svg className="absolute top-0 left-0 w-full h-[300px] opacity-[0.15]" viewBox="0 0 1200 300" fill="none" preserveAspectRatio="none">
-          <path d="M 0 0 L 1200 0 L 1200 150 C 900 280, 400 100, 0 200 Z" fill="url(#hub-mint-wave)" />
-          <defs>
-            <linearGradient id="hub-mint-wave" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(187, 238, 100, 1)" />
-              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-
-      {/* Header Banner: Glassmorphic & Curved */}
-      <div className="relative group overflow-hidden rounded-[2.5rem] bg-white/70 backdrop-blur-xl border border-white shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] p-8 flex flex-col md:flex-row items-center justify-between gap-8 transition-all hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.15)]">
-        <div className={`absolute -left-20 -top-20 w-64 h-64 blur-3xl opacity-20 rounded-full bg-[#bbe664] group-hover:scale-125 transition-transform duration-700`} />
-
-        <div className="relative flex items-center gap-6 z-10">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#bbe664] to-[#a3e635] flex items-center justify-center text-white shadow-lg transform rotate-3 group-hover:rotate-6 transition-transform duration-500">
-            <Scale size={40} strokeWidth={2.2} />
+            <Link href="/grocery/pos">
+              <CustomButton
+                variant="primary"
+                size="sm"
+              >
+                <Zap size={14} />
+                Launch POS Lane
+              </CustomButton>
+            </Link>
           </div>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-black text-slate-900 tracking-tight">Grocery Hub</h1>
-              <span className="px-3 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full shadow-sm">
-                Industry Vertical
-              </span>
-            </div>
-            <p className="text-slate-500 font-medium max-w-xl mt-2 leading-relaxed">
-              Real-time monitoring of your supermarket lanes. Manage weighing scale PLUs, track high-speed lane transactions, and optimize your checkout throughput.
-            </p>
-          </div>
-        </div>
+        }
+      />
 
-        <div className="relative flex flex-col sm:flex-row items-center gap-3 z-10">
-          <Link
-            href="/grocery/pos"
-            className="group/btn flex items-center gap-3 px-6 py-3.5 rounded-2xl text-sm font-black bg-slate-900 text-white shadow-xl shadow-slate-900/20 hover:bg-emerald-600 hover:shadow-emerald-500/30 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
-          >
-            <Zap size={18} className="text-[#bbe664] group-hover/btn:animate-pulse" />
-            Launch POS Lane
-            <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
-          </Link>
-
-          <Link
-            href="/customer-display"
-            target="_blank"
-            className="group/cd flex items-center gap-3 px-6 py-3.5 rounded-2xl text-sm font-black bg-white text-slate-700 border border-slate-200 shadow-lg shadow-slate-200/20 hover:bg-slate-50 hover:border-emerald-300 hover:text-emerald-700 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
-          >
-            <Monitor size={18} className="text-slate-400 group-hover/cd:text-emerald-500" />
-            Customer Display
-          </Link>
-        </div>
-      </div>
-
-      {/* KPI Stats: Tactile Premium Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* ── KPI Stats Cards ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {[
-          { label: "Lane Revenue", val: fmt(totalGrocerySales), sub: "Total checkout volume", icon: TrendingUp, color: "emerald", iconColor: "text-emerald-600", bg: "bg-emerald-50" },
-          { label: "Transactions", val: sales.length, sub: "Completed receipts", icon: Receipt, color: "blue", iconColor: "text-blue-600", bg: "bg-blue-50" },
-          { label: "Items Scanned", val: totalItemsSold, sub: "Products checked out", icon: Barcode, color: "indigo", iconColor: "text-indigo-600", bg: "bg-indigo-50" },
-          { label: "Active PLUs", val: weightedProducts.length || products.length, sub: "Weight-based items", icon: Scale, color: "amber", iconColor: "text-amber-600", bg: "bg-amber-50" },
+          { label: "Lane Revenue", val: fmt(totalGrocerySales), sub: "Total checkout volume", icon: TrendingUp },
+          { label: "Transactions", val: sales.length, sub: "Completed receipts", icon: Receipt },
+          { label: "Items Scanned", val: totalItemsSold, sub: "Products checked out", icon: Barcode },
+          { label: "Active PLUs", val: weightedProducts.length || products.length, sub: "Weight-based items", icon: Scale },
         ].map((stat, i) => (
-          <div key={i} className="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-1">
-            <div className={`absolute -right-4 -bottom-4 w-24 h-24 blur-2xl opacity-[0.05] rounded-full ${stat.bg.replace('bg-', 'bg-')}`} />
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 rounded-2xl ${stat.bg} flex items-center justify-center ${stat.iconColor} shadow-sm group-hover:scale-110 transition-transform`}>
-                <stat.icon size={24} strokeWidth={2.5} />
-              </div>
-              <div className="px-2 py-1 rounded-lg bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-slate-100">
-                Live
+          <div
+            key={i}
+            className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300/80 transition"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#0369A1]">{stat.label}</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80">
+                <stat.icon size={16} />
               </div>
             </div>
-            <p className="text-3xl font-black text-slate-900 tracking-tighter">{stat.val}</p>
-            <div className="flex flex-col mt-1">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{stat.label}</span>
-              <span className="text-[10px] text-slate-400 font-medium">{stat.sub}</span>
-            </div>
+            <p className="text-2xl font-bold text-gray-900 tracking-tight">{stat.val}</p>
+            <p className="text-[11px] text-gray-400 mt-0.5">{stat.sub}</p>
           </div>
         ))}
       </div>
 
-      {/* Main Content: Lane Transactions & Produce Quick PLU */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
-        
+      {/* ── Main Content: Lane Activity & Scale PLU ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Recent Supermarket Lane Transactions */}
-        <div className="lg:col-span-2 rounded-[2.5rem] bg-white border border-slate-100 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
-          <div className="p-8 border-b border-slate-50 flex flex-wrap items-center justify-between gap-4">
+        <div className="lg:col-span-2 rounded-sm border border-sky-100/90 bg-white shadow-xs overflow-hidden flex flex-col">
+          <div className="p-4 border-b border-sky-100/90 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <History className="text-emerald-500" size={24} /> Lane Activity
+              <h3 className="text-sm font-bold text-[#0369A1] flex items-center gap-2">
+                <History className="text-[#0284C7]" size={16} /> Lane Activity
               </h3>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Real-time Transaction Stream</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">Real-time checkout transaction stream</p>
             </div>
-            
-            <div className="flex items-center gap-3">
+
+            <div className="flex items-center gap-2">
               <div className="relative">
-                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search invoice, cashier..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="rounded-2xl border border-slate-200 bg-slate-50/50 py-2.5 pl-11 pr-4 text-xs font-bold focus:border-emerald-500 focus:outline-none focus:bg-white transition-all w-64 shadow-inner"
+                  className="rounded-sm border border-sky-200/90 bg-white py-1.5 pl-8 pr-3 text-xs text-gray-800 placeholder-gray-400 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition w-56"
                 />
               </div>
               <button
                 onClick={loadData}
-                className="rounded-2xl border border-slate-100 p-2.5 text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all shadow-sm active:scale-90"
+                className="rounded-sm border border-sky-200/90 p-1.5 text-[#0369A1] hover:bg-sky-50 transition"
+                title="Refresh"
               >
-                <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
+                <RefreshCw size={14} className={loading ? "animate-spin text-[#0284C7]" : ""} />
               </button>
             </div>
           </div>
 
-          <div className="flex-1 overflow-hidden p-2">
+          <div className="flex-1 overflow-x-auto">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-32 gap-4">
-                <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Syncing with lanes...</p>
+              <div className="flex flex-col items-center justify-center py-24 gap-2">
+                <RefreshCw size={24} className="animate-spin text-[#0284C7]" />
+                <p className="text-xs font-semibold text-[#0369A1]">Syncing lane receipts...</p>
               </div>
             ) : filteredSales.length === 0 ? (
-              <div className="py-32 text-center space-y-4">
-                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-300">
-                  <Receipt size={40} />
-                </div>
-                <div>
-                  <p className="text-lg font-black text-slate-600">No Lane Activity</p>
-                  <p className="text-xs font-bold text-slate-400 max-w-xs mx-auto mt-1 uppercase tracking-wide">Launch a POS lane to start processing baskets</p>
-                </div>
+              <div className="py-24 text-center space-y-2">
+                <Receipt size={32} className="mx-auto text-sky-300" />
+                <p className="text-sm font-bold text-gray-700">No Lane Activity</p>
+                <p className="text-xs text-gray-400">Launch a POS lane to start processing supermarket baskets</p>
               </div>
             ) : (
-              <div className="overflow-x-auto custom-scrollbar">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
-                      <th className="py-5 px-6">Invoice</th>
-                      <th className="py-5 px-6">Customer & Tier</th>
-                      <th className="py-5 px-6">Time</th>
-                      <th className="py-5 px-6 text-center">Items</th>
-                      <th className="py-5 px-6 text-right">Total</th>
-                      <th className="py-5 px-6 text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {filteredSales.map((s) => {
-                      const points = s.customer?.loyaltyPoints || 0;
-                      const tier = getCustomerTier(points);
-                      const custName = s.customer?.name || s.customerName || "Walk-in Customer";
-                      const itemCount = Array.isArray(s.items) && s.items.length > 0 ? s.items.length : (s.itemsCount || 0);
-                      const totalAmt = Number(s.grandTotal ?? s.totalAmount ?? s.total ?? 0);
-                      return (
-                        <tr key={s.id} className="group hover:bg-emerald-50/40 transition-colors">
-                          <td className="py-5 px-6">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-mono font-black text-[10px] border border-emerald-100">
-                                #
-                              </div>
-                              <span className="font-mono font-black text-xs text-slate-700">{s.invoiceNo || s.id.slice(0, 8).toUpperCase()}</span>
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-sky-100/90 bg-gradient-to-r from-sky-50/60 via-white to-sky-50/40 text-[11px] font-semibold uppercase tracking-wider text-[#0369A1]">
+                    <th className="py-3 px-4">Invoice</th>
+                    <th className="py-3 px-4">Customer & Tier</th>
+                    <th className="py-3 px-4">Time</th>
+                    <th className="py-3 px-4 text-center">Items</th>
+                    <th className="py-3 px-4 text-right">Total</th>
+                    <th className="py-3 px-4 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-sky-100/60">
+                  {filteredSales.map((s) => {
+                    const points = s.customer?.loyaltyPoints || 0;
+                    const tier = getCustomerTier(points);
+                    const custName = s.customer?.name || s.customerName || "Walk-in Customer";
+                    const itemCount = Array.isArray(s.items) && s.items.length > 0 ? s.items.length : (s.itemsCount || 0);
+                    const totalAmt = Number(s.grandTotal ?? s.totalAmount ?? s.total ?? 0);
+                    return (
+                      <tr key={s.id} className="hover:bg-sky-50/40 transition-colors">
+                        <td className="py-3 px-4 font-mono font-bold text-[#0369A1]">
+                          {s.invoiceNo || s.id.slice(0, 8).toUpperCase()}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-gray-900">{custName}</span>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-sm border uppercase ${tier.color} ${tier.bg} ${tier.border}`}>
+                                {tier.name}
+                              </span>
+                              <span className="text-[10px] text-gray-400 uppercase">{s.paymentMethod || "CASH"}</span>
                             </div>
-                          </td>
-                          <td className="py-5 px-6">
-                            <div className="flex flex-col">
-                              <span className="text-xs font-black text-slate-900 tracking-tight">{custName}</span>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-widest ${tier.color} ${tier.bg} ${tier.border}`}>
-                                  {tier.name}
-                                </span>
-                                <span className="text-[9px] font-bold text-slate-400">{s.paymentMethod || "CASH"}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-5 px-6">
-                            <div className="flex flex-col">
-                              <span className="text-xs font-black text-slate-700">{new Date(s.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}</span>
-                              <span className="text-[10px] font-bold text-slate-400">{new Date(s.createdAt).toLocaleDateString()}</span>
-                            </div>
-                          </td>
-                          <td className="py-5 px-6 text-center">
-                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-[10px] font-black">
-                              {itemCount}
-                            </span>
-                          </td>
-                          <td className="py-5 px-6 text-right font-black tabular-nums text-slate-900 text-sm">
-                            {fmt(totalAmt)}
-                          </td>
-                          <td className="py-5 px-6 text-center">
-                            <button
-                              onClick={() => setSelectedSale(s)}
-                              className="rounded-xl bg-slate-900 text-white hover:bg-emerald-600 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95"
-                            >
-                              Receipt
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-gray-600">
+                          <div>
+                            <span className="font-medium">{new Date(s.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}</span>
+                            <p className="text-[10px] text-gray-400">{new Date(s.createdAt).toLocaleDateString()}</p>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-sm bg-sky-50 text-[#0284C7] font-bold text-xs border border-sky-200/80">
+                            {itemCount}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right font-bold text-gray-900 text-xs">
+                          {fmt(totalAmt)}
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <button
+                            onClick={() => setSelectedSale(s)}
+                            className="rounded-sm border border-sky-200/90 bg-white px-3 py-1 text-[11px] font-semibold text-[#0369A1] hover:bg-sky-50 transition shadow-2xs"
+                          >
+                            Receipt
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             )}
           </div>
         </div>
 
         {/* Right Col: Produce & Scale PLU Price List */}
-        <div className="rounded-[2.5rem] bg-white border border-slate-100 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
-          <div className="p-8 border-b border-slate-50 bg-slate-50/30">
-            <div className="flex items-center justify-between mb-1">
-              <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <Activity className="text-emerald-500" size={24} /> Scale PLU
+        <div className="rounded-sm border border-sky-100/90 bg-white shadow-xs overflow-hidden flex flex-col">
+          <div className="p-4 border-b border-sky-100/90 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-[#0369A1] flex items-center gap-2">
+                <Activity className="text-[#0284C7]" size={16} /> Scale PLU Catalog
               </h3>
-              <Link
-                href="/products/create"
-                className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center hover:bg-emerald-700 transition shadow-lg shadow-emerald-500/20 active:scale-90"
-              >
-                <PlusCircle size={18} />
-              </Link>
+              <p className="text-[11px] text-gray-400 mt-0.5">Weight-based produce rates</p>
             </div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Weight-based item rates</p>
+            <Link
+              href="/products/create"
+              className="flex h-7 w-7 items-center justify-center rounded-sm bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white hover:brightness-105 transition shadow-2xs"
+              title="Add PLU Product"
+            >
+              <PlusCircle size={15} />
+            </Link>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-3 space-y-2 max-h-[460px] custom-scrollbar">
             {products.slice(0, 15).map((p) => {
               const isKg = p.uom?.toLowerCase().includes("kg") || p.uom?.toLowerCase().includes("gm");
               return (
                 <div
                   key={p.id}
-                  className="group flex items-center justify-between p-4 rounded-3xl bg-white border border-slate-100 hover:border-emerald-200 hover:shadow-md transition-all duration-300"
+                  className="flex items-center justify-between p-2.5 rounded-sm border border-sky-100/90 bg-white hover:border-sky-300 transition shadow-2xs"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    {p.imageUrl || p.images?.[0]?.url || p.image ? (
-                      <div className="w-10 h-10 rounded-2xl overflow-hidden shrink-0 border border-emerald-100/50">
-                        <img src={p.imageUrl || p.images?.[0]?.url || p.image} alt={p.name} className="w-full h-full object-cover" />
-                      </div>
-                    ) : (
-                      <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors shrink-0 font-bold text-sm">
-                        {p.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 flex items-center justify-center shrink-0 font-bold text-xs">
+                      {p.name.charAt(0).toUpperCase()}
+                    </div>
                     <div className="min-w-0">
-                      <p className="font-black text-slate-800 truncate text-xs tracking-tight">{p.name}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[9px] font-black text-slate-400 uppercase font-mono">{p.sku || "NO-SKU"}</span>
-                        {isKg && <span className="text-[8px] font-black bg-emerald-100 text-emerald-700 px-1 rounded">SCALE</span>}
+                      <p className="font-semibold text-gray-800 truncate text-xs">{p.name}</p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-[9px] font-mono text-gray-400">{p.sku || "NO-SKU"}</span>
+                        {isKg && <span className="text-[8px] font-bold bg-sky-50 text-[#0284C7] border border-sky-200/60 px-1 rounded-sm">SCALE</span>}
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <span className="text-sm font-black text-slate-900 tracking-tighter block">{fmt(Number(p.sellingPrice || 0))}</span>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">per {p.uom || "kg"}</span>
+                  <div className="text-right shrink-0">
+                    <span className="text-xs font-bold text-gray-900 block">{fmt(Number(p.sellingPrice || 0))}</span>
+                    <span className="text-[9px] text-gray-400 uppercase">per {p.uom || "kg"}</span>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          <div className="p-6 bg-slate-50/50">
-            <Link
-              href="/grocery/pos"
-              className="group w-full flex items-center justify-center gap-2 rounded-2xl bg-slate-900 p-4 text-xs font-black text-white hover:bg-emerald-600 transition-all shadow-lg shadow-slate-900/10 active:scale-95"
-            >
-              Open Scale Register
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          <div className="p-3 border-t border-sky-100/90 bg-sky-50/40">
+            <Link href="/grocery/pos" className="w-full block">
+              <CustomButton
+                variant="primary"
+                size="sm"
+                fullWidth
+              >
+                Open Scale Register <ArrowRight size={14} />
+              </CustomButton>
             </Link>
           </div>
         </div>
       </div>
 
-
       {/* Specialized Grocery Scale Slip Modal */}
       {selectedSale && (
         <UniversalInvoiceModal
-          data={{
+          open={Boolean(selectedSale)}
+          invoice={{
             id: selectedSale.id,
             invoiceNo: selectedSale.invoiceNo || `GRO-${selectedSale.id.slice(0, 8)}`,
             saleDate: selectedSale.createdAt,
@@ -385,11 +345,11 @@ export default function GroceryHubPage() {
             })),
             subTotal: Number(selectedSale.subTotal || selectedSale.subtotal || selectedSale.total || selectedSale.grandTotal || 0),
             grandTotal: Number(selectedSale.grandTotal ?? selectedSale.totalAmount ?? selectedSale.total ?? 0),
+            total: Number(selectedSale.grandTotal ?? selectedSale.totalAmount ?? selectedSale.total ?? 0),
             paidTotal: Number(selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0),
             dueTotal: Number(selectedSale.dueTotal || 0),
             paymentMethod: selectedSale.paymentMethod || "CASH",
           }}
-          initialVertical="grocery"
           onClose={() => setSelectedSale(null)}
         />
       )}

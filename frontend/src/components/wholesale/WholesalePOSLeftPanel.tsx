@@ -373,14 +373,14 @@ export function WholesalePOSLeftPanel({
         {pageItems.length === 0 ? (
           <div
             className={cn(
-              "flex h-full min-h-[220px] flex-col items-center justify-center gap-2.5 rounded-2xl border-dashed py-12 text-center transition-colors border",
+              "flex h-full min-h-[220px] flex-col items-center justify-center gap-2.5 rounded-sm border-dashed py-12 text-center transition-colors border",
               darkMode ? "border-slate-800 bg-slate-900/30" : "",
             )}
             style={darkMode ? undefined : { background: "#F5FAFE", borderColor: iceBorder }}
           >
             <div
               className={cn(
-                "flex h-14 w-14 items-center justify-center rounded-2xl border shadow-sm",
+                "flex h-14 w-14 items-center justify-center rounded-sm border shadow-sm",
                 darkMode ? "bg-slate-800 border-slate-700 text-slate-400" : "",
               )}
               style={darkMode ? undefined : { background: "#EBF3FE", color: iceBlue, border: `1px solid #BEDCFD` }}

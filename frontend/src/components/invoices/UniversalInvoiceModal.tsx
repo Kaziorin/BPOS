@@ -89,6 +89,7 @@ export interface InvoiceData {
   serviceCharge?: number;
   deliveryCharge?: number;
   grandTotal: number;
+  total?: number;
   paidTotal: number;
   dueTotal: number;
   paymentMethod?: string;
@@ -202,24 +203,24 @@ export function UniversalInvoiceModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-3 sm:p-5 backdrop-blur-sm overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/50 p-3 sm:p-5 backdrop-blur-xs overflow-y-auto select-none"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-4xl rounded-3xl bg-white shadow-2xl border border-slate-100 my-auto overflow-hidden flex flex-col max-h-[92vh]"
+        className="w-full max-w-4xl rounded-sm bg-white shadow-2xl border border-sky-200/90 my-auto overflow-hidden flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Top Control Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-slate-200/80 bg-slate-50/70">
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-slate-900 text-white shadow-2xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50">
+          <div className="flex items-center gap-2.5">
+            <span className="p-2 rounded-sm bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-white shadow-2xs">
               <FileText size={16} />
             </span>
             <div>
-              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
-                Invoice Details: <span className="font-mono text-primary-600">{data.invoiceNo}</span>
+              <h3 className="text-sm font-bold text-[#0369A1] flex items-center gap-2">
+                Invoice Details: <span className="font-mono text-[#0284C7]">{data.invoiceNo}</span>
               </h3>
-              <p className="text-[11px] text-slate-500">Vertical-specific print and receipt generation</p>
+              <p className="text-[11px] text-[#0284C7] font-medium">Vertical-specific print and receipt generation</p>
             </div>
           </div>
 
@@ -229,7 +230,7 @@ export function UniversalInvoiceModal({
               <select
                 value={activeVertical}
                 onChange={(e) => setActiveVertical(e.target.value as InvoiceVerticalType)}
-                className="appearance-none rounded-xl border border-slate-300 bg-white py-1.5 pl-3 pr-8 text-xs font-bold text-slate-800 shadow-2xs focus:border-primary-500 focus:outline-none"
+                className="appearance-none rounded-sm border border-sky-200/90 bg-white py-1.5 pl-3 pr-8 text-xs font-bold text-slate-800 shadow-2xs focus:border-[#0284C7] focus:outline-none cursor-pointer"
               >
                 {VERTICAL_OPTIONS.map((opt) => (
                   <option key={opt.id} value={opt.id}>
@@ -237,23 +238,23 @@ export function UniversalInvoiceModal({
                   </option>
                 ))}
               </select>
-              <ChevronDown size={13} className="absolute right-2.5 text-slate-400 pointer-events-none" />
+              <ChevronDown size={13} className="absolute right-2.5 text-[#0284C7] pointer-events-none" />
             </div>
 
             {/* Paper Size Selector */}
-            <div className="flex rounded-xl bg-slate-200/80 p-0.5 text-[11px] font-bold">
+            <div className="flex rounded-sm bg-sky-100/80 p-0.5 text-[11px] font-bold border border-sky-200">
               <button
                 onClick={() => setPrintPaperSize("thermal")}
-                className={`px-2.5 py-1 rounded-lg transition ${
-                  printPaperSize === "thermal" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600"
+                className={`px-2.5 py-1 rounded-sm transition cursor-pointer ${
+                  printPaperSize === "thermal" ? "bg-white text-[#0369A1] shadow-2xs font-bold" : "text-slate-600 hover:text-[#0284C7]"
                 }`}
               >
                 Thermal (80mm)
               </button>
               <button
                 onClick={() => setPrintPaperSize("a4")}
-                className={`px-2.5 py-1 rounded-lg transition ${
-                  printPaperSize === "a4" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600"
+                className={`px-2.5 py-1 rounded-sm transition cursor-pointer ${
+                  printPaperSize === "a4" ? "bg-white text-[#0369A1] shadow-2xs font-bold" : "text-slate-600 hover:text-[#0284C7]"
                 }`}
               >
                 A4 / Letter
@@ -262,7 +263,7 @@ export function UniversalInvoiceModal({
 
             <button
               onClick={() => window.print()}
-              className="flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-1.5 text-xs font-black text-white hover:bg-slate-800 shadow-sm transition"
+              className="flex items-center gap-1.5 rounded-sm bg-slate-900 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-slate-800 shadow-2xs transition cursor-pointer"
             >
               <Printer size={14} /> Print
             </button>
@@ -270,7 +271,7 @@ export function UniversalInvoiceModal({
             {onNewSale && (
               <button
                 onClick={onNewSale}
-                className="flex items-center gap-1.5 rounded-xl bg-[#00796b] px-4 py-1.5 text-xs font-black text-white hover:bg-[#005a50] shadow-sm transition"
+                className="flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-bold text-white hover:brightness-105 shadow-2xs transition cursor-pointer"
               >
                 <RotateCcw size={14} /> New Sale (F1)
               </button>
@@ -278,9 +279,10 @@ export function UniversalInvoiceModal({
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-xl text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition"
+              className="flex h-8 w-8 items-center justify-center rounded-sm border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shadow-2xs"
+              aria-label="Close"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
           </div>
         </div>
@@ -289,8 +291,8 @@ export function UniversalInvoiceModal({
         <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-100/60 flex justify-center">
           <div
             id="printable-invoice"
-            className={`w-full bg-white border border-slate-200/80 shadow-md p-6 sm:p-8 transition-all ${
-              printPaperSize === "thermal" ? "max-w-[420px] rounded-2xl" : "max-w-3xl rounded-3xl"
+            className={`w-full bg-white border border-sky-100/90 shadow-md p-6 sm:p-8 transition-all ${
+              printPaperSize === "thermal" ? "max-w-[420px] rounded-sm" : "max-w-3xl rounded-sm"
             }`}
           >
             {/* 1. RETAIL POS TEMPLATE */}
@@ -554,7 +556,7 @@ function WholesaleInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDat
       </div>
 
       {/* Buyer Client & Transport Info Grid */}
-      <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+      <div className="grid grid-cols-2 gap-4 p-4 rounded-sm bg-slate-50 border border-sky-100/90">
         <div>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Consignee / B2B Client Details</p>
           <h4 className="text-sm font-bold text-slate-900 mt-0.5">{data.customer?.name || "Corporate Wholesale Client"}</h4>

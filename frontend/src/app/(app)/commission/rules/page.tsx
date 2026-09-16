@@ -203,7 +203,7 @@ export default function CommissionRulesPage() {
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 size={26} className="animate-spin text-gray-300" /></div>
       ) : rules.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-white p-14 text-center">
+        <div className="rounded-sm border-2 border-dashed border-gray-200 bg-white p-14 text-center">
           <Settings size={44} className="mx-auto text-gray-300" />
           <p className="mt-4 font-medium text-gray-500">No commission rules yet</p>
           <p className="mt-1 text-sm text-gray-400">Rules auto-calculate commission when matching sales complete.</p>
@@ -211,7 +211,7 @@ export default function CommissionRulesPage() {
       ) : (
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {rules.map((rule) => (
-            <div key={rule.id} className={`group relative rounded-2xl border p-5 shadow-sm transition ${rule.isActive ? "border-gray-100 bg-white hover:shadow-md" : "border-gray-100 bg-gray-50 opacity-70"}`}>
+            <div key={rule.id} className={`group relative rounded-sm border p-5 shadow-sm transition ${rule.isActive ? "border-gray-100 bg-white hover:shadow-md" : "border-gray-100 bg-gray-50 opacity-70"}`}>
               {/* Type badge */}
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
@@ -285,7 +285,7 @@ export default function CommissionRulesPage() {
       {/* Create modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4 backdrop-blur-sm" onClick={() => setShowModal(false)}>
-          <div className="max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-sm bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">New Commission Rule</h2>
               <button onClick={() => setShowModal(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100"><X size={18} /></button>

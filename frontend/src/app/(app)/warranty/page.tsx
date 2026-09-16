@@ -41,7 +41,7 @@ export default function WarrantyPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between rounded-2xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 p-6 text-white shadow-md">
+      <div className="flex items-center justify-between rounded-sm bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 p-6 text-white shadow-md">
         <div>
           <p className="flex items-center gap-2 text-sm text-emerald-100"><Shield size={15} /> Warranty Management</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight">Warranty Claims</h1>
@@ -60,7 +60,7 @@ export default function WarrantyPage() {
         <StatCard label="Expired Warranty" value={claims.filter((c) => !c.isWarrantyValid).length} icon={AlertTriangle} tone="red" />
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-gray-100 bg-white shadow-sm">
         <CustomTable
           columns={[
             { key: "no", header: "Claim #", render: (c) => <span className="font-mono text-xs font-semibold text-primary-700">{c.claimNo}</span> },
@@ -102,7 +102,7 @@ function StatCard({ label, value, icon: Icon, tone = "primary" }: { label: strin
     red: "bg-red-50 text-red-600",
   };
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+    <div className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
       <div className={`mb-2 inline-flex rounded-xl p-2 ${tones[tone]}`}><Icon size={16} /></div>
       <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
       <p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{value}</p>
@@ -140,7 +140,7 @@ function WarrantyForm({ onClose, onSaved }: { onClose: () => void; onSaved: () =
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-lg font-semibold text-gray-900">File Warranty Claim</h3>
         {error && <div className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
         <div className="mt-4 grid gap-4">
@@ -230,7 +230,7 @@ function WarrantyActionModal({ claim, onClose, onSaved }: { claim: WarrantyClaim
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-lg font-semibold text-gray-900">Warranty Action — {claim.claimNo}</h3>
         <p className="text-sm text-gray-500">Product: {claim.product?.name} | Status: <CustomBadge tone={STATUS_TONE[claim.status] ?? "gray"}>{claim.status}</CustomBadge></p>
         {error && <div className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}

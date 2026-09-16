@@ -388,7 +388,7 @@ export default function IntegrationsPage() {
 
       {/* ── One-Time API Key Reveal Modal ── */}
       {newlyCreatedSecretKey && (
-        <div className="rounded-2xl border-2 border-primary-300 bg-primary-50 p-5 shadow-lg animate-in zoom-in-95 duration-200 space-y-3">
+        <div className="rounded-sm border-2 border-primary-300 bg-primary-50 p-5 shadow-lg animate-in zoom-in-95 duration-200 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-primary-900 font-black text-sm">
               <Key size={18} className="text-primary-600" />
@@ -425,7 +425,7 @@ export default function IntegrationsPage() {
 
       {/* ── Executive KPI Cards (Light Application Theme) ── */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Active Connectors</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
@@ -442,7 +442,7 @@ export default function IntegrationsPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Webhooks Subscriptions</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
@@ -459,7 +459,7 @@ export default function IntegrationsPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">API Tokens</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
@@ -478,7 +478,7 @@ export default function IntegrationsPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Delivery Reliability</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
@@ -499,7 +499,7 @@ export default function IntegrationsPage() {
       </div>
 
       {/* ── Sub-Navigation Tabs ── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-100/90 pb-2">
         <div className="flex gap-2">
           {[
             { id: "marketplace", label: "Connectors Marketplace", icon: Plug, badge: catalog.length },
@@ -515,7 +515,7 @@ export default function IntegrationsPage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
                   active
-                    ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
+                    ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-md shadow-primary-500/20"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
@@ -566,7 +566,7 @@ export default function IntegrationsPage() {
       {activeTab === "marketplace" && (
         <div className="space-y-5">
           {/* Category Filter Pills & Search */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(CATEGORY_MAP).map(([catKey, meta]) => {
                 const Icon = meta.icon;
@@ -577,7 +577,7 @@ export default function IntegrationsPage() {
                     onClick={() => setCatFilter(catKey)}
                     className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                       active
-                        ? "bg-primary-600 text-white shadow-sm"
+                        ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-sm"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                   >
@@ -595,7 +595,7 @@ export default function IntegrationsPage() {
                 placeholder="Search connectors..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full rounded-xl border border-sky-100/90 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
           </div>
@@ -609,20 +609,20 @@ export default function IntegrationsPage() {
               return (
                 <div
                   key={item.code}
-                  className={`group relative flex flex-col justify-between rounded-2xl border p-5 transition bg-white shadow-sm hover:shadow-md ${
+                  className={`group relative flex flex-col justify-between rounded-sm border p-5 transition bg-white shadow-sm hover:shadow-md ${
                     isEnabled
                       ? "border-primary-300 bg-primary-50/20"
-                      : "border-slate-200"
+                      : "border-sky-100/90"
                   }`}
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <div
-                          className={`flex h-11 w-11 items-center justify-center rounded-2xl border shadow-xs ${
+                          className={`flex h-11 w-11 items-center justify-center rounded-sm border shadow-xs ${
                             isEnabled
                               ? "bg-primary-100 border-primary-200 text-primary-600"
-                              : "bg-slate-100 border-slate-200 text-slate-600"
+                              : "bg-slate-100 border-sky-100/90 text-slate-600"
                           }`}
                         >
                           <Plug size={20} />
@@ -678,7 +678,7 @@ export default function IntegrationsPage() {
                       {isEnabled && (
                         <button
                           onClick={() => openConfigModal(item)}
-                          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-50 shadow-xs cursor-pointer"
+                          className="rounded-lg border border-sky-100/90 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-50 shadow-xs cursor-pointer"
                         >
                           Configure
                         </button>
@@ -709,7 +709,7 @@ export default function IntegrationsPage() {
       {activeTab === "webhooks" && (
         <div className="space-y-6">
           {/* Subscriptions Table Card */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
               <div>
                 <h3 className="text-sm font-black text-slate-900">Active Webhook Subscriptions</h3>
@@ -723,7 +723,7 @@ export default function IntegrationsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-black uppercase tracking-wider text-slate-500">
+                  <tr className="border-b border-sky-100/90 bg-slate-50 text-[11px] font-black uppercase tracking-wider text-slate-500">
                     <th className="px-4 py-3">Endpoint URL</th>
                     <th className="px-4 py-3">Subscribed Events</th>
                     <th className="px-4 py-3">Signing Secret</th>
@@ -815,7 +815,7 @@ export default function IntegrationsPage() {
           </div>
 
           {/* Event Dispatch Telemetry & Logs */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
@@ -908,7 +908,7 @@ export default function IntegrationsPage() {
       {/* TAB 3: API KEYS & SCOPES MANAGEMENT                                   */}
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "api-keys" && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div>
               <h3 className="text-sm font-black text-slate-900">Authorized REST API Access Keys</h3>
@@ -922,7 +922,7 @@ export default function IntegrationsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-black uppercase tracking-wider text-slate-500">
+                <tr className="border-b border-sky-100/90 bg-slate-50 text-[11px] font-black uppercase tracking-wider text-slate-500">
                   <th className="px-4 py-3">Key Label</th>
                   <th className="px-4 py-3">Key Prefix</th>
                   <th className="px-4 py-3">Granted Scopes</th>
@@ -1017,7 +1017,7 @@ export default function IntegrationsPage() {
       {activeTab === "developer" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Quick cURL Example */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <Code size={16} className="text-primary-600" />
@@ -1026,7 +1026,7 @@ export default function IntegrationsPage() {
               <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-mono text-slate-600 font-bold">cURL</span>
             </div>
 
-            <pre className="p-4 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs text-slate-800 overflow-x-auto leading-relaxed">
+            <pre className="p-4 rounded-xl bg-slate-50 border border-sky-100/90 font-mono text-xs text-slate-800 overflow-x-auto leading-relaxed">
 {`curl -X POST https://api.blueoceanspos.com/api/v1/sales \\
   -H "Authorization: Bearer omni_live_YOUR_KEY_HERE" \\
   -H "X-Tenant-Id: demo-shop" \\
@@ -1046,7 +1046,7 @@ export default function IntegrationsPage() {
           </div>
 
           {/* Webhook Signature Verification Guide */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <Lock size={16} className="text-primary-600" />
@@ -1055,7 +1055,7 @@ export default function IntegrationsPage() {
               <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-mono text-slate-600 font-bold">Node.js</span>
             </div>
 
-            <pre className="p-4 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs text-slate-800 overflow-x-auto leading-relaxed">
+            <pre className="p-4 rounded-xl bg-slate-50 border border-sky-100/90 font-mono text-xs text-slate-800 overflow-x-auto leading-relaxed">
 {`const crypto = require("crypto");
 
 function verifyWebhook(rawPayload, signature, secret) {
@@ -1082,7 +1082,7 @@ function verifyWebhook(rawPayload, signature, secret) {
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {showWebhookModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
+          <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-2xl border border-sky-100/90 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
@@ -1103,7 +1103,7 @@ function verifyWebhook(rawPayload, signature, secret) {
                   placeholder="https://api.yourdomain.com/webhooks/blueoceans"
                   value={whUrl}
                   onChange={(e) => setWhUrl(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
@@ -1114,7 +1114,7 @@ function verifyWebhook(rawPayload, signature, secret) {
                   placeholder="e.g. Production ERP Syncer"
                   value={whDesc}
                   onChange={(e) => setWhDesc(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
@@ -1180,7 +1180,7 @@ function verifyWebhook(rawPayload, signature, secret) {
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {showKeyModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
+          <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-2xl border border-sky-100/90 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
@@ -1201,7 +1201,7 @@ function verifyWebhook(rawPayload, signature, secret) {
                   placeholder="e.g. Mobile Android POS Node #04"
                   value={keyName}
                   onChange={(e) => setKeyName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
@@ -1210,7 +1210,7 @@ function verifyWebhook(rawPayload, signature, secret) {
                 <select
                   value={keyExpiryDays}
                   onChange={(e) => setKeyExpiryDays(Number(e.target.value))}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value={30}>30 Days</option>
                   <option value={90}>90 Days (Quarterly)</option>
@@ -1281,7 +1281,7 @@ function verifyWebhook(rawPayload, signature, secret) {
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {configTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
+          <div className="w-full max-w-md rounded-sm bg-white p-6 shadow-2xl border border-sky-100/90 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
@@ -1305,7 +1305,7 @@ function verifyWebhook(rawPayload, signature, secret) {
                   placeholder="e.g. pk_live_..."
                   value={configForm.apiKey || ""}
                   onChange={(e) => setConfigForm((prev) => ({ ...prev, apiKey: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
@@ -1316,7 +1316,7 @@ function verifyWebhook(rawPayload, signature, secret) {
                   placeholder="e.g. sk_live_..."
                   value={configForm.secretKey || ""}
                   onChange={(e) => setConfigForm((prev) => ({ ...prev, secretKey: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
@@ -1325,7 +1325,7 @@ function verifyWebhook(rawPayload, signature, secret) {
                 <select
                   value={configForm.environment || "sandbox"}
                   onChange={(e) => setConfigForm((prev) => ({ ...prev, environment: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="sandbox">Sandbox / Test Mode</option>
                   <option value="production">Production Live Mode</option>

@@ -29,11 +29,13 @@ export interface CustomBadgeProps {
   children: React.ReactNode;
   tone?: BadgeTone;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function CustomBadge({ children, tone = "gray", className }: CustomBadgeProps) {
+export function CustomBadge({ children, tone = "gray", className, style }: CustomBadgeProps) {
   return (
     <span
+      style={style}
       className={cn(
         "inline-flex items-center rounded-sm px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider",
         TONE_CLASSES[tone],

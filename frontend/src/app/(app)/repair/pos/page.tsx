@@ -594,7 +594,7 @@ export default function RepairPOSPage() {
       <div className="repair-pos h-screen w-screen flex flex-col mesh-bg select-none overflow-hidden">
 
         {/* ── TOP NAV BAR ───────────────────────────────────────────────── */}
-        <header className="flex-none flex items-center justify-between px-5 py-3 mx-3 mt-3 rounded-3xl glass-panel z-20">
+        <header className="flex-none flex items-center justify-between px-5 py-3 mx-3 mt-3 rounded-sm glass-panel z-20">
           <div className="flex items-center gap-3">
             <Link
               href="/repair"
@@ -626,7 +626,7 @@ export default function RepairPOSPage() {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="text-xs font-bold rounded-xl border border-slate-200 bg-white px-3 py-2 focus:outline-none focus:border-indigo-400 cursor-pointer"
+              className="text-xs font-bold rounded-xl border border-sky-100/90 bg-white px-3 py-2 focus:outline-none focus:border-indigo-400 cursor-pointer"
             >
               {PRIORITIES.map((p) => (
                 <option key={p.id} value={p.id}>{p.label} Priority</option>
@@ -637,7 +637,7 @@ export default function RepairPOSPage() {
             <select
               value={technicianId}
               onChange={(e) => setTechnicianId(e.target.value)}
-              className="text-xs font-semibold rounded-xl border border-slate-200 bg-white px-3 py-2 focus:outline-none focus:border-indigo-400 min-w-[160px] cursor-pointer"
+              className="text-xs font-semibold rounded-xl border border-sky-100/90 bg-white px-3 py-2 focus:outline-none focus:border-indigo-400 min-w-[160px] cursor-pointer"
             >
               <option value="">-- Select Technician --</option>
               {technicians.map((t) => (
@@ -669,7 +669,7 @@ export default function RepairPOSPage() {
                 { label: "Parts Cost", value: fmt(partsTotal), icon: Tag, color: "text-blue-600", bg: "bg-blue-50" },
                 { label: "Labor Charge", value: fmt(laborTotal), icon: Hammer, color: "text-emerald-600", bg: "bg-emerald-50" },
               ].map((stat) => (
-                <div key={stat.label} className="stat-card rounded-2xl p-3 flex items-center gap-2.5">
+                <div key={stat.label} className="stat-card rounded-sm p-3 flex items-center gap-2.5">
                   <div className={`w-9 h-9 rounded-xl ${stat.bg} flex items-center justify-center flex-shrink-0`}>
                     <stat.icon size={16} className={stat.color} />
                   </div>
@@ -682,7 +682,7 @@ export default function RepairPOSPage() {
             </div>
 
             {/* Tab Bar */}
-            <div className="flex-none flex items-center p-1 rounded-2xl glass-panel shadow-sm">
+            <div className="flex-none flex items-center p-1 rounded-sm glass-panel shadow-sm">
               {(["parts", "labor"] as const).map((tab) => (
                 <button
                   key={tab}
@@ -699,7 +699,7 @@ export default function RepairPOSPage() {
 
             {/* Parts Panel */}
             {activeTab === "parts" && (
-              <div className="flex-1 min-h-0 glass-panel rounded-3xl p-4 flex flex-col">
+              <div className="flex-1 min-h-0 glass-panel rounded-sm p-4 flex flex-col">
                 {/* Search + view toggle */}
                 <div className="flex-none p-3 border-b border-slate-100 flex items-center gap-2">
                   <div className="relative flex-1">
@@ -709,7 +709,7 @@ export default function RepairPOSPage() {
                       value={searchFilter}
                       onChange={(e) => setSearchFilter(e.target.value)}
                       placeholder="Search parts by name, SKU or category..."
-                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-slate-700 focus:outline-none focus:border-indigo-400 focus:bg-white transition"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-sky-100/90 bg-slate-50 text-xs font-medium text-slate-700 focus:outline-none focus:border-indigo-400 focus:bg-white transition"
                     />
                     {searchFilter && (
                       <button onClick={() => setSearchFilter("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
@@ -755,14 +755,14 @@ export default function RepairPOSPage() {
                     filteredParts.map((part) => (
                       <div
                         key={part.id}
-                        className="group card-3d flex items-center p-3 rounded-2xl bg-gradient-to-r from-white/80 to-white/50 backdrop-blur-xl border border-white hover:bg-white hover:shadow-[0_12px_40px_-10px_rgba(99,102,241,0.2)] cursor-pointer transition-all duration-300 relative overflow-hidden"
+                        className="group card-3d flex items-center p-3 rounded-sm bg-gradient-to-r from-white/80 to-white/50 backdrop-blur-xl border border-white hover:bg-white hover:shadow-[0_12px_40px_-10px_rgba(99,102,241,0.2)] cursor-pointer transition-all duration-300 relative overflow-hidden"
                         onClick={() => addPart(part)}
                       >
                         {/* Hover Glow */}
                         <div className="absolute inset-0 bg-gradient-to-r from-indigo-50/0 via-indigo-50/0 to-indigo-50/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
                         {/* Premium Icon Block */}
-                        <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30 flex-shrink-0 group-hover:scale-105 transition-transform duration-300 z-10">
+                        <div className="relative w-12 h-12 rounded-sm bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30 flex-shrink-0 group-hover:scale-105 transition-transform duration-300 z-10">
                           <Package size={20} className="drop-shadow-sm" />
                         </div>
                         
@@ -774,7 +774,7 @@ export default function RepairPOSPage() {
                           </div>
                           
                           <div className="flex flex-wrap items-center gap-2">
-                             <span className="text-[10px] text-slate-500 font-mono bg-white/80 px-2 py-0.5 rounded-md border border-slate-200/60 shadow-sm">{part.sku}</span>
+                             <span className="text-[10px] text-slate-500 font-mono bg-white/80 px-2 py-0.5 rounded-md border border-sky-100/90/60 shadow-sm">{part.sku}</span>
                              {part.categoryName && (
                                <span className="text-[10px] text-indigo-700 bg-indigo-50/80 px-2 py-0.5 rounded-md font-bold shadow-sm">{part.categoryName}</span>
                              )}
@@ -802,7 +802,7 @@ export default function RepairPOSPage() {
                     filteredParts.map((part) => (
                       <div
                         key={part.id}
-                        className="group card-3d w-full text-left p-3 rounded-2xl bg-gradient-to-br from-white/90 to-white/60 backdrop-blur-xl border border-white hover:bg-white hover:shadow-[0_8px_30px_-10px_rgba(99,102,241,0.2)] cursor-pointer transition-all duration-300 relative overflow-hidden flex flex-col gap-2"
+                        className="group card-3d w-full text-left p-3 rounded-sm bg-gradient-to-br from-white/90 to-white/60 backdrop-blur-xl border border-white hover:bg-white hover:shadow-[0_8px_30px_-10px_rgba(99,102,241,0.2)] cursor-pointer transition-all duration-300 relative overflow-hidden flex flex-col gap-2"
                         onClick={() => addPart(part)}
                       >
                         {/* Hover Background Glow */}
@@ -845,7 +845,7 @@ export default function RepairPOSPage() {
             {/* Labor Panel */}
             {activeTab === "labor" && (
               <div className="flex-1 flex flex-col gap-3 min-h-0">
-                <div className="flex-none glass-panel rounded-3xl p-5 flex flex-col gap-4">
+                <div className="flex-none glass-panel rounded-sm p-5 flex flex-col gap-4">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm shadow-amber-200">
                       <Hammer size={15} className="text-white" />
@@ -904,7 +904,7 @@ export default function RepairPOSPage() {
                 </div>
 
                 {/* Common labor presets */}
-                <div className="flex-1 min-h-0 glass-panel rounded-3xl p-4 flex flex-col">
+                <div className="flex-1 min-h-0 glass-panel rounded-sm p-4 flex flex-col">
                   <div className="flex-none flex items-center justify-between mb-3">
                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Quick Labor Presets</p>
                     <span className="text-[10px] text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">Most Used</span>
@@ -920,7 +920,7 @@ export default function RepairPOSPage() {
                         { name: "Charging Port", price: 350, warranty: 3, icon: Settings2, color: "text-orange-500", bg: "bg-orange-50", border: "border-orange-100" },
                         { name: "Software Flash", price: 250, warranty: 1, icon: Monitor, color: "text-indigo-500", bg: "bg-indigo-50", border: "border-indigo-100" },
                         { name: "Housing Change", price: 600, warranty: 0, icon: Hammer, color: "text-rose-500", bg: "bg-rose-50", border: "border-rose-100" },
-                        { name: "Diagnostic Fee", price: 200, warranty: 0, icon: Search, color: "text-slate-500", bg: "bg-slate-100", border: "border-slate-200" },
+                        { name: "Diagnostic Fee", price: 200, warranty: 0, icon: Search, color: "text-slate-500", bg: "bg-slate-100", border: "border-sky-100/90" },
                       ].map((preset) => (
                         <button
                           key={preset.name}
@@ -954,7 +954,7 @@ export default function RepairPOSPage() {
           </div>
 
           {/* RIGHT PANEL – Job Ticket Builder */}
-          <div className="lg:col-span-5 xl:col-span-4 flex flex-col min-h-0 glass-panel rounded-3xl overflow-hidden shadow-lg">
+          <div className="lg:col-span-5 xl:col-span-4 flex flex-col min-h-0 glass-panel rounded-sm overflow-hidden shadow-lg">
 
             {/* Customer selector */}
             <div className="flex-none p-4 border-b border-slate-50">
@@ -1039,7 +1039,7 @@ export default function RepairPOSPage() {
                       {showCustomerDropdown && (customerSearch.length > 0 || filteredCustomers.length > 0) && (
                         <>
                           <div className="fixed inset-0 z-20" onClick={() => setShowCustomerDropdown(false)} />
-                          <div className="absolute z-30 left-0 right-0 top-full mt-1 bg-white rounded-xl border border-slate-200 shadow-xl max-h-52 overflow-y-auto">
+                          <div className="absolute z-30 left-0 right-0 top-full mt-1 bg-white rounded-xl border border-sky-100/90 shadow-xl max-h-52 overflow-y-auto">
                             {filteredCustomers.length === 0 ? (
                               <p className="text-xs text-slate-400 text-center py-4">No customers found</p>
                             ) : (
@@ -1131,7 +1131,7 @@ export default function RepairPOSPage() {
               <div className="flex-1 min-h-0 overflow-y-auto p-3">
                 {cart.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center py-8">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-100 to-indigo-50 flex items-center justify-center mb-3 shadow-inner">
+                    <div className="w-16 h-16 rounded-sm bg-gradient-to-br from-slate-100 to-indigo-50 flex items-center justify-center mb-3 shadow-inner">
                       <Wrench size={28} className="text-slate-300" />
                     </div>
                     <p className="text-xs font-bold text-slate-400">No Items Added Yet</p>
@@ -1195,7 +1195,7 @@ export default function RepairPOSPage() {
                     <span className="flex items-center gap-1"><Hammer size={11} /> Labor</span>
                     <span className="font-bold tabular-nums">{fmt(laborTotal)}</span>
                   </div>
-                  <div className="flex justify-between items-center pt-2 border-t border-dashed border-slate-200">
+                  <div className="flex justify-between items-center pt-2 border-t border-dashed border-sky-100/90">
                     <span className="text-sm font-extrabold text-slate-700">Grand Total</span>
                     <span className="text-xl font-black text-indigo-700 tabular-nums">{fmt(grandTotal)}</span>
                   </div>
@@ -1217,7 +1217,7 @@ export default function RepairPOSPage() {
                       "py-2.5 px-2 rounded-xl text-[10px] font-extrabold flex flex-col items-center gap-1 transition-all border",
                       paymentMethod === pm.id
                         ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200"
-                        : "bg-slate-50 text-slate-500 border-slate-200 hover:border-indigo-300 hover:text-indigo-600"
+                        : "bg-slate-50 text-slate-500 border-sky-100/90 hover:border-indigo-300 hover:text-indigo-600"
                     )}
                   >
                     <pm.icon size={14} />
@@ -1229,7 +1229,7 @@ export default function RepairPOSPage() {
               <button
                 onClick={handleCompleteTicket}
                 disabled={cart.length === 0 || !customerId || !deviceModel.trim() || submitting}
-                className="btn-glow btn-sweep w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-extrabold text-sm shadow-[0_10px_25px_-5px_rgba(99,102,241,0.5)] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 transition-all flex items-center justify-center gap-2.5"
+                className="btn-glow btn-sweep w-full py-3.5 rounded-sm bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-extrabold text-sm shadow-[0_10px_25px_-5px_rgba(99,102,241,0.5)] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 transition-all flex items-center justify-center gap-2.5"
               >
                 {submitting ? (
                   <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Processing...</>
@@ -1263,7 +1263,7 @@ export default function RepairPOSPage() {
       {/* ── COMPLETED TICKET MODAL (Monochrome) ────────────────────────── */}
       {completedTicket && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-4">
-          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
+          <div className="w-full max-w-md bg-white rounded-sm shadow-2xl overflow-hidden">
             {/* Header */}
             <div className="bg-white p-6 text-center relative overflow-hidden border-b border-slate-100">
               <div className="absolute inset-0 opacity-40">
@@ -1271,12 +1271,12 @@ export default function RepairPOSPage() {
                 <div className="absolute -bottom-4 right-4 w-32 h-32 rounded-full bg-slate-50" />
               </div>
               <div className="relative z-10">
-                <div className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center mx-auto mb-3 shadow-lg shadow-black/10">
+                <div className="w-14 h-14 rounded-sm bg-black flex items-center justify-center mx-auto mb-3 shadow-lg shadow-black/10">
                   <CheckCircle2 size={26} className="text-white" />
                 </div>
                 <h2 className="text-lg font-black tracking-tight text-slate-900">Ticket Completed!</h2>
                 <p className="text-slate-500 text-xs mt-1 font-medium">Device delivered & payment recorded</p>
-                <div className="mt-4 bg-slate-50 rounded-xl px-4 py-2 inline-block border border-slate-200 shadow-sm">
+                <div className="mt-4 bg-slate-50 rounded-xl px-4 py-2 inline-block border border-sky-100/90 shadow-sm">
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Ticket No.</p>
                   <p className="text-base font-extrabold font-mono tracking-tight text-slate-800">{completedTicket.ticketNo}</p>
                 </div>
@@ -1304,7 +1304,7 @@ export default function RepairPOSPage() {
               </div>
 
               {completedTicket.diagnosisProblem && (
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <div className="bg-slate-50 border border-sky-100/90 rounded-xl p-3">
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Problem / Diagnosis</p>
                   <p className="text-xs text-slate-800 font-medium">{completedTicket.diagnosisProblem}</p>
                 </div>
@@ -1339,7 +1339,7 @@ export default function RepairPOSPage() {
               </div>
 
               {/* Totals */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2">
+              <div className="bg-slate-50 border border-sky-100/90 rounded-sm p-4 space-y-2">
                 <div className="flex justify-between text-xs text-slate-500">
                   <span>Parts Total</span>
                   <span className="font-bold text-slate-700 tabular-nums">{fmt(completedTicket.partsTotal)}</span>
@@ -1348,13 +1348,13 @@ export default function RepairPOSPage() {
                   <span>Labor Total</span>
                   <span className="font-bold text-slate-700 tabular-nums">{fmt(completedTicket.laborTotal)}</span>
                 </div>
-                <div className="flex justify-between items-center pt-3 mt-1 border-t border-slate-200">
+                <div className="flex justify-between items-center pt-3 mt-1 border-t border-sky-100/90">
                   <span className="text-sm font-extrabold text-slate-800">Total Paid</span>
                   <span className="text-2xl font-black text-black tabular-nums tracking-tight">{fmt(completedTicket.grandTotal)}</span>
                 </div>
                 <div className="flex justify-between items-center mt-1">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Payment Method</span>
-                  <span className="text-[10px] font-black text-slate-700 bg-white rounded px-2 py-0.5 border border-slate-200 shadow-sm">{completedTicket.paymentMethod}</span>
+                  <span className="text-[10px] font-black text-slate-700 bg-white rounded px-2 py-0.5 border border-sky-100/90 shadow-sm">{completedTicket.paymentMethod}</span>
                 </div>
               </div>
 
@@ -1369,7 +1369,7 @@ export default function RepairPOSPage() {
             <div className="p-4 border-t border-slate-100 flex gap-3 bg-slate-50">
               <button
                 onClick={() => window.print()}
-                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 hover:text-black transition shadow-sm"
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white border border-sky-100/90 text-slate-700 text-xs font-bold hover:bg-slate-50 hover:text-black transition shadow-sm"
               >
                 <Printer size={16} /> Print Job Card
               </button>

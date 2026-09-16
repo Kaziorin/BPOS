@@ -74,25 +74,21 @@ export default function RegisterPage() {
   });
 
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-radial from-slate-900 via-ink-950 to-black px-4 py-12">
-      {/* Ambient glow */}
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#0c4a6e] via-[#0369a1] to-[#0284c7] px-4 py-8">
+      {/* ── Center White Radial Spotlight Glow ── */}
       <div
-        className="pointer-events-none absolute -top-40 -left-32 h-[500px] w-[500px] rounded-full bg-primary-500/15 blur-[120px]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -bottom-40 -right-32 h-[500px] w-[500px] rounded-full bg-cyan-600/15 blur-[140px]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25)_0%,transparent_65%)]"
         aria-hidden
       />
 
-      <div className="relative w-full max-w-xl">
+      <div className="relative z-10 w-full max-w-xl">
         {/* Brand header */}
-        <div className="mb-6 flex flex-col items-center text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-600 to-cyan-400 text-white shadow-xl shadow-primary-500/25 ring-4 ring-white/10 mb-3">
-            <siteConfig.logoIcon size={28} />
+        <div className="mb-5 flex flex-col items-center text-center">
+          <div className="flex h-13 w-13 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-white shadow-md mb-2.5">
+            <siteConfig.logoIcon size={26} />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Create New Business Account</h1>
-          <p className="mt-1 text-xs text-ink-300 font-medium tracking-wide uppercase">
+          <h1 className="text-xl font-bold tracking-tight text-white">Create New Business Account</h1>
+          <p className="mt-1 text-xs text-sky-100 font-medium tracking-wide uppercase">
             Start your isolated store on Blue Ocean POS
           </p>
         </div>
@@ -100,10 +96,10 @@ export default function RegisterPage() {
         {/* Register Card */}
         <form
           onSubmit={formik.handleSubmit}
-          className="rounded-3xl border border-white/10 bg-white/95 backdrop-blur-xl p-7 sm:p-8 shadow-2xl shadow-black/60 space-y-5"
+          className="rounded-sm border border-sky-100/90 bg-white/95 backdrop-blur-2xl p-6 sm:p-7 shadow-2xl space-y-4"
         >
           <div>
-            <h2 className="text-base font-bold text-gray-900">Step 1: Choose Your Business Type</h2>
+            <h2 className="text-sm font-bold text-gray-900">Step 1: Choose Your Business Type</h2>
             <p className="text-xs text-gray-500 mt-0.5">
               Configures tailored categories, units, and POS features automatically.
             </p>
@@ -119,26 +115,27 @@ export default function RegisterPage() {
                   key={bt.id}
                   type="button"
                   onClick={() => formik.setFieldValue("businessType", bt.id)}
-                  className={`flex flex-col items-center p-2.5 rounded-xl border text-center transition cursor-pointer ${
+                  className={`flex flex-col items-center p-2 rounded-sm border text-center transition cursor-pointer ${
                     isSelected
-                      ? "border-teal-600 bg-teal-50/80 text-teal-900 shadow-2xs font-bold ring-2 ring-teal-200"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                      ? "border-[#0284C7] bg-sky-50 text-[#0369A1] shadow-2xs font-bold ring-1 ring-[#0284C7]"
+                      : "border-sky-100 bg-white text-slate-600 hover:border-sky-300 hover:bg-sky-50/50"
                   }`}
                 >
-                  <Icon size={18} className={isSelected ? "text-teal-600 mb-1" : "text-slate-400 mb-1"} />
+                  <Icon size={18} className={isSelected ? "text-[#0284C7] mb-1" : "text-slate-400 mb-1"} />
                   <span className="text-[11px] leading-tight">{bt.name}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="pt-2 border-t border-slate-100">
-            <h2 className="text-base font-bold text-gray-900 mb-3">Step 2: Store & Owner Information</h2>
+          <div className="pt-2 border-t border-sky-100">
+            <h2 className="text-sm font-bold text-gray-900 mb-2.5">Step 2: Store & Owner Information</h2>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <CustomInput
                 label="Store / Business Name *"
                 name="businessName"
+                rounded="sm"
                 value={formik.values.businessName}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -150,6 +147,7 @@ export default function RegisterPage() {
               <CustomInput
                 label="Owner / Manager Name *"
                 name="name"
+                rounded="sm"
                 value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -162,6 +160,7 @@ export default function RegisterPage() {
                 label="Login Email Address *"
                 name="email"
                 type="email"
+                rounded="sm"
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -173,6 +172,7 @@ export default function RegisterPage() {
               <CustomInput
                 label="Contact Phone"
                 name="phone"
+                rounded="sm"
                 value={formik.values.phone}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -182,11 +182,12 @@ export default function RegisterPage() {
               />
             </div>
 
-            <div className="mt-3.5">
+            <div className="mt-3">
               <CustomInput
                 label="Account Password *"
                 name="password"
                 type="password"
+                rounded="sm"
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -198,19 +199,26 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-600">
+            <div className="rounded-sm border border-rose-200 bg-rose-50 p-2.5 text-xs text-rose-600 font-medium text-center">
               {error}
             </div>
           )}
 
-          <CustomButton type="submit" loading={formik.isSubmitting} fullWidth size="lg" className="bg-teal-600 hover:bg-teal-700 text-white font-bold">
+          <CustomButton
+            type="submit"
+            loading={formik.isSubmitting}
+            fullWidth
+            size="lg"
+            variant="primary"
+            className="font-bold rounded-sm py-2.5"
+          >
             {formik.isSubmitting ? "Setting up your store..." : "Create Store & Launch POS"}
             <ArrowRight size={16} className="ml-2" />
           </CustomButton>
 
           <div className="text-center pt-2">
             <span className="text-xs text-slate-500">Already have an account? </span>
-            <Link href="/login" className="text-xs font-bold text-teal-600 hover:underline">
+            <Link href="/login" className="text-xs font-bold text-[#0284C7] hover:underline">
               Sign In to Terminal
             </Link>
           </div>

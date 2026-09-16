@@ -23,23 +23,30 @@ export interface SearchableSelectProps {
   className?: string;
   disabled?: boolean;
   disabledHint?: string;
-  themeColor?: "teal" | "orange" | "indigo" | "emerald" | "amber" | "rose" | "purple";
+  themeColor?: "primary" | "teal" | "orange" | "indigo" | "emerald" | "amber" | "rose" | "purple";
 }
 
 const THEME_MAP: Record<string, { focus: string; addBtn: string; optionHover: string; optionSelected: string; checkIcon: string }> = {
+  primary: {
+    focus: "focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
+    addBtn: "border-sky-200 bg-sky-50 text-[#0284C7] hover:bg-[#0284C7] hover:text-white shadow-2xs",
+    optionHover: "hover:bg-sky-50 hover:text-[#0284C7]",
+    optionSelected: "bg-[#E0F2FE] text-[#0369A1] font-bold",
+    checkIcon: "text-[#0284C7]",
+  },
   teal: {
-    focus: "focus:border-teal-500 focus:ring-teal-500",
-    addBtn: "border-teal-200 bg-teal-50 text-teal-600 hover:bg-teal-100 shadow-2xs",
-    optionHover: "hover:bg-teal-50 hover:text-teal-700",
-    optionSelected: "bg-teal-50 text-teal-700 font-semibold",
-    checkIcon: "text-teal-600",
+    focus: "focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
+    addBtn: "border-sky-200 bg-sky-50 text-[#0284C7] hover:bg-[#0284C7] hover:text-white shadow-2xs",
+    optionHover: "hover:bg-sky-50 hover:text-[#0284C7]",
+    optionSelected: "bg-[#E0F2FE] text-[#0369A1] font-bold",
+    checkIcon: "text-[#0284C7]",
   },
   orange: {
-    focus: "focus:border-orange-500 focus:ring-orange-500",
-    addBtn: "border-orange-200 bg-orange-50 text-orange-600 hover:bg-orange-100 shadow-2xs",
-    optionHover: "hover:bg-orange-50 hover:text-orange-700",
-    optionSelected: "bg-orange-50 text-orange-700 font-semibold",
-    checkIcon: "text-orange-600",
+    focus: "focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
+    addBtn: "border-sky-200 bg-sky-50 text-[#0284C7] hover:bg-[#0284C7] hover:text-white shadow-2xs",
+    optionHover: "hover:bg-sky-50 hover:text-[#0284C7]",
+    optionSelected: "bg-[#E0F2FE] text-[#0369A1] font-bold",
+    checkIcon: "text-[#0284C7]",
   },
   emerald: {
     focus: "focus:border-emerald-500 focus:ring-emerald-500",
@@ -49,11 +56,11 @@ const THEME_MAP: Record<string, { focus: string; addBtn: string; optionHover: st
     checkIcon: "text-emerald-600",
   },
   indigo: {
-    focus: "focus:border-indigo-500 focus:ring-indigo-500",
-    addBtn: "border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 shadow-2xs",
-    optionHover: "hover:bg-indigo-50 hover:text-indigo-700",
-    optionSelected: "bg-indigo-50 text-indigo-700 font-semibold",
-    checkIcon: "text-indigo-600",
+    focus: "focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
+    addBtn: "border-sky-200 bg-sky-50 text-[#0284C7] hover:bg-[#0284C7] hover:text-white shadow-2xs",
+    optionHover: "hover:bg-sky-50 hover:text-[#0284C7]",
+    optionSelected: "bg-[#E0F2FE] text-[#0369A1] font-bold",
+    checkIcon: "text-[#0284C7]",
   },
   amber: {
     focus: "focus:border-amber-500 focus:ring-amber-500",
@@ -76,7 +83,7 @@ export function SearchableSelect({
   className,
   disabled = false,
   disabledHint,
-  themeColor = "teal",
+  themeColor = "primary",
 }: SearchableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -173,8 +180,8 @@ export function SearchableSelect({
   return (
     <div className={cn("relative w-full", className)} ref={containerRef}>
       {label && (
-        <label className="mb-1.5 block text-[15px] font-semibold capitalize text-gray-600">
-          {label} {required && <span className="text-red-500">*</span>}
+        <label className="mb-1.5 block text-xs font-semibold capitalize text-[#0369A1]">
+          {label} {required && <span className="text-rose-500">*</span>}
         </label>
       )}
 
@@ -186,11 +193,11 @@ export function SearchableSelect({
           onClick={handleToggle}
           title={disabled ? disabledHint || "Select Category first to unlock subcategories" : undefined}
           className={cn(
-            "flex w-full items-center justify-between rounded-md border px-3 py-2 text-xs font-medium transition focus:outline-none focus:ring-1",
+            "flex w-full items-center justify-between rounded-sm border px-3 py-2 text-xs font-medium transition focus:outline-none focus:ring-1 shadow-2xs",
             themeStyles.focus,
             disabled
               ? "cursor-not-allowed bg-slate-100/90 text-slate-400 border-slate-300 border-dashed shadow-none select-none"
-              : "border-slate-200 bg-white text-gray-600 cursor-pointer",
+              : "border-sky-200/90 bg-white text-slate-800 cursor-pointer hover:border-sky-300",
             !selectedOption && !disabled && "text-slate-400"
           )}
         >
@@ -207,11 +214,11 @@ export function SearchableSelect({
             )}
           </span>
           {disabled ? (
-            <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-500 shrink-0">
+            <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-sm bg-slate-200/80 text-slate-500 shrink-0">
               Locked
             </span>
           ) : (
-            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[#0284C7]" />
           )}
         </button>
 
@@ -228,7 +235,7 @@ export function SearchableSelect({
               onAddClick();
             }}
             className={cn(
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-md border transition",
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border transition cursor-pointer",
               disabled
                 ? "cursor-not-allowed bg-slate-100 text-slate-300 border-slate-200 opacity-40 pointer-events-none shadow-none"
                 : themeStyles.addBtn
@@ -253,7 +260,7 @@ export function SearchableSelect({
               width: `${coords.width}px`,
               zIndex: 99999,
             }}
-            className="rounded-md border border-slate-200 bg-white p-1.5 shadow-xl animate-in fade-in-50 zoom-in-95 duration-100"
+            className="rounded-sm border border-sky-100/90 bg-white p-1.5 shadow-xl animate-in fade-in-50 zoom-in-95 duration-100"
           >
             <div className="relative mb-1.5 flex items-center border-b border-slate-100 pb-1.5">
               <Search className="absolute left-2.5 h-3.5 w-3.5 text-slate-400" />

@@ -331,7 +331,7 @@ export default function RestaurantCustomerDisplayPage() {
       >
         <div className="flex flex-col gap-3 flex-1 min-h-0 max-w-[1700px] w-full mx-auto">
           {/* ══ 1. TOP HEADER (White rounded floating card matching reference layout) ══ */}
-          <header className="rounded-2xl border border-orange-200/80 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
+          <header className="rounded-sm border border-orange-200/80 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
             {/* Left: Brand Icon + Title + Table/Lane + Subtitle */}
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl border shrink-0 bg-orange-50 border-orange-200 text-orange-600 shadow-2xs">
@@ -395,7 +395,7 @@ export default function RestaurantCustomerDisplayPage() {
               <button
                 id="cdisp-sound"
                 onClick={() => setSoundOn((v) => !v)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-gray-600 hover:text-orange-600 hover:border-orange-300 transition shadow-2xs cursor-pointer"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100/90 bg-white text-gray-600 hover:text-orange-600 hover:border-orange-300 transition shadow-2xs cursor-pointer"
                 title={soundOn ? "Mute" : "Enable sound"}
               >
                 {soundOn ? <Volume2 size={17} /> : <VolumeX size={17} />}
@@ -413,7 +413,7 @@ export default function RestaurantCustomerDisplayPage() {
           </header>
 
           {/* ══ 2. WELCOME BANNER (White rounded card with Restaurant Orange Accent) ══ */}
-          <div className="rounded-2xl border border-orange-100 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
+          <div className="rounded-sm border border-orange-100 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3.5">
               <div className="flex h-11 w-11 items-center justify-center rounded-full font-black text-lg shadow-2xs shrink-0 bg-orange-100 text-orange-700 border border-orange-200">
                 {(customerName || tableNo || "G").charAt(0).toUpperCase()}
@@ -441,7 +441,7 @@ export default function RestaurantCustomerDisplayPage() {
                 🟢 Live Order Active
               </span>
             ) : (
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-gray-500 border border-slate-200">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-gray-500 border border-sky-100/90">
                 Waiting for order scan…
               </span>
             )}
@@ -450,7 +450,7 @@ export default function RestaurantCustomerDisplayPage() {
           {/* ══ 3. TWO-PANEL MAIN CONTENT (Exact 2-column layout from image) ══ */}
           <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
             {/* ── LEFT PANEL: Basket Items (~58% width, col-span-7) ── */}
-            <div className="col-span-12 lg:col-span-7 rounded-2xl border border-orange-100 bg-white shadow-xs p-5 flex flex-col min-h-0 overflow-hidden">
+            <div className="col-span-12 lg:col-span-7 rounded-sm border border-orange-100 bg-white shadow-xs p-5 flex flex-col min-h-0 overflow-hidden">
               {/* Header */}
               <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 shrink-0">
                 <div className="flex items-center gap-2.5">
@@ -478,7 +478,7 @@ export default function RestaurantCustomerDisplayPage() {
                     return (
                       <div
                         key={line.sku || `${line.name}-${idx}`}
-                        className="flex items-center justify-between p-3.5 rounded-2xl border border-slate-100 bg-white shadow-2xs hover:border-orange-200 transition"
+                        className="flex items-center justify-between p-3.5 rounded-sm border border-slate-100 bg-white shadow-2xs hover:border-orange-200 transition"
                       >
                         {/* Left: Food Emoji/Image + Name + Qty */}
                         <div className="flex items-center gap-3.5 min-w-0 flex-1 pr-4">
@@ -486,7 +486,7 @@ export default function RestaurantCustomerDisplayPage() {
                             <img
                               src={line.image}
                               alt={line.name}
-                              className="h-14 w-14 rounded-xl object-cover border border-slate-200 shrink-0"
+                              className="h-14 w-14 rounded-xl object-cover border border-sky-100/90 shrink-0"
                             />
                           ) : (
                             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-orange-200 bg-orange-50 text-2xl shadow-2xs">
@@ -536,7 +536,7 @@ export default function RestaurantCustomerDisplayPage() {
                 ) : (
                   /* Empty state when no items in POS */
                   <div className="flex flex-col items-center justify-center h-full min-h-[260px] text-center p-6 text-gray-400">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50 border border-orange-200 text-orange-500 mb-3 shadow-2xs">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-sm bg-orange-50 border border-orange-200 text-orange-500 mb-3 shadow-2xs">
                       <Utensils size={30} />
                     </div>
                     <h3 className="font-extrabold text-gray-800 text-base">Your Basket is Empty</h3>
@@ -553,7 +553,7 @@ export default function RestaurantCustomerDisplayPage() {
             </div>
 
             {/* ── RIGHT PANEL: Order Summary & Amount Due (~42% width, col-span-5) ── */}
-            <div className="col-span-12 lg:col-span-5 rounded-2xl border border-orange-100 bg-white shadow-xs p-5 flex flex-col justify-between min-h-0 overflow-y-auto">
+            <div className="col-span-12 lg:col-span-5 rounded-sm border border-orange-100 bg-white shadow-xs p-5 flex flex-col justify-between min-h-0 overflow-y-auto">
               <div>
                 {/* Header */}
                 <div className="flex items-center gap-2 pb-3.5 border-b border-slate-100">
@@ -592,7 +592,7 @@ export default function RestaurantCustomerDisplayPage() {
 
                 {/* ── HERO AMOUNT DUE CARD (Rich Restaurant Orange Theme) ── */}
                 <div
-                  className="rounded-2xl p-5 text-white shadow-md my-2"
+                  className="rounded-sm p-5 text-white shadow-md my-2"
                   style={{
                     backgroundColor: "#ea580c",
                   }}
@@ -642,7 +642,7 @@ export default function RestaurantCustomerDisplayPage() {
                             "py-2 rounded-xl text-xs font-bold transition-all text-center cursor-pointer border",
                             isActive
                               ? "bg-orange-600 text-white border-transparent shadow-xs"
-                              : "bg-slate-50 text-gray-600 border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200"
+                              : "bg-slate-50 text-gray-600 border-sky-100/90 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200"
                           )}
                         >
                           {m.label}
@@ -652,9 +652,9 @@ export default function RestaurantCustomerDisplayPage() {
                   </div>
 
                   {/* Clean QR Code Card matching reference image */}
-                  <div className="flex flex-col items-center justify-center p-4 rounded-2xl border border-orange-100 bg-orange-50/40">
+                  <div className="flex flex-col items-center justify-center p-4 rounded-sm border border-orange-100 bg-orange-50/40">
                     <div
-                      className="rounded-2xl border border-slate-200/90 bg-white p-3 shadow-xs"
+                      className="rounded-sm border border-sky-100/90/90 bg-white p-3 shadow-xs"
                       dangerouslySetInnerHTML={{ __html: qrSvg(qrPayload, 155) }}
                     />
                     <p className="text-xs font-bold text-gray-700 mt-2.5">Scan to Pay with bKash / Nagad</p>

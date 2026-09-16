@@ -506,7 +506,7 @@ export default function InstallmentsPage() {
       {/* Toast notification */}
       {toastMessage && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-sm px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
             toastMessage.type === "success" ? "bg-slate-900 ring-1 ring-slate-800" : "bg-rose-600"
           }`}
         >
@@ -516,11 +516,11 @@ export default function InstallmentsPage() {
       )}
 
       {/* ── TOP BANNER / HEADER (THEME COMPLIANT) ── */}
-      <div className="border-b border-slate-200/80 bg-white px-4 sm:px-8 py-5 shadow-xs">
+      <div className="border-b border-sky-100/90 bg-white px-4 sm:px-8 py-5 shadow-xs">
         <div className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-md shadow-primary-500/25">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-md shadow-primary-500/25">
                 <CreditCard size={22} className="stroke-[2.2]" />
               </div>
               <div>
@@ -551,7 +551,7 @@ export default function InstallmentsPage() {
 
             <Link
               href="/credit"
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-xl border border-sky-100/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
             >
               <ShieldCheck size={14} className="text-emerald-600" />
               Credit Limits
@@ -559,7 +559,7 @@ export default function InstallmentsPage() {
 
             <Link
               href="/credit/aging"
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-xl border border-sky-100/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
             >
               <Calendar size={14} className="text-primary-600" />
               AR Aging
@@ -578,7 +578,7 @@ export default function InstallmentsPage() {
                 loadPlans();
                 loadStats();
               }}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-95"
               title="Refresh Data"
             >
               <RefreshCw size={14} className={loading ? "animate-spin text-primary-600" : "text-slate-500"} />
@@ -586,7 +586,7 @@ export default function InstallmentsPage() {
 
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-xl border border-sky-100/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-95"
             >
               <Download size={14} className="text-slate-500" />
               Export
@@ -599,7 +599,7 @@ export default function InstallmentsPage() {
         {/* ── EXECUTIVE KPI SCORECARDS (THEMED TOKENS) ── */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {/* 1. Total Financed Portfolio */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Financed</span>
               <div className="rounded-lg bg-primary-50 p-1.5 text-primary-600">
@@ -616,7 +616,7 @@ export default function InstallmentsPage() {
           </div>
 
           {/* 2. Total Collected Principal */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Total Collected</span>
               <div className="rounded-lg bg-emerald-50 p-1.5 text-emerald-600">
@@ -637,7 +637,7 @@ export default function InstallmentsPage() {
           </div>
 
           {/* 3. Outstanding Due Balance */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">Outstanding Principal</span>
               <div className="rounded-lg bg-amber-50 p-1.5 text-amber-600">
@@ -653,7 +653,7 @@ export default function InstallmentsPage() {
           </div>
 
           {/* 4. Active Contracts */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600">Active Contracts</span>
               <div className="rounded-lg bg-indigo-50 p-1.5 text-indigo-600">
@@ -669,7 +669,7 @@ export default function InstallmentsPage() {
           </div>
 
           {/* 5. Overdue EMI Count */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-rose-600">Overdue EMIs</span>
               <div className="rounded-lg bg-rose-50 p-1.5 text-rose-600">
@@ -685,7 +685,7 @@ export default function InstallmentsPage() {
           </div>
 
           {/* 6. Overdue Amount Due */}
-          <div className="rounded-2xl border border-red-200/80 bg-red-50/40 p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
+          <div className="rounded-sm border border-red-200/80 bg-red-50/40 p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-red-700">
               <span className="text-[11px] font-bold uppercase tracking-wider text-red-600">Overdue Total</span>
               <div className="rounded-lg bg-red-100 p-1.5 text-red-700">
@@ -702,7 +702,7 @@ export default function InstallmentsPage() {
         </div>
 
         {/* ── FILTER TABS, SEARCH & CONTROLS ── */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs space-y-3.5">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs space-y-3.5">
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
@@ -712,7 +712,7 @@ export default function InstallmentsPage() {
                 placeholder="Search plan #, customer name, phone, or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-slate-800 placeholder-slate-400"
+                className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-sky-100/90 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-slate-800 placeholder-slate-400"
               />
               {searchQuery && (
                 <button
@@ -726,7 +726,7 @@ export default function InstallmentsPage() {
 
             {/* Sort & View Mode */}
             <div className="flex items-center gap-2 self-end lg:self-auto">
-              <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-600">
+              <div className="flex items-center gap-1.5 bg-slate-50 border border-sky-100/90 rounded-xl px-2.5 py-1.5 text-xs text-slate-600">
                 <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                 <span>Sort:</span>
                 <select
@@ -748,7 +748,7 @@ export default function InstallmentsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-sky-100/90">
                 <button
                   onClick={() => setViewMode("table")}
                   className={`p-1.5 rounded-lg text-xs font-medium transition-all ${
@@ -790,8 +790,8 @@ export default function InstallmentsPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                     isActive
-                      ? "bg-primary-600 text-white shadow-xs shadow-primary-500/20"
-                      : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80"
+                      ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-xs shadow-primary-500/20"
+                      : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-sky-100/90"
                   }`}
                 >
                   <span>{tab.label}</span>
@@ -812,11 +812,11 @@ export default function InstallmentsPage() {
 
         {/* ── INSTALLMENTS TABLE / GRID VIEW ── */}
         {viewMode === "table" ? (
-          <div className="rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+          <div className="rounded-sm border border-sky-100/90 bg-white shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs sm:text-sm">
                 <thead>
-                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-wider">
+                  <tr className="bg-slate-50/80 border-b border-sky-100/90 text-slate-600 text-[11px] font-bold uppercase tracking-wider">
                     <th className="py-3.5 px-4">Plan # & Contract</th>
                     <th className="py-3.5 px-4">Customer & Contact</th>
                     <th className="py-3.5 px-3 text-right">Financed (৳)</th>
@@ -891,7 +891,7 @@ export default function InstallmentsPage() {
 
                           {/* Tenure */}
                           <td className="py-3.5 px-3 text-center">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-sky-100/90">
                               {p.installmentCount} × {p.frequency}
                             </span>
                           </td>
@@ -947,7 +947,7 @@ export default function InstallmentsPage() {
                               </button>
                               <button
                                 onClick={() => setSelectedForDrawer(p)}
-                                className="p-1.5 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors"
+                                className="p-1.5 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 border border-sky-100/90 transition-colors"
                                 title="View Contract & Schedules"
                               >
                                 <Eye className="w-3.5 h-3.5" />
@@ -984,8 +984,8 @@ export default function InstallmentsPage() {
                 return (
                   <div
                     key={p.id}
-                    className={`bg-white border rounded-2xl p-5 shadow-xs space-y-4 hover:border-primary-300 transition-all ${
-                      p.hasOverdueSchedules ? "border-red-300 bg-red-50/15" : "border-slate-200/80"
+                    className={`bg-white border rounded-sm p-5 shadow-xs space-y-4 hover:border-primary-300 transition-all ${
+                      p.hasOverdueSchedules ? "border-red-300 bg-red-50/15" : "border-sky-100/90"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -1014,7 +1014,7 @@ export default function InstallmentsPage() {
                     </div>
 
                     {/* Financial Summary */}
-                    <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200/70 text-xs">
+                    <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-sky-100/90/70 text-xs">
                       <div>
                         <span className="text-slate-400 text-[10px]">Financed</span>
                         <div className="font-bold text-slate-900 mt-0.5">{fmt(p.financedAmount)}</div>
@@ -1068,7 +1068,7 @@ export default function InstallmentsPage() {
                       </button>
                       <button
                         onClick={() => setSelectedForDrawer(p)}
-                        className="p-2 text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-all"
+                        className="p-2 text-slate-700 bg-slate-50 hover:bg-slate-100 border border-sky-100/90 rounded-xl transition-all"
                         title="View Schedule"
                       >
                         <Eye className="w-3.5 h-3.5" />
@@ -1085,7 +1085,7 @@ export default function InstallmentsPage() {
       {/* ── CREATE NEW INSTALLMENT PLAN MODAL ── */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-150 my-8">
+          <div className="bg-white rounded-sm max-w-xl w-full p-6 shadow-xl border border-sky-100/90 space-y-5 animate-in fade-in zoom-in-95 duration-150 my-8">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-xl bg-primary-50 text-primary-600">
@@ -1114,7 +1114,7 @@ export default function InstallmentsPage() {
                   required
                   value={selectedCustomerId}
                   onChange={(e) => setSelectedCustomerId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-medium"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-sky-100/90 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-medium"
                 >
                   <option value="">Select customer...</option>
                   {customers.map((c) => (
@@ -1138,7 +1138,7 @@ export default function InstallmentsPage() {
                     value={createSaleAmount}
                     onChange={(e) => setCreateSaleAmount(e.target.value)}
                     placeholder="e.g. 50000"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-bold"
+                    className="w-full px-3.5 py-2 bg-white border border-sky-100/90 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-bold"
                   />
                 </div>
                 <div>
@@ -1151,7 +1151,7 @@ export default function InstallmentsPage() {
                     value={createDownPayment}
                     onChange={(e) => setCreateDownPayment(e.target.value)}
                     placeholder="0"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                    className="w-full px-3.5 py-2 bg-white border border-sky-100/90 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   />
                 </div>
               </div>
@@ -1165,7 +1165,7 @@ export default function InstallmentsPage() {
                   <select
                     value={createCount}
                     onChange={(e) => setCreateCount(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-semibold"
+                    className="w-full px-3.5 py-2 bg-white border border-sky-100/90 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-semibold"
                   >
                     <option value="3">3 Installments</option>
                     <option value="6">6 Installments</option>
@@ -1182,7 +1182,7 @@ export default function InstallmentsPage() {
                   <select
                     value={createFrequency}
                     onChange={(e) => setCreateFrequency(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-semibold"
+                    className="w-full px-3.5 py-2 bg-white border border-sky-100/90 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-semibold"
                   >
                     <option value="MONTHLY">Monthly</option>
                     <option value="WEEKLY">Weekly</option>
@@ -1227,7 +1227,7 @@ export default function InstallmentsPage() {
                   value={createNote}
                   onChange={(e) => setCreateNote(e.target.value)}
                   placeholder="e.g. Financed Electronics / Commercial Equipment"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none"
+                  className="w-full px-3.5 py-2 bg-white border border-sky-100/90 rounded-xl focus:outline-none"
                 />
               </div>
 
@@ -1255,7 +1255,7 @@ export default function InstallmentsPage() {
       {/* ── PAY EMI SCHEDULE MODAL ── */}
       {showPayModal && selectedPlan && selectedSchedule && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-sm max-w-lg w-full p-6 shadow-xl border border-sky-100/90 space-y-5 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
@@ -1279,7 +1279,7 @@ export default function InstallmentsPage() {
             </div>
 
             <form onSubmit={handlePaySubmit} className="space-y-4 text-xs sm:text-sm">
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex justify-between items-center text-xs">
+              <div className="bg-slate-50 p-3.5 rounded-xl border border-sky-100/90 flex justify-between items-center text-xs">
                 <div>
                   <span className="text-slate-400">Scheduled Due Date</span>
                   <div className="font-bold text-slate-900 mt-0.5">
@@ -1304,7 +1304,7 @@ export default function InstallmentsPage() {
                   required
                   value={payAmount}
                   onChange={(e) => setPayAmount(e.target.value)}
-                  className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-bold text-slate-900"
+                  className="w-full px-3.5 py-2 text-sm bg-white border border-sky-100/90 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-bold text-slate-900"
                 />
               </div>
 
@@ -1316,7 +1316,7 @@ export default function InstallmentsPage() {
                   <select
                     value={payMethod}
                     onChange={(e) => setPayMethod(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-medium"
+                    className="w-full px-3 py-2 bg-white border border-sky-100/90 rounded-xl font-medium"
                   >
                     <option value="CASH">Cash</option>
                     <option value="BANK_TRANSFER">Bank Transfer</option>
@@ -1335,7 +1335,7 @@ export default function InstallmentsPage() {
                     value={payRef}
                     onChange={(e) => setPayRef(e.target.value)}
                     placeholder="e.g. TR-88319"
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 bg-white border border-sky-100/90 rounded-xl"
                   />
                 </div>
               </div>
@@ -1364,7 +1364,7 @@ export default function InstallmentsPage() {
       {/* ── EARLY SETTLEMENT MODAL ── */}
       {showSettleModal && selectedPlan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-sm max-w-md w-full p-6 shadow-xl border border-sky-100/90 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-bold text-slate-900 text-base">Early Settlement & Payoff</h3>
               <button
@@ -1376,7 +1376,7 @@ export default function InstallmentsPage() {
             </div>
 
             <form onSubmit={handleSettleSubmit} className="space-y-4 text-xs sm:text-sm">
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1">
+              <div className="bg-slate-50 p-3 rounded-xl border border-sky-100/90 space-y-1">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Remaining Balance:</span>
                   <span className="font-bold text-slate-900">
@@ -1395,7 +1395,7 @@ export default function InstallmentsPage() {
                   value={settleDiscount}
                   onChange={(e) => setSettleDiscount(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl font-semibold"
+                  className="w-full px-3.5 py-2 bg-white border border-sky-100/90 rounded-xl font-semibold"
                 />
               </div>
 
@@ -1423,7 +1423,7 @@ export default function InstallmentsPage() {
       {/* ── SEND REMINDER MODAL ── */}
       {showReminderModal && selectedPlan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-sm max-w-lg w-full p-6 shadow-xl border border-sky-100/90 space-y-5 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-xl bg-primary-50 text-primary-600">
@@ -1458,7 +1458,7 @@ export default function InstallmentsPage() {
                     className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
                       reminderChannel === ch.id
                         ? "bg-primary-50 border-primary-300 text-primary-700 shadow-2xs"
-                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                        : "bg-slate-50 border-sky-100/90 text-slate-600 hover:bg-slate-100"
                     }`}
                   >
                     <ch.icon className="w-3.5 h-3.5" />
@@ -1478,7 +1478,7 @@ export default function InstallmentsPage() {
                     {copiedReminder ? "Copied" : "Copy"}
                   </button>
                 </div>
-                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-mono leading-relaxed">
+                <div className="p-3 bg-slate-50 border border-sky-100/90 rounded-xl text-xs text-slate-800 font-mono leading-relaxed">
                   {reminderMessage}
                 </div>
               </div>
@@ -1534,7 +1534,7 @@ export default function InstallmentsPage() {
 
             {/* Quick Summary */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="p-3 bg-slate-50 border border-sky-100/90 rounded-xl">
                 <span className="text-[10px] text-slate-400 uppercase font-semibold">Total Financed</span>
                 <div className="text-base font-bold text-slate-900 mt-0.5">
                   {fmt(selectedForDrawer.financedAmount)}
@@ -1562,9 +1562,9 @@ export default function InstallmentsPage() {
                 </h4>
               </div>
 
-              <div className="rounded-xl border border-slate-200 overflow-hidden">
+              <div className="rounded-xl border border-sky-100/90 overflow-hidden">
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
+                  <thead className="bg-slate-50 border-b border-sky-100/90 text-slate-500 font-bold uppercase text-[10px]">
                     <tr>
                       <th className="py-2.5 px-3">#</th>
                       <th className="py-2.5 px-3">Due Date</th>

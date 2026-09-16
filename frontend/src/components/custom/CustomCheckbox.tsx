@@ -13,24 +13,24 @@ export interface CustomCheckboxProps extends Omit<InputHTMLAttributes<HTMLInputE
 
 const CHECKBOX_THEME_MAP: Record<string, { hover: string; focus: string; checked: string }> = {
   primary: {
-    hover: "group-hover:border-primary-500",
-    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-primary-500/30 peer-focus-visible:border-primary-500",
-    checked: "peer-checked:bg-primary-600 peer-checked:border-primary-600",
+    hover: "group-hover:border-[#0284C7]",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-[#0284C7]/30 peer-focus-visible:border-[#0284C7]",
+    checked: "peer-checked:bg-[#0284C7] peer-checked:border-[#0284C7]",
   },
   blue: {
-    hover: "group-hover:border-blue-500",
-    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500/30 peer-focus-visible:border-blue-500",
-    checked: "peer-checked:bg-blue-600 peer-checked:border-blue-600",
+    hover: "group-hover:border-[#0284C7]",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-[#0284C7]/30 peer-focus-visible:border-[#0284C7]",
+    checked: "peer-checked:bg-[#0284C7] peer-checked:border-[#0284C7]",
   },
   teal: {
-    hover: "group-hover:border-teal-500",
-    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-teal-500/30 peer-focus-visible:border-teal-500",
-    checked: "peer-checked:bg-teal-600 peer-checked:border-teal-600",
+    hover: "group-hover:border-[#0284C7]",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-[#0284C7]/30 peer-focus-visible:border-[#0284C7]",
+    checked: "peer-checked:bg-[#0284C7] peer-checked:border-[#0284C7]",
   },
   orange: {
-    hover: "group-hover:border-orange-500",
-    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-orange-500/30 peer-focus-visible:border-orange-500",
-    checked: "peer-checked:bg-orange-600 peer-checked:border-orange-600",
+    hover: "group-hover:border-[#0284C7]",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-[#0284C7]/30 peer-focus-visible:border-[#0284C7]",
+    checked: "peer-checked:bg-[#0284C7] peer-checked:border-[#0284C7]",
   },
   emerald: {
     hover: "group-hover:border-emerald-500",
@@ -38,9 +38,9 @@ const CHECKBOX_THEME_MAP: Record<string, { hover: string; focus: string; checked
     checked: "peer-checked:bg-emerald-600 peer-checked:border-emerald-600",
   },
   indigo: {
-    hover: "group-hover:border-indigo-500",
-    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-500/30 peer-focus-visible:border-indigo-500",
-    checked: "peer-checked:bg-indigo-600 peer-checked:border-indigo-600",
+    hover: "group-hover:border-[#0284C7]",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-[#0284C7]/30 peer-focus-visible:border-[#0284C7]",
+    checked: "peer-checked:bg-[#0284C7] peer-checked:border-[#0284C7]",
   },
   amber: {
     hover: "group-hover:border-amber-500",
@@ -50,10 +50,10 @@ const CHECKBOX_THEME_MAP: Record<string, { hover: string; focus: string; checked
 };
 
 export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
-  ({ label, description, checked, disabled, className, containerClassName, themeColor = "teal", onChange, id, ...props }, ref) => {
+  ({ label, description, checked, disabled, className, containerClassName, themeColor = "primary", onChange, id, ...props }, ref) => {
     const autoId = useId();
     const checkboxId = id ?? autoId;
-    const themeStyles = CHECKBOX_THEME_MAP[themeColor] || CHECKBOX_THEME_MAP.teal;
+    const themeStyles = CHECKBOX_THEME_MAP[themeColor] || CHECKBOX_THEME_MAP.primary;
     const isChecked = Boolean(checked);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

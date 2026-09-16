@@ -74,7 +74,7 @@ export function CustomPromptModal({
           <CustomButton variant="outline" size="sm" type="button" onClick={onClose}>
             {cancelText}
           </CustomButton>
-          <CustomButton variant="primary" themeColor="orange" size="sm" type="submit">
+          <CustomButton variant="primary" size="sm" type="submit">
             {confirmText}
           </CustomButton>
         </div>

@@ -16,6 +16,7 @@ import {
   ChevronDown,
   CheckCircle2,
   XCircle,
+  X,
   AlertCircle,
   Briefcase,
   FileText,
@@ -183,7 +184,7 @@ interface CommissionRow {
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string }> = {
   ACTIVE: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
-  INACTIVE: { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200" },
+  INACTIVE: { bg: "bg-slate-100", text: "text-slate-600", border: "border-sky-100/90" },
   TERMINATED: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200" },
   ON_LEAVE: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
   PRESENT: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
@@ -193,7 +194,7 @@ const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string }
   PENDING: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
   APPROVED: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
   REJECTED: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200" },
-  DRAFT: { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200" },
+  DRAFT: { bg: "bg-slate-100", text: "text-slate-600", border: "border-sky-100/90" },
   PROCESSED: { bg: "bg-primary-50", text: "text-primary-700", border: "border-primary-200" },
   PAID: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
 };
@@ -284,7 +285,7 @@ export default function HRMPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => loadSummary()}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
+              className="flex h-7 w-7 items-center justify-center rounded-md border border-sky-100/90 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
               title="Refresh HRM Data"
             >
               <RefreshCw size={13} />
@@ -322,7 +323,7 @@ export default function HRMPage() {
       </div>
 
       {/* Segmented Navigation Tabs */}
-      <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-md border border-slate-200 shadow-2xs overflow-x-auto">
+      <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-md border border-sky-100/90 shadow-2xs overflow-x-auto">
         {[
           { id: "employees", label: "Employees", icon: Users },
           { id: "attendance", label: "Attendance & Punch", icon: Clock },
@@ -440,7 +441,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
         <div className="relative w-full sm:w-72">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -448,7 +449,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
             placeholder="Search by name, ID, phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="w-full rounded-xl border border-sky-100/90 bg-white pl-9 pr-3 py-2 text-xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
           />
         </div>
 
@@ -456,7 +457,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
           >
             <option value="ALL">All Statuses</option>
             <option value="ACTIVE">Active</option>
@@ -467,7 +468,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
           >
             <option value="ALL">All Departments</option>
             {departments.map((d) => (
@@ -485,7 +486,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
       </div>
 
       {/* Directory Table */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-sm">
         <CustomTable
           columns={[
             {
@@ -666,7 +667,7 @@ function EmployeeFormModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="w-full max-w-xl rounded-3xl bg-white p-7 shadow-2xl border border-slate-100 transition-all my-8"
+        className="w-full max-w-xl rounded-sm bg-white p-7 shadow-2xl border border-slate-100 transition-all my-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
@@ -678,9 +679,7 @@ function EmployeeFormModal({
               Personal credentials, department role, and salary setup.
             </p>
           </div>
-          <button onClick={onClose} className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
-            <XCircle size={20} />
-          </button>
+          <button onClick={onClose} className="rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-600 hover:text-white shadow-2xs transition"><X size={16} /></button>
         </div>
 
         {error && (
@@ -915,7 +914,7 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
   return (
     <div className="space-y-4">
       {/* Quick Punch Action Grid for Today */}
-      <div className="rounded-3xl bg-white p-5 border border-slate-200 shadow-sm space-y-3">
+      <div className="rounded-sm bg-white p-5 border border-sky-100/90 shadow-sm space-y-3">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
             <Clock size={18} className="text-primary-600" />
@@ -934,7 +933,7 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
             return (
               <div
                 key={emp.id}
-                className="rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5 flex flex-col justify-between"
+                className="rounded-sm border border-slate-100 bg-slate-50/70 p-3.5 flex flex-col justify-between"
               >
                 <div>
                   <p className="font-bold text-slate-900 text-xs truncate">{emp.firstName} {emp.lastName || ""}</p>
@@ -969,7 +968,7 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
       </div>
 
       {/* Filter & History Table */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-sm">
         <div className="p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
           <h4 className="font-bold text-slate-900 text-sm">Attendance Logs</h4>
           <div className="flex items-center gap-2">
@@ -977,12 +976,12 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
+              className="rounded-xl border border-sky-100/90 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
             />
             <select
               value={selectedEmp}
               onChange={(e) => setSelectedEmp(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
+              className="rounded-xl border border-sky-100/90 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
             >
               <option value="">All Employees</option>
               {employees.map((e) => (
@@ -1110,7 +1109,7 @@ function LeaveTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "er
   return (
     <div className="space-y-4">
       {/* Action Header */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">Staff Leave Requests</h3>
           <p className="text-xs text-slate-500">Review pending leave applications and approve time off.</p>
@@ -1125,7 +1124,7 @@ function LeaveTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "er
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-sm">
         <CustomTable
           columns={[
             {
@@ -1259,7 +1258,7 @@ function LeaveRequestModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl border border-slate-100" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-sm bg-white p-7 shadow-2xl border border-slate-100" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-xl font-bold text-slate-900 mb-1">Apply for Leave</h3>
         <p className="text-xs text-slate-500 mb-4">Submit staff time-off for administrative review.</p>
 
@@ -1407,7 +1406,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">Monthly Payroll Ledger</h3>
           <p className="text-xs text-slate-500">Calculate salary footings, deductions, and post double-entry payroll journals.</p>
@@ -1423,7 +1422,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {payrolls.map((p) => (
-          <div key={p.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+          <div key={p.id} className="rounded-sm border border-sky-100/90 bg-white p-6 shadow-sm space-y-4">
             <div className="flex items-start justify-between">
               <div>
                 <p className="font-bold text-slate-900 text-base">{p.payrollNo}</p>
@@ -1432,7 +1431,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
               <StatusBadge status={p.status} />
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-4 rounded-sm border border-slate-100">
               <div>
                 <span className="text-slate-500 block">Staff Count:</span>
                 <span className="font-bold text-slate-800 text-sm">{p.totalEmployees} employees</span>
@@ -1441,11 +1440,11 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
                 <span className="text-slate-500 block">Total Net Pay:</span>
                 <span className="font-bold text-emerald-700 text-sm">{money(p.totalNetPay)}</span>
               </div>
-              <div className="pt-2 border-t border-slate-200">
+              <div className="pt-2 border-t border-sky-100/90">
                 <span className="text-slate-500 block">Basic Salaries:</span>
                 <span className="font-semibold text-slate-700">{money(p.totalBasic)}</span>
               </div>
-              <div className="pt-2 border-t border-slate-200">
+              <div className="pt-2 border-t border-sky-100/90">
                 <span className="text-slate-500 block">Total Deductions:</span>
                 <span className="font-semibold text-rose-600">-{money(p.totalDeductions)}</span>
               </div>
@@ -1482,7 +1481,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
       {/* Detail Pay Slips Modal */}
       {selectedPayroll && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setSelectedPayroll(null)}>
-          <div className="w-full max-w-3xl rounded-3xl bg-white p-7 shadow-2xl border border-slate-100 my-8" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-3xl rounded-sm bg-white p-7 shadow-2xl border border-slate-100 my-8" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b pb-4 mb-4">
               <div>
                 <h3 className="text-xl font-bold text-slate-900">{selectedPayroll.payrollNo} Pay Slips</h3>
@@ -1493,7 +1492,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
               </button>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-slate-200">
+            <div className="overflow-hidden rounded-sm border border-sky-100/90">
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b bg-slate-50 text-slate-500 font-bold">
@@ -1556,7 +1555,7 @@ function ShiftsTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "e
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">Shift Templates & Schedules</h3>
           <p className="text-xs text-slate-500">Configure operating store shift windows and meal breaks.</p>
@@ -1572,9 +1571,9 @@ function ShiftsTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "e
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {shifts.map((s) => (
-          <div key={s.id} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+          <div key={s.id} className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary-50 text-primary-700 border border-primary-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary-50 text-primary-700 border border-primary-100">
                 <Briefcase size={20} />
               </div>
               <h4 className="font-bold text-slate-900 text-sm">{s.name}</h4>
@@ -1626,7 +1625,7 @@ function CreateShiftModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-sm bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-xl font-bold text-slate-900 mb-4">Create Operating Shift</h3>
         <form onSubmit={submit} className="space-y-4">
           <div>
@@ -1711,7 +1710,7 @@ function DepartmentsTab({ onNotify }: { onNotify: (msg: string, type?: "success"
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">Organization Structure</h3>
           <p className="text-xs text-slate-500">Manage business units, departments, and position designations.</p>
@@ -1727,7 +1726,7 @@ function DepartmentsTab({ onNotify }: { onNotify: (msg: string, type?: "success"
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {departments.map((d) => (
-          <div key={d.id} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-2">
+          <div key={d.id} className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-2">
             <div className="flex items-start justify-between">
               <div>
                 <h4 className="font-bold text-slate-900 text-sm">{d.name}</h4>
@@ -1740,7 +1739,7 @@ function DepartmentsTab({ onNotify }: { onNotify: (msg: string, type?: "success"
       </div>
 
       {/* Designations Table */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-sm">
         <div className="p-4 border-b border-slate-100">
           <h4 className="font-bold text-slate-900 text-sm">Position Designations & Pay Grades</h4>
         </div>
@@ -1791,7 +1790,7 @@ function CreateDeptModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-sm bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-xl font-bold text-slate-900 mb-4">Add Department</h3>
         <form onSubmit={submit} className="space-y-4">
           <div>
@@ -1866,7 +1865,7 @@ function SalesTargetsTab({ onNotify }: { onNotify: (msg: string, type?: "success
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">Staff Sales Targets & Quotas</h3>
           <p className="text-xs text-slate-500">Live achievement tracking against confirmed POS sales invoices.</p>
@@ -1882,7 +1881,7 @@ function SalesTargetsTab({ onNotify }: { onNotify: (msg: string, type?: "success
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {targets.map((t) => (
-          <div key={t.id} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+          <div key={t.id} className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-3">
             <div className="flex items-start justify-between">
               <div>
                 <h4 className="font-bold text-slate-900 text-sm">{t.scopeName}</h4>
@@ -1948,7 +1947,7 @@ function CreateTargetModal({ employees, onClose, onSaved }: { employees: Employe
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-sm bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-xl font-bold text-slate-900 mb-4">Set Sales Target</h3>
         <form onSubmit={submit} className="space-y-4">
           <div>
@@ -2015,7 +2014,7 @@ function PerformanceTab({ onNotify }: { onNotify: (msg: string, type?: "success"
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">Staff Performance Appraisals</h3>
           <p className="text-xs text-slate-500">KPI evaluations, star ratings, and performance notes.</p>
@@ -2029,7 +2028,7 @@ function PerformanceTab({ onNotify }: { onNotify: (msg: string, type?: "success"
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-sm">
         <CustomTable
           columns={[
             {
@@ -2118,7 +2117,7 @@ function CreateReviewModal({ employees, onClose, onSaved }: { employees: Employe
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-sm bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-xl font-bold text-slate-900 mb-4">Record Performance Appraisal</h3>
         <form onSubmit={submit} className="space-y-4">
           <div>
@@ -2224,7 +2223,7 @@ function EmployeeCommissionsTab({ onNotify }: { onNotify: (msg: string, type?: "
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
         <div className="flex items-center gap-3">
           <select
             value={selected}
@@ -2254,7 +2253,7 @@ function EmployeeCommissionsTab({ onNotify }: { onNotify: (msg: string, type?: "
         </div>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-sm">
         <CustomTable
           columns={[
             { key: "sale", header: "Invoice #", render: (c: CommissionRow) => <span className="font-bold text-slate-800 text-xs">{c.saleNo || "POS-SALE"}</span> },

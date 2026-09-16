@@ -118,7 +118,7 @@ export default function ProductsPage() {
     try {
       await api.del(`/v1/products/${deleteId}`);
       setDeleteId(null);
-      loadProducts(page, limit, filterType, filterStatus, search);
+      loadProducts(page, limit, filterType, filterStatus, filterWarehouse, search);
     } catch (err: any) {
       alert(err.message || "Delete failed");
     } finally {
@@ -227,7 +227,7 @@ export default function ProductsPage() {
       align: "center",
       sortable: true,
       render: (product) => (
-        <span className="inline-flex items-center rounded-md bg-teal-50 px-2 py-0.5 text-[11px] font-bold text-teal-700 border border-teal-200">
+        <span className="inline-flex items-center rounded-sm bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-[#0284C7] border border-sky-200/80">
           {product.productType}
         </span>
       ),
@@ -254,7 +254,7 @@ export default function ProductsPage() {
               <span>{stock} {product.unit?.name ? `(${product.unit.name})` : ""}</span>
             </span>
             {variantCount > 0 && (
-              <span className="text-[10px] font-semibold text-teal-600 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">
+              <span className="text-[10px] font-semibold text-[#0284C7] bg-sky-50 px-1.5 py-0.5 rounded-sm border border-sky-200/80">
                 {variantCount} Variants
               </span>
             )}
@@ -407,7 +407,7 @@ export default function ProductsPage() {
       sortable: true,
       render: (product: any) => (
         product.attributes?.dailySaleObjective ? (
-          <span className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+          <span className="text-xs font-bold text-[#0284C7] bg-sky-50 px-2 py-0.5 rounded-sm border border-sky-200/80">
             {product.attributes.dailySaleObjective} Qty
           </span>
         ) : (
@@ -455,21 +455,21 @@ export default function ProductsPage() {
         <div className="flex items-center justify-center gap-1" onClick={(e) => e.stopPropagation()}>
           <Link
             href={`/products/create?id=${product.id}`}
-            className="p-1.5 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition"
+            className="p-1.5 text-slate-500 hover:text-[#0284C7] hover:bg-sky-50 rounded-sm transition"
             title="Edit Product"
           >
             <Edit3 size={15} />
           </Link>
           <Link
             href={`/products/${product.id}`}
-            className="p-1.5 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition"
+            className="p-1.5 text-slate-500 hover:text-[#0284C7] hover:bg-sky-50 rounded-sm transition"
             title="View Details"
           >
             <Eye size={15} />
           </Link>
           <button
             onClick={() => setDeleteId(product.id)}
-            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-sm transition cursor-pointer"
             title="Delete Product"
           >
             <Trash2 size={15} />
@@ -491,9 +491,9 @@ export default function ProductsPage() {
         actions={
           <Link href="/products/create">
             <CustomButton
+              variant="primary"
               size="sm"
               leftIcon={<Plus size={15} />}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
             >
               Add Product
             </CustomButton>
@@ -509,13 +509,13 @@ export default function ProductsPage() {
       )}
 
       {/* Table & Controls Container */}
-      <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+      <div className="bg-white rounded-sm border border-sky-100/90 p-4 shadow-2xs space-y-3">
         {/* Search & Filter Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-100/90 pb-3">
           <div className="flex flex-wrap items-center gap-2 flex-1 max-w-3xl">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-[#0284C7]" />
               <input
                 type="text"
                 placeholder="Search by name, SKU, or barcode..."
@@ -524,7 +524,7 @@ export default function ProductsPage() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-sky-200/90 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-[#0284C7] focus:outline-none transition shadow-2xs"
               />
             </div>
 
@@ -535,7 +535,7 @@ export default function ProductsPage() {
                 setFilterType(e.target.value);
                 setPage(1);
               }}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="rounded-sm border border-sky-200/90 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#0284C7] focus:outline-none transition cursor-pointer shadow-2xs"
             >
               <option value="">All Product Types</option>
               <option value="Standard">Standard Product</option>
@@ -555,7 +555,7 @@ export default function ProductsPage() {
                 setFilterStatus(e.target.value);
                 setPage(1);
               }}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="rounded-sm border border-sky-200/90 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#0284C7] focus:outline-none transition cursor-pointer shadow-2xs"
             >
               <option value="">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -569,7 +569,7 @@ export default function ProductsPage() {
                 setFilterWarehouse(e.target.value);
                 setPage(1);
               }}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="rounded-sm border border-sky-200/90 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#0284C7] focus:outline-none transition cursor-pointer shadow-2xs"
             >
               <option value="">All Warehouses</option>
               {warehouses.map((w) => (
@@ -584,7 +584,7 @@ export default function ProductsPage() {
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:text-teal-600 hover:border-teal-300 transition"
+                className="flex items-center gap-1 rounded-sm border border-sky-200/80 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-[#0284C7] hover:border-[#0284C7] hover:bg-[#E0F2FE] transition cursor-pointer shadow-2xs"
               >
                 <RotateCcw size={12} />
                 <span>Reset</span>

@@ -7,46 +7,41 @@ import {
   Trash2,
   GripVertical,
   BarChart3,
-  PieChart,
   Table2,
   DollarSign,
-  Package,
   Users,
   AlertTriangle,
-  Clock,
-  CreditCard,
   TrendingUp,
-  Settings,
-  Save,
-  ArrowLeft,
-  LayoutGrid,
-  Sparkles,
   CheckCircle2,
-  X,
   RefreshCw,
   LayoutDashboard,
-  Layers,
+  LayoutGrid,
   ArrowRight,
+  ArrowLeft,
 } from "lucide-react";
-import Link from "next/link";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
+import { CustomModal } from "@/components/custom/CustomModal";
+import { CustomInput } from "@/components/custom/CustomInput";
+import { CustomSelect } from "@/components/custom/CustomSelect";
 
 const currency = (v: number) =>
   `৳${(v || 0).toLocaleString("en-BD", { maximumFractionDigits: 0 })}`;
 
 const WIDGET_TYPES = [
-  { type: "KPI_CARD", label: "KPI Metric Card", icon: DollarSign, color: "bg-primary-50 text-primary-700 border-primary-200" },
-  { type: "CHART", label: "Bar / Trend Chart", icon: BarChart3, color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  { type: "TABLE", label: "Summary Table", icon: Table2, color: "bg-indigo-50 text-indigo-700 border-indigo-200" },
-  { type: "LIST", label: "Activity List", icon: Users, color: "bg-amber-50 text-amber-700 border-amber-200" },
-  { type: "GAUGE", label: "Target Gauge", icon: TrendingUp, color: "bg-rose-50 text-rose-700 border-rose-200" },
+  { type: "KPI_CARD", label: "KPI Metric Card", icon: DollarSign },
+  { type: "CHART", label: "Bar / Trend Chart", icon: BarChart3 },
+  { type: "TABLE", label: "Summary Table", icon: Table2 },
+  { type: "LIST", label: "Activity List", icon: Users },
+  { type: "GAUGE", label: "Target Gauge", icon: TrendingUp },
 ];
 
 const KPI_OPTIONS = [
-  { kpiType: "totalSales", label: "Total Sales (30 Days)" },
-  { kpiType: "totalCustomers", label: "Active Customers" },
-  { kpiType: "lowStock", label: "Low Stock Inventory Items" },
-  { kpiType: "arOutstanding", label: "Accounts Receivable (AR) Due" },
-  { kpiType: "overdueInstallments", label: "Overdue Installments" },
+  { value: "totalSales", label: "Total Sales (30 Days)" },
+  { value: "totalCustomers", label: "Active Customers" },
+  { value: "lowStock", label: "Low Stock Inventory Items" },
+  { value: "arOutstanding", label: "Accounts Receivable (AR) Due" },
+  { value: "overdueInstallments", label: "Overdue Installments" },
 ];
 
 interface Dashboard {
@@ -69,12 +64,10 @@ interface Widget {
 
 function WidgetCard({
   widget,
-  onEdit,
   onDelete,
   onDragStart,
 }: {
   widget: Widget;
-  onEdit: () => void;
   onDelete: () => void;
   onDragStart: () => void;
 }) {
@@ -93,28 +86,29 @@ function WidgetCard({
 
   const iconInfo =
     WIDGET_TYPES.find((w) => w.type === widget.widgetType) || WIDGET_TYPES[0];
+  const IconComponent = iconInfo.icon;
 
   return (
     <div
-      className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden group hover:border-primary-300 hover:shadow-md transition-all flex flex-col justify-between"
+      className="bg-white rounded-sm border border-sky-100/90 shadow-2xs overflow-hidden group hover:border-[#0284C7] hover:shadow-md transition-all flex flex-col justify-between"
       style={{ minHeight: Math.max(160, widget.height * 36) }}
       draggable
       onDragStart={onDragStart}
     >
-      <div className="flex items-center justify-between px-4 py-3 bg-slate-50/80 border-b border-slate-100">
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 border-b border-sky-100/90">
         <div className="flex items-center gap-2.5">
           <GripVertical className="w-4 h-4 text-slate-300 cursor-grab" />
-          <div className={`p-1.5 rounded-lg border ${iconInfo.color}`}>
-            <iconInfo.icon className="w-3.5 h-3.5" />
+          <div className="p-1.5 rounded-sm border border-sky-200/80 bg-sky-50 text-[#0284C7]">
+            <IconComponent className="w-3.5 h-3.5" />
           </div>
-          <span className="text-xs sm:text-sm font-bold text-slate-800">
+          <span className="text-xs sm:text-sm font-bold text-[#0369A1]">
             {widget.title || widget.widgetType}
           </span>
         </div>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={onDelete}
-            className="p-1.5 hover:bg-rose-50 rounded-lg text-rose-500 transition-colors"
+            className="p-1 rounded-sm border border-rose-200 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white transition-colors cursor-pointer shadow-2xs"
             title="Remove Widget"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -125,7 +119,7 @@ function WidgetCard({
       <div className="p-5 flex-1 flex flex-col items-center justify-center">
         {loading ? (
           <div className="flex items-center justify-center h-20">
-            <RefreshCw className="h-5 w-5 animate-spin text-primary-500" />
+            <RefreshCw className="h-5 w-5 animate-spin text-[#0284C7]" />
           </div>
         ) : (
           <div className="text-center w-full">
@@ -134,11 +128,11 @@ function WidgetCard({
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   {data.label || widget.title}
                 </p>
-                <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                <p className="text-2xl sm:text-3xl font-black text-[#0369A1] tracking-tight [font-variant-numeric:tabular-nums]">
                   {typeof data.value === "number" ? currency(data.value) : data.value ?? 0}
                 </p>
                 {data.change !== undefined && (
-                  <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-block mt-1">
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-sm inline-block mt-1">
                     +{data.change}% vs prev
                   </span>
                 )}
@@ -151,7 +145,7 @@ function WidgetCard({
                   {[35, 65, 45, 90, 60, 80, 50].map((h, i) => (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1">
                       <div
-                        className="w-full bg-primary-500/80 hover:bg-primary-600 rounded-t-md transition-all"
+                        className="w-full bg-gradient-to-t from-[#0284C7] to-[#38BDF8] hover:brightness-110 rounded-t-xs transition-all"
                         style={{ height: `${h}%` }}
                       />
                       <span className="text-[9px] text-slate-400 font-medium">D{i + 1}</span>
@@ -170,10 +164,10 @@ function WidgetCard({
                 ].map((row, i) => (
                   <div
                     key={i}
-                    className="flex justify-between items-center p-2 bg-slate-50 rounded-xl text-slate-700"
+                    className="flex justify-between items-center p-2 bg-sky-50/40 rounded-sm border border-sky-100 text-slate-700"
                   >
-                    <span className="font-medium">{row.name}</span>
-                    <span className="font-bold text-slate-900">{row.val}</span>
+                    <span className="font-medium text-slate-700">{row.name}</span>
+                    <span className="font-bold text-[#0369A1]">{row.val}</span>
                   </div>
                 ))}
               </div>
@@ -182,10 +176,10 @@ function WidgetCard({
             {widget.widgetType === "GAUGE" && (
               <div className="flex flex-col items-center justify-center space-y-2">
                 <div className="relative w-20 h-20 flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-full border-4 border-primary-100 border-t-primary-600 animate-pulse" />
-                  <span className="absolute font-black text-sm text-slate-800">84%</span>
+                  <div className="w-20 h-20 rounded-full border-4 border-sky-100 border-t-[#0284C7] animate-spin" />
+                  <span className="absolute font-black text-sm text-[#0369A1]">84%</span>
                 </div>
-                <span className="text-[11px] text-slate-500 font-medium">Monthly Target Realized</span>
+                <span className="text-[11px] text-[#0284C7] font-semibold">Monthly Target Realized</span>
               </div>
             )}
 
@@ -198,10 +192,10 @@ function WidgetCard({
                 ].map((item, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between p-2 bg-slate-50 rounded-xl"
+                    className="flex items-center justify-between p-2 bg-sky-50/40 rounded-sm border border-sky-100"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#0284C7]" />
                       <span className="font-medium text-slate-700">{item.title}</span>
                     </div>
                     <span className="text-[10px] text-slate-400">{item.time}</span>
@@ -220,7 +214,7 @@ export default function DashboardBuilderPage() {
   const [dashboards, setDashboards] = useState<Dashboard[]>([]);
   const [activeDashboard, setActiveDashboard] = useState<Dashboard | null>(null);
   const [widgets, setWidgets] = useState<Widget[]>([]);
-  
+
   // Modal & Form States
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newDashboardName, setNewDashboardName] = useState("");
@@ -228,7 +222,6 @@ export default function DashboardBuilderPage() {
   const [newWidgetType, setNewWidgetType] = useState("KPI_CARD");
   const [newWidgetTitle, setNewWidgetTitle] = useState("");
   const [newWidgetKpi, setNewWidgetKpi] = useState("totalSales");
-  const [editingWidget, setEditingWidget] = useState<Widget | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Toast
@@ -293,7 +286,8 @@ export default function DashboardBuilderPage() {
     }
   };
 
-  const addWidget = async () => {
+  const addWidget = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!activeDashboard) return;
     const config: any = {};
     if (newWidgetType === "KPI_CARD") config.kpiType = newWidgetKpi;
@@ -331,341 +325,273 @@ export default function DashboardBuilderPage() {
 
   if (!activeDashboard) {
     return (
-      <div className="min-h-screen bg-background pb-20 font-sans">
+      <div className="space-y-4 font-sans">
         {/* Toast */}
         {toastMessage && (
           <div
-            className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
+            className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-sm px-4 py-3 text-xs font-semibold text-white shadow-xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
               toastMessage.type === "success" ? "bg-slate-900 ring-1 ring-slate-800" : "bg-rose-600"
             }`}
           >
-            {toastMessage.type === "success" ? <CheckCircle2 size={18} className="text-emerald-400" /> : <AlertTriangle size={18} />}
+            {toastMessage.type === "success" ? <CheckCircle2 size={16} className="text-emerald-400" /> : <AlertTriangle size={16} />}
             <span>{toastMessage.text}</span>
           </div>
         )}
 
-        {/* Top Header */}
-        <div className="border-b border-slate-200/80 bg-white px-4 sm:px-8 py-5 shadow-xs w-full">
-          <div className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-md shadow-primary-500/25">
-                  <LayoutDashboard size={22} className="stroke-[2.2]" />
-                </div>
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
-                      Dashboard Builder & BI Canvas
-                    </h1>
-                    <span className="rounded-full bg-primary-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-primary-700 ring-1 ring-primary-200">
-                      Drag & Drop
-                    </span>
-                  </div>
-                  <p className="text-xs font-medium text-slate-500">
-                    Create customized executive KPI boards, sales charts, AR gauges, and commercial analytics.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2.5">
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-xs shadow-primary-500/25 transition hover:bg-primary-700 active:scale-95"
-              >
-                <Plus size={15} />
-                New Dashboard
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* Header Breadcrumb */}
+        <CustomBreadcrumb
+          title="Dashboard Builder & BI Canvas"
+          description="Create customized executive KPI boards, sales charts, and commercial analytics."
+          icon={<LayoutDashboard size={16} />}
+          items={[
+            { label: "Dashboard", href: "/dashboard" },
+            { label: "Builder" },
+          ]}
+          actions={
+            <CustomButton
+              variant="primary"
+              size="sm"
+              onClick={() => setShowCreateModal(true)}
+              leftIcon={<Plus size={14} />}
+            >
+              New Dashboard
+            </CustomButton>
+          }
+        />
 
         {/* Dashboards List */}
-        <div className="w-full px-4 sm:px-8 pt-6 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-            {dashboards.map((d) => (
-              <div
-                key={d.id}
-                onClick={() => setActiveDashboard(d)}
-                className="p-6 bg-white rounded-2xl border border-slate-200/80 hover:border-primary-300 hover:shadow-md cursor-pointer transition-all space-y-3 group"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-primary-50 text-primary-600 border border-primary-100 group-hover:scale-105 transition-transform">
-                      <LayoutGrid className="w-5 h-5" />
-                    </div>
-                    <h3 className="font-bold text-slate-900 text-base">{d.name}</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pt-1">
+          {dashboards.map((d) => (
+            <div
+              key={d.id}
+              onClick={() => setActiveDashboard(d)}
+              className="p-5 bg-white rounded-sm border border-sky-100/90 hover:border-[#0284C7] hover:shadow-md cursor-pointer transition-all space-y-3 group shadow-2xs"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="p-2 rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 group-hover:scale-105 transition-transform shrink-0">
+                    <LayoutGrid className="w-5 h-5" />
                   </div>
-                  {d.isDefault && (
-                    <span className="text-[10px] font-bold bg-primary-100 text-primary-700 px-2.5 py-0.5 rounded-full">
-                      Default
-                    </span>
-                  )}
+                  <h3 className="font-bold text-[#0369A1] text-sm truncate">{d.name}</h3>
                 </div>
-                <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-100">
-                  <span>Custom Analytics Board</span>
-                  <span className="text-primary-600 font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-                    Open Builder <ArrowRight size={12} />
+                {d.isDefault && (
+                  <span className="text-[10px] font-bold bg-sky-100 text-[#0284C7] border border-sky-200 px-2 py-0.5 rounded-sm shrink-0">
+                    Default
                   </span>
-                </div>
+                )}
               </div>
-            ))}
+              <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-sky-100">
+                <span>Custom Board</span>
+                <span className="text-[#0284C7] font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                  Open Builder <ArrowRight size={12} />
+                </span>
+              </div>
+            </div>
+          ))}
 
-            {dashboards.length === 0 && !loading && (
-              <div className="col-span-full text-center py-16 bg-white rounded-2xl border border-slate-200/80 p-8 space-y-3">
-                <LayoutGrid className="w-12 h-12 mx-auto text-slate-300" />
-                <h3 className="font-bold text-slate-900 text-base">No Custom Dashboards Yet</h3>
-                <p className="text-xs text-slate-500 max-w-md mx-auto">
-                  Build custom KPI boards for your branch managers, cashier shifts, executive sales reviews, and AR aging tracking.
-                </p>
-                <button
-                  onClick={() => setShowCreateModal(true)}
-                  className="px-4 py-2 text-xs font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-xs transition"
-                >
-                  Create Your First Dashboard
-                </button>
-              </div>
-            )}
-          </div>
+          {dashboards.length === 0 && !loading && (
+            <div className="col-span-full text-center py-16 bg-white rounded-sm border border-sky-100/90 p-8 space-y-3 shadow-2xs">
+              <LayoutGrid className="w-10 h-10 mx-auto text-sky-300" />
+              <h3 className="font-bold text-[#0369A1] text-base">No Custom Dashboards Yet</h3>
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
+                Build custom KPI boards for branch managers, cashier shifts, and executive reviews.
+              </p>
+              <CustomButton
+                variant="primary"
+                size="sm"
+                onClick={() => setShowCreateModal(true)}
+                leftIcon={<Plus size={14} />}
+              >
+                Create Your First Dashboard
+              </CustomButton>
+            </div>
+          )}
         </div>
 
         {/* Create Dashboard Modal */}
-        {showCreateModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="p-2 rounded-xl bg-primary-50 text-primary-600">
-                    <LayoutDashboard className="w-5 h-5" />
-                  </span>
-                  <h3 className="font-bold text-slate-900 text-base">Create Dashboard</h3>
-                </div>
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+        <CustomModal
+          open={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          title="Create New Dashboard"
+          size="md"
+        >
+          <form onSubmit={handleCreateDashboard} className="space-y-4">
+            <CustomInput
+              label="Dashboard Name *"
+              required
+              autoFocus
+              value={newDashboardName}
+              onChange={(e) => setNewDashboardName(e.target.value)}
+              placeholder="e.g. Executive Sales & Recovery Board"
+            />
 
-              <form onSubmit={handleCreateDashboard} className="space-y-4 text-xs sm:text-sm">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Dashboard Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    autoFocus
-                    value={newDashboardName}
-                    onChange={(e) => setNewDashboardName(e.target.value)}
-                    placeholder="e.g. Executive Sales & Recovery Board"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-semibold"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
-                  <button
-                    type="button"
-                    onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-xs shadow-primary-500/25"
-                  >
-                    Create Canvas
-                  </button>
-                </div>
-              </form>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-sky-100">
+              <CustomButton
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={() => setShowCreateModal(false)}
+              >
+                Cancel
+              </CustomButton>
+              <CustomButton variant="primary" size="sm" type="submit">
+                Create Canvas
+              </CustomButton>
             </div>
-          </div>
-        )}
+          </form>
+        </CustomModal>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 font-sans w-full">
+    <div className="space-y-4 font-sans">
       {/* Toast */}
       {toastMessage && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-sm px-4 py-3 text-xs font-semibold text-white shadow-xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
             toastMessage.type === "success" ? "bg-slate-900 ring-1 ring-slate-800" : "bg-rose-600"
           }`}
         >
-          {toastMessage.type === "success" ? <CheckCircle2 size={18} className="text-emerald-400" /> : <AlertTriangle size={18} />}
+          {toastMessage.type === "success" ? <CheckCircle2 size={16} className="text-emerald-400" /> : <AlertTriangle size={16} />}
           <span>{toastMessage.text}</span>
         </div>
       )}
 
-      {/* Top Banner */}
-      <div className="border-b border-slate-200/80 bg-white px-4 sm:px-8 py-5 shadow-xs w-full">
-        <div className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setActiveDashboard(null)}
-              className="p-2 text-slate-600 hover:bg-slate-100 border border-slate-200 rounded-xl transition"
-              title="Back to Dashboard List"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
-                  {activeDashboard.name}
-                </h1>
-                <span className="rounded-full bg-primary-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-primary-700 ring-1 ring-primary-200">
-                  Active Canvas
-                </span>
-              </div>
-              <p className="text-xs font-medium text-slate-500">{widgets.length} Widgets Configured</p>
-            </div>
-          </div>
-
+      {/* Header Breadcrumb */}
+      <CustomBreadcrumb
+        title={activeDashboard.name}
+        description={`${widgets.length} Widgets Configured on Canvas`}
+        icon={<LayoutDashboard size={16} />}
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Builder", href: "/dashboard/builder" },
+          { label: activeDashboard.name },
+        ]}
+        actions={
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowAddWidget(true)}
-              className="flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-xs shadow-primary-500/25 transition hover:bg-primary-700 active:scale-95"
+            <CustomButton
+              variant="outline"
+              size="sm"
+              onClick={() => setActiveDashboard(null)}
+              leftIcon={<ArrowLeft size={13} />}
             >
-              <Plus size={15} /> Add Widget
-            </button>
+              Back to List
+            </CustomButton>
+            <CustomButton
+              variant="primary"
+              size="sm"
+              onClick={() => setShowAddWidget(true)}
+              leftIcon={<Plus size={14} />}
+            >
+              Add Widget
+            </CustomButton>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Widgets Canvas Grid */}
-      <div className="w-full px-4 sm:px-8 pt-6 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-          {widgets.map((w) => (
-            <WidgetCard
-              key={w.id}
-              widget={w}
-              onEdit={() => setEditingWidget(w)}
-              onDelete={() => deleteWidget(w.id)}
-              onDragStart={() => {}}
-            />
-          ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pt-1">
+        {widgets.map((w) => (
+          <WidgetCard
+            key={w.id}
+            widget={w}
+            onDelete={() => deleteWidget(w.id)}
+            onDragStart={() => {}}
+          />
+        ))}
 
-          {widgets.length === 0 && (
-            <div className="col-span-full text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300 p-8 space-y-3">
-              <LayoutGrid className="w-12 h-12 mx-auto text-slate-300" />
-              <h3 className="font-bold text-slate-900 text-base">This Dashboard Canvas is Empty</h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Add KPI cards, sales trend charts, AR aging metrics, and customer lists to populate your board.
-              </p>
-              <button
-                onClick={() => setShowAddWidget(true)}
-                className="px-4 py-2 text-xs font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-xs transition"
-              >
-                Add Your First Widget
-              </button>
-            </div>
-          )}
-        </div>
+        {widgets.length === 0 && (
+          <div className="col-span-full text-center py-20 bg-white rounded-sm border-2 border-dashed border-sky-200/80 p-8 space-y-3 shadow-2xs">
+            <LayoutGrid className="w-10 h-10 mx-auto text-sky-300" />
+            <h3 className="font-bold text-[#0369A1] text-base">This Dashboard Canvas is Empty</h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              Add KPI cards, sales trend charts, AR aging metrics, and customer lists to populate your board.
+            </p>
+            <CustomButton
+              variant="primary"
+              size="sm"
+              onClick={() => setShowAddWidget(true)}
+              leftIcon={<Plus size={14} />}
+            >
+              Add Your First Widget
+            </CustomButton>
+          </div>
+        )}
       </div>
 
       {/* Add Widget Modal */}
-      {showAddWidget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <span className="p-2 rounded-xl bg-primary-50 text-primary-600">
-                  <Plus className="w-5 h-5" />
-                </span>
-                <h3 className="font-bold text-slate-900 text-base">Add Analytics Widget</h3>
-              </div>
-              <button
-                onClick={() => setShowAddWidget(false)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-4 text-xs sm:text-sm">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-2">
-                  Widget Display Type
-                </label>
-                <div className="grid grid-cols-5 gap-2">
-                  {WIDGET_TYPES.map((wt) => (
-                    <button
-                      key={wt.type}
-                      type="button"
-                      onClick={() => setNewWidgetType(wt.type)}
-                      className={`flex flex-col items-center gap-1 p-2.5 rounded-xl border-2 transition-all ${
-                        newWidgetType === wt.type
-                          ? "border-primary-500 bg-primary-50/60 shadow-2xs"
-                          : "border-slate-200 hover:border-slate-300 bg-white"
-                      }`}
-                    >
-                      <div className={`p-1.5 rounded-lg border ${wt.color}`}>
-                        <wt.icon className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-700 text-center line-clamp-1">
-                        {wt.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Widget Title / Header
-                </label>
-                <input
-                  type="text"
-                  value={newWidgetTitle}
-                  onChange={(e) => setNewWidgetTitle(e.target.value)}
-                  placeholder={WIDGET_TYPES.find((w) => w.type === newWidgetType)?.label}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-medium"
-                />
-              </div>
-
-              {newWidgetType === "KPI_CARD" && (
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Live Metric Source
-                  </label>
-                  <select
-                    value={newWidgetKpi}
-                    onChange={(e) => setNewWidgetKpi(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-semibold"
+      <CustomModal
+        open={showAddWidget}
+        onClose={() => setShowAddWidget(false)}
+        title="Add Analytics Widget"
+        size="lg"
+      >
+        <form onSubmit={addWidget} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-[#0369A1] mb-2">
+              Widget Display Type
+            </label>
+            <div className="grid grid-cols-5 gap-2">
+              {WIDGET_TYPES.map((wt) => {
+                const WIcon = wt.icon;
+                const isSelected = newWidgetType === wt.type;
+                return (
+                  <button
+                    key={wt.type}
+                    type="button"
+                    onClick={() => setNewWidgetType(wt.type)}
+                    className={`flex flex-col items-center gap-1.5 p-2.5 rounded-sm border transition-all cursor-pointer ${
+                      isSelected
+                        ? "border-[#0284C7] bg-[#E0F2FE] shadow-2xs"
+                        : "border-sky-100 hover:border-sky-300 bg-white"
+                    }`}
                   >
-                    {KPI_OPTIONS.map((opt) => (
-                      <option key={opt.kpiType} value={opt.kpiType}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setShowAddWidget(false)}
-                className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={addWidget}
-                className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-xs shadow-primary-500/25"
-              >
-                Add to Canvas
-              </button>
+                    <div className="p-1.5 rounded-sm border border-sky-200/80 bg-sky-50 text-[#0284C7]">
+                      <WIcon className="w-4 h-4" />
+                    </div>
+                    <span className={`text-[10px] font-bold text-center line-clamp-1 ${
+                      isSelected ? "text-[#0369A1]" : "text-slate-700"
+                    }`}>
+                      {wt.label}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
-        </div>
-      )}
+
+          <CustomInput
+            label="Widget Title / Header"
+            value={newWidgetTitle}
+            onChange={(e) => setNewWidgetTitle(e.target.value)}
+            placeholder={WIDGET_TYPES.find((w) => w.type === newWidgetType)?.label}
+          />
+
+          {newWidgetType === "KPI_CARD" && (
+            <CustomSelect
+              label="Live Metric Source"
+              value={newWidgetKpi}
+              onChange={(e) => setNewWidgetKpi(e.target.value)}
+              options={KPI_OPTIONS}
+            />
+          )}
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-sky-100">
+            <CustomButton
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => setShowAddWidget(false)}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton variant="primary" size="sm" type="submit">
+              Add to Canvas
+            </CustomButton>
+          </div>
+        </form>
+      </CustomModal>
     </div>
   );
 }

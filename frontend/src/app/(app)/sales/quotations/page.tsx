@@ -414,7 +414,7 @@ export default function QuotationsPage() {
               }}
               className={`flex items-center gap-1.5 shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                 isActive
-                  ? "bg-primary-600 text-white shadow-xs font-semibold"
+                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-xs font-semibold"
                   : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >
@@ -786,7 +786,7 @@ export default function QuotationsPage() {
       {/* ── CREATE QUOTATION MODAL ── */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100">
-          <div className="relative w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-gray-200 overflow-hidden my-8 animate-in zoom-in-95 duration-150">
+          <div className="relative w-full max-w-3xl rounded-sm bg-white shadow-2xl border border-gray-200 overflow-hidden my-8 animate-in zoom-in-95 duration-150">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 bg-gray-50/80">
               <div className="flex items-center gap-2.5">

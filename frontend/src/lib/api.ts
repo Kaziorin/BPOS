@@ -98,9 +98,9 @@ axiosClient.interceptors.response.use(
 
 export const api = {
   get: <T>(path: string, config?: any) => axiosClient.get<T>(path, config).then((res) => res.data),
-  post: <T>(path: string, body?: unknown) => axiosClient.post<T>(path, body).then((res) => res.data),
-  put: <T>(path: string, body?: unknown) => axiosClient.put<T>(path, body).then((res) => res.data),
-  patch: <T>(path: string, body?: unknown) => axiosClient.patch<T>(path, body).then((res) => res.data),
-  del: <T>(path: string) => axiosClient.delete<T>(path).then((res) => res.data),
-  delete: <T>(path: string) => axiosClient.delete<T>(path).then((res) => res.data),
+  post: <T>(path: string, body?: unknown, config?: any) => axiosClient.post<T>(path, body, config).then((res) => res.data),
+  put: <T>(path: string, body?: unknown, config?: any) => axiosClient.put<T>(path, body, config).then((res) => res.data),
+  patch: <T>(path: string, body?: unknown, config?: any) => axiosClient.patch<T>(path, body, config).then((res) => res.data),
+  del: <T>(path: string, config?: any) => axiosClient.delete<T>(path, config).then((res) => res.data),
+  delete: <T>(path: string, config?: any) => axiosClient.delete<T>(path, config).then((res) => res.data),
 };

@@ -21,27 +21,28 @@ export interface CustomTabsProps {
   darkMode?: boolean;
   inactiveClassName?: string;
   wrap?: boolean;
+  style?: React.CSSProperties;
 }
 
 const THEME_ACTIVE_STYLES: Record<string, string> = {
-  primary: "bg-primary-600 text-white shadow-2xs",
-  blue: "bg-blue-600 text-white shadow-2xs",
-  orange: "bg-orange-600 text-white shadow-2xs",
-  teal: "bg-teal-600 text-white shadow-2xs",
+  primary: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs",
+  blue: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs",
+  orange: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs",
+  teal: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs",
   emerald: "bg-emerald-600 text-white shadow-2xs",
-  indigo: "bg-indigo-600 text-white shadow-2xs",
+  indigo: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs",
   amber: "bg-amber-600 text-white shadow-2xs",
   rose: "bg-rose-600 text-white shadow-2xs",
   purple: "bg-purple-600 text-white shadow-2xs",
 };
 
 const THEME_HOVER_STYLES = (darkMode: boolean): Record<string, string> => ({
-  primary: darkMode ? "hover:bg-primary-500/10 hover:text-primary-400" : "hover:bg-primary-50 hover:text-primary-600",
-  blue: darkMode ? "hover:bg-blue-500/10 hover:text-blue-400" : "hover:bg-blue-50 hover:text-blue-600",
-  orange: darkMode ? "hover:bg-orange-500/10 hover:text-orange-400" : "hover:bg-orange-50 hover:text-orange-600",
-  teal: darkMode ? "hover:bg-teal-500/10 hover:text-teal-400" : "hover:bg-teal-50 hover:text-teal-600",
+  primary: darkMode ? "hover:bg-primary-500/10 hover:text-primary-400" : "hover:bg-[#E0F2FE] hover:text-[#0284C7]",
+  blue: darkMode ? "hover:bg-blue-500/10 hover:text-blue-400" : "hover:bg-[#E0F2FE] hover:text-[#0284C7]",
+  orange: darkMode ? "hover:bg-orange-500/10 hover:text-orange-400" : "hover:bg-[#E0F2FE] hover:text-[#0284C7]",
+  teal: darkMode ? "hover:bg-teal-500/10 hover:text-teal-400" : "hover:bg-[#E0F2FE] hover:text-[#0284C7]",
   emerald: darkMode ? "hover:bg-emerald-500/10 hover:text-emerald-400" : "hover:bg-emerald-50 hover:text-emerald-600",
-  indigo: darkMode ? "hover:bg-indigo-500/10 hover:text-indigo-400" : "hover:bg-indigo-50 hover:text-indigo-600",
+  indigo: darkMode ? "hover:bg-indigo-500/10 hover:text-indigo-400" : "hover:bg-[#E0F2FE] hover:text-[#0284C7]",
   amber: darkMode ? "hover:bg-amber-500/10 hover:text-amber-400" : "hover:bg-amber-50 hover:text-amber-600",
   rose: darkMode ? "hover:bg-rose-500/10 hover:text-rose-400" : "hover:bg-rose-50 hover:text-rose-600",
   purple: darkMode ? "hover:bg-purple-500/10 hover:text-purple-400" : "hover:bg-purple-50 hover:text-purple-600",
@@ -52,23 +53,25 @@ export function CustomTabs({
   activeTab,
   onChange,
   className,
-  themeColor = "orange",
+  themeColor = "primary",
   variant = "solid",
   darkMode = false,
   inactiveClassName,
   wrap = false,
+  style,
 }: CustomTabsProps) {
-  const activeStyle = THEME_ACTIVE_STYLES[themeColor] || THEME_ACTIVE_STYLES.orange;
-  const hoverStyle = THEME_HOVER_STYLES(darkMode)[themeColor] || THEME_HOVER_STYLES(darkMode).orange;
+  const activeStyle = THEME_ACTIVE_STYLES[themeColor] || THEME_ACTIVE_STYLES.primary;
+  const hoverStyle = THEME_HOVER_STYLES(darkMode)[themeColor] || THEME_HOVER_STYLES(darkMode).primary;
 
   return (
     <div
+      style={style}
       className={cn(
-        "flex items-center gap-1.5 rounded-md p-1.5 w-full transition-colors",
+        "flex items-center gap-1.5 rounded-sm p-1.5 w-full transition-colors",
         wrap ? "flex-wrap overflow-x-visible" : "overflow-x-auto",
         darkMode
           ? "border border-slate-800 bg-slate-900 shadow-none"
-          : "border border-slate-200 bg-white shadow-2xs",
+          : "border border-sky-100/90 bg-white shadow-2xs",
         className
       )}
     >
@@ -82,7 +85,7 @@ export function CustomTabs({
             type="button"
             onClick={() => onChange(tab.id)}
             className={cn(
-              "flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-md transition-all duration-200 whitespace-nowrap cursor-pointer select-none border",
+              "flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-sm transition-all duration-200 whitespace-nowrap cursor-pointer select-none border",
               isActive
                 ? cn(activeStyle, "border-transparent")
                 : inactiveClassName

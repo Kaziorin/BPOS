@@ -119,7 +119,7 @@ const ACTION_COLORS: Record<string, { bg: string; text: string; border: string }
   PRICE_CHANGE: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" },
   DISCOUNT: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" },
   LOGIN: { bg: "bg-sky-50", text: "text-sky-700", border: "border-sky-200" },
-  LOGOUT: { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200" },
+  LOGOUT: { bg: "bg-slate-100", text: "text-slate-600", border: "border-sky-100/90" },
   EXPORT: { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-200" },
   REFUND: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
   ADJUST: { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200" },
@@ -131,10 +131,10 @@ const SEVERITY_CONFIG: Record<
 > = {
   LOW: {
     label: "Low Severity",
-    badgeCls: "bg-slate-100 text-slate-700 border-slate-200",
+    badgeCls: "bg-slate-100 text-slate-700 border-sky-100/90",
     borderCls: "border-slate-300",
     dotCls: "bg-slate-400",
-    cardBorder: "border-slate-200",
+    cardBorder: "border-sky-100/90",
   },
   MEDIUM: {
     label: "Medium Risk",
@@ -334,7 +334,7 @@ function AuditSecurityContent() {
       {/* Toast Notification */}
       {toast && (
         <div
-          className={`flex items-center justify-between rounded-xl border p-4 text-sm font-medium shadow-xs transition-all animate-in fade-in-50 duration-200 ${
+          className={`flex items-center justify-between rounded-sm border p-4 text-sm font-medium shadow-2xs transition-all animate-in fade-in-50 duration-200 ${
             toast.type === "success"
               ? "border-emerald-200 bg-emerald-50 text-emerald-800"
               : toast.type === "error"
@@ -371,10 +371,10 @@ function AuditSecurityContent() {
       />
 
       {/* Master Top Banner (Clean Light Executive Theme) */}
-      <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-6 shadow-2xs">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
-            <div className="flex items-center gap-2 text-primary-700 text-xs font-bold uppercase tracking-widest">
+            <div className="flex items-center gap-2 text-sky-700 text-xs font-bold uppercase tracking-widest">
               <ShieldCheck size={14} className="text-emerald-600" />
               <span>Enterprise SOC & Audit Trail (§17 Security & Compliance)</span>
             </div>
@@ -390,9 +390,9 @@ function AuditSecurityContent() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => switchTab("audit")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all shadow-xs cursor-pointer ${
+              className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all shadow-2xs cursor-pointer ${
                 activeTab === "audit"
-                  ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
+                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/20"
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
@@ -402,9 +402,9 @@ function AuditSecurityContent() {
 
             <button
               onClick={() => switchTab("security")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all shadow-xs cursor-pointer ${
+              className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all shadow-2xs cursor-pointer ${
                 activeTab === "security"
-                  ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
+                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/20"
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
@@ -414,9 +414,9 @@ function AuditSecurityContent() {
 
             <button
               onClick={() => switchTab("health")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all shadow-xs cursor-pointer ${
+              className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all shadow-2xs cursor-pointer ${
                 activeTab === "health"
-                  ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
+                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/20"
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
@@ -428,14 +428,14 @@ function AuditSecurityContent() {
       </div>
 
       {/* Main Tab Strip & Action Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-100/90 pb-3">
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => switchTab("audit")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+            className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition cursor-pointer ${
               activeTab === "audit"
-                ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
-                : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/20"
+                : "bg-white text-slate-600 hover:bg-slate-100 border border-sky-100/90"
             }`}
           >
             <FileText size={14} />
@@ -444,10 +444,10 @@ function AuditSecurityContent() {
 
           <button
             onClick={() => switchTab("security")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+            className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition cursor-pointer ${
               activeTab === "security"
-                ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
-                : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/20"
+                : "bg-white text-slate-600 hover:bg-slate-100 border border-sky-100/90"
             }`}
           >
             <ShieldAlert size={14} />
@@ -456,10 +456,10 @@ function AuditSecurityContent() {
 
           <button
             onClick={() => switchTab("health")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+            className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition cursor-pointer ${
               activeTab === "health"
-                ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
-                : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/20"
+                : "bg-white text-slate-600 hover:bg-slate-100 border border-sky-100/90"
             }`}
           >
             <Activity size={14} />
@@ -468,10 +468,10 @@ function AuditSecurityContent() {
 
           <button
             onClick={() => switchTab("policies")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+            className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition cursor-pointer ${
               activeTab === "policies"
-                ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
-                : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/20"
+                : "bg-white text-slate-600 hover:bg-slate-100 border border-sky-100/90"
             }`}
           >
             <Lock size={14} />
@@ -485,7 +485,7 @@ function AuditSecurityContent() {
             variant="outline"
             size="sm"
             onClick={exportLogs}
-            className="border-slate-200 bg-white hover:bg-slate-50 shadow-xs"
+            className="border-sky-100/90 bg-white hover:bg-slate-50 shadow-2xs"
           >
             <Download size={13} />
             <span>Export JSON</span>
@@ -496,7 +496,7 @@ function AuditSecurityContent() {
             size="sm"
             onClick={loadData}
             disabled={loading}
-            className="border-slate-200 bg-white hover:bg-slate-50 shadow-xs"
+            className="border-sky-100/90 bg-white hover:bg-slate-50 shadow-2xs"
           >
             <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
             <span>Refresh</span>
@@ -509,10 +509,10 @@ function AuditSecurityContent() {
         <div className="space-y-6">
           {/* KPI Metrics */}
           <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-4.5 shadow-xs">
+            <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Audit Records</span>
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-100 text-primary-700">
+                <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary-100 text-sky-700">
                   <Database size={16} />
                 </span>
               </div>
@@ -520,15 +520,15 @@ function AuditSecurityContent() {
                 <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{auditStats?.total || auditLogs.length}</span>
                 <span className="text-xs text-slate-400 font-medium">total log entries</span>
               </div>
-              <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
+              <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
                 Across all tenant modules & API endpoints
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-4.5 shadow-xs">
+            <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Logged Today</span>
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-100 text-emerald-700">
                   <Clock size={16} />
                 </span>
               </div>
@@ -536,15 +536,15 @@ function AuditSecurityContent() {
                 <span className="text-3xl font-extrabold text-emerald-600 tracking-tight">{auditStats?.today || 0}</span>
                 <span className="text-xs text-slate-400 font-medium">actions today</span>
               </div>
-              <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
+              <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
                 Real-time transaction capture active
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-4.5 shadow-xs">
+            <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Top Entity Volume</span>
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-100 text-purple-700">
+                <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-purple-100 text-purple-700">
                   <Layers size={16} />
                 </span>
               </div>
@@ -556,29 +556,29 @@ function AuditSecurityContent() {
                   ({auditStats?.byEntity?.[0]?.count || 0} logs)
                 </span>
               </div>
-              <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2 truncate">
+              <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2 truncate">
                 {(auditStats?.byEntity || []).slice(1, 4).map((e) => `${e.entityType} (${e.count})`).join(" · ") || "No other entities"}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-4.5 shadow-xs">
+            <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tamper Protection</span>
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-100 text-emerald-700">
                   <ShieldCheck size={16} />
                 </span>
               </div>
               <div className="mt-2.5 flex items-baseline gap-2">
                 <span className="text-2xl font-extrabold text-emerald-700 tracking-tight">100% Verified</span>
               </div>
-              <p className="mt-2 text-xs text-emerald-700 border-t border-slate-100 pt-2 flex items-center gap-1">
+              <p className="mt-2 text-xs text-emerald-700 border-t border-sky-100/70 pt-2 flex items-center gap-1">
                 <Check size={12} /> Append-only cryptographic ledger
               </p>
             </div>
           </div>
 
           {/* Filter Toolbar */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               {/* Search */}
               <div className="relative min-w-[240px] flex-1">
@@ -587,7 +587,7 @@ function AuditSecurityContent() {
                   value={auditSearch}
                   onChange={(e) => setAuditSearch(e.target.value)}
                   placeholder="Search user, entity ID, IP, reason…"
-                  className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-8 pr-3 text-xs text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
+                  className="h-9 w-full rounded-sm border border-sky-100/90 bg-slate-50/50 pl-8 pr-3 text-xs text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
                 />
                 {auditSearch && (
                   <button
@@ -630,11 +630,11 @@ function AuditSecurityContent() {
           </div>
 
           {/* Audit Table */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">
+          <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <tr className="border-b border-sky-100/70 bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                     <th className="py-3.5 pl-4 pr-3">Timestamp</th>
                     <th className="px-3 py-3.5">Action Executed</th>
                     <th className="px-3 py-3.5">Target Entity</th>
@@ -664,7 +664,7 @@ function AuditSecurityContent() {
                     </tr>
                   ) : (
                     filteredAuditLogs.map((log, idx) => {
-                      const actCfg = ACTION_COLORS[log.action] || { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-200" };
+                      const actCfg = ACTION_COLORS[log.action] || { bg: "bg-slate-100", text: "text-slate-700", border: "border-sky-100/90" };
 
                       return (
                         <tr
@@ -674,7 +674,7 @@ function AuditSecurityContent() {
                         >
                           {/* Timestamp */}
                           <td className="py-3.5 pl-4 pr-3">
-                            <p className="text-xs font-semibold text-slate-900 group-hover:text-primary-600 transition">
+                            <p className="text-xs font-semibold text-slate-900 group-hover:text-sky-600 transition">
                               {fmtDt(log.createdAt)}
                             </p>
                             <p className="text-[11px] text-slate-400">{timeAgo(log.createdAt)}</p>
@@ -725,7 +725,7 @@ function AuditSecurityContent() {
                                 e.stopPropagation();
                                 setSelectedAudit(log);
                               }}
-                              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 hover:text-primary-700 transition"
+                              className="inline-flex items-center gap-1 rounded-sm border border-sky-100/90 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:text-sky-700 transition"
                             >
                               <Eye size={12} /> Inspect
                             </button>
@@ -746,10 +746,10 @@ function AuditSecurityContent() {
         <div className="space-y-6">
           {/* KPI Metrics */}
           <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-4.5 shadow-xs">
+            <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Threats Flagged</span>
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-100 text-rose-700">
+                <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-100 text-rose-700">
                   <ShieldAlert size={16} />
                 </span>
               </div>
@@ -759,15 +759,15 @@ function AuditSecurityContent() {
                 </span>
                 <span className="text-xs text-slate-400 font-medium">events recorded</span>
               </div>
-              <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
+              <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
                 SOC intrusion detection sensor network
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-4.5 shadow-xs">
+            <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Blocked IPs & Attacks</span>
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-100 text-orange-700">
+                <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-orange-100 text-orange-700">
                   <Ban size={16} />
                 </span>
               </div>
@@ -777,15 +777,15 @@ function AuditSecurityContent() {
                 </span>
                 <span className="text-xs text-slate-400 font-medium">prevented requests</span>
               </div>
-              <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
+              <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
                 Automated rate-limiting & WAF drops
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-4.5 shadow-xs">
+            <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Critical Severity Alerts</span>
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-100 text-rose-700">
+                <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-100 text-rose-700">
                   <AlertTriangle size={16} />
                 </span>
               </div>
@@ -795,15 +795,15 @@ function AuditSecurityContent() {
                 </span>
                 <span className="text-xs text-slate-400 font-medium">critical items</span>
               </div>
-              <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
+              <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
                 Requires security admin investigation
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-4.5 shadow-xs">
+            <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Failed Authentication</span>
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-amber-100 text-amber-700">
                   <Key size={16} />
                 </span>
               </div>
@@ -813,14 +813,14 @@ function AuditSecurityContent() {
                 </span>
                 <span className="text-xs text-slate-400 font-medium">invalid logins</span>
               </div>
-              <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
+              <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
                 Brute force threshold protection active
               </p>
             </div>
           </div>
 
           {/* Security Filter Toolbar */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               {/* Search */}
               <div className="relative min-w-[240px] flex-1">
@@ -829,7 +829,7 @@ function AuditSecurityContent() {
                   value={secSearch}
                   onChange={(e) => setSecSearch(e.target.value)}
                   placeholder="Search threat type, IP, user, endpoint…"
-                  className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-8 pr-3 text-xs text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
+                  className="h-9 w-full rounded-sm border border-sky-100/90 bg-slate-50/50 pl-8 pr-3 text-xs text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100"
                 />
                 {secSearch && (
                   <button
@@ -875,11 +875,11 @@ function AuditSecurityContent() {
           </div>
 
           {/* Security Events Table */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">
+          <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <tr className="border-b border-sky-100/70 bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                     <th className="py-3.5 pl-4 pr-3">Event Time</th>
                     <th className="px-3 py-3.5">Threat Event Type</th>
                     <th className="px-3 py-3.5">Severity</th>
@@ -919,7 +919,7 @@ function AuditSecurityContent() {
                         >
                           {/* Event Time */}
                           <td className="py-3.5 pl-4 pr-3">
-                            <p className="text-xs font-semibold text-slate-900 group-hover:text-primary-600 transition">
+                            <p className="text-xs font-semibold text-slate-900 group-hover:text-sky-600 transition">
                               {fmtDt(ev.createdAt)}
                             </p>
                             <p className="text-[11px] text-slate-400">{timeAgo(ev.createdAt)}</p>
@@ -974,7 +974,7 @@ function AuditSecurityContent() {
                                 e.stopPropagation();
                                 setSelectedSecEvent(ev);
                               }}
-                              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 hover:text-primary-700 transition"
+                              className="inline-flex items-center gap-1 rounded-sm border border-sky-100/90 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:text-sky-700 transition"
                             >
                               <Eye size={12} /> Inspect
                             </button>
@@ -996,18 +996,18 @@ function AuditSecurityContent() {
           {/* Health Diagnostics Scorecard */}
           <div className="grid gap-4 lg:grid-cols-3">
             {/* Risk Gauge */}
-            <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs flex flex-col justify-between">
+            <div className="rounded-sm border border-sky-100/90 bg-white p-6 shadow-2xs flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-400">System Risk Assessment</span>
-                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-sky-600">
                     <Activity size={16} />
                   </span>
                 </div>
 
                 <div className="mt-4 flex items-center gap-3">
                   <div
-                    className={`flex h-16 w-16 items-center justify-center rounded-2xl text-2xl font-black ${
+                    className={`flex h-16 w-16 items-center justify-center rounded-sm text-2xl font-black ${
                       health?.riskLevel === "CRITICAL"
                         ? "bg-rose-100 text-rose-700 ring-4 ring-rose-500/20"
                         : health?.riskLevel === "HIGH"
@@ -1026,7 +1026,7 @@ function AuditSecurityContent() {
                 </div>
               </div>
 
-              <div className="mt-6 space-y-2 border-t border-slate-100 pt-4 text-xs">
+              <div className="mt-6 space-y-2 border-t border-sky-100/70 pt-4 text-xs">
                 <div className="flex justify-between text-slate-600">
                   <span>Total Monitored Events:</span>
                   <span className="font-bold text-slate-900">{health?.totalEvents || 0}</span>
@@ -1043,13 +1043,13 @@ function AuditSecurityContent() {
             </div>
 
             {/* Recommendations & Remediation */}
-            <div className="lg:col-span-2 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs">
+            <div className="lg:col-span-2 rounded-sm border border-sky-100/90 bg-white p-6 shadow-2xs">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-base font-bold text-slate-900">Automated SOC Recommendations</h3>
                   <p className="text-xs text-slate-500">Security hardening guidelines computed from live event logs.</p>
                 </div>
-                <span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700 border border-primary-100">
+                <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-bold text-sky-700 border border-primary-100">
                   {(health?.recommendations || []).length} Active Insights
                 </span>
               </div>
@@ -1058,9 +1058,9 @@ function AuditSecurityContent() {
                 {(health?.recommendations || []).map((rec, i) => (
                   <div
                     key={i}
-                    className="flex items-start gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-4 transition hover:bg-slate-50"
+                    className="flex items-start gap-3 rounded-sm border border-sky-100/70 bg-slate-50/70 p-4 transition hover:bg-slate-50"
                   >
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-700 font-bold text-xs mt-0.5">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sky-700 font-bold text-xs mt-0.5">
                       {i + 1}
                     </div>
                     <div>
@@ -1136,11 +1136,11 @@ function AuditSecurityContent() {
               return (
                 <div
                   key={i}
-                  className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between"
+                  className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs hover:shadow-2xs transition flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-center justify-between">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-sky-50 text-sky-600">
                         <Icon size={18} />
                       </div>
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
@@ -1152,9 +1152,9 @@ function AuditSecurityContent() {
                     <p className="mt-1 text-xs text-slate-500 leading-relaxed">{p.desc}</p>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <div className="mt-4 pt-3 border-t border-sky-100/70 flex items-center justify-between text-xs">
                     <span className="text-slate-400">Configuration:</span>
-                    <span className="font-mono font-bold text-slate-700 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                    <span className="font-mono font-bold text-slate-700 bg-slate-50 px-2 py-0.5 rounded border border-sky-100/90">
                       {p.badge}
                     </span>
                   </div>
@@ -1174,29 +1174,29 @@ function AuditSecurityContent() {
         {selectedAudit && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-              <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Action</p>
                 <p className="mt-0.5 font-bold text-slate-800">{selectedAudit.action}</p>
               </div>
 
-              <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Entity Type</p>
                 <p className="mt-0.5 font-bold text-slate-800">{selectedAudit.entity}</p>
               </div>
 
-              <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Operator ID</p>
                 <p className="mt-0.5 font-bold text-slate-800 truncate">{selectedAudit.userId || "system"}</p>
               </div>
 
-              <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Client IP</p>
                 <p className="mt-0.5 font-mono font-bold text-slate-800">{selectedAudit.ipAddress || "127.0.0.1"}</p>
               </div>
             </div>
 
             {selectedAudit.reason && (
-              <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 text-xs">
+              <div className="rounded-sm bg-slate-50 p-3 border border-sky-100/70 text-xs">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Reason / Audit Context</p>
                 <p className="mt-1 font-medium text-slate-800">{selectedAudit.reason}</p>
               </div>
@@ -1205,27 +1205,27 @@ function AuditSecurityContent() {
             {/* Old vs New Values Visual Diff */}
             <div className="grid gap-3 sm:grid-cols-2">
               {/* Old Values */}
-              <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <div className="rounded-sm border border-sky-100/90 bg-white p-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
                   <X size={12} className="text-rose-500" /> State Prior to Change (Old)
                 </p>
-                <div className="overflow-x-auto rounded-lg bg-slate-900 p-2.5 text-slate-100 text-[11px] font-mono leading-relaxed max-h-48">
+                <div className="overflow-x-auto rounded-sm bg-slate-900 p-2.5 text-slate-100 text-[11px] font-mono leading-relaxed max-h-48">
                   <pre>{JSON.stringify(selectedAudit.oldValues || { status: "none / initial" }, null, 2)}</pre>
                 </div>
               </div>
 
               {/* New Values */}
-              <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <div className="rounded-sm border border-sky-100/90 bg-white p-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
                   <Check size={12} className="text-emerald-500" /> State After Change (New)
                 </p>
-                <div className="overflow-x-auto rounded-lg bg-slate-900 p-2.5 text-slate-100 text-[11px] font-mono leading-relaxed max-h-48">
+                <div className="overflow-x-auto rounded-sm bg-slate-900 p-2.5 text-slate-100 text-[11px] font-mono leading-relaxed max-h-48">
                   <pre>{JSON.stringify(selectedAudit.newValues || { status: "none / deleted" }, null, 2)}</pre>
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end pt-2 border-t border-slate-100">
+            <div className="flex justify-end pt-2 border-t border-sky-100/70">
               <CustomButton variant="outline" onClick={() => setSelectedAudit(null)}>
                 Close
               </CustomButton>
@@ -1243,46 +1243,46 @@ function AuditSecurityContent() {
         {selectedSecEvent && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-              <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Threat Type</p>
                 <p className="mt-0.5 font-bold text-slate-800">{selectedSecEvent.eventType}</p>
               </div>
 
-              <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Severity</p>
                 <p className="mt-0.5 font-bold text-rose-600">{selectedSecEvent.severity}</p>
               </div>
 
-              <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Origin IP</p>
                 <p className="mt-0.5 font-mono font-bold text-slate-800">{selectedSecEvent.ipAddress || "—"}</p>
               </div>
 
-              <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+              <div className="rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Verdict</p>
                 <p className="mt-0.5 font-bold text-slate-800">{selectedSecEvent.blocked ? "BLOCKED" : "LOGGED"}</p>
               </div>
             </div>
 
             {selectedSecEvent.endpoint && (
-              <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 text-xs">
+              <div className="rounded-sm bg-slate-50 p-3 border border-sky-100/70 text-xs">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Target URI Endpoint</p>
                 <p className="mt-1 font-mono font-bold text-slate-800">{selectedSecEvent.endpoint}</p>
               </div>
             )}
 
             {selectedSecEvent.details && (
-              <div className="rounded-xl border border-slate-200 bg-white p-3.5">
+              <div className="rounded-sm border border-sky-100/90 bg-white p-3.5">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
                   <Terminal size={12} className="text-rose-500" /> Incident Payload & Vector Inspection
                 </p>
-                <div className="overflow-x-auto rounded-lg bg-slate-900 p-3 text-slate-100 text-[11px] font-mono leading-relaxed max-h-56">
+                <div className="overflow-x-auto rounded-sm bg-slate-900 p-3 text-slate-100 text-[11px] font-mono leading-relaxed max-h-56">
                   <pre>{JSON.stringify(selectedSecEvent.details, null, 2)}</pre>
                 </div>
               </div>
             )}
 
-            <div className="flex justify-end pt-2 border-t border-slate-100">
+            <div className="flex justify-end pt-2 border-t border-sky-100/70">
               <CustomButton variant="outline" onClick={() => setSelectedSecEvent(null)}>
                 Close
               </CustomButton>

@@ -1507,7 +1507,7 @@ export default function RestaurantPOSPage() {
                   className="fixed inset-0 z-30"
                   onClick={() => setShowThreeDotMenu(false)}
                 />
-                <div className="absolute right-0 top-10 z-40 w-56 rounded-2xl bg-white p-1.5 shadow-2xl border border-slate-100 text-slate-700 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute right-0 top-10 z-40 w-56 rounded-sm bg-white p-1.5 shadow-2xl border border-slate-100 text-slate-700 animate-in fade-in zoom-in-95 duration-150">
                   <button
                     onClick={() => {
                       setShowThreeDotMenu(false);
@@ -1576,11 +1576,11 @@ export default function RestaurantPOSPage() {
       </header>
 
       {/* ══════════════ 2. SUB-HEADER CONTROLS BAR ══════════════ */}
-      <div className="flex-none flex flex-wrap items-center justify-between gap-2 px-4 py-2 bg-white border-b border-slate-200 shadow-2xs z-10">
+      <div className="flex-none flex flex-wrap items-center justify-between gap-2 px-4 py-2 bg-white border-b border-sky-100/90 shadow-2xs z-10">
         <div className="flex flex-wrap items-center gap-3 text-gray-600">
           <button
             onClick={() => setShowSelectTableModal(true)}
-            className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5 hover:bg-orange-50 hover:border-orange-300 transition cursor-pointer"
+            className="flex items-center gap-2 bg-slate-50 border border-sky-100/90 rounded-md px-3 py-1.5 hover:bg-orange-50 hover:border-orange-300 transition cursor-pointer"
             title="Select Section and Table"
           >
             <LayoutGrid size={15} className="text-orange-600" />
@@ -1595,15 +1595,15 @@ export default function RestaurantPOSPage() {
             )}
           </button>
 
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5">
+          <div className="flex items-center gap-2 bg-slate-50 border border-sky-100/90 rounded-md px-3 py-1.5">
             <Users size={15} className="text-gray-500" />
             <span className="text-xs font-medium text-gray-500">Guests:</span>
             <button
               onClick={() => setGuestCount((g) => Math.max(1, g - 1))}
               disabled={guestCount <= 1}
               className={`flex h-5 w-5 items-center justify-center rounded-md border font-bold ${guestCount <= 1
-                ? "bg-slate-100 border-slate-200 text-slate-300 cursor-not-allowed"
-                : "bg-white border-slate-200 text-gray-700 hover:bg-slate-100 cursor-pointer"
+                ? "bg-slate-100 border-sky-100/90 text-slate-300 cursor-not-allowed"
+                : "bg-white border-sky-100/90 text-gray-700 hover:bg-slate-100 cursor-pointer"
                 }`}
             >
               <Minus size={11} />
@@ -1613,7 +1613,7 @@ export default function RestaurantPOSPage() {
             </span>
             <button
               onClick={() => setGuestCount((g) => g + 1)}
-              className="flex h-5 w-5 items-center justify-center rounded-md bg-white border border-slate-200 text-gray-700 font-bold hover:bg-slate-100 cursor-pointer"
+              className="flex h-5 w-5 items-center justify-center rounded-md bg-white border border-sky-100/90 text-gray-700 font-bold hover:bg-slate-100 cursor-pointer"
             >
               <Plus size={11} />
             </button>
@@ -1622,7 +1622,7 @@ export default function RestaurantPOSPage() {
           {/* Waiter / Staff Button */}
           <button
             onClick={() => setShowSelectStaffModal(true)}
-            className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5 hover:bg-orange-50 hover:border-orange-300 transition cursor-pointer"
+            className="flex items-center gap-2 bg-slate-50 border border-sky-100/90 rounded-md px-3 py-1.5 hover:bg-orange-50 hover:border-orange-300 transition cursor-pointer"
             title="Assign or change staff/waiter"
           >
             <ChefHat size={15} className="text-orange-600" />
@@ -1716,7 +1716,7 @@ export default function RestaurantPOSPage() {
       {/* ══════════════ 3. MAIN POS WORKSPACE ══════════════ */}
       <div className="flex-1 min-h-0 flex gap-3 p-3 overflow-hidden">
         {/* ── LEFT CATEGORY SIDEBAR ── */}
-        <aside className="w-56 sm:w-64 flex-none flex flex-col justify-between rounded-xl bg-white border border-slate-200 p-2.5 shadow-2xs overflow-hidden">
+        <aside className="w-56 sm:w-64 flex-none flex flex-col justify-between rounded-xl bg-white border border-sky-100/90 p-2.5 shadow-2xs overflow-hidden">
           <div className="space-y-1.5 overflow-y-auto pr-1 custom-scrollbar">
             {categories.map((cat) => {
               const Icon = cat.icon;
@@ -1777,7 +1777,7 @@ export default function RestaurantPOSPage() {
         </aside>
 
         {/* ── CENTER MENU ITEMS GRID ── */}
-        <main className="flex-1 flex flex-col rounded-xl bg-white border border-slate-200 shadow-2xs overflow-hidden">
+        <main className="flex-1 flex flex-col rounded-xl bg-white border border-sky-100/90 shadow-2xs overflow-hidden">
           {/* ── ACTIVE SHIFT BANNER (DISPLAYED WHEN SHIFT FILTER IS ON) ── */}
           {restaurantPosShiftVisible && timeSlotFilterEnabled && (
             <div className="flex-none p-2.5 px-3 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 border-b border-amber-300/80 flex items-center justify-between gap-3">
@@ -1882,7 +1882,7 @@ export default function RestaurantPOSPage() {
                   <div
                     key={item.id}
                     onClick={() => handleProductAction(item)}
-                    className={`group relative flex rounded-2xl border border-gray-200 bg-white shadow-sm hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden ${viewMode === "list"
+                    className={`group relative flex rounded-sm border border-gray-200 bg-white shadow-sm hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden ${viewMode === "list"
                       ? "flex-row items-center p-2.5 gap-3"
                       : "flex-col justify-between"
                       }`}
@@ -1967,7 +1967,7 @@ export default function RestaurantPOSPage() {
           </div>
 
           {/* Bottom Toolbar Row under Menu */}
-          <div className="flex-none p-2.5 border-t border-slate-200 bg-slate-50/70 grid grid-cols-4 sm:grid-cols-8 gap-2">
+          <div className="flex-none p-2.5 border-t border-sky-100/90 bg-slate-50/70 grid grid-cols-4 sm:grid-cols-8 gap-2">
             <button
               onClick={() => {
                 setPromptModalState({
@@ -1980,7 +1980,7 @@ export default function RestaurantPOSPage() {
                   },
                 });
               }}
-              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-sky-100/90 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <Tag size={13} className="text-orange-600" /> Coupon
             </button>
@@ -1998,14 +1998,14 @@ export default function RestaurantPOSPage() {
                   },
                 });
               }}
-              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-sky-100/90 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <Percent size={13} className="text-orange-600" /> Discount
             </button>
 
             <button
               onClick={() => toast.info("Promo Campaign applied")}
-              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-sky-100/90 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <Gift size={13} className="text-orange-600" /> Promo
             </button>
@@ -2023,35 +2023,35 @@ export default function RestaurantPOSPage() {
                   },
                 });
               }}
-              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-sky-100/90 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <FileText size={13} className="text-orange-600" /> Note
             </button>
 
             <button
               onClick={() => router.push("/sales/orders")}
-              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-sky-100/90 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <ClipboardList size={13} className="text-orange-600" /> Order
             </button>
 
             <button
               onClick={() => router.push("/restaurant/kitchen")}
-              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-sky-100/90 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <Flame size={13} className="text-orange-600" /> Kitchen
             </button>
 
             <button
               onClick={() => router.push("/restaurant?tab=floors")}
-              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-sky-100/90 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <Calendar size={13} className="text-orange-600" /> Reservation
             </button>
 
             <button
               onClick={() => window.print()}
-              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md bg-white border border-sky-100/90 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <Printer size={13} className="text-orange-600" /> Print
             </button>
@@ -2059,7 +2059,7 @@ export default function RestaurantPOSPage() {
         </main>
 
         {/* ── RIGHT ORDER SUMMARY PANEL ── */}
-        <aside className="w-80 sm:w-96 flex-none flex flex-col rounded-xl bg-white border border-slate-200 shadow-md overflow-hidden">
+        <aside className="w-80 sm:w-96 flex-none flex flex-col rounded-xl bg-white border border-sky-100/90 shadow-md overflow-hidden">
           {/* ── HEADER ── */}
           <div className="flex-none px-4 py-3.5 border-b border-orange-100 bg-gradient-to-br from-orange-500 via-amber-500 to-orange-400">
             <div className="flex items-center justify-between gap-2">
@@ -2105,7 +2105,7 @@ export default function RestaurantPOSPage() {
               </div>
             ) : (
               cart.map((item) => (
-                <div key={item.id} className="rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all duration-150 overflow-hidden">
+                <div key={item.id} className="rounded-xl border border-sky-100/90 bg-white shadow-sm hover:shadow-md transition-all duration-150 overflow-hidden">
                   <div className="p-3.5">
                     <div className="flex items-center gap-3">
                       {/* Product Image / Placeholder */}
@@ -2204,7 +2204,7 @@ export default function RestaurantPOSPage() {
                           <div className="flex items-center gap-1.5">
                             <button
                               onClick={() => updateQty(item.id, -1)}
-                              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-gray-600 font-bold hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition cursor-pointer"
+                              className="flex h-7 w-7 items-center justify-center rounded-lg border border-sky-100/90 bg-white text-gray-600 font-bold hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition cursor-pointer"
                             >
                               <Minus size={12} />
                             </button>
@@ -2241,12 +2241,12 @@ export default function RestaurantPOSPage() {
                 value={orderNote}
                 onChange={(e) => setOrderNote(e.target.value)}
                 placeholder="Add Order Note..."
-                className="w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-gray-700 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition"
+                className="w-full rounded-lg border border-sky-100/90 bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-gray-700 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 focus:outline-none transition"
               />
               <FileText size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
           </div>{/* ── Summary + Actions ── */}
-          <div className="flex-none p-4 bg-gradient-to-b from-slate-50 to-slate-100 border-t border-slate-200 space-y-3">
+          <div className="flex-none p-4 bg-gradient-to-b from-slate-50 to-slate-100 border-t border-sky-100/90 space-y-3">
             <div className="space-y-1.5 text-xs text-gray-600">
               <div className="flex justify-between">
                 <span className="text-gray-500">Subtotal</span>
@@ -2408,7 +2408,7 @@ export default function RestaurantPOSPage() {
         </div>
 
         {/* ── Printable Receipt (wrapped for CSS print) ── */}
-        <div id="restaurant-receipt" className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+        <div id="restaurant-receipt" className="bg-white rounded-xl border border-sky-100/90 p-5 space-y-4">
 
           {/* Store Name */}
           <div className="text-center space-y-1">
@@ -2540,7 +2540,7 @@ export default function RestaurantPOSPage() {
 
           {/* QR Code */}
           <div className="flex justify-center py-2">
-            <div className="p-2 bg-white rounded-lg border border-slate-200">
+            <div className="p-2 bg-white rounded-lg border border-sky-100/90">
               <QRCodeSVG value={completedBill?.invoiceNo || "N/A"} size={80} level="M" />
             </div>
           </div>
@@ -2579,7 +2579,7 @@ export default function RestaurantPOSPage() {
         {/* ── Orange Header ── */}
         <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 -mx-6 -mt-5 mb-4 px-6 py-4 flex items-center justify-between rounded-t-md shadow-md">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md text-white shadow-inner">
+            <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-white/20 backdrop-blur-md text-white shadow-inner">
               <ShoppingBag size={22} />
             </div>
             <div>
@@ -2599,7 +2599,7 @@ export default function RestaurantPOSPage() {
         </div>
 
         {/* ── Total Due Strip ── */}
-        <div className="rounded-2xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50/50 p-4 space-y-3">
+        <div className="rounded-sm border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50/50 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Total Payable</p>
@@ -2645,9 +2645,9 @@ export default function RestaurantPOSPage() {
                     key={id}
                     type="button"
                     onClick={() => setCheckoutPayMethod(id as any)}
-                    className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border-2 py-3.5 px-2 text-center transition cursor-pointer ${active
+                    className={`flex flex-col items-center justify-center gap-1.5 rounded-sm border-2 py-3.5 px-2 text-center transition cursor-pointer ${active
                         ? "border-orange-500 bg-orange-500 text-white shadow-md shadow-orange-500/20 scale-[1.02]"
-                        : "border-slate-200 bg-white text-gray-600 hover:border-orange-300 hover:bg-orange-50/50"
+                        : "border-sky-100/90 bg-white text-gray-600 hover:border-orange-300 hover:bg-orange-50/50"
                       }`}
                   >
                     <Icon size={20} />
@@ -2660,7 +2660,7 @@ export default function RestaurantPOSPage() {
 
           {/* ── CASH TENDERING INPUT & DENOMINATIONS ── */}
           {checkoutPayMethod === "CASH" && (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+            <div className="rounded-sm border border-sky-100/90 bg-slate-50/70 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <label className="text-[11px] font-black uppercase tracking-wider text-gray-500">
                   Cash Tendered (৳)
@@ -2697,7 +2697,7 @@ export default function RestaurantPOSPage() {
                       const cur = parseFloat(cashTenderedInput) || 0;
                       setCashTenderedInput((cur + denom).toString());
                     }}
-                    className="rounded-lg border border-slate-200 bg-white py-1.5 text-xs font-bold text-gray-700 hover:bg-orange-50 hover:border-orange-300 transition cursor-pointer"
+                    className="rounded-lg border border-sky-100/90 bg-white py-1.5 text-xs font-bold text-gray-700 hover:bg-orange-50 hover:border-orange-300 transition cursor-pointer"
                   >
                     +৳{denom}
                   </button>
@@ -2980,7 +2980,7 @@ export default function RestaurantPOSPage() {
         </div>
 
         {/* Info Alert Box (Matching Screenshot) */}
-        <div className="mt-3 rounded-2xl bg-sky-50 border border-sky-200 p-3.5 flex items-start gap-3 text-sky-800">
+        <div className="mt-3 rounded-sm bg-sky-50 border border-sky-200 p-3.5 flex items-start gap-3 text-sky-800">
           <Info size={18} className="text-sky-600 shrink-0 mt-0.5" />
           <p className="text-[11.5px] leading-relaxed font-semibold">
             Full hardware activation requires SDK/driver integration. UI is ready — connect ESC/POS, Bluetooth or USB packages in the backend to activate.
@@ -3114,7 +3114,7 @@ export default function RestaurantPOSPage() {
               themeColor="orange"
               variant="solid"
               wrap={true}
-              className="bg-slate-50 border-slate-200 p-2"
+              className="bg-slate-50 border-sky-100/90 p-2"
             />
 
             {/* Status Filter: All / Free / Busy / Reserved */}
@@ -3131,7 +3131,7 @@ export default function RestaurantPOSPage() {
                   onClick={() => setActiveStatusFilter(f.id)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition cursor-pointer border ${activeStatusFilter === f.id
                     ? "bg-slate-800 text-white border-slate-800"
-                    : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
+                    : "bg-white text-gray-600 border-sky-100/90 hover:bg-slate-50"
                     }`}
                 >
                   <span className={`h-2 w-2 rounded-full ${activeStatusFilter === f.id ? "bg-white" : f.dot}`} />
@@ -3144,7 +3144,7 @@ export default function RestaurantPOSPage() {
           {/* Grid of Tables belonging to activeSectionTab */}
           <div className="custom-scrollbar max-h-[60vh] min-h-[260px] overflow-y-auto p-1">
             {tableModalTables.length === 0 ? (
-              <div className="py-12 text-center border border-dashed border-slate-200 rounded-md bg-slate-50/50">
+              <div className="py-12 text-center border border-dashed border-sky-100/90 rounded-md bg-slate-50/50">
                 <Armchair size={38} className="mx-auto text-slate-300 mb-2" />
                 <p className="text-xs font-bold text-slate-500">No tables found in this section</p>
                 <p className="text-[11px] text-slate-400 mt-0.5">Try selecting &quot;All Sections&quot; or another tab above</p>
@@ -3164,7 +3164,7 @@ export default function RestaurantPOSPage() {
                       ? { chair: "bg-amber-300 border-amber-300", table: "border-amber-300 bg-amber-50/60", text: "text-amber-600", badge: "bg-amber-100 text-amber-700", card: "border-amber-200 bg-white" }
                       : isReserved
                         ? { chair: "bg-purple-300 border-purple-300", table: "border-purple-300 bg-purple-50/60", text: "text-purple-600", badge: "bg-purple-100 text-purple-700", card: "border-purple-200 bg-white" }
-                        : { chair: "bg-blue-300 border-blue-300", table: "border-blue-200 bg-blue-50/30", text: "text-blue-500", badge: "bg-emerald-100 text-emerald-700", card: "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md" };
+                        : { chair: "bg-blue-300 border-blue-300", table: "border-blue-200 bg-blue-50/30", text: "text-blue-500", badge: "bg-emerald-100 text-emerald-700", card: "border-sky-100/90 bg-white hover:border-blue-300 hover:shadow-md" };
 
                   const cap = t.capacity || 4;
                   // Distribute chairs: top/bottom rows, sides
@@ -3199,7 +3199,7 @@ export default function RestaurantPOSPage() {
                         setShowSelectTableModal(false);
                         toast.success(`Table ${t.tableNo} (${t.floorName || "Section"}) selected!`);
                       }}
-                      className={`flex flex-col items-center p-3 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer select-none ${!isAvailable && !isSelected ? "opacity-70 cursor-not-allowed" : ""} ${color.card}`}
+                      className={`flex flex-col items-center p-3 rounded-sm border-2 text-left transition-all duration-200 cursor-pointer select-none ${!isAvailable && !isSelected ? "opacity-70 cursor-not-allowed" : ""} ${color.card}`}
                     >
                       {/* Visual Table Layout */}
                       <div className="w-full flex flex-col items-center gap-1 py-1">
@@ -3338,7 +3338,7 @@ export default function RestaurantPOSPage() {
                   }}
                   className={`flex items-center gap-3 p-3 rounded-md border text-left transition duration-150 cursor-pointer ${isStaffActive
                     ? "border-orange-500 bg-orange-600 text-white shadow-sm"
-                    : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/60 hover:shadow-sm"
+                    : "border-sky-100/90 bg-white hover:border-orange-300 hover:bg-orange-50/60 hover:shadow-sm"
                     }`}
                 >
                   <div
@@ -3381,9 +3381,9 @@ export default function RestaurantPOSPage() {
       >
         <div className="space-y-5">
           {/* Active Shifts Overview Banner */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-300/80 shadow-2xs">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-sm bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-300/80 shadow-2xs">
             <div className="flex items-center gap-3.5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-orange-500/20">
+              <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-orange-500/20">
                 <Clock size={24} />
               </div>
               <div>
@@ -3456,9 +3456,9 @@ export default function RestaurantPOSPage() {
                   return (
                     <div
                       key={slot.id}
-                      className={`relative flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 ${isCurActive
+                      className={`relative flex flex-col justify-between p-4 rounded-sm border transition-all duration-200 ${isCurActive
                         ? "bg-gradient-to-b from-amber-50/95 via-orange-50/40 to-white border-amber-400 shadow-md shadow-amber-500/10 ring-2 ring-amber-400/80"
-                        : "bg-white border-slate-200 hover:border-slate-300 hover:shadow-2xs"
+                        : "bg-white border-sky-100/90 hover:border-slate-300 hover:shadow-2xs"
                         }`}
                     >
                       {/* Top Header: Shift Name + Live Status */}
@@ -3508,7 +3508,7 @@ export default function RestaurantPOSPage() {
                               {slot.startTime} – {slot.endTime}
                             </span>
                           </div>
-                          <span className="text-[10px] font-bold text-gray-500 bg-white px-2 py-0.5 rounded border border-slate-200">
+                          <span className="text-[10px] font-bold text-gray-500 bg-white px-2 py-0.5 rounded border border-sky-100/90">
                             Master Schedule
                           </span>
                         </div>
@@ -3654,7 +3654,7 @@ export default function RestaurantPOSPage() {
                   className="h-20 w-20 rounded-md object-cover border border-orange-200 shadow-2xs shrink-0"
                 />
               ) : (
-                <div className="h-20 w-20 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                <div className="h-20 w-20 rounded-md bg-slate-100 border border-sky-100/90 flex items-center justify-center text-slate-400 shrink-0">
                   <Utensils size={28} className="opacity-60" />
                 </div>
               )}
@@ -3698,7 +3698,7 @@ export default function RestaurantPOSPage() {
                         onClick={() => setSelectedSize({ label: s.name, price: s.price })}
                         className={`flex items-center justify-between gap-2 p-3 rounded-md border-2 transition cursor-pointer select-none ${isSelected
                           ? "bg-orange-50 border-orange-500 text-orange-950 font-bold shadow-sm"
-                          : "bg-white border-slate-200 text-gray-700 hover:border-orange-300 hover:shadow-xs font-medium"
+                          : "bg-white border-sky-100/90 text-gray-700 hover:border-orange-300 hover:shadow-xs font-medium"
                           }`}
                       >
                         <div className="flex items-center gap-1.5 text-left min-w-0 flex-1">
@@ -3738,7 +3738,7 @@ export default function RestaurantPOSPage() {
                       onClick={() => setSelectedSpice(spice.label)}
                       className={`flex items-center justify-center gap-1.5 p-2.5 rounded-md border-2 text-xs font-bold transition cursor-pointer ${isSelected
                         ? "bg-rose-50 border-rose-500 text-rose-800 shadow-sm"
-                        : "bg-white border-slate-200 text-gray-700 hover:border-rose-300 hover:shadow-xs"
+                        : "bg-white border-sky-100/90 text-gray-700 hover:border-rose-300 hover:shadow-xs"
                         }`}
                     >
                       <span>{spice.icon}</span>
@@ -3769,7 +3769,7 @@ export default function RestaurantPOSPage() {
                       onClick={() => toggleExtraTopping(top)}
                       className={`flex items-center gap-3 p-3 rounded-md border-2 transition cursor-pointer select-none ${isChecked
                         ? "bg-amber-50/90 border-amber-500 text-amber-950 shadow-sm font-bold"
-                        : "bg-white border-slate-200 text-gray-700 hover:border-amber-300 hover:shadow-xs font-medium"
+                        : "bg-white border-sky-100/90 text-gray-700 hover:border-amber-300 hover:shadow-xs font-medium"
                         }`}
                     >
                       <input
@@ -3807,12 +3807,12 @@ export default function RestaurantPOSPage() {
                 value={itemNote}
                 onChange={(e) => setItemNote(e.target.value)}
                 placeholder="e.g. Less oil, extra sauce on side, no onions..."
-                className="w-full rounded-md border border-slate-200 bg-white p-2.5 text-xs text-gray-600 focus:border-orange-500 focus:outline-none"
+                className="w-full rounded-md border border-sky-100/90 bg-white p-2.5 text-xs text-gray-600 focus:border-orange-500 focus:outline-none"
               />
             </div>
 
             {/* Modal Footer with Live Item Price Calculation */}
-            <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
+            <div className="pt-3 border-t border-sky-100/90 flex items-center justify-between">
               <div>
                 <span className="text-[10px] text-gray-500 capitalize font-bold tracking-wider block">
                   Customized Item Total

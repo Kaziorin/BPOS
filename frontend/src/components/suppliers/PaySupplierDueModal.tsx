@@ -87,16 +87,16 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100">
-      <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl border border-gray-200 overflow-hidden my-6 animate-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-md rounded-sm bg-white shadow-2xl border border-sky-100/90 overflow-hidden my-6 animate-in zoom-in-95 duration-150">
         
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3.5 bg-gray-50/80">
+        <div className="flex items-center justify-between border-b border-sky-100 px-5 py-3.5 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 font-bold border border-rose-200/60">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-50 text-rose-600 font-bold border border-rose-200/60 shadow-2xs">
               <DollarSign size={16} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-gray-900">Pay Supplier Due</h2>
+              <h2 className="text-sm font-bold text-[#0369A1]">Pay Supplier Due</h2>
               <p className="text-[11px] text-gray-500 truncate max-w-[220px]">
                 {supplier.name} {supplier.company ? `(${supplier.company})` : ""}
               </p>
@@ -104,7 +104,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
           </div>
           <button 
             onClick={onClose} 
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-200/60 transition"
+            className="rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-600 hover:text-white transition shadow-2xs cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -122,7 +122,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
               <p className="text-xs text-gray-500 mt-0.5">Accounts payable due updated in real-time.</p>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-gray-50/60 p-4 text-left text-xs space-y-2">
+            <div className="rounded-sm border border-sky-100 bg-sky-50/40 p-4 text-left text-xs space-y-2">
               <div className="flex justify-between text-gray-500">
                 <span>Vendor</span>
                 <span className="font-semibold text-gray-800">{successReceipt.supplierName}</span>
@@ -148,7 +148,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
                 <span className="font-semibold text-gray-800">{successReceipt.date}</span>
               </div>
 
-              <div className="border-t border-gray-200 pt-2 space-y-1">
+              <div className="border-t border-sky-200/80 pt-2 space-y-1">
                 <div className="flex justify-between text-gray-500">
                   <span>Previous Due</span>
                   <span className="font-semibold text-gray-700">৳{Number(successReceipt.previousDue).toLocaleString()}</span>
@@ -157,7 +157,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
                   <span>Amount Paid</span>
                   <span>- ৳{Number(successReceipt.amount).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-gray-900 font-bold pt-1 border-t border-gray-200">
+                <div className="flex justify-between text-gray-900 font-bold pt-1 border-t border-sky-200/80">
                   <span>Remaining Due</span>
                   <span className={successReceipt.remainingDue > 0 ? "text-rose-600" : "text-emerald-600"}>
                     ৳{Number(successReceipt.remainingDue).toLocaleString()}
@@ -169,13 +169,13 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
             <div className="flex items-center gap-2 pt-2">
               <button
                 onClick={() => window.print()}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-sm border border-sky-200 bg-white py-2 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer"
               >
                 <Printer size={14} /> Print Receipt
               </button>
               <button
                 onClick={onClose}
-                className="flex-1 rounded-lg bg-primary-600 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 transition"
+                className="flex-1 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] py-2 text-xs font-semibold text-white shadow-xs hover:brightness-105 transition cursor-pointer"
               >
                 Done
               </button>
@@ -185,14 +185,14 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
           /* Payment Form */
           <form onSubmit={handlePayment} className="p-5 space-y-4">
             {error && (
-              <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 flex items-center gap-2">
+              <div className="rounded-sm border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 flex items-center gap-2">
                 <AlertCircle size={15} className="shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
             {/* Current Due Highlight */}
-            <div className="rounded-xl border border-rose-200/70 bg-rose-50/50 p-3.5 flex items-center justify-between">
+            <div className="rounded-sm border border-rose-200/70 bg-rose-50/50 p-3.5 flex items-center justify-between">
               <div>
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-rose-700">Current Payable Due</span>
                 <p className="text-xl font-bold text-rose-600">৳{currDue.toLocaleString()}</p>
@@ -200,7 +200,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
               <button
                 type="button"
                 onClick={() => setAmount(String(currDue))}
-                className="rounded-lg bg-white border border-rose-300 px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100 transition shadow-2xs"
+                className="rounded-sm bg-white border border-rose-300 px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100 transition shadow-2xs cursor-pointer"
               >
                 Full Due
               </button>
@@ -222,7 +222,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
                   placeholder="0.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 py-2 pl-7 pr-3 text-sm font-bold text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 transition"
+                  className="w-full rounded-sm border border-sky-200/90 py-2 pl-7 pr-3 text-sm font-bold text-gray-900 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7] transition"
                 />
               </div>
               {Number(amount) > 0 && currDue > 0 && (
@@ -249,13 +249,13 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
                       type="button"
                       key={pm.id}
                       onClick={() => setPaymentMethod(pm.id)}
-                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-semibold transition ${
+                      className={`flex flex-col items-center justify-center p-2.5 rounded-sm border text-xs font-semibold transition cursor-pointer ${
                         isSelected
-                          ? "border-primary-600 bg-primary-50/70 text-primary-700 ring-1 ring-primary-500"
-                          : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                          ? "border-[#0284C7] bg-sky-50 text-[#0369A1] ring-1 ring-[#0284C7] shadow-2xs"
+                          : "border-sky-100 bg-white text-slate-600 hover:border-sky-200 hover:bg-sky-50/50"
                       }`}
                     >
-                      <Icon size={16} className={isSelected ? "text-primary-600" : "text-gray-400"} />
+                      <Icon size={16} className={isSelected ? "text-[#0284C7]" : "text-slate-400"} />
                       <span className="mt-1 text-[11px]">{pm.label}</span>
                     </button>
                   );
@@ -273,7 +273,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
                 placeholder="e.g. CQ-90210, TXN-87261"
                 value={referenceNo}
                 onChange={(e) => setReferenceNo(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 transition"
+                className="w-full rounded-sm border border-sky-200/90 px-3 py-1.5 text-xs text-gray-900 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7] transition"
               />
             </div>
 
@@ -287,23 +287,23 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
                 placeholder="e.g. Cleared for Invoice #INV-1049"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 transition"
+                className="w-full rounded-sm border border-sky-200/90 px-3 py-1.5 text-xs text-gray-900 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7] transition"
               />
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-sky-100">
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition"
+                className="rounded-sm border border-sky-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting || !amount || Number(amount) <= 0}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-rose-700 disabled:opacity-50 transition"
+                className="inline-flex items-center gap-1.5 rounded-sm bg-rose-600 px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 disabled:opacity-50 transition cursor-pointer"
               >
                 {submitting && <Loader2 size={13} className="animate-spin" />}
                 Confirm Payment

@@ -307,7 +307,7 @@ export default function RetailCustomerDisplayPage() {
         <div className="flex flex-col gap-3 flex-1 min-h-0 max-w-[1700px] w-full mx-auto">
 
           {/* ── 1. TOP HEADER ── */}
-          <header className="rounded-2xl border border-violet-200/80 bg-white shadow-sm px-6 py-3 flex items-center justify-between shrink-0">
+          <header className="rounded-sm border border-violet-200/80 bg-white shadow-sm px-6 py-3 flex items-center justify-between shrink-0">
             {/* Left: Brand + Lane */}
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl border shrink-0 bg-violet-50 border-violet-200 text-violet-600 shadow-sm">
@@ -361,7 +361,7 @@ export default function RetailCustomerDisplayPage() {
               <button
                 id="rcd-sound"
                 onClick={() => setSoundOn((v) => !v)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-gray-600 hover:text-violet-600 hover:border-violet-300 transition shadow-sm cursor-pointer"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100/90 bg-white text-gray-600 hover:text-violet-600 hover:border-violet-300 transition shadow-sm cursor-pointer"
                 title={soundOn ? "Mute" : "Enable sound"}
               >
                 {soundOn ? <Volume2 size={17} /> : <VolumeX size={17} />}
@@ -379,7 +379,7 @@ export default function RetailCustomerDisplayPage() {
           </header>
 
           {/* ── 2. WELCOME BANNER ── */}
-          <div className="rounded-2xl border border-violet-100 bg-white shadow-sm px-6 py-3 flex items-center justify-between shrink-0">
+          <div className="rounded-sm border border-violet-100 bg-white shadow-sm px-6 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3.5">
               <div className="flex h-11 w-11 items-center justify-center rounded-full font-black text-lg shadow-sm shrink-0 bg-violet-100 text-violet-700 border border-violet-200">
                 {(customerName || "G")[0].toUpperCase()}
@@ -408,7 +408,7 @@ export default function RetailCustomerDisplayPage() {
                 🟢 Live Order Active
               </span>
             ) : (
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-gray-500 border border-slate-200">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-gray-500 border border-sky-100/90">
                 Waiting for scan…
               </span>
             )}
@@ -418,7 +418,7 @@ export default function RetailCustomerDisplayPage() {
           <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
 
             {/* ── LEFT PANEL: Basket Items (col-span-7) ── */}
-            <div className="col-span-12 lg:col-span-7 rounded-2xl border border-violet-100 bg-white shadow-sm p-5 flex flex-col min-h-0 overflow-hidden">
+            <div className="col-span-12 lg:col-span-7 rounded-sm border border-violet-100 bg-white shadow-sm p-5 flex flex-col min-h-0 overflow-hidden">
               {/* Header */}
               <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 shrink-0">
                 <div className="flex items-center gap-2.5">
@@ -454,11 +454,11 @@ export default function RetailCustomerDisplayPage() {
                     return (
                       <div
                         key={line.sku || `${line.name}-${idx}`}
-                        className="flex items-center gap-3 p-3 rounded-2xl border border-slate-100 bg-white shadow-sm hover:border-violet-200 transition"
+                        className="flex items-center gap-3 p-3 rounded-sm border border-slate-100 bg-white shadow-sm hover:border-violet-200 transition"
                       >
                         {/* Product image/emoji */}
                         {line.image ? (
-                          <img src={line.image} alt={line.name} className="h-14 w-14 rounded-xl object-cover border border-slate-200 shrink-0" />
+                          <img src={line.image} alt={line.name} className="h-14 w-14 rounded-xl object-cover border border-sky-100/90 shrink-0" />
                         ) : (
                           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-violet-200 bg-violet-50 text-2xl shadow-sm">
                             {getProductEmoji(line.name, idx)}
@@ -515,7 +515,7 @@ export default function RetailCustomerDisplayPage() {
                 ) : (
                   /* Empty State */
                   <div className="flex flex-col items-center justify-center h-full min-h-[260px] text-center p-6 text-gray-400">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-50 border border-violet-200 text-violet-500 mb-3 shadow-sm">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-sm bg-violet-50 border border-violet-200 text-violet-500 mb-3 shadow-sm">
                       <ShoppingCart size={30} />
                     </div>
                     <h3 className="font-extrabold text-gray-800 text-base">Your Basket is Empty</h3>
@@ -532,7 +532,7 @@ export default function RetailCustomerDisplayPage() {
             </div>
 
             {/* ── RIGHT PANEL: Order Summary + Payment ── */}
-            <div className="col-span-12 lg:col-span-5 rounded-2xl border border-violet-100 bg-white shadow-sm p-5 flex flex-col justify-between min-h-0 overflow-y-auto">
+            <div className="col-span-12 lg:col-span-5 rounded-sm border border-violet-100 bg-white shadow-sm p-5 flex flex-col justify-between min-h-0 overflow-y-auto">
               <div>
                 {/* Header */}
                 <div className="flex items-center gap-2 pb-3.5 border-b border-slate-100">
@@ -562,7 +562,7 @@ export default function RetailCustomerDisplayPage() {
 
                 {/* Hero Amount Due Card — Violet/Indigo theme */}
                 <div
-                  className="rounded-2xl p-5 text-white shadow-md my-2"
+                  className="rounded-sm p-5 text-white shadow-md my-2"
                   style={{ background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)" }}
                 >
                   <div className="flex justify-between items-center">
@@ -602,7 +602,7 @@ export default function RetailCustomerDisplayPage() {
                             "py-2 rounded-xl text-xs font-bold transition-all text-center cursor-pointer border",
                             isActive
                               ? "bg-violet-600 text-white border-transparent shadow-sm"
-                              : "bg-slate-50 text-gray-600 border-slate-200 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200"
+                              : "bg-slate-50 text-gray-600 border-sky-100/90 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200"
                           )}
                         >
                           {labels[m]}
@@ -612,9 +612,9 @@ export default function RetailCustomerDisplayPage() {
                   </div>
 
                   {/* QR Code */}
-                  <div className="flex flex-col items-center justify-center p-4 rounded-2xl border border-violet-100 bg-violet-50/40">
+                  <div className="flex flex-col items-center justify-center p-4 rounded-sm border border-violet-100 bg-violet-50/40">
                     <div
-                      className="rounded-2xl border border-slate-200/90 bg-white p-3 shadow-sm"
+                      className="rounded-sm border border-sky-100/90/90 bg-white p-3 shadow-sm"
                       dangerouslySetInnerHTML={{ __html: qrSvg(qrPayload, 155, "#4c1d95") }}
                     />
                     <p className="text-xs font-bold text-gray-700 mt-2.5">Scan to Pay with bKash / Nagad</p>

@@ -42,7 +42,7 @@ export default function RmaPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 p-6 text-white shadow-md">
+      <div className="flex items-center justify-between rounded-sm bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 p-6 text-white shadow-md">
         <div>
           <p className="flex items-center gap-2 text-sm text-blue-100"><Wrench size={15} /> RMA Management</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight">Return Merchandise Authorization</h1>
@@ -54,7 +54,7 @@ export default function RmaPage() {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-gray-100 bg-white shadow-sm">
         <CustomTable
           columns={[
             { key: "no", header: "RMA #", render: (r) => <span className="font-mono text-xs font-semibold text-primary-700">{r.rmaNo}</span> },
@@ -120,7 +120,7 @@ function RmaForm({ onClose, onSaved }: { onClose: () => void; onSaved: () => voi
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-lg font-semibold text-gray-900">Create RMA Ticket</h3>
         {error && <div className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
         <div className="mt-4 grid gap-4">
@@ -194,7 +194,7 @@ function RmaActionModal({ ticket, onClose, onSaved }: { ticket: RmaTicket; onClo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-lg font-semibold text-gray-900">RMA Action — {ticket.rmaNo}</h3>
         <p className="text-sm text-gray-500">Current status: <CustomBadge tone={STATUS_TONE[ticket.status] ?? "gray"}>{ticket.status}</CustomBadge></p>
         {error && <div className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}

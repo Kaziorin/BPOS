@@ -77,7 +77,7 @@ function WorkflowContent() {
       />
 
       {/* Enterprise Suite Banner */}
-      <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-6 text-white shadow-md">
+      <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-6 text-white shadow-md">
         <div className="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-primary-500/15 blur-3xl" />
         <div className="absolute right-1/3 -bottom-12 h-48 w-48 rounded-full bg-amber-500/10 blur-2xl" />
 
@@ -99,9 +99,9 @@ function WorkflowContent() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => switchTab("inbox")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all shadow-sm ${
                 activeTab === "inbox"
-                  ? "bg-primary-500 text-white ring-2 ring-primary-300/40"
+                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs ring-2 ring-primary-300/40"
                   : "bg-white/10 text-slate-200 hover:bg-white/20 backdrop-blur-md"
               }`}
             >
@@ -111,9 +111,9 @@ function WorkflowContent() {
 
             <button
               onClick={() => switchTab("rules")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all shadow-sm ${
                 activeTab === "rules"
-                  ? "bg-primary-500 text-white ring-2 ring-primary-300/40"
+                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs ring-2 ring-primary-300/40"
                   : "bg-white/10 text-slate-200 hover:bg-white/20 backdrop-blur-md"
               }`}
             >
@@ -123,9 +123,9 @@ function WorkflowContent() {
 
             <button
               onClick={() => switchTab("business-rules")}
-              className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all shadow-sm ${
                 activeTab === "business-rules"
-                  ? "bg-primary-500 text-white ring-2 ring-primary-300/40"
+                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs ring-2 ring-primary-300/40"
                   : "bg-white/10 text-slate-200 hover:bg-white/20 backdrop-blur-md"
               }`}
             >
@@ -137,13 +137,13 @@ function WorkflowContent() {
       </div>
 
       {/* Main Tab Navigation Strip */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
+      <div className="flex flex-wrap items-center gap-2 border-b border-sky-100/90 pb-3">
         <button
           onClick={() => switchTab("inbox")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
             activeTab === "inbox"
-              ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
-              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-md shadow-primary-500/20"
+              : "bg-white text-slate-600 hover:bg-slate-100 border border-sky-100/90"
           }`}
         >
           <Inbox size={14} />
@@ -154,8 +154,8 @@ function WorkflowContent() {
           onClick={() => switchTab("rules")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
             activeTab === "rules"
-              ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
-              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-md shadow-primary-500/20"
+              : "bg-white text-slate-600 hover:bg-slate-100 border border-sky-100/90"
           }`}
         >
           <GitBranch size={14} />
@@ -166,8 +166,8 @@ function WorkflowContent() {
           onClick={() => switchTab("business-rules")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
             activeTab === "business-rules"
-              ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
-              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-md shadow-primary-500/20"
+              : "bg-white text-slate-600 hover:bg-slate-100 border border-sky-100/90"
           }`}
         >
           <Zap size={14} />

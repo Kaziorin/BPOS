@@ -206,7 +206,7 @@ export function PharmacyPOSLeftPanel({
   return (
     <div className={cn("flex w-full flex-col h-full overflow-hidden bg-white", darkMode && "bg-slate-900 text-slate-100")}>
       {/* ═══ LEFT PANEL HEADER ═══ */}
-      <header className={cn("flex flex-none items-center gap-2.5 border-b px-4 py-2.5 transition", darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200/80 bg-white")}>
+      <header className={cn("flex flex-none items-center gap-2.5 border-b px-4 py-2.5 transition", darkMode ? "border-slate-800 bg-slate-900" : "border-sky-100/90 bg-white")}>
         <Link href="/pharmacy" className="flex shrink-0 items-center gap-2.5">
           <MedCrossLogo size={40} />
           <div className="leading-tight">
@@ -228,7 +228,7 @@ export function PharmacyPOSLeftPanel({
               placeholder="Search medicine by name, brand or barcode..."
               className={cn(
                 "w-full rounded-full border pl-9 pr-9 py-2 text-[12px] font-normal placeholder:text-slate-400 transition focus:border-[#00897b] focus:outline-none focus:ring-2 focus:ring-[#00897b]/20 shadow-2xs",
-                darkMode ? "border-slate-700 bg-slate-800 text-slate-100 placeholder:text-slate-500" : "border-slate-200/90 bg-white text-slate-800 focus:bg-white"
+                darkMode ? "border-slate-700 bg-slate-800 text-slate-100 placeholder:text-slate-500" : "border-sky-100/90/90 bg-white text-slate-800 focus:bg-white"
               )}
             />
             <ScanLine size={16} className="absolute right-3.5 text-slate-400 cursor-pointer hover:text-[#00897b]" />
@@ -295,7 +295,7 @@ export function PharmacyPOSLeftPanel({
         {/* CATEGORY SIDEBAR */}
         <aside className={cn(
           "flex w-[190px] shrink-0 flex-col border-r xl:w-[210px] transition",
-          darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-slate-200 bg-white text-slate-800"
+          darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-sky-100/90 bg-white text-slate-800"
         )}>
           {/* Category search input */}
           <div className={cn("p-2.5 border-b", darkMode ? "border-slate-800" : "border-slate-100")}>
@@ -310,7 +310,7 @@ export function PharmacyPOSLeftPanel({
                   "w-full rounded-xl border pl-7 pr-2.5 py-1.5 text-[11px] font-medium transition focus:border-teal-500 focus:outline-none",
                   darkMode
                     ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500"
-                    : "border-slate-200 bg-slate-50 text-slate-700 placeholder-slate-400"
+                    : "border-sky-100/90 bg-slate-50 text-slate-700 placeholder-slate-400"
                 )}
               />
             </div>
@@ -358,7 +358,7 @@ export function PharmacyPOSLeftPanel({
               type="button"
               onClick={onCustomerClick}
               className={cn(
-                "flex w-full h-[68px] items-center gap-2.5 rounded-2xl border px-3 py-2 text-left transition shadow-2xs",
+                "flex w-full h-[68px] items-center gap-2.5 rounded-sm border px-3 py-2 text-left transition shadow-2xs",
                 darkMode
                   ? "border-teal-900/60 bg-slate-800 hover:border-teal-700"
                   : "border-teal-200/70 bg-[#e8f4f8] hover:border-teal-300"
@@ -383,7 +383,7 @@ export function PharmacyPOSLeftPanel({
           {/* Grid Filter Bar */}
           <div className={cn(
             "flex flex-none flex-wrap items-center gap-2 border-b px-3 py-2 transition",
-            darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200/80 bg-white"
+            darkMode ? "border-slate-800 bg-slate-900" : "border-sky-100/90 bg-white"
           )}>
             <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
               {GRID_FILTERS.map(({ id, label, Icon, tone }) => {
@@ -419,7 +419,7 @@ export function PharmacyPOSLeftPanel({
                   "rounded-xl border px-3 py-1.5 text-[12px] font-medium focus:border-[#00897b] focus:outline-none cursor-pointer shadow-2xs transition",
                   darkMode
                     ? "border-slate-700 bg-slate-800 text-slate-100"
-                    : "border-slate-200/90 bg-white text-slate-800"
+                    : "border-sky-100/90/90 bg-white text-slate-800"
                 )}
               >
                 <option value="name-asc" className={darkMode ? "bg-slate-800 text-slate-100" : ""}>Name A-Z</option>
@@ -436,7 +436,7 @@ export function PharmacyPOSLeftPanel({
                   "rounded-xl border p-2 transition shadow-2xs",
                   darkMode
                     ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-teal-400"
-                    : "border-slate-200/90 bg-white text-slate-600 hover:bg-teal-50 hover:text-[#00796b] hover:border-teal-200"
+                    : "border-sky-100/90/90 bg-white text-slate-600 hover:bg-teal-50 hover:text-[#00796b] hover:border-teal-200"
                 )}
                 title="Advanced filter"
               >
@@ -459,8 +459,8 @@ export function PharmacyPOSLeftPanel({
                       key={p.id}
                       onClick={() => !outOfStock && onTapProduct(p)}
                       className={cn(
-                        "group relative flex flex-col justify-between rounded-2xl border p-2.5 text-left shadow-xs transition hover:border-teal-400 hover:shadow-md cursor-pointer",
-                        darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-slate-200/90 bg-white text-slate-800",
+                        "group relative flex flex-col justify-between rounded-sm border p-2.5 text-left shadow-xs transition hover:border-teal-400 hover:shadow-md cursor-pointer",
+                        darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-sky-100/90/90 bg-white text-slate-800",
                         outOfStock && (darkMode ? "opacity-40 pointer-events-none bg-slate-900/50" : "opacity-40 pointer-events-none bg-slate-50/50"),
                       )}
                     >
@@ -536,7 +536,7 @@ export function PharmacyPOSLeftPanel({
           {lastAddedProduct && genericAlternatives.length > 0 && (
             <div className={cn("flex-none px-3 pb-2 pt-1", darkMode ? "bg-slate-950" : "bg-slate-50/50")}>
               <div className={cn(
-                "flex items-center justify-between gap-3 rounded-2xl border px-4 py-2.5 shadow-2xs animate-in slide-in-from-bottom-2 duration-300",
+                "flex items-center justify-between gap-3 rounded-sm border px-4 py-2.5 shadow-2xs animate-in slide-in-from-bottom-2 duration-300",
                 darkMode ? "bg-slate-900 border-teal-900/80 text-slate-100" : "bg-[#f0faf8] border-[#cceee7] text-slate-800"
               )}>
                 <div className="flex items-center gap-3">
@@ -568,7 +568,7 @@ export function PharmacyPOSLeftPanel({
           {/* Bottom Action Grid (8 Buttons) */}
           <div className={cn(
             "flex-none border-t p-3 transition",
-            darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white"
+            darkMode ? "border-slate-800 bg-slate-900" : "border-sky-100/90 bg-white"
           )}>
             <div className="grid grid-cols-8 gap-2">
               {BOTTOM_ACTIONS.map(({ id, label, sub, Icon, color, bg }) => (
@@ -577,10 +577,10 @@ export function PharmacyPOSLeftPanel({
                   type="button"
                   onClick={() => onQuickAction?.(id)}
                   className={cn(
-                    "flex h-[68px] flex-col items-center justify-center rounded-2xl border px-1 py-2 text-center shadow-2xs transition group",
+                    "flex h-[68px] flex-col items-center justify-center rounded-sm border px-1 py-2 text-center shadow-2xs transition group",
                     darkMode
                       ? "border-slate-800 bg-slate-800/90 text-slate-100 hover:border-teal-500"
-                      : "border-slate-200/80 bg-white text-slate-800 hover:border-teal-300"
+                      : "border-sky-100/90 bg-white text-slate-800 hover:border-teal-300"
                   )}
                 >
                   <div className={cn("flex h-7 w-7 items-center justify-center rounded-xl transition mb-1", darkMode ? "bg-slate-700/60" : bg)}>

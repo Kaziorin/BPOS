@@ -80,7 +80,7 @@ export function WholesalePOSHeader({
     <div className="shrink-0 space-y-2.5">
       <header
         className={cn(
-          "flex items-center gap-4 rounded-2xl px-5 py-3 backdrop-blur-xl transition-all",
+          "flex items-center gap-4 rounded-sm px-5 py-3 backdrop-blur-xl transition-all",
           darkMode
             ? "border border-slate-700/80 bg-slate-900/75 shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
             : "shadow-[0_2px_12px_rgba(20,110,245,0.08)]",
@@ -110,7 +110,7 @@ export function WholesalePOSHeader({
           type="button"
           onClick={onSelectCustomer}
           className={cn(
-            "flex min-w-0 max-w-full flex-1 items-center gap-0 overflow-hidden rounded-2xl px-4 py-2 text-left transition-all md:flex-none md:max-w-none cursor-pointer",
+            "flex min-w-0 max-w-full flex-1 items-center gap-0 overflow-hidden rounded-sm px-4 py-2 text-left transition-all md:flex-none md:max-w-none cursor-pointer",
             darkMode
               ? "border border-slate-700 bg-slate-800/90 shadow-[0_2px_12px_rgba(0,0,0,0.25)] hover:border-slate-600"
               : "hover:shadow-md",
@@ -180,7 +180,7 @@ export function WholesalePOSHeader({
                 "absolute inset-y-1 left-1 flex h-7 w-7 items-center justify-center rounded-full shadow-md transition-transform duration-300",
                 darkMode
                   ? "translate-x-[30px] bg-blue-600 text-white"
-                  : "translate-x-0 bg-white text-amber-500 border border-slate-200",
+                  : "translate-x-0 bg-white text-amber-500 border border-sky-100/90",
               )}
             >
               {darkMode ? <Moon size={14} strokeWidth={2.2} /> : <Sun size={14} strokeWidth={2.2} />}

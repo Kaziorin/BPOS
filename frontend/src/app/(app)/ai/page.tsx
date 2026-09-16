@@ -62,7 +62,7 @@ function CopilotChat() {
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="flex flex-col h-[600px] bg-white rounded-sm border border-sky-100/90 shadow-sm overflow-hidden">
       {/* Copilot Chat Header */}
       <div className="p-4 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -94,7 +94,7 @@ function CopilotChat() {
       <div className="flex-1 overflow-y-auto p-5 space-y-4">
         {messages.length === 0 && (
           <div className="text-center py-12 max-w-lg mx-auto">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 mx-auto mb-4 border border-primary-100">
+            <div className="flex h-14 w-14 items-center justify-center rounded-sm bg-primary-50 text-primary-600 mx-auto mb-4 border border-primary-100">
               <Sparkles size={28} />
             </div>
             <h4 className="font-black text-base text-slate-900">How can I assist your business today?</h4>
@@ -111,7 +111,7 @@ function CopilotChat() {
                 <button
                   key={q.title}
                   onClick={() => send(q.title)}
-                  className="flex flex-col p-3 rounded-xl border border-slate-200 bg-slate-50/60 hover:border-primary-400 hover:bg-primary-50/40 text-left transition cursor-pointer"
+                  className="flex flex-col p-3 rounded-xl border border-sky-100/90 bg-slate-50/60 hover:border-primary-400 hover:bg-primary-50/40 text-left transition cursor-pointer"
                 >
                   <span className="text-xs font-bold text-slate-800">{q.title}</span>
                   <span className="text-[10px] text-slate-400 mt-0.5">{q.sub}</span>
@@ -124,10 +124,10 @@ function CopilotChat() {
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === "USER" ? "justify-end" : "justify-start"}`}>
             <div
-              className={`max-w-[85%] px-4 py-3 rounded-2xl text-xs leading-relaxed ${
+              className={`max-w-[85%] px-4 py-3 rounded-sm text-xs leading-relaxed ${
                 m.role === "USER"
-                  ? "bg-primary-600 text-white font-medium rounded-br-xs shadow-md shadow-primary-500/20"
-                  : "bg-slate-100 text-slate-800 rounded-bl-xs border border-slate-200/80 whitespace-pre-line"
+                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs font-medium rounded-br-xs shadow-md shadow-primary-500/20"
+                  : "bg-slate-100 text-slate-800 rounded-bl-xs border border-sky-100/90 whitespace-pre-line"
               }`}
             >
               {m.text}
@@ -137,7 +137,7 @@ function CopilotChat() {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-slate-100 px-4 py-3 rounded-2xl rounded-bl-xs border border-slate-200/80">
+            <div className="bg-slate-100 px-4 py-3 rounded-sm rounded-bl-xs border border-sky-100/90">
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" />
                 <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce [animation-delay:0.15s]" />
@@ -157,7 +157,7 @@ function CopilotChat() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
           placeholder="Ask Copilot about sales, stock replenishment, gross margin..."
-          className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="flex-1 rounded-xl border border-sky-100/90 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
         <CustomButton
           variant="primary"
@@ -251,7 +251,7 @@ export default function AIPage() {
 
       {/* ── Executive AI KPI Cards (Light Application Themed) ── */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Forecast Accuracy</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
@@ -268,7 +268,7 @@ export default function AIPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Margin Optimization</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
@@ -285,7 +285,7 @@ export default function AIPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Fraud Sentinel</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
@@ -302,7 +302,7 @@ export default function AIPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+        <div className="relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">AI Copilot</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
@@ -321,7 +321,7 @@ export default function AIPage() {
       </div>
 
       {/* ── Sub-Navigation Tabs (Light Application Themed) ── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-100/90 pb-2">
         <div className="flex flex-wrap gap-2">
           {[
             { id: "copilot", label: "Business Copilot", icon: MessageSquare },
@@ -341,7 +341,7 @@ export default function AIPage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${
                   active
-                    ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
+                    ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-md shadow-primary-500/20"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
@@ -369,7 +369,7 @@ export default function AIPage() {
 
       {/* ═══ TAB 2: DEMAND FORECAST ═══ */}
       {activeTab === "demand" && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
               <h3 className="font-black text-sm text-slate-900">30-Day Demand & Sales Forecast</h3>
@@ -424,9 +424,9 @@ export default function AIPage() {
       {/* ═══ TAB 3: PROFIT AI ═══ */}
       {activeTab === "profit" && profit && (
         <div className="space-y-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
             <div className="flex items-start gap-3 p-4 rounded-xl bg-primary-50 border border-primary-200">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-white shadow-sm shrink-0">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-sm shrink-0">
                 <DollarSign size={18} />
               </div>
               <div>
@@ -454,7 +454,7 @@ export default function AIPage() {
 
       {/* ═══ TAB 4: INVENTORY HEALTH ═══ */}
       {activeTab === "inventory" && invAI && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
           <div className="pb-3 border-b border-slate-100">
             <h3 className="font-black text-sm text-slate-900">Dead Stock & Slow-Moving Stock Alerts</h3>
             <p className="text-xs text-slate-500">Products with zero velocity over the past 45+ days</p>
@@ -478,7 +478,7 @@ export default function AIPage() {
 
       {/* ═══ TAB 5: FRAUD SENTINEL ═══ */}
       {activeTab === "fraud" && fraud && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
           <div className="pb-3 border-b border-slate-100">
             <h3 className="font-black text-sm text-slate-900">Continuous POS Anomaly Audit</h3>
             <p className="text-xs text-slate-500">Automated sentinel scanning cash voids, excessive discounts, and shift discrepancies</p>
@@ -505,7 +505,7 @@ export default function AIPage() {
 
       {/* ═══ TAB 6: CUSTOMER RFM AI ═══ */}
       {activeTab === "customers" && custAI && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
           <div className="pb-3 border-b border-slate-100">
             <h3 className="font-black text-sm text-slate-900">Customer RFM Segments (Recency, Frequency, Monetary)</h3>
             <p className="text-xs text-slate-500">Autonomous audience clustering for targeted loyalty campaigns</p>
@@ -529,7 +529,7 @@ export default function AIPage() {
 
       {/* ═══ TAB 7: PROCUREMENT ADVISOR ═══ */}
       {activeTab === "procurement" && procurement && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
           <div className="pb-3 border-b border-slate-100">
             <h3 className="font-black text-sm text-slate-900">Automated Purchase Requisition Advisor</h3>
             <p className="text-xs text-slate-500">Generated based on lead times and 30-day forecasted run rates</p>
@@ -553,7 +553,7 @@ export default function AIPage() {
 
       {/* ═══ TAB 8: AUTONOMOUS INSIGHTS ═══ */}
       {activeTab === "insights" && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
               <h3 className="font-black text-sm text-slate-900">Autonomous Business Insights Feed</h3>
@@ -572,7 +572,7 @@ export default function AIPage() {
 
           <div className="space-y-3">
             {insights.map((ins: any, idx: number) => (
-              <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+              <div key={idx} className="p-4 rounded-xl border border-sky-100/90 bg-slate-50 space-y-2">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <Lightbulb size={16} className="text-amber-500 shrink-0" />
