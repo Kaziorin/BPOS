@@ -502,24 +502,14 @@ export default function CustomersPage() {
           tone="blue"
         />
 
-        {/* Outstanding Receivables (Dues) - Clickable Filter Toggle */}
-        <div
-          onClick={() => {
-            setActiveSegmentTab(activeSegmentTab === "WITH_DUE" ? "ALL" : "WITH_DUE");
-            setPage(1);
-          }}
-          className="cursor-pointer"
-          title="Click to toggle filter for customers with pending due"
-        >
-          <CustomStatCard
-            label="Outstanding Due"
-            value={statsLoading ? "—" : `৳${Math.round(stats?.totalDue || 0).toLocaleString()}`}
-            subtitle={`${stats?.customersWithDue || 0} accounts pending · Filter`}
-            icon={DollarSign}
-            tone="red"
-            className={activeSegmentTab === "WITH_DUE" ? "ring-2 ring-rose-500 shadow-md" : ""}
-          />
-        </div>
+        {/* Outstanding Receivables (Dues) */}
+        <CustomStatCard
+          label="Outstanding Due"
+          value={statsLoading ? "—" : `৳${Math.round(stats?.totalDue || 0).toLocaleString()}`}
+          subtitle={`${stats?.customersWithDue || 0} accounts pending`}
+          icon={DollarSign}
+          tone="red"
+        />
 
         {/* VIP & High-Value */}
         <CustomStatCard
