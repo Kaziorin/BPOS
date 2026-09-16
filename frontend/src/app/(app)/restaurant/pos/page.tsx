@@ -3671,7 +3671,9 @@ export default function RestaurantPOSPage() {
                     {selectedProductForAddons.name}
                   </h3>
                   <span className="px-2 py-0.5 rounded-md bg-orange-600 text-white text-[10px] font-black capitalize tracking-wider">
-                    {selectedProductForAddons.category}
+                    {typeof selectedProductForAddons.category === "object" && selectedProductForAddons.category !== null
+                      ? (selectedProductForAddons.category as any).name || ""
+                      : String(selectedProductForAddons.category || "")}
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">

@@ -189,16 +189,30 @@ export default function FranchisePOSPage() {
       const hData = res?.data?.data ?? res?.data ?? [];
       if (Array.isArray(hData)) {
         setHolds(
-          hData.map((h: any) => ({
-            id: h.id,
-            holdNo: h.holdNo || `HLD-${h.id.slice(0, 6)}`,
-            outletName: h.customerName || "Franchise Order",
-            createdAt: h.createdAt || new Date().toISOString(),
-            items: h.items || [],
-            subTotal: Number(h.total || 0),
-            royaltyPct: 6,
-            marketingFeePct: 2,
-          }))
+          hData.map((h: any) => {
+            let parsedItems: FranchiseCartLine[] = [];
+            if (Array.isArray(h.items)) {
+              parsedItems = h.items;
+            } else if (typeof h.cartSnapshot === "string") {
+              try {
+                parsedItems = JSON.parse(h.cartSnapshot);
+              } catch {
+                parsedItems = [];
+              }
+            } else if (Array.isArray(h.cartSnapshot)) {
+              parsedItems = h.cartSnapshot;
+            }
+            return {
+              id: String(h.id),
+              holdNo: String(h.holdNo || `HLD-${String(h.id).slice(0, 6)}`),
+              outletName: typeof h.customerName === "object" && h.customerName !== null ? h.customerName?.name || "Franchise Order" : String(h.customerName || h.note || "Franchise Order"),
+              createdAt: String(h.createdAt || new Date().toISOString()),
+              items: parsedItems,
+              subTotal: Number(h.total || 0),
+              royaltyPct: 6,
+              marketingFeePct: 2,
+            };
+          })
         );
       } else {
         setHolds([]);
@@ -217,15 +231,15 @@ export default function FranchisePOSPage() {
         const frData = resFr?.data?.data ?? resFr?.data ?? [];
         if (Array.isArray(frData) && frData.length > 0) {
           const mappedOutlets: FranchiseOutlet[] = frData.map((f: any) => ({
-            id: f.id || f.franchiseNo || `FR-${f.id}`,
-            name: f.name || "Franchise Outlet",
-            code: f.code || f.franchiseNo || "FR-CODE",
-            ownerName: f.ownerName || f.contactPerson || "Owner",
+            id: String(f.id || f.franchiseNo || `FR-${f.id}`),
+            name: typeof f.name === "object" && f.name !== null ? f.name?.name || "Franchise Outlet" : String(f.name || "Franchise Outlet"),
+            code: typeof f.code === "object" && f.code !== null ? f.code?.name || "FR-CODE" : String(f.code || f.franchiseNo || "FR-CODE"),
+            ownerName: typeof f.ownerName === "object" && f.ownerName !== null ? f.ownerName?.name || "Owner" : String(f.ownerName || f.contactPerson || "Owner"),
             royaltyPct: Number(f.royaltyPct ?? 6),
             marketingFeePct: Number(f.marketingFeePct ?? 2),
-            location: f.address || f.location || "Central Territory",
-            phone: f.phone || "+880 1700-000000",
-            email: f.email || "",
+            location: typeof f.address === "object" && f.address !== null ? f.address?.name || "Central Territory" : String(f.address || f.location || "Central Territory"),
+            phone: typeof f.phone === "object" && f.phone !== null ? f.phone?.name || "+880 1700-000000" : String(f.phone || "+880 1700-000000"),
+            email: typeof f.email === "object" && f.email !== null ? f.email?.name || "" : String(f.email || ""),
             outstandingBalance: Number(f.outstandingBalance || 0),
           }));
           setOutlets(mappedOutlets);
@@ -242,7 +256,12 @@ export default function FranchisePOSPage() {
         if (Array.isArray(pData) && pData.length > 0) {
           const catSet = new Set<string>();
           const mappedCatalog: FranchiseCatalogItem[] = pData.map((p: any) => {
-            const catName = typeof p.category === "object" ? p.category?.name : p.category || "General Supplies";
+            const catName =
+              typeof p.category === "object" && p.category !== null
+                ? p.category?.name || "General Supplies"
+                : typeof p.category === "string" && p.category
+                ? p.category
+                : "General Supplies";
             if (catName) catSet.add(catName);
             
             // Calculate HQ Supply Rate (Cost + 15% margin or 70% of Retail MRP)
@@ -252,15 +271,22 @@ export default function FranchisePOSPage() {
                 : ((p.sellingPrice || 100) * 0.75).toFixed(2)
             );
 
+            const unitStr =
+              typeof p.unit === "object" && p.unit !== null
+                ? p.unit?.name || "unit"
+                : typeof p.unit === "string" && p.unit
+                ? p.unit
+                : "unit";
+
             return {
               id: p.id,
-              name: p.name,
-              sku: p.sku || "FR-ITEM",
-              category: catName,
+              name: typeof p.name === "object" && p.name !== null ? p.name?.name || String(p.id) : String(p.name || "Item"),
+              sku: typeof p.sku === "object" && p.sku !== null ? p.sku?.name || "FR-ITEM" : String(p.sku || "FR-ITEM"),
+              category: String(catName),
               franchisePrice,
               mrp: Number(p.sellingPrice || 100),
               stockQty: Number(p.stockQty ?? p.currentStock ?? 50),
-              unit: p.unit || "unit",
+              unit: String(unitStr),
             };
           });
 
@@ -289,11 +315,11 @@ export default function FranchisePOSPage() {
         if (Array.isArray(cData)) {
           setCustomers(
             cData.map((c: any) => ({
-              id: c.id,
-              name: c.name || "Customer",
-              phone: c.phone || "N/A",
-              email: c.email || "",
-              address: c.address || "",
+              id: String(c.id),
+              name: typeof c.name === "object" && c.name !== null ? c.name?.name || "Customer" : String(c.name || "Customer"),
+              phone: typeof c.phone === "object" && c.phone !== null ? c.phone?.name || "N/A" : String(c.phone || "N/A"),
+              email: typeof c.email === "object" && c.email !== null ? c.email?.name || "" : String(c.email || ""),
+              address: typeof c.address === "object" && c.address !== null ? c.address?.name || "" : String(c.address || ""),
               outstandingBalance: Number(c.outstandingBalance || 0),
               loyaltyPoints: Number(c.loyaltyPoints || 0),
             }))

@@ -148,7 +148,11 @@ export function readRestaurantCart(): DisplayCart {
             discountAmount: 0,
             sku: i.id,
             image: i.image,
-            category: i.category,
+            category: i.category
+              ? typeof i.category === "object"
+                ? (i.category as any).name || (i.category as any).label || ""
+                : String(i.category)
+              : undefined,
           })),
           subtotal,
           discountTotal: 0,
