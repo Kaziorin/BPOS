@@ -851,12 +851,15 @@ async def shift_approve_close(shiftId: str, body: dict, user: AuthUser = Depends
 
 
 @router.get("/api/v1/cash-register")
-async def shift_history(branchId: str = "", status: str = "", page: int = Query(1), limit: int = Query(20),
+async def shift_history(branchId: str = "", status: str = "", search: str = "", page: int = Query(1), limit: int = Query(20),
                         tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db),
                         user: AuthUser = Depends(require_auth)):
     where = "tenantId=:t"; params: dict = {"t": tenantId}
     if branchId: where += " AND branchId=:b"; params["b"] = branchId
-    if status: where += " AND status=:st"; params["st"] = status
+    if status and status != "ALL": where += " AND status=:st"; params["st"] = status
+    if search:
+        where += " AND (shiftNo LIKE :q OR note LIKE :q)"
+        params["q"] = f"%{search}%"
     off, lim = paginate_params(page, limit)
     rows = rows_to_dicts((await db.execute(text(
         f"SELECT * FROM cash_shifts WHERE {where} ORDER BY openedAt DESC LIMIT :lim OFFSET :off"),
