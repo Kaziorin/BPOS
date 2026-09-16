@@ -233,7 +233,7 @@ export default function RetailCustomerDisplayPage() {
       customerName: "Rahim Uddin",
       customerTier: "Gold Member",
       customerPoints: 240,
-      cashierName: "John Smith",
+      cashierName: "Cashier",
       laneNo: "T-01",
       merchantName: "BPOS Retail",
     };

@@ -16,10 +16,11 @@ export interface CustomTabsProps {
   activeTab: string;
   onChange: (tabId: string) => void;
   className?: string;
-  themeColor?: "primary" | "orange" | "teal" | "emerald" | "indigo" | "amber" | "rose" | "purple" | "blue";
+  themeColor?: "primary" | "orange" | "teal" | "emerald" | "indigo" | "amber" | "rose" | "purple" | "blue" | "violet";
   variant?: "solid" | "pills" | "underline";
   darkMode?: boolean;
   inactiveClassName?: string;
+  activeClassName?: string;
   wrap?: boolean;
   style?: React.CSSProperties;
 }
@@ -34,6 +35,7 @@ const THEME_ACTIVE_STYLES: Record<string, string> = {
   amber: "bg-amber-500 text-white shadow-2xs",
   rose: "bg-rose-600 text-white shadow-2xs",
   purple: "bg-purple-600 text-white shadow-2xs",
+  violet: "bg-gradient-to-r from-violet-500 to-indigo-400 text-white shadow-xs font-bold",
 };
 
 const THEME_HOVER_STYLES = (darkMode: boolean): Record<string, string> => ({
@@ -46,6 +48,7 @@ const THEME_HOVER_STYLES = (darkMode: boolean): Record<string, string> => ({
   amber: darkMode ? "hover:bg-amber-500/10 hover:text-amber-400" : "hover:bg-amber-50 hover:text-amber-600",
   rose: darkMode ? "hover:bg-rose-500/10 hover:text-rose-400" : "hover:bg-rose-50 hover:text-rose-600",
   purple: darkMode ? "hover:bg-purple-500/10 hover:text-purple-400" : "hover:bg-purple-50 hover:text-purple-600",
+  violet: darkMode ? "hover:bg-violet-500/10 hover:text-violet-400" : "hover:bg-violet-50 hover:text-violet-600",
 });
 
 export function CustomTabs({
@@ -57,10 +60,11 @@ export function CustomTabs({
   variant = "solid",
   darkMode = false,
   inactiveClassName,
+  activeClassName,
   wrap = false,
   style,
 }: CustomTabsProps) {
-  const activeStyle = THEME_ACTIVE_STYLES[themeColor] || THEME_ACTIVE_STYLES.primary;
+  const activeStyle = activeClassName || THEME_ACTIVE_STYLES[themeColor] || THEME_ACTIVE_STYLES.primary;
   const hoverStyle = THEME_HOVER_STYLES(darkMode)[themeColor] || THEME_HOVER_STYLES(darkMode).primary;
 
   return (
