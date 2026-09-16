@@ -117,7 +117,7 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
                   placeholder="e.g. VIP Club 10%"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
                 />
               </div>
 
@@ -131,7 +131,7 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
                   placeholder="0"
                   value={discountPercent}
                   onChange={(e) => setDiscountPercent(e.target.value)}
-                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
                 />
               </div>
 
@@ -142,7 +142,7 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
                   placeholder="Short description..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
                 />
               </div>
             </div>
@@ -168,7 +168,7 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
                 <Loader2 size={16} className="animate-spin text-[#0284C7]" />
               </div>
             ) : groups.length === 0 ? (
-              <div className="text-center py-4 text-slate-400 text-xs rounded-sm border border-dashed border-sky-200">
+              <div className="text-center py-4 text-gray-400 text-xs rounded-sm border border-dashed border-sky-200">
                 No custom groups created yet.
               </div>
             ) : (
@@ -180,14 +180,14 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
                   >
                     <div>
                       <p className="text-xs font-bold text-[#0369A1]">{g.name}</p>
-                      <p className="text-[10px] text-slate-400">
+                      <p className="text-[10px] text-gray-400">
                         {g.discountPercent > 0 ? `${g.discountPercent}% default discount` : "0% discount"} &bull; {g._count?.customers || 0} customers
                       </p>
                     </div>
 
                     <button
                       onClick={() => handleDeleteGroup(g.id)}
-                      className="rounded-sm p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
                       title="Delete Group"
                     >
                       <Trash2 size={13} />
@@ -202,7 +202,7 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
         <div className="border-t border-sky-100 bg-sky-50/20 p-3 flex justify-end">
           <button
             onClick={onClose}
-            className="rounded-sm border border-sky-200/80 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer shadow-2xs"
+            className="rounded-sm border border-rose-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer shadow-2xs"
           >
             Close
           </button>

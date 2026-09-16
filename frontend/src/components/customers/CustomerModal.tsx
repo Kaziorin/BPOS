@@ -143,7 +143,7 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
   }
 
   const inputClass =
-    "w-full rounded-sm border border-sky-200/90 bg-white px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 transition shadow-2xs";
+    "w-full rounded-sm border border-sky-200/90 bg-white px-3 py-2 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 transition shadow-2xs";
   const labelClass = "block text-xs font-semibold text-[#0369A1] mb-1";
 
   return (
@@ -182,7 +182,7 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
             className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-semibold transition cursor-pointer ${
               activeTab === "basic"
                 ? "border-[#0284C7] text-[#0284C7] font-bold"
-                : "border-transparent text-slate-500 hover:text-[#0284C7]"
+                : "border-transparent text-gray-500 hover:text-[#0284C7]"
             }`}
           >
             <User size={13} /> Basic Info
@@ -190,10 +190,10 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
           <button
             type="button"
             onClick={() => setActiveTab("credit")}
-            className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-medium transition ${
+            className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-medium transition cursor-pointer ${
               activeTab === "credit"
-                ? "border-primary-600 text-primary-700 font-semibold"
-                : "border-transparent text-gray-500 hover:text-gray-900"
+                ? "border-[#0284C7] text-[#0284C7] font-bold"
+                : "border-transparent text-gray-500 hover:text-[#0284C7]"
             }`}
           >
             <CreditCard size={13} /> Credit & Terms
@@ -201,10 +201,10 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
           <button
             type="button"
             onClick={() => setActiveTab("notes")}
-            className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-medium transition ${
+            className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-medium transition cursor-pointer ${
               activeTab === "notes"
-                ? "border-primary-600 text-primary-700 font-semibold"
-                : "border-transparent text-gray-500 hover:text-gray-900"
+                ? "border-[#0284C7] text-[#0284C7] font-bold"
+                : "border-transparent text-gray-500 hover:text-[#0284C7]"
             }`}
           >
             <FileText size={13} /> Additional Details
@@ -454,7 +454,7 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
                 <button
                   type="button"
                   onClick={() => setActiveTab(activeTab === "notes" ? "credit" : "basic")}
-                  className="rounded-sm border border-sky-200/80 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer shadow-2xs"
+                  className="rounded-sm border border-sky-200/80 bg-white px-3.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-sky-50 transition cursor-pointer shadow-2xs"
                 >
                   Back
                 </button>
@@ -465,7 +465,7 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-sm border border-sky-200/80 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer shadow-2xs"
+                className="rounded-sm border border-rose-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer shadow-2xs"
               >
                 Cancel
               </button>

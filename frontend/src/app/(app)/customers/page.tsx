@@ -1,17 +1,23 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { 
   Users, UserPlus, Phone, Mail, MapPin, DollarSign, Award, 
-  Search, Filter, ArrowUpDown, Download, Printer, LayoutGrid, 
+  Search, ArrowUpDown, Download, LayoutGrid, 
   LayoutList, Eye, Edit3, Trash2, CheckCircle2, AlertTriangle, 
-  Sparkles, RefreshCw, X, ChevronLeft, ChevronRight, MessageSquare,
-  Layers, ArrowUpRight, TrendingUp, CreditCard, ChevronDown
+  Sparkles, X, ChevronLeft, ChevronRight, Layers, ArrowUpRight
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
-import { CustomButton } from "@/components/custom/CustomButton";
+import { 
+  CustomBreadcrumb, 
+  CustomButton, 
+  CustomDropdownSelect, 
+  CustomTable, 
+  type CustomTableColumn, 
+  CustomStatCard, 
+  ConfirmModal 
+} from "@/components/custom";
 import { CustomerModal } from "@/components/customers/CustomerModal";
 import { CustomerDrawer } from "@/components/customers/CustomerDrawer";
 import { CollectDueModal } from "@/components/customers/CollectDueModal";
@@ -85,6 +91,10 @@ export default function CustomersPage() {
   const [isCollectDueOpen, setIsCollectDueOpen] = useState(false);
 
   const [isGroupsModalOpen, setIsGroupsModalOpen] = useState(false);
+
+  // Delete confirmation state
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Load KPI Stats
   const loadStats = useCallback(async () => {
@@ -180,14 +190,18 @@ export default function CustomersPage() {
     setIsCollectDueOpen(true);
   }
 
-  async function handleDelete(customer: Customer) {
-    if (!confirm(`Are you sure you want to deactivate customer "${customer.name}"?`)) return;
+  async function handleConfirmDelete() {
+    if (!customerToDelete) return;
+    setIsDeleting(true);
     try {
-      await api.del(`/v1/customers/${customer.id}`);
+      await api.del(`/v1/customers/${customerToDelete.id}`);
+      setCustomerToDelete(null);
       loadCustomers();
       loadStats();
     } catch (err: any) {
       alert(err.message || "Failed to delete customer");
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -231,12 +245,12 @@ export default function CustomersPage() {
   const segBadgeMap: Record<string, { bg: string; text: string; label: string }> = {
     VIP: { bg: "bg-amber-50 text-amber-700 border-amber-200/60", text: "text-amber-700", label: "VIP" },
     HIGH_VALUE: { bg: "bg-emerald-50 text-emerald-700 border-emerald-200/60", text: "text-emerald-700", label: "High Value" },
-    WHOLESALE: { bg: "bg-primary-50 text-primary-700 border-primary-200/60", text: "text-primary-700", label: "Wholesale" },
+    WHOLESALE: { bg: "bg-sky-50 text-[#0284C7] border-sky-200/60", text: "text-[#0284C7]", label: "Wholesale" },
     CORPORATE: { bg: "bg-purple-50 text-purple-700 border-purple-200/60", text: "text-purple-700", label: "Corporate" },
-    NEW: { bg: "bg-sky-50 text-sky-700 border-sky-200/60", text: "text-sky-700", label: "New" },
-    REGULAR: { bg: "bg-gray-50 text-gray-700 border-gray-200", text: "text-gray-700", label: "Regular" },
+    NEW: { bg: "bg-sky-50 text-[#0369A1] border-sky-200/60", text: "text-[#0369A1]", label: "New" },
+    REGULAR: { bg: "bg-slate-50 text-gray-600 border-slate-200/80", text: "text-gray-600", label: "Regular" },
     AT_RISK: { bg: "bg-rose-50 text-rose-700 border-rose-200/60", text: "text-rose-700", label: "At Risk" },
-    INACTIVE: { bg: "bg-gray-100 text-gray-500 border-gray-200", text: "text-gray-500", label: "Inactive" },
+    INACTIVE: { bg: "bg-rose-50/60 text-rose-600 border-rose-200/50", text: "text-rose-600", label: "Inactive" },
   };
 
   const getInitials = (name: string) => {
@@ -254,6 +268,186 @@ export default function CustomersPage() {
     { id: "INACTIVE", label: "Inactive", count: stats?.inactive },
   ];
 
+  // CustomTable Column Configuration
+  const tableColumns: CustomTableColumn<Customer>[] = useMemo(
+    () => [
+      {
+        key: "name",
+        header: "Customer",
+        sortable: true,
+        getSortValue: (c) => c.name,
+        render: (c) => (
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => handleOpenDrawer(c.id)}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 text-xs font-bold hover:bg-sky-100 transition cursor-pointer"
+            >
+              {getInitials(c.name)}
+            </button>
+            <div className="min-w-0">
+              <button
+                onClick={() => handleOpenDrawer(c.id)}
+                className="font-semibold text-gray-600 hover:text-[#0284C7] text-left transition truncate max-w-[170px] block cursor-pointer"
+              >
+                {c.name}
+              </button>
+              {c.city && (
+                <p className="text-[11px] text-gray-400 truncate max-w-[170px] flex items-center gap-0.5 mt-0.5">
+                  <MapPin size={10} /> {c.city}
+                </p>
+              )}
+            </div>
+          </div>
+        ),
+      },
+      {
+        key: "phone",
+        header: "Contact",
+        render: (c) =>
+          c.phone ? (
+            <div className="flex items-center gap-1.5 text-gray-600 font-medium">
+              <a href={`tel:${c.phone}`} className="hover:text-[#0284C7] transition">
+                {c.phone}
+              </a>
+              <a
+                href={`https://wa.me/${c.phone.replace(/[^0-9]/g, "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded-sm hover:bg-emerald-100 transition"
+                title="WhatsApp"
+              >
+                WA
+              </a>
+            </div>
+          ) : (
+            <span className="text-gray-400 italic text-[11px]">—</span>
+          ),
+      },
+      {
+        key: "segmentation",
+        header: "Segment",
+        render: (c) => {
+          const seg = segBadgeMap[c.segmentation || "REGULAR"] || segBadgeMap.REGULAR;
+          return (
+            <span className={`inline-flex items-center rounded-sm border px-2 py-0.5 text-[10px] font-semibold ${seg.bg}`}>
+              {seg.label}
+            </span>
+          );
+        },
+      },
+      {
+        key: "group",
+        header: "Group",
+        getSortValue: (c) => c.group?.name || "",
+        render: (c) => (
+          <span className="text-xs text-gray-600 font-medium">
+            {c.group?.name || <span className="text-gray-400">—</span>}
+          </span>
+        ),
+      },
+      {
+        key: "currentDue",
+        header: "Outstanding Due",
+        align: "right",
+        sortable: true,
+        getSortValue: (c) => Number(c.currentDue || 0),
+        render: (c) => {
+          const due = Number(c.currentDue || 0);
+          const isDue = due > 0;
+          return (
+            <div className="inline-flex flex-col items-end">
+              <span className={`font-mono text-xs ${isDue ? "font-bold text-rose-600" : "font-semibold text-gray-600"}`}>
+                ৳{due.toLocaleString()}
+              </span>
+              {isDue && (
+                <button
+                  onClick={() => handleOpenCollectDue(c)}
+                  className="mt-0.5 text-[10px] font-semibold text-rose-700 hover:text-rose-800 underline cursor-pointer"
+                >
+                  Collect
+                </button>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        key: "salesCount",
+        header: "Orders",
+        align: "center",
+        sortable: true,
+        getSortValue: (c) => c._count?.sales || 0,
+        render: (c) => <span className="text-xs font-semibold text-gray-600 tabular-nums">{c._count?.sales || 0}</span>,
+      },
+      {
+        key: "loyaltyPoints",
+        header: "Points",
+        align: "center",
+        sortable: true,
+        getSortValue: (c) => c.loyaltyPoints || 0,
+        render: (c) => <span className="text-xs font-bold text-amber-700 tabular-nums">{c.loyaltyPoints || 0}</span>,
+      },
+      {
+        key: "status",
+        header: "Status",
+        align: "center",
+        sortable: true,
+        render: (c) => {
+          const isActive = c.status === "ACTIVE";
+          return (
+            <span
+              className={`inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] font-bold ${
+                isActive
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-300/80"
+                  : "bg-rose-50 text-rose-700 border border-rose-200/80"
+              }`}
+            >
+              {c.status || "ACTIVE"}
+            </span>
+          );
+        },
+      },
+      {
+        key: "actions",
+        header: "Actions",
+        align: "right",
+        render: (c) => (
+          <div className="flex items-center justify-end gap-1">
+            <button
+              onClick={() => handleOpenDrawer(c.id)}
+              className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+              title="Quick Drawer"
+            >
+              <Eye size={14} />
+            </button>
+            <button
+              onClick={() => handleOpenEdit(c)}
+              className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+              title="Edit"
+            >
+              <Edit3 size={14} />
+            </button>
+            <Link
+              href={`/customers/${c.id}`}
+              className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+              title="Full Details"
+            >
+              <ArrowUpRight size={14} />
+            </Link>
+            <button
+              onClick={() => setCustomerToDelete(c)}
+              className="rounded-sm p-1 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+              title="Deactivate"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
   return (
     <div className="w-full space-y-5 pb-12">
       
@@ -269,7 +463,7 @@ export default function CustomersPage() {
               variant="outline"
               size="sm"
               onClick={() => setIsGroupsModalOpen(true)}
-              className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50"
+              className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50 font-semibold"
             >
               <Layers size={14} className="text-[#0284C7]" />
               Groups ({groups.length})
@@ -279,7 +473,7 @@ export default function CustomersPage() {
               variant="outline"
               size="sm"
               onClick={exportCSV}
-              className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50"
+              className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50 font-semibold"
             >
               <Download size={14} className="text-[#0284C7]" />
               Export CSV
@@ -297,98 +491,53 @@ export default function CustomersPage() {
         }
       />
 
-      {/* ── Clean KPI Analytics Cards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+      {/* ── Unified CustomStatCard Analytics Grid ── */}
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Customers */}
-        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300/80 transition">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#0369A1]">Total Customers</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80">
-              <Users size={16} />
-            </div>
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-gray-900">
-              {statsLoading ? "—" : (stats?.total || 0).toLocaleString()}
-            </span>
-            <span className="text-xs font-medium text-emerald-600">
-              {stats?.active || 0} active
-            </span>
-          </div>
-          <p className="mt-1 text-[11px] text-gray-400">
-            Total sales volume: ৳{stats ? Math.round(stats.totalSalesValue).toLocaleString() : 0}
-          </p>
-        </div>
+        <CustomStatCard
+          label="Total Customers"
+          value={statsLoading ? "—" : (stats?.total || 0).toLocaleString()}
+          subtitle={`${stats?.active || 0} active · ৳${stats ? Math.round(stats.totalSalesValue).toLocaleString() : 0} volume`}
+          icon={Users}
+          tone="blue"
+        />
 
-        {/* Outstanding Receivables (Dues) */}
-        <div 
+        {/* Outstanding Receivables (Dues) - Clickable Filter Toggle */}
+        <div
           onClick={() => {
             setActiveSegmentTab(activeSegmentTab === "WITH_DUE" ? "ALL" : "WITH_DUE");
             setPage(1);
           }}
-          className={`rounded-sm border p-4 shadow-xs transition cursor-pointer ${
-            activeSegmentTab === "WITH_DUE"
-              ? "border-rose-500 bg-rose-50/40 ring-1 ring-rose-500/20"
-              : "border-sky-100/90 bg-white hover:border-rose-300"
-          }`}
+          className="cursor-pointer"
+          title="Click to toggle filter for customers with pending due"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-rose-700 flex items-center gap-1">
-              <AlertTriangle size={13} /> Outstanding Due
-            </span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-50 text-rose-600 border border-rose-200/80">
-              <DollarSign size={16} />
-            </div>
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-rose-600">
-              ৳{statsLoading ? "—" : Math.round(stats?.totalDue || 0).toLocaleString()}
-            </span>
-          </div>
-          <p className="mt-1 text-[11px] text-rose-600/80 font-medium">
-            {stats?.customersWithDue || 0} accounts pending &bull; Click to filter
-          </p>
+          <CustomStatCard
+            label="Outstanding Due"
+            value={statsLoading ? "—" : `৳${Math.round(stats?.totalDue || 0).toLocaleString()}`}
+            subtitle={`${stats?.customersWithDue || 0} accounts pending · Filter`}
+            icon={DollarSign}
+            tone="red"
+            className={activeSegmentTab === "WITH_DUE" ? "ring-2 ring-rose-500 shadow-md" : ""}
+          />
         </div>
 
         {/* VIP & High-Value */}
-        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300/80 transition">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#0369A1]">VIP & Top Tier</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-amber-50 text-amber-600 border border-amber-200/80">
-              <Award size={16} />
-            </div>
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-gray-900">
-              {statsLoading ? "—" : (stats?.vipCount || 0).toLocaleString()}
-            </span>
-            <span className="text-xs font-medium text-gray-500">
-              ({stats?.wholesaleCount || 0} wholesale)
-            </span>
-          </div>
-          <p className="mt-1 text-[11px] text-gray-400">
-            High loyalty & custom credit terms
-          </p>
-        </div>
+        <CustomStatCard
+          label="VIP & Top Tier"
+          value={statsLoading ? "—" : (stats?.vipCount || 0).toLocaleString()}
+          subtitle={`(${stats?.wholesaleCount || 0} wholesale) · Top CRM tier`}
+          icon={Award}
+          tone="amber"
+        />
 
         {/* Loyalty Points */}
-        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300/80 transition">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#0369A1]">Loyalty Points</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80">
-              <Sparkles size={16} />
-            </div>
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-gray-900">
-              {statsLoading ? "—" : (stats?.totalPoints || 0).toLocaleString()}
-            </span>
-            <span className="text-xs font-semibold text-[#0284C7]">points</span>
-          </div>
-          <p className="mt-1 text-[11px] text-gray-400">
-            Redeemable in POS checkouts
-          </p>
-        </div>
+        <CustomStatCard
+          label="Loyalty Points"
+          value={statsLoading ? "—" : (stats?.totalPoints || 0).toLocaleString()}
+          subtitle="Redeemable at POS checkout"
+          icon={Sparkles}
+          tone="primary"
+        />
       </div>
 
       {/* ── Segment Navigation Bar ── */}
@@ -402,10 +551,10 @@ export default function CustomersPage() {
                 setActiveSegmentTab(tab.id);
                 setPage(1);
               }}
-              className={`flex items-center gap-1.5 shrink-0 rounded-sm px-3 py-1.5 text-xs font-medium transition ${
+              className={`flex items-center gap-1.5 shrink-0 rounded-sm px-3 py-1.5 text-xs font-semibold transition cursor-pointer shadow-2xs ${
                 isActive
-                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs font-semibold"
-                  : "bg-white text-gray-600 border border-sky-100/90 hover:bg-sky-50/60 hover:text-gray-900"
+                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs font-bold"
+                  : "bg-white text-gray-600 border border-sky-100/90 hover:bg-sky-50/60 hover:text-[#0284C7]"
               }`}
             >
               <span>{tab.label}</span>
@@ -421,8 +570,8 @@ export default function CustomersPage() {
         })}
       </div>
 
-      {/* ── Filter & Search Toolbar ── */}
-      <div className="rounded-sm border border-sky-100/90 bg-white p-3 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+      {/* ── Filter & Search Toolbar (CustomDropdownSelect & Theme Controls) ── */}
+      <div className="rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Search input */}
         <div className="relative w-full md:w-80">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -434,477 +583,321 @@ export default function CustomersPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-sm border border-sky-200/90 py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition"
+            className="w-full rounded-sm border border-sky-200/90 py-1.5 pl-9 pr-8 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition shadow-2xs"
           />
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
             >
               <X size={13} />
             </button>
           )}
         </div>
 
-        {/* Filter dropdowns */}
+        {/* Filter Custom Dropdowns & Controls */}
         <div className="flex items-center gap-2 w-full md:w-auto flex-wrap justify-end">
-          <select
-            value={filterGroup}
-            onChange={(e) => {
-              setFilterGroup(e.target.value);
-              setPage(1);
-            }}
-            className="rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
-          >
-            <option value="">All Groups</option>
-            {groups.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.name}
-              </option>
-            ))}
-          </select>
+          {/* Groups Custom Dropdown */}
+          <div className="w-36">
+            <CustomDropdownSelect
+              value={filterGroup}
+              onChange={(val) => {
+                setFilterGroup(val);
+                setPage(1);
+              }}
+              options={[
+                { label: "All Groups", value: "" },
+                ...groups.map((g) => ({ label: g.name, value: g.id })),
+              ]}
+            />
+          </div>
 
-          <select
-            value={filterStatus}
-            onChange={(e) => {
-              setFilterStatus(e.target.value);
-              setPage(1);
-            }}
-            className="rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
-          >
-            <option value="">All Statuses</option>
-            <option value="ACTIVE">Active</option>
-            <option value="INACTIVE">Inactive</option>
-          </select>
+          {/* Status Custom Dropdown */}
+          <div className="w-32">
+            <CustomDropdownSelect
+              value={filterStatus}
+              onChange={(val) => {
+                setFilterStatus(val);
+                setPage(1);
+              }}
+              options={[
+                { label: "All Statuses", value: "" },
+                { label: "Active", value: "ACTIVE" },
+                { label: "Inactive", value: "INACTIVE" },
+              ]}
+            />
+          </div>
 
-          <select
-            value={sortBy}
-            onChange={(e) => {
-              setSortBy(e.target.value);
-              setPage(1);
-            }}
-            className="rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
-          >
-            <option value="createdAt">Newest First</option>
-            <option value="name">Name (A-Z)</option>
-            <option value="currentDue">Highest Due</option>
-            <option value="salesCount">Most Orders</option>
-            <option value="loyaltyPoints">Loyalty Points</option>
-          </select>
+          {/* Sort By Custom Dropdown */}
+          <div className="w-36">
+            <CustomDropdownSelect
+              value={sortBy}
+              onChange={(val) => {
+                setSortBy(val);
+                setPage(1);
+              }}
+              options={[
+                { label: "Newest First", value: "createdAt" },
+                { label: "Name (A-Z)", value: "name" },
+                { label: "Highest Due", value: "currentDue" },
+                { label: "Most Orders", value: "salesCount" },
+                { label: "Loyalty Points", value: "loyaltyPoints" },
+              ]}
+            />
+          </div>
 
+          {/* Sort Direction Toggle */}
           <button
             onClick={() => setSortDir((prev) => (prev === "asc" ? "desc" : "asc"))}
-            className="rounded-sm border border-sky-200/90 p-1.5 text-[#0369A1] hover:bg-sky-50 transition"
-            title={`Sort: ${sortDir.toUpperCase()}`}
+            className="rounded-sm border border-sky-200/90 p-2 text-[#0369A1] hover:bg-sky-50 transition cursor-pointer shadow-2xs"
+            title={`Sort Direction: ${sortDir.toUpperCase()}`}
           >
             <ArrowUpDown size={14} />
           </button>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center rounded-sm border border-sky-200/90 p-0.5 bg-sky-50/40">
+          <div className="flex items-center rounded-sm border border-sky-200/90 p-0.5 bg-sky-50/40 shadow-2xs">
             <button
               onClick={() => setViewMode("table")}
-              className={`rounded-xs p-1 transition ${viewMode === "table" ? "bg-white text-[#0284C7] shadow-xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-xs p-1 transition cursor-pointer ${
+                viewMode === "table" ? "bg-white text-[#0284C7] shadow-xs font-bold" : "text-gray-400 hover:text-gray-600"
+              }`}
               title="Table View"
             >
               <LayoutList size={14} />
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`rounded-xs p-1 transition ${viewMode === "grid" ? "bg-white text-[#0284C7] shadow-xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-xs p-1 transition cursor-pointer ${
+                viewMode === "grid" ? "bg-white text-[#0284C7] shadow-xs font-bold" : "text-gray-400 hover:text-gray-600"
+              }`}
               title="Grid View"
             >
               <LayoutGrid size={14} />
             </button>
           </div>
-
-          <button
-            onClick={() => {
-              loadCustomers();
-              loadStats();
-            }}
-            className="rounded-sm border border-sky-200/90 p-1.5 text-[#0369A1] hover:bg-sky-50 transition"
-            title="Refresh"
-          >
-            <RefreshCw size={14} className={loading ? "animate-spin text-[#0284C7]" : ""} />
-          </button>
         </div>
       </div>
 
       {/* ── Error Banner ── */}
       {error && (
-        <div className="rounded-sm border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 flex items-center justify-between">
+        <div className="rounded-sm border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-700 flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-2">
             <AlertTriangle size={15} />
             <span>{error}</span>
           </div>
-          <button onClick={loadCustomers} className="font-semibold underline hover:text-red-900">
+          <button onClick={loadCustomers} className="font-semibold underline hover:text-rose-900 cursor-pointer">
             Retry
           </button>
         </div>
       )}
 
-      {/* ── Customers List Data View ── */}
-      {loading ? (
-        <div className="rounded-sm border border-sky-100/90 bg-white p-12 text-center shadow-xs">
-          <RefreshCw size={24} className="mx-auto animate-spin text-[#0284C7] mb-2" />
-          <p className="text-xs font-semibold text-[#0369A1]">Loading customers...</p>
-        </div>
-      ) : customers.length === 0 ? (
-        <div className="rounded-sm border-2 border-dashed border-sky-200/70 bg-white p-12 text-center shadow-xs">
-          <Users size={32} className="mx-auto text-sky-300 mb-3" />
-          <h3 className="text-sm font-bold text-gray-900">No Customers Found</h3>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
-            {search || activeSegmentTab !== "ALL" || filterGroup || filterStatus
+      {/* ── Customers Data View: Table or Grid ── */}
+      {viewMode === "table" ? (
+        <CustomTable
+          columns={tableColumns}
+          data={customers}
+          loading={loading}
+          emptyMessage={
+            search || activeSegmentTab !== "ALL" || filterGroup || filterStatus
               ? "No customers matched your filter criteria."
-              : "Start by creating your first customer record."}
-          </p>
-          <div className="mt-4 flex items-center justify-center gap-2">
-            {(search || activeSegmentTab !== "ALL" || filterGroup || filterStatus) && (
-              <CustomButton
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSearch("");
-                  setActiveSegmentTab("ALL");
-                  setFilterGroup("");
-                  setFilterStatus("");
-                  setPage(1);
-                }}
-                className="border-sky-200/90 text-[#0369A1]"
-              >
-                Clear Filters
-              </CustomButton>
-            )}
-            <CustomButton
-              variant="primary"
-              size="sm"
-              onClick={handleOpenAdd}
-            >
-              <UserPlus size={14} /> Add Customer
-            </CustomButton>
-          </div>
-        </div>
-      ) : viewMode === "table" ? (
-        /* ── CLEAN ENTERPRISE TABLE VIEW ── */
-        <div className="rounded-sm border border-sky-100/90 bg-white shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-sky-100/90 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 text-[11px] font-semibold uppercase tracking-wider text-[#0369A1]">
-                  <th className="px-4 py-3">Customer</th>
-                  <th className="px-3 py-3">Contact</th>
-                  <th className="px-3 py-3">Segment</th>
-                  <th className="px-3 py-3">Group</th>
-                  <th className="px-3 py-3 text-right">Outstanding Due</th>
-                  <th className="px-3 py-3 text-center">Orders</th>
-                  <th className="px-3 py-3 text-center">Points</th>
-                  <th className="px-3 py-3 text-center">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-sky-100/60">
-                {customers.map((c) => {
-                  const seg = segBadgeMap[c.segmentation || "REGULAR"] || segBadgeMap.REGULAR;
-                  const due = Number(c.currentDue || 0);
-                  const isDue = due > 0;
+              : "No customer records found. Start by adding your first customer."
+          }
+          showPagination={true}
+          totalItems={pagination.total}
+          currentPage={page}
+          pageSize={perPage}
+          onPageChange={(newPage) => setPage(newPage)}
+          onPageSizeChange={(newSize) => {
+            setPerPage(newSize);
+            setPage(1);
+          }}
+        />
+      ) : (
+        /* ── CLEAN CARD GRID VIEW ── */
+        <div className="space-y-4">
+          {customers.length === 0 && !loading ? (
+            <div className="rounded-sm border-2 border-dashed border-sky-200/70 bg-white p-12 text-center shadow-xs">
+              <Users size={32} className="mx-auto text-sky-300 mb-3" />
+              <h3 className="text-sm font-bold text-gray-600">No Customers Found</h3>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
+                {search || activeSegmentTab !== "ALL" || filterGroup || filterStatus
+                  ? "No customers matched your filter criteria."
+                  : "Start by creating your first customer record."}
+              </p>
+              <div className="mt-4 flex items-center justify-center gap-2">
+                {(search || activeSegmentTab !== "ALL" || filterGroup || filterStatus) && (
+                  <CustomButton
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSearch("");
+                      setActiveSegmentTab("ALL");
+                      setFilterGroup("");
+                      setFilterStatus("");
+                      setPage(1);
+                    }}
+                    className="border-sky-200/90 text-[#0369A1]"
+                  >
+                    Clear Filters
+                  </CustomButton>
+                )}
+                <CustomButton
+                  variant="primary"
+                  size="sm"
+                  onClick={handleOpenAdd}
+                >
+                  <UserPlus size={14} /> Add Customer
+                </CustomButton>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5">
+              {customers.map((c) => {
+                const seg = segBadgeMap[c.segmentation || "REGULAR"] || segBadgeMap.REGULAR;
+                const due = Number(c.currentDue || 0);
+                const isDue = due > 0;
 
-                  return (
-                    <tr key={c.id} className="hover:bg-sky-50/40 transition-colors">
-                      {/* Name & Initials */}
-                      <td className="px-4 py-3">
+                return (
+                  <div
+                    key={c.id}
+                    className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs hover:border-sky-300 transition flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2.5">
                           <button
                             onClick={() => handleOpenDrawer(c.id)}
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 text-xs font-bold hover:bg-sky-100 transition"
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 text-xs font-bold cursor-pointer hover:bg-sky-100 transition"
                           >
                             {getInitials(c.name)}
                           </button>
                           <div className="min-w-0">
-                            <button
+                            <h3
                               onClick={() => handleOpenDrawer(c.id)}
-                              className="font-semibold text-gray-900 hover:text-[#0284C7] text-left transition truncate max-w-[170px] block"
+                              className="font-bold text-gray-600 hover:text-[#0284C7] cursor-pointer transition text-xs truncate max-w-[150px]"
                             >
                               {c.name}
-                            </button>
-                            {c.city && (
-                              <p className="text-[11px] text-gray-400 truncate max-w-[170px] flex items-center gap-0.5">
-                                <MapPin size={10} /> {c.city}
-                              </p>
-                            )}
+                            </h3>
+                            <p className="text-[11px] text-gray-400 truncate mt-0.5">
+                              {c.phone || c.email || "No contact"}
+                            </p>
                           </div>
                         </div>
-                      </td>
 
-                      {/* Phone & WhatsApp */}
-                      <td className="px-3 py-3">
-                        {c.phone ? (
-                          <div className="flex items-center gap-1.5 text-gray-700 font-medium">
-                            <a href={`tel:${c.phone}`} className="hover:text-[#0284C7] transition">
-                              {c.phone}
-                            </a>
-                            <a
-                              href={`https://wa.me/${c.phone.replace(/[^0-9]/g, "")}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-block text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1 py-0.2 rounded-sm hover:bg-emerald-100 transition"
-                              title="WhatsApp"
-                            >
-                              WA
-                            </a>
-                          </div>
-                        ) : (
-                          <span className="text-gray-400 italic text-[11px]">—</span>
-                        )}
-                      </td>
-
-                      {/* Segment */}
-                      <td className="px-3 py-3">
                         <span className={`inline-flex items-center rounded-sm border px-2 py-0.5 text-[10px] font-semibold ${seg.bg}`}>
                           {seg.label}
                         </span>
-                      </td>
+                      </div>
 
-                      {/* Group */}
-                      <td className="px-3 py-3 text-gray-600">
-                        {c.group?.name || <span className="text-gray-400">—</span>}
-                      </td>
-
-                      {/* Outstanding Due */}
-                      <td className="px-3 py-3 text-right">
-                        <div className="inline-flex flex-col items-end">
-                          <span className={`font-semibold ${isDue ? "text-rose-600 font-bold" : "text-gray-700"}`}>
+                      <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-sky-100/80 text-center">
+                        <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
+                          <p className="text-[10px] text-gray-400 font-medium">Due</p>
+                          <p className={`text-xs font-bold ${isDue ? "text-rose-600" : "text-gray-600"}`}>
                             ৳{due.toLocaleString()}
-                          </span>
-                          {isDue && (
-                            <button
-                              onClick={() => handleOpenCollectDue(c)}
-                              className="mt-0.5 text-[10px] font-semibold text-rose-700 hover:text-rose-800 underline"
-                            >
-                              Collect
-                            </button>
-                          )}
+                          </p>
                         </div>
-                      </td>
-
-                      {/* Orders */}
-                      <td className="px-3 py-3 text-center text-gray-700">
-                        <span className="font-medium">{c._count?.sales || 0}</span>
-                      </td>
-
-                      {/* Loyalty Points */}
-                      <td className="px-3 py-3 text-center">
-                        <span className="text-amber-700 font-medium text-xs">
-                          {c.loyaltyPoints || 0}
-                        </span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-3 py-3 text-center">
-                        <span className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-semibold ${
-                          c.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60" : "bg-gray-100 text-gray-600 border border-gray-200"
-                        }`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${c.status === "ACTIVE" ? "bg-emerald-500" : "bg-gray-400"}`} />
-                          {c.status || "ACTIVE"}
-                        </span>
-                      </td>
-
-                      {/* Action buttons */}
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => handleOpenDrawer(c.id)}
-                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
-                            title="Quick Drawer"
-                          >
-                            <Eye size={14} />
-                          </button>
-
-                          <button
-                            onClick={() => handleOpenEdit(c)}
-                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
-                            title="Edit"
-                          >
-                            <Edit3 size={14} />
-                          </button>
-
-                          <Link
-                            href={`/customers/${c.id}`}
-                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
-                            title="Full Details"
-                          >
-                            <ArrowUpRight size={14} />
-                          </Link>
-
-                          <button
-                            onClick={() => handleDelete(c)}
-                            className="rounded-sm p-1 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition"
-                            title="Deactivate"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                        <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
+                          <p className="text-[10px] text-gray-400 font-medium">Orders</p>
+                          <p className="text-xs font-bold text-gray-600">
+                            {c._count?.sales || 0}
+                          </p>
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : (
-        /* ── CLEAN CARD GRID VIEW ── */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5">
-          {customers.map((c) => {
-            const seg = segBadgeMap[c.segmentation || "REGULAR"] || segBadgeMap.REGULAR;
-            const due = Number(c.currentDue || 0);
-            const isDue = due > 0;
-
-            return (
-              <div
-                key={c.id}
-                className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs hover:border-sky-300 transition flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2.5">
-                      <button
-                        onClick={() => handleOpenDrawer(c.id)}
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 text-xs font-bold"
-                      >
-                        {getInitials(c.name)}
-                      </button>
-                      <div className="min-w-0">
-                        <h3
-                          onClick={() => handleOpenDrawer(c.id)}
-                          className="font-bold text-gray-900 hover:text-[#0284C7] cursor-pointer transition text-xs truncate max-w-[150px]"
-                        >
-                          {c.name}
-                        </h3>
-                        <p className="text-[11px] text-gray-400 truncate">
-                          {c.phone || c.email || "No contact"}
-                        </p>
+                        <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
+                          <p className="text-[10px] text-gray-400 font-medium">Points</p>
+                          <p className="text-xs font-bold text-amber-700">
+                            {c.loyaltyPoints || 0}
+                          </p>
+                        </div>
                       </div>
                     </div>
 
-                    <span className={`inline-flex items-center rounded-sm border px-2 py-0.5 text-[10px] font-semibold ${seg.bg}`}>
-                      {seg.label}
-                    </span>
-                  </div>
+                    <div className="mt-3 pt-2.5 border-t border-sky-100/80 flex items-center justify-between">
+                      <div className="flex gap-1.5">
+                        {c.phone && (
+                          <a
+                            href={`https://wa.me/${c.phone.replace(/[^0-9]/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-2 py-0.5 text-[11px] font-medium hover:bg-emerald-100 transition"
+                          >
+                            WhatsApp
+                          </a>
+                        )}
+                        {isDue && (
+                          <button
+                            onClick={() => handleOpenCollectDue(c)}
+                            className="rounded-sm bg-rose-50 text-rose-700 border border-rose-200/60 px-2 py-0.5 text-[11px] font-semibold hover:bg-rose-100 transition cursor-pointer"
+                          >
+                            Collect Due
+                          </button>
+                        )}
+                      </div>
 
-                  <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-sky-100/80 text-center">
-                    <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
-                      <p className="text-[10px] text-gray-400 font-medium">Due</p>
-                      <p className={`text-xs font-bold ${isDue ? "text-rose-600" : "text-gray-700"}`}>
-                        ৳{due.toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
-                      <p className="text-[10px] text-gray-400 font-medium">Orders</p>
-                      <p className="text-xs font-bold text-gray-700">
-                        {c._count?.sales || 0}
-                      </p>
-                    </div>
-                    <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
-                      <p className="text-[10px] text-gray-400 font-medium">Points</p>
-                      <p className="text-xs font-bold text-amber-700">
-                        {c.loyaltyPoints || 0}
-                      </p>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleOpenDrawer(c.id)}
+                          className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+                          title="Drawer"
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleOpenEdit(c)}
+                          className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+                          title="Edit"
+                        >
+                          <Edit3 size={14} />
+                        </button>
+                        <button
+                          onClick={() => setCustomerToDelete(c)}
+                          className="rounded-sm p-1 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+                          title="Deactivate"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                );
+              })}
+            </div>
+          )}
 
-                <div className="mt-3 pt-2.5 border-t border-sky-100/80 flex items-center justify-between">
-                  <div className="flex gap-1.5">
-                    {c.phone && (
-                      <a
-                        href={`https://wa.me/${c.phone.replace(/[^0-9]/g, "")}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-2 py-0.5 text-[11px] font-medium hover:bg-emerald-100 transition"
-                      >
-                        WhatsApp
-                      </a>
-                    )}
-                    {isDue && (
-                      <button
-                        onClick={() => handleOpenCollectDue(c)}
-                        className="rounded-sm bg-rose-50 text-rose-700 border border-rose-200/60 px-2 py-0.5 text-[11px] font-semibold hover:bg-rose-100 transition"
-                      >
-                        Collect Due
-                      </button>
-                    )}
-                  </div>
+          {/* Grid View Pagination Bar */}
+          {pagination.totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs">
+              <p className="text-xs text-gray-600 font-medium">
+                Showing <strong className="font-bold text-[#0284C7]">{(page - 1) * perPage + 1}</strong> -{" "}
+                <strong className="font-bold text-[#0284C7]">
+                  {Math.min(page * perPage, pagination.total)}
+                </strong>{" "}
+                of <strong className="font-bold text-[#0284C7]">{pagination.total}</strong> customers
+              </p>
 
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => handleOpenDrawer(c.id)}
-                      className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
-                      title="Drawer"
-                    >
-                      <Eye size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleOpenEdit(c)}
-                      className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
-                      title="Edit"
-                    >
-                      <Edit3 size={14} />
-                    </button>
-                  </div>
-                </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  className="flex items-center gap-1 rounded-sm border border-sky-200/90 px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] disabled:opacity-40 transition cursor-pointer"
+                >
+                  <ChevronLeft size={13} /> Prev
+                </button>
+
+                <span className="text-xs text-[#0284C7] font-bold px-1">
+                  Page {page} of {pagination.totalPages}
+                </span>
+
+                <button
+                  onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+                  disabled={page >= pagination.totalPages}
+                  className="flex items-center gap-1 rounded-sm border border-sky-200/90 px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] disabled:opacity-40 transition cursor-pointer"
+                >
+                  Next <ChevronRight size={13} />
+                </button>
               </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ── Clean Pagination Footer ── */}
-      {pagination.totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-sm border border-sky-100/90 bg-white p-3 shadow-xs">
-          <p className="text-xs text-gray-500">
-            Showing <span className="font-semibold text-gray-800">{(page - 1) * perPage + 1}</span> -{" "}
-            <span className="font-semibold text-gray-800">
-              {Math.min(page * perPage, pagination.total)}
-            </span>{" "}
-            of <span className="font-semibold text-gray-800">{pagination.total}</span> customers
-          </p>
-
-          <div className="flex items-center gap-2">
-            <select
-              value={perPage}
-              onChange={(e) => {
-                setPerPage(Number(e.target.value));
-                setPage(1);
-              }}
-              className="rounded-sm border border-sky-200/90 px-2 py-1 text-xs text-gray-700 focus:outline-none"
-            >
-              <option value="10">10 / page</option>
-              <option value="20">20 / page</option>
-              <option value="50">50 / page</option>
-              <option value="100">100 / page</option>
-            </select>
-
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="flex items-center gap-1 rounded-sm border border-sky-200/90 px-2.5 py-1 text-xs font-medium text-[#0369A1] hover:bg-sky-50 disabled:opacity-40 transition"
-            >
-              <ChevronLeft size={13} /> Prev
-            </button>
-
-            <span className="text-xs text-[#0369A1] font-medium px-1">
-              Page {page} / {pagination.totalPages}
-            </span>
-
-            <button
-              onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
-              disabled={page >= pagination.totalPages}
-              className="flex items-center gap-1 rounded-sm border border-sky-200/90 px-2.5 py-1 text-xs font-medium text-[#0369A1] hover:bg-sky-50 disabled:opacity-40 transition"
-            >
-              Next <ChevronRight size={13} />
-            </button>
-          </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -945,6 +938,19 @@ export default function CustomersPage() {
           loadGroups();
           loadCustomers();
         }}
+      />
+
+      {/* ── Standard ConfirmModal for Customer Deletion ── */}
+      <ConfirmModal
+        isOpen={Boolean(customerToDelete)}
+        onClose={() => setCustomerToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="Deactivate Customer"
+        message={`Are you sure you want to deactivate customer "${customerToDelete?.name}"? You can re-activate them anytime.`}
+        confirmText="Deactivate"
+        confirmVariant="danger"
+        type="DANGER"
+        loading={isDeleting}
       />
 
     </div>

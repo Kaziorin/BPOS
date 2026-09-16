@@ -113,7 +113,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                   </div>
                   <div className="flex-1 min-w-0 pr-6">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="text-base font-bold text-gray-900 truncate">{customer.name}</h2>
+                      <h2 className="text-base font-bold text-gray-600 truncate">{customer.name}</h2>
                       <span className={`inline-flex items-center rounded-sm border px-2 py-0.5 text-[10px] font-semibold ${segBadgeClass[customer.segmentation || "REGULAR"] || segBadgeClass.REGULAR}`}>
                         {customer.segmentation || "REGULAR"}
                       </span>
@@ -164,14 +164,14 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
             <div className="grid grid-cols-3 gap-2 p-3 bg-sky-50/40 border-b border-sky-100/90">
               <div className="rounded-sm border border-sky-100/90 bg-white p-2.5 text-center shadow-xs">
                 <p className="text-[10px] uppercase font-semibold text-gray-400">Current Due</p>
-                <p className={`text-sm font-bold mt-0.5 ${due > 0 ? "text-rose-600" : "text-gray-900"}`}>
+                <p className={`text-sm font-bold mt-0.5 ${due > 0 ? "text-rose-600" : "text-gray-600"}`}>
                   ৳{due.toLocaleString()}
                 </p>
               </div>
 
               <div className="rounded-sm border border-sky-100/90 bg-white p-2.5 text-center shadow-xs">
                 <p className="text-[10px] uppercase font-semibold text-gray-400">Total Orders</p>
-                <p className="text-sm font-bold text-gray-900 mt-0.5">
+                <p className="text-sm font-bold text-gray-600 mt-0.5">
                   {customer.purchaseHistory?.totalOrders || 0}
                 </p>
               </div>
@@ -190,7 +190,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
             <button
               onClick={() => setActiveTab("overview")}
               className={`border-b-2 py-2.5 px-3 text-xs font-medium transition ${
-                activeTab === "overview" ? "border-[#0284C7] text-[#0284C7] font-semibold" : "border-transparent text-gray-500 hover:text-gray-900"
+                activeTab === "overview" ? "border-[#0284C7] text-[#0284C7] font-semibold" : "border-transparent text-gray-500 hover:text-[#0284C7]"
               }`}
             >
               Overview
@@ -198,7 +198,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
             <button
               onClick={() => setActiveTab("sales")}
               className={`border-b-2 py-2.5 px-3 text-xs font-medium transition flex items-center gap-1 ${
-                activeTab === "sales" ? "border-[#0284C7] text-[#0284C7] font-semibold" : "border-transparent text-gray-500 hover:text-gray-900"
+                activeTab === "sales" ? "border-[#0284C7] text-[#0284C7] font-semibold" : "border-transparent text-gray-500 hover:text-[#0284C7]"
               }`}
             >
               Recent Orders
@@ -211,7 +211,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
             <button
               onClick={() => setActiveTab("notes")}
               className={`border-b-2 py-2.5 px-3 text-xs font-medium transition flex items-center gap-1 ${
-                activeTab === "notes" ? "border-[#0284C7] text-[#0284C7] font-semibold" : "border-transparent text-gray-500 hover:text-gray-900"
+                activeTab === "notes" ? "border-[#0284C7] text-[#0284C7] font-semibold" : "border-transparent text-gray-500 hover:text-[#0284C7]"
               }`}
             >
               Activity & Notes
@@ -305,7 +305,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-gray-900">৳{Number(sale.total).toLocaleString()}</p>
+                            <p className="font-bold text-gray-600">৳{Number(sale.total).toLocaleString()}</p>
                             <span className="text-[10px] text-emerald-700 font-medium">
                               {sale.status}
                             </span>

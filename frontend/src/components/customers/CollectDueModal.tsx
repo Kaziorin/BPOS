@@ -106,15 +106,15 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
               <CheckCircle2 size={28} />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-gray-900">Payment Recorded</h3>
+              <h3 className="text-sm font-bold text-gray-600">Payment Recorded</h3>
               <p className="text-xs text-gray-500 mt-0.5">Due balance updated successfully</p>
             </div>
 
             {/* Receipt Summary */}
-            <div className="rounded-lg border border-gray-200 bg-gray-50/60 p-3.5 text-left text-xs space-y-2">
+            <div className="rounded-sm border border-sky-100 bg-sky-50/40 p-3.5 text-left text-xs space-y-2">
               <div className="flex justify-between text-gray-500">
                 <span>Customer</span>
-                <span className="font-semibold text-gray-800">{successReceipt.customerName}</span>
+                <span className="font-semibold text-gray-600">{successReceipt.customerName}</span>
               </div>
               <div className="flex justify-between text-gray-500">
                 <span>Amount Paid</span>
@@ -122,9 +122,9 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
               </div>
               <div className="flex justify-between text-gray-500">
                 <span>Method</span>
-                <span className="font-semibold text-gray-800">{successReceipt.paymentMethod}</span>
+                <span className="font-semibold text-gray-600">{successReceipt.paymentMethod}</span>
               </div>
-              <div className="border-t border-gray-200 pt-1.5 flex justify-between text-gray-500">
+              <div className="border-t border-sky-200/60 pt-1.5 flex justify-between text-gray-500">
                 <span>Remaining Due</span>
                 <span className={`font-bold ${successReceipt.remainingDue > 0 ? "text-rose-600" : "text-emerald-700"}`}>
                   ৳{successReceipt.remainingDue.toLocaleString()}
@@ -180,7 +180,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
                   placeholder="0.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-sm border border-sky-200/90 py-2 pl-7 pr-3 text-sm font-bold text-slate-900 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                  className="w-full rounded-sm border border-sky-200/90 py-2 pl-7 pr-3 text-sm font-bold text-gray-600 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
                 />
               </div>
               <div className="flex gap-1.5 mt-1.5">
@@ -220,7 +220,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
                       className={`flex flex-col items-center justify-center rounded-sm border py-2 px-1 text-[11px] font-semibold transition cursor-pointer ${
                         isSelected
                           ? "border-[#0284C7] bg-[#E0F2FE] text-[#0369A1] shadow-2xs font-bold"
-                          : "border-sky-100 bg-white text-slate-700 hover:border-sky-300"
+                          : "border-sky-100 bg-white text-gray-600 hover:border-sky-300"
                       }`}
                     >
                       <Icon size={14} className="mb-0.5" />
@@ -240,7 +240,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
                 placeholder="e.g. TrxID or Cheque No..."
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="w-full rounded-sm border border-sky-200/90 px-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                className="w-full rounded-sm border border-sky-200/90 px-3 py-1.5 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
               />
             </div>
 
@@ -248,7 +248,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-sm border border-sky-200/80 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer shadow-2xs"
+                className="rounded-sm border border-rose-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer shadow-2xs"
               >
                 Cancel
               </button>

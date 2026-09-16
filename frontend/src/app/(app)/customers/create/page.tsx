@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, UserPlus } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 
 export default function CreateCustomerPage() {
   const router = useRouter();
@@ -54,29 +55,30 @@ export default function CreateCustomerPage() {
     }
   }
 
-  const inputClass = "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500";
-  const labelClass = "block text-sm font-medium text-gray-700";
+  const inputClass = "mt-1 block w-full rounded-sm border border-sky-200/90 bg-white px-3 py-2 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs";
+  const labelClass = "block text-xs font-semibold text-[#0369A1]";
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-center gap-3">
-        <button onClick={() => router.push("/customers")} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
-          <ArrowLeft size={18} />
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Add Customer</h1>
-          <p className="text-sm text-gray-500">Create a new customer record</p>
-        </div>
-      </div>
+    <div className="mx-auto max-w-3xl space-y-5 pb-12">
+      <CustomBreadcrumb
+        title="Add Customer"
+        subtitle="Create a new customer record with credit limits and contact profile."
+        icon={<UserPlus size={20} />}
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Customers", href: "/customers" },
+          { label: "Create" },
+        ]}
+      />
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
+        <div className="rounded-sm border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-700 shadow-2xs">{error}</div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-5 space-y-3.5 shadow-2xs">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Basic Information</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Name *</label>
               <input type="text" value={form.name} onChange={(e) => updateForm("name", e.target.value)} className={inputClass} required />
@@ -104,24 +106,24 @@ export default function CreateCustomerPage() {
             <div>
               <label className={labelClass}>Gender</label>
               <select value={form.gender} onChange={(e) => updateForm("gender", e.target.value)} className={inputClass}>
-                <option value="">—</option>
+                <option value="">Select gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
               </select>
             </div>
             <div>
-              <label className={labelClass}>Tax Reg No</label>
+              <label className={labelClass}>Tax / VAT Registration No</label>
               <input type="text" value={form.taxRegNo} onChange={(e) => updateForm("taxRegNo", e.target.value)} className={inputClass} />
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Classification & Credit</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="rounded-sm border border-sky-100/90 bg-white p-5 space-y-3.5 shadow-2xs">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Classification & Credit</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className={labelClass}>Segmentation</label>
+              <label className={labelClass}>Customer Segment</label>
               <select value={form.segmentation} onChange={(e) => updateForm("segmentation", e.target.value)} className={inputClass}>
                 <option value="NEW">New</option>
                 <option value="REGULAR">Regular</option>
@@ -136,7 +138,7 @@ export default function CreateCustomerPage() {
               <input type="text" value={form.groupId} onChange={(e) => updateForm("groupId", e.target.value)} className={inputClass} placeholder="UUID (optional)" />
             </div>
             <div>
-              <label className={labelClass}>Credit Limit</label>
+              <label className={labelClass}>Credit Limit (Tk)</label>
               <input type="number" value={form.creditLimit} onChange={(e) => updateForm("creditLimit", e.target.value)} className={inputClass} min="0" />
             </div>
             <div>
@@ -144,14 +146,14 @@ export default function CreateCustomerPage() {
               <input type="number" value={form.creditPeriodDays} onChange={(e) => updateForm("creditPeriodDays", e.target.value)} className={inputClass} min="0" />
             </div>
             <div>
-              <label className={labelClass}>Opening Due</label>
+              <label className={labelClass}>Opening Due (Tk)</label>
               <input type="number" value={form.openingDue} onChange={(e) => updateForm("openingDue", e.target.value)} className={inputClass} min="0" />
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Notes</h2>
+        <div className="rounded-sm border border-sky-100/90 bg-white p-5 space-y-3.5 shadow-2xs">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Notes</h2>
           <textarea
             value={form.notes}
             onChange={(e) => updateForm("notes", e.target.value)}
@@ -161,12 +163,20 @@ export default function CreateCustomerPage() {
           />
         </div>
 
-        <div className="flex justify-end gap-3">
-          <button type="button" onClick={() => router.push("/customers")} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <div className="flex justify-end gap-2.5 pt-2">
+          <button
+            type="button"
+            onClick={() => router.push("/customers")}
+            className="rounded-sm border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer shadow-2xs"
+          >
             Cancel
           </button>
-          <button type="submit" disabled={saving} className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50">
-            {saving && <Loader2 size={16} className="animate-spin" />}
+          <button
+            type="submit"
+            disabled={saving}
+            className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-98 transition disabled:opacity-50 cursor-pointer"
+          >
+            {saving && <Loader2 size={13} className="animate-spin" />}
             {saving ? "Creating..." : "Create Customer"}
           </button>
         </div>
