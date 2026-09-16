@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useMemo } from "react";
 import {
-  ChevronLeft, ChevronRight, ChevronDown, LogOut, Loader2, Search, X, Play,
+  ChevronDown, LogOut, Loader2, Search, X, Play,
 } from "lucide-react";
 import { useDynamicNav, type NavItem, type NavChild } from "@/lib/dynamic-nav";
 import { siteConfig } from "@/config/site";
@@ -226,6 +226,13 @@ export function Sidebar() {
     });
   }
 
+  // Listen for toggle event from Header hamburger button
+  useEffect(() => {
+    const handleToggle = () => toggleCollapse();
+    window.addEventListener("bpos:toggle-sidebar", handleToggle);
+    return () => window.removeEventListener("bpos:toggle-sidebar", handleToggle);
+  }, []);
+
   const handleOpenFlyout = (item: NavItem, top: number) => {
     if (flyoutTimerRef.current) clearTimeout(flyoutTimerRef.current);
     if (!collapsed || !item.children?.length) {
@@ -318,18 +325,7 @@ export function Sidebar() {
         </svg>
       </div>
 
-      {/* Collapse Toggle Button */}
-      <button
-        onClick={toggleCollapse}
-        className="group absolute -right-3.5 top-5 z-30 flex h-7 w-7 items-center justify-center rounded-full border border-sky-300 bg-white text-sky-700 shadow-md transition-all duration-200 hover:scale-115 hover:bg-[#0284C7] hover:text-white hover:border-white focus:outline-none cursor-pointer"
-        title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-      >
-        {collapsed ? (
-          <ChevronRight size={15} className="text-sky-700 group-hover:text-white stroke-[2.5]" />
-        ) : (
-          <ChevronLeft size={15} className="text-sky-700 group-hover:text-white stroke-[2.5]" />
-        )}
-      </button>
+
 
       {/* Brand Header */}
       <div

@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   FileText,
   ShieldCheck,
+  Menu,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { siteConfig } from "@/config/site";
@@ -78,12 +79,22 @@ export function Header() {
 
         {/* ── Mobile Layout (< lg) ── */}
         <div className="relative z-10 flex w-full items-center justify-between lg:hidden">
-          {/* Mobile Left: Logo */}
-          <Link href="/dashboard" className="flex items-center">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs">
-              <Logo size={20} />
-            </div>
-          </Link>
+          {/* Mobile Left: Hamburger + Logo */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => window.dispatchEvent(new Event("omni:open-mobile-menu"))}
+              className="flex h-8.5 w-8.5 items-center justify-center rounded-sm border border-sky-200/90 bg-sky-50/70 text-[#0284C7] hover:bg-[#E0F2FE] hover:border-[#0284C7] hover:text-[#0369A1] transition shadow-2xs cursor-pointer shrink-0"
+              title="Open Navigation Menu"
+              aria-label="Open Navigation Menu"
+            >
+              <Menu size={18} className="stroke-[2.2]" />
+            </button>
+            <Link href="/dashboard" className="flex items-center">
+              <div className="flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs">
+                <Logo size={19} />
+              </div>
+            </Link>
+          </div>
 
           {/* Mobile Center: Page Name */}
           <div className="flex-1 text-center px-2 min-w-0">
@@ -182,8 +193,17 @@ export function Header() {
 
         {/* ── Desktop Layout (lg+) ── */}
         <div className="relative z-10 hidden w-full items-center justify-between gap-4 lg:flex">
-          {/* Desktop Left: Page Title + Branch Badge */}
-          <div className="flex min-w-0 items-center gap-3">
+          {/* Desktop Left: Hamburger Toggle + Page Title + Branch Badge */}
+          <div className="flex min-w-0 items-center gap-2.5">
+            <button
+              onClick={() => window.dispatchEvent(new Event("bpos:toggle-sidebar"))}
+              className="flex h-8.5 w-8.5 items-center justify-center rounded-sm border border-sky-200/90 bg-sky-50/70 text-[#0284C7] hover:bg-[#E0F2FE] hover:border-[#0284C7] hover:text-[#0369A1] transition shadow-2xs cursor-pointer shrink-0"
+              title="Toggle Sidebar (Collapse / Expand)"
+              aria-label="Toggle Sidebar"
+            >
+              <Menu size={18} className="stroke-[2.2]" />
+            </button>
+
             <h1 className="truncate text-base font-bold text-[#0369A1] sm:text-lg tracking-tight">
               {cleanTitle || siteConfig.name}
             </h1>

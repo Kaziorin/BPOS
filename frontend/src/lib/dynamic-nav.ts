@@ -257,40 +257,26 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // POS & RETAIL COUNTER
+  // POINT OF SALE (POS) — 9 Business Terminals & Counters
   // ══════════════════════════════════════════════════════════════════════
   {
-    title: "POS & Retail Counter",
+    title: "Point of Sale (POS)",
     items: [
       {
         label: "All POS Terminals",
         href: "/retail-pos",
         icon: Monitor,
-        badge: "9 Modes",
+        badge: "9 Businesses",
         children: [
-          { label: "Retail POS Terminal",       href: "/retail-pos",      icon: ShoppingCart },
-          { label: "Wholesale POS Counter",     href: "/wholesale/pos",   icon: Package      },
-          { label: "Pharmacy Rx POS",           href: "/pharmacy/pos",    icon: Pill         },
-          { label: "Restaurant & Cafe POS",     href: "/restaurant/pos",  icon: UtensilsCrossed },
-          { label: "Bakery & Confectionery POS", href: "/bakery/pos",     icon: Croissant    },
-          { label: "Grocery & Supermarket POS", href: "/grocery/pos",     icon: ShoppingBag  },
-          { label: "Repair & Service POS",      href: "/repair/pos",      icon: Wrench       },
-          { label: "Salon & Spa POS",           href: "/salon/pos",       icon: Scissors     },
-          { label: "Franchise & Outlet POS",    href: "/franchise/pos",   icon: Building2    },
-        ],
-      },
-      {
-        label: "Retail POS Counter",
-        href: "/retail-pos",
-        icon: ShoppingCart,
-        badge: "Live",
-        children: [
-          { label: "Standard POS Checkout",       href: "/retail-pos",                   icon: ShoppingCart },
-          { label: "Held Carts / Orders",          href: "/retail-pos/holds",             icon: PauseCircle  },
-          { label: "Price & Barcode Checker",      href: "/retail-pos/price-checker",     icon: Search       },
-          { label: "Self-Checkout Kiosk",          href: "/retail-pos/self-checkout",     icon: Monitor      },
-          { label: "Customer Display (POS)",       href: "/retail-pos/customer-display",  icon: Monitor      },
-          { label: "Customer Display (Full Screen)",href: "/customer-display",     icon: Monitor      },
+          { label: "Retail POS Terminal",        href: "/retail-pos",      icon: ShoppingCart },
+          { label: "Wholesale POS Counter",      href: "/wholesale/pos",   icon: Package      },
+          { label: "Pharmacy Rx POS",            href: "/pharmacy/pos",    icon: Pill         },
+          { label: "Restaurant & Cafe POS",      href: "/restaurant/pos",  icon: UtensilsCrossed },
+          { label: "Bakery & Confectionery POS",  href: "/bakery/pos",      icon: Croissant    },
+          { label: "Grocery & Supermarket POS",  href: "/grocery/pos",     icon: ShoppingBag  },
+          { label: "Repair & Service POS",       href: "/repair/pos",      icon: Wrench       },
+          { label: "Salon & Spa POS",            href: "/salon/pos",       icon: Scissors     },
+          { label: "Franchise & Outlet POS",     href: "/franchise/pos",   icon: Building2    },
         ],
       },
       { label: "Cash Register & Shifts",     href: "/cash-register", icon: DollarSign },
@@ -551,9 +537,16 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         ],
       },
       {
-        label: "Retail",
+        label: "Retail & Superstore",
         href: "/retail",
         icon: ShoppingBag,
+        children: [
+          { label: "Retail Operations Hub",   href: "/retail",                   icon: ShoppingBag  },
+          { label: "Retail POS Terminal",     href: "/retail-pos",               icon: ShoppingCart },
+          { label: "Held Carts / Orders",     href: "/retail-pos/holds",         icon: PauseCircle  },
+          { label: "Price & Barcode Checker", href: "/retail-pos/price-checker", icon: Search       },
+          { label: "Self-Checkout Kiosk",     href: "/retail-pos/self-checkout", icon: Monitor      },
+        ],
       },
       {
         label: "Grocery & Supermarket",
@@ -627,7 +620,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
 
 const CATEGORY_NAMES: Record<string, string> = {
   PLATFORM: "Administration & System",
-  CORE:     "POS & Retail Operations",
+  CORE:     "Point of Sale & Operations",
   ENGINE:   "Advanced Engines & Finance",
   INDUSTRY: "Industry Verticals",
   FEATURE:  "Features & Growth",
