@@ -719,7 +719,7 @@ export default function BakeryPOSPage() {
           </div>
           <div>
             <div className="text-[14px] font-black text-emerald-950 leading-tight tracking-tight flex items-center gap-1.5">
-              Manufacturing &amp; Bakery
+              BPOS Manufacturing &amp; Bakery
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block shadow-[0_0_8px_#22c55e]" />
             </div>
             <div className="text-[9.5px] font-bold text-emerald-600 tracking-[0.12em] uppercase">Enterprise POS v2.0</div>

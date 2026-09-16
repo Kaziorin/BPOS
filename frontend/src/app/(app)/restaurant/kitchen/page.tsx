@@ -289,9 +289,15 @@ export default function KitchenManagementPage() {
   // Fullscreen
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen().catch(() => {});
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else if (containerRef.current?.requestFullscreen) {
+        containerRef.current?.requestFullscreen().catch(() => {});
+      }
     } else {
-      document.exitFullscreen().catch(() => {});
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
     }
   };
 
@@ -301,6 +307,19 @@ export default function KitchenManagementPage() {
     };
     document.addEventListener("fullscreenchange", handleFSChange);
     return () => document.removeEventListener("fullscreenchange", handleFSChange);
+  }, []);
+
+  // Keyboard shortcut (Press 'F' for Fullscreen toggle)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   // Elapsed mins
@@ -432,7 +451,7 @@ export default function KitchenManagementPage() {
             <button
               onClick={toggleFullscreen}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition"
-              title="Fullscreen Mode"
+              title={isFullscreen ? "Exit Fullscreen (F)" : "Toggle Fullscreen (F)"}
             >
               {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
               <span className="hidden sm:inline">{isFullscreen ? "Exit" : "Fullscreen"}</span>
