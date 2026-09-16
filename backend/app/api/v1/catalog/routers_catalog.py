@@ -995,13 +995,18 @@ async def get_customer(customerId: str, tenantId: str = Depends(resolve_tenant),
     ).first()
     if not r: return err("Customer not found", 404)
     d = dict(r._mapping)
-    d["group"] = {"id": d.pop("groupId"), "name": d.pop("group_name")} if d.get("group_name") else None
-    notes = rows_to_dicts(
-        (await db.execute(text("SELECT * FROM customer_notes WHERE customerId=:id ORDER BY createdAt DESC LIMIT 20"), {"id": customerId})).fetchall()
-    )
-    complaints = rows_to_dicts(
-        (await db.execute(text("SELECT * FROM customer_complaints WHERE customerId=:id ORDER BY createdAt DESC LIMIT 20"), {"id": customerId})).fetchall()
-    )
+    try:
+        notes = rows_to_dicts(
+            (await db.execute(text("SELECT * FROM customer_notes WHERE customerId=:id ORDER BY createdAt DESC LIMIT 20"), {"id": customerId})).fetchall()
+        )
+    except Exception:
+        notes = []
+    try:
+        complaints = rows_to_dicts(
+            (await db.execute(text("SELECT * FROM customer_complaints WHERE customerId=:id ORDER BY createdAt DESC LIMIT 20"), {"id": customerId})).fetchall()
+        )
+    except Exception:
+        complaints = []
     sales_agg = (
         await db.execute(
             text("SELECT COUNT(*) c, COALESCE(SUM(total),0) s FROM sales WHERE customerId=:id AND status != 'CANCELLED'"),

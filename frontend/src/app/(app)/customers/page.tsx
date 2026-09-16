@@ -454,7 +454,6 @@ export default function CustomersPage() {
       {/* ── Page Header ── */}
       <CustomBreadcrumb
         title="Customer Management"
-        subtitle="Maintain customer directories, credit limits, outstanding balances & CRM loyalty."
         icon={<Users size={20} />}
         breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Customers" }]}
         actions={
@@ -463,7 +462,7 @@ export default function CustomersPage() {
               variant="outline"
               size="sm"
               onClick={() => setIsGroupsModalOpen(true)}
-              className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50 font-semibold"
+              className="border-sky-200/90 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] font-semibold shadow-2xs"
             >
               <Layers size={14} className="text-[#0284C7]" />
               Groups ({groups.length})
@@ -473,7 +472,7 @@ export default function CustomersPage() {
               variant="outline"
               size="sm"
               onClick={exportCSV}
-              className="border-sky-200/90 text-[#0369A1] hover:bg-sky-50 font-semibold"
+              className="border-sky-200/90 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] font-semibold shadow-2xs"
             >
               <Download size={14} className="text-[#0284C7]" />
               Export CSV
@@ -780,36 +779,34 @@ export default function CustomersPage() {
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-sky-100/80 text-center">
-                        <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
-                          <p className="text-[10px] text-gray-400 font-medium">Due</p>
-                          <p className={`text-xs font-bold ${isDue ? "text-rose-600" : "text-gray-600"}`}>
+                      {/* Single-line metric pills */}
+                      <div className="mt-3 grid grid-cols-3 gap-1.5 border-t border-sky-100/90 pt-2.5">
+                        <div className="flex items-center justify-between gap-1 rounded-sm border border-slate-200/80 bg-slate-50/70 px-2 py-1.5 shadow-2xs">
+                          <span className="text-[11px] font-semibold text-gray-500">Due</span>
+                          <span className={`text-[11px] font-bold tabular-nums ${isDue ? "text-rose-600" : "text-gray-600"}`}>
                             ৳{due.toLocaleString()}
-                          </p>
+                          </span>
                         </div>
-                        <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
-                          <p className="text-[10px] text-gray-400 font-medium">Orders</p>
-                          <p className="text-xs font-bold text-gray-600">
-                            {c._count?.sales || 0}
-                          </p>
+                        <div className="flex items-center justify-between gap-1 rounded-sm border border-sky-100/90 bg-sky-50/50 px-2 py-1.5 shadow-2xs">
+                          <span className="text-[11px] font-semibold text-[#0369A1]">Orders</span>
+                          <span className="text-[11px] font-bold text-[#0284C7] tabular-nums">{c._count?.sales || 0}</span>
                         </div>
-                        <div className="rounded-sm bg-sky-50/40 border border-sky-100/80 p-1.5">
-                          <p className="text-[10px] text-gray-400 font-medium">Points</p>
-                          <p className="text-xs font-bold text-amber-700">
-                            {c.loyaltyPoints || 0}
-                          </p>
+                        <div className="flex items-center justify-between gap-1 rounded-sm border border-amber-200/80 bg-amber-50/50 px-2 py-1.5 shadow-2xs">
+                          <span className="text-[11px] font-semibold text-amber-700">Points</span>
+                          <span className="text-[11px] font-bold text-amber-700 tabular-nums">{c.loyaltyPoints || 0}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-sky-100/80 flex items-center justify-between">
-                      <div className="flex gap-1.5">
+                    <div className="mt-3 pt-2.5 border-t border-sky-100/90 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
                         {c.phone && (
                           <a
                             href={`https://wa.me/${c.phone.replace(/[^0-9]/g, "")}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-2 py-0.5 text-[11px] font-medium hover:bg-emerald-100 transition"
+                            className="inline-flex items-center gap-1 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-1 text-[11px] font-bold hover:bg-emerald-100 transition shadow-2xs"
+                            title="Chat on WhatsApp"
                           >
                             WhatsApp
                           </a>
@@ -817,7 +814,7 @@ export default function CustomersPage() {
                         {isDue && (
                           <button
                             onClick={() => handleOpenCollectDue(c)}
-                            className="rounded-sm bg-rose-50 text-rose-700 border border-rose-200/60 px-2 py-0.5 text-[11px] font-semibold hover:bg-rose-100 transition cursor-pointer"
+                            className="rounded-sm bg-rose-50 text-rose-700 border border-rose-200/80 px-2 py-1 text-[11px] font-bold hover:bg-rose-100 transition cursor-pointer shadow-2xs"
                           >
                             Collect Due
                           </button>
@@ -827,21 +824,28 @@ export default function CustomersPage() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => handleOpenDrawer(c.id)}
-                          className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
-                          title="Drawer"
+                          className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+                          title="Quick Drawer"
                         >
                           <Eye size={14} />
                         </button>
                         <button
                           onClick={() => handleOpenEdit(c)}
-                          className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+                          className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
                           title="Edit"
                         >
                           <Edit3 size={14} />
                         </button>
+                        <Link
+                          href={`/customers/${c.id}`}
+                          className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+                          title="Full Details"
+                        >
+                          <ArrowUpRight size={14} />
+                        </Link>
                         <button
                           onClick={() => setCustomerToDelete(c)}
-                          className="rounded-sm p-1 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+                          className="rounded-sm p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
                           title="Deactivate"
                         >
                           <Trash2 size={14} />
