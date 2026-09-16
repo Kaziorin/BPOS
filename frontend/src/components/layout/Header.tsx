@@ -27,7 +27,8 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [posModalOpen, setPosModalOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const desktopMenuRef = useRef<HTMLDivElement>(null);
   const Logo = siteConfig.logoIcon;
 
   useEffect(() => {
@@ -40,7 +41,10 @@ export function Header() {
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const isInsideMobile = mobileMenuRef.current?.contains(target);
+      const isInsideDesktop = desktopMenuRef.current?.contains(target);
+      if (!isInsideMobile && !isInsideDesktop) {
         setOpen(false);
       }
     }
@@ -104,7 +108,7 @@ export function Header() {
           </div>
 
           {/* Mobile Right: ONLY Avatar Icon (Click opens dropdown) */}
-          <div className="relative" ref={menuRef}>
+          <div className="relative" ref={mobileMenuRef}>
             <button
               onClick={() => setOpen((v) => !v)}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-xs font-bold text-white shadow-2xs border border-white/60 hover:ring-2 hover:ring-[#0284C7] transition cursor-pointer"
@@ -179,8 +183,12 @@ export function Header() {
                 {/* Logout Button */}
                 <div className="border-t border-sky-100 pt-2 mt-1.5">
                   <button
-                    onClick={logout}
-                    className="flex w-full items-center justify-center gap-2 rounded-sm bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs"
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      logout();
+                    }}
+                    className="flex w-full items-center justify-center gap-2 rounded-sm bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs active:scale-95"
                   >
                     <LogOut size={14} />
                     <span>Sign Out</span>
@@ -241,7 +249,7 @@ export function Header() {
             </button>
 
             {/* Desktop User Profile Card (Avatar first, then Name & Role, Dropdown on click) */}
-            <div className="relative">
+            <div className="relative" ref={desktopMenuRef}>
               <button
                 onClick={() => setOpen((v) => !v)}
                 className={cn(
@@ -364,8 +372,12 @@ export function Header() {
                   {/* Sign Out Button - Highly visible and prominent */}
                   <div className="border-t border-sky-100 pt-2 mt-1.5">
                     <button
-                      onClick={logout}
-                      className="flex w-full items-center justify-center gap-2 rounded-sm bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs"
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        logout();
+                      }}
+                      className="flex w-full items-center justify-center gap-2 rounded-sm bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white cursor-pointer shadow-2xs active:scale-95"
                     >
                       <LogOut size={15} />
                       <span>Sign Out</span>

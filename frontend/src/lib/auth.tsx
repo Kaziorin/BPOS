@@ -169,12 +169,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   function logout() {
     if (typeof window !== "undefined") {
       try {
+        localStorage.removeItem("modernpos_token");
+        localStorage.removeItem("modernpos_user");
+        localStorage.removeItem(TENANT_STORAGE_KEY);
         localStorage.clear();
         sessionStorage.clear();
       } catch (e) {}
+      setUser(null);
+      window.location.replace("/login");
+    } else {
+      setUser(null);
     }
-    setUser(null);
-    window.location.href = "/login";
   }
 
   return (
