@@ -647,68 +647,31 @@ export default function BakeryPOSPage() {
   const activeCustomerObj = customers.find(c => c.id === selectedCust);
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-100/60 via-[#f0fdf4] to-emerald-50/80 select-none overflow-hidden"
+    <div className="fixed inset-0 flex flex-col bg-[#f6fbf8] select-none overflow-hidden"
          style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
 
-      {/* ═══ GLOBAL VFX KEYFRAMES & SHIMMER STYLES ═══════════════════════════ */}
+      {/* ═══ GLOBAL VFX KEYFRAMES ═════════════════════════════════════════════ */}
       <style>{`
         @keyframes floatUp {
           0% { opacity: 1; transform: translateY(0) scale(1); }
           100% { opacity: 0; transform: translateY(-38px) scale(1.3); }
         }
-        @keyframes pulseGlow {
-          0%, 100% { opacity: 0.35; transform: scale(1); }
-          50% { opacity: 0.65; transform: scale(1.08); }
-        }
-        @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        .animate-shimmer {
-          background: linear-gradient(110deg, #15803d 0%, #16a34a 30%, #4ade80 50%, #16a34a 70%, #15803d 100%);
-          background-size: 200% 100%;
-          animation: shimmer 3s infinite linear;
-        }
-        .card-shine::after {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; width: 100%; height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
-          transform: translateX(-100%);
-          transition: transform 0.7s ease;
-          pointer-events: none;
-        }
-        .card-shine:hover::after {
-          transform: translateX(100%);
-        }
       `}</style>
 
-      {/* ═══ AMBIENT BACKGROUND GLOW ORBS ════════════════════════════════════ */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-20 left-1/4 w-[450px] h-[450px] bg-emerald-400/25 rounded-full blur-3xl animate-[pulseGlow_7s_infinite_ease-in-out]" />
-        <div className="absolute top-1/3 right-10 w-[380px] h-[380px] bg-teal-300/20 rounded-full blur-3xl animate-[pulseGlow_9s_infinite_ease-in-out_2s]" />
-        <div className="absolute bottom-10 left-10 w-[350px] h-[350px] bg-green-500/15 rounded-full blur-3xl animate-[pulseGlow_8s_infinite_ease-in-out_4s]" />
-      </div>
-
-      {/* ═══ TOAST NOTIFICATION VFX ══════════════════════════════════════════ */}
+      {/* ═══ TOAST NOTIFICATION ═══════════════════════════════════════════════ */}
       {toast && (
-        <div className="fixed top-4 right-6 z-50 flex items-center gap-3 px-5 py-3.5 bg-gradient-to-r from-emerald-950/95 via-emerald-900/95 to-teal-950/95 backdrop-blur-2xl text-white text-xs font-black rounded-sm shadow-[0_12px_40px_rgba(4,120,87,0.45)] border border-emerald-400/40 animate-bounce">
-          <div className="relative flex items-center justify-center">
-            <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
-            <Sparkles size={18} className="text-emerald-300 relative z-10 animate-spin" />
-          </div>
+        <div className="fixed top-4 right-6 z-50 flex items-center gap-3 px-5 py-3.5 bg-emerald-950 text-white text-xs font-bold rounded-sm shadow-xl border border-emerald-700">
+          <Sparkles size={16} className="text-emerald-400" />
           <span>{toast.msg}</span>
         </div>
       )}
 
       {/* ═══ HEADER ══════════════════════════════════════════════════════════ */}
-      <header className="flex-none h-[60px] bg-white/85 backdrop-blur-xl flex items-center gap-3 px-4 z-30 border-b border-emerald-200/60 shadow-[0_4px_20px_-2px_rgba(16,185,129,0.06)] relative">
+      <header className="flex-none h-[60px] bg-white flex items-center gap-3 px-4 z-30 border-b border-emerald-200/80 shadow-2xs relative">
 
         {/* Logo */}
         <div className="flex items-center gap-2.5 flex-none group cursor-pointer">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_4px_16px_rgba(16,185,129,0.4)] flex-none transform group-hover:rotate-6 group-hover:scale-105 transition-all duration-300 relative overflow-hidden"
-               style={{ background: "linear-gradient(135deg, #15803d 0%, #16a34a 50%, #059669 100%)" }}>
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/25 to-transparent animate-pulse" />
+          <div className="w-10 h-10 rounded-sm bg-emerald-700 flex items-center justify-center shadow-2xs flex-none transition-transform">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"
                  strokeLinecap="round" strokeLinejoin="round" className="relative z-10">
               <rect x="3" y="3" width="7" height="7" rx="1.5"/>
@@ -718,11 +681,11 @@ export default function BakeryPOSPage() {
             </svg>
           </div>
           <div>
-            <div className="text-[14px] font-black text-emerald-950 leading-tight tracking-tight flex items-center gap-1.5">
+            <div className="text-[14px] font-bold text-emerald-950 leading-tight tracking-tight flex items-center gap-1.5">
               Manufacturing &amp; Bakery
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block shadow-[0_0_8px_#22c55e]" />
+              <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block" />
             </div>
-            <div className="text-[9.5px] font-bold text-emerald-600 tracking-[0.12em] uppercase">Enterprise POS v2.0</div>
+            <div className="text-[9.5px] font-bold text-emerald-700 tracking-[0.12em] uppercase">Enterprise POS v2.0</div>
           </div>
         </div>
 
@@ -734,7 +697,7 @@ export default function BakeryPOSPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search products by name, category... (Ctrl+K)"
-            className="w-full h-[38px] rounded-xl border border-emerald-200/90 bg-white/95 pl-9.5 pr-20 text-[12px] font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-400 shadow-sm"
+            className="w-full h-[38px] rounded-sm border border-slate-200 bg-white pl-9.5 pr-20 text-[12px] font-medium outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-all placeholder:text-slate-400 shadow-2xs"
           />
           {search ? (
             <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600">
@@ -742,8 +705,8 @@ export default function BakeryPOSPage() {
             </button>
           ) : (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
-              <kbd className="text-[9px] font-bold text-slate-400 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">Ctrl</kbd>
-              <kbd className="text-[9px] font-bold text-slate-400 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">K</kbd>
+              <kbd className="text-[9px] font-bold text-slate-400 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-sm shadow-2xs">Ctrl</kbd>
+              <kbd className="text-[9px] font-bold text-slate-400 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-sm shadow-2xs">K</kbd>
             </div>
           )}
         </div>
@@ -751,34 +714,34 @@ export default function BakeryPOSPage() {
         {/* Stats */}
         <div className="flex items-center gap-2 flex-none ml-auto">
           {/* Today's Sales */}
-          <div className="flex items-center gap-2.5 bg-white/90 border border-slate-200 rounded-xl px-3 h-[38px] shadow-sm hover:border-emerald-300 transition-all">
-            <div className="w-6.5 h-6.5 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center flex-none">
+          <div className="flex items-center gap-2.5 bg-white border border-slate-200 rounded-sm px-3 h-[38px] shadow-2xs">
+            <div className="w-6.5 h-6.5 rounded-sm bg-emerald-50 border border-emerald-100 flex items-center justify-center flex-none">
               <FileText size={14} className="text-emerald-700" />
             </div>
             <div>
               <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-0.5">Today&apos;s Sales</div>
-              <div className="text-[12px] font-black text-emerald-800 leading-none">{fmt(todaySales)}</div>
+              <div className="text-[12px] font-bold text-emerald-800 leading-none">{fmt(todaySales)}</div>
             </div>
           </div>
 
           {/* Total Orders */}
-          <div className="flex items-center gap-2.5 bg-white/90 border border-slate-200 rounded-xl px-3 h-[38px] shadow-sm hover:border-slate-300 transition-all">
-            <div className="w-6.5 h-6.5 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center flex-none">
+          <div className="flex items-center gap-2.5 bg-white border border-slate-200 rounded-sm px-3 h-[38px] shadow-2xs">
+            <div className="w-6.5 h-6.5 rounded-sm bg-slate-100 border border-slate-200 flex items-center justify-center flex-none">
               <ShoppingBag size={14} className="text-slate-700" />
             </div>
             <div>
               <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-0.5">Total Orders</div>
-              <div className="text-[12px] font-black text-slate-800 leading-none">{todayOrders} Orders</div>
+              <div className="text-[12px] font-bold text-slate-800 leading-none">{todayOrders} Orders</div>
             </div>
           </div>
 
           {/* Live Clock */}
-          <div className="flex items-center gap-2.5 bg-white/90 border border-slate-200 rounded-xl px-3 h-[38px] shadow-sm hover:border-amber-300 transition-all">
-            <div className="w-6.5 h-6.5 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center flex-none">
+          <div className="flex items-center gap-2.5 bg-white border border-slate-200 rounded-sm px-3 h-[38px] shadow-2xs">
+            <div className="w-6.5 h-6.5 rounded-sm bg-amber-50 border border-amber-100 flex items-center justify-center flex-none">
               <Clock size={14} className="text-amber-600" />
             </div>
             <div>
-              <div className="text-[12px] font-black text-slate-800 leading-none">{timeStr}</div>
+              <div className="text-[12px] font-bold text-slate-800 leading-none">{timeStr}</div>
               <div className="text-[9px] text-slate-400 font-semibold leading-none mt-0.5">{dateStr}</div>
             </div>
           </div>
@@ -787,14 +750,14 @@ export default function BakeryPOSPage() {
           <button
             onClick={toggleFullscreen}
             title={isFullscreen ? "Exit Fullscreen (F)" : "Toggle Fullscreen (F)"}
-            className="flex items-center justify-center w-[38px] h-[38px] rounded-xl bg-white/90 border border-slate-200/80 text-slate-600 hover:text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all shadow-sm"
+            className="flex items-center justify-center w-[38px] h-[38px] rounded-sm bg-white border border-slate-200 text-slate-600 hover:text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all shadow-2xs"
           >
             {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
           </button>
 
           {/* Admin User */}
-          <div className="flex items-center gap-2.5 bg-white/90 border border-slate-200 rounded-xl px-3 h-[38px] cursor-pointer hover:border-emerald-400 hover:shadow-md transition-all">
-            <div className="w-6.5 h-6.5 rounded-lg bg-gradient-to-br from-emerald-800 to-green-700 flex items-center justify-center text-white text-[11px] font-black flex-none shadow-sm">
+          <div className="flex items-center gap-2.5 bg-white border border-slate-200 rounded-sm px-3 h-[38px] cursor-pointer hover:border-emerald-400 transition-all shadow-2xs">
+            <div className="w-6.5 h-6.5 rounded-sm bg-emerald-700 flex items-center justify-center text-white text-[11px] font-bold flex-none">
               {(user?.name || "Admin").charAt(0).toUpperCase()}
             </div>
             <div>
@@ -810,7 +773,7 @@ export default function BakeryPOSPage() {
       <div className="flex-1 min-h-0 flex gap-3 px-3.5 pb-2.5 pt-1.5 overflow-hidden z-10 relative">
 
         {/* ── LEFT PANEL (70%) ──────────────────────────────────────────────── */}
-        <div className="w-[70%] min-w-0 flex flex-col bg-white/90 backdrop-blur-xl rounded-sm border border-emerald-200/80 overflow-hidden shadow-[0_4px_25px_rgba(0,0,0,0.03)]">
+        <div className="w-[70%] min-w-0 flex flex-col bg-white rounded-sm border border-slate-200 overflow-hidden shadow-2xs">
 
           {/* Category Bar */}
           <div className="flex-none flex items-center gap-2 px-3.5 pt-2.5 pb-2 overflow-x-auto border-b border-slate-100"
@@ -819,15 +782,15 @@ export default function BakeryPOSPage() {
               const active = activeCat === c.id;
               return (
                 <button key={c.id} onClick={() => setActiveCat(c.id)}
-                  className={`flex-1 min-w-[82px] flex flex-col items-center justify-center gap-1 rounded-xl border px-2 py-1.5 h-[62px] transition-all duration-200 active:scale-95 ${
+                  className={`flex-1 min-w-[82px] flex flex-col items-center justify-center gap-1 rounded-sm border px-2 py-1.5 h-[62px] transition-all duration-150 active:scale-95 ${
                     active
-                      ? "bg-gradient-to-br from-emerald-700 via-emerald-800 to-green-900 border-emerald-600 text-white shadow-[0_8px_20px_rgba(21,128,61,0.35)] scale-[1.03] ring-2 ring-emerald-400/30"
-                      : "bg-white border-slate-100 text-slate-700 hover:border-emerald-300 hover:bg-emerald-50/60 hover:scale-[1.02] hover:shadow-sm"
+                      ? "bg-emerald-700 border-emerald-700 text-white shadow-2xs"
+                      : "bg-white border-slate-200 text-slate-700 hover:border-emerald-300 hover:bg-emerald-50/60"
                   }`}>
                   {c.id === "all" ? (
-                    <LayoutGrid size={20} className={active ? "text-white" : "text-emerald-600"} />
+                    <LayoutGrid size={20} className={active ? "text-white" : "text-emerald-700"} />
                   ) : (
-                    <span className="text-xl leading-none transform group-hover:scale-110 transition-transform">{c.emoji}</span>
+                    <span className="text-xl leading-none">{c.emoji}</span>
                   )}
                   <span className={`text-[10px] font-bold text-center leading-tight whitespace-nowrap truncate max-w-full ${active ? "text-white" : "text-slate-700"}`}>
                     {c.label}
@@ -835,8 +798,8 @@ export default function BakeryPOSPage() {
                 </button>
               );
             })}
-            <button className="flex-none sm:flex-1 min-w-[54px] flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-100 bg-white text-emerald-600 hover:bg-emerald-50 px-2 py-1.5 h-[62px] transition-all hover:scale-105">
-              <MoreHorizontal size={20} className="text-emerald-600" />
+            <button className="flex-none sm:flex-1 min-w-[54px] flex flex-col items-center justify-center gap-1 rounded-sm border border-slate-200 bg-white text-emerald-700 hover:bg-emerald-50 px-2 py-1.5 h-[62px] transition-all">
+              <MoreHorizontal size={20} className="text-emerald-700" />
               <span className="text-[9.5px] font-bold text-slate-600">More</span>
             </button>
           </div>
@@ -844,35 +807,35 @@ export default function BakeryPOSPage() {
           {/* Products Header */}
           <div className="flex-none flex items-center justify-between px-4 py-2">
             <div className="flex items-center gap-2.5">
-              <h2 className="text-[17px] font-black text-slate-800 flex items-center gap-2">
+              <h2 className="text-[17px] font-bold text-slate-800 flex items-center gap-2">
                 Products
-                <span className="text-[10.5px] font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-200 px-2.5 py-0.5 rounded-full shadow-2xs">
+                <span className="text-[10.5px] font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-200 px-2.5 py-0.5 rounded-sm shadow-2xs">
                   {filtered.length}
                 </span>
               </h2>
               {activeCat !== "all" && (
                 <button onClick={() => setActiveCat("all")}
-                  className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-[#15803d] font-bold text-[11px] px-3 py-0.5 rounded-full transition-colors ml-1 shadow-2xs">
+                  className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-[11px] px-3 py-0.5 rounded-sm transition-colors ml-1 shadow-2xs">
                   View All <ArrowRight size={12} />
                 </button>
               )}
             </div>
 
             <div className="flex items-center gap-2.5">
-              <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-1 text-[11.5px] font-semibold text-slate-600 cursor-pointer hover:border-emerald-400 shadow-sm transition-all">
+              <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-sm px-3 py-1 text-[11.5px] font-semibold text-slate-600 cursor-pointer hover:border-emerald-400 shadow-2xs transition-all">
                 <span>Sort by: <strong className="text-slate-800 font-bold ml-1">Popular</strong></span>
                 <ChevronDown size={13} className="text-slate-400" />
               </div>
-              <div className="flex items-center gap-0.5 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
+              <div className="flex items-center gap-0.5 bg-slate-100 p-1 rounded-sm border border-slate-200">
                 <button onClick={() => setViewMode("grid")}
-                  className={`p-1 rounded-lg transition-all ${
-                    viewMode === "grid" ? "bg-emerald-700 text-white shadow-sm" : "text-slate-400 hover:text-slate-700"
+                  className={`p-1 rounded-sm transition-all ${
+                    viewMode === "grid" ? "bg-emerald-700 text-white shadow-2xs" : "text-slate-500 hover:text-slate-700"
                   }`}>
                   <LayoutGrid size={14} />
                 </button>
                 <button onClick={() => setViewMode("list")}
-                  className={`p-1 rounded-lg transition-all ${
-                    viewMode === "list" ? "bg-emerald-700 text-white shadow-sm" : "text-slate-400 hover:text-slate-700"
+                  className={`p-1 rounded-sm transition-all ${
+                    viewMode === "list" ? "bg-emerald-700 text-white shadow-2xs" : "text-slate-500 hover:text-slate-700"
                   }`}>
                   <List size={14} />
                 </button>
@@ -892,29 +855,29 @@ export default function BakeryPOSPage() {
                 return (
                   <div key={p.id}
                     onClick={() => addToCart(p)}
-                    className={`bg-white rounded-sm border border-slate-200/90 overflow-hidden cursor-pointer relative group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_16px_35px_-6px_rgba(16,185,129,0.25)] hover:border-emerald-400 card-shine ${
-                      isAdding ? "scale-[1.04] border-emerald-500 shadow-[0_0_22px_rgba(16,185,129,0.45)] ring-2 ring-emerald-400/50" : ""
+                    className={`bg-white rounded-sm border border-slate-200 overflow-hidden cursor-pointer relative group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-emerald-400 ${
+                      isAdding ? "scale-[1.02] border-emerald-500 shadow-sm ring-1 ring-emerald-400" : ""
                     } ${viewMode === "list" ? "flex items-center gap-3 p-2.5" : ""}`}>
 
                     {/* Floating +1 Particle Effect */}
                     {isAdding && (
-                      <div className="absolute top-2 right-2 z-30 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-black text-[11px] px-2.5 py-0.5 rounded-full shadow-lg border border-emerald-300 animate-[floatUp_0.6s_ease-out_forwards] pointer-events-none flex items-center gap-0.5">
+                      <div className="absolute top-2 right-2 z-30 bg-emerald-700 text-white font-bold text-[11px] px-2 py-0.5 rounded-sm shadow-md border border-emerald-500 animate-[floatUp_0.6s_ease-out_forwards] pointer-events-none flex items-center gap-0.5">
                         <Sparkles size={10} /> +1
                       </div>
                     )}
 
                     {/* Badge */}
                     {p.badge && (
-                      <div className={`absolute top-2 left-2 z-10 text-[8px] font-black uppercase px-2 py-0.5 rounded-full border shadow-2xs ${p.badgeColor}`}>
+                      <div className={`absolute top-2 left-2 z-10 text-[8px] font-bold uppercase px-2 py-0.5 rounded-sm border shadow-2xs ${p.badgeColor}`}>
                         {p.badge}
                       </div>
                     )}
 
                     {/* Image Area */}
                     {viewMode === "grid" ? (
-                      <div className={`w-full h-[104px] bg-gradient-to-br ${p.bgGradient || "from-emerald-50 via-teal-50/40 to-green-50/70"} flex items-center justify-center relative overflow-hidden group-hover:brightness-105 transition-all`}>
+                      <div className="w-full h-[104px] bg-emerald-50/30 flex items-center justify-center relative overflow-hidden group-hover:brightness-105 transition-all">
                         {/* Category Tag Top Right */}
-                        <div className="absolute top-2 right-2 z-10 text-[8px] font-black uppercase tracking-wider text-emerald-800 bg-white/90 backdrop-blur-sm border border-emerald-200/60 px-1.5 py-0.5 rounded-full shadow-2xs">
+                        <div className="absolute top-2 right-2 z-10 text-[8px] font-bold uppercase tracking-wider text-emerald-800 bg-white/95 border border-emerald-200/80 px-1.5 py-0.5 rounded-sm shadow-2xs">
                           {p.cat}
                         </div>
                         {p.imageUrl || p.image ? (
@@ -930,9 +893,9 @@ export default function BakeryPOSPage() {
                             }}
                           />
                         ) : null}
-                        {/* Circular Spotlight Disc (Fallback) */}
+                        {/* Disc Fallback */}
                         <div
-                          className={`w-13 h-13 rounded-full bg-white/70 backdrop-blur-md border border-white/80 shadow-[0_4px_14px_rgba(0,0,0,0.06)] items-center justify-center group-hover:scale-115 group-hover:bg-white group-hover:rotate-6 transition-all duration-300 ${
+                          className={`w-13 h-13 rounded-sm bg-white border border-slate-200 shadow-2xs items-center justify-center transition-all ${
                             p.imageUrl || p.image ? "hidden" : "flex"
                           }`}
                         >
@@ -940,7 +903,7 @@ export default function BakeryPOSPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center flex-none border border-emerald-100 overflow-hidden text-2xl shadow-2xs">
+                      <div className="w-12 h-12 rounded-sm bg-emerald-50 flex items-center justify-center flex-none border border-emerald-200 overflow-hidden text-2xl shadow-2xs">
                         {p.imageUrl || p.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -960,42 +923,42 @@ export default function BakeryPOSPage() {
 
                     {/* Info */}
                     <div className={viewMode === "grid" ? "p-2.5" : "flex-1 min-w-0"}>
-                      <h3 className={`font-extrabold text-slate-800 leading-tight truncate group-hover:text-emerald-950 ${viewMode === "grid" ? "text-[12.5px]" : "text-[13.5px]"}`}>{p.name}</h3>
+                      <h3 className={`font-bold text-slate-800 leading-tight truncate group-hover:text-emerald-950 ${viewMode === "grid" ? "text-[12.5px]" : "text-[13.5px]"}`}>{p.name}</h3>
                       
                       <div className="flex items-center justify-between text-[9.5px] font-semibold text-slate-400 mt-1">
                         <span>{p.unit}</span>
-                        <span className="text-emerald-600 font-bold flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-emerald-700 font-bold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
                           {p.stock} in stock
                         </span>
                       </div>
 
                       {/* Visual Stock Level Progress Bar */}
                       {viewMode === "grid" && (
-                        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1.5 flex shadow-inner">
-                          <div className={`h-full rounded-full transition-all duration-500 ${
-                            stockRatio > 50 ? "bg-gradient-to-r from-emerald-500 to-green-400" : stockRatio > 20 ? "bg-gradient-to-r from-amber-500 to-yellow-400" : "bg-gradient-to-r from-rose-500 to-red-400"
+                        <div className="w-full h-1.5 bg-slate-100 rounded-sm overflow-hidden mt-1.5 flex">
+                          <div className={`h-full rounded-sm transition-all duration-300 ${
+                            stockRatio > 50 ? "bg-emerald-600" : stockRatio > 20 ? "bg-amber-500" : "bg-rose-500"
                           }`} style={{ width: `${Math.max(12, stockRatio)}%` }} />
                         </div>
                       )}
 
                       {viewMode === "grid" ? (
                         <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100">
-                          <div className="bg-emerald-50/90 border border-emerald-200/80 text-emerald-900 px-2 py-0.5 rounded-lg text-[13px] font-black shadow-2xs">
+                          <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 px-2 py-0.5 rounded-sm text-[13px] font-bold shadow-2xs">
                             ৳ {p.price.toFixed(2)}
                           </div>
                           <button onClick={(e) => { e.stopPropagation(); addToCart(p); }}
                             title="Add to Cart"
-                            className="w-7.5 h-7.5 rounded-full bg-gradient-to-tr from-emerald-700 to-green-600 hover:from-emerald-800 hover:to-green-700 active:scale-90 text-white flex items-center justify-center transition-all shadow-[0_4px_14px_rgba(21,128,61,0.35)] group-hover:scale-110 group-hover:shadow-[0_6px_18px_rgba(21,128,61,0.45)] flex-none">
+                            className="w-7 h-7 rounded-sm bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white flex items-center justify-center transition-all shadow-2xs flex-none">
                             <Plus size={14} strokeWidth={2.5} />
                           </button>
                         </div>
                       ) : (
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="bg-emerald-50/90 border border-emerald-200/80 text-emerald-900 px-2 py-0.5 rounded-lg text-[13px] font-black shadow-2xs">৳ {p.price.toFixed(2)}</span>
+                          <span className="bg-emerald-50 border border-emerald-200 text-emerald-900 px-2 py-0.5 rounded-sm text-[13px] font-bold shadow-2xs">৳ {p.price.toFixed(2)}</span>
                           <button onClick={(e) => { e.stopPropagation(); addToCart(p); }}
                             title="Add to Cart"
-                            className="ml-auto w-7.5 h-7.5 rounded-full bg-gradient-to-tr from-emerald-700 to-green-600 hover:from-emerald-800 hover:to-green-700 active:scale-90 text-white flex items-center justify-center transition-all shadow-[0_4px_14px_rgba(21,128,61,0.35)] flex-none">
+                            className="ml-auto w-7 h-7 rounded-sm bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white flex items-center justify-center transition-all shadow-2xs flex-none">
                             <Plus size={14} strokeWidth={2.5} />
                           </button>
                         </div>
@@ -1008,7 +971,7 @@ export default function BakeryPOSPage() {
           </div>
 
           {/* Action Buttons (Recall button with dynamic held counter) */}
-          <div className="flex-none flex items-center gap-2 px-3.5 py-2 bg-[#f4fbf6] border-t border-emerald-100/70 overflow-x-auto"
+          <div className="flex-none flex items-center gap-2 px-3.5 py-2 bg-[#f4fbf6] border-t border-emerald-100 overflow-x-auto"
                style={{ scrollbarWidth: "none" }}>
             {ACTION_BTNS.map(btn => {
               const isRecall = btn.id === "recall" || btn.id === "hold";
@@ -1020,13 +983,13 @@ export default function BakeryPOSPage() {
                     else if (isRecall) setShowHoldModal(true);
                     else triggerToast(`Triggered ${btn.label}`, "info");
                   }}
-                  className={`flex-1 min-w-[98px] h-[36px] flex items-center justify-center gap-1.5 px-2.5 hover:scale-[1.02] active:scale-[0.98] border rounded-xl text-[11.5px] font-bold transition-all whitespace-nowrap shadow-2xs ${
+                  className={`flex-1 min-w-[98px] h-[36px] flex items-center justify-center gap-1.5 px-2.5 active:scale-[0.98] border rounded-sm text-[11.5px] font-bold transition-all whitespace-nowrap shadow-2xs ${
                     isRecall && heldSales.length > 0
-                      ? "bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-950 font-black shadow-sm"
-                      : "bg-[#eef8f2] hover:bg-[#e2f3e8] border-emerald-100/60 text-emerald-950"
+                      ? "bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-950 font-bold"
+                      : "bg-[#eef8f2] hover:bg-[#e2f3e8] border-emerald-200 text-emerald-950"
                   }`}>
                   {isFilled ? (
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center flex-none shadow-xs text-white ${
+                    <span className={`w-5 h-5 rounded-sm flex items-center justify-center flex-none text-white ${
                       isRecall ? "bg-amber-600" : "bg-emerald-700"
                     }`}>
                       <btn.Icon size={11} strokeWidth={2.5} />
@@ -1036,14 +999,14 @@ export default function BakeryPOSPage() {
                   )}
                   <span>{btn.label}</span>
                   {isRecall && heldSales.length > 0 && (
-                    <span className="ml-1 bg-amber-600 text-white rounded-full px-1.5 py-0.2 text-[9.5px] font-black">
+                    <span className="ml-1 bg-amber-600 text-white rounded-sm px-1.5 py-0.2 text-[9.5px] font-bold">
                       {heldSales.length}
                     </span>
                   )}
                 </button>
               );
             })}
-            <button className="flex-none h-[36px] px-3 bg-[#eef8f2] hover:bg-[#e2f3e8] hover:scale-105 border border-emerald-100/60 rounded-xl text-emerald-700 transition-all flex items-center justify-center shadow-2xs">
+            <button className="flex-none h-[36px] px-3 bg-[#eef8f2] hover:bg-[#e2f3e8] border border-emerald-200 rounded-sm text-emerald-700 transition-all flex items-center justify-center shadow-2xs">
               <MoreHorizontal size={16} />
             </button>
           </div>
@@ -1058,7 +1021,7 @@ export default function BakeryPOSPage() {
                   else if (btn.id === "customer_modal") setShowCustModal(true);
                   else triggerToast(`Shortcut (${btn.key}): ${btn.label}`, "info");
                 }}
-                className="flex-1 min-w-[95px] h-[36px] flex items-center gap-1.5 px-2.5 bg-[#d9f2e3] hover:bg-[#cbebd7] hover:scale-[1.02] active:scale-[0.98] text-emerald-950 rounded-xl transition-all border border-emerald-200/50 whitespace-nowrap shadow-2xs">
+                className="flex-1 min-w-[95px] h-[36px] flex items-center gap-1.5 px-2.5 bg-[#d9f2e3] hover:bg-[#cbebd7] active:scale-[0.98] text-emerald-950 rounded-sm transition-all border border-emerald-200 whitespace-nowrap shadow-2xs">
                 <btn.Icon size={14} className="text-emerald-700 flex-none" />
                 <div className="text-left leading-none">
                   <div className="text-[10.5px] font-bold text-emerald-950 mb-0.5">{btn.label}</div>
@@ -1068,8 +1031,8 @@ export default function BakeryPOSPage() {
             ))}
 
             {/* Online Status Pill */}
-            <div className="flex-none h-[36px] flex items-center gap-2 px-3 bg-[#d9f2e3] rounded-xl border border-emerald-200/50 whitespace-nowrap ml-auto shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-none shadow-[0_0_8px_#22c55e]" />
+            <div className="flex-none h-[36px] flex items-center gap-2 px-3 bg-[#d9f2e3] rounded-sm border border-emerald-200 whitespace-nowrap ml-auto shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-600 flex-none" />
               <div className="text-left leading-none">
                 <div className="text-[10.5px] font-bold text-emerald-950 mb-0.5">Online</div>
                 <div className="text-[9px] font-semibold text-emerald-700/85">v2.0.0</div>
@@ -1080,18 +1043,18 @@ export default function BakeryPOSPage() {
         </div>
 
         {/* ── RIGHT CART PANEL (30%) ─────────────────────────────────────────── */}
-        <div className="w-[30%] min-w-[350px] flex-none flex flex-col bg-white/95 backdrop-blur-xl rounded-sm border border-slate-200/90 shadow-[0_4px_25px_rgba(0,0,0,0.04)] overflow-hidden">
+        <div className="w-[30%] min-w-[350px] flex-none flex flex-col bg-white rounded-sm border border-slate-200 shadow-2xs overflow-hidden">
 
           {/* Cart Header */}
-          <div className="flex-none px-3.5 py-3 flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/90 via-white to-emerald-50/40">
+          <div className="flex-none px-3.5 py-3 flex items-center justify-between border-b border-slate-200 bg-white">
             <div className="flex items-center gap-2.5">
-              <div className="w-8.5 h-8.5 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 flex items-center justify-center flex-none shadow-sm">
+              <div className="w-8.5 h-8.5 rounded-sm bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-none shadow-2xs">
                 <ShoppingCart size={16} className="text-emerald-700" />
               </div>
               <div>
-                <div className="text-[13px] font-black text-slate-800 leading-tight flex items-center gap-1.5">
+                <div className="text-[13px] font-bold text-slate-800 leading-tight flex items-center gap-1.5">
                   Current Sale
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse shadow-[0_0_6px_#22c55e]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
                 </div>
                 <div className="text-[10px] font-mono font-bold text-slate-400">#POS-000124</div>
               </div>
@@ -1099,10 +1062,10 @@ export default function BakeryPOSPage() {
             <div className="flex gap-1.5">
               <button onClick={() => setShowHoldModal(true)}
                 title="Recall held bills"
-                className="flex items-center gap-1 px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-bold rounded-lg hover:bg-amber-100 transition-all shadow-2xs">
+                className="flex items-center gap-1 px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-bold rounded-sm hover:bg-amber-100 transition-all shadow-2xs">
                 <RotateCcw size={11} className="text-amber-700" /> Recall
                 {heldSales.length > 0 && (
-                  <span className="ml-1 bg-amber-600 text-white rounded-full px-1.5 py-0.2 text-[9px] font-black">
+                  <span className="ml-1 bg-amber-600 text-white rounded-sm px-1.5 py-0.2 text-[9px] font-bold">
                     {heldSales.length}
                   </span>
                 )}
@@ -1110,7 +1073,7 @@ export default function BakeryPOSPage() {
               <button onClick={() => {
                   if (cart.length > 0) { setCart([]); triggerToast("Cart Cleared", "info"); }
                 }}
-                className="flex items-center gap-1 px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-bold rounded-lg hover:bg-rose-100 transition-all shadow-2xs">
+                className="flex items-center gap-1 px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-bold rounded-sm hover:bg-rose-100 transition-all shadow-2xs">
                 <X size={11} /> Clear <span className="opacity-60">(F8)</span>
               </button>
             </div>
@@ -1135,7 +1098,7 @@ export default function BakeryPOSPage() {
                   style={{ gridTemplateColumns: "1fr 72px 60px 52px 64px 20px" }}>
                   {/* Item */}
                   <div className="flex items-center gap-2 min-w-0 pr-1">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 flex items-center justify-center flex-none text-[16px] shadow-2xs group-hover:scale-110 transition-transform overflow-hidden">
+                    <div className="w-8 h-8 rounded-sm bg-emerald-50 border border-emerald-100 flex items-center justify-center flex-none text-[16px] shadow-2xs overflow-hidden">
                       {item.imageUrl || item.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -1159,12 +1122,12 @@ export default function BakeryPOSPage() {
                   {/* Qty */}
                   <div className="flex items-center justify-center gap-1">
                     <button onClick={() => updQty(item.id, -1)}
-                      className="w-5 h-5 rounded bg-slate-100 flex items-center justify-center hover:bg-emerald-200 text-slate-700 active:scale-95 transition-all">
+                      className="w-5 h-5 rounded-sm bg-slate-100 flex items-center justify-center hover:bg-emerald-200 text-slate-700 active:scale-95 transition-all">
                       <Minus size={9} />
                     </button>
                     <span className="w-4 text-center text-[11.5px] font-bold text-slate-800">{item.qty}</span>
                     <button onClick={() => updQty(item.id, 1)}
-                      className="w-5 h-5 rounded bg-slate-100 flex items-center justify-center hover:bg-emerald-200 text-slate-700 active:scale-95 transition-all">
+                      className="w-5 h-5 rounded-sm bg-slate-100 flex items-center justify-center hover:bg-emerald-200 text-slate-700 active:scale-95 transition-all">
                       <Plus size={9} />
                     </button>
                   </div>
@@ -1173,14 +1136,14 @@ export default function BakeryPOSPage() {
                   {/* Discount */}
                   <div className="text-right">
                     {item.discount > 0
-                      ? <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1 py-0.5 rounded shadow-2xs">{item.discount}%</span>
+                      ? <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1 py-0.5 rounded-sm shadow-2xs">{item.discount}%</span>
                       : <span className="text-[10px] text-slate-300">—</span>}
                   </div>
                   {/* Total */}
-                  <div className="text-right text-[11px] font-black text-slate-900">৳ {total.toFixed(2)}</div>
+                  <div className="text-right text-[11px] font-bold text-slate-900">৳ {total.toFixed(2)}</div>
                   {/* Remove */}
                   <button onClick={() => remItem(item.id)}
-                    className="w-5 h-5 flex items-center justify-center text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded transition-all opacity-0 group-hover:opacity-100">
+                    className="w-5 h-5 flex items-center justify-center text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-sm transition-all opacity-0 group-hover:opacity-100">
                     <X size={11} />
                   </button>
                 </div>
@@ -1189,7 +1152,7 @@ export default function BakeryPOSPage() {
 
             {cart.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 mb-2 border border-emerald-100 shadow-inner">
+                <div className="w-12 h-12 rounded-sm bg-emerald-50 flex items-center justify-center text-emerald-600 mb-2 border border-emerald-100">
                   <ShoppingCart size={22} strokeWidth={1.5} />
                 </div>
                 <h4 className="text-xs font-bold text-slate-700">Cart is Empty</h4>
@@ -1199,7 +1162,7 @@ export default function BakeryPOSPage() {
           </div>
 
           {/* Summary Box */}
-          <div className="flex-none border-t border-slate-100 px-3.5 pt-2.5 pb-2 bg-gradient-to-b from-white via-emerald-50/20 to-emerald-50/50">
+          <div className="flex-none border-t border-slate-200 px-3.5 pt-2.5 pb-2 bg-white">
             <div className="space-y-1.5">
               <div className="flex justify-between text-[12px]">
                 <span className="text-slate-500 font-medium">Subtotal</span>
@@ -1214,9 +1177,9 @@ export default function BakeryPOSPage() {
                 <span className="font-bold text-slate-800">{fmt(vatAmt)}</span>
               </div>
             </div>
-            <div className="flex justify-between items-center pt-2 mt-2 border-t border-dashed border-emerald-200/80 bg-emerald-50/80 -mx-3.5 px-3.5 py-2">
-              <span className="text-[14.5px] font-black text-emerald-950">Grand Total</span>
-              <span className="text-[22px] font-black bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700 bg-clip-text text-transparent tracking-tight">
+            <div className="flex justify-between items-center pt-2 mt-2 border-t border-dashed border-emerald-200 bg-emerald-50/80 -mx-3.5 px-3.5 py-2">
+              <span className="text-[14.5px] font-bold text-emerald-950">Grand Total</span>
+              <span className="text-[22px] font-bold text-emerald-800 tracking-tight">
                 ৳ {grandTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
@@ -1227,7 +1190,7 @@ export default function BakeryPOSPage() {
             <select
               value={selectedCust}
               onChange={e => setSelectedCust(e.target.value)}
-              className="flex-1 appearance-none bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-[11.5px] font-semibold text-slate-700 outline-none cursor-pointer hover:border-emerald-300 transition-colors shadow-2xs">
+              className="flex-1 appearance-none bg-slate-50 border border-slate-200 rounded-sm px-3 py-1.5 text-[11.5px] font-semibold text-slate-700 outline-none cursor-pointer hover:border-emerald-300 transition-colors shadow-2xs">
               {customers.map(c => (
                 <option key={c.id} value={c.id}>
                   {c.name} {c.phone ? `(${c.phone})` : ""}
@@ -1235,7 +1198,7 @@ export default function BakeryPOSPage() {
               ))}
             </select>
             <button onClick={() => setShowCustModal(true)}
-              className="flex-none flex items-center gap-1 border border-emerald-200 rounded-xl px-3 py-1.5 text-[11px] font-bold text-emerald-700 hover:bg-emerald-50 transition-colors shadow-2xs bg-white whitespace-nowrap">
+              className="flex-none flex items-center gap-1 border border-emerald-200 rounded-sm px-3 py-1.5 text-[11px] font-bold text-emerald-700 hover:bg-emerald-50 transition-colors shadow-2xs bg-white whitespace-nowrap">
               <UserPlus size={12} /> Add
             </button>
           </div>
@@ -1246,10 +1209,10 @@ export default function BakeryPOSPage() {
               const active = payMethod === pm.key;
               return (
                 <button key={pm.key} onClick={() => setPayMethod(pm.key)}
-                  className={`flex items-center justify-center gap-1.5 h-[34px] px-2 rounded-xl text-[10.5px] font-bold border transition-all ${
+                  className={`flex items-center justify-center gap-1.5 h-[34px] px-2 rounded-sm text-[10.5px] font-bold border transition-all ${
                     active
-                      ? "bg-gradient-to-br from-emerald-800 to-green-700 border-emerald-800 text-white shadow-[0_4px_12px_rgba(21,128,61,0.3)] scale-[1.02]"
-                      : "bg-slate-50 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/50 text-slate-700 hover:scale-[1.01]"
+                      ? "bg-emerald-700 border-emerald-700 text-white shadow-2xs"
+                      : "bg-slate-50 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/50 text-slate-700"
                   }`}>
                   <pm.Icon size={12} className={active ? "text-white" : pm.color} />
                   <span className="truncate">{pm.label}</span>
@@ -1259,14 +1222,14 @@ export default function BakeryPOSPage() {
           </div>
 
           {/* ── RIGHT PANEL FOOTER (HOLD ON LEFT & PROCESS SALE ON RIGHT) ────── */}
-          <div className="flex-none p-3 bg-slate-50/90 border-t border-slate-100 flex items-center gap-2.5">
+          <div className="flex-none p-3 bg-slate-50 border-t border-slate-200 flex items-center gap-2.5">
             {/* Hold Button on the left */}
             <button
               type="button"
               onClick={handleQuickHold}
               disabled={cart.length === 0}
               title="Hold Current Order (F7)"
-              className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 active:scale-95 text-amber-950 font-black text-[12.5px] transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed shrink-0">
+              className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-sm border border-amber-300 bg-amber-50 hover:bg-amber-100 active:scale-95 text-amber-950 font-bold text-[12.5px] transition-all shadow-2xs disabled:opacity-40 disabled:cursor-not-allowed shrink-0">
               <Pause size={15} className="text-amber-700" />
               <span>Hold</span>
               <span className="text-[10px] opacity-60 font-semibold">(F7)</span>
@@ -1280,18 +1243,18 @@ export default function BakeryPOSPage() {
                 else triggerToast("Please add items to cart first!", "info");
               }}
               disabled={cart.length === 0}
-              className="flex-1 flex items-center justify-between text-white rounded-xl px-4 py-3 transition-all active:scale-[0.98] group relative overflow-hidden animate-shimmer shadow-[0_8px_25px_rgba(21,128,61,0.35)] hover:shadow-[0_12px_30px_rgba(22,163,74,0.45)] disabled:opacity-40 disabled:cursor-not-allowed">
+              className="flex-1 flex items-center justify-between bg-emerald-700 hover:bg-emerald-800 text-white rounded-sm px-4 py-3 transition-all active:scale-[0.98] group relative shadow-2xs disabled:opacity-40 disabled:cursor-not-allowed">
               <div className="flex items-center gap-2.5 relative z-10">
-                <div className="w-8.5 h-8.5 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                <div className="w-8 h-8 rounded-sm bg-white/20 flex items-center justify-center">
                   <Printer size={16} />
                 </div>
                 <div className="text-left">
-                  <div className="text-[13.5px] font-black leading-tight tracking-wide">Process Sale</div>
+                  <div className="text-[13.5px] font-bold leading-tight tracking-wide">Process Sale</div>
                   <div className="text-[10px] font-semibold opacity-90">Shortcut Key (F9)</div>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 relative z-10">
-                <span className="text-[14px] font-black tabular-nums">৳{grandTotal.toFixed(2)}</span>
+                <span className="text-[14px] font-bold tabular-nums">৳{grandTotal.toFixed(2)}</span>
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
@@ -1311,14 +1274,16 @@ export default function BakeryPOSPage() {
                 value={holdNote}
                 onChange={e => setHoldNote(e.target.value)}
                 placeholder="Enter order note (e.g. Table 4, Phone Order)..."
-                className="flex-1 px-3 py-2 text-xs border border-emerald-200 rounded-xl outline-none focus:border-emerald-500 bg-white"
+                className="flex-1 px-3 py-2 text-xs border border-emerald-200 rounded-sm outline-none focus:border-emerald-500 bg-white"
               />
               <CustomButton themeColor="emerald" onClick={handleHoldSale} disabled={cart.length === 0}>
                 Hold Cart
               </CustomButton>
-          <div className="flex items-center justify-between p-3.5 bg-amber-50/80 border border-amber-200 rounded-2xl gap-3">
+            </div>
+          </div>
+          <div className="flex items-center justify-between p-3.5 bg-amber-50/80 border border-amber-200 rounded-sm gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-amber-800 flex-none">
+              <div className="w-9 h-9 rounded-sm bg-amber-100 flex items-center justify-center text-amber-800 flex-none">
                 <RotateCcw size={18} />
               </div>
               <div className="min-w-0">
@@ -1326,14 +1291,14 @@ export default function BakeryPOSPage() {
                 <p className="text-[11px] text-amber-700/80 mt-0.5 truncate">Click &quot;Recall&quot; to restore any held bill into the active cart.</p>
               </div>
             </div>
-            <span className="text-xs font-black bg-amber-200 text-amber-900 px-3.5 py-1 rounded-full whitespace-nowrap shrink-0 shadow-2xs">
+            <span className="text-xs font-bold bg-amber-200 text-amber-900 px-3.5 py-1 rounded-sm whitespace-nowrap shrink-0 shadow-2xs">
               {heldSales.length} on hold
             </span>
           </div>
 
           <div>
             {heldSales.length === 0 ? (
-              <div className="py-10 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center justify-center">
+              <div className="py-10 text-center bg-slate-50 rounded-sm border border-dashed border-slate-200 flex flex-col items-center justify-center">
                 <Pause size={32} className="text-slate-300 mb-2" />
                 <p className="text-xs font-bold text-slate-600">No held orders found</p>
                 <p className="text-[11px] text-slate-400 mt-0.5">Use the &quot;Hold (F7)&quot; button next to Process Sale to hold active transactions.</p>
@@ -1343,18 +1308,18 @@ export default function BakeryPOSPage() {
                 {heldSales.map(h => {
                   const displayHoldNo = h.holdNo || (h.id.startsWith("h_") ? `#HOLD-${h.id.slice(-4)}` : `#HOLD-${h.id.slice(0, 6).toUpperCase()}`);
                   return (
-                    <div key={h.id} className="flex items-center justify-between p-3.5 bg-white border border-slate-200 rounded-2xl hover:border-emerald-400 hover:shadow-sm transition-all gap-3">
+                    <div key={h.id} className="flex items-center justify-between p-3.5 bg-white border border-slate-200 rounded-sm hover:border-emerald-400 transition-all gap-3">
                       <div className="space-y-1 min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-black text-slate-800 font-mono tracking-tight whitespace-nowrap">{displayHoldNo}</span>
-                          <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 whitespace-nowrap truncate max-w-[200px]">
+                          <span className="text-xs font-bold text-slate-800 font-mono tracking-tight whitespace-nowrap">{displayHoldNo}</span>
+                          <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-sm border border-emerald-100 whitespace-nowrap truncate max-w-[200px]">
                             {h.note || "Held Order"}
                           </span>
                         </div>
                         <div className="text-[11px] text-slate-400 whitespace-nowrap">
                           {h.items.length} Items ({h.items.reduce((s, i) => s + i.qty, 0)} pcs) • Saved at {h.time}
                         </div>
-                        <div className="text-xs font-black text-emerald-900">
+                        <div className="text-xs font-bold text-emerald-900">
                           ৳{h.total.toFixed(2)}
                         </div>
                       </div>
@@ -1362,13 +1327,13 @@ export default function BakeryPOSPage() {
                         <button
                           onClick={() => removeHeldSale(h.id)}
                           title="Delete Hold"
-                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-sm transition-all"
                         >
                           <Trash2 size={15} />
                         </button>
                         <button
                           onClick={() => restoreHeldSale(h)}
-                          className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-700 to-green-600 hover:from-emerald-800 hover:to-green-700 text-white text-xs font-black rounded-xl transition-all shadow-sm active:scale-95 whitespace-nowrap"
+                          className="flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-sm transition-all shadow-2xs active:scale-95 whitespace-nowrap"
                         >
                           <RotateCcw size={13} />
                           Recall Order
@@ -1392,9 +1357,9 @@ export default function BakeryPOSPage() {
             <button
               type="button"
               onClick={() => setCustModalTab("view")}
-              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold border-b-2 transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all ${
                 custModalTab === "view"
-                  ? "border-emerald-700 text-emerald-900 bg-emerald-50/80 rounded-t-xl"
+                  ? "border-emerald-700 text-emerald-900 bg-emerald-50/80 rounded-t-sm"
                   : "border-transparent text-slate-500 hover:text-slate-800"
               }`}>
               <User size={14} className="text-emerald-700" />
@@ -1403,9 +1368,9 @@ export default function BakeryPOSPage() {
             <button
               type="button"
               onClick={() => setCustModalTab("add")}
-              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold border-b-2 transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all ${
                 custModalTab === "add"
-                  ? "border-emerald-700 text-emerald-900 bg-emerald-50/80 rounded-t-xl"
+                  ? "border-emerald-700 text-emerald-900 bg-emerald-50/80 rounded-t-sm"
                   : "border-transparent text-slate-500 hover:text-slate-800"
               }`}>
               <UserPlus size={14} className="text-emerald-700" />
@@ -1423,7 +1388,7 @@ export default function BakeryPOSPage() {
                   value={custSearchQuery}
                   onChange={e => setCustSearchQuery(e.target.value)}
                   placeholder="Search customer by name or phone number..."
-                  className="w-full h-9 pl-9 pr-8 text-xs font-medium border border-emerald-200 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white"
+                  className="w-full h-9 pl-9 pr-8 text-xs font-medium border border-emerald-200 rounded-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 bg-white"
                 />
                 {custSearchQuery && (
                   <button onClick={() => setCustSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -1442,16 +1407,16 @@ export default function BakeryPOSPage() {
                   .map(c => {
                     const isSelected = selectedCust === c.id;
                     return (
-                      <div key={c.id} className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+                      <div key={c.id} className={`flex items-center justify-between p-3 rounded-sm border transition-all ${
                         isSelected
                           ? "bg-emerald-50/90 border-emerald-300 shadow-2xs ring-1 ring-emerald-400/50"
                           : "bg-slate-50/70 border-slate-200 hover:bg-emerald-50/40 hover:border-emerald-200"
                       }`}>
                         <div className="min-w-0 pr-2">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-black text-slate-800">{c.name}</span>
+                            <span className="text-xs font-bold text-slate-800">{c.name}</span>
                             {isSelected && (
-                              <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-200 px-1.5 py-0.2 rounded-full">
+                              <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-200 px-1.5 py-0.2 rounded-sm">
                                 Selected
                               </span>
                             )}
@@ -1469,9 +1434,9 @@ export default function BakeryPOSPage() {
                             setShowCustModal(false);
                             triggerToast(`Selected ${c.name}`);
                           }}
-                          className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex-none ${
+                          className={`px-3 py-1.5 text-xs font-bold rounded-sm transition-all flex-none ${
                             isSelected
-                              ? "bg-emerald-700 text-white shadow-xs"
+                              ? "bg-emerald-700 text-white shadow-2xs"
                               : "bg-white border border-slate-300 text-slate-700 hover:bg-emerald-600 hover:text-white hover:border-emerald-600"
                           }`}>
                           {isSelected ? "Active" : "Select"}
@@ -1485,7 +1450,7 @@ export default function BakeryPOSPage() {
                   (c.phone && c.phone.includes(custSearchQuery))
                 ).length === 0 && (
                   <div className="py-8 text-center text-xs text-slate-400">
-                    No customer matching "{custSearchQuery}" found.
+                    No customer matching &quot;{custSearchQuery}&quot; found.
                   </div>
                 )}
               </div>
@@ -1536,19 +1501,7 @@ export default function BakeryPOSPage() {
         </div>
       </CustomModal>
 
-      {/* ═══ RECEIPT / CHECKOUT CONFIRMATION MODAL ═══════════════════════════ */}
-      <CustomModal open={showReceiptModal} onClose={() => setShowReceiptModal(false)} title="Sale Invoice & Receipt" size="md">
-        <div className="space-y-4">
-          {/* Printable Receipt Box */}
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-sm font-mono text-xs text-slate-800 shadow-inner">
-            <div className="text-center border-b border-dashed border-slate-300 pb-3">
-              <h3 className="font-black text-sm uppercase tracking-wider text-slate-900">BPOS Bakery &amp; Manufacturing</h3>
-              <p className="text-[10px] text-slate-500">Dhanmondi, Dhaka, Bangladesh</p>
-              <p className="text-[10px] text-slate-500">Phone: +880 1700-000000</p>
-              <div className="mt-2 text-[10px] font-bold text-emerald-800 bg-emerald-100 inline-block px-2 py-0.5 rounded">
-                TAX INVOICE {lastInvoiceNo}
-              </div>
-            </div>
+
       {/* ═══ PHARMACY-STYLE PAYMENT CHECKOUT MODAL ═════════════════════════ */}
       <PaymentCheckoutModal
         open={showCheckoutModal}

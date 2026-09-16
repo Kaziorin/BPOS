@@ -109,7 +109,7 @@ function RetailHubView() {
         actions={
           <Link
             href="/retail-pos"
-            className="flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-primary-700"
+            className="flex items-center justify-center gap-2 rounded-sm bg-teal-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-teal-700 shadow-2xs"
           >
             <ShoppingCart size={15} />
             Retail POS

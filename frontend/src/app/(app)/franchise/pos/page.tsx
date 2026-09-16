@@ -116,6 +116,14 @@ const FALLBACK_OUTLETS: FranchiseOutlet[] = [
   { id: "FR-04", name: "Chittagong GEC Circle Store", code: "CTG-04", ownerName: "Kamrul Hasan", royaltyPct: 5, marketingFeePct: 2, location: "GEC Circle, Chattogram", phone: "+880 1613-990011", outstandingBalance: 84000 },
 ];
 
+function generateRequisitionInvoiceNo(): string {
+  return `FRQ-${Date.now().toString().slice(-6)}`;
+}
+
+function generateHoldNo(): string {
+  return `FR-HLD-${Date.now().toString().slice(-5)}`;
+}
+
 export default function FranchisePOSPage() {
   // ── State Variables ─────────────────────────────────────────────
   const [outlets, setOutlets] = useState<FranchiseOutlet[]>(FALLBACK_OUTLETS);
@@ -174,16 +182,30 @@ export default function FranchisePOSPage() {
     }
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key.toLowerCase() === 'f') {
-        e.preventDefault();
-        toggleFullscreen();
+  // ── Load Holds ──────────────────────────────────────────────────
+  const loadHolds = useCallback(async () => {
+    try {
+      const res: any = await api.get("/pos/holds");
+      const hData = res?.data?.data ?? res?.data ?? [];
+      if (Array.isArray(hData)) {
+        setHolds(
+          hData.map((h: any) => ({
+            id: h.id,
+            holdNo: h.holdNo || `HLD-${h.id.slice(0, 6)}`,
+            outletName: h.customerName || "Franchise Order",
+            createdAt: h.createdAt || new Date().toISOString(),
+            items: h.items || [],
+            subTotal: Number(h.total || 0),
+            royaltyPct: 6,
+            marketingFeePct: 2,
+          }))
+        );
+      } else {
+        setHolds([]);
       }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    } catch {
+      setHolds([]);
+    }
   }, []);
 
   // ── Fetch Initial Data from Backend ─────────────────────────────
@@ -250,10 +272,11 @@ export default function FranchisePOSPage() {
             { id: "F1", name: "Brand Standard Raw Material Mix (25kg)", sku: "FR-MIX-25", category: "Raw Ingredients", franchisePrice: 3200, mrp: 4500, stockQty: 120, unit: "bag" },
             { id: "F2", name: "Official Branded Packaging Boxes (Pack of 500)", sku: "FR-BOX-500", category: "Packaging", franchisePrice: 2400, mrp: 3000, stockQty: 85, unit: "pack" },
             { id: "F3", name: "Signature Sauce Concentrate (10L)", sku: "FR-SAUCE-10", category: "Sauces & Condiments", franchisePrice: 1800, mrp: 2500, stockQty: 45, unit: "can" },
-            { id: "F4", name: "Uniform Shirts & Aprons (Set of 5)", sku: "FR-UNIFORM-5", category: "Merchandise", franchisePrice: 3500, mrp: 4000, stockQty: 30, unit: "set" },
-            { id: "F5", name: "Thermal Paper Rolls 80mm (Box of 50)", sku: "FR-PAPER-80", category: "POS & IT Equipment", franchisePrice: 1150, mrp: 1600, stockQty: 200, unit: "box" },
+            { id: "F4", name: "Central Kitchen Spice Formula #4 (5kg)", sku: "FR-SPICE-4", category: "Raw Ingredients", franchisePrice: 1500, mrp: 2100, stockQty: 60, unit: "tub" },
+            { id: "F5", name: "Frozen Marinated Fillets (Carton of 20kg)", sku: "FR-MEAT-20", category: "Frozen Provisions", franchisePrice: 5200, mrp: 6800, stockQty: 30, unit: "carton" },
+            { id: "F6", name: "Standard Staff Apron & Cap Set (x10)", sku: "FR-UNI-10", category: "Merchandise & Uniforms", franchisePrice: 1200, mrp: 1800, stockQty: 50, unit: "bundle" },
           ]);
-          setCategories(["Raw Ingredients", "Packaging", "Sauces & Condiments", "Merchandise", "POS & IT Equipment"]);
+          setCategories(["Raw Ingredients", "Packaging", "Sauces & Condiments", "Frozen Provisions", "Merchandise & Uniforms"]);
         }
       } catch (err) {
         console.warn("Using default franchise catalog fallback:", err);
@@ -287,76 +310,12 @@ export default function FranchisePOSPage() {
       console.error("Error loading franchise POS data:", err);
       addToast("error", "Failed to fetch central franchise data.");
     }
-  }, []);
-
-  const loadHolds = async () => {
-    try {
-      const res: any = await api.get("/pos/holds");
-      const hData = res?.data?.data ?? res?.data ?? [];
-      if (Array.isArray(hData)) {
-        setHolds(
-          hData.map((h: any) => ({
-            id: h.id,
-            holdNo: h.holdNo || `HLD-${h.id.slice(0, 6)}`,
-            outletName: h.customerName || "Franchise Order",
-            createdAt: h.createdAt || new Date().toISOString(),
-            items: h.items || [],
-            subTotal: Number(h.total || 0),
-            royaltyPct: 6,
-            marketingFeePct: 2,
-          }))
-        );
-      } else {
-        setHolds([]);
-      }
-    } catch {
-      setHolds([]);
-    }
-  };
+  }, [loadHolds]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  // ── Keyboard Shortcuts Listener ─────────────────────────────────
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-        return;
-      }
-      if (e.key === "F9") {
-        e.preventDefault();
-        if (cart.length > 0 && !submitting) {
-          handleCreateRequisition();
-        }
-        return;
-      }
-      if (e.key === "F7") {
-        e.preventDefault();
-        if (cart.length > 0) {
-          handleHoldSale();
-        }
-        return;
-      }
-      if (e.key === "F8") {
-        e.preventDefault();
-        if (cart.length > 0) {
-          setCart([]);
-          addToast("info", "Requisition cart cleared.");
-        }
-        return;
-      }
-      if (e.key === "F2") {
-        e.preventDefault();
-        setShowOutletModal(true);
-        return;
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [cart, submitting]);
 
   // ── Currency Formatting ─────────────────────────────────────────
   const fmt = (n: number) =>
@@ -462,10 +421,10 @@ export default function FranchisePOSPage() {
       };
 
       const res: any = await api.post("/sales", payload);
-      const invData = res?.data?.data || res?.data || { invoiceNo: `FRQ-${Date.now().toString().slice(-6)}` };
+      const invData = res?.data?.data || res?.data || { invoiceNo: generateRequisitionInvoiceNo() };
       
       setCompletedTransfer({
-        invoiceNo: invData.invoiceNo || `FRQ-${Date.now().toString().slice(-6)}`,
+        invoiceNo: invData.invoiceNo || generateRequisitionInvoiceNo(),
         outlet: selectedOutlet,
         customer: selectedCustomer,
         items: cart,
@@ -481,7 +440,7 @@ export default function FranchisePOSPage() {
     } catch (err) {
       console.warn("Backend sales error, using generated requisition invoice:", err);
       setCompletedTransfer({
-        invoiceNo: `FRQ-${Date.now().toString().slice(-6)}`,
+        invoiceNo: generateRequisitionInvoiceNo(),
         outlet: selectedOutlet,
         customer: selectedCustomer,
         items: cart,
@@ -501,7 +460,7 @@ export default function FranchisePOSPage() {
   // ── Hold Current Order ──────────────────────────────────────────
   const handleHoldSale = async () => {
     if (cart.length === 0) return;
-    const holdNo = `FR-HLD-${Date.now().toString().slice(-5)}`;
+    const holdNo = generateHoldNo();
     try {
       await api.post("/pos/holds", {
         holdNo,
@@ -535,6 +494,46 @@ export default function FranchisePOSPage() {
     setShowHoldsModal(false);
     addToast("info", `Resumed held order ${h.holdNo}.`);
   };
+
+  // ── Keyboard Shortcuts Listener ─────────────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        return;
+      }
+      if (e.key === "F9") {
+        e.preventDefault();
+        if (cart.length > 0 && !submitting) {
+          handleCreateRequisition();
+        }
+        return;
+      }
+      if (e.key === "F7") {
+        e.preventDefault();
+        if (cart.length > 0) {
+          handleHoldSale();
+        }
+        return;
+      }
+      if (e.key === "F8") {
+        e.preventDefault();
+        if (cart.length > 0) {
+          setCart([]);
+          addToast("info", "Requisition cart cleared.");
+        }
+        return;
+      }
+      if (e.key === "F2") {
+        e.preventDefault();
+        setShowOutletModal(true);
+        return;
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [cart, submitting, handleCreateRequisition, handleHoldSale]);
 
   // ── Add New Customer Handler ────────────────────────────────────
   const handleAddCustomer = async (e: React.FormEvent) => {
@@ -626,8 +625,7 @@ export default function FranchisePOSPage() {
       </div>
 
       {/* ── TOP HEADER CONTROL BAR ──────────────────────────────── */}
-      <header className="flex-none flex flex-wrap items-center justify-between gap-3 bg-white/80 backdrop-blur-md border border-indigo-100/80 rounded-sm p-3 sm:px-4 shadow-md shadow-indigo-500/5">
-      <header className="flex-none flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200 rounded-xl p-3 sm:px-4 shadow-sm">
+      <header className="flex-none flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200 rounded-sm p-3 sm:px-4 shadow-sm">
         <div className="flex items-center gap-3">
           <Link
             href="/franchise"
@@ -692,11 +690,11 @@ export default function FranchisePOSPage() {
           {/* Active Outlet Trigger */}
           <button
             onClick={() => setShowOutletModal(true)}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-black shadow-md shadow-indigo-600/20 hover:from-indigo-700 hover:to-violet-700 transition"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-sm bg-violet-600 text-white text-xs font-bold shadow-2xs hover:bg-violet-700 transition"
           >
             <Building2 size={14} />
             <span>{selectedOutlet.code}</span>
-            <span className="hidden md:inline font-semibold opacity-90 border-l border-indigo-400/40 pl-2">
+            <span className="hidden md:inline font-semibold opacity-90 border-l border-violet-400/40 pl-2">
               {selectedOutlet.name}
             </span>
             <ChevronRight size={14} className="opacity-80" />
@@ -705,9 +703,7 @@ export default function FranchisePOSPage() {
       </header>
 
       {/* ── SELECTED OUTLET METRICS BANNER ─────────────────────── */}
-      <div className="flex-none grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white/75 backdrop-blur-md border border-indigo-100/60 rounded-sm p-2.5 shadow-xs">
-        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-indigo-50/50 border border-indigo-100">
-      <div className="flex-none grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
+      <div className="flex-none grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white border border-slate-200 rounded-sm p-2.5 shadow-sm">
         <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
           <div className="rounded-lg bg-indigo-600/10 p-1.5 text-indigo-700">
             <Building2 size={16} />
@@ -753,8 +749,7 @@ export default function FranchisePOSPage() {
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-3 overflow-hidden">
         
         {/* LEFT 7 COLS: HQ BRAND SUPPLY CATALOG */}
-        <div className="lg:col-span-7 flex flex-col rounded-sm border border-indigo-100/90 bg-white/85 backdrop-blur-xl shadow-xl shadow-indigo-950/5 overflow-hidden">
-        <div className="lg:col-span-7 flex flex-col rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="lg:col-span-7 flex flex-col rounded-sm border border-slate-200 bg-white shadow-sm overflow-hidden">
           
           {/* Search Bar & Category Filter Header */}
           <div className="flex-none p-3.5 border-b border-slate-100 space-y-2.5 bg-slate-50/50">
@@ -873,8 +868,7 @@ export default function FranchisePOSPage() {
         </div>
 
         {/* RIGHT 5 COLS: REQUISITION CART & ROYALTY BREAKDOWN */}
-        <div className="lg:col-span-5 flex flex-col rounded-sm border border-indigo-100/90 bg-white/90 backdrop-blur-xl shadow-2xl shadow-indigo-950/10 overflow-hidden">
-        <div className="lg:col-span-5 flex flex-col rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="lg:col-span-5 flex flex-col rounded-sm border border-slate-200 bg-white shadow-sm overflow-hidden">
           
           {/* Cart Header */}
           <div className="flex-none p-3.5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
@@ -912,7 +906,7 @@ export default function FranchisePOSPage() {
                   Requisition Cart is Empty
                 </p>
                 <p className="text-[11px] text-slate-400 max-w-[220px] mx-auto">
-                  Click "+ Add" on central supplies from the catalog to build an outlet supply order.
+                  Click &quot;+ Add&quot; on central supplies from the catalog to build an outlet supply order.
                 </p>
               </div>
             ) : (
@@ -1022,7 +1016,7 @@ export default function FranchisePOSPage() {
               <button
                 onClick={handleHoldSale}
                 disabled={cart.length === 0}
-                className="rounded-xl bg-amber-100/90 border border-amber-300 py-2.5 text-xs font-bold text-amber-900 hover:bg-amber-200 disabled:opacity-40 transition flex items-center justify-center gap-1.5 shadow-xs"
+                className="rounded-sm bg-amber-50 border border-amber-300 py-2.5 text-xs font-bold text-amber-900 hover:bg-amber-100 disabled:opacity-40 transition flex items-center justify-center gap-1.5 shadow-2xs"
               >
                 <PauseCircle size={15} className="text-amber-700" /> Hold (F7)
               </button>
@@ -1030,7 +1024,7 @@ export default function FranchisePOSPage() {
               <button
                 onClick={handleCreateRequisition}
                 disabled={cart.length === 0 || submitting}
-                className="rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-2.5 text-xs font-black text-white shadow-lg shadow-indigo-600/25 hover:from-indigo-700 hover:to-violet-700 disabled:opacity-40 transition flex items-center justify-center gap-1.5"
+                className="rounded-sm bg-violet-600 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-violet-700 disabled:opacity-40 transition flex items-center justify-center gap-1.5"
               >
                 <CheckCircle2 size={16} /> Complete (F9)
               </button>
@@ -1144,7 +1138,7 @@ export default function FranchisePOSPage() {
               <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
                 {filteredCustomers.length === 0 ? (
                   <p className="py-8 text-center text-xs text-slate-400 font-medium">
-                    No customers found matching "{customerSearchQuery}".
+                    No customers found matching &quot;{customerSearchQuery}&quot;.
                   </p>
                 ) : (
                   filteredCustomers.map((c) => (

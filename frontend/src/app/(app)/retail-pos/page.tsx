@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search, ShoppingCart, PauseCircle, PlayCircle,
   XCircle, RotateCcw, User, ChevronDown, Settings2, WifiOff, CloudOff,
@@ -189,9 +190,15 @@ const PAYMENT_METHODS = [
 ];
 
 export default function PosPage() {
+  const router = useRouter();
+
   // ── Online status ──
   const [online, setOnline] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Quick actions dropdown
+  const [showQuickActions, setShowQuickActions] = useState(false);
+  const quickActionsRef = useRef<HTMLDivElement>(null);
 
   // Context
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
@@ -283,6 +290,19 @@ export default function PosPage() {
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
+
+  // ── Quick actions outside click listener ──
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (quickActionsRef.current && !quickActionsRef.current.contains(e.target as Node)) {
+        setShowQuickActions(false);
+      }
+    }
+    if (showQuickActions) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showQuickActions]);
 
   // Categories state from API
   const [apiCategories, setApiCategories] = useState<{ id: string; name: string }[]>([]);
@@ -709,7 +729,7 @@ export default function PosPage() {
       <header className="flex items-center justify-between px-4 py-2 bg-white border-b border-slate-200 z-30 shrink-0 shadow-2xs">
         {/* Left Branding */}
         <div className="flex items-center gap-2.5 h-9">
-          <div className="w-8 h-8 rounded-md bg-teal-600 flex items-center justify-center text-white shrink-0 shadow-2xs">
+          <div className="w-8 h-8 rounded-sm bg-teal-600 flex items-center justify-center text-white shrink-0 shadow-2xs">
             <ShoppingBag size={18} />
           </div>
           <div className="flex flex-col justify-center leading-tight">
@@ -736,7 +756,7 @@ export default function PosPage() {
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleSearchKey}
               placeholder="Search product by name, SKU or barcode..."
-              className="w-full h-9 pl-9 pr-9 bg-slate-50 border border-slate-200 rounded-md text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-teal-600 focus:border-teal-600 focus:bg-white transition-all shadow-2xs"
+              className="w-full h-9 pl-9 pr-9 bg-slate-50 border border-slate-200 rounded-sm text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-teal-600 focus:border-teal-600 focus:bg-white transition-all shadow-2xs"
             />
             <button className="absolute right-2.5 text-slate-400 hover:text-teal-600 transition">
               <Scan size={15} />
@@ -746,20 +766,117 @@ export default function PosPage() {
 
         {/* Right Actions & Operator */}
         <div className="flex items-center gap-2 h-9">
-          {/* Quick Actions Button */}
-          <CustomButton
-            variant="primary"
-            size="sm"
-            onClick={() => { loadHolds(); setShowHolds(true); }}
-            className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-md flex items-center gap-1.5 shadow-2xs px-3 py-1.5"
-          >
-            <Zap size={14} className="text-amber-300 fill-amber-300" />
-            <span>Quick Actions</span>
-            <ChevronDown size={13} />
-          </CustomButton>
+          {/* Quick Actions Button & Dropdown */}
+          <div className="relative" ref={quickActionsRef}>
+            <button
+              type="button"
+              onClick={() => setShowQuickActions((v) => !v)}
+              className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-sm flex items-center gap-1.5 shadow-2xs px-3 py-1.5 transition cursor-pointer"
+            >
+              <Zap size={14} className="text-amber-300 fill-amber-300" />
+              <span>Quick Actions</span>
+              <ChevronDown size={13} className={cn("transition-transform duration-150", showQuickActions && "rotate-180")} />
+            </button>
+
+            {showQuickActions && (
+              <div className="absolute right-0 top-full mt-1.5 w-60 bg-white border border-slate-200 rounded-sm shadow-xl py-1.5 z-50 text-slate-800 animate-in fade-in zoom-in-95 duration-100">
+                <div className="px-3 py-1.5 border-b border-slate-100 text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center justify-between">
+                  <span>Quick Actions</span>
+                  <span className="text-teal-600 font-bold">Retail POS</span>
+                </div>
+                <div className="py-1">
+                  <button
+                    type="button"
+                    onClick={() => { setShowQuickActions(false); loadHolds(); setShowHolds(true); }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <PauseCircle size={14} className="text-teal-600" />
+                      <span>Held Sales</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-gray-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">F4</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setShowQuickActions(false); setShowReturn(true); }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <RotateCcw size={14} className="text-teal-600" />
+                      <span>Return / Refund</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-gray-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">F8</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setShowQuickActions(false); setShowVoid(true); }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Trash2 size={14} className="text-rose-500" />
+                      <span>Void Transaction</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-gray-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">F9</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setShowQuickActions(false); setShowCustomerModal(true); }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <User size={14} className="text-teal-600" />
+                      <span>Customer Lookup</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-gray-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">F3</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setShowQuickActions(false); setShowShortcutSettings(true); }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Keyboard size={14} className="text-teal-600" />
+                      <span>Shortcuts Settings</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-gray-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">F1</span>
+                  </button>
+                </div>
+
+                <div className="border-t border-slate-100 py-1">
+                  <button
+                    type="button"
+                    onClick={() => { setShowQuickActions(false); window.open("/retail-pos/customer-display", "_blank"); }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <ShoppingBag size={14} className="text-teal-600" />
+                      <span>Customer Display</span>
+                    </div>
+                    <span className="text-[10px] text-teal-700 font-bold">Launch</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setShowQuickActions(false); router.push("/retail-pos/price-checker"); }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Scan size={14} className="text-teal-600" />
+                      <span>Price Checker</span>
+                    </div>
+                    <span className="text-[10px] text-teal-700 font-bold">Open</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Date & Time */}
-          <div className="hidden lg:flex items-center gap-1.5 h-8 px-2.5 rounded-md border border-slate-200 bg-slate-50 text-gray-600 shrink-0 shadow-2xs text-xs font-medium">
+          <div className="hidden lg:flex items-center gap-1.5 h-8 px-2.5 rounded-sm border border-slate-200 bg-slate-50 text-gray-600 shrink-0 shadow-2xs text-xs font-medium">
             <Clock size={14} className="text-teal-600" />
             <span className="font-bold text-gray-600">
               {currentTime.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
@@ -770,7 +887,7 @@ export default function PosPage() {
           </div>
 
           {/* Cashier Selector */}
-          <div className="flex items-center gap-1.5 h-8 px-2.5 rounded-md border border-slate-200 bg-white hover:bg-slate-50 transition cursor-pointer shrink-0 shadow-2xs">
+          <div className="flex items-center gap-1.5 h-8 px-2.5 rounded-sm border border-slate-200 bg-white hover:bg-slate-50 transition cursor-pointer shrink-0 shadow-2xs">
             <div className="w-5 h-5 rounded bg-teal-600 text-white flex items-center justify-center shrink-0">
               <User size={12} />
             </div>
@@ -782,7 +899,7 @@ export default function PosPage() {
 
           {/* Status Badge */}
           <div className={cn(
-            "flex items-center gap-1.5 h-8 px-2.5 rounded-md text-xs font-bold border shrink-0 shadow-2xs",
+            "flex items-center gap-1.5 h-8 px-2.5 rounded-sm text-xs font-bold border shrink-0 shadow-2xs",
             online ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200"
           )}>
             <span className={cn("w-2 h-2 rounded-full animate-pulse", online ? "bg-emerald-500" : "bg-rose-500")} />
@@ -796,7 +913,7 @@ export default function PosPage() {
         {/* Metric Cards */}
         <div className="flex items-center gap-2 flex-1 overflow-x-auto scrollbar-hide">
           {/* Sales Today */}
-          <div className="flex items-center gap-2.5 h-11 px-3.5 rounded-md border border-slate-200 bg-white shrink-0 min-w-[145px] shadow-2xs hover:border-teal-300 transition">
+          <div className="flex items-center gap-2.5 h-11 px-3.5 rounded-sm border border-slate-200 bg-white shrink-0 min-w-[145px] shadow-2xs hover:border-teal-300 transition">
             <div className="p-1.5 rounded bg-teal-50 text-teal-600 border border-teal-200/60 shrink-0">
               <TrendingUp size={15} />
             </div>
@@ -812,7 +929,7 @@ export default function PosPage() {
           </div>
 
           {/* Transactions */}
-          <div className="flex items-center gap-2.5 h-11 px-3.5 rounded-md border border-slate-200 bg-white shrink-0 min-w-[135px] shadow-2xs hover:border-teal-300 transition">
+          <div className="flex items-center gap-2.5 h-11 px-3.5 rounded-sm border border-slate-200 bg-white shrink-0 min-w-[135px] shadow-2xs hover:border-teal-300 transition">
             <div className="p-1.5 rounded bg-teal-50 text-teal-600 border border-teal-200/60 shrink-0">
               <BarChart2 size={15} />
             </div>
@@ -828,7 +945,7 @@ export default function PosPage() {
           </div>
 
           {/* Avg. Sale */}
-          <div className="flex items-center gap-2.5 h-11 px-3.5 rounded-md border border-slate-200 bg-white shrink-0 min-w-[135px] shadow-2xs hover:border-teal-300 transition">
+          <div className="flex items-center gap-2.5 h-11 px-3.5 rounded-sm border border-slate-200 bg-white shrink-0 min-w-[135px] shadow-2xs hover:border-teal-300 transition">
             <div className="p-1.5 rounded bg-teal-50 text-teal-600 border border-teal-200/60 shrink-0">
               <Tag size={15} />
             </div>
@@ -844,7 +961,7 @@ export default function PosPage() {
           </div>
 
           {/* Items Sold */}
-          <div className="flex items-center gap-2.5 h-11 px-3.5 rounded-md border border-slate-200 bg-white shrink-0 min-w-[130px] shadow-2xs hover:border-teal-300 transition">
+          <div className="flex items-center gap-2.5 h-11 px-3.5 rounded-sm border border-slate-200 bg-white shrink-0 min-w-[130px] shadow-2xs hover:border-teal-300 transition">
             <div className="p-1.5 rounded bg-teal-50 text-teal-600 border border-teal-200/60 shrink-0">
               <Package size={15} />
             </div>
@@ -860,7 +977,7 @@ export default function PosPage() {
           </div>
 
           {/* Stock Alerts */}
-          <div className="flex items-center gap-2.5 h-11 px-3.5 rounded-md border border-rose-200 bg-rose-50/40 shrink-0 min-w-[120px] shadow-2xs">
+          <div className="flex items-center gap-2.5 h-11 px-3.5 rounded-sm border border-rose-200 bg-rose-50/40 shrink-0 min-w-[120px] shadow-2xs">
             <div className="p-1.5 rounded bg-rose-100 text-rose-600 shrink-0">
               <Bell size={15} />
             </div>
@@ -874,7 +991,7 @@ export default function PosPage() {
           </div>
 
           {/* AI Insights */}
-          <div className="hidden xl:flex items-center gap-2.5 h-11 px-3 rounded-md bg-teal-50/60 border border-teal-200/80 shrink-0 min-w-[220px]">
+          <div className="hidden xl:flex items-center gap-2.5 h-11 px-3 rounded-sm bg-teal-50/60 border border-teal-200/80 shrink-0 min-w-[220px]">
             <div className="p-1.5 rounded bg-teal-600 text-white shrink-0 shadow-2xs">
               <Bot size={15} />
             </div>
@@ -891,7 +1008,7 @@ export default function PosPage() {
             variant="outline"
             size="sm"
             onClick={() => setShowCustomerModal(true)}
-            className="flex items-center gap-1.5 text-gray-600 border-slate-200 hover:bg-slate-50 font-bold rounded-md px-3 py-1.5 text-xs shadow-2xs"
+            className="flex items-center gap-1.5 text-gray-600 border-slate-200 hover:bg-slate-50 font-bold rounded-sm px-3 py-1.5 text-xs shadow-2xs"
           >
             <User size={14} className="text-teal-600" />
             <span>Add Customer</span>
@@ -899,7 +1016,7 @@ export default function PosPage() {
           <CustomButton
             variant="outline"
             size="sm"
-            className="flex items-center gap-1.5 text-gray-600 border-slate-200 hover:bg-slate-50 font-bold rounded-md px-3 py-1.5 text-xs shadow-2xs"
+            className="flex items-center gap-1.5 text-gray-600 border-slate-200 hover:bg-slate-50 font-bold rounded-sm px-3 py-1.5 text-xs shadow-2xs"
           >
             <Scan size={14} className="text-teal-600" />
             <span>Scan Barcode</span>
@@ -911,7 +1028,7 @@ export default function PosPage() {
       <div className="flex flex-1 min-h-0 overflow-hidden p-2.5 gap-2.5">
 
         {/* ── LEFT: Product Catalog ───────────────────────────────── */}
-        <div className="flex flex-col flex-1 min-w-0 bg-white rounded-md border border-slate-200 shadow-2xs overflow-hidden">
+        <div className="flex flex-col flex-1 min-w-0 bg-white rounded-sm border border-slate-200 shadow-2xs overflow-hidden">
 
           {/* Category Tabs Bar using CustomTabs component */}
           <div className="flex items-center justify-between p-2 border-b border-slate-200 shrink-0 gap-2 bg-slate-50/50">
@@ -927,7 +1044,7 @@ export default function PosPage() {
             </div>
 
             {/* View Mode Toggle */}
-            <div className="h-8 flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-md border border-slate-200 shrink-0">
+            <div className="h-8 flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-sm border border-slate-200 shrink-0">
               <button
                 onClick={() => setViewMode("grid")}
                 className={cn(
@@ -966,7 +1083,7 @@ export default function PosPage() {
                       key={p.id}
                       onClick={() => !outOfStock && addProduct(p)}
                       className={cn(
-                        "group relative flex flex-col bg-white border rounded-md transition-all duration-200 cursor-pointer overflow-hidden shadow-2xs hover:shadow-md justify-between",
+                        "group relative flex flex-col bg-white border rounded-sm transition-all duration-200 cursor-pointer overflow-hidden shadow-2xs hover:shadow-md justify-between",
                         outOfStock
                           ? "border-slate-200 opacity-50 cursor-not-allowed"
                           : inCart
@@ -1029,7 +1146,7 @@ export default function PosPage() {
                   <div
                     key={p.id}
                     onClick={() => addProduct(p)}
-                    className="flex items-center justify-between p-2.5 rounded-md border border-slate-200 bg-white hover:border-teal-400 hover:shadow-xs transition cursor-pointer"
+                    className="flex items-center justify-between p-2.5 rounded-sm border border-slate-200 bg-white hover:border-teal-400 hover:shadow-xs transition cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded bg-slate-50 flex items-center justify-center overflow-hidden border border-slate-100 shrink-0">
@@ -1046,9 +1163,9 @@ export default function PosPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-extrabold text-slate-900">{fmt(Number(p.sellingPrice))}</span>
-                      <CustomButton variant="primary" size="sm" className="px-2.5 py-1 text-xs font-bold rounded-md bg-teal-600 hover:bg-teal-700">
+                      <button type="button" className="px-2.5 py-1 text-xs font-bold rounded-sm bg-teal-600 hover:bg-teal-700 text-white transition shadow-2xs">
                         + Add
-                      </CustomButton>
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -1067,7 +1184,7 @@ export default function PosPage() {
                 size="sm"
                 disabled={currentPage <= 1}
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                className="px-2 py-1 text-xs font-bold rounded-md border-slate-200 text-gray-600 disabled:opacity-40"
+                className="px-2 py-1 text-xs font-bold rounded-sm border-slate-200 text-gray-600 disabled:opacity-40"
               >
                 <ChevronLeft size={14} className="mr-0.5" /> Prev
               </CustomButton>
@@ -1090,7 +1207,7 @@ export default function PosPage() {
                 size="sm"
                 disabled={currentPage >= totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                className="px-2 py-1 text-xs font-bold rounded-md border-slate-200 text-gray-600 disabled:opacity-40"
+                className="px-2 py-1 text-xs font-bold rounded-sm border-slate-200 text-gray-600 disabled:opacity-40"
               >
                 Next <ChevronRight size={14} className="ml-0.5" />
               </CustomButton>
@@ -1099,7 +1216,7 @@ export default function PosPage() {
         </div>
 
         {/* ── RIGHT: Current Order Panel ──────────────────────────── */}
-        <div className="w-[380px] shrink-0 flex flex-col bg-white rounded-md border border-slate-200 shadow-2xs overflow-hidden">
+        <div className="w-[380px] shrink-0 flex flex-col bg-white rounded-sm border border-slate-200 shadow-2xs overflow-hidden">
 
           {/* Cart Header (Simplified: Title + Badge Only, NO redundant customer/barcode buttons) */}
           <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 shrink-0 bg-slate-50/50">
@@ -1201,7 +1318,7 @@ export default function PosPage() {
             </div>
 
             {/* Total Payable Card */}
-            <div className="flex items-center justify-between p-3 rounded-md bg-white border border-slate-200 shadow-2xs">
+            <div className="flex items-center justify-between p-3 rounded-sm bg-white border border-slate-200 shadow-2xs">
               <div>
                 <span className="text-[11px] font-extrabold uppercase tracking-wider text-gray-600 block">Total Payable</span>
                 {discountTotal > 0 && (
@@ -1220,7 +1337,7 @@ export default function PosPage() {
                   key={pm.method}
                   onClick={() => { setActivePaymentMethod(pm.method); setPayments([{ method: pm.method, amount: total }]); }}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-1 p-2 rounded-md border text-center transition-all cursor-pointer h-12",
+                    "flex flex-col items-center justify-center gap-1 p-2 rounded-sm border text-center transition-all cursor-pointer h-12",
                     activePaymentMethod === pm.method
                       ? "bg-teal-600 text-white border-teal-600 shadow-2xs font-bold"
                       : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50 font-medium"
@@ -1239,7 +1356,7 @@ export default function PosPage() {
                 size="sm"
                 onClick={holdSale}
                 disabled={cart.length === 0}
-                className="w-full text-teal-700 border-teal-200 bg-teal-50/50 hover:bg-teal-100 font-bold rounded-md py-2 text-xs flex items-center justify-center gap-1 cursor-pointer"
+                className="w-full text-teal-700 border-teal-200 bg-teal-50/50 hover:bg-teal-100 font-bold rounded-sm py-2 text-xs flex items-center justify-center gap-1 cursor-pointer"
               >
                 <PauseCircle size={14} />
                 <span>Hold Sale</span>
@@ -1249,20 +1366,19 @@ export default function PosPage() {
                 size="sm"
                 onClick={resetSale}
                 disabled={cart.length === 0}
-                className="w-full font-bold rounded-md py-2 text-xs flex items-center justify-center gap-1 cursor-pointer"
+                className="w-full font-bold rounded-sm py-2 text-xs flex items-center justify-center gap-1 cursor-pointer"
               >
                 <Trash2 size={14} />
                 <span>Clear Order</span>
               </CustomButton>
             </div>
 
-            {/* Pay Now CTA using CustomButton (Retail Theme Color) */}
-            <CustomButton
-              variant="primary"
-              size="lg"
+            {/* Pay Now CTA */}
+            <button
+              type="button"
               disabled={cart.length === 0 || submitting}
               onClick={confirmSale}
-              className="w-full flex items-center justify-between px-4 py-2.5 rounded-md font-extrabold text-sm shadow-md cursor-pointer bg-teal-600 hover:bg-teal-700 text-white transition-colors"
+              className="w-full flex items-center justify-between px-4 py-2.5 rounded-sm font-extrabold text-sm shadow-md cursor-pointer bg-teal-600 hover:bg-teal-700 text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 size={16} />
@@ -1272,14 +1388,14 @@ export default function PosPage() {
                 <span>{fmt(total)}</span>
                 <ArrowRight size={15} />
               </div>
-            </CustomButton>
+            </button>
           </div>
         </div>
       </div>
 
       {/* ── 4. FOOTER ─────────────────────────────────────────────── */}
       <div className="px-4 py-2 bg-white border-t border-slate-200 shrink-0 space-y-2">
-        {/* Module Cards — Row 1 (Retail Teal Theme, Rounded-MD) */}
+        {/* Module Cards — Row 1 (Retail Teal Theme) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
           {[
             { icon: Store, title: "Active Outlet", sub: tenantInfo?.branch?.name || "Main Branch", sub2: "Sync Active" },
@@ -1290,7 +1406,7 @@ export default function PosPage() {
             { icon: Bot, title: "AI Assistant", sub: "Auto Stock Alert", sub2: "Optimal Levels" },
             { icon: CheckCircle2, title: "POS Status", sub: online ? "Online" : "Offline", sub2: "Fast Mode" },
           ].map((mod, i) => (
-            <div key={i} className="flex items-center gap-2 p-2 rounded-md bg-white border border-slate-200 hover:border-teal-400 hover:shadow-xs transition cursor-pointer">
+            <div key={i} className="flex items-center gap-2 p-2 rounded-sm bg-white border border-slate-200 hover:border-teal-400 hover:shadow-xs transition cursor-pointer">
               <div className="p-1 rounded bg-teal-50 text-teal-600 border border-teal-100 shrink-0">
                 <mod.icon size={14} />
               </div>
@@ -1320,7 +1436,7 @@ export default function PosPage() {
               <button
                 key={i}
                 onClick={btn.action}
-                className="h-7.5 px-3 rounded-md border border-slate-200 bg-white hover:bg-teal-50/80 hover:border-teal-400 text-slate-700 hover:text-teal-700 text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer transition whitespace-nowrap"
+                className="h-7.5 px-3 rounded-sm border border-slate-200 bg-white hover:bg-teal-50/80 hover:border-teal-400 text-slate-700 hover:text-teal-700 text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer transition whitespace-nowrap"
               >
                 <btn.icon size={13} className="text-teal-600 shrink-0" />
                 <span>{btn.label}</span>
@@ -1330,7 +1446,7 @@ export default function PosPage() {
 
           {/* Today's Summary + System Status */}
           <div className="flex items-center gap-2.5">
-            <div className="flex items-center gap-3 px-3 py-1 rounded-md bg-slate-50 border border-slate-200">
+            <div className="flex items-center gap-3 px-3 py-1 rounded-sm bg-slate-50 border border-slate-200">
               <span className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Summary</span>
               <div className="flex items-center gap-3">
                 <div className="text-center">
@@ -1348,7 +1464,7 @@ export default function PosPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-emerald-50 border border-emerald-200">
               <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Status</span>
               <div className="flex items-center gap-1 text-emerald-700 font-bold text-xs">
                 <CheckCircle2 size={13} />
@@ -1369,12 +1485,12 @@ export default function PosPage() {
             value={customerSearch}
             onChange={(e) => setCustomerSearch(e.target.value)}
             placeholder="Search by name or phone…"
-            className="w-full h-9 px-3 border border-slate-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-teal-600"
+            className="w-full h-9 px-3 border border-slate-300 rounded-sm text-xs focus:outline-none focus:ring-1 focus:ring-teal-600"
           />
           <div className="space-y-1 max-h-64 overflow-y-auto">
             <button
               onClick={() => { setCustomerId(""); setShowCustomerModal(false); setCustomerSearch(""); }}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-md border border-dashed border-slate-300 text-xs text-gray-600 hover:border-teal-400 hover:text-teal-600 transition cursor-pointer"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-sm border border-dashed border-slate-300 text-xs text-gray-600 hover:border-teal-400 hover:text-teal-600 transition cursor-pointer"
             >
               <User size={14} /> Walk-in Customer
             </button>
@@ -1382,7 +1498,7 @@ export default function PosPage() {
               <button
                 key={c.id}
                 onClick={() => { setCustomerId(c.id); setShowCustomerModal(false); setCustomerSearch(""); }}
-                className={cn("w-full flex items-center justify-between px-3 py-2 rounded-md border text-xs transition cursor-pointer", customerId === c.id ? "border-teal-600 bg-teal-50 text-teal-800 font-bold" : "border-slate-200 hover:border-teal-300 hover:bg-slate-50")}
+                className={cn("w-full flex items-center justify-between px-3 py-2 rounded-sm border text-xs transition cursor-pointer", customerId === c.id ? "border-teal-600 bg-teal-50 text-teal-800 font-bold" : "border-slate-200 hover:border-teal-300 hover:bg-slate-50")}
               >
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded bg-teal-100 flex items-center justify-center text-teal-700 text-xs font-bold">
@@ -1405,7 +1521,7 @@ export default function PosPage() {
         <div className="space-y-2">
           {(!Array.isArray(holds) || holds.length === 0) && <p className="py-6 text-center text-xs text-gray-500">No held sales found</p>}
           {Array.isArray(holds) && holds.map((h) => (
-            <div key={h.id} className="flex items-center justify-between rounded-md border border-slate-200 p-3 hover:bg-slate-50 transition">
+            <div key={h.id} className="flex items-center justify-between rounded-sm border border-slate-200 p-3 hover:bg-slate-50 transition">
               <div>
                 <p className="text-xs font-semibold">{h.holdNo}</p>
                 <p className="text-[11px] text-gray-500">{(Array.isArray(h.cartSnapshot) ? h.cartSnapshot.length : 0)} items · {new Date(h.createdAt).toLocaleTimeString()}</p>
@@ -1425,11 +1541,11 @@ export default function PosPage() {
         <div className="space-y-3">
           <div>
             <label className="text-xs font-semibold text-gray-500 mb-1 block">Sale ID</label>
-            <input value={voidSaleId} onChange={(e) => setVoidSaleId(e.target.value)} placeholder="Paste sale ID" className="w-full h-9 px-3 border border-slate-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-teal-600" />
+            <input value={voidSaleId} onChange={(e) => setVoidSaleId(e.target.value)} placeholder="Paste sale ID" className="w-full h-9 px-3 border border-slate-300 rounded-sm text-xs focus:outline-none focus:ring-1 focus:ring-teal-600" />
           </div>
           <div>
             <label className="text-xs font-semibold text-gray-500 mb-1 block">Reason</label>
-            <input value={voidReason} onChange={(e) => setVoidReason(e.target.value)} placeholder="Reason for void" className="w-full h-9 px-3 border border-slate-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-teal-600" />
+            <input value={voidReason} onChange={(e) => setVoidReason(e.target.value)} placeholder="Reason for void" className="w-full h-9 px-3 border border-slate-300 rounded-sm text-xs focus:outline-none focus:ring-1 focus:ring-teal-600" />
           </div>
           <div className="flex justify-end gap-2">
             <CustomButton variant="outline" onClick={() => setShowVoid(false)}>Cancel</CustomButton>
@@ -1443,15 +1559,15 @@ export default function PosPage() {
         <div className="space-y-3">
           <div>
             <label className="text-xs font-semibold text-gray-500 mb-1 block">Sale ID</label>
-            <input value={returnSaleId} onChange={(e) => setReturnSaleId(e.target.value)} placeholder="Paste sale ID" className="w-full h-9 px-3 border border-slate-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-teal-600" />
+            <input value={returnSaleId} onChange={(e) => setReturnSaleId(e.target.value)} placeholder="Paste sale ID" className="w-full h-9 px-3 border border-slate-300 rounded-sm text-xs focus:outline-none focus:ring-1 focus:ring-teal-600" />
           </div>
           <div>
             <label className="text-xs font-semibold text-gray-500 mb-1 block">Refund Amount</label>
-            <input type="number" min={0} step="0.01" value={returnAmount} onChange={(e) => setReturnAmount(e.target.value)} className="w-full h-9 px-3 border border-slate-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-teal-600" />
+            <input type="number" min={0} step="0.01" value={returnAmount} onChange={(e) => setReturnAmount(e.target.value)} className="w-full h-9 px-3 border border-slate-300 rounded-sm text-xs focus:outline-none focus:ring-1 focus:ring-teal-600" />
           </div>
           <div>
             <label className="text-xs font-semibold text-gray-500 mb-1 block">Reason</label>
-            <input value={returnReason} onChange={(e) => setReturnReason(e.target.value)} className="w-full h-9 px-3 border border-slate-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-teal-600" />
+            <input value={returnReason} onChange={(e) => setReturnReason(e.target.value)} className="w-full h-9 px-3 border border-slate-300 rounded-sm text-xs focus:outline-none focus:ring-1 focus:ring-teal-600" />
           </div>
           <div className="flex justify-end gap-2">
             <CustomButton variant="outline" onClick={() => setShowReturn(false)}>Cancel</CustomButton>
@@ -1463,7 +1579,7 @@ export default function PosPage() {
       {/* Keyboard Shortcut Settings */}
       <CustomModal open={showShortcutSettings} onClose={() => setShowShortcutSettings(false)} title="Keyboard Shortcuts">
         <div className="space-y-3">
-          <p className="flex items-start gap-2 rounded-md bg-teal-50 px-3 py-2 text-xs text-teal-800">
+          <p className="flex items-start gap-2 rounded-sm bg-teal-50 px-3 py-2 text-xs text-teal-800">
             <Keyboard size={14} className="mt-0.5 shrink-0" />
             Click an action then press the key combination you want to assign.
           </p>
@@ -1471,12 +1587,12 @@ export default function PosPage() {
             {SHORTCUT_ACTIONS.map((action) => {
               const isRecording = recordingAction === action;
               return (
-                <div key={action} className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-1.5">
+                <div key={action} className="flex items-center justify-between rounded-sm border border-slate-200 px-3 py-1.5">
                   <span className="text-xs font-bold text-gray-600">{ACTION_LABELS[action]}</span>
                   <button
                     type="button"
                     onClick={() => setRecordingAction(isRecording ? null : action)}
-                    className={`min-w-[80px] rounded-md border px-2.5 py-1 text-center text-xs font-semibold transition ${isRecording ? "animate-pulse border-teal-600 bg-teal-50 text-teal-700" : "border-slate-300 bg-slate-50 text-gray-600 hover:border-teal-400"}`}
+                    className={`min-w-[80px] rounded-sm border px-2.5 py-1 text-center text-xs font-semibold transition ${isRecording ? "animate-pulse border-teal-600 bg-teal-50 text-teal-700" : "border-slate-300 bg-slate-50 text-gray-600 hover:border-teal-400"}`}
                   >
                     {isRecording ? "Press key…" : (draftShortcuts[action] ?? shortcuts[action])}
                   </button>

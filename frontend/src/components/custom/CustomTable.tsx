@@ -322,8 +322,8 @@ export function CustomTable<T>({
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-sm text-xs font-semibold transition shadow-2xs cursor-pointer",
                   p === validCurrentPage
-                    ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white border-transparent shadow-xs"
-                    : "border border-sky-200/80 bg-white text-slate-700 hover:bg-[#E0F2FE] hover:text-[#0284C7] hover:border-sky-300"
+                    ? "bg-sky-600 text-white border-transparent shadow-2xs font-bold"
+                    : "border border-slate-200 bg-white text-slate-700 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300"
                 )}
               >
                 {p}

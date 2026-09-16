@@ -21,30 +21,30 @@ export interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
-  primary: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs hover:brightness-105 active:scale-98 focus-visible:ring-sky-300",
-  blue: "bg-blue-600 text-white shadow-2xs hover:bg-blue-700 active:scale-98 focus-visible:ring-blue-300",
-  teal: "bg-[#00796b] text-white shadow-2xs hover:bg-[#00695c] active:scale-98 focus-visible:ring-teal-300",
-  orange: "bg-orange-500 text-white shadow-2xs hover:bg-orange-600 active:scale-98 focus-visible:ring-orange-300",
-  emerald: "bg-emerald-600 text-white shadow-2xs hover:bg-emerald-700 active:scale-98 focus-visible:ring-emerald-300",
-  indigo: "bg-indigo-600 text-white shadow-2xs hover:bg-indigo-700 active:scale-98 focus-visible:ring-indigo-300",
-  amber: "bg-amber-500 text-white shadow-2xs hover:bg-amber-600 active:scale-98 focus-visible:ring-amber-300",
-  rose: "bg-rose-600 text-white shadow-2xs hover:bg-rose-700 active:scale-98 focus-visible:ring-rose-300",
-  purple: "bg-purple-600 text-white shadow-2xs hover:bg-purple-700 active:scale-98 focus-visible:ring-purple-300",
+  primary: "bg-sky-600 text-white shadow-2xs hover:bg-sky-700 active:scale-98 focus-visible:ring-sky-300 font-bold",
+  blue: "bg-blue-600 text-white shadow-2xs hover:bg-blue-700 active:scale-98 focus-visible:ring-blue-300 font-bold",
+  teal: "bg-[#00796b] text-white shadow-2xs hover:bg-[#00695c] active:scale-98 focus-visible:ring-teal-300 font-bold",
+  orange: "bg-orange-500 text-white shadow-2xs hover:bg-orange-600 active:scale-98 focus-visible:ring-orange-300 font-bold",
+  emerald: "bg-emerald-600 text-white shadow-2xs hover:bg-emerald-700 active:scale-98 focus-visible:ring-emerald-300 font-bold",
+  indigo: "bg-indigo-600 text-white shadow-2xs hover:bg-indigo-700 active:scale-98 focus-visible:ring-indigo-300 font-bold",
+  amber: "bg-amber-500 text-white shadow-2xs hover:bg-amber-600 active:scale-98 focus-visible:ring-amber-300 font-bold",
+  rose: "bg-rose-600 text-white shadow-2xs hover:bg-rose-700 active:scale-98 focus-visible:ring-rose-300 font-bold",
+  purple: "bg-purple-600 text-white shadow-2xs hover:bg-purple-700 active:scale-98 focus-visible:ring-purple-300 font-bold",
 };
 
 const VARIANT_CLASSES = (darkMode: boolean): Record<ButtonVariant, string> => ({
   primary:
-    "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs hover:brightness-105 active:scale-98 focus-visible:ring-sky-300",
+    "bg-sky-600 text-white shadow-2xs hover:bg-sky-700 active:scale-98 focus-visible:ring-sky-300 font-bold",
   secondary: darkMode
     ? "bg-slate-800 text-slate-200 hover:bg-slate-700 focus-visible:ring-slate-700"
-    : "bg-sky-50 text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] border border-sky-200/80 focus-visible:ring-sky-300",
+    : "bg-sky-50 text-sky-700 hover:bg-sky-100 hover:text-sky-800 border border-sky-200/80 focus-visible:ring-sky-300 font-bold",
   outline: darkMode
     ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 focus-visible:ring-slate-700"
-    : "border border-sky-200 bg-white text-[#0369A1] hover:bg-sky-50 hover:border-[#0284C7] focus-visible:ring-sky-300",
+    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-sky-400 focus-visible:ring-sky-300 font-bold",
   ghost: darkMode
     ? "text-slate-400 hover:bg-slate-800 focus-visible:ring-slate-700"
-    : "text-[#0284C7] hover:bg-sky-50 focus-visible:ring-sky-300",
-  danger: "bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-300 shadow-2xs",
+    : "text-sky-600 hover:bg-sky-50 focus-visible:ring-sky-300 font-bold",
+  danger: "bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-300 shadow-2xs font-bold",
 });
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {

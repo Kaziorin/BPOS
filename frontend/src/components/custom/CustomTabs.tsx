@@ -25,7 +25,7 @@ export interface CustomTabsProps {
 }
 
 const THEME_ACTIVE_STYLES: Record<string, string> = {
-  primary: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs",
+  primary: "bg-sky-600 text-white shadow-2xs font-bold",
   blue: "bg-blue-600 text-white shadow-2xs",
   orange: "bg-orange-500 text-white shadow-2xs",
   teal: "bg-[#00796b] text-white shadow-2xs",
@@ -37,7 +37,7 @@ const THEME_ACTIVE_STYLES: Record<string, string> = {
 };
 
 const THEME_HOVER_STYLES = (darkMode: boolean): Record<string, string> => ({
-  primary: darkMode ? "hover:bg-primary-500/10 hover:text-primary-400" : "hover:bg-[#E0F2FE] hover:text-[#0284C7]",
+  primary: darkMode ? "hover:bg-sky-500/10 hover:text-sky-400" : "hover:bg-sky-50 hover:text-sky-700",
   blue: darkMode ? "hover:bg-blue-500/10 hover:text-blue-400" : "hover:bg-blue-50 hover:text-blue-700",
   orange: darkMode ? "hover:bg-orange-500/10 hover:text-orange-400" : "hover:bg-orange-50 hover:text-orange-700",
   teal: darkMode ? "hover:bg-teal-500/10 hover:text-teal-400" : "hover:bg-teal-50 hover:text-teal-750",

@@ -77,11 +77,11 @@ export function PaymentPanel({ total, payments, onChange }: Props) {
               className={cn(
                 "flex flex-col items-center justify-center p-1.5 rounded-sm border text-center transition text-xs font-semibold cursor-pointer",
                 isSelected
-                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white border-transparent shadow-xs"
-                  : "bg-sky-50/50 text-slate-700 border-sky-100 hover:bg-sky-50"
+                  ? "bg-teal-600 text-white border-teal-600 shadow-xs"
+                  : "bg-teal-50/50 text-slate-700 border-teal-100 hover:bg-teal-50"
               )}
             >
-              <Icon size={14} className={isSelected ? "text-white" : "text-sky-600"} />
+              <Icon size={14} className={isSelected ? "text-white" : "text-teal-600"} />
               <span className="text-[11px] mt-0.5">{m.label}</span>
             </button>
           );
@@ -102,7 +102,7 @@ export function PaymentPanel({ total, payments, onChange }: Props) {
             key={amt}
             type="button"
             onClick={() => addCashAmount(amt)}
-            className="rounded-sm bg-sky-50 border border-sky-200/80 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-sky-100/70 transition tabular-nums cursor-pointer"
+            className="rounded-sm bg-teal-50 border border-teal-200/80 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-teal-100/70 transition tabular-nums cursor-pointer"
           >
             ৳{amt}
           </button>
@@ -141,14 +141,14 @@ export function PaymentPanel({ total, payments, onChange }: Props) {
         <button
           type="button"
           onClick={() => addLine("CASH", remaining)}
-          className="flex items-center gap-1 text-xs font-medium text-[#0284C7] hover:text-[#0369A1] hover:underline cursor-pointer"
+          className="flex items-center gap-1 text-xs font-medium text-teal-700 hover:text-teal-800 hover:underline cursor-pointer"
         >
           <Plus size={12} /> Split with another method
         </button>
       </div>
 
       {/* Totals Summary */}
-      <div className="rounded-sm border border-sky-100/90 bg-sky-50/40 p-3 space-y-1.5 text-xs">
+      <div className="rounded-sm border border-teal-100/90 bg-teal-50/40 p-3 space-y-1.5 text-xs">
         <div className="flex justify-between text-gray-600 font-medium">
           <span>Net Payable:</span>
           <span className="tabular-nums font-bold text-gray-900 text-sm">৳{total.toFixed(2)}</span>
