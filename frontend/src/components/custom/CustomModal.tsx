@@ -54,7 +54,7 @@ export function CustomModal({ open, isOpen, onClose, title, children, size = "md
         )}>
           <h2 className={cn(
             "text-base font-bold tracking-tight",
-            darkMode ? "text-slate-200" : "text-slate-900"
+            darkMode ? "text-slate-200" : "text-gray-600"
           )}>{title}</h2>
           <button
             onClick={onClose}
