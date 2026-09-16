@@ -2,16 +2,17 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import {
   Search, ShoppingCart, PauseCircle, PlayCircle,
   XCircle, RotateCcw, User, ChevronDown, Settings2, WifiOff, CloudOff,
   Keyboard, Scan, Zap, TrendingUp, BarChart2, Package, Bell, Cpu,
   CreditCard, Banknote, Smartphone, Gift, Plus, Minus, Trash2,
-  MoreHorizontal, CheckCircle2, ArrowRight, ChevronLeft, ChevronRight,
+  MoreHorizontal, CheckCircle2, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight,
   Monitor, Tag, ShoppingBag, Star, Clock, RefreshCcw, LayoutGrid,
   ListFilter, Building2, Store, Users, FileText, PieChart,
   Bot, Calculator, Check, ArrowUpRight, Briefcase, Network,
-  Receipt, X, RefreshCw, Printer
+  Receipt, X, RefreshCw, Printer, Maximize, Minimize
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -111,6 +112,14 @@ const PAYMENT_METHODS = [
 export default function PosPage() {
   const router = useRouter();
 
+  const handleBack = useCallback(() => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/dashboard");
+    }
+  }, [router]);
+
   // ── Online status ──
   const [online, setOnline] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -171,6 +180,100 @@ export default function PosPage() {
   const [showExtras, setShowExtras] = useState(false);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [customerSearch, setCustomerSearch] = useState("");
+  const [customerTab, setCustomerTab] = useState<"view" | "add">("view");
+  const [newCustomer, setNewCustomer] = useState({ name: "", phone: "", email: "", address: "" });
+  const [addingCustomer, setAddingCustomer] = useState(false);
+
+  // Fullscreen state & toggle
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const handleAddCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCustomer.name) return toast.error("Name is required");
+
+    // Create a temporary ID for local use
+    const tempId = `local_${Date.now()}`;
+    const localCust: CachedCustomer = {
+      id: tempId,
+      name: newCustomer.name,
+      phone: newCustomer.phone || null,
+      email: newCustomer.email || null,
+      address: newCustomer.address || null,
+      creditLimit: 0,
+      currentDue: 0,
+      loyaltyPoints: 0,
+      status: "ACTIVE",
+    };
+
+    setAddingCustomer(true);
+    try {
+      const res = await api.post<any>("/api/v1/customers", newCustomer);
+      const added = res.data?.data || res.data;
+
+      if (added && added.id) {
+        toast.success("Customer added successfully");
+        const formattedCust: CachedCustomer = {
+          id: String(added.id),
+          name: added.name || newCustomer.name,
+          phone: added.phone || newCustomer.phone || null,
+          email: added.email || newCustomer.email || null,
+          address: added.address || newCustomer.address || null,
+          creditLimit: Number(added.creditLimit) || 0,
+          currentDue: Number(added.currentDue) || 0,
+          loyaltyPoints: Number(added.loyaltyPoints) || 0,
+          status: added.status || "ACTIVE",
+        };
+        setCustomers(prev => [formattedCust, ...prev.filter(c => c.id !== tempId)]);
+        setCustomerId(added.id);
+        setNewCustomer({ name: "", phone: "", email: "", address: "" });
+        setCustomerTab("view");
+        setShowCustomerModal(false);
+
+        // Save to persistent local storage for fallback
+        try {
+          const raw = localStorage.getItem("bpos_custom_customers");
+          const list = raw ? JSON.parse(raw) : [];
+          localStorage.setItem("bpos_custom_customers", JSON.stringify([...list, formattedCust]));
+        } catch {}
+      }
+    } catch (err: any) {
+      console.error("Failed to add customer:", err);
+      // If duplicate or other error, show the real message
+      const errorMsg = err.message || "Failed to add customer";
+      toast.error(errorMsg);
+
+      // If it's a network error or server down, we could fallback to local-only,
+      // but if it's a 409 (duplicate), we shouldn't.
+      if (err.status !== 409 && err.status !== 400) {
+        setCustomers(prev => [localCust, ...prev]);
+        setCustomerId(tempId);
+        setNewCustomer({ name: "", phone: "", email: "", address: "" });
+        setCustomerTab("view");
+        setShowCustomerModal(false);
+        toast.info("Customer saved locally (Offline)");
+      }
+    } finally {
+      setAddingCustomer(false);
+    }
+  };
 
   // Stats matching reference screenshot
   const [todaySales, setTodaySales] = useState(0);
@@ -570,6 +673,13 @@ export default function PosPage() {
       const tag = (e.target as HTMLElement)?.tagName;
       const plainKey = /^[A-Za-z0-9 ]$/.test(e.key);
       if ((tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") && plainKey) return;
+
+      // Toggle fullscreen on 'f' or 'F' (when not typing in an input)
+      if ((e.key === "f" || e.key === "F") && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        toggleFullscreen();
+        return;
+      }
       if (recordingAction) {
         e.preventDefault();
         const mods: string[] = [];
@@ -716,9 +826,18 @@ export default function PosPage() {
 
       {/* ── 1. TOP HEADER BAR ─────────────────────────────────────── */}
       <header className="flex items-center justify-between px-4 py-2 bg-white border-b border-slate-200 z-30 shrink-0 shadow-sm">
-        {/* Left Branding */}
+        {/* Left Branding & Navigation */}
         <div className="flex items-center gap-2.5 h-9">
-          <div className="w-8 h-8 rounded-md bg-teal-600 flex items-center justify-center text-white shrink-0 shadow-2xs">
+          {/* Back Button */}
+          <button
+            onClick={handleBack}
+            title="Back"
+            className="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 hover:text-violet-700 text-slate-700 flex items-center justify-center shadow-xs transition cursor-pointer shrink-0"
+          >
+            <ArrowLeft size={17} />
+          </button>
+
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white shrink-0 shadow-md">
             <ShoppingBag size={18} />
           </div>
           <div className="flex flex-col justify-center leading-tight">
@@ -755,114 +874,28 @@ export default function PosPage() {
 
         {/* Right Actions & Operator */}
         <div className="flex items-center gap-2 h-9">
-          {/* Quick Actions Button & Dropdown */}
-          <div className="relative" ref={quickActionsRef}>
-            <button
-              type="button"
-              onClick={() => setShowQuickActions((v) => !v)}
-              className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-sm flex items-center gap-1.5 shadow-2xs px-3 py-1.5 transition cursor-pointer"
-            >
-              <Zap size={14} className="text-amber-300 fill-amber-300" />
-              <span>Quick Actions</span>
-              <ChevronDown size={13} className={cn("transition-transform duration-150", showQuickActions && "rotate-180")} />
-            </button>
-
-            {showQuickActions && (
-              <div className="absolute right-0 top-full mt-1.5 w-60 bg-white border border-slate-200 rounded-sm shadow-xl py-1.5 z-50 text-slate-800 animate-in fade-in zoom-in-95 duration-100">
-                <div className="px-3 py-1.5 border-b border-slate-100 text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center justify-between">
-                  <span>Quick Actions</span>
-                  <span className="text-teal-600 font-bold">Retail POS</span>
-                </div>
-                <div className="py-1">
-                  <button
-                    type="button"
-                    onClick={() => { setShowQuickActions(false); loadHolds(); setShowHolds(true); }}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <PauseCircle size={14} className="text-teal-600" />
-                      <span>Held Sales</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-gray-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">F4</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setShowQuickActions(false); setShowReturn(true); }}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <RotateCcw size={14} className="text-teal-600" />
-                      <span>Return / Refund</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-gray-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">F8</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setShowQuickActions(false); setShowVoid(true); }}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Trash2 size={14} className="text-rose-500" />
-                      <span>Void Transaction</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-gray-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">F9</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setShowQuickActions(false); setShowCustomerModal(true); }}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <User size={14} className="text-teal-600" />
-                      <span>Customer Lookup</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-gray-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">F3</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setShowQuickActions(false); setShowShortcutSettings(true); }}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Keyboard size={14} className="text-teal-600" />
-                      <span>Shortcuts Settings</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-gray-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">F1</span>
-                  </button>
-                </div>
-
-                <div className="border-t border-slate-100 py-1">
-                  <button
-                    type="button"
-                    onClick={() => { setShowQuickActions(false); window.open("/retail-pos/customer-display", "_blank"); }}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <ShoppingBag size={14} className="text-teal-600" />
-                      <span>Customer Display</span>
-                    </div>
-                    <span className="text-[10px] text-teal-700 font-bold">Launch</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setShowQuickActions(false); router.push("/retail-pos/price-checker"); }}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Scan size={14} className="text-teal-600" />
-                      <span>Price Checker</span>
-                    </div>
-                    <span className="text-[10px] text-teal-700 font-bold">Open</span>
-                  </button>
-                </div>
-              </div>
+          {/* Fullscreen Button */}
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen (F)"}
+            className="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 flex items-center justify-center shadow-xs transition cursor-pointer shrink-0"
+          >
+            {isFullscreen ? (
+              <Minimize size={16} className="text-violet-600" />
+            ) : (
+              <Maximize size={16} className="text-violet-600" />
             )}
-          </div>
+          </button>
+
+          {/* Quick Actions Button */}
+          <button
+            onClick={() => { loadHolds(); setShowHolds(true); }}
+            className="h-9 px-3 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-md hover:from-violet-700 hover:to-indigo-700 transition-all"
+          >
+            <Zap size={14} className="text-amber-300 fill-amber-300" />
+            <span>Quick Actions</span>
+            <ChevronDown size={13} />
+          </button>
 
           {/* Date & Time */}
           <div className="hidden lg:flex items-center gap-1.5 h-8 px-2.5 rounded-sm border border-slate-200 bg-slate-50 text-gray-600 shrink-0 shadow-2xs text-xs font-medium">
@@ -1490,12 +1523,12 @@ export default function PosPage() {
             value={customerSearch}
             onChange={(e) => setCustomerSearch(e.target.value)}
             placeholder="Search by name or phone…"
-            className="w-full h-9 px-3 border border-slate-300 rounded-sm text-xs focus:outline-none focus:ring-1 focus:ring-teal-600"
+            className="w-full h-9 px-3 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400"
           />
           <div className="space-y-1 max-h-64 overflow-y-auto">
             <button
               onClick={() => { setCustomerId(""); setShowCustomerModal(false); setCustomerSearch(""); }}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-sm border border-dashed border-slate-300 text-xs text-gray-600 hover:border-teal-400 hover:text-teal-600 transition cursor-pointer"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-slate-300 text-xs text-slate-600 hover:border-violet-400 hover:text-violet-600 transition cursor-pointer"
             >
               <User size={14} /> Walk-in Customer
             </button>
@@ -1503,7 +1536,7 @@ export default function PosPage() {
               <button
                 key={c.id}
                 onClick={() => { setCustomerId(c.id); setShowCustomerModal(false); setCustomerSearch(""); }}
-                className={cn("w-full flex items-center justify-between px-3 py-2 rounded-sm border text-xs transition cursor-pointer", customerId === c.id ? "border-teal-600 bg-teal-50 text-teal-800 font-bold" : "border-slate-200 hover:border-teal-300 hover:bg-slate-50")}
+                className={cn("w-full flex items-center justify-between px-3 py-2 rounded-lg border text-xs transition cursor-pointer", customerId === c.id ? "border-violet-500 bg-violet-50 text-violet-800 font-bold" : "border-slate-200 hover:border-violet-300 hover:bg-slate-50")}
               >
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center text-violet-700 text-xs font-bold">
