@@ -459,22 +459,20 @@ export default function CustomersPage() {
         actions={
           <div className="flex items-center gap-2 flex-wrap">
             <CustomButton
-              variant="outline"
+              variant="primary"
               size="sm"
               onClick={() => setIsGroupsModalOpen(true)}
-              className="border-sky-200/90 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] font-semibold shadow-2xs"
             >
-              <Layers size={14} className="text-[#0284C7]" />
+              <Layers size={14} />
               Groups ({groups.length})
             </CustomButton>
 
             <CustomButton
-              variant="outline"
+              variant="primary"
               size="sm"
               onClick={exportCSV}
-              className="border-sky-200/90 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] font-semibold shadow-2xs"
             >
-              <Download size={14} className="text-[#0284C7]" />
+              <Download size={14} />
               Export CSV
             </CustomButton>
 

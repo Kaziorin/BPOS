@@ -59,7 +59,7 @@ export default function CreateCustomerPage() {
   const labelClass = "block text-xs font-semibold text-[#0369A1]";
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5 pb-12">
+    <div className="w-full space-y-5 pb-12">
       <CustomBreadcrumb
         title="Add Customer"
         subtitle="Create a new customer record with credit limits and contact profile."
