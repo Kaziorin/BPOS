@@ -941,20 +941,45 @@ async def create_customer(
     if phone:
         dup = (await db.execute(text("SELECT id FROM customers WHERE tenantId=:t AND phone=:p"), {"t": tenantId, "p": phone})).first()
         if dup: return err("Customer with this phone already exists", 409)
+    import uuid
+    new_id = str(uuid.uuid4())
     await db.execute(
         text(
             "INSERT INTO customers (id, tenantId, name, phone, email, address, city, dateOfBirth, gender, taxRegNo, "
             "groupId, segmentation, creditLimit, creditPeriodDays, openingDue, currentDue, notes, createdBy) "
-            "VALUES (UUID(), :t, :n, :p, :e, :a, :c, :dob, :g, :tax, :gr, :seg, :cl, :cp, :od, :od, :notes, :u)"
+            "VALUES (:id, :t, :n, :p, :e, :a, :c, :dob, :g, :tax, :gr, :seg, :cl, :cp, :od, :od, :notes, :u)"
         ),
-        {"t": tenantId, "n": name, "p": phone, "e": body.get("email"), "a": body.get("address"), "c": body.get("city"),
-         "dob": body.get("dateOfBirth"), "g": body.get("gender"), "tax": body.get("taxRegNo"), "gr": body.get("groupId"),
-         "seg": body.get("segmentation", "NEW"), "cl": body.get("creditLimit", 0), "cp": body.get("creditPeriodDays"),
-         "od": body.get("openingDue", 0), "notes": body.get("notes"), "u": user.id},
+        {
+            "id": new_id,
+            "t": tenantId,
+            "n": name,
+            "p": phone,
+            "e": body.get("email"),
+            "a": body.get("address"),
+            "c": body.get("city"),
+            "dob": body.get("dateOfBirth"),
+            "g": body.get("gender"),
+            "tax": body.get("taxRegNo"),
+            "gr": body.get("groupId"),
+            "seg": body.get("segmentation", "RETAIL"),
+            "cl": body.get("creditLimit", 0),
+            "cp": body.get("creditPeriodDays", 0),
+            "od": body.get("openingDue", 0),
+            "notes": body.get("notes"),
+            "u": user.id
+        },
     )
     await db.commit()
     cache_mod.invalidate_namespace("customers", tenantId)
-    return ok({"created": True, "name": name}, 201)
+    
+    # Return in standard format without double-nesting
+    return ok({
+        "id": new_id,
+        "name": name,
+        "phone": phone,
+        "email": body.get("email"),
+        "address": body.get("address")
+    }, 201)
 
 
 @router.get("/api/v1/customers/{customerId}")

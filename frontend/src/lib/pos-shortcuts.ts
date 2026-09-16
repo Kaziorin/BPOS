@@ -78,7 +78,7 @@ export function matchesBinding(e: KeyboardEvent, binding: string): boolean {
   const parts = binding.split("+").map((p) => p.trim().toUpperCase());
   const key = parts[parts.length - 1];
   const mods = parts.slice(0, -1);
-  if (e.key.toUpperCase() !== key) return false;
+  if (!e.key || e.key.toUpperCase() !== key) return false;
   const hasCtrl = mods.includes("CTRL") || mods.includes("CONTROL");
   const hasAlt = mods.includes("ALT");
   const hasShift = mods.includes("SHIFT");
