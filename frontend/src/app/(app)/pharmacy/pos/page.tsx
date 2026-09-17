@@ -885,7 +885,9 @@ export default function PharmacyPOSPage() {
     <div
       className={cn(
         "flex h-screen w-full flex-col overflow-hidden p-2 gap-2 select-none",
-        darkMode ? "bg-slate-950" : "bg-[#f1f5f9]",
+        darkMode
+          ? "bg-gradient-to-br from-slate-950 via-[#01241e]/50 to-slate-950"
+          : "bg-gradient-to-br from-[#f1f5f9] via-[#e6f7f4]/60 to-[#f1f5f9]",
       )}
       style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
     >

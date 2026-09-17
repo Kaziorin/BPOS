@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import type { RegisterProduct } from "@/lib/catalog";
 import { cn } from "@/lib/cn";
+import { PharmacyWaveRibbons } from "./PharmacyWaveRibbons";
 import {
   CustomBadge,
   CustomButton,
@@ -221,18 +222,38 @@ export function PharmacyPOSLeftPanel({
 
   return (
     <div className={cn("flex w-full flex-col h-full overflow-hidden bg-white", darkMode && "bg-slate-900 text-slate-100")}>
-      {/* ═══ LEFT PANEL HEADER ═══ */}
-      <header className={cn("flex flex-none items-center gap-2.5 border-b px-4 py-2.5 transition", darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white")}>
-        <Link href="/pharmacy" className="flex shrink-0 items-center gap-2.5">
-          <MedCrossLogo size={40} />
-          <div className="leading-tight">
-            <h1 className="text-[17px] font-bold text-[#00897b] tracking-tight">BPOS</h1>
-            <p className={cn("text-[10px] font-semibold", darkMode ? "text-slate-400" : "text-slate-500")}>Pharmacy</p>
-          </div>
-        </Link>
+      {/* ═══ LEFT PANEL HEADER (Silky Teal Wave Gradient) ═══ */}
+      <header
+        className="relative z-20 flex flex-none items-center gap-2.5 px-4 py-2.5 select-none text-white shadow-xs"
+        style={{
+          background: darkMode
+            ? "linear-gradient(115deg, #022c22 0%, #004d40 28%, #00695c 55%, #0f766e 85%, #14b8a6 100%)"
+            : "linear-gradient(115deg, #004D40 0%, #00695C 26%, #00796B 48%, #00897B 70%, #14B8A6 90%, #5EEAD4 100%)",
+        }}
+      >
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <PharmacyWaveRibbons />
+        </div>
+
+        <div className="relative z-10 flex items-center gap-2.5 shrink-0">
+          <Link href="/pharmacy" className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-white/20 backdrop-blur-xs border border-white/30 text-white shadow-xs">
+              <MedCrossLogo size={28} />
+            </div>
+            <div className="leading-tight text-white">
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-[16px] font-black tracking-tight text-white drop-shadow-xs">BPOS</h1>
+                <span className="rounded-xs bg-white/25 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white border border-white/30">
+                  Rx POS
+                </span>
+              </div>
+              <p className="text-[10px] font-medium text-teal-100/90">Pharmacy Terminal</p>
+            </div>
+          </Link>
+        </div>
 
         {/* Search Bar */}
-        <div className="mx-1 flex-1 min-w-[220px]">
+        <div className="relative z-10 mx-1 flex-1 min-w-[200px]">
           <CustomInput
             ref={searchRef}
             type="text"
@@ -243,64 +264,92 @@ export function PharmacyPOSLeftPanel({
             leftIcon={<Search size={15} className="text-slate-400" />}
             rightIcon={<ScanLine size={15} className="text-slate-400 cursor-pointer hover:text-[#00897b]" />}
             rounded="sm"
-            darkMode={darkMode}
             themeColor="teal"
-            className="text-[12px] h-9 shadow-2xs font-normal"
+            className="text-[12px] h-9 shadow-xs font-medium bg-white text-slate-800 border-white/40 placeholder:text-slate-400 focus:bg-white"
           />
         </div>
 
         {/* Top Action Pills */}
-        <div className="hidden lg:flex items-center gap-1.5 shrink-0">
+        <div className="relative z-10 hidden lg:flex items-center gap-1.5 shrink-0">
           {[
-            { id: "scan-rx", label: "Scan Rx", Icon: Camera },
-            { id: "scan-barcode", label: "Scan Barcode", Icon: ScanLine },
-            { id: "quick-refill", label: "Quick Refill", Icon: RefreshCcw },
-            { id: "add-medicine", label: "Add Medicine", Icon: Plus },
-          ].map(({ id, label, Icon }) => (
-            <CustomButton
+            {
+              id: "scan-rx",
+              label: "Scan Rx",
+              Icon: Camera,
+              iconColor: "text-violet-600 dark:text-violet-400",
+            },
+            {
+              id: "scan-barcode",
+              label: "Scan Barcode",
+              Icon: ScanLine,
+              iconColor: "text-sky-600 dark:text-sky-400",
+            },
+            {
+              id: "quick-refill",
+              label: "Quick Refill",
+              Icon: RefreshCcw,
+              iconColor: "text-amber-600 dark:text-amber-400",
+            },
+          ].map(({ id, label, Icon, iconColor }) => (
+            <button
               key={id}
-              size="sm"
-              variant={darkMode ? "secondary" : "outline"}
-              themeColor="teal"
-              className="rounded-sm gap-1.5 text-[11.5px] font-semibold h-8"
+              type="button"
               onClick={() => onQuickAction?.(id)}
+              className={cn(
+                "inline-flex items-center gap-1.5 h-8.5 px-3 rounded-sm text-[11.5px] font-bold border transition-all duration-150 cursor-pointer select-none active:scale-95 shadow-xs",
+                darkMode
+                  ? "bg-slate-900/90 hover:bg-slate-800 border-slate-700 text-slate-100"
+                  : "bg-white hover:bg-slate-50 border-teal-100/90 text-slate-800 hover:text-[#00796b]"
+              )}
             >
-              <Icon size={13} />
-              {label}
-            </CustomButton>
+              <Icon size={13.5} className={iconColor} strokeWidth={2.2} />
+              <span>{label}</span>
+            </button>
           ))}
+
+          {/* Add Medicine (Primary High-Contrast Accent) */}
+          <button
+            type="button"
+            onClick={() => onQuickAction?.("add-medicine")}
+            className="inline-flex items-center gap-1.5 h-8.5 px-3.5 rounded-sm text-[11.5px] font-black border border-[#004d40] bg-[#004d40] hover:bg-[#00382e] text-white transition-all duration-150 cursor-pointer select-none active:scale-95 shadow-sm hover:brightness-105"
+          >
+            <Plus size={13.5} strokeWidth={3} className="text-teal-300" />
+            <span>Add Medicine</span>
+          </button>
         </div>
 
         {/* Vertical Divider */}
-        <div className={cn("h-6 w-px mx-1 shrink-0 hidden sm:block", darkMode ? "bg-slate-800" : "bg-slate-200")} />
+        <div className="relative z-10 h-6 w-px mx-0.5 shrink-0 hidden sm:block bg-white/30" />
 
         {/* Moon icon */}
-        <CustomButton
-          variant="ghost"
-          size="xs"
+        <button
+          type="button"
           onClick={onToggleDarkMode}
           className={cn(
-            "rounded-sm h-8 w-8 !p-0 flex items-center justify-center shrink-0",
-            darkMode ? "bg-slate-800 text-yellow-300 hover:bg-slate-700" : "text-slate-600 hover:bg-slate-100",
+            "relative z-10 rounded-sm h-8 w-8 !p-0 flex items-center justify-center shrink-0 border transition active:scale-95 cursor-pointer shadow-xs",
+            darkMode
+              ? "bg-slate-900/90 hover:bg-slate-800 border-slate-700 text-yellow-300"
+              : "bg-white hover:bg-slate-50 border-teal-100/90 text-slate-700 hover:text-[#00796b]"
           )}
           title="Toggle dark mode"
         >
-          <Moon size={16} />
-        </CustomButton>
+          <Moon size={15} />
+        </button>
 
         {/* Fullscreen toggle */}
-        <CustomButton
-          variant="ghost"
-          size="xs"
+        <button
+          type="button"
           onClick={onToggleFullscreen}
           className={cn(
-            "rounded-sm h-8 w-8 !p-0 flex items-center justify-center shrink-0",
-            darkMode ? "bg-slate-800 text-teal-300 hover:bg-slate-700" : "text-slate-600 hover:bg-slate-100",
+            "relative z-10 rounded-sm h-8 w-8 !p-0 flex items-center justify-center shrink-0 border transition active:scale-95 cursor-pointer shadow-xs",
+            darkMode
+              ? "bg-slate-900/90 hover:bg-slate-800 border-slate-700 text-teal-300"
+              : "bg-white hover:bg-slate-50 border-teal-100/90 text-slate-700 hover:text-[#00796b]"
           )}
           title={isFullscreen ? "Exit Fullscreen (F)" : "Enter Fullscreen (F)"}
         >
-          {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
-        </CustomButton>
+          {isFullscreen ? <Minimize size={15} /> : <Maximize size={15} />}
+        </button>
       </header>
 
       {/* ═══ MAIN LEFT BODY (Sidebar + Grid) ═══ */}
@@ -330,14 +379,17 @@ export function PharmacyPOSLeftPanel({
             {visibleCategories.map(({ id, label, Icon, iconBg, iconColor }) => {
               const active = category === id;
               return (
-                <CustomButton
+                <button
                   key={id}
-                  variant={active ? "primary" : "ghost"}
-                  themeColor={active ? "teal" : undefined}
+                  type="button"
                   onClick={() => setCategory(id)}
                   className={cn(
-                    "w-full !justify-start items-center gap-2.5 rounded-sm px-2.5 py-2 text-left text-[12px] font-bold transition h-auto",
-                    !active && (darkMode ? "text-slate-300 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100")
+                    "w-full flex items-center gap-2.5 rounded-sm px-2.5 py-2 text-left text-[12px] font-bold transition-all h-auto cursor-pointer select-none",
+                    active
+                      ? "bg-gradient-to-r from-[#00695c] to-[#00897b] text-white shadow-xs"
+                      : darkMode
+                        ? "text-slate-300 hover:bg-slate-800"
+                        : "text-slate-700 hover:bg-slate-100"
                   )}
                 >
                   <div
@@ -353,7 +405,7 @@ export function PharmacyPOSLeftPanel({
                     <Icon size={13} strokeWidth={2.2} />
                   </div>
                   <span className="truncate">{label}</span>
-                </CustomButton>
+                </button>
               );
             })}
           </div>
@@ -563,24 +615,34 @@ export function PharmacyPOSLeftPanel({
             )}
           </div>
 
-          {/* GENERIC ALTERNATIVES BANNER (Always present above bottom actions) */}
-          <div className={cn("flex-none px-3 pb-2 pt-1 transition", darkMode ? "bg-slate-950" : "bg-slate-50/50")}>
-            <div className={cn(
-              "flex items-center justify-between gap-3 rounded-sm border px-3.5 py-2 shadow-2xs transition",
-              darkMode ? "bg-slate-900 border-teal-900/80 text-slate-100" : "bg-[#f0faf8] border-[#cceee7] text-slate-800"
-            )}>
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-sm shadow-2xs", darkMode ? "bg-slate-800 text-teal-400" : "bg-white text-[#10b981]")}>
+          {/* GENERIC ALTERNATIVES BANNER (Silky Teal Wave Gradient) */}
+          <div className="flex-none px-3 pb-2 pt-1">
+            <div
+              className="relative flex items-center justify-between gap-3 rounded-sm p-3 shadow-md select-none overflow-hidden text-white"
+              style={{
+                background: darkMode
+                  ? "linear-gradient(115deg, #022c22 0%, #004d40 30%, #00695c 65%, #0f766e 100%)"
+                  : "linear-gradient(115deg, #004D40 0%, #00695C 26%, #00796B 48%, #00897B 70%, #14B8A6 90%, #5EEAD4 100%)",
+              }}
+            >
+              <PharmacyWaveRibbons />
+              <div className="relative z-10 flex items-center gap-2.5 min-w-0">
+                <div className="flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-sm bg-white/20 backdrop-blur-xs border border-white/30 text-white shadow-xs">
                   <Leaf size={16} />
                 </div>
-                <div className="min-w-0">
-                  <h4 className={cn("text-[12.5px] font-bold truncate leading-snug", darkMode ? "text-slate-100" : "text-slate-800")}>
-                    Generic Alternative Available
-                  </h4>
-                  <p className="text-[11px] font-medium text-slate-400 truncate leading-snug">
+                <div className="min-w-0 text-white">
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-[12.5px] font-bold truncate leading-snug text-white drop-shadow-xs">
+                      Generic Alternative Available
+                    </h4>
+                    <span className="hidden sm:inline-flex items-center rounded-xs bg-white/25 px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider text-white border border-white/30">
+                      Save Cost
+                    </span>
+                  </div>
+                  <p className="text-[11px] font-medium text-teal-100/90 truncate leading-snug">
                     {lastAddedProduct && genericAlternatives.length > 0 ? (
                       <>
-                        <span className="font-semibold text-[#00796b] dark:text-teal-400">{lastAddedProduct.name}</span>
+                        <span className="font-bold text-white underline decoration-teal-300">{lastAddedProduct.name}</span>
                         {" "}has {genericAlternatives.length} cheaper generic{genericAlternatives.length > 1 ? "s" : ""}
                       </>
                     ) : (
@@ -592,7 +654,7 @@ export function PharmacyPOSLeftPanel({
               <button
                 type="button"
                 onClick={onViewAlternatives}
-                className="inline-flex items-center gap-1.5 rounded-sm bg-[#00796b] hover:bg-[#00695c] px-3.5 py-1.5 text-[11.5px] font-semibold text-white transition shadow-2xs shrink-0 cursor-pointer"
+                className="relative z-10 inline-flex items-center gap-1.5 rounded-sm bg-white hover:bg-teal-50 px-3.5 py-1.5 text-[11.5px] font-bold text-[#00695c] transition-all hover:brightness-105 active:scale-95 shadow-md shrink-0 cursor-pointer"
               >
                 <span>View Alternatives</span>
                 <ArrowRight size={13} />
