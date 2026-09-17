@@ -10,7 +10,6 @@ import {
   Printer,
   X,
   CheckCircle2,
-  AlertTriangle,
   RotateCcw,
   Building2,
   Phone,
@@ -39,6 +38,7 @@ import {
   type CustomTableColumn,
   CustomModal,
   CustomDropdownSelect,
+  CustomInput,
 } from "@/components/custom";
 
 interface Payment {
@@ -145,8 +145,8 @@ export default function PaymentsPage() {
   const [filterMethod, setFilterMethod] = useState("");
   const [filterBranch, setFilterBranch] = useState("");
   const [dateRange, setDateRange] = useState("all");
-  const [sortBy, setSortBy] = useState("createdAt");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [sortBy] = useState("createdAt");
+  const [sortDir] = useState<"asc" | "desc">("desc");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
   // Selection & Batch
@@ -154,7 +154,7 @@ export default function PaymentsPage() {
 
   // Pagination
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const [limit] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
 
@@ -741,450 +741,462 @@ export default function PaymentsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50/50 pb-20">
-      {/* 1. TOP BREADCRUMB WITH ACTIONS */}
-      <div className="w-full px-4 sm:px-8 pt-4 sm:pt-6">
-        <CustomBreadcrumb
-          title="Payment & Collection Hub"
-          subtitle="Accounts receivable receipts · Multi-channel collections · Bulk FIFO allocation & refunds"
-          breadcrumbs={[
-            { label: "Dashboard", href: "/" },
-            { label: "Finance", href: "/invoices" },
-            { label: "Payments" },
-          ]}
-          icon={<Wallet size={16} className="text-[#0284C7]" />}
-          actions={
-            <div className="flex flex-wrap items-center gap-2">
-              <Link href="/invoices">
-                <CustomButton variant="outline" size="sm" leftIcon={FileText}>
-                  Invoices Engine
-                </CustomButton>
-              </Link>
-              <CustomButton
-                variant="secondary"
-                size="sm"
-                leftIcon={CreditCard}
-                onClick={() => setShowAllocateModal(true)}
-              >
-                Bulk Settle
-              </CustomButton>
+    <div className="space-y-4 p-4 sm:p-6 bg-background min-h-screen">
+      {/* 1. TOP BREADCRUMB WITH 3 DISTINCT COLOR ACTIONS */}
+      <CustomBreadcrumb
+        title="Payment & Collection Hub"
+        breadcrumbs={[
+          { label: "Finance", href: "/invoices" },
+          { label: "Payments" },
+        ]}
+        icon={<Wallet size={16} className="text-[#0284C7]" />}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Button 1: Distinct Indigo Gradient */}
+            <Link href="/invoices">
               <CustomButton
                 variant="primary"
+                themeColor="indigo"
                 size="sm"
-                leftIcon={Plus}
-                onClick={() => setShowRecordModal(true)}
+                leftIcon={FileText}
               >
-                Record Payment
+                Invoices Engine
               </CustomButton>
-            </div>
-          }
+            </Link>
+
+            {/* Button 2: Light Sky Secondary */}
+            <CustomButton
+              variant="secondary"
+              size="sm"
+              leftIcon={CreditCard}
+              onClick={() => setShowAllocateModal(true)}
+            >
+              Bulk Settle
+            </CustomButton>
+
+            {/* Button 3: Theme Primary Sky Gradient */}
+            <CustomButton
+              variant="primary"
+              themeColor="primary"
+              size="sm"
+              leftIcon={Plus}
+              onClick={() => setShowRecordModal(true)}
+            >
+              Record Payment
+            </CustomButton>
+          </div>
+        }
+      />
+
+      {/* 2. EXECUTIVE KPI STAT CARDS */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <CustomStatCard
+          label="Total Collected"
+          value={statsLoading ? "—" : `৳${Number(stats?.totalAmount || 0).toLocaleString()}`}
+          icon={CheckCircle2}
+          tone="green"
+          subtitle={`${stats?.totalCount || payments.length} transactions`}
+        />
+        <CustomStatCard
+          label="Today's Inflow"
+          value={statsLoading ? "—" : `৳${Number(stats?.todayAmount || 0).toLocaleString()}`}
+          icon={Clock}
+          tone="primary"
+          subtitle={`${stats?.todayCount || 0} today`}
+        />
+        <CustomStatCard
+          label="Cash Drawer"
+          value={statsLoading ? "—" : `৳${Number(stats?.cashAmount || 0).toLocaleString()}`}
+          icon={Banknote}
+          tone="blue"
+          subtitle="Physical currency"
+        />
+        <CustomStatCard
+          label="Mobile MFS"
+          value={statsLoading ? "—" : `৳${Number(stats?.mfsAmount || 0).toLocaleString()}`}
+          icon={Wallet}
+          tone="violet"
+          subtitle="bKash · Nagad · Rocket"
+        />
+        <CustomStatCard
+          label="Cards / POS"
+          value={statsLoading ? "—" : `৳${Number(stats?.cardAmount || 0).toLocaleString()}`}
+          icon={CreditCard}
+          tone="primary"
+          subtitle="Visa · Master · POS"
+        />
+        <CustomStatCard
+          label="Refunds"
+          value={statsLoading ? "—" : `৳${Number(stats?.refundAmount || 0).toLocaleString()}`}
+          icon={RotateCcw}
+          tone="red"
+          subtitle={`${stats?.refundCount || 0} reversed`}
         />
       </div>
 
-      <div className="w-full px-4 sm:px-8 pt-5 space-y-4">
-        {/* 2. EXECUTIVE KPI STAT CARDS */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <CustomStatCard
-            label="Total Collected"
-            value={statsLoading ? "—" : `৳${Number(stats?.totalAmount || 0).toLocaleString()}`}
-            icon={CheckCircle2}
-            tone="green"
-            subtitle={`${stats?.totalCount || payments.length} transactions`}
-          />
-          <CustomStatCard
-            label="Today's Inflow"
-            value={statsLoading ? "—" : `৳${Number(stats?.todayAmount || 0).toLocaleString()}`}
-            icon={Clock}
-            tone="primary"
-            subtitle={`${stats?.todayCount || 0} today`}
-          />
-          <CustomStatCard
-            label="Cash Drawer"
-            value={statsLoading ? "—" : `৳${Number(stats?.cashAmount || 0).toLocaleString()}`}
-            icon={Banknote}
-            tone="blue"
-            subtitle="Physical currency"
-          />
-          <CustomStatCard
-            label="Mobile MFS"
-            value={statsLoading ? "—" : `৳${Number(stats?.mfsAmount || 0).toLocaleString()}`}
-            icon={Wallet}
-            tone="violet"
-            subtitle="bKash · Nagad · Rocket"
-          />
-          <CustomStatCard
-            label="Cards / POS"
-            value={statsLoading ? "—" : `৳${Number(stats?.cardAmount || 0).toLocaleString()}`}
-            icon={CreditCard}
-            tone="primary"
-            subtitle="Visa · Master · POS"
-          />
-          <CustomStatCard
-            label="Refunds"
-            value={statsLoading ? "—" : `৳${Number(stats?.refundAmount || 0).toLocaleString()}`}
-            icon={RotateCcw}
-            tone="red"
-            subtitle={`${stats?.refundCount || 0} reversed`}
-          />
+      {/* 3. CHANNEL BREAKDOWN INTELLIGENCE BAR */}
+      {stats?.byMethod && stats.byMethod.length > 0 && (
+        <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">
+                Payment Channels & Settlement Share
+              </h3>
+              <p className="text-[11px] text-gray-500 font-medium">Live breakdown of received revenues across payment gateways</p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {stats.byMethod.map((bm) => {
+                const cfg = METHOD_CONFIG[bm.method] || METHOD_CONFIG.CASH;
+                const Icon = cfg.icon;
+                const pct = stats.totalAmount > 0 ? Math.round((bm.totalAmount / stats.totalAmount) * 100) : 0;
+                return (
+                  <div
+                    key={bm.method}
+                    className={`flex items-center gap-2 rounded-sm px-3 py-1.5 border border-sky-100/90 ${cfg.bg}`}
+                  >
+                    <Icon size={14} className={cfg.text} />
+                    <div className="flex items-baseline gap-1.5">
+                      <span className={`text-xs font-bold ${cfg.text}`}>{cfg.label}:</span>
+                      <span className="font-black text-gray-600 text-xs">৳{bm.totalAmount.toLocaleString()}</span>
+                      <span className="text-[10px] font-bold text-gray-500">({pct}%)</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
+      )}
 
-        {/* 3. CHANNEL BREAKDOWN INTELLIGENCE BAR */}
-        {stats?.byMethod && stats.byMethod.length > 0 && (
-          <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">
-                  Payment Channels & Settlement Share
-                </h3>
-                <p className="text-[11px] text-gray-500 font-medium">Live breakdown of received revenues across payment gateways</p>
+      {/* 4. BATCH OPERATIONS FLOATING BAR */}
+      {selectedIds.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-3 text-xs text-white shadow-md animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2">
+            <CheckSquare size={16} className="text-white" />
+            <span className="font-bold">{selectedIds.length} payment records selected</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleExportCSV}
+              className="flex items-center gap-1 rounded-sm bg-white/20 px-3 py-1.5 font-bold hover:bg-white/30 transition cursor-pointer text-white"
+            >
+              <Download size={13} />
+              Export Selected
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              className="rounded-sm px-2.5 py-1.5 text-sky-100 hover:text-white transition cursor-pointer font-semibold"
+            >
+              Clear Selection
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 5. QUICK STATUS TABS (LEFT) & VIEW / EXPORT BUTTONS (RIGHT) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-1 rounded-sm bg-sky-50/40 border border-sky-100/90 shadow-2xs">
+        {/* Tab sits on left, takes only its needed width */}
+        <CustomTabs
+          tabs={[
+            { id: "ALL", label: "All Receipts" },
+            { id: "COMPLETED", label: "Settled" },
+            { id: "CASH", label: "Cash" },
+            { id: "MFS", label: "Mobile MFS" },
+            { id: "CARD", label: "Card / POS" },
+            { id: "BANK", label: "Bank Transfer" },
+            { id: "REFUNDED", label: "Refunds / Void" },
+          ]}
+          activeTab={activeTab}
+          onChange={(tabId) => {
+            setActiveTab(tabId);
+            setPage(1);
+          }}
+          themeColor="primary"
+          className="w-auto bg-transparent border-0 shadow-none p-0"
+        />
+
+        {/* Action Controls aligned strictly on the right */}
+        <div className="flex items-center gap-2 pr-1 shrink-0">
+          <div className="flex items-center rounded-sm border border-sky-200/80 bg-white p-0.5 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setViewMode("table")}
+              className={`rounded-sm p-1.5 transition cursor-pointer ${
+                viewMode === "table"
+                  ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
+                  : "text-slate-400 hover:text-gray-600"
+              }`}
+              title="Table View"
+            >
+              <LayoutList size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("grid")}
+              className={`rounded-sm p-1.5 transition cursor-pointer ${
+                viewMode === "grid"
+                  ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
+                  : "text-slate-400 hover:text-gray-600"
+              }`}
+              title="Grid Card View"
+            >
+              <LayoutGrid size={14} />
+            </button>
+          </div>
+
+          <CustomButton
+            variant="outline"
+            size="xs"
+            leftIcon={Download}
+            onClick={handleExportCSV}
+            title="Export filtered records to CSV"
+          >
+            Export CSV
+          </CustomButton>
+        </div>
+      </div>
+
+      {/* 6. SEARCH & SELECT FILTERS ROW (EQUAL WIDTH COLUMNS) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* Custom Search Input */}
+        <CustomInput
+          leftIcon={<Search size={14} />}
+          rightIcon={
+            searchQuery ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setPage(1);
+                }}
+                className="text-slate-400 hover:text-gray-600 cursor-pointer"
+              >
+                <X size={14} />
+              </button>
+            ) : null
+          }
+          placeholder="Search receipt #, customer, phone, invoice..."
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setPage(1);
+          }}
+          containerClassName="w-full"
+          className="h-[38px] text-xs text-gray-600 placeholder:text-slate-400 shadow-2xs"
+        />
+
+        {/* Method Filter with equal width */}
+        <CustomDropdownSelect
+          options={methodFilterOptions}
+          value={filterMethod}
+          onChange={(val) => {
+            setFilterMethod(val);
+            setPage(1);
+          }}
+          placeholder="All Payment Methods"
+          containerClassName="w-full"
+          className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
+        />
+
+        {/* Branch Filter with equal width */}
+        <CustomDropdownSelect
+          options={branchFilterOptions}
+          value={filterBranch}
+          onChange={(val) => {
+            setFilterBranch(val);
+            setPage(1);
+          }}
+          placeholder="All Outlets / Branches"
+          containerClassName="w-full"
+          className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
+        />
+
+        {/* Date Range Filter with equal width */}
+        <CustomDropdownSelect
+          options={dateRangeOptions}
+          value={dateRange}
+          onChange={(val) => {
+            setDateRange(val);
+            setPage(1);
+          }}
+          placeholder="All Dates"
+          containerClassName="w-full"
+          className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
+        />
+      </div>
+
+      {/* 7. TABLE OR GRID VIEW */}
+      {viewMode === "table" ? (
+        <CustomTable<Payment>
+          columns={tableColumns}
+          data={payments}
+          loading={loading}
+          rowKey="id"
+          title="Customer Receipts & Payment Ledger"
+          subtitle="Consolidated real-time accounts receivable records"
+          icon={<Receipt size={16} />}
+          badge={
+            <span className="rounded-sm bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-[#0284C7] border border-sky-200/80">
+              {totalRecords} Records
+            </span>
+          }
+          showPagination={true}
+          totalItems={totalRecords}
+          currentPage={page}
+          pageSize={limit}
+          onPageChange={(p) => setPage(p)}
+          onRowClick={(row) => setSelectedPaymentForDrawer(row)}
+          emptyMessage="No payment records found matching your filters."
+        />
+      ) : (
+        /* Grid Card View */
+        <div>
+          {loading ? (
+            <div className="flex h-64 flex-col items-center justify-center rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-sky-200 border-t-[#0284C7]" />
+              <p className="mt-3 text-xs font-semibold text-gray-500">Loading payment records...</p>
+            </div>
+          ) : payments.length === 0 ? (
+            <div className="flex h-72 flex-col items-center justify-center rounded-sm border border-dashed border-sky-200 bg-white p-8 text-center shadow-2xs">
+              <div className="rounded-sm bg-sky-50 p-4 text-[#0284C7] border border-sky-100">
+                <Receipt size={36} />
               </div>
+              <h3 className="mt-3 text-sm font-bold text-gray-600">No payment records found</h3>
+              <p className="mt-1 max-w-sm text-xs text-gray-500 font-medium">
+                No payments matched your criteria. Record a customer payment or adjust your search filters.
+              </p>
+              <div className="mt-4">
+                <CustomButton
+                  variant="primary"
+                  size="sm"
+                  leftIcon={Plus}
+                  onClick={() => setShowRecordModal(true)}
+                >
+                  Record First Payment
+                </CustomButton>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                {payments.map((p) => {
+                  const methodCfg = METHOD_CONFIG[p.method] || METHOD_CONFIG.CASH;
+                  const MethodIcon = methodCfg.icon;
+                  const statusCfg = STATUS_CONFIG[p.status] || STATUS_CONFIG.COMPLETED;
+                  const isRefunded = p.status === "REFUNDED";
 
-              <div className="flex flex-wrap items-center gap-2">
-                {stats.byMethod.map((bm) => {
-                  const cfg = METHOD_CONFIG[bm.method] || METHOD_CONFIG.CASH;
-                  const Icon = cfg.icon;
-                  const pct = stats.totalAmount > 0 ? Math.round((bm.totalAmount / stats.totalAmount) * 100) : 0;
                   return (
                     <div
-                      key={bm.method}
-                      className={`flex items-center gap-2 rounded-sm px-3 py-1.5 border border-sky-100/90 ${cfg.bg}`}
+                      key={p.id}
+                      className="group flex flex-col justify-between rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs transition hover:border-[#0284C7] hover:shadow-md"
                     >
-                      <Icon size={14} className={cfg.text} />
-                      <div className="flex items-baseline gap-1.5">
-                        <span className={`text-xs font-bold ${cfg.text}`}>{cfg.label}:</span>
-                        <span className="font-black text-gray-600 text-xs">৳{bm.totalAmount.toLocaleString()}</span>
-                        <span className="text-[10px] font-bold text-gray-500">({pct}%)</span>
+                      <div>
+                        {/* Top row */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="font-mono text-sm font-bold text-[#0369A1]">
+                              {p.reference || `PAY-${p.id.slice(0, 8)}`}
+                            </div>
+                            <span
+                              className={`mt-1 inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-sky-100/80`}
+                            >
+                              <MethodIcon size={12} />
+                              {methodCfg.label}
+                            </span>
+                          </div>
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
+                          >
+                            <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
+                            {statusCfg.label}
+                          </span>
+                        </div>
+
+                        {/* Customer Info */}
+                        <div className="mt-3.5 rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
+                          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Customer</p>
+                          <p className="text-xs font-bold text-gray-600 mt-0.5">{p.customer?.name || "Walk-in Customer"}</p>
+                          {p.customer?.phone && <p className="text-[11px] text-gray-500">{p.customer.phone}</p>}
+                        </div>
+
+                        {/* Financial Amount */}
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="text-xs font-medium text-gray-500">Collected Amount</span>
+                          <span
+                            className={`text-base font-black tabular-nums ${
+                              isRefunded ? "text-rose-600 line-through" : "text-emerald-700"
+                            }`}
+                          >
+                            ৳{Number(p.amount).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Bottom Action Footer */}
+                      <div className="mt-4 flex items-center justify-between border-t border-sky-100/70 pt-2.5 text-xs">
+                        <span className="text-[11px] text-gray-500">
+                          {new Date(p.createdAt).toLocaleDateString()}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <CustomButton
+                            size="xs"
+                            variant="outline"
+                            leftIcon={Eye}
+                            onClick={() => setSelectedPaymentForDrawer(p)}
+                          >
+                            Receipt
+                          </CustomButton>
+                          {!isRefunded && (
+                            <CustomButton
+                              size="xs"
+                              variant="danger"
+                              leftIcon={RotateCcw}
+                              onClick={() => {
+                                setSelectedPaymentForRefund(p);
+                                setShowRefundModal(true);
+                              }}
+                            >
+                              Refund
+                            </CustomButton>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* 4. BATCH OPERATIONS FLOATING BAR */}
-        {selectedIds.length > 0 && (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-3 text-xs text-white shadow-md animate-in fade-in slide-in-from-top-2">
-            <div className="flex items-center gap-2">
-              <CheckSquare size={16} className="text-white" />
-              <span className="font-bold">{selectedIds.length} payment records selected</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleExportCSV}
-                className="flex items-center gap-1 rounded-sm bg-white/20 px-3 py-1.5 font-bold hover:bg-white/30 transition cursor-pointer text-white"
-              >
-                <Download size={13} />
-                Export Selected
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedIds([])}
-                className="rounded-sm px-2.5 py-1.5 text-sky-100 hover:text-white transition cursor-pointer font-semibold"
-              >
-                Clear Selection
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* 5. QUICK STATUS TABS & TOOLBAR CARD */}
-        <div className="rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-100/70 pb-3">
-            <CustomTabs
-              tabs={[
-                { id: "ALL", label: "All Receipts" },
-                { id: "COMPLETED", label: "Settled" },
-                { id: "CASH", label: "Cash" },
-                { id: "MFS", label: "Mobile MFS" },
-                { id: "CARD", label: "Card / POS" },
-                { id: "BANK", label: "Bank Transfer" },
-                { id: "REFUNDED", label: "Refunds / Void" },
-              ]}
-              activeTab={activeTab}
-              onChange={(tabId) => {
-                setActiveTab(tabId);
-                setPage(1);
-              }}
-              themeColor="primary"
-            />
-
-            <div className="flex items-center gap-2">
-              <div className="flex items-center rounded-sm border border-sky-100/90 bg-slate-50 p-0.5">
-                <button
-                  type="button"
-                  onClick={() => setViewMode("table")}
-                  className={`rounded-sm p-1.5 transition cursor-pointer ${
-                    viewMode === "table"
-                      ? "bg-white text-[#0284C7] shadow-2xs font-bold"
-                      : "text-slate-400 hover:text-gray-600"
-                  }`}
-                  title="Table View"
-                >
-                  <LayoutList size={15} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode("grid")}
-                  className={`rounded-sm p-1.5 transition cursor-pointer ${
-                    viewMode === "grid"
-                      ? "bg-white text-[#0284C7] shadow-2xs font-bold"
-                      : "text-slate-400 hover:text-gray-600"
-                  }`}
-                  title="Grid Card View"
-                >
-                  <LayoutGrid size={15} />
-                </button>
-              </div>
-
-              <CustomButton
-                variant="outline"
-                size="xs"
-                leftIcon={Download}
-                onClick={handleExportCSV}
-                title="Export filtered records to CSV"
-              >
-                Export CSV
-              </CustomButton>
-            </div>
-          </div>
-
-          {/* Search and Dropdown Filter Row */}
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Search Input */}
-            <div className="relative">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search receipt #, customer, phone, invoice..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 py-1.5 pl-9 pr-8 text-xs font-medium text-gray-600 placeholder-slate-400 transition focus:border-[#0284C7] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-gray-600"
-                >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-
-            {/* Payment Method Filter */}
-            <CustomDropdownSelect
-              options={methodFilterOptions}
-              value={filterMethod}
-              onChange={(val) => {
-                setFilterMethod(val);
-                setPage(1);
-              }}
-              placeholder="All Payment Methods"
-              className="text-xs py-1.5 font-medium text-gray-600"
-            />
-
-            {/* Branch Filter */}
-            <CustomDropdownSelect
-              options={branchFilterOptions}
-              value={filterBranch}
-              onChange={(val) => {
-                setFilterBranch(val);
-                setPage(1);
-              }}
-              placeholder="All Outlets / Branches"
-              className="text-xs py-1.5 font-medium text-gray-600"
-            />
-
-            {/* Date Range Filter */}
-            <CustomDropdownSelect
-              options={dateRangeOptions}
-              value={dateRange}
-              onChange={(val) => {
-                setDateRange(val);
-                setPage(1);
-              }}
-              placeholder="All Dates"
-              className="text-xs py-1.5 font-medium text-gray-600"
-            />
-          </div>
-        </div>
-
-        {/* 6. TABLE OR GRID VIEW */}
-        {viewMode === "table" ? (
-          <CustomTable<Payment>
-            columns={tableColumns}
-            data={payments}
-            loading={loading}
-            rowKey="id"
-            title="Customer Receipts & Payment Ledger"
-            subtitle="Consolidated real-time accounts receivable records"
-            icon={<Receipt size={16} />}
-            badge={
-              <span className="rounded-sm bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-[#0284C7] border border-sky-200/80">
-                {totalRecords} Records
-              </span>
-            }
-            showPagination={true}
-            totalItems={totalRecords}
-            currentPage={page}
-            pageSize={limit}
-            onPageChange={(p) => setPage(p)}
-            onRowClick={(row) => setSelectedPaymentForDrawer(row)}
-            emptyMessage="No payment records found matching your filters."
-          />
-        ) : (
-          /* Grid Card View */
-          <div>
-            {loading ? (
-              <div className="flex h-64 flex-col items-center justify-center rounded-sm border border-sky-100/90 bg-white shadow-2xs">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-sky-200 border-t-[#0284C7]" />
-                <p className="mt-3 text-xs font-semibold text-gray-500">Loading payment records...</p>
-              </div>
-            ) : payments.length === 0 ? (
-              <div className="flex h-72 flex-col items-center justify-center rounded-sm border border-dashed border-sky-200 bg-white p-8 text-center shadow-2xs">
-                <div className="rounded-sm bg-sky-50 p-4 text-[#0284C7] border border-sky-100">
-                  <Receipt size={36} />
-                </div>
-                <h3 className="mt-3 text-sm font-bold text-gray-600">No payment records found</h3>
-                <p className="mt-1 max-w-sm text-xs text-gray-500 font-medium">
-                  No payments matched your criteria. Record a customer payment or adjust your search filters.
-                </p>
-                <div className="mt-4">
+              {/* Pagination footer for Grid */}
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-4 py-2.5 text-xs text-gray-600 shadow-2xs font-medium">
+                <span>
+                  Showing Page {page} of {totalPages} ({totalRecords} total records)
+                </span>
+                <div className="flex items-center gap-1.5">
                   <CustomButton
-                    variant="primary"
-                    size="sm"
-                    leftIcon={Plus}
-                    onClick={() => setShowRecordModal(true)}
+                    variant="outline"
+                    size="xs"
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
                   >
-                    Record First Payment
+                    Previous
+                  </CustomButton>
+                  <CustomButton
+                    variant="outline"
+                    size="xs"
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  >
+                    Next
                   </CustomButton>
                 </div>
               </div>
-            ) : (
-              <div>
-                <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                  {payments.map((p) => {
-                    const methodCfg = METHOD_CONFIG[p.method] || METHOD_CONFIG.CASH;
-                    const MethodIcon = methodCfg.icon;
-                    const statusCfg = STATUS_CONFIG[p.status] || STATUS_CONFIG.COMPLETED;
-                    const isRefunded = p.status === "REFUNDED";
-
-                    return (
-                      <div
-                        key={p.id}
-                        className="group flex flex-col justify-between rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs transition hover:border-[#0284C7] hover:shadow-md"
-                      >
-                        <div>
-                          {/* Top row */}
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <div className="font-mono text-sm font-bold text-[#0369A1]">
-                                {p.reference || `PAY-${p.id.slice(0, 8)}`}
-                              </div>
-                              <span
-                                className={`mt-1 inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-sky-100/80`}
-                              >
-                                <MethodIcon size={12} />
-                                {methodCfg.label}
-                              </span>
-                            </div>
-                            <span
-                              className={`inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
-                            >
-                              <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
-                              {statusCfg.label}
-                            </span>
-                          </div>
-
-                          {/* Customer Info */}
-                          <div className="mt-3.5 rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
-                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Customer</p>
-                            <p className="text-xs font-bold text-gray-600 mt-0.5">{p.customer?.name || "Walk-in Customer"}</p>
-                            {p.customer?.phone && <p className="text-[11px] text-gray-500">{p.customer.phone}</p>}
-                          </div>
-
-                          {/* Financial Amount */}
-                          <div className="mt-3 flex items-center justify-between">
-                            <span className="text-xs font-medium text-gray-500">Collected Amount</span>
-                            <span
-                              className={`text-base font-black tabular-nums ${
-                                isRefunded ? "text-rose-600 line-through" : "text-emerald-700"
-                              }`}
-                            >
-                              ৳{Number(p.amount).toLocaleString()}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Bottom Action Footer */}
-                        <div className="mt-4 flex items-center justify-between border-t border-sky-100/70 pt-2.5 text-xs">
-                          <span className="text-[11px] text-gray-500">
-                            {new Date(p.createdAt).toLocaleDateString()}
-                          </span>
-                          <div className="flex items-center gap-1.5">
-                            <CustomButton
-                              size="xs"
-                              variant="outline"
-                              leftIcon={Eye}
-                              onClick={() => setSelectedPaymentForDrawer(p)}
-                            >
-                              Receipt
-                            </CustomButton>
-                            {!isRefunded && (
-                              <CustomButton
-                                size="xs"
-                                variant="danger"
-                                leftIcon={RotateCcw}
-                                onClick={() => {
-                                  setSelectedPaymentForRefund(p);
-                                  setShowRefundModal(true);
-                                }}
-                              >
-                                Refund
-                              </CustomButton>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Pagination footer for Grid */}
-                <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-4 py-2.5 text-xs text-gray-600 shadow-2xs font-medium">
-                  <span>
-                    Showing Page {page} of {totalPages} ({totalRecords} total records)
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <CustomButton
-                      variant="outline"
-                      size="xs"
-                      disabled={page <= 1}
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    >
-                      Previous
-                    </CustomButton>
-                    <CustomButton
-                      variant="outline"
-                      size="xs"
-                      disabled={page >= totalPages}
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    >
-                      Next
-                    </CustomButton>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ========================================================= */}
       {/* 1. RECORD PAYMENT MODAL (Spacious 2xl, Portal Selects)    */}
