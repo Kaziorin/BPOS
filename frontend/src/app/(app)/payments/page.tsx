@@ -741,7 +741,7 @@ export default function PaymentsPage() {
   ];
 
   return (
-    <div className="space-y-4 p-4 sm:p-6 bg-background min-h-screen">
+    <div className="w-full space-y-4">
       {/* 1. TOP BREADCRUMB WITH 3 DISTINCT COLOR ACTIONS */}
       <CustomBreadcrumb
         title="Payment & Collection Hub"
@@ -897,7 +897,7 @@ export default function PaymentsPage() {
       )}
 
       {/* 5. QUICK STATUS TABS (LEFT) & VIEW / EXPORT BUTTONS (RIGHT) */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-1 rounded-sm bg-sky-50/40 border border-sky-100/90 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Tab sits on left, takes only its needed width */}
         <CustomTabs
           tabs={[
@@ -915,7 +915,7 @@ export default function PaymentsPage() {
             setPage(1);
           }}
           themeColor="primary"
-          className="w-auto bg-transparent border-0 shadow-none p-0"
+          className="w-auto border border-sky-100/90 bg-white shadow-2xs"
         />
 
         {/* Action Controls aligned strictly on the right */}
