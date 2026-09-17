@@ -100,55 +100,55 @@ interface SalonService {
 
 const STATUS_CONFIG: Record<
   string,
-  { label: string; bg: string; text: string; border: string; icon: React.ComponentType<{ size?: number; className?: string }> }
+  { label: string; bg: string; text: string; dot: string; icon: React.ComponentType<{ size?: number; className?: string }> }
 > = {
   BOOKED: {
     label: "Booked",
-    bg: "bg-sky-50",
+    bg: "bg-sky-50 border-sky-200/80",
     text: "text-[#0284C7]",
-    border: "border-sky-200/80",
+    dot: "bg-[#0284C7]",
     icon: Calendar,
   },
   CONFIRMED: {
     label: "Confirmed",
-    bg: "bg-teal-50",
+    bg: "bg-teal-50 border-teal-200",
     text: "text-teal-700",
-    border: "border-teal-200",
+    dot: "bg-teal-500",
     icon: CalendarCheck,
   },
   CHECKED_IN: {
     label: "Checked In",
-    bg: "bg-amber-50",
+    bg: "bg-amber-50 border-amber-200",
     text: "text-amber-700",
-    border: "border-amber-200",
+    dot: "bg-amber-500",
     icon: UserCheck,
   },
   IN_SERVICE: {
     label: "In Service",
-    bg: "bg-purple-50",
+    bg: "bg-purple-50 border-purple-200",
     text: "text-purple-700",
-    border: "border-purple-200",
+    dot: "bg-purple-500",
     icon: Clock,
   },
   COMPLETED: {
     label: "Completed",
-    bg: "bg-emerald-50",
+    bg: "bg-emerald-50 border-emerald-200",
     text: "text-emerald-700",
-    border: "border-emerald-200",
+    dot: "bg-emerald-500",
     icon: CheckCircle2,
   },
   NO_SHOW: {
     label: "No Show",
-    bg: "bg-slate-100",
+    bg: "bg-slate-100 border-slate-200",
     text: "text-slate-600",
-    border: "border-slate-200",
+    dot: "bg-slate-400",
     icon: UserX,
   },
   CANCELLED: {
     label: "Cancelled",
-    bg: "bg-rose-50",
+    bg: "bg-rose-50 border-rose-200",
     text: "text-rose-700",
-    border: "border-rose-200",
+    dot: "bg-rose-500",
     icon: XCircle,
   },
 };
@@ -170,8 +170,8 @@ function TypeBadge({ type }: { type: string }) {
   };
 
   return (
-    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm text-xs font-semibold bg-sky-50 text-[#0284C7] border border-sky-200/80">
-      <Icon size={12} className="text-[#0284C7]" />
+    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500">
+      <Icon size={11} className="text-[#0284C7]" />
       {labels[type] || type}
     </span>
   );
@@ -180,18 +180,17 @@ function TypeBadge({ type }: { type: string }) {
 function StatusPill({ status }: { status: string }) {
   const cfg = STATUS_CONFIG[status] || {
     label: status,
-    bg: "bg-slate-50",
+    bg: "bg-slate-50 border-slate-200",
     text: "text-slate-700",
-    border: "border-slate-200",
+    dot: "bg-slate-400",
     icon: Calendar,
   };
-  const Icon = cfg.icon;
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-sm text-xs font-semibold border ${cfg.bg} ${cfg.text} ${cfg.border}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[11px] font-bold border ${cfg.bg} ${cfg.text}`}
     >
-      <Icon size={12} />
+      <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
       {cfg.label}
     </span>
   );
@@ -516,7 +515,6 @@ export default function AppointmentsPage() {
       <CustomBreadcrumb
         title="Appointments & Bookings"
         breadcrumbs={[
-          { label: "Home", href: "/dashboard" },
           { label: "Operations", href: "/dashboard" },
           { label: "Appointments" },
         ]}
@@ -718,219 +716,241 @@ export default function AppointmentsPage() {
             pageSize={12}
             showPagination={true}
             emptyMessage="No appointments matched your filter criteria."
+            onRowClick={(row) => {
+              setSelectedAppt(row);
+              setShowDetailModal(true);
+            }}
             columns={[
-                {
-                  key: "appointmentNo",
-                  header: "Booking #",
-                  width: "140px",
-                  render: (row) => (
-                    <div className="flex flex-col gap-1">
-                      <button
-                        onClick={() => {
-                          setSelectedAppt(row);
-                          setShowDetailModal(true);
-                        }}
-                        className="font-mono text-xs font-bold text-[#0284C7] hover:underline cursor-pointer"
-                      >
-                        {row.appointmentNo}
-                      </button>
-                      <TypeBadge type={row.appointmentType} />
+              {
+                key: "appointmentNo",
+                header: "Booking #",
+                width: "140px",
+                render: (row) => (
+                  <div className="flex flex-col gap-0.5">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedAppt(row);
+                        setShowDetailModal(true);
+                      }}
+                      className="font-mono text-xs font-bold text-gray-700 hover:text-[#0284C7] transition text-left cursor-pointer"
+                      title="Click to view booking"
+                    >
+                      {row.appointmentNo}
+                    </button>
+                    <TypeBadge type={row.appointmentType} />
+                  </div>
+                ),
+              },
+              {
+                key: "customer",
+                header: "Customer",
+                width: "180px",
+                render: (row) => (
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-100 to-sky-200 text-[#0284C7] flex items-center justify-center font-bold text-xs shrink-0 border border-sky-200/80 shadow-2xs">
+                      {(row.customerName || "W")[0].toUpperCase()}
                     </div>
-                  ),
-                },
-                {
-                  key: "customer",
-                  header: "Customer",
-                  width: "180px",
-                  render: (row) => (
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-sky-100 text-[#0284C7] flex items-center justify-center font-bold text-xs shrink-0">
-                        {(row.customerName || "W")[0].toUpperCase()}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-slate-800 text-xs truncate">
-                          {row.customerName || "Walk-in Guest"}
-                        </p>
-                        {row.customerPhone && (
-                          <p className="text-[11px] text-slate-400 flex items-center gap-1">
-                            <Phone size={10} />
-                            {row.customerPhone}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ),
-                },
-                {
-                  key: "service",
-                  header: "Service & Staff",
-                  render: (row) => (
-                    <div className="space-y-0.5">
-                      <p className="text-xs font-semibold text-slate-800">
-                        {row.serviceName || "General Service"}
+                    <div className="min-w-0">
+                      <p className="font-bold text-gray-700 text-xs truncate">
+                        {row.customerName || "Walk-in Guest"}
                       </p>
-                      <div className="flex items-center gap-2 text-xs text-slate-500">
-                        <span className="inline-flex items-center gap-1">
-                          <User size={11} className="text-[#0284C7]" />
-                          {row.staffName || "Any Available"}
-                        </span>
-                        <span>•</span>
-                        <span className="inline-flex items-center gap-1 font-mono text-[11px] text-slate-400">
-                          <Timer size={11} />
-                          {row.durationMin}m
-                        </span>
-                      </div>
+                      <p className="text-[11px] text-gray-500 font-mono mt-0.5 flex items-center gap-1">
+                        {row.customerPhone ? (
+                          <>
+                            <Phone size={10} className="text-slate-400" />
+                            {row.customerPhone}
+                          </>
+                        ) : (
+                          <span className="text-slate-400 italic">No phone</span>
+                        )}
+                      </p>
                     </div>
-                  ),
-                },
-                {
-                  key: "schedule",
-                  header: "Schedule Date & Time",
-                  width: "170px",
-                  render: (row) => {
-                    const d = new Date((row.startAt || "").replace(" ", "T"));
-                    const isValid = !isNaN(d.getTime());
-                    const formatted = isValid
-                      ? d.toLocaleDateString("en-BD", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })
-                      : row.startAt;
-                    const timeStr = isValid
-                      ? d.toLocaleTimeString("en-BD", { hour: "2-digit", minute: "2-digit" })
-                      : "";
+                  </div>
+                ),
+              },
+              {
+                key: "service",
+                header: "Service & Staff",
+                render: (row) => (
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-gray-700 truncate">
+                      {row.serviceName || "General Service"}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#0369A1]">
+                        <User size={11} className="text-[#0284C7]" />
+                        {row.staffName || "Unassigned"}
+                      </span>
+                      <span className="text-slate-300">•</span>
+                      <span className="inline-flex items-center gap-1 font-mono text-[11px] text-slate-400">
+                        <Timer size={11} />
+                        {row.durationMin}m
+                      </span>
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                key: "schedule",
+                header: "Schedule Date & Time",
+                width: "170px",
+                render: (row) => {
+                  const d = new Date((row.startAt || "").replace(" ", "T"));
+                  const isValid = !isNaN(d.getTime());
+                  const formatted = isValid
+                    ? d.toLocaleDateString("en-BD", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
+                    : row.startAt;
+                  const timeStr = isValid
+                    ? d.toLocaleTimeString("en-BD", { hour: "2-digit", minute: "2-digit" })
+                    : "";
 
-                    return (
-                      <div className="space-y-0.5">
-                        <p className="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                          <Calendar size={12} className="text-[#0284C7]" />
-                          {formatted}
-                        </p>
-                        <p className="text-[11px] text-slate-500 font-mono flex items-center gap-1">
-                          <Clock size={11} className="text-slate-400" />
-                          {timeStr}
-                        </p>
-                      </div>
-                    );
-                  },
+                  return (
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+                        <Calendar size={12} className="text-[#0284C7]" />
+                        {formatted}
+                      </p>
+                      <p className="text-[11px] text-gray-500 font-mono flex items-center gap-1.5">
+                        <Clock size={11} className="text-slate-400" />
+                        {timeStr}
+                      </p>
+                    </div>
+                  );
                 },
-                {
-                  key: "price",
-                  header: "Amount",
-                  align: "right",
-                  width: "110px",
-                  render: (row) => (
-                    <span className="font-bold text-slate-800 text-xs [font-variant-numeric:tabular-nums]">
-                      {money(Number(row.price) || 0)}
-                    </span>
-                  ),
-                },
-                {
-                  key: "status",
-                  header: "Status",
-                  align: "center",
-                  width: "130px",
-                  render: (row) => <StatusPill status={row.status} />,
-                },
-                {
-                  key: "actions",
-                  header: "Actions",
-                  align: "right",
-                  width: "210px",
-                  render: (row) => {
-                    return (
-                      <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                        {row.status === "BOOKED" && (
-                          <CustomButton
-                            size="xs"
-                            variant="outline"
-                            leftIcon={<CheckCircle2 size={12} className="text-teal-600" />}
-                            onClick={() => handleUpdateStatus(row, "CONFIRMED")}
-                          >
-                            Confirm
-                          </CustomButton>
-                        )}
-                        {row.status === "CONFIRMED" && (
-                          <CustomButton
-                            size="xs"
-                            variant="outline"
-                            leftIcon={<UserCheck size={12} className="text-amber-600" />}
-                            onClick={() => handleUpdateStatus(row, "CHECKED_IN")}
-                          >
-                            Check-in
-                          </CustomButton>
-                        )}
-                        {row.status === "CHECKED_IN" && (
-                          <CustomButton
-                            size="xs"
-                            variant="primary"
-                            themeColor="primary"
-                            leftIcon={<Clock size={12} />}
-                            onClick={() => handleUpdateStatus(row, "IN_SERVICE")}
-                          >
-                            Start
-                          </CustomButton>
-                        )}
-                        {row.status === "IN_SERVICE" && (
-                          <CustomButton
-                            size="xs"
-                            variant="primary"
-                            themeColor="primary"
-                            leftIcon={<Check size={12} />}
-                            onClick={() => handleUpdateStatus(row, "COMPLETED")}
-                          >
-                            Complete
-                          </CustomButton>
-                        )}
+              },
+              {
+                key: "price",
+                header: "Amount",
+                align: "right",
+                width: "110px",
+                render: (row) => (
+                  <span className="font-black tabular-nums text-xs sm:text-sm text-emerald-700">
+                    ৳{Number(row.price || 0).toLocaleString()}
+                  </span>
+                ),
+              },
+              {
+                key: "status",
+                header: "Status",
+                align: "center",
+                width: "130px",
+                render: (row) => <StatusPill status={row.status} />,
+              },
+              {
+                key: "actions",
+                header: "Actions",
+                align: "right",
+                width: "210px",
+                render: (row) => (
+                  <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    {/* Workflow progression action */}
+                    {row.status === "BOOKED" && (
+                      <CustomButton
+                        size="xs"
+                        variant="primary"
+                        themeColor="teal"
+                        leftIcon={<CheckCircle2 size={12} />}
+                        onClick={() => handleUpdateStatus(row, "CONFIRMED")}
+                        title="Confirm Booking"
+                      >
+                        Confirm
+                      </CustomButton>
+                    )}
+                    {row.status === "CONFIRMED" && (
+                      <CustomButton
+                        size="xs"
+                        variant="primary"
+                        themeColor="amber"
+                        leftIcon={<UserCheck size={12} />}
+                        onClick={() => handleUpdateStatus(row, "CHECKED_IN")}
+                        title="Check-in Customer"
+                      >
+                        Check-in
+                      </CustomButton>
+                    )}
+                    {row.status === "CHECKED_IN" && (
+                      <CustomButton
+                        size="xs"
+                        variant="primary"
+                        themeColor="primary"
+                        leftIcon={<Clock size={12} />}
+                        onClick={() => handleUpdateStatus(row, "IN_SERVICE")}
+                        title="Start Service"
+                      >
+                        Start
+                      </CustomButton>
+                    )}
+                    {row.status === "IN_SERVICE" && (
+                      <CustomButton
+                        size="xs"
+                        variant="primary"
+                        themeColor="emerald"
+                        leftIcon={<Check size={12} />}
+                        onClick={() => handleUpdateStatus(row, "COMPLETED")}
+                        title="Complete Service"
+                      >
+                        Complete
+                      </CustomButton>
+                    )}
 
-                        {["BOOKED", "CONFIRMED", "CHECKED_IN"].includes(row.status) && (
-                          <button
-                            title="Mark No Show"
-                            onClick={() =>
-                              setConfirmStatusData({
-                                appt: row,
-                                nextStatus: "NO_SHOW",
-                                label: "Mark as No Show",
-                              })
-                            }
-                            className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-sm transition-colors cursor-pointer"
-                          >
-                            <UserX size={13} />
-                          </button>
-                        )}
+                    {/* View Details button */}
+                    <CustomButton
+                      size="xs"
+                      variant="outline"
+                      leftIcon={<Eye size={12} />}
+                      onClick={() => {
+                        setSelectedAppt(row);
+                        setShowDetailModal(true);
+                      }}
+                      title="View Booking Details & Slip"
+                    >
+                      Details
+                    </CustomButton>
 
-                        {["BOOKED", "CONFIRMED"].includes(row.status) && (
-                          <button
-                            title="Cancel Booking"
-                            onClick={() =>
-                              setConfirmStatusData({
-                                appt: row,
-                                nextStatus: "CANCELLED",
-                                label: "Cancel Booking",
-                              })
-                            }
-                            className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-sm transition-colors cursor-pointer"
-                          >
-                            <XCircle size={13} />
-                          </button>
-                        )}
+                    {/* Mark No Show button */}
+                    {["BOOKED", "CONFIRMED", "CHECKED_IN"].includes(row.status) && (
+                      <button
+                        type="button"
+                        title="Mark as No Show"
+                        onClick={() =>
+                          setConfirmStatusData({
+                            appt: row,
+                            nextStatus: "NO_SHOW",
+                            label: "Mark as No Show",
+                          })
+                        }
+                        className="flex h-6 w-6 items-center justify-center rounded-sm border border-slate-200 bg-white text-slate-400 hover:text-amber-600 hover:border-amber-300 hover:bg-amber-50 transition cursor-pointer shadow-2xs"
+                      >
+                        <UserX size={12} />
+                      </button>
+                    )}
 
-                        <button
-                          title="View Details"
-                          onClick={() => {
-                            setSelectedAppt(row);
-                            setShowDetailModal(true);
-                          }}
-                          className="p-1 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-sm transition-colors cursor-pointer"
-                        >
-                          <Eye size={13} />
-                        </button>
-                      </div>
-                    );
-                  },
-                },
-              ]}
+                    {/* Cancel Booking button */}
+                    {["BOOKED", "CONFIRMED"].includes(row.status) && (
+                      <button
+                        type="button"
+                        title="Cancel Booking"
+                        onClick={() =>
+                          setConfirmStatusData({
+                            appt: row,
+                            nextStatus: "CANCELLED",
+                            label: "Cancel Booking",
+                          })
+                        }
+                        className="flex h-6 w-6 items-center justify-center rounded-sm border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 transition cursor-pointer shadow-2xs"
+                      >
+                        <XCircle size={12} />
+                      </button>
+                    )}
+                  </div>
+                ),
+              },
+            ]}
             />
         </div>
       )}
@@ -941,7 +961,7 @@ export default function AppointmentsPage() {
           <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Calendar size={16} className="text-[#0284C7]" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">
+              <h2 className="text-xs font-bold text-[#0369A1]">
                 Timeline & Day Schedule Ledger
               </h2>
             </div>
@@ -1056,7 +1076,7 @@ export default function AppointmentsPage() {
       {activeTab === "availability" && (
         <div className="space-y-3">
           <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs space-y-3">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-[#0369A1] flex items-center gap-2">
+            <h2 className="text-xs font-bold text-[#0369A1] flex items-center gap-2">
               <Clock4 size={15} className="text-[#0284C7]" />
               Live Staff Availability & Free Slot Radar
             </h2>
@@ -1072,7 +1092,7 @@ export default function AppointmentsPage() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
                   Staff Member
                 </label>
                 <CustomDropdownSelect
@@ -1092,7 +1112,7 @@ export default function AppointmentsPage() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
                   Slot Duration (Minutes)
                 </label>
                 <CustomDropdownSelect
@@ -1128,7 +1148,7 @@ export default function AppointmentsPage() {
 
           {/* Slots Output */}
           <div className="rounded-sm border border-sky-100/90 bg-white shadow-2xs p-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#0369A1] mb-3 flex items-center justify-between">
+            <h3 className="text-xs font-bold text-[#0369A1] mb-3 flex items-center justify-between">
               <span>
                 Available Windows for {availDate} ({availDuration}m)
               </span>
@@ -1190,13 +1210,17 @@ export default function AppointmentsPage() {
       {/* 5d. Services Catalog Quick-Book Tab */}
       {activeTab === "services" && (
         <div className="space-y-3">
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs flex items-center justify-between">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">
-              Service Catalog & Instant Booking
-            </h2>
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Scissors size={16} className="text-[#0284C7]" />
+              <h2 className="text-xs font-bold text-[#0369A1]">
+                Service Catalog & Instant Booking
+              </h2>
+            </div>
             <CustomButton
               size="xs"
-              variant="outline"
+              variant="primary"
+              themeColor="primary"
               leftIcon={<Plus size={13} />}
               onClick={() => handleOpenCreate()}
             >
@@ -1258,14 +1282,14 @@ export default function AppointmentsPage() {
         open={showCreate}
         onClose={() => setShowCreate(false)}
         title="Schedule New Appointment"
-        size="2xl"
+        size="4xl"
         themeColor="primary"
         icon={<CalendarDays size={18} className="text-[#0284C7]" />}
       >
         <div className="space-y-4 py-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+              <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
                 Booking Type
               </label>
               <CustomDropdownSelect
@@ -1284,7 +1308,7 @@ export default function AppointmentsPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+              <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
                 Select Customer
               </label>
               <CustomDropdownSelect
@@ -1334,7 +1358,7 @@ export default function AppointmentsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+              <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
                 Service Item
               </label>
               <CustomDropdownSelect
@@ -1354,7 +1378,7 @@ export default function AppointmentsPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+              <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
                 Assigned Staff Member
               </label>
               <CustomDropdownSelect
@@ -1382,11 +1406,11 @@ export default function AppointmentsPage() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <CustomInput
+            <CustomDatePicker
               label="Start Date & Time"
               type="datetime-local"
               value={form.startAt}
-              onChange={(e) => setForm({ ...form, startAt: e.target.value })}
+              onChange={(val) => setForm({ ...form, startAt: val })}
             />
             <CustomInput
               label="Duration (Minutes)"
@@ -1412,23 +1436,21 @@ export default function AppointmentsPage() {
             rows={2}
           />
 
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-xs text-slate-400">
-              Clash detection is automatically validated on submission.
-            </span>
-            <div className="flex items-center gap-2">
-              <CustomButton variant="outline" onClick={() => setShowCreate(false)}>
-                Cancel
-              </CustomButton>
-              <CustomButton
-                variant="primary"
-                loading={saving}
-                onClick={handleCreateBooking}
-                leftIcon={<Check size={15} />}
-              >
-                Confirm Booking
-              </CustomButton>
-            </div>
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+            <CustomButton
+              variant="danger"
+              onClick={() => setShowCreate(false)}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              variant="primary"
+              loading={saving}
+              onClick={handleCreateBooking}
+              leftIcon={<Check size={15} />}
+            >
+              Confirm Booking
+            </CustomButton>
           </div>
         </div>
       </CustomModal>
@@ -1447,7 +1469,7 @@ export default function AppointmentsPage() {
             <div className="p-4 rounded-sm border border-sky-100/90 bg-white shadow-2xs space-y-3">
               <div className="flex items-center justify-between border-b border-sky-100/90 pb-3">
                 <div>
-                  <span className="font-mono text-xs text-slate-400">BOOKING TOKEN</span>
+                  <span className="font-mono text-xs text-slate-400">Booking Token</span>
                   <p className="font-mono text-lg font-extrabold text-[#0284C7]">
                     {selectedAppt.appointmentNo}
                   </p>
@@ -1503,7 +1525,7 @@ export default function AppointmentsPage() {
 
             {/* Quick Transition Status Controls */}
             <div className="space-y-2">
-              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#0369A1]">
                 Progress Status Workflow
               </span>
               <div className="flex flex-wrap gap-2">
@@ -1558,7 +1580,11 @@ export default function AppointmentsPage() {
               >
                 Print Slip
               </CustomButton>
-              <CustomButton variant="outline" onClick={() => setShowDetailModal(false)}>
+              <CustomButton
+                variant="secondary"
+                themeColor="primary"
+                onClick={() => setShowDetailModal(false)}
+              >
                 Close
               </CustomButton>
             </div>

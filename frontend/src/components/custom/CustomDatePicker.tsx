@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useRef } from "react";
-import { Calendar, X } from "lucide-react";
+import { Calendar, Clock, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 export interface CustomDatePickerProps {
   value?: string;
   onChange?: (date: string) => void;
+  type?: "date" | "datetime-local" | "time";
   label?: string;
   placeholder?: string;
   className?: string;
@@ -30,6 +31,7 @@ export interface CustomDatePickerProps {
 export function CustomDatePicker({
   value = "",
   onChange,
+  type = "date",
   label,
   placeholder,
   className,
@@ -75,6 +77,13 @@ export function CustomDatePicker({
   const primaryIconColor =
     themeColor === "teal" ? "text-teal-600" : themeColor === "blue" ? "text-blue-600" : "text-[#0284C7]";
 
+  const defaultIcon =
+    type === "time" ? (
+      <Clock size={14} className={primaryIconColor} />
+    ) : (
+      <Calendar size={14} className={primaryIconColor} />
+    );
+
   return (
     <div className={cn("w-full flex flex-col", containerClassName)} title={title || placeholder}>
       {label && (
@@ -106,7 +115,7 @@ export function CustomDatePicker({
           ref={inputRef}
           id={id}
           name={name}
-          type="date"
+          type={type}
           disabled={disabled}
           min={min}
           max={max}

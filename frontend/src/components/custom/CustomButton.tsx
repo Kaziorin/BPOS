@@ -77,6 +77,23 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
       if (variant === "primary" && themeColor) {
         return THEME_PRIMARY_CLASSES[themeColor];
       }
+      if (themeColor === "primary") {
+        if (variant === "secondary") {
+          return darkMode
+            ? "bg-slate-800 text-sky-300 hover:bg-slate-700 focus-visible:ring-sky-400 font-bold"
+            : "bg-sky-50 text-sky-700 hover:bg-sky-100 hover:text-sky-800 border border-sky-200/80 focus-visible:ring-sky-300 font-bold";
+        }
+        if (variant === "outline") {
+          return darkMode
+            ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:border-sky-500 hover:text-sky-300 focus-visible:ring-sky-400 font-bold"
+            : "border border-sky-200 bg-white text-sky-700 hover:bg-sky-50/70 hover:border-sky-400 hover:text-[#0284C7] focus-visible:ring-sky-300 font-bold shadow-2xs";
+        }
+        if (variant === "ghost") {
+          return darkMode
+            ? "text-slate-400 hover:bg-slate-800 hover:text-sky-300 focus-visible:ring-sky-400 font-bold"
+            : "text-[#0284C7] hover:bg-sky-50 focus-visible:ring-sky-300 font-bold";
+        }
+      }
       if (themeColor === "teal") {
         if (variant === "secondary") {
           return darkMode
