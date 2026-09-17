@@ -1,14 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Package, Search, TrendingDown, TrendingUp, Minus } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState, useMemo } from "react";
+import {
+  Package,
+  Search,
+  TrendingDown,
+  TrendingUp,
+  Minus,
+  ArrowRightLeft,
+  ClipboardList,
+  Warehouse as WarehouseIcon,
+  X,
+} from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomInput } from "@/components/custom/CustomInput";
-import { CustomSelect } from "@/components/custom/CustomSelect";
-import { CustomTable, type CustomTableColumn } from "@/components/custom/CustomTable";
-import { CustomBadge } from "@/components/custom/CustomBadge";
+import {
+  CustomBreadcrumb,
+  CustomButton,
+  CustomTable,
+  CustomStatCard,
+  CustomInput,
+  CustomDropdownSelect,
+  type CustomTableColumn,
+} from "@/components/custom";
 
-interface Warehouse { id: string; name: string; code: string; }
+interface Warehouse {
+  id: string;
+  name: string;
+  code: string;
+}
+
 interface StockRow {
   id: string;
   qtyOnHand: string;
@@ -19,141 +40,388 @@ interface StockRow {
   warehouse: { id: string; name: string; code: string };
 }
 
-function stockTone(qty: number) {
-  if (qty <= 0) return "red" as const;
-  if (qty <= 5) return "amber" as const;
-  return "green" as const;
+function getStockStatus(avail: number) {
+  if (avail <= 0) {
+    return {
+      label: "Out of Stock",
+      bg: "bg-rose-50 border-rose-200",
+      text: "text-rose-700",
+      dot: "bg-rose-500",
+      icon: TrendingDown,
+    };
+  }
+  if (avail <= 5) {
+    return {
+      label: "Low Stock",
+      bg: "bg-amber-50 border-amber-200",
+      text: "text-amber-700",
+      dot: "bg-amber-500",
+      icon: Minus,
+    };
+  }
+  return {
+    label: "In Stock",
+    bg: "bg-emerald-50 border-emerald-200",
+    text: "text-emerald-700",
+    dot: "bg-emerald-500",
+    icon: TrendingUp,
+  };
 }
 
 export default function StockPage() {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [warehouseId, setWarehouseId] = useState("");
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [rows, setRows] = useState<StockRow[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const limit = 50;
+  const limit = 25;
 
+  // 1. Fetch Warehouses List
   useEffect(() => {
-    api.get<{ data: Warehouse[] }>("/api/v1/warehouses").then((res) => {
-      setWarehouses(res.data);
-      if (res.data.length > 0) setWarehouseId(res.data[0].id);
-    });
+    api
+      .get<{ data: Warehouse[] }>("/api/v1/warehouses")
+      .then((res) => {
+        const list = res.data || [];
+        setWarehouses(list);
+        if (list.length > 0) {
+          setWarehouseId(list[0].id);
+        }
+      })
+      .catch(() => {});
   }, []);
 
-  useEffect(() => {
+  // 2. Fetch Stock Rows for Selected Warehouse
+  const fetchStock = () => {
     if (!warehouseId) return;
     setLoading(true);
-    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-    if (search) params.set("search", search);
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    if (search.trim()) params.set("search", search.trim());
+
     api
-      .get<{ data: StockRow[]; total: number }>(`/api/v1/inventory/stock/${warehouseId}?${params}`)
-      .then((res) => { setRows(res.data); setTotal(res.total); })
-      .catch(() => {})
+      .get<{ data: StockRow[]; total: number }>(
+        `/api/v1/inventory/stock/${warehouseId}?${params.toString()}`
+      )
+      .then((res) => {
+        setRows(res.data || []);
+        setTotal(res.total || 0);
+      })
+      .catch(() => {
+        setRows([]);
+        setTotal(0);
+      })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchStock();
   }, [warehouseId, search, page]);
+
+  // 3. Status Filtering
+  const filteredRows = useMemo(() => {
+    if (statusFilter === "ALL") return rows;
+    return rows.filter((r) => {
+      const avail = Number(r.qtyOnHand) - Number(r.qtyReserved);
+      if (statusFilter === "IN_STOCK") return avail > 5;
+      if (statusFilter === "LOW_STOCK") return avail > 0 && avail <= 5;
+      if (statusFilter === "OUT_OF_STOCK") return avail <= 0;
+      return true;
+    });
+  }, [rows, statusFilter]);
+
+  // 4. Quick KPI Stats
+  const stats = useMemo(() => {
+    let inStock = 0;
+    let lowStock = 0;
+    let outOfStock = 0;
+
+    rows.forEach((r) => {
+      const avail = Number(r.qtyOnHand) - Number(r.qtyReserved);
+      if (avail <= 0) outOfStock++;
+      else if (avail <= 5) lowStock++;
+      else inStock++;
+    });
+
+    return { inStock, lowStock, outOfStock };
+  }, [rows]);
 
   const columns: CustomTableColumn<StockRow>[] = [
     {
       key: "product",
-      header: "Product",
+      header: "Product & SKU",
+      render: (r) => {
+        const name = r.product?.name ?? (r as any).productName ?? "Unknown Product";
+        const sku = r.variant
+          ? `${r.product?.sku ?? ""} / ${r.variant.sku}`
+          : (r.product?.sku ?? (r as any).productSku ?? "—");
+
+        return (
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 border border-sky-200/80 text-[#0284C7] shrink-0 font-bold text-xs shadow-2xs">
+              <Package size={14} />
+            </div>
+            <div className="min-w-0">
+              <p className="font-bold text-gray-700 text-xs truncate">{name}</p>
+              <p className="font-mono text-[11px] text-slate-400 mt-0.5">{sku}</p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: "warehouse",
+      header: "Warehouse Location",
       render: (r) => (
-        <div>
-          <p className="font-medium text-gray-900">{r.product?.name ?? (r as any).productName ?? "Unknown Product"}</p>
-          <p className="text-xs text-gray-400">{r.variant ? `${r.product?.sku ?? ""} / ${r.variant.sku}` : (r.product?.sku ?? (r as any).productSku ?? "—")}</p>
-        </div>
+        <span className="inline-flex items-center gap-1.5 text-xs text-gray-600 font-medium">
+          <WarehouseIcon size={12} className="text-[#0284C7]" />
+          {r.warehouse?.name || "Main Warehouse"}
+        </span>
       ),
     },
     {
       key: "onHand",
       header: "On Hand",
       align: "right",
-      render: (r) => {
-        const qty = Number(r.qtyOnHand);
-        return <CustomBadge tone={stockTone(qty)}>{qty}</CustomBadge>;
-      },
+      width: "110px",
+      render: (r) => (
+        <span className="font-mono font-bold text-xs text-slate-800">
+          {Number(r.qtyOnHand)}
+        </span>
+      ),
     },
     {
       key: "reserved",
       header: "Reserved",
       align: "right",
-      render: (r) => <span className="text-gray-600">{Number(r.qtyReserved)}</span>,
+      width: "100px",
+      render: (r) => (
+        <span className="font-mono text-xs text-slate-500">
+          {Number(r.qtyReserved)}
+        </span>
+      ),
     },
     {
       key: "available",
-      header: "Available",
+      header: "Available Qty",
       align: "right",
+      width: "120px",
       render: (r) => {
         const avail = Number(r.qtyOnHand) - Number(r.qtyReserved);
-        return <span className={avail <= 0 ? "text-red-600 font-medium" : "text-gray-900"}>{avail}</span>;
+        const colorClass =
+          avail <= 0
+            ? "text-rose-600"
+            : avail <= 5
+            ? "text-amber-600"
+            : "text-emerald-700";
+
+        return (
+          <span className={`font-mono font-black text-xs ${colorClass}`}>
+            {avail}
+          </span>
+        );
       },
     },
     {
       key: "avgCost",
       header: "Avg Cost",
       align: "right",
+      width: "120px",
       render: (r) => (
-        <span className="text-gray-600">{r.avgCost ? Number(r.avgCost).toFixed(2) : "—"}</span>
+        <span className="font-mono font-bold tabular-nums text-xs text-slate-700">
+          {r.avgCost
+            ? `৳${Number(r.avgCost).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}`
+            : "—"}
+        </span>
       ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      align: "center",
+      width: "140px",
+      render: (r) => {
+        const avail = Number(r.qtyOnHand) - Number(r.qtyReserved);
+        const cfg = getStockStatus(avail);
+
+        return (
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[11px] font-bold border ${cfg.bg} ${cfg.text}`}
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+            {cfg.label}
+          </span>
+        );
+      },
     },
   ];
 
-  const totalPages = Math.ceil(total / limit);
-
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Stock Levels</h1>
-          <p className="mt-1 text-sm text-gray-500">Current on-hand, reserved, and available quantities</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex gap-3 text-xs text-gray-500">
-            <span className="flex items-center gap-1"><TrendingUp size={13} className="text-emerald-500" /> In Stock</span>
-            <span className="flex items-center gap-1"><Minus size={13} className="text-amber-500" /> Low</span>
-            <span className="flex items-center gap-1"><TrendingDown size={13} className="text-red-500" /> Out</span>
+    <div className="space-y-4 pb-12">
+      {/* 1. Header & Breadcrumb */}
+      <CustomBreadcrumb
+        title="Stock Levels"
+        icon={<Package size={16} className="text-[#0284C7]" />}
+        breadcrumbs={[
+          { label: "Operations", href: "/dashboard" },
+          { label: "Inventory", href: "/inventory" },
+          { label: "Stock Levels" },
+        ]}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/inventory/transfers">
+              <CustomButton
+                size="sm"
+                variant="secondary"
+                leftIcon={ArrowRightLeft}
+              >
+                Transfer Stock
+              </CustomButton>
+            </Link>
+            <Link href="/inventory/counts">
+              <CustomButton
+                size="sm"
+                variant="primary"
+                themeColor="primary"
+                leftIcon={ClipboardList}
+              >
+                Physical Count
+              </CustomButton>
+            </Link>
           </div>
-        </div>
+        }
+      />
+
+      {/* 2. Executive KPI Stat Cards */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <CustomStatCard
+          label="Total Tracked SKUs"
+          value={loading ? "—" : String(total)}
+          icon={Package}
+          tone="primary"
+        />
+        <CustomStatCard
+          label="In Stock (Page)"
+          value={loading ? "—" : String(stats.inStock)}
+          icon={TrendingUp}
+          tone="green"
+        />
+        <CustomStatCard
+          label="Low Stock Alert"
+          value={loading ? "—" : String(stats.lowStock)}
+          icon={Minus}
+          tone="amber"
+        />
+        <CustomStatCard
+          label="Out of Stock"
+          value={loading ? "—" : String(stats.outOfStock)}
+          icon={TrendingDown}
+          tone="red"
+        />
       </div>
 
-      <div className="flex gap-3">
-        <CustomSelect
-          containerClassName="w-56"
-          value={warehouseId}
-          onChange={(e) => { setWarehouseId(e.target.value); setPage(1); }}
-          options={warehouses.map((w) => ({ value: w.id, label: `${w.code} — ${w.name}` }))}
-          placeholder="Select warehouse"
-        />
+      {/* 3. Search & Filter Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <CustomInput
-          containerClassName="flex-1 max-w-xs"
-          placeholder="Search product…"
-          leftIcon={<Search size={15} />}
+          placeholder="Search product name, SKU..."
+          leftIcon={<Search size={14} />}
+          rightIcon={
+            search ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setPage(1);
+                }}
+                className="text-slate-400 hover:text-gray-600 cursor-pointer"
+              >
+                <X size={14} />
+              </button>
+            ) : null
+          }
           value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          containerClassName="w-full"
+          className="h-[38px] text-xs text-gray-600 placeholder:text-slate-400 shadow-2xs"
         />
-      </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white">
-        <CustomTable
-          columns={columns}
-          data={rows}
-          rowKey={(r) => r.id}
-          loading={loading}
-          emptyIcon={Package}
-          emptyMessage="No stock records for this warehouse"
+        <CustomDropdownSelect
+          options={warehouses.map((w) => ({
+            label: `${w.code} — ${w.name}`,
+            value: w.id,
+          }))}
+          value={warehouseId}
+          onChange={(val) => {
+            setWarehouseId(val);
+            setPage(1);
+          }}
+          placeholder="Select Warehouse"
+          containerClassName="w-full"
+          className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
         />
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm text-gray-500">
-            <span>{total} records</span>
-            <div className="flex gap-2">
-              <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="px-3 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Prev</button>
-              <span className="px-2 py-1">{page} / {totalPages}</span>
-              <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="px-3 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Next</button>
-            </div>
+
+        <CustomDropdownSelect
+          options={[
+            { label: "All Stock Statuses", value: "ALL" },
+            { label: "In Stock Only (> 5)", value: "IN_STOCK" },
+            { label: "Low Stock Warning (1-5)", value: "LOW_STOCK" },
+            { label: "Out of Stock (0)", value: "OUT_OF_STOCK" },
+          ]}
+          value={statusFilter}
+          onChange={(val) => setStatusFilter(val)}
+          placeholder="Filter by Stock Status"
+          containerClassName="w-full"
+          className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
+        />
+
+        {(search || statusFilter !== "ALL") && (
+          <div className="flex items-center">
+            <CustomButton
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("ALL");
+                setPage(1);
+              }}
+              className="h-[38px] text-xs"
+            >
+              Clear Filters
+            </CustomButton>
           </div>
         )}
       </div>
+
+      {/* 4. Warehouse Stock Ledger Table */}
+      <CustomTable<StockRow>
+        columns={columns}
+        data={filteredRows}
+        rowKey="id"
+        loading={loading}
+        title="Warehouse Stock Ledger"
+        icon={<Package size={16} className="text-[#0284C7]" />}
+        badge={
+          <span className="rounded-sm bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-[#0284C7] border border-sky-200/80">
+            {total} Total Records
+          </span>
+        }
+        showPagination={true}
+        totalItems={total}
+        currentPage={page}
+        pageSize={limit}
+        onPageChange={(p) => setPage(p)}
+        emptyMessage="No stock records found for this warehouse."
+      />
     </div>
   );
 }

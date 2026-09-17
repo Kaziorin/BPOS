@@ -316,6 +316,7 @@ export function CustomTable<T>({
               <th
                 key={col.key}
                 onClick={() => handleHeaderClick(col)}
+                style={col.width ? { width: col.width } : undefined}
                 className={cn(
                   "px-4 py-3 text-[13px] font-bold text-[#0369A1] transition whitespace-nowrap",
                   alignCss,
@@ -374,6 +375,7 @@ export function CustomTable<T>({
               return (
                 <td
                   key={col.key}
+                  style={col.width ? { width: col.width } : undefined}
                   className={cn(
                     "px-4 py-3 font-medium text-gray-600 text-sm whitespace-nowrap",
                     alignCss,
