@@ -43,10 +43,14 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { UniversalInvoiceModal, InvoiceData, InvoiceItem, InvoiceVerticalType } from "@/components/invoices/UniversalInvoiceModal";
-import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
-import { CustomTabs } from "@/components/custom/CustomTabs";
-import { CustomStatCard } from "@/components/custom/CustomStatCard";
-import { CustomButton } from "@/components/custom/CustomButton";
+import {
+  CustomBreadcrumb,
+  CustomButton,
+  CustomStatCard,
+  CustomTabs,
+  CustomDropdownSelect,
+  CustomInput,
+} from "@/components/custom";
 
 interface Invoice {
   id: string;
@@ -774,11 +778,11 @@ export default function InvoicesPage() {
 
   // Calculate Aging Buckets for Intelligence Widget
   const agingBuckets = useMemo(() => {
-    let notDue = 0;
-    let b1_30 = 0;
-    let b31_60 = 0;
-    let b61_90 = 0;
-    let b90_plus = 0;
+    let notDue = 0, countNotDue = 0;
+    let b1_30 = 0, count1_30 = 0;
+    let b31_60 = 0, count31_60 = 0;
+    let b61_90 = 0, count61_90 = 0;
+    let b90_plus = 0, count90_plus = 0;
     const now = new Date().getTime();
 
     invoices.forEach((inv) => {
@@ -788,23 +792,86 @@ export default function InvoicesPage() {
 
       if (!inv.dueDate) {
         notDue += due;
+        countNotDue++;
         return;
       }
       const dueDate = new Date(inv.dueDate).getTime();
       const diffDays = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
 
-      if (diffDays <= 0) notDue += due;
-      else if (diffDays <= 30) b1_30 += due;
-      else if (diffDays <= 60) b31_60 += due;
-      else if (diffDays <= 90) b61_90 += due;
-      else b90_plus += due;
+      if (diffDays <= 0) {
+        notDue += due;
+        countNotDue++;
+      } else if (diffDays <= 30) {
+        b1_30 += due;
+        count1_30++;
+      } else if (diffDays <= 60) {
+        b31_60 += due;
+        count31_60++;
+      } else if (diffDays <= 90) {
+        b61_90 += due;
+        count61_90++;
+      } else {
+        b90_plus += due;
+        count90_plus++;
+      }
     });
 
-    return { notDue, b1_30, b31_60, b61_90, b90_plus };
+    const totalReceivables = notDue + b1_30 + b31_60 + b61_90 + b90_plus;
+    const totalOverdue = b1_30 + b31_60 + b61_90 + b90_plus;
+    const totalInvoicesWithDue = countNotDue + count1_30 + count31_60 + count61_90 + count90_plus;
+
+    const pNotDue = totalReceivables > 0 ? (notDue / totalReceivables) * 100 : 0;
+    const p1_30 = totalReceivables > 0 ? (b1_30 / totalReceivables) * 100 : 0;
+    const p31_60 = totalReceivables > 0 ? (b31_60 / totalReceivables) * 100 : 0;
+    const p61_90 = totalReceivables > 0 ? (b61_90 / totalReceivables) * 100 : 0;
+    const p90_plus = totalReceivables > 0 ? (b90_plus / totalReceivables) * 100 : 0;
+
+    return {
+      notDue, countNotDue, pNotDue,
+      b1_30, count1_30, p1_30,
+      b31_60, count31_60, p31_60,
+      b61_90, count61_90, p61_90,
+      b90_plus, count90_plus, p90_plus,
+      totalReceivables,
+      totalOverdue,
+      totalInvoicesWithDue,
+    };
   }, [invoices]);
 
+  // Section Filter Options (Converted from Top Module Tab)
+  const sectionFilterOptions = [
+    { label: "All Invoice Sections", value: "all" },
+    { label: "Aging & Due Intelligence", value: "aging" },
+    { label: "Mushak 6.3 Tax Invoices", value: "tax_mushak" },
+    { label: "Credit & Debit Notes", value: "credit_notes" },
+  ];
+
+  // Invoice Type Filter Options
+  const typeFilterOptions = [
+    { label: "All Invoice Types", value: "" },
+    { label: "Mushak 6.3 Tax Invoice", value: "TAX" },
+    { label: "Commercial Invoice", value: "STANDARD" },
+    { label: "Credit Note", value: "CREDIT_NOTE" },
+    { label: "Debit Note", value: "DEBIT_NOTE" },
+    { label: "Proforma Invoice", value: "PROFORMA" },
+  ];
+
+  // Branch Filter Options
+  const branchFilterOptions = [
+    { label: "All Outlets / Branches", value: "" },
+    ...branches.map((b) => ({ label: b.name, value: b.id })),
+  ];
+
+  // Date Range Options
+  const dateRangeOptions = [
+    { label: "All Dates", value: "all" },
+    { label: "Today", value: "today" },
+    { label: "Past 7 Days", value: "week" },
+    { label: "This Month", value: "month" },
+  ];
+
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="w-full space-y-4">
       {/* Toast notification */}
       {toastMessage && (
         <div
@@ -817,7 +884,7 @@ export default function InvoicesPage() {
         </div>
       )}
 
-      {/* Top Breadcrumb */}
+      {/* Top Breadcrumb with 3 Distinct Color Actions */}
       <CustomBreadcrumb
         title="Invoice Engine & Billing"
         breadcrumbs={[
@@ -827,9 +894,11 @@ export default function InvoicesPage() {
         icon={<Receipt size={16} className="text-[#0284C7]" />}
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            {/* Action 1: Indigo Gradient */}
             <Link href="/invoices/collection">
               <CustomButton
-                variant="secondary"
+                variant="primary"
+                themeColor="indigo"
                 size="sm"
                 leftIcon={Wallet}
               >
@@ -837,6 +906,7 @@ export default function InvoicesPage() {
               </CustomButton>
             </Link>
 
+            {/* Action 2: Secondary Light Sky */}
             <CustomButton
               variant="secondary"
               size="sm"
@@ -846,8 +916,10 @@ export default function InvoicesPage() {
               Bulk Settle
             </CustomButton>
 
+            {/* Action 3: Primary Sky Gradient */}
             <CustomButton
               variant="primary"
+              themeColor="primary"
               size="sm"
               leftIcon={Plus}
               onClick={() => setShowCreateModal(true)}
@@ -858,320 +930,468 @@ export default function InvoicesPage() {
         }
       />
 
-      {/* Module Sub-Navigation Tabs */}
-      <CustomTabs
-        tabs={[
-          { id: "all", label: "Invoice Management", icon: <FileText size={14} /> },
-          { id: "aging", label: "Aging & Due Intelligence", icon: <Clock size={14} /> },
-          { id: "tax_mushak", label: "Mushak 6.3 Tax Invoices", icon: <ShieldCheck size={14} /> },
-          { id: "credit_notes", label: "Credit & Debit Notes", icon: <RotateCcw size={14} /> },
-        ]}
-        activeTab={subSection}
-        onChange={(tabId) => {
-          setSubSection(tabId as any);
-          setActiveTab("ALL");
-          setPage(1);
-        }}
-        themeColor="primary"
-        className="w-auto"
-      />
+      {/* Executive KPI Stats Cards */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <CustomStatCard
+          label="Total Invoiced"
+          value={statsLoading ? "—" : `৳${Number(stats?.totalAmount || 0).toLocaleString()}`}
+          icon={FileText}
+          tone="primary"
+        />
+        <CustomStatCard
+          label="Collected"
+          value={statsLoading ? "—" : `৳${Number(stats?.paidAmount || 0).toLocaleString()}`}
+          icon={CheckCircle2}
+          tone="green"
+        />
+        <CustomStatCard
+          label="Outstanding"
+          value={statsLoading ? "—" : `৳${Number(stats?.outstandingAmount || 0).toLocaleString()}`}
+          icon={Clock}
+          tone="blue"
+        />
+        <CustomStatCard
+          label="Overdue Alert"
+          value={statsLoading ? "—" : `৳${Number(stats?.overdueAmount || 0).toLocaleString()}`}
+          icon={AlertTriangle}
+          tone="red"
+        />
+        <CustomStatCard
+          label="Mushak 6.3"
+          value={statsLoading ? "—" : `${stats?.taxCount ?? 0}`}
+          icon={ShieldCheck}
+          tone="violet"
+        />
+        <CustomStatCard
+          label="Recovery Rate"
+          value={
+            stats && stats.totalAmount > 0
+              ? `${Math.min(100, Math.round((Number(stats.paidAmount) / Number(stats.totalAmount)) * 100))}%`
+              : "100%"
+          }
+          icon={TrendingUp}
+          tone="amber"
+        />
+      </div>
 
-      <div className="w-full px-4 sm:px-8 pt-5">
-        {/* Executive KPI Stats Cards */}
-        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <CustomStatCard
-            label="Total Invoiced"
-            value={statsLoading ? "—" : `৳${Number(stats?.totalAmount || 0).toLocaleString()}`}
-            icon={FileText}
-            tone="primary"
-          />
-          <CustomStatCard
-            label="Collected"
-            value={statsLoading ? "—" : `৳${Number(stats?.paidAmount || 0).toLocaleString()}`}
-            icon={CheckCircle2}
-            tone="green"
-          />
-          <CustomStatCard
-            label="Outstanding"
-            value={statsLoading ? "—" : `৳${Number(stats?.outstandingAmount || 0).toLocaleString()}`}
-            icon={Clock}
-            tone="blue"
-          />
-          <CustomStatCard
-            label="Overdue Alert"
-            value={statsLoading ? "—" : `৳${Number(stats?.overdueAmount || 0).toLocaleString()}`}
-            icon={AlertTriangle}
-            tone="red"
-          />
-          <CustomStatCard
-            label="Mushak 6.3"
-            value={statsLoading ? "—" : `${stats?.taxCount ?? 0}`}
-            icon={ShieldCheck}
-            tone="violet"
-          />
-          <CustomStatCard
-            label="Recovery Rate"
-            value={
-              stats && stats.totalAmount > 0
-                ? `${Math.min(100, Math.round((Number(stats.paidAmount) / Number(stats.totalAmount)) * 100))}%`
-                : "100%"
-            }
-            icon={TrendingUp}
-            tone="amber"
-          />
-        </div>
-
-        {/* Executive Aging Intelligence Bar */}
-        <div className="mb-5 rounded-sm border border-sky-100/90 bg-gradient-to-br from-white via-sky-50/30 to-white p-4 shadow-2xs">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      {/* Overhauled Executive Receivables Aging & Recovery Timeline */}
+      <div className="rounded-sm border border-sky-200/80 bg-gradient-to-b from-white via-sky-50/20 to-white p-4 shadow-2xs space-y-4">
+        {/* Header Row: Title & Badges */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-sky-100/80 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-gradient-to-br from-[#0284C7] to-[#0EA5E9] text-white shadow-xs">
+              <Clock size={18} />
+            </div>
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-600">
-                Receivables Aging & Recovery Timeline
-              </h3>
-              <p className="text-[11px] text-gray-500">Cash-flow distribution across overdue aging buckets</p>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-[#0369A1]">
+                  Receivables Aging & Recovery Timeline
+                </h3>
+                <span className="rounded-xs bg-sky-100 px-2 py-0.5 text-[10px] font-bold text-[#0284C7] border border-sky-200">
+                  Real-time Risk Matrix
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 font-medium">
+                Cash-flow distribution across overdue aging buckets & delinquency exposure
+              </p>
             </div>
+          </div>
 
-            {/* Buckets grid */}
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 text-xs">
-              <div className="rounded-sm bg-slate-50 p-3 text-center border border-slate-200/60">
-                <span className="text-[10px] font-bold text-gray-600">Current (Not Due)</span>
-                <p className="font-black text-gray-600 mt-1">৳{agingBuckets.notDue.toLocaleString()}</p>
-              </div>
-              <div className="rounded-sm bg-amber-50/70 p-3 text-center border border-amber-200/60">
-                <span className="text-[10px] font-bold text-amber-700">1 - 30 Days</span>
-                <p className="font-black text-amber-800 mt-1">৳{agingBuckets.b1_30.toLocaleString()}</p>
-              </div>
-              <div className="rounded-sm bg-orange-50/70 p-3 text-center border border-orange-200/60">
-                <span className="text-[10px] font-bold text-orange-700">31 - 60 Days</span>
-                <p className="font-black text-orange-800 mt-1">৳{agingBuckets.b31_60.toLocaleString()}</p>
-              </div>
-              <div className="rounded-sm bg-rose-50/70 p-3 text-center border border-rose-200/60">
-                <span className="text-[10px] font-bold text-rose-700">61 - 90 Days</span>
-                <p className="font-black text-rose-800 mt-1">৳{agingBuckets.b61_90.toLocaleString()}</p>
-              </div>
-              <div className="rounded-sm bg-rose-100 p-3 text-center border border-rose-200">
-                <span className="text-[10px] font-black text-rose-800">90+ Days Critical</span>
-                <p className="font-black text-rose-900 mt-1">৳{agingBuckets.b90_plus.toLocaleString()}</p>
-              </div>
+          {/* Right: Key Summary Badges */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 rounded-sm border border-sky-200/80 bg-white px-3 py-1.5 shadow-2xs">
+              <span className="text-[11px] font-semibold text-gray-500">Total Receivables:</span>
+              <span className="text-xs font-black text-gray-700">
+                ৳{agingBuckets.totalReceivables.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 rounded-sm border border-rose-200 bg-rose-50/60 px-3 py-1.5 shadow-2xs">
+              <span className="text-[11px] font-semibold text-rose-700">Overdue Exposure:</span>
+              <span className="text-xs font-black text-rose-800">
+                ৳{agingBuckets.totalOverdue.toLocaleString()}
+              </span>
+              {agingBuckets.totalReceivables > 0 && (
+                <span className="rounded-xs bg-rose-200/80 px-1.5 py-0.5 text-[10px] font-black text-rose-900">
+                  {Math.round((agingBuckets.totalOverdue / agingBuckets.totalReceivables) * 100)}%
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Batch Operations Floating Bar (When rows are checked) */}
-        {selectedIds.length > 0 && (
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-sm bg-gradient-to-r from-primary-800 via-primary-700 to-indigo-800 px-5 py-3 text-xs text-white shadow-xl animate-in fade-in slide-in-from-top-2">
-            <div className="flex items-center gap-2">
-              <CheckSquare size={16} className="text-primary-200" />
-              <span className="font-bold">{selectedIds.length} invoices selected</span>
+        {/* Multi-Segment Stacked Visual Delinquency Progress Bar */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-[11px] font-semibold text-gray-500">
+            <span>Delinquency Spread</span>
+            <span>
+              {agingBuckets.totalInvoicesWithDue} active unpaid invoice{agingBuckets.totalInvoicesWithDue === 1 ? "" : "s"}
+            </span>
+          </div>
+          <div className="flex h-3 w-full overflow-hidden rounded-sm bg-slate-100 p-0.5 shadow-inner border border-slate-200/70">
+            {agingBuckets.pNotDue > 0 && (
+              <div
+                style={{ width: `${agingBuckets.pNotDue}%` }}
+                className="h-full bg-emerald-500 transition-all rounded-xs"
+                title={`Current (Not Due): ৳${agingBuckets.notDue.toLocaleString()} (${agingBuckets.pNotDue.toFixed(1)}%)`}
+              />
+            )}
+            {agingBuckets.p1_30 > 0 && (
+              <div
+                style={{ width: `${agingBuckets.p1_30}%` }}
+                className="h-full bg-amber-400 transition-all rounded-xs ml-0.5"
+                title={`1 - 30 Days: ৳${agingBuckets.b1_30.toLocaleString()} (${agingBuckets.p1_30.toFixed(1)}%)`}
+              />
+            )}
+            {agingBuckets.p31_60 > 0 && (
+              <div
+                style={{ width: `${agingBuckets.p31_60}%` }}
+                className="h-full bg-orange-500 transition-all rounded-xs ml-0.5"
+                title={`31 - 60 Days: ৳${agingBuckets.b31_60.toLocaleString()} (${agingBuckets.p31_60.toFixed(1)}%)`}
+              />
+            )}
+            {agingBuckets.p61_90 > 0 && (
+              <div
+                style={{ width: `${agingBuckets.p61_90}%` }}
+                className="h-full bg-rose-500 transition-all rounded-xs ml-0.5"
+                title={`61 - 90 Days: ৳${agingBuckets.b61_90.toLocaleString()} (${agingBuckets.p61_90.toFixed(1)}%)`}
+              />
+            )}
+            {agingBuckets.p90_plus > 0 && (
+              <div
+                style={{ width: `${agingBuckets.p90_plus}%` }}
+                className="h-full bg-red-700 transition-all rounded-xs ml-0.5"
+                title={`90+ Days Critical: ৳${agingBuckets.b90_plus.toLocaleString()} (${agingBuckets.p90_plus.toFixed(1)}%)`}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* 5 Distinct Tone Aging Bucket Cards */}
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+          {/* Bucket 1: Current / Not Due */}
+          <div className="relative flex flex-col justify-between rounded-sm border border-emerald-200/80 bg-gradient-to-b from-emerald-50/50 to-white p-3 shadow-2xs hover:shadow-xs transition">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+                Current (Not Due)
+              </span>
+              <span className="rounded-xs bg-emerald-100/90 px-1.5 py-0.5 text-[9px] font-black text-emerald-800 border border-emerald-200">
+                {agingBuckets.pNotDue.toFixed(0)}%
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleExportCSV}
-                className="flex items-center gap-1 rounded-sm bg-white/15 px-3 py-1.5 font-bold hover:bg-white/25 transition"
-              >
-                <Download size={13} />
-                Export Selected
-              </button>
-              <button
-                onClick={() => setSelectedIds([])}
-                className="rounded-sm px-2.5 py-1.5 text-primary-200 hover:text-white transition"
-              >
-                Clear Selection
-              </button>
+            <div className="my-2">
+              <p className="text-base font-black text-gray-700 tracking-tight">
+                ৳{agingBuckets.notDue.toLocaleString()}
+              </p>
+            </div>
+            <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-emerald-200/70">
+              <span className="font-bold text-gray-700">{agingBuckets.countNotDue} invoices</span>
+              <span className="font-bold text-emerald-700">On Track</span>
             </div>
           </div>
-        )}
 
-        {/* Filter Toolbar & Quick Status Tabs */}
-        <div className="mb-4 rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
-          {/* Quick Status Tabs */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-100/70 pb-3.5">
-            <div className="flex flex-wrap items-center gap-1.5">
-              {[
-                { id: "ALL", label: "All Records" },
-                { id: "UNPAID", label: "Due / Unpaid" },
-                { id: "OVERDUE", label: "Overdue Alerts" },
-                { id: "PAID", label: "Paid in Full" },
-                { id: "TAX", label: "Mushak 6.3 Tax" },
-                { id: "NOTES", label: "Credit Notes" },
-                { id: "VOID", label: "Voided" },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id);
-                    setPage(1);
-                  }}
-                  className={`rounded-sm px-3 py-1.5 text-xs font-bold transition ${
-                    activeTab === tab.id
-                      ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/20"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+          {/* Bucket 2: 1 - 30 Days */}
+          <div className="relative flex flex-col justify-between rounded-sm border border-amber-200/80 bg-gradient-to-b from-amber-50/50 to-white p-3 shadow-2xs hover:shadow-xs transition">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
+                1 - 30 Days
+              </span>
+              <span className="rounded-xs bg-amber-100/90 px-1.5 py-0.5 text-[9px] font-black text-amber-800 border border-amber-200">
+                {agingBuckets.p1_30.toFixed(0)}%
+              </span>
             </div>
+            <div className="my-2">
+              <p className="text-base font-black text-amber-900 tracking-tight">
+                ৳{agingBuckets.b1_30.toLocaleString()}
+              </p>
+            </div>
+            <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-amber-200/70">
+              <span className="font-bold text-gray-700">{agingBuckets.count1_30} invoices</span>
+              <span className="font-bold text-amber-700">Early Watch</span>
+            </div>
+          </div>
 
-            <div className="flex items-center gap-2">
-              <div className="flex items-center rounded-sm border border-sky-100/90 bg-slate-50 p-1">
-                <button
-                  onClick={() => setViewMode("table")}
-                  className={`rounded-sm p-1.5 transition ${
-                    viewMode === "table" ? "bg-white text-sky-700 shadow-2xs" : "text-slate-400 hover:text-slate-700"
-                  }`}
-                  title="Table View"
-                >
-                  <LayoutList size={15} />
-                </button>
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`rounded-sm p-1.5 transition ${
-                    viewMode === "grid" ? "bg-white text-sky-700 shadow-2xs" : "text-slate-400 hover:text-slate-700"
-                  }`}
-                  title="Grid Card View"
-                >
-                  <LayoutGrid size={15} />
-                </button>
-              </div>
+          {/* Bucket 3: 31 - 60 Days */}
+          <div className="relative flex flex-col justify-between rounded-sm border border-orange-200/80 bg-gradient-to-b from-orange-50/50 to-white p-3 shadow-2xs hover:shadow-xs transition">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-orange-700">
+                31 - 60 Days
+              </span>
+              <span className="rounded-xs bg-orange-100/90 px-1.5 py-0.5 text-[9px] font-black text-orange-800 border border-orange-200">
+                {agingBuckets.p31_60.toFixed(0)}%
+              </span>
+            </div>
+            <div className="my-2">
+              <p className="text-base font-black text-orange-900 tracking-tight">
+                ৳{agingBuckets.b31_60.toLocaleString()}
+              </p>
+            </div>
+            <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-orange-200/70">
+              <span className="font-bold text-gray-700">{agingBuckets.count31_60} invoices</span>
+              <span className="font-bold text-orange-700">Follow-up</span>
+            </div>
+          </div>
 
-              <button
-                onClick={handleExportCSV}
-                className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                title="Export to CSV"
-              >
-                <Download size={14} />
-                <span className="hidden sm:inline">Export</span>
-              </button>
+          {/* Bucket 4: 61 - 90 Days */}
+          <div className="relative flex flex-col justify-between rounded-sm border border-rose-200/80 bg-gradient-to-b from-rose-50/50 to-white p-3 shadow-2xs hover:shadow-xs transition">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700">
+                61 - 90 Days
+              </span>
+              <span className="rounded-xs bg-rose-100/90 px-1.5 py-0.5 text-[9px] font-black text-rose-800 border border-rose-200">
+                {agingBuckets.p61_90.toFixed(0)}%
+              </span>
+            </div>
+            <div className="my-2">
+              <p className="text-base font-black text-rose-900 tracking-tight">
+                ৳{agingBuckets.b61_90.toLocaleString()}
+              </p>
+            </div>
+            <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-rose-200/70">
+              <span className="font-bold text-gray-700">{agingBuckets.count61_90} invoices</span>
+              <span className="font-bold text-rose-700">High Risk</span>
+            </div>
+          </div>
 
-              <button
-                onClick={() => {
-                  loadInvoices();
-                  loadStats();
+          {/* Bucket 5: 90+ Days Critical */}
+          <div className="relative flex flex-col justify-between rounded-sm border border-red-300 bg-gradient-to-b from-red-100/60 to-white p-3 shadow-2xs hover:shadow-xs transition">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider text-red-800">
+                90+ Days Critical
+              </span>
+              <span className="rounded-xs bg-red-200 px-1.5 py-0.5 text-[9px] font-black text-red-900 border border-red-300">
+                {agingBuckets.p90_plus.toFixed(0)}%
+              </span>
+            </div>
+            <div className="my-2">
+              <p className="text-base font-black text-red-950 tracking-tight">
+                ৳{agingBuckets.b90_plus.toLocaleString()}
+              </p>
+            </div>
+            <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-red-200">
+              <span className="font-bold text-gray-700">{agingBuckets.count90_plus} invoices</span>
+              <span className="font-black text-red-700">Immediate Action</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Batch Operations Floating Bar (When rows are checked) */}
+      {selectedIds.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm bg-gradient-to-r from-primary-800 via-primary-700 to-indigo-800 px-5 py-3 text-xs text-white shadow-xl animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2">
+            <CheckSquare size={16} className="text-white" />
+            <span className="font-bold">{selectedIds.length} invoices selected</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleExportCSV}
+              className="flex items-center gap-1 rounded-sm bg-white/20 px-3 py-1.5 font-bold hover:bg-white/30 transition cursor-pointer text-white"
+            >
+              <Download size={13} />
+              Export Selected
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              className="rounded-sm px-2.5 py-1.5 text-sky-100 hover:text-white transition cursor-pointer font-semibold"
+            >
+              Clear Selection
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* UNIFIED INVOICES MASTER CARD (Tabs, Filters & Records)    */}
+      {/* ========================================================= */}
+      <div className="rounded-sm border border-sky-200/80 bg-white shadow-2xs overflow-hidden">
+        {/* Card Header: Tabs, Search, Actions & Dropdowns */}
+        <div className="p-3.5 sm:p-4 border-b border-sky-100/80 space-y-3.5 bg-gradient-to-b from-white to-sky-50/20">
+          {/* Quick Status Tabs (Left) & Search + View / Export Buttons (Right) */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            {/* Tab sits on left, takes only needed width */}
+            <div className="overflow-x-auto min-w-0 shrink">
+              <CustomTabs
+                tabs={[
+                  { id: "ALL", label: "All Records" },
+                  { id: "UNPAID", label: "Due / Unpaid" },
+                  { id: "OVERDUE", label: "Overdue Alerts" },
+                  { id: "PAID", label: "Paid in Full" },
+                  { id: "TAX", label: "Mushak 6.3 Tax" },
+                  { id: "NOTES", label: "Credit Notes" },
+                  { id: "VOID", label: "Voided" },
+                ]}
+                activeTab={activeTab}
+                onChange={(tabId) => {
+                  setActiveTab(tabId);
+                  setPage(1);
                 }}
-                className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 active:scale-95"
-                title="Refresh"
-              >
-                <RefreshCw size={14} className={loading ? "animate-spin text-sky-600" : ""} />
-                <span className="hidden sm:inline">Refresh</span>
-              </button>
+                themeColor="primary"
+                className="w-auto border border-sky-100/90 bg-white shadow-2xs"
+              />
             </div>
-          </div>
 
-          {/* Search and Dropdown Filters */}
-          <div className="mt-3.5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Search Input */}
-            <div className="relative">
-              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
+            {/* Action Controls & Search aligned strictly on the right */}
+            <div className="flex flex-wrap items-center gap-2 sm:ml-auto shrink-0">
+              {/* Custom Search Input */}
+              <CustomInput
+                leftIcon={<Search size={14} />}
+                rightIcon={
+                  searchQuery ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setPage(1);
+                      }}
+                      className="text-slate-400 hover:text-gray-600 cursor-pointer"
+                    >
+                      <X size={14} />
+                    </button>
+                  ) : null
+                }
                 placeholder="Search invoice #, customer, phone, BIN..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 py-2 pl-10 pr-4 text-xs font-medium text-slate-800 placeholder-slate-400 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                containerClassName="w-48 sm:w-64 md:w-72"
+                className="h-[34px] text-xs text-gray-600 placeholder:text-slate-400 shadow-2xs"
               />
-              {searchQuery && (
+
+              {/* Table / Grid Switcher */}
+              <div className="flex items-center rounded-sm border border-sky-200/80 bg-white p-0.5 h-[34px] shadow-2xs">
                 <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  type="button"
+                  onClick={() => setViewMode("table")}
+                  className={`rounded-sm p-1.5 h-[28px] flex items-center transition cursor-pointer ${
+                    viewMode === "table"
+                      ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
+                      : "text-slate-400 hover:text-gray-600"
+                  }`}
+                  title="Table View"
                 >
-                  <X size={14} />
+                  <LayoutList size={14} />
                 </button>
-              )}
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  className={`rounded-sm p-1.5 h-[28px] flex items-center transition cursor-pointer ${
+                    viewMode === "grid"
+                      ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
+                      : "text-slate-400 hover:text-gray-600"
+                  }`}
+                  title="Grid Card View"
+                >
+                  <LayoutGrid size={14} />
+                </button>
+              </div>
 
-            {/* Invoice Type Filter */}
-            <div>
-              <select
-                value={filterType}
-                onChange={(e) => {
-                  setFilterType(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              {/* Export CSV Button */}
+              <CustomButton
+                variant="primary"
+                size="xs"
+                leftIcon={Download}
+                onClick={handleExportCSV}
+                className="h-[34px]"
+                title="Export filtered records to CSV"
               >
-                <option value="">All Invoice Types</option>
-                <option value="TAX">Mushak 6.3 Tax Invoice</option>
-                <option value="STANDARD">Commercial Invoice</option>
-                <option value="CREDIT_NOTE">Credit Note</option>
-                <option value="DEBIT_NOTE">Debit Note</option>
-                <option value="PROFORMA">Proforma Invoice</option>
-              </select>
+                Export CSV
+              </CustomButton>
             </div>
+          </div>
 
-            {/* Branch Filter */}
-            <div>
-              <select
-                value={filterBranch}
-                onChange={(e) => {
-                  setFilterBranch(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-              >
-                <option value="">All Outlets / Branches</option>
-                {branches.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* 4-Column Dropdown Filters Row (Equal Width): Module/Section (Left of Invoice Type), Type, Branch, Date */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-0.5">
+            {/* 1. Module / Section Select (Converted from Upper Tab, Left of Invoice Type) */}
+            <CustomDropdownSelect
+              options={sectionFilterOptions}
+              value={subSection}
+              onChange={(val) => {
+                setSubSection(val as any);
+                setActiveTab("ALL");
+                setPage(1);
+              }}
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-100/90 shadow-2xs"
+              placeholder="All Invoice Sections"
+            />
 
-            {/* Date Range Filter */}
-            <div>
-              <select
-                value={dateRange}
-                onChange={(e) => {
-                  setDateRange(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-              >
-                <option value="all">All Dates</option>
-                <option value="today">Today</option>
-                <option value="week">Past 7 Days</option>
-                <option value="month">This Month</option>
-              </select>
-            </div>
+            {/* 2. Invoice Type Select */}
+            <CustomDropdownSelect
+              options={typeFilterOptions}
+              value={filterType}
+              onChange={(val) => {
+                setFilterType(val);
+                setPage(1);
+              }}
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-100/90 shadow-2xs"
+              placeholder="All Invoice Types"
+            />
+
+            {/* 3. Outlet / Branch Select */}
+            <CustomDropdownSelect
+              options={branchFilterOptions}
+              value={filterBranch}
+              onChange={(val) => {
+                setFilterBranch(val);
+                setPage(1);
+              }}
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-100/90 shadow-2xs"
+              placeholder="All Outlets / Branches"
+            />
+
+            {/* 4. Date Range Select */}
+            <CustomDropdownSelect
+              options={dateRangeOptions}
+              value={dateRange}
+              onChange={(val) => {
+                setDateRange(val);
+                setPage(1);
+              }}
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-100/90 shadow-2xs"
+              placeholder="Date Range"
+            />
           </div>
         </div>
 
-        {/* Invoices List Content */}
+        {/* Invoices List Content (Inside the same card) */}
         {loading ? (
-          <div className="flex h-64 flex-col items-center justify-center rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+          <div className="flex h-64 flex-col items-center justify-center bg-white">
             <RefreshCw size={28} className="animate-spin text-sky-600" />
-            <p className="mt-3 text-xs font-semibold text-slate-500">Loading invoice engine data...</p>
+            <p className="mt-3 text-xs font-semibold text-gray-500">Loading invoice engine data...</p>
           </div>
         ) : invoices.length === 0 ? (
-          <div className="flex h-72 flex-col items-center justify-center rounded-sm border border-dashed border-slate-300 bg-white p-8 text-center shadow-2xs">
+          <div className="flex h-72 flex-col items-center justify-center p-8 text-center bg-white">
             <div className="rounded-sm bg-sky-50 p-4 text-sky-600">
               <FileText size={36} />
             </div>
-            <h3 className="mt-3 text-sm font-bold text-slate-800">No invoices found</h3>
-            <p className="mt-1 max-w-sm text-xs text-slate-500">
+            <h3 className="mt-3 text-sm font-bold text-gray-700">No invoices found</h3>
+            <p className="mt-1 max-w-sm text-xs text-gray-500">
               No invoice records matched your criteria. Create a new invoice or adjust your search filters.
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="mt-4 flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-bold text-white shadow-2xs shadow-primary-500/25 hover:bg-primary-700"
+              className="mt-4 flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-bold text-white shadow-2xs shadow-primary-500/25 hover:bg-primary-700 cursor-pointer"
             >
               <Plus size={15} />
               Create First Invoice
             </button>
           </div>
         ) : viewMode === "table" ? (
-          /* Table View */
-          <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+          /* Table View: seamlessly integrated into this card, no double borders */
+          <div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-sky-100/70 bg-slate-50/75 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <tr className="border-b border-sky-100/70 bg-slate-50/75 text-[11px] font-bold uppercase tracking-wider text-gray-600">
                     <th className="py-3.5 pl-4 pr-2 w-8">
-                      <button onClick={toggleSelectAll} className="text-slate-400 hover:text-slate-700">
+                      <button onClick={toggleSelectAll} className="text-slate-400 hover:text-slate-700 cursor-pointer">
                         {selectedIds.length === invoices.length && invoices.length > 0 ? (
                           <CheckSquare size={16} className="text-sky-600" />
                         ) : (
@@ -1202,7 +1422,7 @@ export default function InvoicesPage() {
                       <tr key={inv.id} className={`group transition ${isSelected ? "bg-sky-50/30" : "hover:bg-slate-50/70"}`}>
                         {/* Checkbox */}
                         <td className="py-3.5 pl-4 pr-2">
-                          <button onClick={() => toggleSelectRow(inv.id)} className="text-slate-400 hover:text-slate-700">
+                          <button onClick={() => toggleSelectRow(inv.id)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
                             {isSelected ? <CheckSquare size={16} className="text-sky-600" /> : <Square size={16} />}
                           </button>
                         </td>
@@ -1213,7 +1433,7 @@ export default function InvoicesPage() {
                             <div className="flex items-center gap-1.5">
                               <span
                                 onClick={() => copyToClipboard(inv.invoiceNo, inv.id)}
-                                className="cursor-pointer font-mono font-bold text-slate-900 transition hover:text-sky-600"
+                                className="cursor-pointer font-mono font-bold text-gray-700 transition hover:text-[#0284C7]"
                                 title="Click to copy invoice number"
                               >
                                 {inv.invoiceNo}
@@ -1225,11 +1445,11 @@ export default function InvoicesPage() {
                               )}
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${typeCfg.badge}`}>
+                              <span className={`rounded-sm px-1.5 py-0.5 text-[10px] font-bold ${typeCfg.badge}`}>
                                 {typeCfg.label}
                               </span>
                               {inv.branchName && (
-                                <span className="text-[10px] text-slate-400 truncate max-w-[120px]">
+                                <span className="text-[10px] text-gray-400 truncate max-w-[120px]">
                                   • {inv.branchName}
                                 </span>
                               )}
@@ -1241,36 +1461,36 @@ export default function InvoicesPage() {
                         <td className="px-3 py-3.5">
                           {inv.customer ? (
                             <div className="flex flex-col">
-                              <span className="font-bold text-slate-800">{inv.customer.name}</span>
-                              <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                              <span className="font-bold text-gray-700">{inv.customer.name}</span>
+                              <div className="flex items-center gap-2 text-[11px] text-gray-400">
                                 {inv.customer.phone && <span>{inv.customer.phone}</span>}
                                 {inv.customer.binVatNo && (
-                                  <span className="font-mono text-[10px] text-sky-700 font-semibold">BIN: {inv.customer.binVatNo}</span>
+                                  <span className="font-mono text-[10px] text-[#0284C7] font-semibold">BIN: {inv.customer.binVatNo}</span>
                                 )}
                               </div>
                             </div>
                           ) : (
-                            <span className="font-medium italic text-slate-400">Walk-in Customer</span>
+                            <span className="font-medium italic text-gray-400">Walk-in Customer</span>
                           )}
                         </td>
 
                         {/* Issue & Due Date */}
                         <td className="px-3 py-3.5">
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-medium text-slate-700">
+                            <span className="font-medium text-gray-600">
                               {new Date(inv.issueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                             </span>
                             {inv.dueDate && (
                               <div className="flex items-center gap-1">
                                 <span
                                   className={`text-[11px] ${
-                                    overdue ? "font-bold text-rose-600" : "text-slate-400"
+                                    overdue ? "font-bold text-rose-600" : "text-gray-400"
                                   }`}
                                 >
                                   Due: {new Date(inv.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                                 </span>
                                 {overdue && (
-                                  <span className="rounded bg-rose-100 px-1 py-0.2 text-[9px] font-black text-rose-700">
+                                  <span className="rounded-xs bg-rose-100 px-1 py-0.2 text-[9px] font-black text-rose-700">
                                     OVERDUE
                                   </span>
                                 )}
@@ -1280,7 +1500,7 @@ export default function InvoicesPage() {
                         </td>
 
                         {/* Total Amount */}
-                        <td className="px-3 py-3.5 text-right font-black text-slate-900 tabular-nums">
+                        <td className="px-3 py-3.5 text-right font-black text-gray-700 tabular-nums">
                           ৳{Number(inv.total).toLocaleString()}
                         </td>
 
@@ -1306,7 +1526,7 @@ export default function InvoicesPage() {
                         <td className="px-3 py-3.5 text-right">
                           <span
                             className={`font-black tabular-nums ${
-                              dueAmt > 0 ? (overdue ? "text-rose-600 font-black" : "text-slate-800") : "text-slate-400"
+                              dueAmt > 0 ? (overdue ? "text-rose-600 font-black" : "text-gray-700") : "text-gray-400"
                             }`}
                           >
                             {dueAmt > 0 ? `৳${dueAmt.toLocaleString()}` : "—"}
@@ -1330,7 +1550,7 @@ export default function InvoicesPage() {
                             <button
                               onClick={() => launchPrintModal(inv)}
                               title="Print Layouts (Thermal / A4 / Mushak 6.3)"
-                              className="rounded-sm p-1.5 text-slate-600 transition hover:bg-sky-50 hover:text-sky-700 active:scale-95"
+                              className="rounded-sm p-1.5 text-gray-500 transition hover:bg-sky-50 hover:text-[#0284C7] cursor-pointer active:scale-95"
                             >
                               <Printer size={15} />
                             </button>
@@ -1339,7 +1559,7 @@ export default function InvoicesPage() {
                             <button
                               onClick={() => openInvoiceDrawer(inv.id)}
                               title="Invoice Breakdown & Ledger"
-                              className="rounded-sm p-1.5 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95"
+                              className="rounded-sm p-1.5 text-gray-500 transition hover:bg-slate-100 hover:text-gray-800 cursor-pointer active:scale-95"
                             >
                               <Eye size={15} />
                             </button>
@@ -1349,7 +1569,7 @@ export default function InvoicesPage() {
                               <button
                                 onClick={() => openCollectPaymentModal(inv)}
                                 title="Collect Due Payment"
-                                className="rounded-sm p-1.5 text-emerald-600 transition hover:bg-emerald-50 hover:text-emerald-700 active:scale-95"
+                                className="rounded-sm p-1.5 text-emerald-600 transition hover:bg-emerald-50 hover:text-emerald-700 cursor-pointer active:scale-95"
                               >
                                 <CreditCard size={15} />
                               </button>
@@ -1360,7 +1580,7 @@ export default function InvoicesPage() {
                               <button
                                 onClick={() => openReminderModal(inv)}
                                 title="Send Payment Reminder (SMS / WhatsApp)"
-                                className="rounded-sm p-1.5 text-sky-600 transition hover:bg-sky-50 hover:text-sky-700 active:scale-95"
+                                className="rounded-sm p-1.5 text-[#0284C7] transition hover:bg-sky-50 hover:text-[#0369A1] cursor-pointer active:scale-95"
                               >
                                 <MessageSquare size={15} />
                               </button>
@@ -1371,7 +1591,7 @@ export default function InvoicesPage() {
                               <button
                                 onClick={() => handleVoidInvoice(inv.id, inv.invoiceNo)}
                                 title="Void Invoice"
-                                className="rounded-sm p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 active:scale-95"
+                                className="rounded-sm p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 cursor-pointer active:scale-95"
                               >
                                 <Ban size={15} />
                               </button>
@@ -1386,7 +1606,7 @@ export default function InvoicesPage() {
             </div>
 
             {/* Pagination footer */}
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-sky-100/70 px-4 sm:px-6 py-3.5 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-sky-100/70 px-4 sm:px-6 py-3.5 text-xs text-gray-500 bg-white">
               <span>
                 Showing {invoices.length} of {totalRecords} invoices (Page {page} of {totalPages})
               </span>
@@ -1394,14 +1614,14 @@ export default function InvoicesPage() {
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-sm border border-sky-100/90 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-sky-100/90 px-2.5 py-1 font-semibold text-gray-600 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
                 >
                   <ChevronLeft size={14} />
                 </button>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-sm border border-sky-100/90 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-sky-100/90 px-2.5 py-1 font-semibold text-gray-600 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -1410,7 +1630,7 @@ export default function InvoicesPage() {
           </div>
         ) : (
           /* Grid Card View */
-          <div>
+          <div className="p-4 sm:p-5">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {invoices.map((inv) => {
                 const dueAmt = Math.max(0, Number(inv.total) - Number(inv.paidTotal));
@@ -1422,16 +1642,16 @@ export default function InvoicesPage() {
                 return (
                   <div
                     key={inv.id}
-                    className="group flex flex-col justify-between rounded-sm border border-sky-100/90 bg-white p-4 sm:p-5 shadow-2xs transition hover:border-slate-300 hover:shadow-2xs"
+                    className="group flex flex-col justify-between rounded-sm border border-sky-100/90 bg-white p-4 sm:p-5 shadow-2xs transition hover:border-sky-300 hover:shadow-xs"
                   >
                     <div>
                       {/* Top row */}
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <div className="flex items-center gap-1.5 font-mono text-sm font-bold text-slate-900">
+                          <div className="flex items-center gap-1.5 font-mono text-sm font-bold text-gray-700">
                             {inv.invoiceNo}
                           </div>
-                          <span className={`mt-1 inline-block rounded-md px-2 py-0.5 text-[10px] font-bold ${typeCfg.badge}`}>
+                          <span className={`mt-1 inline-block rounded-sm px-2 py-0.5 text-[10px] font-bold ${typeCfg.badge}`}>
                             {typeCfg.label}
                           </span>
                         </div>
@@ -1444,21 +1664,21 @@ export default function InvoicesPage() {
                       </div>
 
                       {/* Customer Info */}
-                      <div className="mt-4 rounded-sm bg-slate-50 p-3">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Customer</p>
-                        <p className="text-xs font-bold text-slate-800">{inv.customer?.name || "Walk-in Customer"}</p>
-                        {inv.customer?.phone && <p className="text-[11px] text-slate-500">{inv.customer.phone}</p>}
+                      <div className="mt-4 rounded-sm bg-slate-50 p-3 border border-slate-100">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Customer</p>
+                        <p className="text-xs font-bold text-gray-700">{inv.customer?.name || "Walk-in Customer"}</p>
+                        {inv.customer?.phone && <p className="text-[11px] text-gray-500">{inv.customer.phone}</p>}
                       </div>
 
                       {/* Financials & Dates */}
                       <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
                         <div>
-                          <span className="text-[11px] text-slate-400">Total Invoiced</span>
-                          <p className="font-black text-slate-900">৳{Number(inv.total).toLocaleString()}</p>
+                          <span className="text-[11px] text-gray-400">Total Invoiced</span>
+                          <p className="font-black text-gray-700">৳{Number(inv.total).toLocaleString()}</p>
                         </div>
                         <div className="text-right">
-                          <span className="text-[11px] text-slate-400">Due Balance</span>
-                          <p className={`font-black ${dueAmt > 0 ? "text-rose-600" : "text-slate-400"}`}>
+                          <span className="text-[11px] text-gray-400">Due Balance</span>
+                          <p className={`font-black ${dueAmt > 0 ? "text-rose-600" : "text-gray-400"}`}>
                             ৳{dueAmt.toLocaleString()}
                           </p>
                         </div>
@@ -1466,7 +1686,7 @@ export default function InvoicesPage() {
 
                       {/* Progress Bar */}
                       <div className="mt-3">
-                        <div className="flex justify-between text-[10px] font-semibold text-slate-500">
+                        <div className="flex justify-between text-[10px] font-semibold text-gray-500">
                           <span>Paid: ৳{Number(inv.paidTotal).toLocaleString()}</span>
                           <span>{percentPaid}%</span>
                         </div>
@@ -1483,20 +1703,20 @@ export default function InvoicesPage() {
 
                     {/* Bottom Action Footer */}
                     <div className="mt-5 flex items-center justify-between border-t border-sky-100/70 pt-3 text-xs">
-                      <span className="text-[11px] text-slate-400">
+                      <span className="text-[11px] text-gray-400">
                         {new Date(inv.issueDate).toLocaleDateString()}
                       </span>
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => launchPrintModal(inv)}
-                          className="flex items-center gap-1 rounded-sm border border-sky-100/90 px-2.5 py-1.5 font-bold text-slate-700 hover:bg-slate-50"
+                          className="flex items-center gap-1 rounded-sm border border-sky-100/90 px-2.5 py-1.5 font-bold text-gray-600 hover:bg-slate-50 cursor-pointer"
                         >
                           <Printer size={13} />
                           Print
                         </button>
                         <button
                           onClick={() => openInvoiceDrawer(inv.id)}
-                          className="flex items-center gap-1 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-2.5 py-1.5 font-bold text-white shadow-2xs hover:bg-primary-700"
+                          className="flex items-center gap-1 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-2.5 py-1.5 font-bold text-white shadow-2xs hover:bg-primary-700 cursor-pointer"
                         >
                           <Eye size={13} />
                           Details
@@ -1509,7 +1729,7 @@ export default function InvoicesPage() {
             </div>
 
             {/* Pagination footer */}
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-4 sm:px-6 py-3 text-xs text-slate-500 shadow-2xs">
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-4 sm:px-6 py-3 text-xs text-gray-500 shadow-2xs">
               <span>
                 Page {page} of {totalPages} ({totalRecords} total invoices)
               </span>
@@ -1517,14 +1737,14 @@ export default function InvoicesPage() {
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-sm border border-sky-100/90 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-sky-100/90 px-3 py-1 font-semibold text-gray-600 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
                 >
                   Previous
                 </button>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-sm border border-sky-100/90 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-sky-100/90 px-3 py-1 font-semibold text-gray-600 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
                 >
                   Next
                 </button>
