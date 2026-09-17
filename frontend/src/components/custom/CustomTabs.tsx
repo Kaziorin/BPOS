@@ -26,16 +26,16 @@ export interface CustomTabsProps {
 }
 
 const THEME_ACTIVE_STYLES: Record<string, string> = {
-  primary: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs font-bold",
-  blue: "bg-blue-600 text-white shadow-2xs",
-  orange: "bg-orange-500 text-white shadow-2xs",
-  teal: "bg-[#00796b] text-white shadow-2xs",
-  emerald: "bg-emerald-600 text-white shadow-2xs",
-  indigo: "bg-indigo-600 text-white shadow-2xs",
-  amber: "bg-amber-500 text-white shadow-2xs",
-  rose: "bg-rose-600 text-white shadow-2xs",
-  purple: "bg-purple-600 text-white shadow-2xs",
-  violet: "bg-gradient-to-r from-violet-500 to-indigo-400 text-white shadow-xs font-bold",
+  primary: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold border border-[#0284C7] shadow-xs outline-none",
+  blue: "bg-blue-600 text-white shadow-2xs border border-blue-600 outline-none",
+  orange: "bg-orange-500 text-white shadow-2xs border border-orange-500 outline-none",
+  teal: "bg-[#00796b] text-white shadow-2xs border border-[#00796b] outline-none",
+  emerald: "bg-emerald-600 text-white shadow-2xs border border-emerald-600 outline-none",
+  indigo: "bg-indigo-600 text-white shadow-2xs border border-indigo-600 outline-none",
+  amber: "bg-amber-500 text-white shadow-2xs border border-amber-500 outline-none",
+  rose: "bg-rose-600 text-white shadow-2xs border border-rose-600 outline-none",
+  purple: "bg-purple-600 text-white shadow-2xs border border-purple-600 outline-none",
+  violet: "bg-gradient-to-r from-violet-500 to-indigo-400 text-white font-bold border border-violet-500 shadow-xs outline-none",
 };
 
 const THEME_HOVER_STYLES = (darkMode: boolean): Record<string, string> => ({
@@ -89,12 +89,13 @@ export function CustomTabs({
             type="button"
             onClick={() => onChange(tab.id)}
             className={cn(
-              "flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-sm transition-all duration-200 whitespace-nowrap cursor-pointer select-none border",
+              "flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-sm transition-all duration-200 whitespace-nowrap cursor-pointer select-none outline-none focus:outline-none focus-visible:outline-none focus:ring-0",
               isActive
-                ? cn(activeStyle, "border-transparent")
+                ? cn(activeStyle, "border border-[#0284C7]")
                 : inactiveClassName
                   ? inactiveClassName
                   : cn(
+                      "border",
                       darkMode
                         ? "text-slate-300 bg-slate-800/80 border-slate-700"
                         : "text-gray-600 bg-white border-sky-200/90 shadow-2xs hover:bg-sky-50 hover:text-[#0284C7] hover:border-sky-300",

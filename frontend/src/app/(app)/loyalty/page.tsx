@@ -1779,7 +1779,7 @@ export default function LoyaltyPage() {
         open={Boolean(earnAcc)}
         onClose={() => setEarnAcc(null)}
         title="Add Earned Loyalty Points"
-        size="lg"
+        size="2xl"
       >
         {earnAcc && (
           <div className="space-y-4">
@@ -1857,7 +1857,7 @@ export default function LoyaltyPage() {
         open={Boolean(redeemAcc)}
         onClose={() => setRedeemAcc(null)}
         title="Redeem Loyalty Points for Discount"
-        size="lg"
+        size="2xl"
       >
         {redeemAcc && (
           <div className="space-y-4">
@@ -1940,20 +1940,22 @@ export default function LoyaltyPage() {
         open={Boolean(ledgerFor)}
         onClose={() => setLedgerFor(null)}
         title={`Points Ledger History — ${ledgerFor?.customerName ?? ""}`}
-        size="2xl"
+        size="4xl"
       >
         {ledgerFor && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-sm bg-sky-50/60 border border-sky-200/80 p-3.5 shadow-2xs">
+            <div className="flex items-center justify-between rounded-sm bg-sky-50/60 border border-sky-200/80 p-4 shadow-2xs">
               <div>
-                <h4 className="text-xs font-bold text-[#0369A1]">{ledgerFor.customerName}</h4>
-                <p className="text-[11px] text-gray-500">{ledgerFor.phone || "No contact"} · Membership: {ledgerFor.tier}</p>
+                <h4 className="text-sm font-bold text-[#0369A1]">{ledgerFor.customerName}</h4>
+                <p className="text-xs font-semibold text-gray-600 mt-1">
+                  {ledgerFor.phone || "No phone registered"} · Membership Rank: {ledgerFor.tier}
+                </p>
               </div>
               <div className="text-right">
-                <span className="text-base font-black text-amber-700">
+                <span className="text-lg font-black text-amber-700">
                   {Number(ledgerFor.pointsBalance || 0).toLocaleString()} pts
                 </span>
-                <p className="text-[10px] text-gray-400 font-semibold">Current Balance</p>
+                <p className="text-xs text-[#0369A1] font-bold uppercase tracking-wider mt-0.5">Current Balance</p>
               </div>
             </div>
 
@@ -1967,31 +1969,43 @@ export default function LoyaltyPage() {
                 No point transaction logs recorded yet for this customer.
               </div>
             ) : (
-              <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-1">
+              <div className="space-y-2.5 max-h-96 overflow-y-auto custom-scrollbar pr-1">
                 {ledger.map((row) => (
                   <div
                     key={row.id}
-                    className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs hover:border-sky-300 transition"
+                    className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs hover:border-sky-300 transition"
                   >
-                    <div>
-                      <p className="text-xs font-bold text-gray-600 capitalize">
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-[#0369A1] capitalize">
                         {row.type.replace(/_/g, " ")}
                       </p>
-                      {row.note && <p className="text-[11px] text-gray-500 mt-0.5">{row.note}</p>}
-                      <p className="text-[10.5px] text-gray-400 mt-0.5">
-                        {new Date(row.createdAt).toLocaleString("en-BD")}
+                      {row.note && (
+                        <div>
+                          <span className="text-xs font-semibold text-gray-600 bg-sky-50 border border-sky-200/80 px-2 py-0.5 rounded-sm inline-block">
+                            Note: {row.note}
+                          </span>
+                        </div>
+                      )}
+                      <p className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
+                        {new Date(row.createdAt).toLocaleString("en-BD", {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })}
                       </p>
                     </div>
 
-                    <div className="text-right">
+                    <div className="text-right space-y-1">
                       {row.pointsEarned != null && (
-                        <p className="text-xs font-black text-emerald-700">+{row.pointsEarned} pts</p>
+                        <p className="text-sm font-black text-emerald-700">+{row.pointsEarned} pts</p>
                       )}
                       {row.pointsRedeemed != null && (
-                        <p className="text-xs font-black text-rose-600">−{row.pointsRedeemed} pts</p>
+                        <p className="text-sm font-black text-rose-600">−{row.pointsRedeemed} pts</p>
                       )}
                       {row.balanceAfter != null && (
-                        <p className="text-[10.5px] text-gray-400 font-medium">Balance: {row.balanceAfter} pts</p>
+                        <span className="text-xs font-bold text-gray-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-sm inline-block">
+                          Balance: {Number(row.balanceAfter).toLocaleString()} pts
+                        </span>
                       )}
                     </div>
                   </div>
@@ -2019,7 +2033,7 @@ export default function LoyaltyPage() {
         open={Boolean(walTxModal)}
         onClose={() => setWalTxModal(null)}
         title={walTxModal?.mode === "credit" ? "Credit Customer Wallet" : "Debit Customer Wallet"}
-        size="lg"
+        size="2xl"
       >
         {walTxModal && (
           <div className="space-y-4">
@@ -2039,19 +2053,19 @@ export default function LoyaltyPage() {
                   >
                     {walTxModal.account.customerName}
                   </h3>
-                  <p className="text-[11px] text-gray-500 font-medium mt-0.5">
-                    {walTxModal.account.phone || "No phone"}
+                  <p className="text-xs text-gray-600 font-medium mt-0.5">
+                    {walTxModal.account.phone || "No phone registered"}
                   </p>
                 </div>
                 <div className="text-right">
                   <span
-                    className={`text-base font-black ${
+                    className={`text-lg font-black ${
                       walTxModal.mode === "credit" ? "text-emerald-700" : "text-rose-700"
                     }`}
                   >
                     {currency(walTxModal.account.balance)}
                   </span>
-                  <p className="text-[10px] text-gray-500 font-semibold">Available Balance</p>
+                  <p className="text-xs text-gray-600 font-semibold">Available Balance</p>
                 </div>
               </div>
             </div>
@@ -2135,24 +2149,24 @@ export default function LoyaltyPage() {
         open={Boolean(walletDetail)}
         onClose={() => setWalletDetail(null)}
         title={`Wallet Transactions — ${walletDetail?.customerName ?? ""}`}
-        size="2xl"
+        size="4xl"
       >
         {walletDetail && (
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="rounded-sm bg-emerald-50/70 border border-emerald-200 p-3 text-center shadow-2xs">
+              <div className="rounded-sm bg-emerald-50/70 border border-emerald-200 p-3.5 text-center shadow-2xs">
                 <p className="text-[10.5px] font-bold text-emerald-800 uppercase">Balance</p>
                 <p className="text-lg font-black text-emerald-700 mt-0.5">
                   {currency(walletDetail.balance)}
                 </p>
               </div>
-              <div className="rounded-sm bg-sky-50/70 border border-sky-200 p-3 text-center shadow-2xs">
+              <div className="rounded-sm bg-sky-50/70 border border-sky-200 p-3.5 text-center shadow-2xs">
                 <p className="text-[10.5px] font-bold text-[#0369A1] uppercase">Total Credited</p>
                 <p className="text-lg font-black text-[#0369A1] mt-0.5">
                   {currency(walletDetail.lifetimeCredited)}
                 </p>
               </div>
-              <div className="rounded-sm bg-rose-50/70 border border-rose-200 p-3 text-center shadow-2xs">
+              <div className="rounded-sm bg-rose-50/70 border border-rose-200 p-3.5 text-center shadow-2xs">
                 <p className="text-[10.5px] font-bold text-rose-800 uppercase">Total Debited</p>
                 <p className="text-lg font-black text-rose-700 mt-0.5">
                   {currency(walletDetail.lifetimeDebited)}
@@ -2165,25 +2179,35 @@ export default function LoyaltyPage() {
                 No wallet transactions found.
               </div>
             ) : (
-              <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-1">
+              <div className="space-y-2.5 max-h-96 overflow-y-auto custom-scrollbar pr-1">
                 {(walletDetail.transactions ?? []).map((tx: any) => (
                   <div
                     key={tx.id}
-                    className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs hover:border-sky-300 transition"
+                    className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs hover:border-sky-300 transition"
                   >
-                    <div>
-                      <p className="text-xs font-bold text-gray-600 capitalize">
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-[#0369A1] capitalize">
                         {tx.type?.replace(/_/g, " ")}
                       </p>
-                      {tx.note && <p className="text-[11px] text-gray-500 mt-0.5">{tx.note}</p>}
-                      <p className="text-[10.5px] text-gray-400 mt-0.5">
-                        {new Date(tx.createdAt).toLocaleString("en-BD")}
+                      {tx.note && (
+                        <div>
+                          <span className="text-xs font-semibold text-gray-600 bg-sky-50 border border-sky-200/80 px-2 py-0.5 rounded-sm inline-block">
+                            Note: {tx.note}
+                          </span>
+                        </div>
+                      )}
+                      <p className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
+                        {new Date(tx.createdAt).toLocaleString("en-BD", {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })}
                       </p>
                     </div>
 
-                    <div className="text-right">
+                    <div className="text-right space-y-1">
                       <p
-                        className={`text-xs font-black ${
+                        className={`text-sm font-black ${
                           Number(tx.amount) >= 0 ? "text-emerald-700" : "text-rose-600"
                         }`}
                       >
@@ -2191,9 +2215,9 @@ export default function LoyaltyPage() {
                         {currency(tx.amount)}
                       </p>
                       {tx.balanceAfter != null && (
-                        <p className="text-[10.5px] text-gray-400 font-medium">
+                        <span className="text-xs font-bold text-gray-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-sm inline-block">
                           Balance: {currency(tx.balanceAfter)}
-                        </p>
+                        </span>
                       )}
                     </div>
                   </div>
@@ -2326,7 +2350,7 @@ export default function LoyaltyPage() {
         open={Boolean(gcTxModal)}
         onClose={() => setGcTxModal(null)}
         title={gcTxModal?.mode === "redeem" ? "Redeem Gift Card" : "Reload Gift Card"}
-        size="lg"
+        size="2xl"
       >
         {gcTxModal && (
           <div className="space-y-4">
@@ -2334,15 +2358,15 @@ export default function LoyaltyPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-mono text-xs font-bold text-[#0369A1]">{gcTxModal.card.cardNo}</p>
-                  <p className="text-[11px] text-gray-500 mt-0.5">
+                  <p className="text-xs text-gray-600 font-medium mt-0.5">
                     Holder: {gcTxModal.card.issuedToName || "Anonymous"} · {gcTxModal.card.cardType}
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="text-base font-black text-[#0284C7]">
+                  <span className="text-lg font-black text-[#0284C7]">
                     {currency(gcTxModal.card.balance)}
                   </span>
-                  <p className="text-[10px] text-gray-500 font-semibold">Available Balance</p>
+                  <p className="text-xs text-gray-600 font-semibold">Available Balance</p>
                 </div>
               </div>
             </div>
@@ -2399,25 +2423,25 @@ export default function LoyaltyPage() {
         open={Boolean(gcDetail)}
         onClose={() => setGcDetail(null)}
         title={`Gift Card History — ${gcDetail?.cardNo ?? ""}`}
-        size="2xl"
+        size="4xl"
       >
         {gcDetail && (
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="rounded-sm bg-sky-50/70 border border-sky-200 p-3 text-center shadow-2xs">
+              <div className="rounded-sm bg-sky-50/70 border border-sky-200 p-3.5 text-center shadow-2xs">
                 <p className="text-[10.5px] font-bold text-[#0369A1] uppercase">Current Balance</p>
                 <p className="text-lg font-black text-[#0369A1] mt-0.5">
                   {currency(gcDetail.balance)}
                 </p>
               </div>
-              <div className="rounded-sm bg-slate-50/70 border border-slate-200 p-3 text-center shadow-2xs">
+              <div className="rounded-sm bg-slate-50/70 border border-slate-200 p-3.5 text-center shadow-2xs">
                 <p className="text-[10.5px] font-bold text-gray-600 uppercase">Initial Amount</p>
                 <p className="text-lg font-black text-gray-600 mt-0.5">
                   {currency(gcDetail.initialAmount)}
                 </p>
               </div>
               <div
-                className={`rounded-sm p-3 text-center shadow-2xs border ${
+                className={`rounded-sm p-3.5 text-center shadow-2xs border ${
                   gcDetail.status === "ACTIVE"
                     ? "bg-emerald-50/70 border-emerald-200"
                     : "bg-rose-50/70 border-rose-200"
@@ -2452,25 +2476,35 @@ export default function LoyaltyPage() {
                 No transactions recorded for this gift card yet.
               </div>
             ) : (
-              <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-1">
+              <div className="space-y-2.5 max-h-96 overflow-y-auto custom-scrollbar pr-1">
                 {(gcDetail.transactions ?? []).map((tx: any) => (
                   <div
                     key={tx.id}
-                    className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs hover:border-sky-300 transition"
+                    className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs hover:border-sky-300 transition"
                   >
-                    <div>
-                      <p className="text-xs font-bold text-gray-600 capitalize">
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-[#0369A1] capitalize">
                         {tx.type?.replace(/_/g, " ")}
                       </p>
-                      {tx.note && <p className="text-[11px] text-gray-500 mt-0.5">{tx.note}</p>}
-                      <p className="text-[10.5px] text-gray-400 mt-0.5">
-                        {new Date(tx.createdAt).toLocaleString("en-BD")}
+                      {tx.note && (
+                        <div>
+                          <span className="text-xs font-semibold text-gray-600 bg-sky-50 border border-sky-200/80 px-2 py-0.5 rounded-sm inline-block">
+                            Note: {tx.note}
+                          </span>
+                        </div>
+                      )}
+                      <p className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
+                        {new Date(tx.createdAt).toLocaleString("en-BD", {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })}
                       </p>
                     </div>
 
-                    <div className="text-right">
+                    <div className="text-right space-y-1">
                       <p
-                        className={`text-xs font-black ${
+                        className={`text-sm font-black ${
                           tx.type === "RELOAD" ? "text-emerald-700" : "text-rose-600"
                         }`}
                       >
@@ -2478,9 +2512,9 @@ export default function LoyaltyPage() {
                         {currency(Math.abs(tx.amount ?? 0))}
                       </p>
                       {tx.balanceAfter != null && (
-                        <p className="text-[10.5px] text-gray-400 font-medium">
+                        <span className="text-xs font-bold text-gray-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-sm inline-block">
                           Balance: {currency(tx.balanceAfter)}
-                        </p>
+                        </span>
                       )}
                     </div>
                   </div>
