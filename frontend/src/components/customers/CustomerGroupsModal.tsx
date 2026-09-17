@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, Loader2, Users, Plus, Trash2, Percent } from "lucide-react";
+import { X, Loader2, Users, Plus, Trash2, Percent, Tag, Info } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomButton } from "@/components/custom/CustomButton";
+import { ConfirmModal } from "@/components/custom/ConfirmModal";
+import { toast } from "react-toastify";
 
 interface CustomerGroupsModalProps {
   isOpen: boolean;
@@ -17,7 +20,9 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
   const [discountPercent, setDiscountPercent] = useState("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  
+  const [groupToDelete, setGroupToDelete] = useState<any | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -32,6 +37,7 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
       setGroups(res.data || []);
     } catch (err: any) {
       console.error("Load groups error:", err);
+      toast.error(err.message || "Failed to load customer groups");
     } finally {
       setLoading(false);
     }
@@ -41,7 +47,6 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
     e.preventDefault();
     if (!name.trim()) return;
     setSubmitting(true);
-    setError(null);
     try {
       await api.post("/v1/customer-groups", {
         name: name.trim(),
@@ -51,163 +56,216 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
       setName("");
       setDiscountPercent("");
       setDescription("");
+      toast.success(`Group "${name.trim()}" created successfully!`);
       await loadGroups();
       onSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || "Failed to create group");
+      toast.error(err.response?.data?.error || err.message || "Failed to create group");
     } finally {
       setSubmitting(false);
     }
   }
 
-  async function handleDeleteGroup(id: string) {
-    if (!confirm("Are you sure you want to remove this group?")) return;
+  async function handleConfirmDelete() {
+    if (!groupToDelete) return;
+    setDeleting(true);
     try {
-      await api.del(`/v1/customer-groups/${id}`);
+      await api.del(`/v1/customer-groups/${groupToDelete.id}`);
+      toast.success(`Group "${groupToDelete.name}" removed.`);
+      setGroupToDelete(null);
       await loadGroups();
       onSuccess();
     } catch (err: any) {
-      alert(err.message || "Failed to delete group");
+      toast.error(err.message || "Failed to delete group");
+    } finally {
+      setDeleting(false);
     }
   }
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100 select-none">
-      <div className="relative w-full max-w-lg rounded-sm bg-white shadow-xl border border-sky-200/90 overflow-hidden my-6">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-sky-100 px-5 py-3.5 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] font-bold border border-sky-200/80 shadow-2xs">
-              <Users size={16} />
+    <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100 select-none">
+        <div className="relative w-full max-w-2xl rounded-sm bg-white shadow-2xl border border-sky-200/90 overflow-hidden my-6">
+          
+          {/* Modal Header */}
+          <div className="flex items-center justify-between border-b border-sky-100 px-6 py-4 bg-gradient-to-r from-sky-50/90 via-white to-sky-50/60">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-indigo-50 text-indigo-600 font-bold border border-indigo-200/80 shadow-2xs">
+                <Users size={18} />
+              </div>
+              <div>
+                <h2 className="text-sm sm:text-base font-bold text-[#0369A1]">Customer Groups & Discount Tiers</h2>
+                <p className="text-xs text-[#0284C7] font-medium">Segment customers into groups with dedicated discount rules and pricing</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-sm font-bold text-[#0369A1]">Customer Groups</h2>
-              <p className="text-[11px] text-[#0284C7] font-medium">Group customers for special discount rules</p>
-            </div>
+            <button
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-sm border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shadow-2xs"
+              aria-label="Close"
+            >
+              <X size={16} />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-sm border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shadow-2xs"
-            aria-label="Close"
-          >
-            <X size={15} />
-          </button>
-        </div>
 
-        <div className="p-5 space-y-4">
-          {/* Add New Group Form */}
-          <form onSubmit={handleCreateGroup} className="rounded-sm border border-sky-100 bg-sky-50/20 p-3.5 space-y-2.5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Add New Group</h3>
-            
-            {error && (
-              <div className="rounded-sm border border-red-200 bg-red-50 p-2 text-xs text-red-700 shadow-2xs">
-                {error}
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-2.5">
-              <div>
-                <label className="block text-[11px] font-semibold uppercase text-[#0369A1] mb-1">Group Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. VIP Club 10%"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
-                />
+          <div className="p-6 space-y-5">
+            {/* Add New Group Form */}
+            <form onSubmit={handleCreateGroup} className="rounded-sm border border-sky-100/90 bg-sky-50/25 p-4 space-y-3.5">
+              <div className="flex items-center gap-2 border-b border-sky-100/80 pb-2">
+                <Plus size={14} className="text-[#0284C7]" />
+                <h3 className="text-sm font-bold text-[#0369A1]">Add New Customer Group</h3>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-semibold uppercase text-[#0369A1] mb-1">Discount (%)</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.5"
-                  placeholder="0"
-                  value={discountPercent}
-                  onChange={(e) => setDiscountPercent(e.target.value)}
-                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
-                />
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-[#0369A1] mb-1">
+                    Group Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. VIP Club, Wholesale Tier 1, Loyal Retail"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full rounded-sm border border-sky-200/90 bg-white px-3 py-2 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                  />
+                </div>
 
-              <div className="col-span-2">
-                <label className="block text-[11px] font-semibold uppercase text-[#0369A1] mb-1">Description (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="Short description..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-1">
-              <button
-                type="submit"
-                disabled={submitting || !name.trim()}
-                className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-98 transition disabled:opacity-50 cursor-pointer"
-              >
-                {submitting ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
-                Add Group
-              </button>
-            </div>
-          </form>
-
-          {/* Existing Groups List */}
-          <div className="space-y-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Existing Groups ({groups.length})</h3>
-
-            {loading ? (
-              <div className="flex items-center justify-center py-4">
-                <Loader2 size={16} className="animate-spin text-[#0284C7]" />
-              </div>
-            ) : groups.length === 0 ? (
-              <div className="text-center py-4 text-gray-400 text-xs rounded-sm border border-dashed border-sky-200">
-                No custom groups created yet.
-              </div>
-            ) : (
-              <div className="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
-                {groups.map((g) => (
-                  <div
-                    key={g.id}
-                    className="flex items-center justify-between rounded-sm border border-sky-100 bg-white p-2.5 hover:border-sky-300 transition shadow-2xs"
-                  >
-                    <div>
-                      <p className="text-xs font-bold text-[#0369A1]">{g.name}</p>
-                      <p className="text-[10px] text-gray-400">
-                        {g.discountPercent > 0 ? `${g.discountPercent}% default discount` : "0% discount"} &bull; {g._count?.customers || 0} customers
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => handleDeleteGroup(g.id)}
-                      className="rounded-sm p-1 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
-                      title="Delete Group"
-                    >
-                      <Trash2 size={13} />
-                    </button>
+                <div>
+                  <label className="block text-xs font-semibold text-[#0369A1] mb-1">
+                    Default Discount (%)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.5"
+                      placeholder="0"
+                      value={discountPercent}
+                      onChange={(e) => setDiscountPercent(e.target.value)}
+                      className="w-full rounded-sm border border-sky-200/90 bg-white pl-3 pr-7 py-2 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                    />
+                    <Percent size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+                </div>
 
-        <div className="border-t border-sky-100 bg-sky-50/20 p-3 flex justify-end">
-          <button
-            onClick={onClose}
-            className="rounded-sm border border-rose-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer shadow-2xs"
-          >
-            Close
-          </button>
+                <div className="sm:col-span-3">
+                  <label className="block text-xs font-semibold text-[#0369A1] mb-1">
+                    Description (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Minimum monthly spend Tk 50,000, 10% instant discount on checkout"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full rounded-sm border border-sky-200/90 bg-white px-3 py-2 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-1">
+                <CustomButton
+                  variant="primary"
+                  size="sm"
+                  type="submit"
+                  disabled={submitting || !name.trim()}
+                  leftIcon={submitting ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
+                >
+                  Create Group
+                </CustomButton>
+              </div>
+            </form>
+
+            {/* Existing Groups List */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-sky-100/80 pb-2">
+                <div className="flex items-center gap-2">
+                  <Tag size={14} className="text-[#0284C7]" />
+                  <h3 className="text-sm font-bold text-[#0369A1]">
+                    Existing Groups ({groups.length})
+                  </h3>
+                </div>
+                <span className="text-[11px] text-gray-400 font-medium">Automatic discounts applied at POS</span>
+              </div>
+
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 size={20} className="animate-spin text-[#0284C7]" />
+                  <span className="ml-2 text-xs font-medium text-gray-500">Loading groups...</span>
+                </div>
+              ) : groups.length === 0 ? (
+                <div className="text-center py-8 text-gray-400 text-xs rounded-sm border border-dashed border-sky-200 bg-sky-50/20">
+                  <Info size={20} className="mx-auto text-sky-300 mb-1.5" />
+                  No customer groups created yet. Add one above!
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
+                  {groups.map((g) => (
+                    <div
+                      key={g.id}
+                      className="flex items-center justify-between gap-3 rounded-sm border border-sky-100/90 bg-white p-3 hover:border-sky-300 hover:bg-sky-50/30 transition shadow-2xs"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-gray-700 text-xs sm:text-sm">{g.name}</span>
+                          {g.discountPercent > 0 ? (
+                            <span className="inline-flex items-center gap-1 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-300 px-2 py-0.5 text-[10.5px] font-bold">
+                              <Percent size={11} /> {g.discountPercent}% Discount
+                            </span>
+                          ) : (
+                            <span className="rounded-sm bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 text-[10.5px] font-semibold">
+                              0% Discount
+                            </span>
+                          )}
+                          <span className="rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200 px-2 py-0.5 text-[10.5px] font-semibold">
+                            {g._count?.customers || 0} customers
+                          </span>
+                        </div>
+                        {g.description && (
+                          <p className="text-[11px] text-gray-500 mt-1 truncate font-medium">{g.description}</p>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={() => setGroupToDelete(g)}
+                        className="rounded-sm p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer shrink-0"
+                        title="Delete Group"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Modal Footer */}
+          <div className="border-t border-sky-100 bg-sky-50/30 px-6 py-3.5 flex justify-end">
+            <CustomButton
+              variant="danger"
+              size="sm"
+              onClick={onClose}
+            >
+              Close
+            </CustomButton>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Delete Group Confirmation Modal */}
+      <ConfirmModal
+        isOpen={Boolean(groupToDelete)}
+        onClose={() => setGroupToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Customer Group"
+        message={`Are you sure you want to delete the group "${groupToDelete?.name}"? Customers assigned to this group will lose group-specific discount rates.`}
+        type="DANGER"
+        confirmText="Delete Group"
+        loading={deleting}
+      />
+    </>
   );
 }

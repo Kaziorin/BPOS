@@ -12,6 +12,7 @@ import {
 import { api } from "@/lib/api";
 import { CustomBreadcrumb, CustomButton, CustomStatCard } from "@/components/custom";
 import { CollectDueModal } from "@/components/customers/CollectDueModal";
+import { toast } from "react-toastify";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -61,9 +62,10 @@ export default function CustomerDetailPage({ params }: PageProps) {
     try {
       await api.put(`/v1/customers/${id}`, form);
       setEditing(false);
+      toast.success("Customer profile updated successfully!");
       await loadCustomer();
     } catch (err: any) {
-      alert(err.message || "Save failed");
+      toast.error(err.message || "Save failed");
     } finally {
       setSaving(false);
     }
@@ -76,9 +78,10 @@ export default function CustomerDetailPage({ params }: PageProps) {
     try {
       await api.post(`/v1/customers/${id}/notes`, { note: noteText });
       setNoteText("");
+      toast.success("Activity note added!");
       await loadCustomer();
     } catch (err: any) {
-      alert(err.message || "Failed to add note");
+      toast.error(err.message || "Failed to add note");
     } finally {
       setAddingNote(false);
     }
@@ -96,9 +99,10 @@ export default function CustomerDetailPage({ params }: PageProps) {
       });
       setComplaintSubject("");
       setComplaintDesc("");
+      toast.success("Complaint filed successfully!");
       await loadCustomer();
     } catch (err: any) {
-      alert(err.message || "Failed to add complaint");
+      toast.error(err.message || "Failed to add complaint");
     } finally {
       setAddingComplaint(false);
     }
@@ -162,7 +166,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
 
   const inputClass =
     "w-full rounded-sm border border-sky-200/90 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs";
-  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-[#0369A1] mb-1.5";
+  const labelClass = "block text-xs font-semibold text-[#0369A1] mb-1.5";
 
   const tabs = [
     { key: "details", label: "Profile & Settings" },
@@ -353,7 +357,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                   <User size={15} />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Contact & Personal Information</h3>
+                  <h3 className="text-xs font-bold text-[#0369A1]">Contact & Personal Information</h3>
                   <p className="text-[11px] text-gray-400 font-medium">Customer contact details and primary address</p>
                 </div>
               </div>
@@ -512,7 +516,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                   <Award size={15} />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Classification & Credit Terms</h3>
+                  <h3 className="text-xs font-bold text-[#0369A1]">Classification & Credit Terms</h3>
                   <p className="text-[11px] text-gray-400 font-medium">CRM tiering, account status, credit limit & grace period</p>
                 </div>
               </div>
@@ -647,7 +651,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                   <ShoppingBag size={15} />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Recent Invoices & Orders</h3>
+                  <h3 className="text-xs font-bold text-[#0369A1]">Recent Invoices & Orders</h3>
                   <p className="text-[11px] text-gray-400 font-medium">Detailed log of transactions and purchases</p>
                 </div>
               </div>
@@ -706,7 +710,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                 <FileText size={15} />
               </div>
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Activity Notes & Logs</h3>
+                <h3 className="text-xs font-bold text-[#0369A1]">Activity Notes & Logs</h3>
                 <p className="text-[11px] text-gray-400 font-medium">Log follow-ups, calls, payment commitments, or reminders</p>
               </div>
             </div>
@@ -759,7 +763,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                 <AlertTriangle size={15} />
               </div>
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Customer Complaints & Feedback</h3>
+                <h3 className="text-xs font-bold text-[#0369A1]">Customer Complaints & Feedback</h3>
                 <p className="text-[11px] text-gray-400 font-medium">Record issues, returns, delivery delays, or billing disputes</p>
               </div>
             </div>

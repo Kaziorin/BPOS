@@ -77,7 +77,7 @@ export default function CreateCustomerPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="rounded-sm border border-sky-100/90 bg-white p-5 space-y-3.5 shadow-2xs">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Basic Information</h2>
+          <h2 className="text-xs font-bold text-[#0369A1]">Basic Information</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Name *</label>
@@ -120,7 +120,7 @@ export default function CreateCustomerPage() {
         </div>
 
         <div className="rounded-sm border border-sky-100/90 bg-white p-5 space-y-3.5 shadow-2xs">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Classification & Credit</h2>
+          <h2 className="text-xs font-bold text-[#0369A1]">Classification & Credit</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Customer Segment</label>
@@ -153,7 +153,7 @@ export default function CreateCustomerPage() {
         </div>
 
         <div className="rounded-sm border border-sky-100/90 bg-white p-5 space-y-3.5 shadow-2xs">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Notes</h2>
+          <h2 className="text-xs font-bold text-[#0369A1]">Notes</h2>
           <textarea
             value={form.notes}
             onChange={(e) => updateForm("notes", e.target.value)}

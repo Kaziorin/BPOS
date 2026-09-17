@@ -152,7 +152,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
             {/* Current Due Highlight */}
             <div className="rounded-sm border border-rose-200 bg-rose-50/40 p-3 flex items-center justify-between shadow-2xs">
               <div>
-                <p className="text-[10px] font-semibold uppercase text-rose-600">Current Due Balance</p>
+                <p className="text-[10px] font-semibold text-rose-600">Current Due Balance</p>
                 <p className="text-xl font-bold text-rose-700 mt-0.5">৳{currDue.toLocaleString()}</p>
               </div>
               <span className="rounded-sm bg-rose-100 px-2.5 py-0.5 text-[10px] font-bold text-rose-700">
@@ -167,7 +167,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
             )}
 
             <div>
-              <label className="block text-[11px] font-semibold text-[#0369A1] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-[#0369A1] mb-1">
                 Payment Amount (৳) <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -205,7 +205,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
 
             {/* Payment Method */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#0369A1] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-[#0369A1] mb-1">
                 Payment Mode
               </label>
               <div className="grid grid-cols-5 gap-1.5">
@@ -232,7 +232,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-[#0369A1] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-[#0369A1] mb-1">
                 Note / Reference (Optional)
               </label>
               <input

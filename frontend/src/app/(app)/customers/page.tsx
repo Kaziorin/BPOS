@@ -22,6 +22,7 @@ import { CustomerModal } from "@/components/customers/CustomerModal";
 import { CustomerDrawer } from "@/components/customers/CustomerDrawer";
 import { CollectDueModal } from "@/components/customers/CollectDueModal";
 import { CustomerGroupsModal } from "@/components/customers/CustomerGroupsModal";
+import { toast } from "react-toastify";
 
 interface Customer {
   id: string;
@@ -195,11 +196,12 @@ export default function CustomersPage() {
     setIsDeleting(true);
     try {
       await api.del(`/v1/customers/${customerToDelete.id}`);
+      toast.success(`Customer "${customerToDelete.name}" deleted successfully.`);
       setCustomerToDelete(null);
       loadCustomers();
       loadStats();
     } catch (err: any) {
-      alert(err.message || "Failed to delete customer");
+      toast.error(err.message || "Failed to delete customer");
     } finally {
       setIsDeleting(false);
     }
@@ -213,33 +215,39 @@ export default function CustomersPage() {
 
   function exportCSV() {
     if (customers.length === 0) {
-      alert("No customer records to export");
+      toast.warning("No customer records found to export.");
       return;
     }
 
-    const headers = ["Name", "Phone", "Email", "City", "Address", "Segment", "Group", "Current Due (Tk)", "Loyalty Points", "Total Orders", "Status"];
-    const rows = customers.map((c) => [
-      `"${c.name.replace(/"/g, '""')}"`,
-      `"${c.phone || ""}"`,
-      `"${c.email || ""}"`,
-      `"${c.city || ""}"`,
-      `"${(c.address || "").replace(/"/g, '""')}"`,
-      `"${c.segmentation || "REGULAR"}"`,
-      `"${c.group?.name || "General"}"`,
-      Number(c.currentDue || 0).toFixed(2),
-      c.loyaltyPoints || 0,
-      c._count?.sales || 0,
-      c.status || "ACTIVE",
-    ]);
+    try {
+      const headers = ["Name", "Phone", "Email", "City", "Address", "Segment", "Group", "Current Due (Tk)", "Loyalty Points", "Total Orders", "Status"];
+      const rows = customers.map((c) => [
+        `"${(c.name || "").replace(/"/g, '""')}"`,
+        `"${c.phone || ""}"`,
+        `"${c.email || ""}"`,
+        `"${c.city || ""}"`,
+        `"${(c.address || "").replace(/"/g, '""')}"`,
+        `"${c.segmentation || "REGULAR"}"`,
+        `"${c.group?.name || "General"}"`,
+        Number(c.currentDue || 0).toFixed(2),
+        c.loyaltyPoints || 0,
+        c._count?.sales || 0,
+        c.status || "ACTIVE",
+      ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `customers_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `customers_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success(`Exported ${customers.length} customer records to CSV!`);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to export CSV");
+    }
   }
 
   const segBadgeMap: Record<string, { bg: string; text: string; label: string }> = {
@@ -460,6 +468,7 @@ export default function CustomersPage() {
           <div className="flex items-center gap-2 flex-wrap">
             <CustomButton
               variant="primary"
+              themeColor="indigo"
               size="sm"
               onClick={() => setIsGroupsModalOpen(true)}
             >
@@ -469,6 +478,7 @@ export default function CustomersPage() {
 
             <CustomButton
               variant="primary"
+              themeColor="emerald"
               size="sm"
               onClick={exportCSV}
             >
@@ -546,8 +556,12 @@ export default function CustomersPage() {
             >
               <span>{tab.label}</span>
               {tab.count !== undefined && (
-                <span className={`rounded-sm px-1.5 py-0.2 text-[10px] font-bold ${
-                  isActive ? "bg-white/20 text-white" : tab.isDue ? "bg-rose-100 text-rose-700" : "bg-sky-50 text-[#0284C7] border border-sky-200/60"
+                <span className={`rounded-sm px-1.5 py-0.5 text-[11px] font-black tabular-nums transition-colors ${
+                  isActive
+                    ? "bg-white text-[#0369A1] shadow-2xs"
+                    : tab.isDue
+                    ? "bg-rose-100 text-rose-700 border border-rose-200"
+                    : "bg-sky-100/80 text-[#0284C7] border border-sky-200/80"
                 }`}>
                   {tab.count}
                 </span>

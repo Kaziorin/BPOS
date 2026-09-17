@@ -163,21 +163,21 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
           {customer && (
             <div className="grid grid-cols-3 gap-2 p-3 bg-sky-50/40 border-b border-sky-100/90">
               <div className="rounded-sm border border-sky-100/90 bg-white p-2.5 text-center shadow-xs">
-                <p className="text-[10px] uppercase font-semibold text-gray-400">Current Due</p>
+                <p className="text-xs font-semibold text-slate-500">Current Due</p>
                 <p className={`text-sm font-bold mt-0.5 ${due > 0 ? "text-rose-600" : "text-gray-600"}`}>
                   ৳{due.toLocaleString()}
                 </p>
               </div>
 
               <div className="rounded-sm border border-sky-100/90 bg-white p-2.5 text-center shadow-xs">
-                <p className="text-[10px] uppercase font-semibold text-gray-400">Total Orders</p>
+                <p className="text-xs font-semibold text-slate-500">Total Orders</p>
                 <p className="text-sm font-bold text-gray-600 mt-0.5">
                   {customer.purchaseHistory?.totalOrders || 0}
                 </p>
               </div>
 
               <div className="rounded-sm border border-sky-100/90 bg-white p-2.5 text-center shadow-xs">
-                <p className="text-[10px] uppercase font-semibold text-gray-400">Loyalty</p>
+                <p className="text-xs font-semibold text-slate-500">Loyalty</p>
                 <p className="text-sm font-bold text-amber-600 mt-0.5">
                   {customer.loyaltyPoints || 0} pts
                 </p>
@@ -231,7 +231,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                   <div className="space-y-4">
                     {/* Contact details */}
                     <div className="rounded-sm border border-sky-100/90 bg-sky-50/30 p-3.5 space-y-2.5 text-xs">
-                      <h4 className="text-[11px] font-semibold text-[#0369A1] uppercase tracking-wider">Contact & Address</h4>
+                      <h4 className="text-xs font-bold text-[#0369A1]">Contact & Address</h4>
                       <div className="grid grid-cols-2 gap-2 text-gray-600">
                         <div>
                           <p className="text-[10px] text-gray-400">Phone</p>
@@ -258,7 +258,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
 
                     {/* Credit Terms */}
                     <div className="rounded-sm border border-sky-100/90 bg-sky-50/30 p-3.5 space-y-2.5 text-xs">
-                      <h4 className="text-[11px] font-semibold text-[#0369A1] uppercase tracking-wider">Credit Terms</h4>
+                      <h4 className="text-xs font-bold text-[#0369A1]">Credit Terms</h4>
                       <div className="grid grid-cols-2 gap-2 text-gray-600">
                         <div>
                           <p className="text-[10px] text-gray-400">Credit Limit</p>
@@ -283,7 +283,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
 
                     {customer.notes && (
                       <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 text-xs shadow-xs">
-                        <h4 className="text-[11px] font-semibold text-[#0369A1] uppercase tracking-wider mb-1">Notes</h4>
+                        <h4 className="text-xs font-bold text-[#0369A1] mb-1">Notes</h4>
                         <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{customer.notes}</p>
                       </div>
                     )}

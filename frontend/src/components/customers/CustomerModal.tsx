@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, Loader2, User, Phone, Mail, MapPin, CreditCard, FileText, CheckCircle2 } from "lucide-react";
+import { X, Loader2, User, Phone, Mail, MapPin, CreditCard, FileText, CheckCircle2, Building, ShieldCheck } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomButton, CustomDropdownSelect } from "@/components/custom";
+import { toast } from "react-toastify";
 
 interface CustomerModalProps {
   isOpen: boolean;
@@ -97,6 +99,7 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
     e.preventDefault();
     if (!form.name.trim()) {
       setError("Customer name is required.");
+      toast.warning("Customer name is required.");
       setActiveTab("basic");
       return;
     }
@@ -125,110 +128,114 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
       if (!isEdit) {
         payload.openingDue = Number(form.openingDue) || 0;
         await api.post("/v1/customers", payload);
+        toast.success(`Customer "${payload.name}" created successfully!`);
       } else {
         if (form.currentDue !== undefined) payload.currentDue = Number(form.currentDue) || 0;
         if (form.loyaltyPoints !== undefined) payload.loyaltyPoints = Number(form.loyaltyPoints) || 0;
         if (form.walletBalance !== undefined) payload.walletBalance = Number(form.walletBalance) || 0;
         await api.put(`/v1/customers/${customer.id}`, payload);
+        toast.success(`Customer "${payload.name}" updated successfully!`);
       }
 
       onSuccess();
       onClose();
     } catch (err: any) {
       console.error("Save customer error:", err);
-      setError(err.response?.data?.error || err.message || "Failed to save customer");
+      const errMsg = err.response?.data?.error || err.message || "Failed to save customer";
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setSaving(false);
     }
   }
 
   const inputClass =
-    "w-full rounded-sm border border-sky-200/90 bg-white px-3 py-2 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 transition shadow-2xs";
-  const labelClass = "block text-xs font-semibold text-[#0369A1] mb-1";
+    "w-full rounded-sm border border-sky-200/90 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 transition shadow-2xs";
+  const labelClass = "block text-xs font-semibold text-[#0369A1] mb-1.5";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100 select-none">
-      <div className="relative w-full max-w-xl rounded-sm bg-white shadow-xl border border-sky-200/90 overflow-hidden my-6">
+      <div className="relative w-full max-w-3xl rounded-sm bg-white shadow-2xl border border-sky-200/90 overflow-hidden my-6">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-sky-100 px-5 py-3.5 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] font-semibold border border-sky-200/80 shadow-2xs">
-              <User size={16} />
+        <div className="flex items-center justify-between border-b border-sky-100 px-6 py-4 bg-gradient-to-r from-sky-50/90 via-white to-sky-50/60">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] font-bold border border-sky-200/80 shadow-2xs">
+              <User size={18} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#0369A1]">
-                {isEdit ? "Edit Customer" : "New Customer"}
+              <h2 className="text-sm sm:text-base font-bold text-[#0369A1]">
+                {isEdit ? "Edit Customer Profile" : "Create New Customer"}
               </h2>
-              <p className="text-[11px] text-[#0284C7] font-medium">
-                {isEdit ? `Updating profile for ${customer?.name}` : "Create a new customer profile"}
+              <p className="text-xs text-[#0284C7] font-medium">
+                {isEdit ? `Updating details for ${customer?.name}` : "Add customer contact details, credit terms, and classification"}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-sm border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shadow-2xs"
+            className="flex h-8 w-8 items-center justify-center rounded-sm border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shadow-2xs"
             aria-label="Close"
           >
-            <X size={15} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Tab Selection */}
-        <div className="flex border-b border-sky-100 bg-white px-5 pt-1">
+        <div className="flex border-b border-sky-100 bg-white px-6 pt-1 gap-2">
           <button
             type="button"
             onClick={() => setActiveTab("basic")}
-            className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-semibold transition cursor-pointer ${
+            className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === "basic"
-                ? "border-[#0284C7] text-[#0284C7] font-bold"
+                ? "border-[#0284C7] text-[#0284C7]"
                 : "border-transparent text-gray-500 hover:text-[#0284C7]"
             }`}
           >
-            <User size={13} /> Basic Info
+            <User size={14} /> Basic Information
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("credit")}
-            className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-medium transition cursor-pointer ${
+            className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === "credit"
-                ? "border-[#0284C7] text-[#0284C7] font-bold"
+                ? "border-[#0284C7] text-[#0284C7]"
                 : "border-transparent text-gray-500 hover:text-[#0284C7]"
             }`}
           >
-            <CreditCard size={13} /> Credit & Terms
+            <CreditCard size={14} /> Credit & Classification
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("notes")}
-            className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-medium transition cursor-pointer ${
+            className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === "notes"
-                ? "border-[#0284C7] text-[#0284C7] font-bold"
+                ? "border-[#0284C7] text-[#0284C7]"
                 : "border-transparent text-gray-500 hover:text-[#0284C7]"
             }`}
           >
-            <FileText size={13} /> Additional Details
+            <FileText size={14} /> Additional Details
           </button>
         </div>
 
         {/* Error Notification */}
         {error && (
-          <div className="mx-5 mt-3.5 rounded-lg border border-red-200 bg-red-50 p-2.5 text-xs text-red-700">
+          <div className="mx-6 mt-4 rounded-sm border border-red-200 bg-red-50 p-3 text-xs font-semibold text-red-700 shadow-2xs">
             {error}
           </div>
         )}
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {activeTab === "basic" && (
-            <div className="space-y-3.5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label className={labelClass}>Customer Name <span className="text-red-500">*</span></label>
+                  <label className={labelClass}>Customer Full Name <span className="text-rose-500">*</span></label>
                   <input
                     type="text"
                     required
-                    placeholder="Full name"
+                    placeholder="Enter customer name"
                     value={form.name}
                     onChange={(e) => updateField("name", e.target.value)}
                     className={inputClass}
@@ -239,7 +246,7 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
                   <label className={labelClass}>Phone Number</label>
                   <input
                     type="tel"
-                    placeholder="017xxxxxxxx"
+                    placeholder="e.g. 017xxxxxxxx"
                     value={form.phone}
                     onChange={(e) => updateField("phone", e.target.value)}
                     className={inputClass}
@@ -250,7 +257,7 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
                   <label className={labelClass}>Email Address</label>
                   <input
                     type="email"
-                    placeholder="email@example.com"
+                    placeholder="e.g. customer@example.com"
                     value={form.email}
                     onChange={(e) => updateField("email", e.target.value)}
                     className={inputClass}
@@ -261,7 +268,7 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
                   <label className={labelClass}>City / Region</label>
                   <input
                     type="text"
-                    placeholder="e.g. Dhaka"
+                    placeholder="e.g. Dhaka, Chittagong"
                     value={form.city}
                     onChange={(e) => updateField("city", e.target.value)}
                     className={inputClass}
@@ -270,21 +277,21 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
 
                 <div>
                   <label className={labelClass}>Account Status</label>
-                  <select
+                  <CustomDropdownSelect
                     value={form.status}
-                    onChange={(e) => updateField("status", e.target.value)}
-                    className={inputClass}
-                  >
-                    <option value="ACTIVE">ACTIVE</option>
-                    <option value="INACTIVE">INACTIVE</option>
-                  </select>
+                    onChange={(val) => updateField("status", val)}
+                    options={[
+                      { label: "Active", value: "ACTIVE" },
+                      { label: "Inactive", value: "INACTIVE" },
+                    ]}
+                  />
                 </div>
 
                 <div className="sm:col-span-2">
                   <label className={labelClass}>Full Street Address</label>
                   <textarea
                     rows={2}
-                    placeholder="Street, area, landmark details..."
+                    placeholder="House, road, landmark, delivery details..."
                     value={form.address}
                     onChange={(e) => updateField("address", e.target.value)}
                     className={inputClass}
@@ -295,39 +302,36 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
           )}
 
           {activeTab === "credit" && (
-            <div className="space-y-3.5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}>Customer Segment</label>
-                  <select
+                  <CustomDropdownSelect
                     value={form.segmentation}
-                    onChange={(e) => updateField("segmentation", e.target.value)}
-                    className={inputClass}
-                  >
-                    <option value="NEW">New Customer</option>
-                    <option value="REGULAR">Regular</option>
-                    <option value="VIP">VIP</option>
-                    <option value="HIGH_VALUE">High Value</option>
-                    <option value="WHOLESALE">Wholesale</option>
-                    <option value="CORPORATE">Corporate</option>
-                    <option value="AT_RISK">At Risk</option>
-                  </select>
+                    onChange={(val) => updateField("segmentation", val)}
+                    options={[
+                      { label: "New Customer", value: "NEW" },
+                      { label: "Regular Customer", value: "REGULAR" },
+                      { label: "VIP Customer", value: "VIP" },
+                      { label: "High Value", value: "HIGH_VALUE" },
+                      { label: "Wholesale", value: "WHOLESALE" },
+                      { label: "Corporate", value: "CORPORATE" },
+                      { label: "At Risk", value: "AT_RISK" },
+                    ]}
+                  />
                 </div>
 
                 <div>
                   <label className={labelClass}>Customer Group</label>
-                  <select
+                  <CustomDropdownSelect
                     value={form.groupId}
-                    onChange={(e) => updateField("groupId", e.target.value)}
-                    className={inputClass}
-                  >
-                    <option value="">— None —</option>
-                    {groups.map((g) => (
-                      <option key={g.id} value={g.id}>
-                        {g.name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => updateField("groupId", val)}
+                    placeholder="— None —"
+                    options={[
+                      { label: "— None —", value: "" },
+                      ...groups.map((g) => ({ label: g.name, value: g.id })),
+                    ]}
+                  />
                 </div>
 
                 <div>
@@ -374,7 +378,7 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
                       min="0"
                       value={form.currentDue}
                       onChange={(e) => updateField("currentDue", e.target.value)}
-                      className={`${inputClass} font-semibold text-rose-600 bg-rose-50/40`}
+                      className={`${inputClass} font-bold text-rose-600 bg-rose-50/40 border-rose-200`}
                     />
                   </div>
                 )}
@@ -396,13 +400,13 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
           )}
 
           {activeTab === "notes" && (
-            <div className="space-y-3.5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className={labelClass}>Tax Reg No / BIN / NID</label>
                   <input
                     type="text"
-                    placeholder="Tax registration number"
+                    placeholder="Tax registration / BIN"
                     value={form.taxRegNo}
                     onChange={(e) => updateField("taxRegNo", e.target.value)}
                     className={inputClass}
@@ -421,23 +425,24 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
 
                 <div>
                   <label className={labelClass}>Gender</label>
-                  <select
+                  <CustomDropdownSelect
                     value={form.gender}
-                    onChange={(e) => updateField("gender", e.target.value)}
-                    className={inputClass}
-                  >
-                    <option value="">— Select —</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
+                    onChange={(val) => updateField("gender", val)}
+                    placeholder="— Select Gender —"
+                    options={[
+                      { label: "— Select —", value: "" },
+                      { label: "Male", value: "Male" },
+                      { label: "Female", value: "Female" },
+                      { label: "Other", value: "Other" },
+                    ]}
+                  />
                 </div>
 
-                <div className="sm:col-span-2">
-                  <label className={labelClass}>Internal CRM Notes</label>
+                <div className="sm:col-span-3">
+                  <label className={labelClass}>Internal CRM Notes & Remarks</label>
                   <textarea
                     rows={3}
-                    placeholder="Notes or special preferences..."
+                    placeholder="Customer preferences, delivery notes, remarks..."
                     value={form.notes}
                     onChange={(e) => updateField("notes", e.target.value)}
                     className={inputClass}
@@ -447,37 +452,26 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
             </div>
           )}
 
-          {/* Footer Actions */}
-          <div className="flex items-center justify-between border-t border-sky-100 pt-3.5">
-            <div className="flex gap-1.5">
-              {activeTab !== "basic" && (
-                <button
-                  type="button"
-                  onClick={() => setActiveTab(activeTab === "notes" ? "credit" : "basic")}
-                  className="rounded-sm border border-sky-200/80 bg-white px-3.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-sky-50 transition cursor-pointer shadow-2xs"
-                >
-                  Back
-                </button>
-              )}
-            </div>
+          {/* Footer Actions (No Back Button, Clean Alignment) */}
+          <div className="flex items-center justify-end gap-2.5 border-t border-sky-100 pt-4">
+            <CustomButton
+              type="button"
+              variant="danger"
+              size="sm"
+              onClick={onClose}
+            >
+              Cancel
+            </CustomButton>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-sm border border-rose-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer shadow-2xs"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-98 transition disabled:opacity-50 cursor-pointer"
-              >
-                {saving ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
-                {saving ? "Saving..." : isEdit ? "Update Customer" : "Save Customer"}
-              </button>
-            </div>
+            <CustomButton
+              type="submit"
+              variant="primary"
+              size="sm"
+              disabled={saving}
+              leftIcon={saving ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={14} />}
+            >
+              {saving ? "Saving..." : isEdit ? "Update Customer" : "Save Customer"}
+            </CustomButton>
           </div>
         </form>
       </div>
