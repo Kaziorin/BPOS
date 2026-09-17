@@ -109,31 +109,108 @@ interface GiftCard {
   issuedToCustomerId: string | null;
 }
 
-const TIER_BADGES: Record<string, { bg: string; border: string; text: string }> = {
+interface TierTheme {
+  cardBg: string;
+  borderColor: string;
+  badgeBg: string;
+  badgeBorder: string;
+  badgeText: string;
+  statsBg: string;
+  statsBorder: string;
+  accentText: string;
+  memberPill: string;
+}
+
+const TIER_THEMES: Record<string, TierTheme> = {
   BRONZE: {
-    bg: "bg-amber-50",
-    border: "border-amber-300",
-    text: "text-amber-800",
+    cardBg: "bg-gradient-to-b from-amber-50/80 via-orange-50/30 to-amber-50/10",
+    borderColor: "border-amber-200/90 hover:border-amber-400",
+    badgeBg: "bg-amber-100/90",
+    badgeBorder: "border-amber-300",
+    badgeText: "text-amber-900",
+    statsBg: "bg-amber-50/70",
+    statsBorder: "border-amber-200/80",
+    accentText: "text-amber-900",
+    memberPill: "bg-amber-100/80 border-amber-200/90 text-amber-900",
   },
   SILVER: {
-    bg: "bg-slate-100",
-    border: "border-slate-300",
-    text: "text-slate-700",
+    cardBg: "bg-gradient-to-b from-slate-100/90 via-slate-50/40 to-slate-100/20",
+    borderColor: "border-slate-300/90 hover:border-slate-400",
+    badgeBg: "bg-slate-200/90",
+    badgeBorder: "border-slate-300",
+    badgeText: "text-slate-800",
+    statsBg: "bg-slate-100/70",
+    statsBorder: "border-slate-200/90",
+    accentText: "text-slate-800",
+    memberPill: "bg-slate-200/80 border-slate-300/90 text-slate-800",
   },
   GOLD: {
-    bg: "bg-yellow-50",
-    border: "border-yellow-400",
-    text: "text-yellow-800",
+    cardBg: "bg-gradient-to-b from-yellow-50/90 via-amber-50/40 to-yellow-50/20",
+    borderColor: "border-yellow-300/90 hover:border-yellow-400",
+    badgeBg: "bg-yellow-100/90",
+    badgeBorder: "border-yellow-300",
+    badgeText: "text-yellow-900",
+    statsBg: "bg-yellow-50/70",
+    statsBorder: "border-yellow-200/90",
+    accentText: "text-yellow-900",
+    memberPill: "bg-yellow-100/80 border-yellow-200/90 text-yellow-900",
   },
   VIP: {
-    bg: "bg-sky-50",
-    border: "border-sky-300",
-    text: "text-[#0369A1]",
+    cardBg: "bg-gradient-to-b from-sky-50/90 via-cyan-50/30 to-sky-50/10",
+    borderColor: "border-sky-300/90 hover:border-sky-400",
+    badgeBg: "bg-sky-100/90",
+    badgeBorder: "border-sky-300",
+    badgeText: "text-[#0369A1]",
+    statsBg: "bg-sky-50/70",
+    statsBorder: "border-sky-200/90",
+    accentText: "text-[#0369A1]",
+    memberPill: "bg-sky-100/80 border-sky-200/90 text-[#0369A1]",
   },
   PLATINUM: {
-    bg: "bg-cyan-50",
-    border: "border-cyan-300",
-    text: "text-cyan-800",
+    cardBg: "bg-gradient-to-b from-indigo-50/80 via-blue-50/30 to-indigo-50/10",
+    borderColor: "border-indigo-200/90 hover:border-indigo-400",
+    badgeBg: "bg-indigo-100/90",
+    badgeBorder: "border-indigo-300",
+    badgeText: "text-indigo-900",
+    statsBg: "bg-indigo-50/70",
+    statsBorder: "border-indigo-200/80",
+    accentText: "text-indigo-900",
+    memberPill: "bg-indigo-100/80 border-indigo-200/90 text-indigo-900",
+  },
+};
+
+const ORDERED_TIER_STYLES: TierTheme[] = [
+  TIER_THEMES.BRONZE,
+  TIER_THEMES.SILVER,
+  TIER_THEMES.GOLD,
+  TIER_THEMES.VIP,
+];
+
+const TIER_BADGES: Record<string, { bg: string; border: string; text: string }> = {
+  BRONZE: {
+    bg: TIER_THEMES.BRONZE.badgeBg,
+    border: TIER_THEMES.BRONZE.badgeBorder,
+    text: TIER_THEMES.BRONZE.badgeText,
+  },
+  SILVER: {
+    bg: TIER_THEMES.SILVER.badgeBg,
+    border: TIER_THEMES.SILVER.badgeBorder,
+    text: TIER_THEMES.SILVER.badgeText,
+  },
+  GOLD: {
+    bg: TIER_THEMES.GOLD.badgeBg,
+    border: TIER_THEMES.GOLD.badgeBorder,
+    text: TIER_THEMES.GOLD.badgeText,
+  },
+  VIP: {
+    bg: TIER_THEMES.VIP.badgeBg,
+    border: TIER_THEMES.VIP.badgeBorder,
+    text: TIER_THEMES.VIP.badgeText,
+  },
+  PLATINUM: {
+    bg: TIER_THEMES.PLATINUM.badgeBg,
+    border: TIER_THEMES.PLATINUM.badgeBorder,
+    text: TIER_THEMES.PLATINUM.badgeText,
   },
 };
 
@@ -606,7 +683,7 @@ export default function LoyaltyPage() {
 
   // Common UI styling classes
   const inputClass =
-    "w-full rounded-sm border border-sky-200/90 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs transition";
+    "w-full rounded-sm border border-sky-200/90 bg-white px-3.5 py-2 text-xs font-semibold text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs transition";
   const labelClass = "block text-xs font-semibold text-[#0369A1] mb-1.5";
 
   // ── CustomTable Columns ──
@@ -616,7 +693,7 @@ export default function LoyaltyPage() {
       header: "Customer",
       render: (a) => (
         <div>
-          <p className="text-xs font-bold text-gray-800">{a.customerName || "—"}</p>
+          <p className="text-xs font-bold text-gray-600">{a.customerName || "—"}</p>
           <p className="text-[11px] font-medium text-gray-400 mt-0.5">{a.phone || "No phone"}</p>
         </div>
       ),
@@ -653,7 +730,7 @@ export default function LoyaltyPage() {
       sortable: true,
       getSortValue: (a) => Number(a.lifetimeEarned || 0),
       render: (a) => (
-        <span className="text-xs font-semibold text-gray-700">
+        <span className="text-xs font-semibold text-gray-600">
           {Number(a.lifetimeEarned || 0).toLocaleString()} pts
         </span>
       ),
@@ -676,31 +753,32 @@ export default function LoyaltyPage() {
       render: (a) => (
         <div className="flex items-center justify-end gap-1.5">
           <CustomButton
-            variant="outline"
+            variant="primary"
+            themeColor="emerald"
             size="xs"
             onClick={() => {
               setEarnAcc(a);
               setEarnAmount("");
             }}
-            className="text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 border-emerald-200"
             leftIcon={<Plus size={12} />}
           >
             Earn
           </CustomButton>
           <CustomButton
-            variant="outline"
+            variant="primary"
+            themeColor="amber"
             size="xs"
             onClick={() => {
               setRedeemAcc(a);
               setRedeemPts("");
             }}
-            className="text-amber-700 hover:bg-amber-50 hover:border-amber-300 border-amber-200"
             leftIcon={<Coins size={12} />}
           >
             Redeem
           </CustomButton>
           <CustomButton
-            variant="outline"
+            variant="primary"
+            themeColor="primary"
             size="xs"
             onClick={() => openLedger(a)}
             leftIcon={<FileText size={12} />}
@@ -718,7 +796,7 @@ export default function LoyaltyPage() {
       header: "Customer",
       render: (w) => (
         <div>
-          <p className="text-xs font-bold text-gray-800">{w.customerName || "—"}</p>
+          <p className="text-xs font-bold text-gray-600">{w.customerName || "—"}</p>
           <p className="text-[11px] font-medium text-gray-400 mt-0.5">{w.phone || "No phone"}</p>
         </div>
       ),
@@ -740,7 +818,7 @@ export default function LoyaltyPage() {
       sortable: true,
       getSortValue: (w) => Number(w.lifetimeCredited || 0),
       render: (w) => (
-        <span className="text-xs font-semibold text-gray-700">{currency(w.lifetimeCredited)}</span>
+        <span className="text-xs font-semibold text-gray-600">{currency(w.lifetimeCredited)}</span>
       ),
     },
     {
@@ -774,36 +852,37 @@ export default function LoyaltyPage() {
       render: (w) => (
         <div className="flex items-center justify-end gap-1.5">
           <CustomButton
-            variant="outline"
+            variant="primary"
+            themeColor="emerald"
             size="xs"
             onClick={() => {
               setWalTxModal({ mode: "credit", account: w });
               setWalForm({ type: "ADD", amount: "", note: "" });
             }}
-            className="text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 border-emerald-200"
             leftIcon={<ArrowDownToLine size={12} />}
           >
             Credit
           </CustomButton>
           <CustomButton
-            variant="outline"
+            variant="primary"
+            themeColor="rose"
             size="xs"
             onClick={() => {
               setWalTxModal({ mode: "debit", account: w });
               setWalForm({ type: "ADD", amount: "", note: "" });
             }}
-            className="text-rose-700 hover:bg-rose-50 hover:border-rose-300 border-rose-200"
             leftIcon={<ArrowUpFromLine size={12} />}
           >
             Debit
           </CustomButton>
           <CustomButton
-            variant="outline"
+            variant="primary"
+            themeColor="primary"
             size="xs"
             onClick={() => openWalletDetail(w)}
             leftIcon={<FileText size={12} />}
           >
-            Ledger
+            Statement
           </CustomButton>
         </div>
       ),
@@ -828,7 +907,7 @@ export default function LoyaltyPage() {
       key: "holder",
       header: "Issued Holder",
       render: (g) => (
-        <span className="text-xs font-semibold text-gray-700">{g.issuedToName || "— Anonymous —"}</span>
+        <span className="text-xs font-semibold text-gray-600">{g.issuedToName || "— Anonymous —"}</span>
       ),
     },
     {
@@ -882,31 +961,33 @@ export default function LoyaltyPage() {
       render: (g) => (
         <div className="flex items-center justify-end gap-1.5">
           <CustomButton
-            variant="outline"
+            variant="primary"
+            themeColor="primary"
             size="xs"
             disabled={g.status !== "ACTIVE"}
             onClick={() => {
               setGcTxModal({ mode: "redeem", card: g });
               setGcTxForm({ amount: "" });
             }}
-            className="text-sky-700 hover:bg-sky-50 hover:border-sky-300 border-sky-200"
+            leftIcon={<Coins size={12} />}
           >
             Redeem
           </CustomButton>
           <CustomButton
-            variant="outline"
+            variant="primary"
+            themeColor="emerald"
             size="xs"
             disabled={g.status !== "ACTIVE"}
             onClick={() => {
               setGcTxModal({ mode: "reload", card: g });
               setGcTxForm({ amount: "" });
             }}
-            className="text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 border-emerald-200"
+            leftIcon={<Plus size={12} />}
           >
             Reload
           </CustomButton>
           <CustomButton
-            variant="outline"
+            variant="secondary"
             size="xs"
             onClick={() => openGcDetail(g)}
             leftIcon={<Receipt size={12} />}
@@ -931,7 +1012,7 @@ export default function LoyaltyPage() {
           { label: "Loyalty & Rewards" },
         ]}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {tab === "loyalty" && (
               <>
                 <CustomButton
@@ -1058,7 +1139,7 @@ export default function LoyaltyPage() {
           {/* Membership Tier Cards Section */}
           <div className="space-y-3.5">
             {/* Structured Section Title Header */}
-            <div className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3.5 px-4 sm:px-5 shadow-2xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-sm border border-sky-100/90 bg-white p-3.5 px-4 sm:px-5 shadow-2xs">
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 shadow-2xs">
                   <Crown size={16} />
@@ -1075,19 +1156,19 @@ export default function LoyaltyPage() {
               </div>
             </div>
 
-            {/* Tier Cards Grid (No top color line, unified high-end cards) */}
+            {/* Tier Cards Grid (4 distinct backgrounds, theme-colored toggle switch) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {tiers.map((t) => {
-                const badge = TIER_BADGES[t.code] || TIER_BADGES.VIP;
+              {tiers.map((t, idx) => {
+                const theme = TIER_THEMES[t.code.toUpperCase()] || ORDERED_TIER_STYLES[idx % 4];
                 return (
                   <div
                     key={t.id}
-                    className="relative flex flex-col justify-between rounded-sm border border-sky-200/80 bg-white p-4 shadow-2xs hover:border-[#0284C7] hover:shadow-md transition-all space-y-3.5"
+                    className={`relative flex flex-col justify-between rounded-sm border ${theme.borderColor} ${theme.cardBg} p-4 shadow-2xs hover:shadow-md transition-all space-y-3.5`}
                   >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <span
-                          className={`inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-1 text-xs font-bold ${badge.bg} ${badge.border} ${badge.text}`}
+                          className={`inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-1 text-xs font-bold ${theme.badgeBg} ${theme.badgeBorder} ${theme.badgeText}`}
                         >
                           <Crown size={12} /> {t.name}
                         </span>
@@ -1096,8 +1177,8 @@ export default function LoyaltyPage() {
                           type="button"
                           onClick={() => toggleTier(t)}
                           title={t.isActive ? "Deactivate Tier" : "Activate Tier"}
-                          className={`relative h-5 w-9 rounded-full transition-colors cursor-pointer shrink-0 ${
-                            t.isActive ? "bg-emerald-500" : "bg-slate-200"
+                          className={`relative h-5 w-9 rounded-full transition-all cursor-pointer shrink-0 ${
+                            t.isActive ? "bg-gradient-to-r from-[#0284C7] to-[#0EA5E9]" : "bg-slate-200"
                           }`}
                         >
                           <span
@@ -1112,21 +1193,21 @@ export default function LoyaltyPage() {
                         {t.benefits || "Standard tier benefits applied upon points qualification threshold."}
                       </p>
 
-                      <div className="grid grid-cols-2 gap-2 text-center rounded-sm bg-sky-50/50 border border-sky-100/80 p-2.5">
+                      <div className={`grid grid-cols-2 gap-2 text-center rounded-sm ${theme.statsBg} border ${theme.statsBorder} p-2.5`}>
                         <div>
-                          <p className="text-[10px] font-semibold text-slate-500">Min Points</p>
-                          <p className="text-xs sm:text-sm font-bold text-[#0369A1] mt-0.5">
+                          <p className="text-[10px] font-semibold text-gray-500">Min Points</p>
+                          <p className={`text-xs sm:text-sm font-bold ${theme.accentText} mt-0.5`}>
                             {t.minPoints.toLocaleString()}
                           </p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-semibold text-slate-500">Multiplier</p>
-                          <p className="text-xs sm:text-sm font-bold text-[#0369A1] mt-0.5">{t.multiplier}×</p>
+                          <p className="text-[10px] font-semibold text-gray-500">Multiplier</p>
+                          <p className={`text-xs sm:text-sm font-bold ${theme.accentText} mt-0.5`}>{t.multiplier}×</p>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between text-[11px] text-gray-500 pt-0.5 font-semibold">
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0369A1] bg-sky-50 border border-sky-200/60 px-2 py-0.5 rounded-sm">
+                      <div className="flex items-center justify-between text-[11px] pt-0.5 font-semibold">
+                        <span className={`inline-flex items-center gap-1 text-[11px] font-bold ${theme.memberPill} border px-2 py-0.5 rounded-sm`}>
                           {tierTotals[t.code] || 0} Members
                         </span>
                         <span className="text-[11px] font-bold text-emerald-700">{t.cashbackRate}% Cashback</span>
@@ -1185,7 +1266,7 @@ export default function LoyaltyPage() {
                   value={accSearch}
                   onChange={(e) => setAccSearch(e.target.value)}
                   placeholder="Search member name or phone..."
-                  className="w-full rounded-sm border border-sky-200/90 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                  className="w-full rounded-sm border border-sky-200/90 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
                 />
               </div>
             }
@@ -1224,7 +1305,7 @@ export default function LoyaltyPage() {
                   value={walSearch}
                   onChange={(e) => setWalSearch(e.target.value)}
                   placeholder="Search wallet customer..."
-                  className="w-full rounded-sm border border-sky-200/90 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                  className="w-full rounded-sm border border-sky-200/90 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
                 />
               </div>
             }
@@ -1263,7 +1344,7 @@ export default function LoyaltyPage() {
                   value={gcSearch}
                   onChange={(e) => setGcSearch(e.target.value)}
                   placeholder="Search card number or holder..."
-                  className="w-full rounded-sm border border-sky-200/90 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                  className="w-full rounded-sm border border-sky-200/90 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
                 />
               </div>
             }
@@ -1376,7 +1457,7 @@ export default function LoyaltyPage() {
           <div className="rounded-sm border border-sky-100/90 bg-sky-50/30 p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-gray-700">Points Earning Enabled</p>
+                <p className="text-xs font-bold text-gray-600">Points Earning Enabled</p>
                 <p className="text-[11px] text-gray-500">Allow customers to automatically collect loyalty points on orders</p>
               </div>
               <button
@@ -1384,8 +1465,8 @@ export default function LoyaltyPage() {
                 onClick={() =>
                   setSettingsForm({ ...settingsForm, earnEnabled: !settingsForm.earnEnabled })
                 }
-                className={`relative h-6 w-11 rounded-full transition-colors cursor-pointer shrink-0 ${
-                  settingsForm.earnEnabled ? "bg-emerald-500" : "bg-slate-300"
+                className={`relative h-6 w-11 rounded-full transition-all cursor-pointer shrink-0 ${
+                  settingsForm.earnEnabled ? "bg-gradient-to-r from-[#0284C7] to-[#0EA5E9]" : "bg-slate-300"
                 }`}
               >
                 <span
@@ -1400,7 +1481,7 @@ export default function LoyaltyPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-gray-700">Redemption Enabled</p>
+                <p className="text-xs font-bold text-gray-600">Redemption Enabled</p>
                 <p className="text-[11px] text-gray-500">Allow customers to redeem accumulated points for instant cash discount at POS</p>
               </div>
               <button
@@ -1408,8 +1489,8 @@ export default function LoyaltyPage() {
                 onClick={() =>
                   setSettingsForm({ ...settingsForm, redeemEnabled: !settingsForm.redeemEnabled })
                 }
-                className={`relative h-6 w-11 rounded-full transition-colors cursor-pointer shrink-0 ${
-                  settingsForm.redeemEnabled ? "bg-emerald-500" : "bg-slate-300"
+                className={`relative h-6 w-11 rounded-full transition-all cursor-pointer shrink-0 ${
+                  settingsForm.redeemEnabled ? "bg-gradient-to-r from-[#0284C7] to-[#0EA5E9]" : "bg-slate-300"
                 }`}
               >
                 <span
@@ -1893,7 +1974,7 @@ export default function LoyaltyPage() {
                     className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs hover:border-sky-300 transition"
                   >
                     <div>
-                      <p className="text-xs font-bold text-gray-700 capitalize">
+                      <p className="text-xs font-bold text-gray-600 capitalize">
                         {row.type.replace(/_/g, " ")}
                       </p>
                       {row.note && <p className="text-[11px] text-gray-500 mt-0.5">{row.note}</p>}
@@ -2058,7 +2139,7 @@ export default function LoyaltyPage() {
       >
         {walletDetail && (
           <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="rounded-sm bg-emerald-50/70 border border-emerald-200 p-3 text-center shadow-2xs">
                 <p className="text-[10.5px] font-bold text-emerald-800 uppercase">Balance</p>
                 <p className="text-lg font-black text-emerald-700 mt-0.5">
@@ -2091,7 +2172,7 @@ export default function LoyaltyPage() {
                     className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs hover:border-sky-300 transition"
                   >
                     <div>
-                      <p className="text-xs font-bold text-gray-700 capitalize">
+                      <p className="text-xs font-bold text-gray-600 capitalize">
                         {tx.type?.replace(/_/g, " ")}
                       </p>
                       {tx.note && <p className="text-[11px] text-gray-500 mt-0.5">{tx.note}</p>}
@@ -2322,7 +2403,7 @@ export default function LoyaltyPage() {
       >
         {gcDetail && (
           <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="rounded-sm bg-sky-50/70 border border-sky-200 p-3 text-center shadow-2xs">
                 <p className="text-[10.5px] font-bold text-[#0369A1] uppercase">Current Balance</p>
                 <p className="text-lg font-black text-[#0369A1] mt-0.5">
@@ -2330,8 +2411,8 @@ export default function LoyaltyPage() {
                 </p>
               </div>
               <div className="rounded-sm bg-slate-50/70 border border-slate-200 p-3 text-center shadow-2xs">
-                <p className="text-[10.5px] font-bold text-slate-700 uppercase">Initial Amount</p>
-                <p className="text-lg font-black text-slate-700 mt-0.5">
+                <p className="text-[10.5px] font-bold text-gray-600 uppercase">Initial Amount</p>
+                <p className="text-lg font-black text-gray-600 mt-0.5">
                   {currency(gcDetail.initialAmount)}
                 </p>
               </div>
@@ -2342,7 +2423,7 @@ export default function LoyaltyPage() {
                     : "bg-rose-50/70 border-rose-200"
                 }`}
               >
-                <p className="text-[10.5px] font-bold text-slate-700 uppercase">Card Status</p>
+                <p className="text-[10.5px] font-bold text-gray-600 uppercase">Card Status</p>
                 <p
                   className={`text-lg font-black mt-0.5 ${
                     gcDetail.status === "ACTIVE" ? "text-emerald-700" : "text-rose-700"
@@ -2378,7 +2459,7 @@ export default function LoyaltyPage() {
                     className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs hover:border-sky-300 transition"
                   >
                     <div>
-                      <p className="text-xs font-bold text-gray-700 capitalize">
+                      <p className="text-xs font-bold text-gray-600 capitalize">
                         {tx.type?.replace(/_/g, " ")}
                       </p>
                       {tx.note && <p className="text-[11px] text-gray-500 mt-0.5">{tx.note}</p>}

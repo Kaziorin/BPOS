@@ -97,7 +97,7 @@ export function CustomTabs({
                   : cn(
                       darkMode
                         ? "text-slate-300 bg-slate-800/80 border-slate-700"
-                        : "text-gray-700 bg-white border-sky-200/90 shadow-2xs hover:bg-sky-50 hover:text-[#0284C7] hover:border-sky-300",
+                        : "text-gray-600 bg-white border-sky-200/90 shadow-2xs hover:bg-sky-50 hover:text-[#0284C7] hover:border-sky-300",
                       hoverStyle
                     )
             )}
@@ -114,11 +114,11 @@ export function CustomTabs({
                 {tab.icon}
               </span>
             )}
-            <span>{tab.label}</span>
+            <span className="leading-none">{tab.label}</span>
             {tab.badge !== undefined && (
               <span
                 className={cn(
-                  "ml-1 px-1.5 py-0.5 text-[10px] rounded-full font-bold transition-colors",
+                  "inline-flex items-center justify-center min-w-[20px] h-[18px] px-1.5 text-[10.5px] font-bold leading-none rounded-sm transition-colors shrink-0",
                   isActive
                     ? "bg-white text-[#0369A1] font-black shadow-2xs"
                     : tab.badgeClassName || (darkMode ? "bg-slate-700 text-slate-300" : "bg-sky-100 text-[#0284C7] border border-sky-200/80")
