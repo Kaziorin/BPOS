@@ -15,6 +15,8 @@ export interface CustomDropdownSelectProps {
   options: DropdownOption[];
   value: string;
   onChange: (value: string) => void;
+  label?: string;
+  required?: boolean;
   placeholder?: string;
   className?: string;
   containerClassName?: string;
@@ -25,6 +27,8 @@ export function CustomDropdownSelect({
   options,
   value,
   onChange,
+  label,
+  required = false,
   placeholder = "Select Option...",
   className,
   containerClassName,
@@ -129,7 +133,12 @@ export function CustomDropdownSelect({
   }, [isOpen]);
 
   return (
-    <div className={cn("relative w-full select-none", containerClassName)}>
+    <div className={cn("relative w-full select-none flex flex-col", containerClassName)}>
+      {label && (
+        <label className="mb-1.5 block text-xs font-bold text-gray-600 capitalize">
+          {label} {required && <span className="text-rose-500 ml-0.5">*</span>}
+        </label>
+      )}
       <button
         ref={buttonRef}
         type="button"

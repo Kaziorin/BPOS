@@ -16,6 +16,7 @@ export type InputThemeColor =
 
 export interface CustomInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  labelClassName?: string;
   error?: string;
   hint?: string;
   helperText?: string;
@@ -101,6 +102,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
   (
     {
       label,
+      labelClassName,
       error,
       hint,
       helperText,
@@ -127,11 +129,11 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
           <label
             htmlFor={inputId}
             className={cn(
-              "mb-1.5 block text-xs font-semibold capitalize",
-              darkMode ? "text-slate-300" : themeStyle.label
+              "mb-1.5 block text-xs font-bold text-gray-600 capitalize",
+              labelClassName ? labelClassName : darkMode ? "text-slate-300" : "text-gray-600"
             )}
           >
-            {label}
+            {label} {props.required && <span className="text-rose-500 ml-0.5">*</span>}
           </label>
         )}
         <div className="relative flex items-center">

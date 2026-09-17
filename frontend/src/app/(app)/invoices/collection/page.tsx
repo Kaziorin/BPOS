@@ -10,6 +10,19 @@ import {
   LayoutList, LayoutGrid, ArrowUpDown, Banknote, Receipt, ArrowRight
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { toast } from "react-toastify";
+import {
+  CustomBreadcrumb,
+  CustomButton,
+  CustomStatCard,
+  CustomTabs,
+  CustomTable,
+  type CustomTableColumn,
+  CustomModal,
+  CustomDropdownSelect,
+  CustomInput,
+  CustomDatePicker,
+} from "@/components/custom";
 
 interface CollectionEntry {
   id: string;
@@ -57,19 +70,24 @@ const METHOD_CONFIG: Record<string, { label: string; icon: any; color: string }>
 };
 
 const SCHED_STATUS: Record<string, { label: string; bg: string; text: string }> = {
-  COMPLETED: { label: "Completed", bg: "bg-emerald-50", text: "text-emerald-700" },
-  PENDING: { label: "Pending Visit", bg: "bg-amber-50", text: "text-amber-700" },
-  PARTIAL: { label: "Partially Collected", bg: "bg-blue-50", text: "text-blue-700" },
-  MISSED: { label: "Missed / Rescheduled", bg: "bg-rose-50", text: "text-rose-700" },
+  COMPLETED: { label: "Completed", bg: "bg-emerald-50 border-emerald-200", text: "text-emerald-700" },
+  PENDING: { label: "Pending Visit", bg: "bg-amber-50 border-amber-200", text: "text-amber-700" },
+  PARTIAL: { label: "Partially Collected", bg: "bg-sky-50 border-sky-200", text: "text-sky-700" },
+  MISSED: { label: "Missed / Rescheduled", bg: "bg-rose-50 border-rose-200", text: "text-rose-700" },
 };
 
 export default function CollectionPage() {
-  const [tab, setTab] = useState<"entries" | "schedules" | "performance">("entries");
+  const [tab, setTab] = useState<string>("entries");
   const [entries, setEntries] = useState<CollectionEntry[]>([]);
   const [schedules, setSchedules] = useState<CollectionSchedule[]>([]);
   const [performance, setPerformance] = useState<Performance[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Filters state
+  const [filterMethod, setFilterMethod] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   // Modals state
   const [showCreateEntry, setShowCreateEntry] = useState(false);
@@ -88,6 +106,7 @@ export default function CollectionPage() {
     method: "CASH",
     amount: "",
     receiptNo: "",
+    collectedAt: new Date().toISOString().split("T")[0],
     note: "",
     isOffline: false,
   });
@@ -140,7 +159,7 @@ export default function CollectionPage() {
   async function handleCreateEntry(e: React.FormEvent) {
     e.preventDefault();
     if (!entryForm.amount || Number(entryForm.amount) <= 0) {
-      alert("Please enter a valid collection amount");
+      toast.error("Please enter a valid collection amount");
       return;
     }
 
@@ -148,13 +167,17 @@ export default function CollectionPage() {
       await api.post("/v1/invoices/collection/entries", {
         branchId: entryForm.branchId || "default",
         collectorId: entryForm.collectorId || "COLLECTOR-1",
-        customerId: entryForm.customerId || null,
-        invoiceId: entryForm.invoiceId || null,
-        method: entryForm.method,
+        customerId: entryForm.customerId || undefined,
+        customerName: entryForm.customerName || undefined,
+        customerPhone: entryForm.customerPhone || undefined,
+        invoiceId: entryForm.invoiceId || undefined,
+        invoiceNo: entryForm.invoiceNo || undefined,
+        method: entryForm.method || "CASH",
         amount: Number(entryForm.amount),
-        receiptNo: entryForm.receiptNo || `REC-${Date.now().toString().slice(-6)}`,
-        note: entryForm.note || null,
+        receiptNo: entryForm.receiptNo || undefined,
+        collectedAt: entryForm.collectedAt ? new Date(entryForm.collectedAt).toISOString() : undefined,
         isOffline: entryForm.isOffline,
+        note: entryForm.note || undefined,
       });
 
       setShowCreateEntry(false);
@@ -169,12 +192,14 @@ export default function CollectionPage() {
         method: "CASH",
         amount: "",
         receiptNo: "",
+        collectedAt: new Date().toISOString().split("T")[0],
         note: "",
         isOffline: false,
       });
+      toast.success("Collection receipt recorded successfully!");
       await loadAll();
     } catch (err: any) {
-      alert(err.response?.data?.error ?? err.message ?? "Failed to save collection entry");
+      toast.error(err.response?.data?.error ?? err.message ?? "Failed to save collection entry");
     }
   }
 
@@ -184,9 +209,12 @@ export default function CollectionPage() {
     try {
       await api.post("/v1/invoices/collection/schedules", {
         collectorId: schedForm.collectorId || "COLLECTOR-1",
+        customerName: schedForm.customerName || undefined,
+        customerPhone: schedForm.customerPhone || undefined,
+        invoiceNo: schedForm.invoiceNo || undefined,
+        scheduledAt: schedForm.scheduledAt,
         expectedAmount: Number(schedForm.expectedAmount) || 0,
-        scheduledAt: schedForm.scheduledAt ? new Date(schedForm.scheduledAt).toISOString() : new Date().toISOString(),
-        note: schedForm.note || null,
+        note: schedForm.note || undefined,
       });
 
       setShowScheduleModal(false);
@@ -199,9 +227,10 @@ export default function CollectionPage() {
         expectedAmount: "",
         note: "",
       });
+      toast.success("Field visit scheduled successfully!");
       await loadAll();
     } catch (err: any) {
-      alert(err.response?.data?.error ?? err.message ?? "Failed to schedule collection visit");
+      toast.error(err.response?.data?.error ?? err.message ?? "Failed to schedule collection visit");
     }
   }
 
@@ -223,9 +252,10 @@ export default function CollectionPage() {
         targetAmount: "",
         branchId: "default",
       });
+      toast.success("Collector target updated successfully!");
       await loadAll();
     } catch (err: any) {
-      alert(err.response?.data?.error ?? err.message ?? "Failed to set collector target");
+      toast.error(err.response?.data?.error ?? err.message ?? "Failed to set collector target");
     }
   }
 
@@ -236,22 +266,237 @@ export default function CollectionPage() {
   const totalTargetAmount = performance.reduce((s, p) => s + Number(p.targetAmount || 0), 0);
   const targetAchievement = totalTargetAmount > 0 ? Math.round((totalCollected / totalTargetAmount) * 100) : 92;
 
-  // Search filtered items
+  // Filtered entries by Search, Method, and Date Range
   const filteredEntries = useMemo(() => {
-    if (!searchQuery.trim()) return entries;
-    const q = searchQuery.toLowerCase().trim();
-    return entries.filter((e) => 
-      e.collectionNo?.toLowerCase().includes(q) ||
-      e.customer?.name?.toLowerCase().includes(q) ||
-      e.customer?.phone?.toLowerCase().includes(q) ||
-      e.receiptNo?.toLowerCase().includes(q) ||
-      e.method?.toLowerCase().includes(q)
-    );
-  }, [entries, searchQuery]);
+    let list = entries;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter((e) => 
+        e.collectionNo?.toLowerCase().includes(q) ||
+        e.customer?.name?.toLowerCase().includes(q) ||
+        e.customer?.phone?.toLowerCase().includes(q) ||
+        e.receiptNo?.toLowerCase().includes(q) ||
+        e.method?.toLowerCase().includes(q) ||
+        e.collectorName?.toLowerCase().includes(q)
+      );
+    }
+    if (filterMethod) {
+      list = list.filter((e) => e.method === filterMethod);
+    }
+    if (startDate) {
+      list = list.filter((e) => {
+        const itemDate = new Date(e.collectedAt).toISOString().split("T")[0];
+        return itemDate >= startDate;
+      });
+    }
+    if (endDate) {
+      list = list.filter((e) => {
+        const itemDate = new Date(e.collectedAt).toISOString().split("T")[0];
+        return itemDate <= endDate;
+      });
+    }
+    return list;
+  }, [entries, searchQuery, filterMethod, startDate, endDate]);
+
+  const methodFilterOptions = [
+    { label: "All Payment Methods", value: "" },
+    { label: "Cash", value: "CASH" },
+    { label: "bKash", value: "BKASH" },
+    { label: "Nagad", value: "NAGAD" },
+    { label: "Bank Transfer", value: "BANK" },
+    { label: "Cheque", value: "CHEQUE" },
+  ];
+
+  const collectionTabs = [
+    { id: "entries", label: `Collection Receipts (${entries.length})` },
+    { id: "schedules", label: `Visit Schedules (${schedules.length})` },
+    { id: "performance", label: "Targets & Performance" },
+  ];
+
+  // Custom Table Columns for Collection Entries
+  const entryColumns: CustomTableColumn<CollectionEntry>[] = [
+    {
+      key: "collectionNo",
+      header: "Collection # & Receipt",
+      render: (e) => (
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
+            <Receipt size={14} />
+          </div>
+          <div>
+            <span className="font-bold text-gray-600 block font-mono">{e.collectionNo}</span>
+            <span className="text-[11px] text-gray-600 font-semibold block">
+              {e.receiptNo ? `Receipt: ${e.receiptNo}` : "Direct Entry"}
+              {e.isOffline && <span className="ml-1 text-amber-600 font-bold">(Offline Sync)</span>}
+            </span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "customer",
+      header: "Customer",
+      render: (e) => (
+        <div>
+          <p className="font-bold text-gray-600">{e.customer?.name || "Walk-in Customer"}</p>
+          {e.customer?.phone && (
+            <p className="text-[11px] text-gray-500 font-medium">{e.customer.phone}</p>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "method",
+      header: "Payment Method",
+      render: (e) => {
+        const meth = METHOD_CONFIG[e.method] || METHOD_CONFIG.CASH;
+        const Icon = meth.icon;
+        return (
+          <span className={`inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-1 text-[11px] font-bold ${meth.color}`}>
+            <Icon size={12} />
+            {meth.label}
+          </span>
+        );
+      },
+    },
+    {
+      key: "amount",
+      header: "Amount (৳)",
+      align: "right",
+      render: (e) => (
+        <span className="font-black text-emerald-700 text-xs sm:text-sm tabular-nums">
+          ৳{Number(e.amount || 0).toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      key: "collector",
+      header: "Collector Agent",
+      render: (e) => (
+        <span className="font-semibold text-gray-600">{e.collectorName || e.collectorId || "Agent"}</span>
+      ),
+    },
+    {
+      key: "collectedAt",
+      header: "Date & Time",
+      render: (e) => (
+        <span className="text-gray-700 text-xs font-semibold">
+          {new Date(e.collectedAt).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: () => (
+        <CustomButton
+          size="xs"
+          variant="primary"
+          themeColor="primary"
+          leftIcon={Printer}
+          onClick={(ev) => {
+            ev.stopPropagation();
+            window.print();
+          }}
+          title="Print Receipt"
+          className="h-[28px] px-2.5 shadow-xs"
+        >
+          Print
+        </CustomButton>
+      ),
+    },
+  ];
+
+  // Custom Table Columns for Visit Schedules
+  const scheduleColumns: CustomTableColumn<CollectionSchedule>[] = [
+    {
+      key: "customer",
+      header: "Customer & Visit",
+      render: (s) => (
+        <div>
+          <p className="font-bold text-gray-600">{s.customer?.name || "Customer Visit"}</p>
+          {s.customer?.phone && (
+            <p className="text-[11px] text-gray-500 font-medium">{s.customer.phone}</p>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "collector",
+      header: "Assigned Collector",
+      render: (s) => (
+        <span className="font-semibold text-gray-600">{s.collectorName || s.collectorId || "Agent"}</span>
+      ),
+    },
+    {
+      key: "scheduledAt",
+      header: "Scheduled Date & Time",
+      render: (s) => (
+        <span className="text-gray-700 text-xs font-semibold">
+          {new Date(s.scheduledAt).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </span>
+      ),
+    },
+    {
+      key: "expectedAmount",
+      header: "Expected (৳)",
+      align: "right",
+      render: (s) => (
+        <span className="font-bold text-gray-600 text-xs tabular-nums">
+          ৳{Number(s.expectedAmount || 0).toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      key: "collectedAmount",
+      header: "Collected (৳)",
+      align: "right",
+      render: (s) => (
+        <span className="font-black text-emerald-700 text-xs tabular-nums">
+          ৳{Number(s.collectedAmount || 0).toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      align: "center",
+      render: (s) => {
+        const cfg = SCHED_STATUS[s.status] || SCHED_STATUS.PENDING;
+        return (
+          <span className={`inline-flex items-center rounded-sm border px-2 py-0.5 text-[10px] font-bold ${cfg.bg} ${cfg.text}`}>
+            {cfg.label}
+          </span>
+        );
+      },
+    },
+    {
+      key: "note",
+      header: "Notes",
+      render: (s) => (
+        <span className="text-[11px] text-gray-500 italic truncate max-w-[180px] block font-medium">
+          {s.note || "—"}
+        </span>
+      ),
+    },
+  ];
 
   function exportCSV() {
     if (entries.length === 0) {
-      alert("No collection entries to export");
+      toast.error("No collection entries to export");
       return;
     }
 
@@ -276,660 +521,548 @@ export default function CollectionPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    toast.success(`Exported ${entries.length} collection records!`);
   }
 
   return (
-    <div className="space-y-5 w-full px-4 sm:px-8 pb-12">
-      
-      {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200/70 pb-4">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-            <Wallet size={22} className="text-sky-600" />
-            Due Invoices & Field Collection Manager
-          </h1>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Accounts receivable recovery, collector assignments, field visit schedules & recovery target scorecards.
-          </p>
-        </div>
+    <div className="space-y-4 w-full">
+      {/* 1. CUSTOM BREADCRUMB & 4 DISTINCT ACTION BUTTONS */}
+      <CustomBreadcrumb
+        title="Due Invoices & Field Collection Manager"
+        breadcrumbs={[
+          { label: "Finance", href: "/invoices" },
+          { label: "Invoices", href: "/invoices" },
+          { label: "Collections" },
+        ]}
+        icon={<Wallet size={16} className="text-[#0284C7]" />}
+        action={
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Button 1: Distinct Indigo Gradient */}
+            <CustomButton
+              variant="primary"
+              themeColor="indigo"
+              size="xs"
+              leftIcon={Target}
+              onClick={() => setShowTargetModal(true)}
+            >
+              Set Target
+            </CustomButton>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => setShowTargetModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-sm border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition"
-          >
-            <Target size={14} className="text-gray-500" />
-            Set Target
-          </button>
+            {/* Button 2: Rich Emerald Green Gradient */}
+            <CustomButton
+              variant="primary"
+              themeColor="emerald"
+              size="xs"
+              leftIcon={Clock}
+              onClick={() => setShowScheduleModal(true)}
+            >
+              Schedule Visit
+            </CustomButton>
 
-          <button
-            onClick={() => setShowScheduleModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-sm border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition"
-          >
-            <Clock size={14} className="text-gray-500" />
-            Schedule Visit
-          </button>
+            {/* Button 3: Outline Clean Slate */}
+            <CustomButton
+              variant="outline"
+              size="xs"
+              leftIcon={Download}
+              onClick={exportCSV}
+            >
+              Export CSV
+            </CustomButton>
 
-          <button
-            onClick={exportCSV}
-            className="inline-flex items-center gap-1.5 rounded-sm border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition"
-          >
-            <Download size={14} className="text-gray-500" />
-            Export CSV
-          </button>
+            {/* Button 4: Primary Sky Gradient */}
+            <CustomButton
+              variant="primary"
+              themeColor="primary"
+              size="xs"
+              leftIcon={Plus}
+              onClick={() => setShowCreateEntry(true)}
+            >
+              Record Collection
+            </CustomButton>
+          </div>
+        }
+      />
 
-          <button
-            onClick={() => setShowCreateEntry(true)}
-            className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-2 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700 transition"
-          >
-            <Plus size={15} />
-            Record Collection
-          </button>
-        </div>
-      </div>
-
-      {/* ── KPI Analytics Cards ── */}
+      {/* 2. KPI ANALYTICS STAT CARDS (Clean, No Subtitles) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        {/* Total Collected */}
-        <div className="rounded-sm border border-gray-200 bg-white p-4 shadow-2xs hover:border-gray-300 transition">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-medium uppercase tracking-wider text-emerald-700">Total Collected</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-50 text-emerald-600">
-              <DollarSign size={16} />
-            </div>
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-emerald-600">
-              ৳{Math.round(totalCollected).toLocaleString()}
-            </span>
-            <span className="text-xs font-medium text-emerald-700">
-              {entries.length} receipts
-            </span>
-          </div>
-          <p className="mt-1 text-[11px] text-gray-400">
-            Recovered from customer outstanding balances
-          </p>
-        </div>
-
-        {/* Pending Field Schedules */}
-        <div 
-          onClick={() => setTab("schedules")}
-          className={`rounded-sm border p-4 shadow-2xs transition cursor-pointer ${
-            tab === "schedules"
-              ? "border-amber-500 bg-amber-50/40 ring-1 ring-amber-500/20"
-              : "border-gray-200 bg-white hover:border-amber-300"
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-amber-700">Pending Visits</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-amber-50 text-amber-600">
-              <Clock size={16} />
-            </div>
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-amber-700">
-              {pendingSchedules}
-            </span>
-            <span className="text-xs font-medium text-amber-600">visits queued</span>
-          </div>
-          <p className="mt-1 text-[11px] text-amber-600/80 font-medium">
-            Scheduled field appointments
-          </p>
-        </div>
-
-        {/* Active Collectors */}
-        <div className="rounded-sm border border-gray-200 bg-white p-4 shadow-2xs hover:border-gray-300 transition">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Active Field Agents</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-sky-600">
-              <User size={16} />
-            </div>
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-gray-900">
-              {uniqueCollectors}
-            </span>
-            <span className="text-xs font-medium text-emerald-600">on field</span>
-          </div>
-          <p className="mt-1 text-[11px] text-gray-400">
-            Assigned collection officers
-          </p>
-        </div>
-
-        {/* Target Achievement */}
-        <div className="rounded-sm border border-gray-200 bg-white p-4 shadow-2xs hover:border-gray-300 transition">
-          <div className="flex items-center justify-between text-gray-500">
-            <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Target Recovery</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-teal-50 text-teal-600">
-              <ShieldCheck size={16} />
-            </div>
-          </div>
-          <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-gray-900">
-              {targetAchievement}%
-            </span>
-            <span className="text-xs font-medium text-teal-600">of goal</span>
-          </div>
-          <p className="mt-1 text-[11px] text-gray-400">
-            Monthly recovery goal progress
-          </p>
-        </div>
+        <CustomStatCard
+          label="Total Collected"
+          value={`৳${Math.round(totalCollected).toLocaleString()}`}
+          icon={DollarSign}
+          tone="green"
+        />
+        <CustomStatCard
+          label="Pending Visits"
+          value={String(pendingSchedules)}
+          icon={Clock}
+          tone="amber"
+          className="cursor-pointer"
+        />
+        <CustomStatCard
+          label="Active Field Agents"
+          value={String(uniqueCollectors)}
+          icon={User}
+          tone="primary"
+        />
+        <CustomStatCard
+          label="Target Recovery"
+          value={`${targetAchievement}%`}
+          icon={ShieldCheck}
+          tone="blue"
+        />
       </div>
 
-      {/* ── Mode Selection Navigation Tabs ── */}
-      <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
-        <button
-          onClick={() => setTab("entries")}
-          className={`flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 text-xs font-medium transition ${
-            tab === "entries"
-              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs font-semibold"
-              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
-          }`}
-        >
-          <Receipt size={13} />
-          <span>Collection Receipts & Entries ({entries.length})</span>
-        </button>
-
-        <button
-          onClick={() => setTab("schedules")}
-          className={`flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 text-xs font-medium transition ${
-            tab === "schedules"
-              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs font-semibold"
-              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
-          }`}
-        >
-          <Clock size={13} />
-          <span>Visit Schedules ({schedules.length})</span>
-        </button>
-
-        <button
-          onClick={() => setTab("performance")}
-          className={`flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 text-xs font-medium transition ${
-            tab === "performance"
-              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs font-semibold"
-              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
-          }`}
-        >
-          <Target size={13} />
-          <span>Collector Targets & Performance</span>
-        </button>
-      </div>
-
-      {/* ── TAB 1: COLLECTION RECEIPTS / ENTRIES ── */}
-      {tab === "entries" && (
-        <div className="space-y-3">
-          {/* Search toolbar */}
-          <div className="rounded-sm border border-gray-200 bg-white p-3 shadow-2xs flex items-center justify-between gap-3">
-            <div className="relative w-full max-w-sm">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search collection #, receipt #, customer, method..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-sm border border-gray-300 py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      {/* 3. MAIN UNIFIED CARD: TABS, TOOLBAR, FILTERS, TABLE */}
+      <div className="rounded-sm border border-sky-200/80 bg-white shadow-2xs overflow-hidden">
+        {/* Card Header Toolbar */}
+        <div className="border-b border-sky-100/70 p-4 space-y-3 bg-white">
+          {/* Row 1: Tabs on Left, Export CSV on Right (No Refresh Button) */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="overflow-x-auto min-w-0 shrink">
+              <CustomTabs
+                tabs={collectionTabs}
+                activeTab={tab}
+                onChange={(tabId) => setTab(tabId)}
+                themeColor="primary"
+                className="w-auto border border-sky-100/90 bg-white shadow-2xs"
               />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400">
-                  <X size={13} />
-                </button>
-              )}
             </div>
 
-            <button onClick={loadAll} className="rounded-sm border border-gray-300 p-1.5 text-gray-600 hover:bg-gray-50" title="Refresh">
-              <RefreshCw size={14} className={loading ? "animate-spin text-sky-600" : ""} />
-            </button>
+            <div className="flex items-center gap-2 ml-auto shrink-0">
+              <CustomButton
+                variant="outline"
+                size="xs"
+                leftIcon={Download}
+                onClick={exportCSV}
+                className="h-[34px]"
+                title="Export collection entries to CSV"
+              >
+                Export CSV
+              </CustomButton>
+            </div>
           </div>
 
-          {loading ? (
-            <div className="rounded-sm border border-gray-200 bg-white p-12 text-center shadow-2xs">
-              <RefreshCw size={24} className="mx-auto animate-spin text-sky-600 mb-2" />
-              <p className="text-xs font-semibold text-gray-700">Loading collection entries...</p>
-            </div>
-          ) : filteredEntries.length === 0 ? (
-            <div className="rounded-sm border-2 border-dashed border-gray-200 bg-white p-12 text-center shadow-2xs">
-              <Wallet size={32} className="mx-auto text-gray-300 mb-3" />
-              <h3 className="text-sm font-bold text-gray-900">No Collection Entries Found</h3>
-              <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
-                Record cash or digital payments collected by field agents against due customer invoices.
-              </p>
-              <button
-                onClick={() => setShowCreateEntry(true)}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700"
-              >
-                <Plus size={14} /> Record First Collection
-              </button>
-            </div>
-          ) : (
-            <div className="rounded-sm border border-gray-200 bg-white shadow-2xs overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50/75 text-[11px] font-semibold uppercase tracking-wider text-gray-600">
-                      <th className="px-4 py-3">Collection # & Receipt</th>
-                      <th className="px-3 py-3">Customer</th>
-                      <th className="px-3 py-3">Payment Method</th>
-                      <th className="px-3 py-3 text-right">Amount Collected</th>
-                      <th className="px-3 py-3">Collector Agent</th>
-                      <th className="px-3 py-3">Date & Time</th>
-                      <th className="px-4 py-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredEntries.map((e) => {
-                      const meth = METHOD_CONFIG[e.method] || METHOD_CONFIG.CASH;
-                      const Icon = meth.icon;
-
-                      return (
-                        <tr key={e.id} className="hover:bg-gray-50/70 transition-colors">
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-2">
-                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
-                                <Receipt size={14} />
-                              </div>
-                              <div>
-                                <span className="font-bold text-gray-900 block">{e.collectionNo}</span>
-                                <span className="text-[10px] text-gray-400">
-                                  {e.receiptNo ? `Receipt: ${e.receiptNo}` : "Direct Entry"}
-                                  {e.isOffline && <span className="ml-1 text-amber-600 font-bold">(Offline Sync)</span>}
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className="px-3 py-3">
-                            <div>
-                              <p className="font-semibold text-gray-800">{e.customer?.name || "Customer"}</p>
-                              {e.customer?.phone && (
-                                <p className="text-[11px] text-gray-400">{e.customer.phone}</p>
-                              )}
-                            </div>
-                          </td>
-
-                          <td className="px-3 py-3">
-                            <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${meth.color}`}>
-                              <Icon size={11} />
-                              {meth.label}
-                            </span>
-                          </td>
-
-                          <td className="px-3 py-3 text-right">
-                            <span className="font-bold text-emerald-600 text-xs">
-                              ৳{Number(e.amount || 0).toLocaleString()}
-                            </span>
-                          </td>
-
-                          <td className="px-3 py-3 text-gray-700">
-                            <span className="font-medium">{e.collectorName || e.collectorId || "Agent"}</span>
-                          </td>
-
-                          <td className="px-3 py-3 text-gray-500 text-[11px]">
-                            {new Date(e.collectedAt).toLocaleString()}
-                          </td>
-
-                          <td className="px-4 py-3 text-right">
-                            <button
-                              onClick={() => window.print()}
-                              className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
-                              title="Print Receipt"
-                            >
-                              <Printer size={14} />
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── TAB 2: VISIT SCHEDULES ── */}
-      {tab === "schedules" && (
-        <div className="space-y-3">
-          {schedules.length === 0 ? (
-            <div className="rounded-sm border-2 border-dashed border-gray-200 bg-white p-12 text-center shadow-2xs">
-              <Clock size={32} className="mx-auto text-gray-300 mb-3" />
-              <h3 className="text-sm font-bold text-gray-900">No Scheduled Field Visits</h3>
-              <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
-                Plan field collector appointments and overdue recovery visits.
-              </p>
-              <button
-                onClick={() => setShowScheduleModal(true)}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700"
-              >
-                <Plus size={14} /> Schedule New Visit
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {schedules.map((s) => {
-                const cfg = SCHED_STATUS[s.status] || SCHED_STATUS.PENDING;
-                return (
-                  <div key={s.id} className="rounded-sm border border-gray-200 bg-white p-4 shadow-2xs hover:border-gray-300 transition space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h4 className="font-bold text-gray-900 text-xs">{s.customer?.name || "Customer Visit"}</h4>
-                        <p className="text-[11px] text-gray-400 mt-0.5">
-                          Scheduled: {new Date(s.scheduledAt).toLocaleString()}
-                        </p>
-                      </div>
-                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.bg} ${cfg.text}`}>
-                        {cfg.label}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 bg-gray-50 p-2.5 rounded-sm text-center text-xs">
-                      <div>
-                        <span className="text-[10px] text-gray-400 block font-medium">Expected ৳</span>
-                        <span className="font-bold text-gray-900">৳{Number(s.expectedAmount || 0).toLocaleString()}</span>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-gray-400 block font-medium">Collected ৳</span>
-                        <span className="font-bold text-emerald-600">৳{Number(s.collectedAmount || 0).toLocaleString()}</span>
-                      </div>
-                    </div>
-
-                    {s.note && (
-                      <p className="text-[11px] text-gray-500 italic truncate">{s.note}</p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── TAB 3: COLLECTOR TARGETS & PERFORMANCE ── */}
-      {tab === "performance" && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-sm border border-gray-200 bg-white p-5 shadow-2xs space-y-4">
-              <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
-                <Target size={15} className="text-sky-600" />
-                Monthly Target vs Achievement Leaderboard
-              </h3>
-
-              <div className="space-y-4 pt-1">
-                {(performance.length > 0 ? performance : [
-                  { collectorId: "Agent Rafiq", period: "Sep 2026", targetAmount: 250000, collectedAmount: 215000, achievementPct: 86 },
-                  { collectorId: "Agent Karim", period: "Sep 2026", targetAmount: 180000, collectedAmount: 180000, achievementPct: 100 },
-                  { collectorId: "Agent Sumon", period: "Sep 2026", targetAmount: 300000, collectedAmount: 285000, achievementPct: 95 },
-                ]).map((p, idx) => (
-                  <div key={idx} className="space-y-1.5">
-                    <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-gray-800">{p.collectorName || p.collectorId}</span>
-                      <span className="text-emerald-600">
-                        ৳{Number(p.collectedAmount).toLocaleString()} / ৳{Number(p.targetAmount).toLocaleString()} ({p.achievementPct || Math.round((p.collectedAmount/p.targetAmount)*100)}%)
-                      </span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(100, p.achievementPct || Math.round((p.collectedAmount/p.targetAmount)*100))}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-sm border border-gray-200 bg-white p-5 shadow-2xs flex flex-col justify-between">
-              <div>
-                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Field Collection Guidelines</h3>
-                <ul className="text-xs text-gray-600 space-y-2 list-disc pl-4 leading-relaxed">
-                  <li>Always issue digital or printed money receipts immediately upon collecting cash.</li>
-                  <li>Offline payments sync automatically upon regaining network connectivity.</li>
-                  <li>Schedules keep track of customer promise-to-pay dates and field route logistics.</li>
-                </ul>
+          {/* Row 2: Search on Left + Method Select + Spacious Date Range */}
+          {tab === "entries" && (
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full pt-0.5">
+              {/* 1. Search Input */}
+              <div className="w-full sm:w-[280px] lg:w-[320px] shrink-0">
+                <CustomInput
+                  leftIcon={<Search size={14} />}
+                  rightIcon={
+                    searchQuery ? (
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery("")}
+                        className="text-gray-400 hover:text-gray-700 cursor-pointer"
+                      >
+                        <X size={14} />
+                      </button>
+                    ) : null
+                  }
+                  placeholder="Search collection #, customer, phone, collector..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  containerClassName="w-full"
+                  className="h-[38px] text-xs font-medium text-gray-700 placeholder:text-gray-500 shadow-2xs"
+                />
               </div>
 
-              <div className="pt-4 border-t border-gray-100 flex gap-2">
-                <button
-                  onClick={() => setShowTargetModal(true)}
-                  className="w-full rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] py-2 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700 transition"
-                >
-                  Set New Collector Target
-                </button>
+              {/* 2. Payment Method Select */}
+              <div className="w-full sm:w-[200px] lg:w-[220px] shrink-0">
+                <CustomDropdownSelect
+                  options={methodFilterOptions}
+                  value={filterMethod}
+                  onChange={(val) => setFilterMethod(val)}
+                  placeholder="All Payment Methods"
+                  containerClassName="w-full"
+                  className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+                />
               </div>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* ── RECORD COLLECTION MODAL ── */}
-      {showCreateEntry && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100">
-          <div className="relative w-full max-w-md rounded-sm bg-white shadow-2xl border border-gray-200 overflow-hidden my-8 animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3.5 bg-gray-50/80">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
-                  <Receipt size={16} />
+              {/* 3. Spacious Date Range with CustomDatePicker (sm:w-[380px] gives ~185px per date) */}
+              <div className="flex items-center gap-2 w-full sm:w-[380px] lg:w-[410px] shrink-0 sm:ml-auto">
+                <div className="flex-1 min-w-0">
+                  <CustomDatePicker
+                    value={startDate}
+                    onChange={(val) => setStartDate(val)}
+                    compact={true}
+                    placeholder="From Date"
+                    title="From Date"
+                    clearable={true}
+                    className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+                  />
                 </div>
+                <span className="text-xs font-bold text-gray-400 shrink-0">to</span>
+                <div className="flex-1 min-w-0">
+                  <CustomDatePicker
+                    value={endDate}
+                    onChange={(val) => setEndDate(val)}
+                    compact={true}
+                    placeholder="To Date"
+                    title="To Date"
+                    clearable={true}
+                    min={startDate || undefined}
+                    className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Card Body: Tab 1 - Entries CustomTable */}
+        {tab === "entries" && (
+          <div className="p-0">
+            <CustomTable<CollectionEntry>
+              columns={entryColumns}
+              data={filteredEntries}
+              loading={loading}
+              rowKey="id"
+              pageSize={10}
+              showPagination={true}
+              emptyMessage="No collection entries found matching your criteria."
+            />
+          </div>
+        )}
+
+        {/* Card Body: Tab 2 - Schedules CustomTable */}
+        {tab === "schedules" && (
+          <div className="p-0">
+            <CustomTable<CollectionSchedule>
+              columns={scheduleColumns}
+              data={schedules}
+              loading={loading}
+              rowKey="id"
+              pageSize={10}
+              showPagination={true}
+              emptyMessage="No scheduled field visits found."
+            />
+          </div>
+        )}
+
+        {/* Card Body: Tab 3 - Performance */}
+        {tab === "performance" && (
+          <div className="p-4 sm:p-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-sm border border-sky-200/80 bg-white p-5 shadow-2xs space-y-4">
+                <h3 className="text-xs font-bold text-[#0369A1] capitalize flex items-center gap-1.5">
+                  <Target size={15} />
+                  Monthly Target vs Achievement Leaderboard
+                </h3>
+
+                <div className="space-y-4 pt-1">
+                  {(performance.length > 0 ? performance : [
+                    { collectorId: "Agent Rafiq", period: "Sep 2026", targetAmount: 250000, collectedAmount: 215000, achievementPct: 86 },
+                    { collectorId: "Agent Karim", period: "Sep 2026", targetAmount: 180000, collectedAmount: 180000, achievementPct: 100 },
+                    { collectorId: "Agent Sumon", period: "Sep 2026", targetAmount: 300000, collectedAmount: 285000, achievementPct: 95 },
+                  ]).map((p, idx) => (
+                    <div key={idx} className="space-y-1.5">
+                      <div className="flex justify-between text-xs font-semibold">
+                        <span className="text-gray-700">{p.collectorName || p.collectorId}</span>
+                        <span className="text-emerald-700 font-bold">
+                          ৳{Number(p.collectedAmount).toLocaleString()} / ৳{Number(p.targetAmount).toLocaleString()} ({p.achievementPct || Math.round((p.collectedAmount/p.targetAmount)*100)}%)
+                        </span>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min(100, p.achievementPct || Math.round((p.collectedAmount/p.targetAmount)*100))}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-sm border border-sky-200/80 bg-white p-5 shadow-2xs flex flex-col justify-between">
                 <div>
-                  <h2 className="text-sm font-bold text-gray-900">Record Field Collection</h2>
-                  <p className="text-[11px] text-gray-500">Log customer payment recovery against invoice.</p>
+                  <h3 className="text-xs font-bold text-[#0369A1] capitalize mb-2">Field Collection Guidelines</h3>
+                  <ul className="text-xs text-gray-600 space-y-2 list-disc pl-4 leading-relaxed font-medium">
+                    <li>Always issue digital or printed money receipts immediately upon collecting cash.</li>
+                    <li>Offline payments sync automatically upon regaining network connectivity.</li>
+                    <li>Schedules keep track of customer promise-to-pay dates and field route logistics.</li>
+                  </ul>
+                </div>
+
+                <div className="pt-4 border-t border-sky-100/80 flex gap-2">
+                  <CustomButton
+                    variant="primary"
+                    size="sm"
+                    fullWidth={true}
+                    leftIcon={Target}
+                    onClick={() => setShowTargetModal(true)}
+                  >
+                    Set New Collector Target
+                  </CustomButton>
                 </div>
               </div>
-              <button onClick={() => setShowCreateEntry(false)} className="rounded-sm p-1.5 text-gray-400 hover:bg-gray-200/60">
-                <X size={16} />
-              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================= */}
+      {/* 4. MODALS (Spacious, Blue Theme, CustomDatePicker)        */}
+      {/* ========================================================= */}
+
+      {/* ── RECORD COLLECTION MODAL (Spacious 2xl, Blue Theme) ── */}
+      {showCreateEntry && (
+        <CustomModal
+          open={showCreateEntry}
+          onClose={() => setShowCreateEntry(false)}
+          title="Record Field Collection"
+          subtitle="Log customer payment recovery against invoice."
+          size="2xl"
+          themeColor="primary"
+          icon={<Receipt size={18} />}
+        >
+          <form onSubmit={handleCreateEntry} className="space-y-4 text-xs text-gray-600">
+            <div>
+              <CustomInput
+                label="Collection Amount (৳)"
+                type="number"
+                min="1"
+                step="any"
+                required
+                autoFocus
+                placeholder="0.00"
+                value={entryForm.amount}
+                onChange={(e) => setEntryForm({ ...entryForm, amount: e.target.value })}
+                className="h-[42px] text-base font-black text-[#0369A1]"
+              />
             </div>
 
-            <form onSubmit={handleCreateEntry} className="p-5 space-y-3.5 text-xs">
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                  Collection Amount (৳) <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  step="any"
-                  required
-                  autoFocus
-                  placeholder="0.00"
-                  value={entryForm.amount}
-                  onChange={(e) => setEntryForm({ ...entryForm, amount: e.target.value })}
-                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm font-bold text-gray-900 focus:outline-none focus:border-primary-500"
-                />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
+              <CustomDropdownSelect
+                label="Payment Method"
+                required
+                options={[
+                  { label: "Cash Drawer", value: "CASH" },
+                  { label: "bKash", value: "BKASH" },
+                  { label: "Nagad", value: "NAGAD" },
+                  { label: "Bank Transfer", value: "BANK" },
+                  { label: "Cheque", value: "CHEQUE" },
+                ]}
+                value={entryForm.method}
+                onChange={(val) => setEntryForm({ ...entryForm, method: val })}
+                className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+              />
 
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Payment Method</label>
-                <select
-                  value={entryForm.method}
-                  onChange={(e) => setEntryForm({ ...entryForm, method: e.target.value })}
-                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
-                >
-                  <option value="CASH">Cash</option>
-                  <option value="BKASH">bKash</option>
-                  <option value="NAGAD">Nagad</option>
-                  <option value="BANK">Bank Transfer</option>
-                  <option value="CHEQUE">Cheque</option>
-                </select>
-              </div>
+              <CustomDatePicker
+                label="Collection Date"
+                value={entryForm.collectedAt}
+                onChange={(val) => setEntryForm({ ...entryForm, collectedAt: val })}
+                placeholder="Select Date"
+                className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 border-sky-200/80"
+              />
+            </div>
 
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Collector Agent / Officer</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Officer Rafiq (ID: COL-102)"
-                  value={entryForm.collectorId}
-                  onChange={(e) => setEntryForm({ ...entryForm, collectorId: e.target.value })}
-                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
-                />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
+              <CustomInput
+                label="Customer Name (Optional)"
+                type="text"
+                placeholder="e.g. Acme Corp"
+                value={entryForm.customerName}
+                onChange={(e) => setEntryForm({ ...entryForm, customerName: e.target.value })}
+                className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+              />
 
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Money Receipt Number (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. MR-90214"
-                  value={entryForm.receiptNo}
-                  onChange={(e) => setEntryForm({ ...entryForm, receiptNo: e.target.value })}
-                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
-                />
-              </div>
+              <CustomInput
+                label="Collector Agent / Officer"
+                type="text"
+                placeholder="e.g. Officer Rafiq (ID: COL-102)"
+                value={entryForm.collectorId}
+                onChange={(e) => setEntryForm({ ...entryForm, collectorId: e.target.value })}
+                className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+              />
+            </div>
 
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="offlineCheck"
-                  checked={entryForm.isOffline}
-                  onChange={(e) => setEntryForm({ ...entryForm, isOffline: e.target.checked })}
-                  className="rounded text-sky-600 focus:ring-primary-500"
-                />
-                <label htmlFor="offlineCheck" className="text-gray-700 text-xs">
-                  Offline field collection (sync with ledger)
-                </label>
-              </div>
+            <CustomInput
+              label="Money Receipt Number (Optional)"
+              type="text"
+              placeholder="e.g. MR-90214"
+              value={entryForm.receiptNo}
+              onChange={(e) => setEntryForm({ ...entryForm, receiptNo: e.target.value })}
+              className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+            />
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateEntry(false)}
-                  className="rounded-sm border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700"
-                >
-                  Confirm & Save Receipt
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="checkbox"
+                id="offlineCheck"
+                checked={entryForm.isOffline}
+                onChange={(e) => setEntryForm({ ...entryForm, isOffline: e.target.checked })}
+                className="rounded text-[#0284C7] focus:ring-[#0284C7]/20 cursor-pointer"
+              />
+              <label htmlFor="offlineCheck" className="text-gray-600 text-xs font-medium cursor-pointer">
+                Offline field collection (auto-sync with financial ledger)
+              </label>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-sky-100/80">
+              <CustomButton
+                type="button"
+                variant="danger"
+                size="sm"
+                className="h-[36px]"
+                onClick={() => setShowCreateEntry(false)}
+              >
+                Cancel
+              </CustomButton>
+              <CustomButton
+                type="submit"
+                variant="primary"
+                themeColor="primary"
+                size="sm"
+                className="h-[36px]"
+              >
+                Confirm & Save Receipt
+              </CustomButton>
+            </div>
+          </form>
+        </CustomModal>
       )}
 
-      {/* ── SCHEDULE VISIT MODAL ── */}
+      {/* ── SCHEDULE VISIT MODAL (Spacious 2xl, Blue Theme, CustomDatePicker) ── */}
       {showScheduleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100">
-          <div className="relative w-full max-w-md rounded-sm bg-white shadow-2xl border border-gray-200 overflow-hidden my-8 animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3.5 bg-gray-50/80">
-              <h2 className="text-sm font-bold text-gray-900">Schedule Field Collection Visit</h2>
-              <button onClick={() => setShowScheduleModal(false)} className="rounded-sm p-1.5 text-gray-400 hover:bg-gray-200/60">
-                <X size={16} />
-              </button>
+        <CustomModal
+          open={showScheduleModal}
+          onClose={() => setShowScheduleModal(false)}
+          title="Schedule Field Collection Visit"
+          subtitle="Plan field collector appointments and overdue recovery visits."
+          size="2xl"
+          themeColor="primary"
+          icon={<Clock size={18} />}
+        >
+          <form onSubmit={handleCreateSchedule} className="space-y-4 text-xs text-gray-600">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
+              <CustomInput
+                label="Customer / Client Name"
+                type="text"
+                required
+                placeholder="Customer or Organization Name"
+                value={schedForm.customerName}
+                onChange={(e) => setSchedForm({ ...schedForm, customerName: e.target.value })}
+                className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+              />
+
+              <CustomDatePicker
+                label="Scheduled Date & Time"
+                type="datetime-local"
+                required
+                value={schedForm.scheduledAt}
+                onChange={(val) => setSchedForm({ ...schedForm, scheduledAt: val })}
+                placeholder="Select appointment date & time"
+                className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 border-sky-200/80"
+              />
             </div>
 
-            <form onSubmit={handleCreateSchedule} className="p-5 space-y-3.5 text-xs">
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Scheduled Date & Time</label>
-                <input
-                  type="datetime-local"
-                  required
-                  value={schedForm.scheduledAt}
-                  onChange={(e) => setSchedForm({ ...schedForm, scheduledAt: e.target.value })}
-                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
-                />
-              </div>
+            <CustomInput
+              label="Expected Recovery Amount (৳)"
+              type="number"
+              min="0"
+              placeholder="0.00"
+              value={schedForm.expectedAmount}
+              onChange={(e) => setSchedForm({ ...schedForm, expectedAmount: e.target.value })}
+              className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+            />
 
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Expected Recovery Amount (৳)</label>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="0.00"
-                  value={schedForm.expectedAmount}
-                  onChange={(e) => setSchedForm({ ...schedForm, expectedAmount: e.target.value })}
-                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
-                />
-              </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-bold text-gray-600 capitalize">
+                Notes & Follow-up Instructions
+              </label>
+              <textarea
+                rows={2}
+                placeholder="e.g. Call before arrival at Gulshan office"
+                value={schedForm.note}
+                onChange={(e) => setSchedForm({ ...schedForm, note: e.target.value })}
+                className="w-full rounded-sm border border-sky-200/80 p-2.5 text-xs font-semibold text-gray-600 placeholder:text-gray-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+              />
+            </div>
 
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Notes & Follow-up Instructions</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Call before arrival at Gulshan office"
-                  value={schedForm.note}
-                  onChange={(e) => setSchedForm({ ...schedForm, note: e.target.value })}
-                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => setShowScheduleModal(false)}
-                  className="rounded-sm border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700"
-                >
-                  Schedule Appointment
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-sky-100/80">
+              <CustomButton
+                type="button"
+                variant="danger"
+                size="sm"
+                className="h-[36px]"
+                onClick={() => setShowScheduleModal(false)}
+              >
+                Cancel
+              </CustomButton>
+              <CustomButton
+                type="submit"
+                variant="primary"
+                themeColor="primary"
+                size="sm"
+                className="h-[36px]"
+              >
+                Schedule Appointment
+              </CustomButton>
+            </div>
+          </form>
+        </CustomModal>
       )}
 
-      {/* ── SET TARGET MODAL ── */}
+      {/* ── SET TARGET MODAL (Spacious xl, Blue Theme, CustomDatePicker) ── */}
       {showTargetModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100">
-          <div className="relative w-full max-w-md rounded-sm bg-white shadow-2xl border border-gray-200 overflow-hidden my-8 animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3.5 bg-gray-50/80">
-              <h2 className="text-sm font-bold text-gray-900">Set Monthly Collection Target</h2>
-              <button onClick={() => setShowTargetModal(false)} className="rounded-sm p-1.5 text-gray-400 hover:bg-gray-200/60">
-                <X size={16} />
-              </button>
+        <CustomModal
+          open={showTargetModal}
+          onClose={() => setShowTargetModal(false)}
+          title="Set Monthly Collection Target"
+          subtitle="Set collector monthly recovery goals."
+          size="xl"
+          themeColor="primary"
+          icon={<Target size={18} />}
+        >
+          <form onSubmit={handleSetTarget} className="space-y-4 text-xs text-gray-600">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
+              <CustomDatePicker
+                label="Target Period (Month)"
+                type="month"
+                required
+                value={targetForm.period}
+                onChange={(val) => setTargetForm({ ...targetForm, period: val })}
+                placeholder="Select Target Month"
+                className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 border-sky-200/80"
+              />
+
+              <CustomInput
+                label="Target Recovery Goal (৳)"
+                type="number"
+                min="1"
+                required
+                placeholder="e.g. 500000"
+                value={targetForm.targetAmount}
+                onChange={(e) => setTargetForm({ ...targetForm, targetAmount: e.target.value })}
+                className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+              />
             </div>
 
-            <form onSubmit={handleSetTarget} className="p-5 space-y-3.5 text-xs">
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Target Period (Month)</label>
-                <input
-                  type="month"
-                  required
-                  value={targetForm.period}
-                  onChange={(e) => setTargetForm({ ...targetForm, period: e.target.value })}
-                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Target Recovery Goal (৳)</label>
-                <input
-                  type="number"
-                  min="1"
-                  required
-                  placeholder="e.g. 500000"
-                  value={targetForm.targetAmount}
-                  onChange={(e) => setTargetForm({ ...targetForm, targetAmount: e.target.value })}
-                  className="w-full rounded-sm border border-gray-300 px-3 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-primary-500"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => setShowTargetModal(false)}
-                  className="rounded-sm border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-primary-700"
-                >
-                  Set Target Goal
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-sky-100/80">
+              <CustomButton
+                type="button"
+                variant="danger"
+                size="sm"
+                className="h-[36px]"
+                onClick={() => setShowTargetModal(false)}
+              >
+                Cancel
+              </CustomButton>
+              <CustomButton
+                type="submit"
+                variant="primary"
+                themeColor="primary"
+                size="sm"
+                className="h-[36px]"
+              >
+                Set Target Goal
+              </CustomButton>
+            </div>
+          </form>
+        </CustomModal>
       )}
-
     </div>
   );
 }
