@@ -72,6 +72,8 @@ export function CustomModal({
   const headerTitleColor =
     themeColor === "teal"
       ? isDark ? "text-teal-300" : "text-[#00796b]"
+      : themeColor === "primary"
+      ? isDark ? "text-sky-300" : "text-[#0284C7]"
       : isDark ? "text-slate-100" : "text-gray-800";
 
   return (
