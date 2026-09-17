@@ -130,9 +130,10 @@ function ProductThumb({ product, darkMode }: { product: Pick<RegisterProduct, "n
         src={product.imageUrl}
         alt={product.name}
         className={cn(
-          "h-20 w-full rounded-sm object-cover border transition",
+          "h-20 w-full rounded-sm object-cover border transition-transform duration-200 group-hover:scale-105",
           darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-100"
         )}
+        loading="lazy"
       />
     );
   }
@@ -142,10 +143,10 @@ function ProductThumb({ product, darkMode }: { product: Pick<RegisterProduct, "n
       darkMode ? "bg-slate-800/80 border-slate-700/80" : "bg-slate-100 border-slate-100"
     )}>
       <div className={cn(
-        "flex h-10 w-10 items-center justify-center rounded-md transition",
+        "flex h-9 w-9 items-center justify-center rounded-md transition",
         darkMode ? "bg-slate-700/80 text-teal-400" : "bg-slate-200/80 text-teal-700"
       )}>
-        <Pill size={22} />
+        <Pill size={20} />
       </div>
     </div>
   );
@@ -459,72 +460,93 @@ export function PharmacyPOSLeftPanel({
                       key={p.id}
                       onClick={() => !outOfStock && onTapProduct(p)}
                       className={cn(
-                        "group relative flex flex-col justify-between rounded-sm border p-2.5 text-left shadow-xs transition hover:border-teal-400 hover:shadow-md cursor-pointer",
-                        darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-slate-200/90 bg-white text-slate-800",
-                        outOfStock && (darkMode ? "opacity-40 pointer-events-none bg-slate-900/50" : "opacity-40 pointer-events-none bg-slate-50/50"),
+                        "group relative flex flex-col justify-between rounded-sm border p-2 text-left transition-all duration-150 cursor-pointer select-none",
+                        darkMode
+                          ? "border-slate-800/90 bg-slate-900 text-slate-100 hover:border-teal-600/70 hover:shadow-xs"
+                          : "border-slate-200/90 bg-white text-slate-800 hover:border-[#00796b]/60 hover:shadow-[0_2px_8px_rgba(0,121,107,0.08)]",
+                        outOfStock && (darkMode ? "opacity-45 pointer-events-none bg-slate-900/60" : "opacity-45 pointer-events-none bg-slate-50/60"),
                       )}
                     >
                       <div>
                         {/* Product Thumbnail */}
-                        <div className="relative mb-2 overflow-hidden rounded-sm">
+                        <div className="relative mb-1.5 overflow-hidden rounded-sm">
                           <ProductThumb product={p} darkMode={darkMode} />
                           {outOfStock ? (
-                            <CustomBadge tone="red" className="absolute top-2 left-2 z-10">
+                            <span className="absolute top-1 left-1 z-10 rounded-xs bg-rose-600/90 px-1.5 py-0.5 text-[8.5px] font-bold text-white shadow-xs">
                               Out of stock
-                            </CustomBadge>
+                            </span>
                           ) : rxMode && isRx ? (
-                            <CustomBadge tone="primary" className="absolute top-2 left-2 z-10 bg-[#00796b] text-white border-transparent">
+                            <span className="absolute top-1 left-1 z-10 rounded-xs bg-[#00796b] px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wider text-white shadow-xs">
                               Rx
-                            </CustomBadge>
+                            </span>
                           ) : null}
                         </div>
 
                         {/* Product Title */}
-                        <h3 className={cn(
-                          "line-clamp-1 text-[12.5px] font-extrabold transition",
-                          darkMode ? "text-slate-100 group-hover:text-teal-400" : "text-slate-800 group-hover:text-[#00796b]"
-                        )}>
+                        <h3
+                          className={cn(
+                            "line-clamp-1 text-[11.5px] font-bold leading-snug tracking-tight transition-colors",
+                            darkMode ? "text-slate-100 group-hover:text-teal-400" : "text-slate-800 group-hover:text-[#00796b]"
+                          )}
+                          title={p.name}
+                        >
                           {p.name}
                         </h3>
 
                         {/* Generic Name */}
                         {p.genericName ? (
-                          <p className="line-clamp-1 text-[10px] font-medium text-[#00796b] dark:text-teal-400">
-                            Gen: {p.genericName}
+                          <p className="mt-0.5 line-clamp-1 text-[9.5px] font-medium text-teal-700 dark:text-teal-400" title={p.genericName}>
+                            <span className="opacity-75 font-normal">Gen:</span> {p.genericName}
                           </p>
-                        ) : null}
+                        ) : (
+                          <p className="mt-0.5 line-clamp-1 text-[9.5px] text-transparent select-none">
+                            -
+                          </p>
+                        )}
 
-                        {/* Unit & Dosage */}
-                        <p className="mt-0.5 text-[10px] font-semibold text-slate-400">
-                          {p.unit || "Tablet • 10mg"}
-                        </p>
-
-                        {/* Stock Info */}
-                        <p className="mt-0.5 text-[10px] font-bold text-slate-400">
-                          Stock: <span className={darkMode ? "text-slate-300" : "text-slate-600"}>{p.stockQty ?? 0}</span>
-                        </p>
+                        {/* Unit / Dosage & Stock */}
+                        <div className="mt-1 flex items-center justify-between gap-1 text-[9.5px] leading-tight">
+                          <span className="truncate font-medium text-slate-400 dark:text-slate-400" title={p.unit || "Tablet • 10mg"}>
+                            {p.unit || "Tablet • 10mg"}
+                          </span>
+                          <span className="shrink-0 font-medium text-slate-400 dark:text-slate-400">
+                            Stock:{" "}
+                            <span className={cn(
+                              "font-bold",
+                              outOfStock
+                                ? "text-rose-500"
+                                : (p.stockQty ?? 0) <= 5
+                                ? "text-amber-600 dark:text-amber-400"
+                                : darkMode ? "text-slate-200" : "text-slate-700"
+                            )}>
+                              {p.stockQty ?? 0}
+                            </span>
+                          </span>
+                        </div>
                       </div>
 
                       {/* Price & Add Button */}
                       <div className={cn(
-                        "mt-2.5 flex items-center justify-between pt-1 border-t",
+                        "mt-1.5 flex items-center justify-between pt-1.5 border-t",
                         darkMode ? "border-slate-800" : "border-slate-100"
                       )}>
-                        <span className="text-[13.5px] font-black text-[#00796b] tabular-nums whitespace-nowrap">
-                          ৳ {p.sellingPrice.toFixed(2)}
-                        </span>
-                        <CustomButton
-                          themeColor="teal"
-                          size="xs"
+                        <div className="flex items-baseline">
+                          <span className="text-[10.5px] font-semibold text-[#00796b] dark:text-teal-400 mr-0.5">৳</span>
+                          <span className="text-[13px] font-black text-[#00796b] dark:text-teal-300 tabular-nums tracking-tight">
+                            {p.sellingPrice.toFixed(2)}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             if (!outOfStock) onTapProduct(p);
                           }}
-                          className="h-7 w-7 !p-0 rounded-sm flex items-center justify-center shrink-0 shadow-xs hover:scale-105 active:scale-95 text-white"
+                          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-xs bg-[#00796b] text-white shadow-2xs transition-all hover:bg-[#00695c] hover:scale-105 active:scale-95 cursor-pointer"
                           title="Add to cart"
                         >
-                          <Plus size={15} strokeWidth={2.8} />
-                        </CustomButton>
+                          <Plus size={13} strokeWidth={3} />
+                        </button>
                       </div>
                     </div>
                   );
