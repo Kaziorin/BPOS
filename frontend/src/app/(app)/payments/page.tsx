@@ -795,42 +795,36 @@ export default function PaymentsPage() {
           value={statsLoading ? "—" : `৳${Number(stats?.totalAmount || 0).toLocaleString()}`}
           icon={CheckCircle2}
           tone="green"
-          subtitle={`${stats?.totalCount || payments.length} transactions`}
         />
         <CustomStatCard
           label="Today's Inflow"
           value={statsLoading ? "—" : `৳${Number(stats?.todayAmount || 0).toLocaleString()}`}
           icon={Clock}
           tone="primary"
-          subtitle={`${stats?.todayCount || 0} today`}
         />
         <CustomStatCard
           label="Cash Drawer"
           value={statsLoading ? "—" : `৳${Number(stats?.cashAmount || 0).toLocaleString()}`}
           icon={Banknote}
           tone="blue"
-          subtitle="Physical currency"
         />
         <CustomStatCard
           label="Mobile MFS"
           value={statsLoading ? "—" : `৳${Number(stats?.mfsAmount || 0).toLocaleString()}`}
           icon={Wallet}
           tone="violet"
-          subtitle="bKash · Nagad · Rocket"
         />
         <CustomStatCard
           label="Cards / POS"
           value={statsLoading ? "—" : `৳${Number(stats?.cardAmount || 0).toLocaleString()}`}
           icon={CreditCard}
           tone="primary"
-          subtitle="Visa · Master · POS"
         />
         <CustomStatCard
           label="Refunds"
           value={statsLoading ? "—" : `৳${Number(stats?.refundAmount || 0).toLocaleString()}`}
           icon={RotateCcw}
           tone="red"
-          subtitle={`${stats?.refundCount || 0} reversed`}
         />
       </div>
 
