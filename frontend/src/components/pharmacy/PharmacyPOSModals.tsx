@@ -47,6 +47,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import type { RegisterProduct } from "@/lib/catalog";
 import type { RxCartItem } from "./PharmacyPOSRightPanel";
 import {
@@ -1592,6 +1593,7 @@ interface ProfileDropdownProps {
   cashierName: string;
   terminalName?: string;
   onOpenSettings?: () => void;
+  onLogout?: () => void;
   darkMode?: boolean;
 }
 
@@ -1601,9 +1603,20 @@ export function ProfileDropdown({
   cashierName,
   terminalName = "PC-01",
   onOpenSettings,
+  onLogout,
   darkMode,
 }: ProfileDropdownProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    onClose();
+    if (onLogout) {
+      onLogout();
+    } else {
+      logout();
+    }
+  };
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -1664,7 +1677,8 @@ export function ProfileDropdown({
             variant="ghost"
             fullWidth
             size="sm"
-            className={cn("!justify-start gap-2.5 px-4 py-2 text-[12px] font-semibold transition h-auto rounded-none", darkMode ? "text-rose-400 hover:bg-rose-950/40" : "text-rose-600 hover:bg-rose-50")}
+            onClick={handleLogout}
+            className={cn("!justify-start gap-2.5 px-4 py-2 text-[12px] font-semibold transition h-auto rounded-none cursor-pointer", darkMode ? "text-rose-400 hover:bg-rose-950/40" : "text-rose-600 hover:bg-rose-50")}
             icon={<LogOut size={14} />}
           >
             Logout

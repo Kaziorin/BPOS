@@ -17,3 +17,4 @@ export * from "./CustomCard";
 export * from "./ImageUploader";
 export * from "./CustomDropdownSelect";
 export * from "./CustomSwitch";
+export * from "./CustomDatePicker";

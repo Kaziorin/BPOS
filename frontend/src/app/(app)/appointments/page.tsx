@@ -35,6 +35,7 @@ import {
   Users,
   Timer,
   Info,
+  X,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import {
@@ -46,9 +47,9 @@ import {
   ConfirmModal,
   CustomTabs,
   CustomInput,
-  CustomSelect,
   CustomTextarea,
-  SearchableSelect,
+  CustomDropdownSelect,
+  CustomDatePicker,
 } from "@/components/custom";
 import { money, dateOnly, dateTime } from "@/lib/format";
 
@@ -104,8 +105,8 @@ const STATUS_CONFIG: Record<
   BOOKED: {
     label: "Booked",
     bg: "bg-sky-50",
-    text: "text-sky-700",
-    border: "border-sky-200",
+    text: "text-[#0284C7]",
+    border: "border-sky-200/80",
     icon: Calendar,
   },
   CONFIRMED: {
@@ -169,8 +170,8 @@ function TypeBadge({ type }: { type: string }) {
   };
 
   return (
-    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-      <Icon size={12} className="text-teal-600" />
+    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm text-xs font-semibold bg-sky-50 text-[#0284C7] border border-sky-200/80">
+      <Icon size={12} className="text-[#0284C7]" />
       {labels[type] || type}
     </span>
   );
@@ -188,7 +189,7 @@ function StatusPill({ status }: { status: string }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${cfg.bg} ${cfg.text} ${cfg.border}`}
+      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-sm text-xs font-semibold border ${cfg.bg} ${cfg.text} ${cfg.border}`}
     >
       <Icon size={12} />
       {cfg.label}
@@ -510,191 +511,178 @@ export default function AppointmentsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* 1. Header & Breadcrumbs */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <CustomBreadcrumb
-            items={[
-              { label: "Home", href: "/dashboard" },
-              { label: "Operations", href: "/dashboard" },
-              { label: "Appointments & Bookings" },
-            ]}
-          />
-          <div className="flex items-center gap-3 mt-1.5">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-              Appointments & Bookings
-            </h1>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-200">
-              <Sparkles size={11} className="text-teal-600 animate-pulse" />
-              Live Floor Radar
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Omni-channel scheduling, staff calendar slots, customer queue & service management (§10.25).
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <CustomButton
-            variant="outline"
-            leftIcon={<RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />}
-            onClick={() => {
-              setRefreshing(true);
-              loadAppointments();
-            }}
-            size="md"
-          >
-            Refresh
-          </CustomButton>
+    <div className="w-full space-y-4">
+      {/* 1. TOP BREADCRUMB WITH ACTIONS */}
+      <CustomBreadcrumb
+        title="Appointments & Bookings"
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Operations", href: "/dashboard" },
+          { label: "Appointments" },
+        ]}
+        icon={<CalendarDays size={16} className="text-[#0284C7]" />}
+        actions={
           <CustomButton
             variant="primary"
-            leftIcon={<Plus size={16} />}
+            themeColor="primary"
+            size="sm"
+            leftIcon={Plus}
             onClick={() => handleOpenCreate()}
-            size="md"
           >
             New Booking
           </CustomButton>
-        </div>
-      </div>
+        }
+      />
 
       {/* 2. Feedback Alert */}
       {feedback && (
         <div
-          className={`flex items-center gap-2.5 rounded-lg border px-4 py-3 text-sm font-medium transition-all ${
+          className={`flex items-center gap-2.5 rounded-sm border px-4 py-2.5 text-xs font-medium shadow-2xs ${
             feedback.type === "success"
-              ? "border-teal-200 bg-teal-50 text-teal-800"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
               : "border-rose-200 bg-rose-50 text-rose-800"
           }`}
         >
           {feedback.type === "success" ? (
-            <CheckCircle2 size={16} className="text-teal-600 shrink-0" />
+            <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
           ) : (
-            <AlertCircle size={16} className="text-rose-600 shrink-0" />
+            <AlertCircle size={15} className="text-rose-600 shrink-0" />
           )}
           <span>{feedback.text}</span>
         </div>
       )}
 
-      {/* 3. Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
+      {/* 3. EXECUTIVE KPI STAT CARDS */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <CustomStatCard
           label="Total Bookings"
-          value={String(stats.total)}
+          value={loading ? "—" : String(stats.total)}
           icon={CalendarDays}
           tone="primary"
-          subtitle="All recorded slots"
         />
         <CustomStatCard
           label="Today's Schedule"
-          value={String(stats.todayCount)}
+          value={loading ? "—" : String(stats.todayCount)}
           icon={CalendarCheck}
           tone="blue"
-          subtitle="Scheduled today"
         />
         <CustomStatCard
           label="Active In Service"
-          value={String(stats.inServiceCount)}
+          value={loading ? "—" : String(stats.inServiceCount)}
           icon={Clock}
           tone="violet"
-          subtitle="Floor / chair busy"
         />
         <CustomStatCard
           label="Confirmed Pipeline"
-          value={String(stats.confirmedCount)}
+          value={loading ? "—" : String(stats.confirmedCount)}
           icon={UserCheck}
           tone="primary"
-          subtitle="Pending service"
         />
         <CustomStatCard
           label="Completed Revenue"
-          value={money(stats.completedRevenue)}
+          value={loading ? "—" : money(stats.completedRevenue)}
           icon={DollarSign}
           tone="green"
-          subtitle={`${stats.completionRate}% completion`}
         />
         <CustomStatCard
           label="Cancelled / No-Show"
-          value={String(stats.cancelledNoShowCount)}
+          value={loading ? "—" : String(stats.cancelledNoShowCount)}
           icon={XCircle}
-          tone="amber"
-          subtitle="Lost appointments"
+          tone="red"
         />
       </div>
 
-      {/* 4. Tab Navigation */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-2">
-        <CustomTabs
-          tabs={tabs}
-          activeTab={activeTab}
-          onChange={(tab) => setActiveTab(tab as ViewMode)}
-          themeColor="teal"
-        />
+      {/* 4. TABS NAVIGATION */}
+      <div className="flex items-center gap-3">
+        <div className="overflow-x-auto min-w-0 shrink">
+          <CustomTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onChange={(tabId) => setActiveTab(tabId as ViewMode)}
+            themeColor="primary"
+            className="w-auto border border-sky-100/90 bg-white shadow-2xs"
+          />
+        </div>
       </div>
 
       {/* 5. Main Tab Content */}
       {activeTab === "list" && (
-        <div className="space-y-4">
-          {/* Filter Bar */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 flex flex-col md:flex-row items-stretch md:items-center gap-3">
-            <div className="relative flex-1">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search booking #, customer name, phone, service, staff..."
-                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 bg-white placeholder:text-slate-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none transition-colors"
-              />
-            </div>
+        <div className="space-y-3">
+          {/* Search & Select Filters Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <CustomInput
+              leftIcon={<Search size={14} />}
+              rightIcon={
+                search ? (
+                  <button
+                    type="button"
+                    onClick={() => setSearch("")}
+                    className="text-slate-400 hover:text-gray-600 cursor-pointer"
+                  >
+                    <X size={14} />
+                  </button>
+                ) : null
+              }
+              placeholder="Search booking #, customer, staff..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              containerClassName="w-full"
+              className="h-[38px] text-xs text-gray-600 placeholder:text-slate-400 shadow-2xs"
+            />
 
-            <div className="flex items-center gap-2 flex-wrap">
-              <CustomSelect
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                options={[
-                  { label: "All Types", value: "ALL" },
-                  { label: "Salon & Spa", value: "SALON" },
-                  { label: "Repair", value: "REPAIR" },
-                  { label: "Consultation", value: "CONSULT" },
-                  { label: "General", value: "GENERAL" },
-                ]}
-                containerClassName="w-36"
-              />
+            <CustomDropdownSelect
+              options={[
+                { label: "All Types", value: "ALL" },
+                { label: "Salon & Spa", value: "SALON" },
+                { label: "Repair", value: "REPAIR" },
+                { label: "Consultation", value: "CONSULT" },
+                { label: "General", value: "GENERAL" },
+              ]}
+              value={typeFilter}
+              onChange={(val) => setTypeFilter(val)}
+              placeholder="All Types"
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
+            />
 
-              <CustomSelect
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                options={[
-                  { label: "All Statuses", value: "ALL" },
-                  { label: "Booked", value: "BOOKED" },
-                  { label: "Confirmed", value: "CONFIRMED" },
-                  { label: "Checked In", value: "CHECKED_IN" },
-                  { label: "In Service", value: "IN_SERVICE" },
-                  { label: "Completed", value: "COMPLETED" },
-                  { label: "No Show", value: "NO_SHOW" },
-                  { label: "Cancelled", value: "CANCELLED" },
-                ]}
-                containerClassName="w-36"
-              />
+            <CustomDropdownSelect
+              options={[
+                { label: "All Statuses", value: "ALL" },
+                { label: "Booked", value: "BOOKED" },
+                { label: "Confirmed", value: "CONFIRMED" },
+                { label: "Checked In", value: "CHECKED_IN" },
+                { label: "In Service", value: "IN_SERVICE" },
+                { label: "Completed", value: "COMPLETED" },
+                { label: "No Show", value: "NO_SHOW" },
+                { label: "Cancelled", value: "CANCELLED" },
+              ]}
+              value={statusFilter}
+              onChange={(val) => setStatusFilter(val)}
+              placeholder="All Statuses"
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
+            />
 
-              <CustomSelect
-                value={staffFilter}
-                onChange={(e) => setStaffFilter(e.target.value)}
-                options={[
-                  { label: "All Staff", value: "ALL" },
-                  ...staffList.map((s) => ({ label: s.name, value: s.id })),
-                ]}
-                containerClassName="w-40"
-              />
+            <CustomDropdownSelect
+              options={[
+                { label: "All Staff", value: "ALL" },
+                ...staffList.map((s) => ({ label: s.name, value: s.id })),
+              ]}
+              value={staffFilter}
+              onChange={(val) => setStaffFilter(val)}
+              placeholder="All Staff"
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
+            />
 
-              <input
-                type="date"
+            <div className="flex items-center gap-2">
+              <CustomDatePicker
                 value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white focus:border-teal-500 focus:outline-none"
+                onChange={(val) => setDateFilter(val)}
+                clearable={true}
+                placeholder="Filter date"
+                containerClassName="w-full"
               />
-
               {(search || typeFilter !== "ALL" || statusFilter !== "ALL" || staffFilter !== "ALL" || dateFilter) && (
                 <CustomButton
                   variant="outline"
@@ -706,22 +694,31 @@ export default function AppointmentsPage() {
                     setStaffFilter("ALL");
                     setDateFilter("");
                   }}
+                  className="h-[38px] shrink-0"
+                  title="Clear filters"
                 >
-                  Clear Filters
+                  Clear
                 </CustomButton>
               )}
             </div>
           </div>
 
           {/* Table */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-            <CustomTable<Appointment>
-              data={filteredAppointments}
-              loading={loading}
-              pageSize={12}
-              showPagination={true}
-              emptyMessage="No appointments matched your filter criteria."
-              columns={[
+          <CustomTable<Appointment>
+            data={filteredAppointments}
+            loading={loading}
+            rowKey="id"
+            title="Appointments & Bookings Directory"
+            icon={<CalendarDays size={16} />}
+            badge={
+              <span className="rounded-sm bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-[#0284C7] border border-sky-200/80">
+                {filteredAppointments.length} Records
+              </span>
+            }
+            pageSize={12}
+            showPagination={true}
+            emptyMessage="No appointments matched your filter criteria."
+            columns={[
                 {
                   key: "appointmentNo",
                   header: "Booking #",
@@ -733,7 +730,7 @@ export default function AppointmentsPage() {
                           setSelectedAppt(row);
                           setShowDetailModal(true);
                         }}
-                        className="font-mono text-xs font-bold text-teal-700 hover:text-teal-900 text-left hover:underline cursor-pointer"
+                        className="font-mono text-xs font-bold text-[#0284C7] hover:underline cursor-pointer"
                       >
                         {row.appointmentNo}
                       </button>
@@ -747,11 +744,11 @@ export default function AppointmentsPage() {
                   width: "180px",
                   render: (row) => (
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-teal-100/80 text-teal-700 flex items-center justify-center font-bold text-xs shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-sky-100 text-[#0284C7] flex items-center justify-center font-bold text-xs shrink-0">
                         {(row.customerName || "W")[0].toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-slate-800 text-sm truncate">
+                        <p className="font-semibold text-slate-800 text-xs truncate">
                           {row.customerName || "Walk-in Guest"}
                         </p>
                         {row.customerPhone && (
@@ -769,12 +766,12 @@ export default function AppointmentsPage() {
                   header: "Service & Staff",
                   render: (row) => (
                     <div className="space-y-0.5">
-                      <p className="text-sm font-medium text-slate-800">
+                      <p className="text-xs font-semibold text-slate-800">
                         {row.serviceName || "General Service"}
                       </p>
                       <div className="flex items-center gap-2 text-xs text-slate-500">
                         <span className="inline-flex items-center gap-1">
-                          <User size={11} className="text-teal-600" />
+                          <User size={11} className="text-[#0284C7]" />
                           {row.staffName || "Any Available"}
                         </span>
                         <span>•</span>
@@ -807,7 +804,7 @@ export default function AppointmentsPage() {
                     return (
                       <div className="space-y-0.5">
                         <p className="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                          <Calendar size={12} className="text-teal-600" />
+                          <Calendar size={12} className="text-[#0284C7]" />
                           {formatted}
                         </p>
                         <p className="text-[11px] text-slate-500 font-mono flex items-center gap-1">
@@ -824,7 +821,7 @@ export default function AppointmentsPage() {
                   align: "right",
                   width: "110px",
                   render: (row) => (
-                    <span className="font-bold text-slate-800 text-sm [font-variant-numeric:tabular-nums]">
+                    <span className="font-bold text-slate-800 text-xs [font-variant-numeric:tabular-nums]">
                       {money(Number(row.price) || 0)}
                     </span>
                   ),
@@ -846,9 +843,9 @@ export default function AppointmentsPage() {
                       <div className="flex items-center justify-end gap-1.5 flex-wrap">
                         {row.status === "BOOKED" && (
                           <CustomButton
-                            size="sm"
+                            size="xs"
                             variant="outline"
-                            leftIcon={<CheckCircle2 size={13} className="text-teal-600" />}
+                            leftIcon={<CheckCircle2 size={12} className="text-teal-600" />}
                             onClick={() => handleUpdateStatus(row, "CONFIRMED")}
                           >
                             Confirm
@@ -856,9 +853,9 @@ export default function AppointmentsPage() {
                         )}
                         {row.status === "CONFIRMED" && (
                           <CustomButton
-                            size="sm"
+                            size="xs"
                             variant="outline"
-                            leftIcon={<UserCheck size={13} className="text-amber-600" />}
+                            leftIcon={<UserCheck size={12} className="text-amber-600" />}
                             onClick={() => handleUpdateStatus(row, "CHECKED_IN")}
                           >
                             Check-in
@@ -866,9 +863,10 @@ export default function AppointmentsPage() {
                         )}
                         {row.status === "CHECKED_IN" && (
                           <CustomButton
-                            size="sm"
+                            size="xs"
                             variant="primary"
-                            leftIcon={<Clock size={13} />}
+                            themeColor="primary"
+                            leftIcon={<Clock size={12} />}
                             onClick={() => handleUpdateStatus(row, "IN_SERVICE")}
                           >
                             Start
@@ -876,9 +874,10 @@ export default function AppointmentsPage() {
                         )}
                         {row.status === "IN_SERVICE" && (
                           <CustomButton
-                            size="sm"
+                            size="xs"
                             variant="primary"
-                            leftIcon={<Check size={13} />}
+                            themeColor="primary"
+                            leftIcon={<Check size={12} />}
                             onClick={() => handleUpdateStatus(row, "COMPLETED")}
                           >
                             Complete
@@ -895,9 +894,9 @@ export default function AppointmentsPage() {
                                 label: "Mark as No Show",
                               })
                             }
-                            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+                            className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-sm transition-colors cursor-pointer"
                           >
-                            <UserX size={14} />
+                            <UserX size={13} />
                           </button>
                         )}
 
@@ -911,9 +910,9 @@ export default function AppointmentsPage() {
                                 label: "Cancel Booking",
                               })
                             }
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                            className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-sm transition-colors cursor-pointer"
                           >
-                            <XCircle size={14} />
+                            <XCircle size={13} />
                           </button>
                         )}
 
@@ -923,9 +922,9 @@ export default function AppointmentsPage() {
                             setSelectedAppt(row);
                             setShowDetailModal(true);
                           }}
-                          className="p-1.5 text-slate-400 hover:text-teal-700 hover:bg-teal-50 rounded-md transition-colors"
+                          className="p-1 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-sm transition-colors cursor-pointer"
                         >
-                          <Eye size={14} />
+                          <Eye size={13} />
                         </button>
                       </div>
                     );
@@ -933,25 +932,25 @@ export default function AppointmentsPage() {
                 },
               ]}
             />
-          </div>
         </div>
       )}
 
       {/* 5b. Day Grid / Calendar View */}
       {activeTab === "calendar" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="space-y-3">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Calendar size={18} className="text-teal-600" />
-              <h2 className="text-base font-bold text-slate-900">
+              <Calendar size={16} className="text-[#0284C7]" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">
                 Timeline & Day Schedule Ledger
               </h2>
             </div>
             <div className="flex items-center gap-2">
               <CustomButton
-                size="sm"
-                variant="outline"
-                leftIcon={<Plus size={14} />}
+                size="xs"
+                variant="primary"
+                themeColor="primary"
+                leftIcon={Plus}
                 onClick={() => handleOpenCreate()}
               >
                 Quick Book
@@ -960,13 +959,12 @@ export default function AppointmentsPage() {
           </div>
 
           {appointmentsByDate.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-400">
-              <CalendarDays size={40} className="mx-auto text-slate-300 mb-3" />
-              <p className="font-semibold text-slate-600">No appointments recorded for this timeframe.</p>
-              <p className="text-xs text-slate-400 mt-1">Book a new appointment to populate the schedule.</p>
+            <div className="rounded-sm border border-sky-100/90 bg-white p-12 text-center shadow-2xs text-slate-400">
+              <CalendarDays size={36} className="mx-auto text-slate-300 mb-2" />
+              <p className="font-semibold text-slate-600 text-xs">No appointments recorded for this timeframe.</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {appointmentsByDate.map(([dateStr, list]) => {
                 const dateObj = new Date(dateStr + "T12:00:00");
                 const formattedHeading = isNaN(dateObj.getTime())
@@ -981,33 +979,33 @@ export default function AppointmentsPage() {
                 return (
                   <div
                     key={dateStr}
-                    className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden"
+                    className="rounded-sm border border-sky-100/90 bg-white shadow-2xs overflow-hidden"
                   >
-                    <div className="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+                    <div className="bg-sky-50/50 border-b border-sky-100/90 px-4 py-2.5 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Calendar size={15} className="text-teal-600" />
-                        <span className="text-sm font-bold text-slate-800">
+                        <Calendar size={14} className="text-[#0284C7]" />
+                        <span className="text-xs font-bold text-slate-800">
                           {formattedHeading}
                         </span>
                       </div>
-                      <span className="text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full">
+                      <span className="text-[11px] font-bold text-[#0284C7] bg-sky-50 border border-sky-200/80 px-2 py-0.5 rounded-sm">
                         {list.length} booking{list.length > 1 ? "s" : ""}
                       </span>
                     </div>
 
-                    <div className="divide-y divide-slate-100">
+                    <div className="divide-y divide-sky-100/60">
                       {list.map((appt) => (
                         <div
                           key={appt.id}
-                          className="p-4 hover:bg-slate-50/70 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-3"
+                          className="p-3.5 hover:bg-sky-50/30 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-3"
                         >
                           <div className="flex items-start sm:items-center gap-3">
-                            <div className="w-16 shrink-0 font-mono text-xs font-bold text-teal-700 bg-teal-50 border border-teal-100 rounded-lg p-2 text-center">
+                            <div className="w-14 shrink-0 font-mono text-xs font-bold text-[#0284C7] bg-sky-50 border border-sky-200/80 rounded-sm p-1.5 text-center">
                               {(appt.startAt || "").slice(11, 16) || "TBD"}
                             </div>
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-semibold text-slate-900 text-sm">
+                                <span className="font-semibold text-slate-900 text-xs">
                                   {appt.customerName || "Walk-in Guest"}
                                 </span>
                                 <span className="text-slate-300">•</span>
@@ -1023,7 +1021,7 @@ export default function AppointmentsPage() {
                                 <span>•</span>
                                 <span>Duration: {appt.durationMin}m</span>
                                 <span>•</span>
-                                <span className="font-semibold text-slate-700">
+                                <span className="font-bold text-slate-700">
                                   {money(Number(appt.price) || 0)}
                                 </span>
                               </div>
@@ -1033,7 +1031,7 @@ export default function AppointmentsPage() {
                           <div className="flex items-center gap-3 shrink-0">
                             <StatusPill status={appt.status} />
                             <CustomButton
-                              size="sm"
+                              size="xs"
                               variant="outline"
                               onClick={() => {
                                 setSelectedAppt(appt);
@@ -1056,38 +1054,30 @@ export default function AppointmentsPage() {
 
       {/* 5c. Staff Slot Radar / Availability Tab */}
       {activeTab === "availability" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4">
-            <div>
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Clock4 size={18} className="text-teal-600" />
-                Live Staff Availability & Free Slot Radar
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Query staff schedule in real time (Work Window: 09:00 AM – 09:00 PM). Click any open slot to directly schedule.
-              </p>
-            </div>
+        <div className="space-y-3">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs space-y-3">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#0369A1] flex items-center gap-2">
+              <Clock4 size={15} className="text-[#0284C7]" />
+              Live Staff Availability & Free Slot Radar
+            </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Select Date
-                </label>
-                <input
-                  type="date"
+                <CustomDatePicker
+                  label="Select Date"
                   value={availDate}
-                  onChange={(e) => setAvailDate(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:border-teal-500 focus:outline-none"
+                  onChange={(val) => setAvailDate(val)}
+                  containerClassName="w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                   Staff Member
                 </label>
-                <CustomSelect
+                <CustomDropdownSelect
                   value={availStaffId}
-                  onChange={(e) => setAvailStaffId(e.target.value)}
+                  onChange={(val) => setAvailStaffId(val)}
                   options={[
                     { label: "All / Any Staff", value: "" },
                     ...staffList.map((s) => ({
@@ -1095,16 +1085,19 @@ export default function AppointmentsPage() {
                       value: s.id,
                     })),
                   ]}
+                  placeholder="All / Any Staff"
+                  containerClassName="w-full"
+                  className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                   Slot Duration (Minutes)
                 </label>
-                <CustomSelect
+                <CustomDropdownSelect
                   value={String(availDuration)}
-                  onChange={(e) => setAvailDuration(Number(e.target.value))}
+                  onChange={(val) => setAvailDuration(Number(val))}
                   options={[
                     { label: "15 Minutes", value: "15" },
                     { label: "30 Minutes (Standard)", value: "30" },
@@ -1112,13 +1105,19 @@ export default function AppointmentsPage() {
                     { label: "60 Minutes (1 Hour)", value: "60" },
                     { label: "90 Minutes", value: "90" },
                   ]}
+                  placeholder="30 Minutes (Standard)"
+                  containerClassName="w-full"
+                  className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
                 />
               </div>
             </div>
 
-            <div className="pt-2 flex justify-end">
+            <div className="pt-1 flex justify-end">
               <CustomButton
-                leftIcon={<RefreshCw size={14} className={checkingSlots ? "animate-spin" : ""} />}
+                size="sm"
+                variant="primary"
+                themeColor="primary"
+                leftIcon={<RefreshCw size={13} className={checkingSlots ? "animate-spin" : ""} />}
                 onClick={() => checkAvailability(availDate, availStaffId, availDuration)}
                 disabled={checkingSlots}
               >
@@ -1128,32 +1127,32 @@ export default function AppointmentsPage() {
           </div>
 
           {/* Slots Output */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6">
-            <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center justify-between">
+          <div className="rounded-sm border border-sky-100/90 bg-white shadow-2xs p-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#0369A1] mb-3 flex items-center justify-between">
               <span>
-                Available Windows for {availDate} (Duration: {availDuration}m)
+                Available Windows for {availDate} ({availDuration}m)
               </span>
-              <span className="text-xs text-slate-400 font-normal">
+              <span className="text-[11px] text-slate-500 font-semibold lowercase">
                 {availSlots.length} open windows
               </span>
             </h3>
 
             {checkingSlots ? (
-              <div className="py-12 text-center text-slate-400">
-                <Loader2 size={24} className="animate-spin mx-auto text-teal-600 mb-2" />
-                <p className="text-sm">Calculating staff availability & avoiding clashes...</p>
+              <div className="py-10 text-center text-slate-400">
+                <Loader2 size={22} className="animate-spin mx-auto text-[#0284C7] mb-2" />
+                <p className="text-xs">Calculating staff availability & avoiding clashes...</p>
               </div>
             ) : availSlots.length === 0 ? (
-              <div className="p-8 text-center bg-slate-50 rounded-lg border border-slate-100">
-                <p className="text-sm font-semibold text-slate-600">
+              <div className="p-8 text-center bg-sky-50/40 rounded-sm border border-sky-100/80">
+                <p className="text-xs font-semibold text-slate-600">
                   No free slots available for this staff on this date.
                 </p>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-[11px] text-slate-400 mt-1">
                   Try another staff member or choose an alternative date.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
                 {availSlots.map((s, idx) => {
                   const startTime = s.start.slice(11, 16);
                   const endTime = s.end.slice(11, 16);
@@ -1168,15 +1167,15 @@ export default function AppointmentsPage() {
                           durationMin: availDuration,
                         });
                       }}
-                      className="group p-3 rounded-lg border border-teal-200 bg-teal-50/50 hover:bg-teal-600 hover:border-teal-600 transition-all text-left flex flex-col justify-between cursor-pointer"
+                      className="group p-2.5 rounded-sm border border-sky-200/80 bg-sky-50/50 hover:bg-[#0284C7] hover:border-[#0284C7] transition-all text-left flex flex-col justify-between cursor-pointer shadow-2xs"
                     >
                       <div className="flex items-center justify-between w-full">
-                        <span className="text-xs font-mono font-bold text-teal-900 group-hover:text-white">
+                        <span className="text-xs font-mono font-bold text-[#0369A1] group-hover:text-white">
                           {startTime}
                         </span>
-                        <Plus size={12} className="text-teal-600 group-hover:text-white" />
+                        <Plus size={12} className="text-[#0284C7] group-hover:text-white" />
                       </div>
-                      <span className="text-[10px] text-teal-700/80 group-hover:text-teal-100 mt-1 font-mono">
+                      <span className="text-[10px] text-[#0284C7]/80 group-hover:text-sky-100 mt-1 font-mono">
                         to {endTime}
                       </span>
                     </button>
@@ -1190,56 +1189,52 @@ export default function AppointmentsPage() {
 
       {/* 5d. Services Catalog Quick-Book Tab */}
       {activeTab === "services" && (
-        <div className="space-y-4">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-bold text-slate-900">
-                Service Catalog & Instant Booking
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Select a standard service package to launch a pre-filled booking flow.
-              </p>
-            </div>
+        <div className="space-y-3">
+          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs flex items-center justify-between">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">
+              Service Catalog & Instant Booking
+            </h2>
             <CustomButton
-              size="sm"
+              size="xs"
               variant="outline"
-              leftIcon={<Plus size={14} />}
+              leftIcon={<Plus size={13} />}
               onClick={() => handleOpenCreate()}
             >
               Custom Service
             </CustomButton>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {servicesList.map((svc) => (
               <div
                 key={svc.id}
-                className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 flex flex-col justify-between hover:border-teal-300 hover:shadow-md transition-all"
+                className="rounded-sm border border-sky-100/90 bg-white shadow-2xs p-4 flex flex-col justify-between hover:border-sky-300 transition-all"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-[11px] font-bold text-teal-700 bg-teal-50 border border-teal-100 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-bold text-[#0284C7] bg-sky-50 border border-sky-200/80 px-2 py-0.5 rounded-sm">
                       {svc.category || "General"}
                     </span>
                     <span className="text-xs font-mono text-slate-500 flex items-center gap-1">
-                      <Timer size={12} className="text-teal-600" />
+                      <Timer size={12} className="text-[#0284C7]" />
                       {svc.durationMin} mins
                     </span>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-base mb-1">{svc.name}</h3>
+                  <h3 className="font-bold text-slate-900 text-sm mb-1">{svc.name}</h3>
                   <p className="text-xs text-slate-500 line-clamp-2">
                     {svc.description || "Professional service performed by licensed technicians and specialists."}
                   </p>
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-base font-extrabold text-slate-900 [font-variant-numeric:tabular-nums]">
+                <div className="pt-3 mt-3 border-t border-sky-100/80 flex items-center justify-between">
+                  <span className="text-sm font-extrabold text-slate-900 [font-variant-numeric:tabular-nums]">
                     {money(Number(svc.price) || 0)}
                   </span>
                   <CustomButton
-                    size="sm"
+                    size="xs"
                     variant="primary"
-                    leftIcon={<CalendarCheck size={13} />}
+                    themeColor="primary"
+                    leftIcon={<CalendarCheck size={12} />}
                     onClick={() => {
                       handleOpenCreate({
                         serviceId: svc.id,
@@ -1263,76 +1258,88 @@ export default function AppointmentsPage() {
         open={showCreate}
         onClose={() => setShowCreate(false)}
         title="Schedule New Appointment"
-        maxWidth="max-w-2xl"
+        size="2xl"
+        themeColor="primary"
+        icon={<CalendarDays size={18} className="text-[#0284C7]" />}
       >
         <div className="space-y-4 py-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Booking Type
               </label>
-              <CustomSelect
+              <CustomDropdownSelect
                 value={form.appointmentType}
-                onChange={(e) => setForm({ ...form, appointmentType: e.target.value })}
+                onChange={(val) => setForm({ ...form, appointmentType: val })}
                 options={[
                   { label: "Salon & Spa Service", value: "SALON" },
                   { label: "Repair & Diagnostic", value: "REPAIR" },
                   { label: "Consultation", value: "CONSULT" },
                   { label: "General Appointment", value: "GENERAL" },
                 ]}
+                placeholder="Select Booking Type"
+                containerClassName="w-full"
+                className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Select Customer
               </label>
-              <SearchableSelect
-                value={form.customerId}
+              <CustomDropdownSelect
+                value={form.customerId || ""}
                 onChange={(val) => {
                   const c = customers.find((item) => item.id === val);
                   setForm({
                     ...form,
-                    customerId: val,
+                    customerId: val || "",
                     customerName: c ? c.name : form.customerName,
                     customerPhone: c ? c.phone || "" : form.customerPhone,
                   });
                 }}
-                placeholder="Search registered customer..."
-                options={customers.map((c) => ({
-                  label: `${c.name} ${c.phone ? `(${c.phone})` : ""}`,
-                  value: c.id,
-                }))}
+                options={[
+                  { label: "-- Walk-in / Guest Customer --", value: "" },
+                  ...customers.map((c) => ({
+                    label: `${c.name} ${c.phone ? `(${c.phone})` : ""}`,
+                    value: c.id,
+                  })),
+                ]}
+                placeholder="Select Customer (Optional)"
+                containerClassName="w-full"
+                className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
               />
             </div>
           </div>
 
           {/* If Walk-in / Unregistered customer */}
           {!form.customerId && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-sky-50/40 rounded-sm border border-sky-100/90">
               <CustomInput
                 label="Walk-in Customer Name"
                 value={form.customerName}
                 onChange={(e) => setForm({ ...form, customerName: e.target.value })}
                 placeholder="e.g. Tanvir Rahman"
+                className="h-[38px] text-xs shadow-2xs"
               />
               <CustomInput
                 label="Phone Number"
                 value={form.customerPhone}
                 onChange={(e) => setForm({ ...form, customerPhone: e.target.value })}
                 placeholder="e.g. 01700000000"
+                className="h-[38px] text-xs shadow-2xs"
               />
             </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Service Item
               </label>
-              <CustomSelect
-                value={form.serviceId}
-                onChange={(e) => handleSelectService(e.target.value)}
+              <CustomDropdownSelect
+                value={form.serviceId || ""}
+                onChange={(val) => handleSelectService(val)}
                 options={[
                   { label: "Select Standard Service...", value: "" },
                   ...servicesList.map((s) => ({
@@ -1340,16 +1347,19 @@ export default function AppointmentsPage() {
                     value: s.id,
                   })),
                 ]}
+                placeholder="Select Standard Service..."
+                containerClassName="w-full"
+                className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Assigned Staff Member
               </label>
-              <CustomSelect
-                value={form.staffId}
-                onChange={(e) => setForm({ ...form, staffId: e.target.value })}
+              <CustomDropdownSelect
+                value={form.staffId || ""}
+                onChange={(val) => setForm({ ...form, staffId: val || "" })}
                 options={[
                   { label: "Any Available Staff", value: "" },
                   ...staffList.map((s) => ({
@@ -1357,6 +1367,9 @@ export default function AppointmentsPage() {
                     value: s.id,
                   })),
                 ]}
+                placeholder="Any Available Staff"
+                containerClassName="w-full"
+                className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
               />
             </div>
           </div>
@@ -1426,14 +1439,16 @@ export default function AppointmentsPage() {
           open={showDetailModal}
           onClose={() => setShowDetailModal(false)}
           title={`Booking Details — ${selectedAppt.appointmentNo}`}
-          maxWidth="max-w-xl"
+          size="xl"
+          themeColor="primary"
+          icon={<CalendarDays size={18} className="text-[#0284C7]" />}
         >
           <div className="space-y-4 py-1">
-            <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+            <div className="p-4 rounded-sm border border-sky-100/90 bg-white shadow-2xs space-y-3">
+              <div className="flex items-center justify-between border-b border-sky-100/90 pb-3">
                 <div>
                   <span className="font-mono text-xs text-slate-400">BOOKING TOKEN</span>
-                  <p className="font-mono text-lg font-extrabold text-teal-800">
+                  <p className="font-mono text-lg font-extrabold text-[#0284C7]">
                     {selectedAppt.appointmentNo}
                   </p>
                 </div>
@@ -1443,43 +1458,43 @@ export default function AppointmentsPage() {
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
                   <span className="text-slate-400">Customer</span>
-                  <p className="font-bold text-slate-800 text-sm mt-0.5">
+                  <p className="font-bold text-slate-800 text-xs mt-0.5">
                     {selectedAppt.customerName || "Walk-in Guest"}
                   </p>
                   {selectedAppt.customerPhone && (
-                    <p className="text-slate-500 font-mono">{selectedAppt.customerPhone}</p>
+                    <p className="text-slate-500 font-mono text-[11px]">{selectedAppt.customerPhone}</p>
                   )}
                 </div>
 
                 <div>
                   <span className="text-slate-400">Assigned Staff</span>
-                  <p className="font-bold text-slate-800 text-sm mt-0.5">
+                  <p className="font-bold text-slate-800 text-xs mt-0.5">
                     {selectedAppt.staffName || "Unassigned"}
                   </p>
                 </div>
 
                 <div>
                   <span className="text-slate-400">Scheduled Time</span>
-                  <p className="font-semibold text-slate-800 mt-0.5">
+                  <p className="font-semibold text-slate-800 mt-0.5 text-xs">
                     {dateTime(selectedAppt.startAt)}
                   </p>
-                  <span className="text-slate-400">
+                  <span className="text-slate-400 text-[11px]">
                     Duration: {selectedAppt.durationMin} mins
                   </span>
                 </div>
 
                 <div>
                   <span className="text-slate-400">Total Price</span>
-                  <p className="font-extrabold text-teal-700 text-base mt-0.5 [font-variant-numeric:tabular-nums]">
+                  <p className="font-extrabold text-[#0284C7] text-base mt-0.5 [font-variant-numeric:tabular-nums]">
                     {money(Number(selectedAppt.price) || 0)}
                   </p>
                 </div>
               </div>
 
               {selectedAppt.notes && (
-                <div className="pt-2 border-t border-slate-200 text-xs">
+                <div className="pt-2 border-t border-sky-100/90 text-xs">
                   <span className="text-slate-400">Notes & Instructions:</span>
-                  <p className="text-slate-700 mt-0.5 bg-white p-2 rounded border border-slate-200">
+                  <p className="text-slate-700 mt-0.5 bg-sky-50/50 p-2 rounded-sm border border-sky-100/90 text-xs">
                     {selectedAppt.notes}
                   </p>
                 </div>
@@ -1488,40 +1503,44 @@ export default function AppointmentsPage() {
 
             {/* Quick Transition Status Controls */}
             <div className="space-y-2">
-              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
                 Progress Status Workflow
               </span>
               <div className="flex flex-wrap gap-2">
                 <CustomButton
-                  size="sm"
+                  size="xs"
                   variant={selectedAppt.status === "CONFIRMED" ? "primary" : "outline"}
+                  themeColor="primary"
                   onClick={() => handleUpdateStatus(selectedAppt, "CONFIRMED")}
                 >
                   Confirmed
                 </CustomButton>
                 <CustomButton
-                  size="sm"
+                  size="xs"
                   variant={selectedAppt.status === "CHECKED_IN" ? "primary" : "outline"}
+                  themeColor="primary"
                   onClick={() => handleUpdateStatus(selectedAppt, "CHECKED_IN")}
                 >
                   Checked In
                 </CustomButton>
                 <CustomButton
-                  size="sm"
+                  size="xs"
                   variant={selectedAppt.status === "IN_SERVICE" ? "primary" : "outline"}
+                  themeColor="primary"
                   onClick={() => handleUpdateStatus(selectedAppt, "IN_SERVICE")}
                 >
                   In Service
                 </CustomButton>
                 <CustomButton
-                  size="sm"
+                  size="xs"
                   variant={selectedAppt.status === "COMPLETED" ? "primary" : "outline"}
+                  themeColor="primary"
                   onClick={() => handleUpdateStatus(selectedAppt, "COMPLETED")}
                 >
                   Completed
                 </CustomButton>
                 <CustomButton
-                  size="sm"
+                  size="xs"
                   variant={selectedAppt.status === "CANCELLED" ? "danger" : "outline"}
                   onClick={() => handleUpdateStatus(selectedAppt, "CANCELLED")}
                 >
