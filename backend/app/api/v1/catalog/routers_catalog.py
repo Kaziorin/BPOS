@@ -6,6 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 import os
 import uuid
+import time
 from pathlib import Path
 
 import math
@@ -59,7 +60,7 @@ async def list_products(
     where = "p.tenantId = :t"
     params: dict = {"t": tenantId, "wh": warehouseId}
     if search:
-        where += " AND (p.name LIKE :s OR p.sku LIKE :s OR p.barcode LIKE :s)"
+        where += " AND (p.name LIKE :s OR p.sku LIKE :s OR p.barcode LIKE :s OR p.attributes LIKE :s OR p.description LIKE :s)"
         params["s"] = f"%{search}%"
     if productType:
         where += " AND p.productType = :pt"; params["pt"] = productType

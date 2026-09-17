@@ -23,9 +23,9 @@ const CHECKBOX_THEME_MAP: Record<string, { hover: string; focus: string; checked
     checked: "peer-checked:bg-[#0284C7] peer-checked:border-[#0284C7]",
   },
   teal: {
-    hover: "group-hover:border-[#0284C7]",
-    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-[#0284C7]/30 peer-focus-visible:border-[#0284C7]",
-    checked: "peer-checked:bg-[#0284C7] peer-checked:border-[#0284C7]",
+    hover: "group-hover:border-[#00897b]",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-[#00897b]/30 peer-focus-visible:border-[#00897b]",
+    checked: "peer-checked:bg-[#00897b] peer-checked:border-[#00897b]",
   },
   orange: {
     hover: "group-hover:border-[#0284C7]",

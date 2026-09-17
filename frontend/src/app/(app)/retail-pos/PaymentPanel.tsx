@@ -70,42 +70,44 @@ export function PaymentPanel({ total, payments, onChange }: Props) {
           const isSelected = payments.length === 1 && payments[0].method === m.id;
           const Icon = m.icon;
           return (
-            <button
+            <CustomButton
               key={m.id}
-              type="button"
+              variant={isSelected ? "primary" : "secondary"}
+              themeColor={isSelected ? "teal" : undefined}
+              size="xs"
               onClick={() => setSingleMethod(m.id)}
               className={cn(
-                "flex flex-col items-center justify-center p-1.5 rounded-sm border text-center transition text-xs font-semibold cursor-pointer",
-                isSelected
-                  ? "bg-teal-600 text-white border-teal-600 shadow-xs"
-                  : "bg-teal-50/50 text-slate-700 border-teal-100 hover:bg-teal-50"
+                "flex-col items-center justify-center p-1.5 rounded-sm border text-center h-auto",
+                !isSelected && "bg-teal-50/50 text-slate-700 border-teal-100 hover:bg-teal-50"
               )}
             >
               <Icon size={14} className={isSelected ? "text-white" : "text-teal-600"} />
               <span className="text-[11px] mt-0.5">{m.label}</span>
-            </button>
+            </CustomButton>
           );
         })}
       </div>
 
       {/* Quick Cash Tender Presets */}
       <div className="flex flex-wrap items-center gap-1.5">
-        <button
-          type="button"
+        <CustomButton
+          variant="outline"
+          size="xs"
           onClick={setCashExact}
-          className="rounded-sm bg-emerald-50 border border-emerald-300 px-2 py-1 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition cursor-pointer"
+          className="rounded-sm bg-emerald-50 border-emerald-300 text-xs font-bold text-emerald-800 hover:bg-emerald-100"
         >
           Exact ৳{total.toFixed(0)}
-        </button>
+        </CustomButton>
         {QUICK_AMOUNTS.map((amt) => (
-          <button
+          <CustomButton
             key={amt}
-            type="button"
+            variant="outline"
+            size="xs"
             onClick={() => addCashAmount(amt)}
-            className="rounded-sm bg-teal-50 border border-teal-200/80 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-teal-100/70 transition tabular-nums cursor-pointer"
+            className="rounded-sm bg-teal-50 border-teal-200/80 text-xs font-semibold text-slate-700 hover:bg-teal-100/70 tabular-nums"
           >
             ৳{amt}
-          </button>
+          </CustomButton>
         ))}
       </div>
 
@@ -129,22 +131,29 @@ export function PaymentPanel({ total, payments, onChange }: Props) {
               leftIcon={<span className="text-xs font-semibold text-gray-400">৳</span>}
             />
             {payments.length > 1 && (
-              <button onClick={() => removeLine(idx)} className="text-gray-300 hover:text-red-500 shrink-0 p-1 cursor-pointer">
+              <CustomButton
+                variant="ghost"
+                size="xs"
+                onClick={() => removeLine(idx)}
+                className="h-8 w-8 !p-0 text-gray-400 hover:text-red-500 rounded flex items-center justify-center shrink-0"
+                title="Remove line"
+              >
                 <Trash2 size={14} />
-              </button>
+              </CustomButton>
             )}
           </div>
         ))}
       </div>
 
       <div className="flex items-center justify-between">
-        <button
-          type="button"
+        <CustomButton
+          variant="ghost"
+          size="xs"
           onClick={() => addLine("CASH", remaining)}
-          className="flex items-center gap-1 text-xs font-medium text-teal-700 hover:text-teal-800 hover:underline cursor-pointer"
+          className="gap-1 text-xs font-medium text-teal-700 hover:text-teal-800 p-0 h-auto"
         >
           <Plus size={12} /> Split with another method
-        </button>
+        </CustomButton>
       </div>
 
       {/* Totals Summary */}

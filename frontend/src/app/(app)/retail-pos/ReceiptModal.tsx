@@ -3,6 +3,7 @@
 import { CheckCircle2, Printer, RotateCcw } from "lucide-react";
 import type { SaleResult } from "./pos-types";
 import { siteConfig } from "@/config/site";
+import { CustomButton } from "@/components/custom";
 
 interface CartItem {
   id?: string;
@@ -212,22 +213,22 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
 
       {/* Modal Actions */}
       <div className="flex w-full gap-2.5 mt-1">
-        <button
-          type="button"
+        <CustomButton
+          variant="outline"
           onClick={() => window.print()}
-          className="flex-1 flex items-center justify-center gap-1.5 rounded-sm border border-teal-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-teal-50 transition cursor-pointer"
+          className="flex-1 h-10 gap-1.5 border-teal-200 bg-white text-xs font-bold text-slate-700 hover:bg-teal-50"
         >
           <Printer size={15} />
           Print Thermal (80mm)
-        </button>
-        <button
-          type="button"
+        </CustomButton>
+        <CustomButton
+          themeColor="teal"
           onClick={onNewSale}
-          className="flex-1 flex items-center justify-center gap-1.5 rounded-sm bg-teal-600 hover:bg-teal-700 px-3 py-2.5 text-xs font-bold text-white shadow-sm transition cursor-pointer"
+          className="flex-1 h-10 gap-1.5 text-xs font-bold"
         >
           <RotateCcw size={15} />
           New Sale
-        </button>
+        </CustomButton>
       </div>
     </div>
   );

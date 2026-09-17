@@ -21,8 +21,13 @@ import {
   type RegisterContext,
   type BatchRow,
 } from "@/lib/catalog";
-import { CustomModal } from "@/components/custom/CustomModal";
-import { CustomButton } from "@/components/custom/CustomButton";
+import {
+  CustomModal,
+  CustomButton,
+  ConfirmModal,
+  CustomPromptModal,
+  CustomBadge,
+} from "@/components/custom";
 import { cn } from "@/lib/cn";
 
 import {
@@ -193,6 +198,11 @@ export default function PharmacyPOSPage() {
   const [addCustomerOpen, setAddCustomerOpen] = useState(false);
   const [advFilterOpen, setAdvFilterOpen] = useState(false);
   const [genericsOpen, setGenericsOpen] = useState(false);
+
+  // ─── Confirm & Prompt modal states ─────────────────────────────────────────
+  const [clearCartConfirmOpen, setClearCartConfirmOpen] = useState(false);
+  const [deleteHeldBillId, setDeleteHeldBillId] = useState<string | null>(null);
+  const [notePromptOpen, setNotePromptOpen] = useState(false);
 
   // ─── Last added product (for generic alternative banner) ──────────────────
   const [lastAddedProduct, setLastAddedProduct] = useState<RegisterProduct | null>(null);
@@ -404,6 +414,7 @@ export default function PharmacyPOSPage() {
         p.name.toLowerCase().includes(term) ||
         p.sku.toLowerCase().includes(term) ||
         (p.brandName && p.brandName.toLowerCase().includes(term)) ||
+        (p.genericName && p.genericName.toLowerCase().includes(term)) ||
         (p.barcode && p.barcode === search.trim())
       );
     });
@@ -434,7 +445,20 @@ export default function PharmacyPOSPage() {
   // ─── Generic alternatives for lastAddedProduct ────────────────────────────
   const genericAlternatives = useMemo(() => {
     if (!lastAddedProduct) return [];
-    // Extract first meaningful word(s) from the product name (the drug name)
+    // If genericName is known, find medicines with the identical genericName
+    const targetGen = (lastAddedProduct.genericName || "").toLowerCase().trim();
+    if (targetGen) {
+      const match = products.filter((p) =>
+        p.id !== lastAddedProduct.id &&
+        (p.genericName || "").toLowerCase().trim() === targetGen &&
+        (p.stockQty ?? 0) > 0
+      );
+      if (match.length > 0) {
+        return match.sort((a, b) => a.sellingPrice - b.sellingPrice);
+      }
+    }
+
+    // Fallback: Extract first meaningful word(s) from the product name (the drug name)
     const baseName = lastAddedProduct.name
       .toLowerCase()
       .replace(/\d+mg|\d+ml|\d+mcg|tablet|capsule|syrup|injection|cream|ointment|drop/gi, "")
@@ -549,6 +573,7 @@ export default function PharmacyPOSPage() {
           imageUrl: p.imageUrl,
           unitLabel: p.unit || "Unit",
           stockQty: p.stockQty ?? 50,
+          genericName: p.genericName ?? null,
         }),
       ];
     });
@@ -747,11 +772,11 @@ export default function PharmacyPOSPage() {
         break;
       }
       case "loyalty": setLoyaltyOpen(true); break;
-      case "note": document.getElementById("pharma-note")?.focus(); break;
+      case "note": setNotePromptOpen(true); break;
       case "return": setReturnOpen(true); break;
       case "sales-history": setSalesHistoryOpen(true); break;
       case "open-drawer": {
-        showToast("🗄️ Cash drawer opened!", "success");
+        showToast("Cash drawer opened!", "success");
         break;
       }
       // Header quick action pills
@@ -859,8 +884,8 @@ export default function PharmacyPOSPage() {
   return (
     <div
       className={cn(
-        "flex h-screen w-screen flex-col overflow-hidden p-2 gap-2 select-none",
-        darkMode ? "bg-slate-900" : "bg-[#f1f5f9]",
+        "flex h-screen w-full flex-col overflow-hidden p-2 gap-2 select-none",
+        darkMode ? "bg-slate-950" : "bg-[#f1f5f9]",
       )}
       style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
     >
@@ -868,8 +893,8 @@ export default function PharmacyPOSPage() {
       <div className="flex min-h-0 flex-1 gap-2 overflow-hidden">
         {/* Left Card */}
         <div className={cn(
-          "flex w-full lg:w-[70%] shrink-0 flex-col overflow-hidden rounded-sm border shadow-2xs",
-          darkMode ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white",
+          "flex flex-1 min-w-0 flex-col overflow-hidden rounded-sm border shadow-2xs",
+          darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white",
         )}>
           <PharmacyPOSLeftPanel
             search={search}
@@ -909,8 +934,8 @@ export default function PharmacyPOSPage() {
 
         {/* Right Card */}
         <div className={cn(
-          "flex w-full lg:w-[30%] shrink-0 flex-col overflow-hidden rounded-sm border shadow-2xs",
-          darkMode ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white",
+          "flex w-[395px] xl:w-[455px] 2xl:w-[480px] shrink-0 flex-col overflow-hidden rounded-sm border shadow-2xs",
+          darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white",
         )}>
           <PharmacyPOSRightPanel
             rxMode={rxMode}
@@ -939,7 +964,7 @@ export default function PharmacyPOSPage() {
             setPayMethod={setPayMethod}
             onQty={onQty}
             onRemove={onRemove}
-            onClearCart={() => setCart([])}
+            onClearCart={() => setClearCartConfirmOpen(true)}
             holdBill={holdBill}
             onOpenCheckout={() => setCheckoutOpen(true)}
             submitting={submitting}
@@ -952,6 +977,13 @@ export default function PharmacyPOSPage() {
             onClearAllNotifications={() => setNotifications([])}
             onDismissNotification={(id) => setNotifications((prev) => prev.filter((n) => n.id !== id))}
             onOpenHardwareSettings={() => setHardwareOpen(true)}
+            onFindGenerics={(productId) => {
+              const prod = products.find((p) => p.id === productId);
+              if (prod) {
+                setLastAddedProduct(prod);
+                setGenericsOpen(true);
+              }
+            }}
             darkMode={darkMode}
           />
         </div>
@@ -960,7 +992,7 @@ export default function PharmacyPOSPage() {
       {/* ═══ FOOTER ═══ */}
       <div className={cn(
         "flex-none rounded-sm border shadow-2xs overflow-hidden",
-        darkMode ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white",
+        darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white",
       )}>
         <PharmacyPOSFooter
           timeStr={timeStr}
@@ -972,7 +1004,7 @@ export default function PharmacyPOSPage() {
           heldBillsCount={heldBills.length}
           onResumeHeldBill={() => setHeldBillsOpen(true)}
           onSalesHistory={() => setSalesHistoryOpen(true)}
-          onOpenDrawer={() => showToast("🗄️ Cash drawer opened!", "success")}
+          onOpenDrawer={() => showToast("Cash drawer opened!", "success")}
           darkMode={darkMode}
         />
       </div>
@@ -982,10 +1014,14 @@ export default function PharmacyPOSPage() {
         open={pickerFor !== null}
         onClose={() => setPickerFor(null)}
         title={pickerFor ? `Select batch — ${pickerFor.name}` : "Select batch"}
+        subtitle="FEFO (First-Expiry-First-Out) batch selection"
+        size="2xl"
+        themeColor="teal"
+        darkMode={darkMode}
       >
         {pickerFor && (
-          <div className="space-y-2">
-            <p className="rounded-lg bg-teal-50 px-3 py-2 text-xs text-teal-800 font-semibold">
+          <div className="space-y-3">
+            <p className="rounded-lg bg-teal-50 dark:bg-teal-950/40 border border-teal-100 dark:border-teal-900/60 px-3 py-2 text-xs text-teal-800 dark:text-teal-300 font-semibold">
               FEFO — soonest-expiring batch is pre-selected.
             </p>
             {(byProduct.get(pickerFor.id) ?? [])
@@ -996,37 +1032,41 @@ export default function PharmacyPOSPage() {
                 const badge = expiryBadge(d);
                 const selected = pickerBatch?.id === b.id;
                 return (
-                  <button
+                  <CustomButton
                     key={b.id}
-                    type="button"
+                    variant={selected ? "primary" : "outline"}
+                    themeColor={selected ? "teal" : undefined}
                     disabled={expired}
                     onClick={() => setPickerBatch(b)}
                     className={cn(
-                      "flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left transition disabled:opacity-40",
-                      selected ? "border-teal-400 bg-teal-50 ring-1 ring-teal-200" : "border-slate-100 hover:border-slate-200",
+                      "w-full !justify-between items-center rounded-xl px-3.5 py-3 text-left transition disabled:opacity-40 h-auto",
+                      selected ? "ring-1 ring-teal-200 dark:ring-teal-700" : "border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800/80"
                     )}
                   >
-                    <div className="min-w-0">
-                      <p className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                    <div className="min-w-0 text-left">
+                      <p className={cn("flex items-center gap-2 text-sm font-bold", selected ? "text-white" : "text-slate-800 dark:text-slate-100")}>
                         <span className="font-mono">{b.batchNo}</span>
                         {i === 0 && !expired && (
-                          <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">FEFO</span>
+                          <CustomBadge tone="green">FEFO</CustomBadge>
                         )}
                       </p>
-                      <p className="mt-0.5 text-xs text-slate-400 tabular-nums">{b.qty} units</p>
+                      <p className={cn("mt-0.5 text-xs tabular-nums", selected ? "text-teal-100" : "text-slate-400 dark:text-slate-400")}>{b.qty} units</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
-                      {badge && <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${badge.cls}`}>{badge.label}</span>}
+                      {badge && <CustomBadge tone={expired ? "red" : d !== null && d <= 30 ? "amber" : "green"}>{badge.label}</CustomBadge>}
                     </div>
-                  </button>
+                  </CustomButton>
                 );
               })}
-            <div className="flex justify-end gap-2 pt-2">
-              <CustomButton variant="outline" onClick={() => setPickerFor(null)}>Cancel</CustomButton>
+            <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <CustomButton variant="danger" onClick={() => setPickerFor(null)}>Cancel</CustomButton>
               <CustomButton
                 themeColor="teal"
                 onClick={() => {
-                  if (pickerFor && pickerBatch) addToCart(pickerFor, pickerBatch);
+                  if (pickerFor && pickerBatch) {
+                    addToCart(pickerFor, pickerBatch);
+                    setLastAddedProduct(pickerFor);
+                  }
                   setPickerFor(null);
                 }}
               >
@@ -1043,22 +1083,24 @@ export default function PharmacyPOSPage() {
         onClose={() => setHeldBillsOpen(false)}
         heldBills={heldBills}
         onResume={handleResumeHeldBill}
-        onRemove={handleRemoveHeldBill}
+        onRemove={(id) => setDeleteHeldBillId(id)}
         darkMode={darkMode}
       />
 
-      <SalesHistoryPanel open={salesHistoryOpen} onClose={() => setSalesHistoryOpen(false)} />
+      <SalesHistoryPanel open={salesHistoryOpen} onClose={() => setSalesHistoryOpen(false)} darkMode={darkMode} />
 
       <PrescriptionModal
         open={prescriptionOpen}
         onClose={() => setPrescriptionOpen(false)}
         onAttach={handleAttachPrescription}
+        darkMode={darkMode}
       />
 
       <AddDoctorModal
         open={addDoctorOpen}
         onClose={() => setAddDoctorOpen(false)}
         onSave={handleSaveDoctor}
+        darkMode={darkMode}
       />
 
       <LoyaltyModal
@@ -1067,6 +1109,7 @@ export default function PharmacyPOSPage() {
         customerName={customers.find((c) => c.id === customerId)?.name ?? "Walk-in"}
         currentPoints={240}
         onRedeem={handleLoyaltyRedeem}
+        darkMode={darkMode}
       />
 
       <QuickReturnModal
@@ -1074,6 +1117,7 @@ export default function PharmacyPOSPage() {
         onClose={() => setReturnOpen(false)}
         cart={cart}
         onReturn={handleReturn}
+        darkMode={darkMode}
       />
 
       <AddCustomerModal
@@ -1090,6 +1134,7 @@ export default function PharmacyPOSPage() {
         open={advFilterOpen}
         onClose={() => setAdvFilterOpen(false)}
         onApply={(f) => setAdvFilter(f)}
+        darkMode={darkMode}
       />
 
       <GenericAlternativesModal
@@ -1101,6 +1146,7 @@ export default function PharmacyPOSPage() {
           tapProduct(alt);
           showToast(`✅ Added generic: ${alt.name}`, "success");
         }}
+        darkMode={darkMode}
       />
 
       <HardwareSettingsModal
@@ -1112,6 +1158,7 @@ export default function PharmacyPOSPage() {
           try { localStorage.setItem("bpos_hardware_config", JSON.stringify(cfg)); } catch {}
           showToast("⚙️ Hardware settings saved successfully!", "success");
         }}
+        darkMode={darkMode}
       />
 
       <PaymentCheckoutModal
@@ -1131,6 +1178,57 @@ export default function PharmacyPOSPage() {
           void confirmSale(cashTendered);
         }}
         submitting={submitting}
+        darkMode={darkMode}
+      />
+
+      {/* ═══ CONFIRM CLEAR CART MODAL ═══ */}
+      <ConfirmModal
+        open={clearCartConfirmOpen}
+        onClose={() => setClearCartConfirmOpen(false)}
+        onConfirm={() => {
+          setCart([]);
+          setClearCartConfirmOpen(false);
+          showToast("Cart cleared", "info");
+        }}
+        title="Clear Pharmacy Cart"
+        message="Are you sure you want to remove all medicines and reset the current cart?"
+        type="DANGER"
+        confirmText="Clear Cart"
+        cancelText="Keep Items"
+        darkMode={darkMode}
+      />
+
+      {/* ═══ CONFIRM DELETE HELD BILL MODAL ═══ */}
+      <ConfirmModal
+        open={deleteHeldBillId !== null}
+        onClose={() => setDeleteHeldBillId(null)}
+        onConfirm={() => {
+          if (deleteHeldBillId) {
+            handleRemoveHeldBill(deleteHeldBillId);
+            setDeleteHeldBillId(null);
+          }
+        }}
+        title="Delete Held Bill"
+        message="Are you sure you want to remove this suspended transaction? This action cannot be undone."
+        type="DANGER"
+        confirmText="Delete"
+        cancelText="Cancel"
+        darkMode={darkMode}
+      />
+
+      {/* ═══ CUSTOM PROMPT MODAL FOR SALES NOTE ═══ */}
+      <CustomPromptModal
+        isOpen={notePromptOpen}
+        onClose={() => setNotePromptOpen(false)}
+        title="Dispensing Note / Instructions"
+        description="Add prescription instructions, doctor remarks, or patient delivery notes"
+        placeholder="e.g. 1+0+1 After meal, Dr. Karim prescription..."
+        inputType="textarea"
+        defaultValue={note}
+        onSubmit={(val) => {
+          setNote(val);
+          showToast(val ? "Note updated" : "Note cleared", "info");
+        }}
         darkMode={darkMode}
       />
 

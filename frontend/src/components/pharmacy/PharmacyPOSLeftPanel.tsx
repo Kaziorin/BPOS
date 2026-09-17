@@ -41,6 +41,12 @@ import {
 } from "lucide-react";
 import type { RegisterProduct } from "@/lib/catalog";
 import { cn } from "@/lib/cn";
+import {
+  CustomBadge,
+  CustomButton,
+  CustomInput,
+  CustomSelect,
+} from "@/components/custom";
 
 export type PharmaCat =
   | "All"
@@ -72,18 +78,18 @@ export const CATEGORIES: {
   iconBg: string;
   iconColor: string;
 }[] = [
-  { id: "All", label: "All", Icon: LayoutGrid, iconBg: "bg-teal-700", iconColor: "text-white" },
-  { id: "Antibiotics", label: "Antibiotics", Icon: Syringe, iconBg: "bg-purple-100", iconColor: "text-purple-600" },
-  { id: "Pain Relief", label: "Pain Relief", Icon: Pill, iconBg: "bg-orange-100", iconColor: "text-orange-500" },
-  { id: "Vitamins & Suppl.", label: "Vitamins & Suppl.", Icon: Sparkles, iconBg: "bg-emerald-100", iconColor: "text-emerald-600" },
-  { id: "Skin Care", label: "Skin Care", Icon: Droplets, iconBg: "bg-rose-100", iconColor: "text-rose-500" },
-  { id: "Diabetes Care", label: "Diabetes Care", Icon: Activity, iconBg: "bg-teal-100", iconColor: "text-teal-700" },
-  { id: "Cardiovascular", label: "Cardiovascular", Icon: Heart, iconBg: "bg-red-100", iconColor: "text-red-500" },
-  { id: "Gastrointestinal", label: "Gastrointestinal", Icon: Activity, iconBg: "bg-amber-100", iconColor: "text-amber-600" },
-  { id: "Respiratory", label: "Respiratory", Icon: Wind, iconBg: "bg-blue-100", iconColor: "text-blue-500" },
-  { id: "Eye & Ear Care", label: "Eye & Ear Care", Icon: Eye, iconBg: "bg-slate-100", iconColor: "text-slate-600" },
-  { id: "Others", label: "Others", Icon: Package, iconBg: "bg-yellow-100", iconColor: "text-yellow-600" },
-];
+    { id: "All", label: "All", Icon: LayoutGrid, iconBg: "bg-teal-700", iconColor: "text-white" },
+    { id: "Antibiotics", label: "Antibiotics", Icon: Syringe, iconBg: "bg-purple-100", iconColor: "text-purple-600" },
+    { id: "Pain Relief", label: "Pain Relief", Icon: Pill, iconBg: "bg-orange-100", iconColor: "text-orange-500" },
+    { id: "Vitamins & Suppl.", label: "Vitamins & Suppl.", Icon: Sparkles, iconBg: "bg-emerald-100", iconColor: "text-emerald-600" },
+    { id: "Skin Care", label: "Skin Care", Icon: Droplets, iconBg: "bg-rose-100", iconColor: "text-rose-500" },
+    { id: "Diabetes Care", label: "Diabetes Care", Icon: Activity, iconBg: "bg-teal-100", iconColor: "text-teal-700" },
+    { id: "Cardiovascular", label: "Cardiovascular", Icon: Heart, iconBg: "bg-red-100", iconColor: "text-red-500" },
+    { id: "Gastrointestinal", label: "Gastrointestinal", Icon: Activity, iconBg: "bg-amber-100", iconColor: "text-amber-600" },
+    { id: "Respiratory", label: "Respiratory", Icon: Wind, iconBg: "bg-blue-100", iconColor: "text-blue-500" },
+    { id: "Eye & Ear Care", label: "Eye & Ear Care", Icon: Eye, iconBg: "bg-slate-100", iconColor: "text-slate-600" },
+    { id: "Others", label: "Others", Icon: Package, iconBg: "bg-yellow-100", iconColor: "text-yellow-600" },
+  ];
 
 export const GRID_FILTERS: { id: GridFilter; label: string; Icon?: React.ElementType; tone?: string }[] = [
   { id: "All Medicines", label: "All Medicines", Icon: Pill },
@@ -95,20 +101,20 @@ export const GRID_FILTERS: { id: GridFilter; label: string; Icon?: React.Element
 ];
 
 export const BOTTOM_ACTIONS = [
-  { id: "rx", label: "Prescription", sub: "View / Attach Rx", Icon: FilePlus2, color: "text-purple-600", bg: "bg-purple-50" },
+  { id: "rx", label: "Prescription", sub: "Attach Rx", Icon: FilePlus2, color: "text-purple-600", bg: "bg-purple-50" },
   { id: "doctor", label: "Doctor", sub: "Add Doctor", Icon: Stethoscope, color: "text-[#00796b]", bg: "bg-teal-50" },
   { id: "refill", label: "Refill", sub: "Quick Refill", Icon: RefreshCcw, color: "text-amber-600", bg: "bg-amber-50" },
-  { id: "loyalty", label: "Loyalty", sub: "Add Points", Icon: Heart, color: "text-rose-500", bg: "bg-rose-50" },
-  { id: "note", label: "Note", sub: "Add Note", Icon: FileText, color: "text-teal-600", bg: "bg-teal-50" },
+  { id: "loyalty", label: "Loyalty", sub: "Points", Icon: Heart, color: "text-rose-500", bg: "bg-rose-50" },
+  { id: "note", label: "Note", sub: "Sales Note", Icon: FileText, color: "text-teal-600", bg: "bg-teal-50" },
   { id: "return", label: "Return", sub: "Quick Return", Icon: RotateCcw, color: "text-orange-500", bg: "bg-orange-50" },
-  { id: "sales-history", label: "Sales History", sub: "View History", Icon: History, color: "text-indigo-600", bg: "bg-indigo-50" },
-  { id: "open-drawer", label: "Open Drawer", sub: "Cash Drawer", Icon: Archive, color: "text-emerald-600", bg: "bg-emerald-50" },
+  { id: "sales-history", label: "History", sub: "Sales Log", Icon: History, color: "text-indigo-600", bg: "bg-indigo-50" },
+  { id: "open-drawer", label: "Drawer", sub: "Cash Drawer", Icon: Archive, color: "text-emerald-600", bg: "bg-emerald-50" },
 ];
 
 function MedCrossLogo({ size = 40 }: { size?: number }) {
   return (
     <div
-      className="relative flex shrink-0 items-center justify-center rounded-full bg-[#00897b] text-white shadow-xs"
+      className="relative flex shrink-0 items-center justify-center rounded-lg bg-[#00897b] text-white shadow-xs"
       style={{ width: size, height: size }}
     >
       <Plus size={size * 0.58} strokeWidth={3} />
@@ -116,20 +122,29 @@ function MedCrossLogo({ size = 40 }: { size?: number }) {
   );
 }
 
-function ProductThumb({ product }: { product: Pick<RegisterProduct, "name" | "imageUrl"> }) {
+function ProductThumb({ product, darkMode }: { product: Pick<RegisterProduct, "name" | "imageUrl">; darkMode?: boolean }) {
   if (product.imageUrl) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={product.imageUrl}
         alt={product.name}
-        className="h-20 w-full rounded-xl object-cover bg-slate-50 border border-slate-100"
+        className={cn(
+          "h-20 w-full rounded-sm object-cover border transition",
+          darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-100"
+        )}
       />
     );
   }
   return (
-    <div className="flex h-20 w-full items-center justify-center rounded-xl bg-slate-100 border border-slate-100">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-200/80 text-slate-400">
+    <div className={cn(
+      "flex h-20 w-full items-center justify-center rounded-sm border transition",
+      darkMode ? "bg-slate-800/80 border-slate-700/80" : "bg-slate-100 border-slate-100"
+    )}>
+      <div className={cn(
+        "flex h-10 w-10 items-center justify-center rounded-md transition",
+        darkMode ? "bg-slate-700/80 text-teal-400" : "bg-slate-200/80 text-teal-700"
+      )}>
         <Pill size={22} />
       </div>
     </div>
@@ -216,47 +231,42 @@ export function PharmacyPOSLeftPanel({
         </Link>
 
         {/* Search Bar */}
-        <div className="relative mx-1 flex-1 min-w-[220px]">
-          <div className="relative flex items-center">
-            <Search size={16} className="absolute left-3.5 text-slate-400" />
-            <input
-              ref={searchRef}
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-              placeholder="Search medicine by name, brand or barcode..."
-              className={cn(
-                "w-full rounded-full border pl-9 pr-9 py-2 text-[12px] font-normal placeholder:text-slate-400 transition focus:border-[#00897b] focus:outline-none focus:ring-2 focus:ring-[#00897b]/20 shadow-2xs",
-                darkMode ? "border-slate-700 bg-slate-800 text-slate-100 placeholder:text-slate-500" : "border-slate-200/90 bg-white text-slate-800 focus:bg-white"
-              )}
-            />
-            <ScanLine size={16} className="absolute right-3.5 text-slate-400 cursor-pointer hover:text-[#00897b]" />
-          </div>
+        <div className="mx-1 flex-1 min-w-[220px]">
+          <CustomInput
+            ref={searchRef}
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            placeholder="Search medicine by name, generic, brand or barcode..."
+            leftIcon={<Search size={15} className="text-slate-400" />}
+            rightIcon={<ScanLine size={15} className="text-slate-400 cursor-pointer hover:text-[#00897b]" />}
+            rounded="sm"
+            darkMode={darkMode}
+            themeColor="teal"
+            className="text-[12px] h-9 shadow-2xs font-normal"
+          />
         </div>
 
         {/* Top Action Pills */}
-        <div className="hidden lg:flex items-center gap-2 shrink-0">
+        <div className="hidden lg:flex items-center gap-1.5 shrink-0">
           {[
             { id: "scan-rx", label: "Scan Rx", Icon: Camera },
             { id: "scan-barcode", label: "Scan Barcode", Icon: ScanLine },
             { id: "quick-refill", label: "Quick Refill", Icon: RefreshCcw },
             { id: "add-medicine", label: "Add Medicine", Icon: Plus },
           ].map(({ id, label, Icon }) => (
-            <button
+            <CustomButton
               key={id}
-              type="button"
+              size="sm"
+              variant={darkMode ? "secondary" : "outline"}
+              themeColor="teal"
+              className="rounded-sm gap-1.5 text-[11.5px] font-semibold h-8"
               onClick={() => onQuickAction?.(id)}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold transition",
-                darkMode
-                  ? "bg-teal-950/80 text-teal-300 hover:bg-teal-900 border border-teal-800/60"
-                  : "bg-[#e0f2f1] text-[#00796b] hover:bg-[#b2dfdb]"
-              )}
             >
-              <Icon size={14} />
+              <Icon size={13} />
               {label}
-            </button>
+            </CustomButton>
           ))}
         </div>
 
@@ -264,30 +274,32 @@ export function PharmacyPOSLeftPanel({
         <div className={cn("h-6 w-px mx-1 shrink-0 hidden sm:block", darkMode ? "bg-slate-800" : "bg-slate-200")} />
 
         {/* Moon icon */}
-        <button
-          type="button"
+        <CustomButton
+          variant="ghost"
+          size="xs"
           onClick={onToggleDarkMode}
           className={cn(
-            "rounded-full p-2 transition shrink-0",
-            darkMode ? "bg-slate-800 text-yellow-300" : "text-slate-600 hover:bg-slate-100",
+            "rounded-sm h-8 w-8 !p-0 flex items-center justify-center shrink-0",
+            darkMode ? "bg-slate-800 text-yellow-300 hover:bg-slate-700" : "text-slate-600 hover:bg-slate-100",
           )}
           title="Toggle dark mode"
         >
-          <Moon size={17} />
-        </button>
+          <Moon size={16} />
+        </CustomButton>
 
         {/* Fullscreen toggle */}
-        <button
-          type="button"
+        <CustomButton
+          variant="ghost"
+          size="xs"
           onClick={onToggleFullscreen}
           className={cn(
-            "rounded-full p-2 transition shrink-0",
+            "rounded-sm h-8 w-8 !p-0 flex items-center justify-center shrink-0",
             darkMode ? "bg-slate-800 text-teal-300 hover:bg-slate-700" : "text-slate-600 hover:bg-slate-100",
           )}
           title={isFullscreen ? "Exit Fullscreen (F)" : "Enter Fullscreen (F)"}
         >
-          {isFullscreen ? <Minimize size={17} /> : <Maximize size={17} />}
-        </button>
+          {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+        </CustomButton>
       </header>
 
       {/* ═══ MAIN LEFT BODY (Sidebar + Grid) ═══ */}
@@ -298,22 +310,18 @@ export function PharmacyPOSLeftPanel({
           darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-slate-200 bg-white text-slate-800"
         )}>
           {/* Category search input */}
-          <div className={cn("p-2.5 border-b", darkMode ? "border-slate-800" : "border-slate-100")}>
-            <div className="relative flex items-center">
-              <Search size={13} className="absolute left-2.5 text-slate-400" />
-              <input
-                type="text"
-                value={catSearch}
-                onChange={(e) => setCatSearch(e.target.value)}
-                placeholder="Search category..."
-                className={cn(
-                  "w-full rounded-xl border pl-7 pr-2.5 py-1.5 text-[11px] font-medium transition focus:border-teal-500 focus:outline-none",
-                  darkMode
-                    ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500"
-                    : "border-slate-200 bg-slate-50 text-slate-700 placeholder-slate-400"
-                )}
-              />
-            </div>
+          <div className={cn("p-2 border-b", darkMode ? "border-slate-800" : "border-slate-100")}>
+            <CustomInput
+              type="text"
+              value={catSearch}
+              onChange={(e) => setCatSearch(e.target.value)}
+              placeholder="Search category..."
+              leftIcon={<Search size={13} className="text-slate-400" />}
+              darkMode={darkMode}
+              themeColor="teal"
+              rounded="sm"
+              className="text-[11px] h-8"
+            />
           </div>
 
           {/* Categories List */}
@@ -321,22 +329,19 @@ export function PharmacyPOSLeftPanel({
             {visibleCategories.map(({ id, label, Icon, iconBg, iconColor }) => {
               const active = category === id;
               return (
-                <button
+                <CustomButton
                   key={id}
-                  type="button"
+                  variant={active ? "primary" : "ghost"}
+                  themeColor={active ? "teal" : undefined}
                   onClick={() => setCategory(id)}
                   className={cn(
-                    "flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-[12px] font-bold transition",
-                    active
-                      ? "bg-[#00796b] text-white shadow-sm"
-                      : darkMode
-                        ? "text-slate-300 hover:bg-slate-800"
-                        : "text-slate-700 hover:bg-slate-50",
+                    "w-full !justify-start items-center gap-2.5 rounded-sm px-2.5 py-2 text-left text-[12px] font-bold transition h-auto",
+                    !active && (darkMode ? "text-slate-300 hover:bg-slate-800" : "text-slate-700 hover:bg-slate-100")
                   )}
                 >
                   <div
                     className={cn(
-                      "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg transition",
+                      "flex h-6 w-6 shrink-0 items-center justify-center rounded-sm transition",
                       active
                         ? "bg-white/20 text-white"
                         : darkMode
@@ -347,31 +352,31 @@ export function PharmacyPOSLeftPanel({
                     <Icon size={13} strokeWidth={2.2} />
                   </div>
                   <span className="truncate">{label}</span>
-                </button>
+                </CustomButton>
               );
             })}
           </div>
 
           {/* Bottom Customer Pill */}
-          <div className="p-3">
-            <button
-              type="button"
+          <div className="p-2 border-t mt-auto border-slate-100 dark:border-slate-800">
+            <CustomButton
+              variant={darkMode ? "secondary" : "outline"}
               onClick={onCustomerClick}
               className={cn(
-                "flex w-full h-[68px] items-center gap-2.5 rounded-sm border px-3 py-2 text-left transition shadow-2xs",
+                "!justify-start !flex-row w-full h-[58px] items-center gap-2.5 rounded-sm border px-3 py-2 text-left transition shadow-2xs",
                 darkMode
                   ? "border-teal-900/60 bg-slate-800 hover:border-teal-700"
                   : "border-teal-200/70 bg-[#e8f4f8] hover:border-teal-300"
               )}
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#00796b] text-white shadow-xs">
-                <User size={18} />
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-[#00796b] text-white shadow-xs">
+                <User size={16} />
               </div>
-              <div className="leading-tight min-w-0">
+              <div className="leading-tight min-w-0 text-left">
                 <p className={cn("text-[12.5px] font-bold", darkMode ? "text-slate-100" : "text-slate-800")}>Customer</p>
                 <p className="text-[10px] font-medium text-slate-400 truncate">Add / View Customer</p>
               </div>
-            </button>
+            </CustomButton>
           </div>
         </aside>
 
@@ -382,73 +387,68 @@ export function PharmacyPOSLeftPanel({
         )}>
           {/* Grid Filter Bar */}
           <div className={cn(
-            "flex flex-none flex-wrap items-center gap-2 border-b px-3 py-2 transition",
+            "flex flex-none items-center justify-between gap-2 border-b px-3 py-1.5 transition",
             darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white"
           )}>
-            <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+            <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
               {GRID_FILTERS.map(({ id, label, Icon, tone }) => {
                 const active = gridFilter === id;
                 return (
-                  <button
+                  <CustomButton
                     key={id}
-                    type="button"
+                    size="xs"
+                    variant={active ? "primary" : "secondary"}
+                    themeColor={active ? "teal" : undefined}
                     onClick={() => setGridFilter(id)}
                     className={cn(
-                      "inline-flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-1.5 text-[12px] font-semibold transition-colors",
-                      active
-                        ? "bg-[#00695c] text-white shadow-2xs"
-                        : darkMode
-                          ? "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                          : "bg-[#f2f4f7] text-slate-700 hover:bg-slate-200/80",
+                      "rounded-sm shrink-0 text-[11.5px] h-7.5 font-semibold gap-1 px-3",
+                      !active && (darkMode ? "bg-slate-800 text-slate-300 hover:bg-slate-700 border-0" : "bg-[#f2f4f7] text-slate-700 hover:bg-slate-200/80 border-0")
                     )}
                   >
-                    {Icon && <Icon size={14} className={active ? "text-white" : tone || (darkMode ? "text-slate-400" : "text-slate-500")} />}
+                    {Icon && <Icon size={12} className={active ? "text-white" : tone || (darkMode ? "text-slate-400" : "text-slate-500")} />}
                     {label}
-                  </button>
+                  </CustomButton>
                 );
               })}
             </div>
 
             {/* Sort Dropdown & Filter Icon */}
-            <div className="flex items-center gap-2 shrink-0 ml-auto">
-              <span className="text-[12px] font-medium text-slate-400 hidden sm:inline">Sort by:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortBy)}
-                className={cn(
-                  "rounded-xl border px-3 py-1.5 text-[12px] font-medium focus:border-[#00897b] focus:outline-none cursor-pointer shadow-2xs transition",
-                  darkMode
-                    ? "border-slate-700 bg-slate-800 text-slate-100"
-                    : "border-slate-200/90 bg-white text-slate-800"
-                )}
-              >
-                <option value="name-asc" className={darkMode ? "bg-slate-800 text-slate-100" : ""}>Name A-Z</option>
-                <option value="name-desc" className={darkMode ? "bg-slate-800 text-slate-100" : ""}>Name Z-A</option>
-                <option value="price-asc" className={darkMode ? "bg-slate-800 text-slate-100" : ""}>Price Low to High</option>
-                <option value="price-desc" className={darkMode ? "bg-slate-800 text-slate-100" : ""}>Price High to Low</option>
-                <option value="stock" className={darkMode ? "bg-slate-800 text-slate-100" : ""}>Stock Level</option>
-              </select>
+            <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+              <span className="text-[11px] font-medium text-slate-400 hidden sm:inline">Sort:</span>
+              <div className="w-[130px]">
+                <CustomSelect
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortBy)}
+                  darkMode={darkMode}
+                  themeColor="teal"
+                  className="text-[11.5px] py-0.5 h-7.5 rounded-sm"
+                  options={[
+                    { label: "Name A-Z", value: "name-asc" },
+                    { label: "Name Z-A", value: "name-desc" },
+                    { label: "Price Low-High", value: "price-asc" },
+                    { label: "Price High-Low", value: "price-desc" },
+                    { label: "Stock Level", value: "stock" },
+                  ]}
+                />
+              </div>
 
-              <button
-                type="button"
+              <CustomButton
+                variant="outline"
+                size="xs"
+                themeColor="teal"
                 onClick={onAdvancedFilter}
-                className={cn(
-                  "rounded-xl border p-2 transition shadow-2xs",
-                  darkMode
-                    ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-teal-400"
-                    : "border-slate-200/90 bg-white text-slate-600 hover:bg-teal-50 hover:text-[#00796b] hover:border-teal-200"
-                )}
+                className="h-7.5 w-7.5 !p-0 rounded-sm flex items-center justify-center shrink-0"
                 title="Advanced filter"
               >
                 <SlidersHorizontal size={14} />
-              </button>
+              </CustomButton>
             </div>
           </div>
 
           {/* Product Grid Scrollable Area */}
           <div className={cn("min-h-0 flex-1 overflow-y-auto p-3 space-y-3", products.length === 0 && "flex flex-col items-center justify-center")}>
             {products.length > 0 ? (
-              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {products.map((p) => {
                   const outOfStock = (p.stockQty ?? 0) <= 0;
                   const isRx = /rx|prescription|antibiotic|amox|cipro|omeprazole|esomeprazole|respiratory|cardio/i.test(
@@ -466,16 +466,16 @@ export function PharmacyPOSLeftPanel({
                     >
                       <div>
                         {/* Product Thumbnail */}
-                        <div className="relative mb-2 overflow-hidden rounded-xl">
-                          <ProductThumb product={p} />
+                        <div className="relative mb-2 overflow-hidden rounded-sm">
+                          <ProductThumb product={p} darkMode={darkMode} />
                           {outOfStock ? (
-                            <div className="absolute top-2 left-2 z-10 bg-rose-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shadow-sm">
+                            <CustomBadge tone="red" className="absolute top-2 left-2 z-10">
                               Out of stock
-                            </div>
+                            </CustomBadge>
                           ) : rxMode && isRx ? (
-                            <div className="absolute top-2 left-2 z-10 bg-[#00796b] text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-xs flex items-center gap-0.5">
+                            <CustomBadge tone="primary" className="absolute top-2 left-2 z-10 bg-[#00796b] text-white border-transparent">
                               Rx
-                            </div>
+                            </CustomBadge>
                           ) : null}
                         </div>
 
@@ -486,6 +486,13 @@ export function PharmacyPOSLeftPanel({
                         )}>
                           {p.name}
                         </h3>
+
+                        {/* Generic Name */}
+                        {p.genericName ? (
+                          <p className="line-clamp-1 text-[10px] font-medium text-[#00796b] dark:text-teal-400">
+                            Gen: {p.genericName}
+                          </p>
+                        ) : null}
 
                         {/* Unit & Dosage */}
                         <p className="mt-0.5 text-[10px] font-semibold text-slate-400">
@@ -506,16 +513,18 @@ export function PharmacyPOSLeftPanel({
                         <span className="text-[13.5px] font-black text-[#00796b] tabular-nums whitespace-nowrap">
                           ৳ {p.sellingPrice.toFixed(2)}
                         </span>
-                        <button
-                          type="button"
+                        <CustomButton
+                          themeColor="teal"
+                          size="xs"
                           onClick={(e) => {
                             e.stopPropagation();
                             if (!outOfStock) onTapProduct(p);
                           }}
-                          className="flex h-7 w-7 items-center justify-center rounded-full bg-[#00796b] text-white shadow-xs transition hover:bg-[#005a50] hover:scale-105 active:scale-95"
+                          className="h-7 w-7 !p-0 rounded-sm flex items-center justify-center shrink-0 shadow-xs hover:scale-105 active:scale-95 text-white"
+                          title="Add to cart"
                         >
                           <Plus size={15} strokeWidth={2.8} />
-                        </button>
+                        </CustomButton>
                       </div>
                     </div>
                   );
@@ -532,69 +541,75 @@ export function PharmacyPOSLeftPanel({
             )}
           </div>
 
-          {/* SMART GENERIC BANNER — only shows when lastAddedProduct has generic alternatives */}
-          {lastAddedProduct && genericAlternatives.length > 0 && (
-            <div className={cn("flex-none px-3 pb-2 pt-1", darkMode ? "bg-slate-950" : "bg-slate-50/50")}>
-              <div className={cn(
-                "flex items-center justify-between gap-3 rounded-sm border px-4 py-2.5 shadow-2xs animate-in slide-in-from-bottom-2 duration-300",
-                darkMode ? "bg-slate-900 border-teal-900/80 text-slate-100" : "bg-[#f0faf8] border-[#cceee7] text-slate-800"
-              )}>
-                <div className="flex items-center gap-3">
-                  <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full shadow-2xs", darkMode ? "bg-slate-800 text-teal-400" : "bg-white text-[#10b981]")}>
-                    <Leaf size={18} />
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className={cn("text-[13px] font-bold truncate", darkMode ? "text-slate-100" : "text-slate-800")}>
-                      Generic Alternative Available
-                    </h4>
-                    <p className="text-[11px] font-medium text-slate-400">
-                      <span className="font-semibold text-[#00796b]">{lastAddedProduct.name}</span>
-                      {" "}has {genericAlternatives.length} cheaper generic{genericAlternatives.length > 1 ? "s" : ""}
-                    </p>
-                  </div>
+          {/* GENERIC ALTERNATIVES BANNER (Always present above bottom actions) */}
+          <div className={cn("flex-none px-3 pb-2 pt-1 transition", darkMode ? "bg-slate-950" : "bg-slate-50/50")}>
+            <div className={cn(
+              "flex items-center justify-between gap-3 rounded-sm border px-3.5 py-2 shadow-2xs transition",
+              darkMode ? "bg-slate-900 border-teal-900/80 text-slate-100" : "bg-[#f0faf8] border-[#cceee7] text-slate-800"
+            )}>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-sm shadow-2xs", darkMode ? "bg-slate-800 text-teal-400" : "bg-white text-[#10b981]")}>
+                  <Leaf size={16} />
                 </div>
-                <button
-                  type="button"
-                  onClick={onViewAlternatives}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[#00695c] px-4 py-1.5 text-[12px] font-bold text-white transition hover:bg-[#005247] shadow-2xs shrink-0"
-                >
-                  <span>View Alternatives</span>
-                  <ArrowRight size={14} />
-                </button>
+                <div className="min-w-0">
+                  <h4 className={cn("text-[12.5px] font-bold truncate leading-snug", darkMode ? "text-slate-100" : "text-slate-800")}>
+                    Generic Alternative Available
+                  </h4>
+                  <p className="text-[11px] font-medium text-slate-400 truncate leading-snug">
+                    {lastAddedProduct && genericAlternatives.length > 0 ? (
+                      <>
+                        <span className="font-semibold text-[#00796b] dark:text-teal-400">{lastAddedProduct.name}</span>
+                        {" "}has {genericAlternatives.length} cheaper generic{genericAlternatives.length > 1 ? "s" : ""}
+                      </>
+                    ) : (
+                      "Compare & dispense cost-effective generic substitutes"
+                    )}
+                  </p>
+                </div>
               </div>
+              <button
+                type="button"
+                onClick={onViewAlternatives}
+                className="inline-flex items-center gap-1.5 rounded-sm bg-[#00796b] hover:bg-[#00695c] px-3.5 py-1.5 text-[11.5px] font-semibold text-white transition shadow-2xs shrink-0 cursor-pointer"
+              >
+                <span>View Alternatives</span>
+                <ArrowRight size={13} />
+              </button>
             </div>
-          )}
+          </div>
 
           {/* Bottom Action Grid (8 Buttons) */}
           <div className={cn(
-            "flex-none border-t p-3 transition",
+            "flex-none border-t p-2.5 transition",
             darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white"
           )}>
-            <div className="grid grid-cols-8 gap-2">
+            <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
               {BOTTOM_ACTIONS.map(({ id, label, sub, Icon, color, bg }) => (
                 <button
                   key={id}
                   type="button"
                   onClick={() => onQuickAction?.(id)}
                   className={cn(
-                    "flex h-[68px] flex-col items-center justify-center rounded-sm border px-1 py-2 text-center shadow-2xs transition group",
+                    "flex flex-col items-center justify-between rounded-sm border p-1.5 text-center shadow-2xs transition group cursor-pointer select-none min-h-[64px] h-[64px] w-full min-w-0",
                     darkMode
-                      ? "border-slate-800 bg-slate-800/90 text-slate-100 hover:border-teal-500"
-                      : "border-slate-200 bg-white text-slate-800 hover:border-teal-300"
+                      ? "border-slate-800 bg-slate-800/90 text-slate-100 hover:border-teal-500 hover:bg-slate-700/80"
+                      : "border-slate-200 bg-white text-slate-800 hover:border-teal-400 hover:bg-teal-50/20"
                   )}
                 >
-                  <div className={cn("flex h-7 w-7 items-center justify-center rounded-xl transition mb-1", darkMode ? "bg-slate-700/60" : bg)}>
-                    <Icon size={15} className={darkMode ? "text-teal-400" : color} />
+                  <div className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-sm transition", darkMode ? "bg-slate-700" : bg)}>
+                    <Icon size={14} className={darkMode ? "text-teal-400" : color} />
                   </div>
-                  <span className={cn(
-                    "text-[11px] font-black leading-tight",
-                    darkMode ? "text-slate-100 group-hover:text-teal-400" : "text-slate-800 group-hover:text-[#00796b]"
-                  )}>
-                    {label}
-                  </span>
-                  <span className="text-[9px] font-semibold text-slate-400 leading-tight mt-0.5">
-                    {sub}
-                  </span>
+                  <div className="flex flex-col items-center justify-center w-full min-w-0 leading-none">
+                    <span className={cn(
+                      "text-[11px] font-bold leading-tight truncate w-full block text-center px-0.5",
+                      darkMode ? "text-slate-100 group-hover:text-teal-400" : "text-slate-800 group-hover:text-[#00796b]"
+                    )}>
+                      {label}
+                    </span>
+                    <span className="text-[9.5px] font-medium text-slate-400 leading-tight truncate w-full block text-center px-0.5 mt-0.5">
+                      {sub}
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>

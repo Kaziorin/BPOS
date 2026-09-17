@@ -3,8 +3,9 @@
 import React from "react";
 import { User, Monitor, Cloud, Clock } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { CustomBadge, CustomButton } from "@/components/custom";
 
-interface PharmacyPOSFooterProps {
+export interface PharmacyPOSFooterProps {
   timeStr: string;
   dateStr: string;
   cashierName: string;
@@ -33,21 +34,21 @@ export function PharmacyPOSFooter({
 }: PharmacyPOSFooterProps) {
   return (
     <footer className={cn(
-      "flex w-full flex-none flex-wrap items-center justify-between px-4 py-1 text-[11px] select-none h-10 transition",
+      "flex w-full flex-none items-center justify-between px-4 py-1 text-[11px] select-none h-10 transition overflow-x-auto no-scrollbar",
       darkMode ? "bg-slate-900 text-slate-100" : "bg-white text-slate-800"
     )}>
       {/* Left: Time & Date */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 shrink-0">
         <div className="leading-tight">
-          <p className="text-[13px] font-black tabular-nums text-[#00796b]">{timeStr}</p>
+          <p className="text-[13px] font-black tabular-nums text-[#00796b] dark:text-teal-400">{timeStr}</p>
           <p className="text-[10px] font-semibold text-slate-400">{dateStr}</p>
         </div>
 
-        <div className={cn("h-6 w-px mx-1 hidden sm:block", darkMode ? "bg-slate-700" : "bg-slate-200")} />
+        <div className={cn("h-5 w-px mx-0.5 hidden sm:block", darkMode ? "bg-slate-800" : "bg-slate-200")} />
 
         {/* Cashier */}
-        <div className="hidden sm:flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-teal-100 text-teal-700">
+        <div className="hidden sm:flex items-center gap-1.5">
+          <div className={cn("flex h-6 w-6 items-center justify-center rounded-full", darkMode ? "bg-teal-950/60 text-teal-400" : "bg-teal-100 text-teal-700")}>
             <User size={13} />
           </div>
           <div className="leading-tight">
@@ -56,11 +57,11 @@ export function PharmacyPOSFooter({
           </div>
         </div>
 
-        <div className={cn("h-6 w-px mx-1 hidden sm:block", darkMode ? "bg-slate-700" : "bg-slate-200")} />
+        <div className={cn("h-5 w-px mx-0.5 hidden sm:block", darkMode ? "bg-slate-800" : "bg-slate-200")} />
 
         {/* Terminal */}
-        <div className="hidden sm:flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-purple-600">
+        <div className="hidden sm:flex items-center gap-1.5">
+          <div className={cn("flex h-6 w-6 items-center justify-center rounded-full", darkMode ? "bg-purple-950/60 text-purple-400" : "bg-purple-100 text-purple-600")}>
             <Monitor size={13} />
           </div>
           <div className="leading-tight">
@@ -69,82 +70,83 @@ export function PharmacyPOSFooter({
           </div>
         </div>
 
-        <div className="h-6 w-px bg-slate-200 mx-1 hidden md:block" />
+        <div className={cn("h-5 w-px mx-0.5 hidden md:block", darkMode ? "bg-slate-800" : "bg-slate-200")} />
 
         {/* Sync Status */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <div
             className={cn(
               "flex h-6 w-6 items-center justify-center rounded-full",
-              online ? "bg-emerald-100 text-emerald-600" : "bg-amber-100 text-amber-600",
+              online
+                ? (darkMode ? "bg-emerald-950/60 text-emerald-400" : "bg-emerald-100 text-emerald-600")
+                : (darkMode ? "bg-amber-950/60 text-amber-400" : "bg-amber-100 text-amber-600"),
             )}
           >
             <Cloud size={13} />
           </div>
           <div className="leading-tight">
             <p className="text-[9px] font-semibold text-slate-400">Sync Status</p>
-            <p className={cn("text-[11px] font-extrabold", online ? "text-emerald-600" : "text-amber-600")}>
+            <CustomBadge tone={online ? "green" : "amber"} className="mt-0.5">
               {online ? "Online" : "Offline"}
-            </p>
+            </CustomBadge>
           </div>
         </div>
 
-        <div className="h-6 w-px bg-slate-200 mx-1 hidden lg:block" />
+        <div className={cn("h-5 w-px mx-0.5 hidden lg:block", darkMode ? "bg-slate-800" : "bg-slate-200")} />
 
         {/* Last Backup */}
-        <div className="hidden lg:flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-purple-600">
+        <div className="hidden lg:flex items-center gap-1.5">
+          <div className={cn("flex h-6 w-6 items-center justify-center rounded-full", darkMode ? "bg-purple-950/60 text-purple-400" : "bg-purple-100 text-purple-600")}>
             <Clock size={13} />
           </div>
           <div className="leading-tight">
             <p className="text-[9px] font-semibold text-slate-400">Last Backup</p>
-            <p className="text-[11px] font-extrabold text-slate-800">{lastBackupTime}</p>
+            <p className={cn("text-[11px] font-extrabold", darkMode ? "text-slate-100" : "text-slate-800")}>{lastBackupTime}</p>
           </div>
         </div>
       </div>
 
       {/* Right: Action Buttons */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         {/* Keyboard Shortcuts */}
-        <div className="hidden xl:flex items-center gap-2 text-[10px] font-bold text-slate-500 mr-2">
-          <span className="font-extrabold text-slate-700">F1</span>: Pay
-          <span className="text-slate-300">|</span>
-          <span className="font-extrabold text-slate-700">F2</span>: Add Item
-          <span className="text-slate-300">|</span>
-          <span className="font-extrabold text-slate-700">F3</span>: Search
-          <span className="text-slate-300">|</span>
-          <span className="font-extrabold text-slate-700">F4</span>: Hold
-          <span className="text-slate-300">|</span>
-          <span className="font-extrabold text-slate-700">F5</span>: Print
-          <span className="text-slate-300">|</span>
-          <span className="font-extrabold text-slate-700">F6</span>: Hold Bill
+        <div className={cn("hidden xl:flex items-center gap-1.5 text-[10px] font-bold mr-2", darkMode ? "text-slate-400" : "text-slate-500")}>
+          <span className={cn("font-extrabold", darkMode ? "text-slate-200" : "text-slate-700")}>F1</span>: Pay
+          <span className={darkMode ? "text-slate-700" : "text-slate-300"}>|</span>
+          <span className={cn("font-extrabold", darkMode ? "text-slate-200" : "text-slate-700")}>F2</span>: Add Item
+          <span className={darkMode ? "text-slate-700" : "text-slate-300"}>|</span>
+          <span className={cn("font-extrabold", darkMode ? "text-slate-200" : "text-slate-700")}>F3</span>: Search
+          <span className={darkMode ? "text-slate-700" : "text-slate-300"}>|</span>
+          <span className={cn("font-extrabold", darkMode ? "text-slate-200" : "text-slate-700")}>F6</span>: Hold Bill
         </div>
 
         {heldBillsCount > 0 && (
-          <button
-            type="button"
+          <CustomButton
+            size="xs"
+            variant="outline"
+            themeColor="teal"
             onClick={onResumeHeldBill}
-            className="rounded-lg bg-teal-50 border border-teal-200 px-2.5 py-1 text-[10.5px] text-[#00796b] font-bold hover:bg-teal-100 transition"
+            className="h-7 text-[10.5px]"
           >
             Resume Held ({heldBillsCount})
-          </button>
+          </CustomButton>
         )}
 
-        <a
-          href="/pharmacy/patient-display"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-50 border border-cyan-200 px-2.5 py-1 text-[10.5px] text-cyan-700 font-bold hover:bg-cyan-100 transition shadow-2xs"
+        <CustomButton
+          size="xs"
+          variant="outline"
+          onClick={() => window.open("/pharmacy/patient-display", "_blank")}
+          className={cn(
+            "h-7 text-[10.5px] gap-1.5",
+            darkMode
+              ? "text-cyan-300 border-cyan-800/80 bg-cyan-950/40 hover:bg-cyan-900/60"
+              : "text-cyan-700 border-cyan-200 bg-cyan-50 hover:bg-cyan-100"
+          )}
           title="Open Patient-Facing Customer Display in new tab/window"
         >
-          <Monitor size={12} className="text-cyan-600" />
+          <Monitor size={12} className={darkMode ? "text-cyan-400" : "text-cyan-600"} />
           <span>Patient Display</span>
-        </a>
-
-
+        </CustomButton>
       </div>
     </footer>
   );
 }
-
-

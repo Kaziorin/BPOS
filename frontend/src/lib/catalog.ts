@@ -28,6 +28,8 @@ export interface RegisterProduct {
   imageUrl?: string | null;
   categoryName?: string | null;
   brandName?: string | null;
+  genericName?: string | null;
+  attributes?: any;
 }
 
 export interface ApiProductRow {
@@ -44,7 +46,31 @@ export interface ApiProductRow {
   category?: { id?: string; name?: string } | null;
   brand?: { id?: string; name?: string } | null;
   imageUrl?: string | null;
+  genericName?: string | null;
+  attributes?: any;
   _count?: { variants?: number; stockRows?: number } | null;
+}
+
+export function inferGenericFromMedicineName(name: string): string | null {
+  if (!name) return null;
+  const lower = name.toLowerCase();
+  if (/napa|ace\b|renova|fast\b|pyrex|xpa\b|tamipen|fever/i.test(lower)) return "Paracetamol";
+  if (/seclo|losectil|omez|sergel|finix|opton/i.test(lower)) return "Omeprazole";
+  if (/maxpro|nexum|esomep|esotac/i.test(lower)) return "Esomeprazole";
+  if (/pantobex|pantonix|pantodac/i.test(lower)) return "Pantoprazole";
+  if (/moxacil|amox|fycocil/i.test(lower)) return "Amoxicillin";
+  if (/ciprocin|cipro|neoflox/i.test(lower)) return "Ciprofloxacin";
+  if (/zithrox|azith|azicil|tridosil/i.test(lower)) return "Azithromycin";
+  if (/cef-3|cefix|cefixime|trioclav/i.test(lower)) return "Cefixime";
+  if (/fexo|fexofast|fixodin/i.test(lower)) return "Fexofenadine";
+  if (/alatrol|cetriz|atrizin/i.test(lower)) return "Cetirizine";
+  if (/monas|montene|lumona|provair/i.test(lower)) return "Montelukast";
+  if (/flagyl|filmet|amodiagyl/i.test(lower)) return "Metronidazole";
+  if (/comet|metformin|daomet/i.test(lower)) return "Metformin";
+  if (/bizoran|bisoprolol|concor/i.test(lower)) return "Bisoprolol";
+  if (/calbo|coralcal|ostocal/i.test(lower)) return "Calcium + Vit D3";
+  if (/orsan|orsaline|\bors\b/i.test(lower)) return "Oral Rehydration Salts";
+  return null;
 }
 
 export function toRegisterProduct(row: ApiProductRow): RegisterProduct {
@@ -56,6 +82,24 @@ export function toRegisterProduct(row: ApiProductRow): RegisterProduct {
   // Use backend provided totalStock if available, otherwise fallback to count
   const backendStock = (row as any).totalStock !== undefined ? Number((row as any).totalStock) : undefined;
   const stockRows = Number(row._count?.stockRows ?? 0);
+
+  let attr: any = (row as any).attributes || {};
+  if (typeof attr === "string") {
+    try {
+      attr = JSON.parse(attr);
+    } catch {
+      attr = {};
+    }
+  }
+
+  const rawGeneric =
+    row.genericName ||
+    (row as any).generic ||
+    attr?.pharmacy?.genericName ||
+    attr?.genericName ||
+    null;
+
+  const genericName = rawGeneric || inferGenericFromMedicineName(row.name);
 
   return {
     id: row.id,
@@ -71,6 +115,8 @@ export function toRegisterProduct(row: ApiProductRow): RegisterProduct {
     imageUrl: row.imageUrl || (row as any).image || null,
     categoryName: row.category?.name ?? null,
     brandName: row.brand?.name ?? null,
+    genericName,
+    attributes: attr,
   };
 }
 

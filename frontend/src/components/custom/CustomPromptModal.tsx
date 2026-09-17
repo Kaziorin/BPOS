@@ -17,6 +17,7 @@ export interface CustomPromptModalProps {
   inputType?: "text" | "number" | "textarea";
   confirmText?: string;
   cancelText?: string;
+  darkMode?: boolean;
 }
 
 export function CustomPromptModal({
@@ -30,6 +31,7 @@ export function CustomPromptModal({
   inputType = "text",
   confirmText = "Apply",
   cancelText = "Cancel",
+  darkMode,
 }: CustomPromptModalProps) {
   const [val, setVal] = useState(defaultValue);
 
@@ -46,10 +48,10 @@ export function CustomPromptModal({
   };
 
   return (
-    <CustomModal open={isOpen} onClose={onClose} title={title} size="sm">
+    <CustomModal open={isOpen} onClose={onClose} title={title} size="xl" themeColor="teal" darkMode={darkMode}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {description && (
-          <p className="text-xs text-gray-500 font-medium">{description}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{description}</p>
         )}
 
         {inputType === "textarea" ? (
@@ -59,6 +61,7 @@ export function CustomPromptModal({
             placeholder={placeholder}
             rows={3}
             autoFocus
+            darkMode={darkMode}
           />
         ) : (
           <CustomInput
@@ -66,15 +69,17 @@ export function CustomPromptModal({
             value={val}
             onChange={(e) => setVal(e.target.value)}
             placeholder={placeholder}
+            themeColor="teal"
             autoFocus
+            darkMode={darkMode}
           />
         )}
 
-        <div className="flex justify-end gap-2 pt-2">
-          <CustomButton variant="outline" size="sm" type="button" onClick={onClose}>
+        <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
+          <CustomButton variant="danger" size="sm" type="button" onClick={onClose}>
             {cancelText}
           </CustomButton>
-          <CustomButton variant="primary" size="sm" type="submit">
+          <CustomButton themeColor="teal" size="sm" type="submit">
             {confirmText}
           </CustomButton>
         </div>

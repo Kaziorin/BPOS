@@ -95,20 +95,21 @@ export function WholesalePOSRightPanel({
         </h2>
         <div className="flex items-center gap-1.5">
           {cart.length > 0 && (
-            <button
-              type="button"
+            <CustomButton
+              variant="outline"
+              size="xs"
               onClick={onClearCart}
               title="Clear entire cart"
               className={cn(
-                "flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[11.5px] font-extrabold transition-all cursor-pointer shadow-2xs active:scale-95",
+                "rounded-xl px-2.5 py-1.5 text-[11.5px] font-extrabold h-auto shadow-2xs gap-1.5",
                 darkMode
-                  ? "border border-rose-500/30 bg-rose-500/15 text-rose-300 hover:bg-rose-500/25"
-                  : "border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700",
+                  ? "border-rose-500/30 bg-rose-500/15 text-rose-300 hover:bg-rose-500/25"
+                  : "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700",
               )}
             >
               <Trash2 size={13} strokeWidth={2.2} />
               <span>Clear Cart</span>
-            </button>
+            </CustomButton>
           )}
           <CustomButton
             type="button"
@@ -207,26 +208,42 @@ export function WholesalePOSRightPanel({
                       {item.sku}
                     </p>
                   </div>
-                  <button
-                    type="button"
+                  <CustomButton
+                    variant="ghost"
+                    size="xs"
                     onClick={() => onRemove(idx)}
-                    className="text-slate-400 hover:text-rose-600 transition-colors p-0.5 cursor-pointer"
+                    className="h-6 w-6 !p-0 text-slate-400 hover:text-rose-600 rounded flex items-center justify-center"
+                    title="Remove item"
                   >
                     <X size={15} />
-                  </button>
+                  </CustomButton>
                 </div>
 
                 <div className="mt-2 flex items-center justify-between gap-2">
                   <div
                     className={cn(
-                      "flex items-center rounded-lg border shadow-2xs",
+                      "flex items-center rounded-lg border shadow-2xs overflow-hidden",
                       darkMode ? "border-slate-700 bg-slate-950" : "",
                     )}
                     style={darkMode ? undefined : { border: `1px solid ${iceBorder}`, background: iceCard }}
                   >
-                    <button onClick={() => onQty(idx, item.qty - 1)} className="p-1 px-2 hover:bg-slate-100 text-slate-600 cursor-pointer"><Minus size={12} /></button>
-                    <span className="px-1.5 text-[12px] font-extrabold text-blue-600">{item.qty}</span>
-                    <button onClick={() => onQty(idx, item.qty + 1)} className="p-1 px-2 hover:bg-slate-100 text-slate-600 cursor-pointer"><Plus size={12} /></button>
+                    <CustomButton
+                      variant="ghost"
+                      size="xs"
+                      onClick={() => onQty(idx, item.qty - 1)}
+                      className="h-6 w-6 !p-0 rounded-none text-slate-600 hover:bg-slate-100 flex items-center justify-center"
+                    >
+                      <Minus size={12} />
+                    </CustomButton>
+                    <span className="px-2 text-[12px] font-extrabold text-blue-600">{item.qty}</span>
+                    <CustomButton
+                      variant="ghost"
+                      size="xs"
+                      onClick={() => onQty(idx, item.qty + 1)}
+                      className="h-6 w-6 !p-0 rounded-none text-slate-600 hover:bg-slate-100 flex items-center justify-center"
+                    >
+                      <Plus size={12} />
+                    </CustomButton>
                   </div>
                   <p
                     className={cn("text-[13px] font-extrabold tabular-nums", darkMode ? "text-slate-100" : "")}

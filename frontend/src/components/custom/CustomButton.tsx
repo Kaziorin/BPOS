@@ -73,10 +73,31 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
     },
     ref
   ) => {
-    const variantClass =
-      variant === "primary" && themeColor
-        ? THEME_PRIMARY_CLASSES[themeColor]
-        : VARIANT_CLASSES(darkMode)[variant];
+    const getVariantClass = () => {
+      if (variant === "primary" && themeColor) {
+        return THEME_PRIMARY_CLASSES[themeColor];
+      }
+      if (themeColor === "teal") {
+        if (variant === "secondary") {
+          return darkMode
+            ? "bg-slate-800 text-teal-300 hover:bg-slate-700 focus-visible:ring-teal-400 font-bold"
+            : "bg-teal-50 text-teal-700 hover:bg-teal-100 hover:text-teal-800 border border-teal-200/80 focus-visible:ring-teal-300 font-bold";
+        }
+        if (variant === "outline") {
+          return darkMode
+            ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:border-teal-500 hover:text-teal-300 focus-visible:ring-teal-400 font-bold"
+            : "border border-slate-200 bg-white text-slate-700 hover:bg-teal-50/70 hover:border-teal-400 hover:text-[#00796b] focus-visible:ring-teal-300 font-bold shadow-2xs";
+        }
+        if (variant === "ghost") {
+          return darkMode
+            ? "text-slate-400 hover:bg-slate-800 hover:text-teal-300 focus-visible:ring-teal-400 font-bold"
+            : "text-[#00796b] hover:bg-teal-50 focus-visible:ring-teal-300 font-bold";
+        }
+      }
+      return VARIANT_CLASSES(darkMode)[variant];
+    };
+
+    const variantClass = getVariantClass();
 
     const effectiveLeftIcon = leftIcon ?? icon;
 

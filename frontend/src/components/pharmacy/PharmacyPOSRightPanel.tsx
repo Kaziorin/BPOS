@@ -20,9 +20,18 @@ import {
   Smartphone,
   Landmark,
   Receipt,
+  Leaf,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { NotificationDropdown, ProfileDropdown, type NotificationItem } from "./PharmacyPOSModals";
+import {
+  CustomButton,
+  CustomInput,
+  CustomSelect,
+  CustomBadge,
+  CustomCheckbox,
+  CustomSwitch,
+} from "@/components/custom";
 
 function CashRegisterIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
@@ -50,6 +59,7 @@ export interface RxCartItem {
   unitLabel?: string;
   stockQty?: number;
   drugInteraction?: string | null;
+  genericName?: string | null;
 }
 
 export type PayMethod = "CASH" | "CARD" | "MOBILE" | "BANK" | "CREDIT";
@@ -97,6 +107,7 @@ interface PharmacyPOSRightPanelProps {
   onClearAllNotifications?: () => void;
   onDismissNotification?: (id: string | number) => void;
   onOpenHardwareSettings?: () => void;
+  onFindGenerics?: (productId: string) => void;
   darkMode?: boolean;
 }
 
@@ -135,6 +146,7 @@ export function PharmacyPOSRightPanel({
   onClearAllNotifications,
   onDismissNotification,
   onOpenHardwareSettings,
+  onFindGenerics,
   darkMode,
 }: PharmacyPOSRightPanelProps) {
   const [safetyOpen, setSafetyOpen] = useState(true);
@@ -145,32 +157,24 @@ export function PharmacyPOSRightPanel({
 
   return (
     <aside className={cn(
-      "flex w-full flex-col overflow-hidden border-l h-full transition",
-      darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-slate-200 bg-white text-slate-800"
+      "flex w-full flex-col overflow-hidden h-full transition",
+      darkMode ? "bg-slate-900 text-slate-100" : "bg-white text-slate-800"
     )}>
       {/* ═══ TOP HEADER ═══ */}
-      <div className={cn("flex flex-none items-center justify-between border-b px-3 py-2.5 transition", darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white")}>
+      <div className={cn("flex flex-none items-center justify-between border-b px-3 py-2 transition", darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white")}>
         {/* Rx Mode Toggle */}
         <div className="flex items-center gap-2">
-          <div className={cn("flex items-center gap-2 rounded-xl border px-2.5 py-1", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-200")}>
-            <span className={cn("text-[11px] font-black", darkMode ? "text-slate-200" : "text-slate-700")}>Rx Mode</span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={rxMode}
-              onClick={() => setRxMode((v) => !v)}
-              className={cn(
-                "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none",
-                rxMode ? "bg-[#00796b]" : "bg-slate-300",
-              )}
-            >
-              <span
-                className={cn(
-                  "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out mt-0.5",
-                  rxMode ? "translate-x-4" : "translate-x-0.5",
-                )}
-              />
-            </button>
+          <div className={cn("flex items-center gap-1.5 rounded-sm border px-2.5 py-1 transition", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-200")}>
+            <CustomSwitch
+              checked={rxMode}
+              onChange={(val) => setRxMode(val)}
+              themeColor="teal"
+              size="sm"
+              id="rx-mode-switch"
+            />
+            <label htmlFor="rx-mode-switch" className={cn("text-[11.5px] font-black select-none cursor-pointer", darkMode ? "text-slate-200" : "text-slate-700")}>
+              Rx Mode
+            </label>
           </div>
         </div>
 
@@ -178,18 +182,20 @@ export function PharmacyPOSRightPanel({
         <div className="flex items-center gap-2">
           {/* Bell Icon */}
           <div className="relative">
-            <button
-              type="button"
+            <CustomButton
+              variant="ghost"
+              size="xs"
               onClick={() => { setBellOpen((v) => !v); setProfileOpen(false); }}
-              className={cn("relative rounded-xl p-1.5 text-slate-400 transition", darkMode ? "hover:bg-slate-800" : "hover:bg-slate-100")}
+              className={cn("relative rounded-sm !p-1.5 transition h-8 w-8 flex items-center justify-center", darkMode ? "hover:bg-slate-800 text-slate-300" : "hover:bg-slate-100 text-slate-600")}
+              title="Notifications"
             >
               <Bell size={17} />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-xs">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
+            </CustomButton>
+            {unreadCount > 0 && (
+              <span className="pointer-events-none absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-xs">
+                {unreadCount}
+              </span>
+            )}
             <NotificationDropdown
               open={bellOpen}
               onClose={() => setBellOpen(false)}
@@ -197,17 +203,19 @@ export function PharmacyPOSRightPanel({
               onMarkAllRead={onMarkAllReadNotifications}
               onClearAll={onClearAllNotifications}
               onDismiss={onDismissNotification}
+              darkMode={darkMode}
             />
           </div>
 
           {/* Profile Dropdown Pill */}
           <div className="relative">
-            <button
-              type="button"
+            <CustomButton
+              variant="outline"
+              size="sm"
               onClick={() => { setProfileOpen((v) => !v); setBellOpen(false); }}
-              className={cn("flex items-center gap-2 rounded-xl border px-2 py-1 shadow-2xs transition", darkMode ? "border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-100" : "border-slate-200 bg-white hover:bg-slate-50 text-slate-800")}
+              className={cn("flex items-center gap-2 rounded-sm !px-2 !py-1 h-auto shadow-2xs transition", darkMode ? "border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-100" : "border-slate-200 bg-white hover:bg-slate-50 text-slate-800")}
             >
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-teal-600 text-white font-bold text-[11px]">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#00796b] text-white font-bold text-[11px]">
                 <User size={14} />
               </div>
               <div className="leading-tight text-left">
@@ -215,13 +223,14 @@ export function PharmacyPOSRightPanel({
                 <p className="text-[9px] font-semibold text-slate-400">{terminalName}</p>
               </div>
               <ChevronDown size={13} className="text-slate-400 ml-0.5" />
-            </button>
+            </CustomButton>
             <ProfileDropdown
               open={profileOpen}
               onClose={() => setProfileOpen(false)}
               cashierName={cashierName}
               terminalName={terminalName}
               onOpenSettings={onOpenHardwareSettings}
+              darkMode={darkMode}
             />
           </div>
         </div>
@@ -235,42 +244,44 @@ export function PharmacyPOSRightPanel({
             Cart <span className="text-slate-400 font-bold">({itemCount} Items)</span>
           </h2>
           {cart.length > 0 && (
-            <button
-              type="button"
+            <CustomButton
+              variant="outline"
+              size="sm"
               onClick={onClearCart}
-              className="rounded-lg p-1 text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition"
+              className="h-6 px-1.5 text-rose-500 border-rose-200 hover:bg-rose-50 text-[10.5px] gap-1"
               title="Clear cart"
             >
-              <Trash2 size={14} />
-            </button>
+              <Trash2 size={11} />
+              Clear
+            </CustomButton>
           )}
         </div>
 
         {/* Customer Select Dropdown */}
         <div className="flex items-center gap-1">
-          <div className={cn("flex items-center rounded-xl border px-2 py-1", darkMode ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-slate-50")}>
-            <User size={13} className="text-slate-400 mr-1.5" />
-            <select
+          <div className="w-[125px]">
+            <CustomSelect
               value={customerId}
               onChange={(e) => setCustomerId(e.target.value)}
-              className={cn("bg-transparent text-[11px] font-bold focus:outline-none cursor-pointer max-w-[100px]", darkMode ? "text-slate-200" : "text-slate-700")}
-            >
-              <option value="" className={darkMode ? "bg-slate-800 text-slate-100" : ""}>Walk-in</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id} className={darkMode ? "bg-slate-800 text-slate-100" : ""}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+              darkMode={darkMode}
+              themeColor="teal"
+              className="text-[11px] font-bold py-1 h-8 rounded-sm"
+              options={[
+                { label: "Walk-in", value: "" },
+                ...customers.map((c) => ({ label: c.name, value: c.id })),
+              ]}
+            />
           </div>
-          <button
-            type="button"
+          <CustomButton
+            size="xs"
+            variant="outline"
+            themeColor="teal"
             onClick={onAddCustomer}
-            className={cn("flex h-7 w-7 items-center justify-center rounded-xl border transition", darkMode ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700" : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-teal-50 hover:text-[#00796b] hover:border-teal-200")}
+            className="h-8 w-8 !p-0 rounded-sm shrink-0 flex items-center justify-center"
             title="Add new customer"
           >
-            <Plus size={13} />
-          </button>
+            <Plus size={15} strokeWidth={2.4} />
+          </CustomButton>
         </div>
       </div>
 
@@ -286,7 +297,7 @@ export function PharmacyPOSRightPanel({
           cart.map((item, idx) => (
             <div
               key={`${item.productId}-${idx}`}
-              className={cn("flex items-center gap-2 rounded-xl border p-2 shadow-2xs transition", darkMode ? "border-slate-800 bg-slate-900 text-slate-100 hover:border-slate-700" : "border-slate-200 bg-white hover:border-teal-200")}
+              className={cn("flex items-center gap-2 rounded-sm border p-2 shadow-2xs transition", darkMode ? "border-slate-800 bg-slate-900 text-slate-100 hover:border-slate-700" : "border-slate-200 bg-white hover:border-teal-200")}
             >
               {/* Thumb */}
               <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border overflow-hidden", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-slate-100")}>
@@ -302,6 +313,7 @@ export function PharmacyPOSRightPanel({
               <div className="min-w-0 flex-1">
                 <h4 className={cn("truncate text-[12px] font-extrabold leading-tight", darkMode ? "text-slate-100" : "text-slate-800")}>{item.name}</h4>
                 <p className="text-[10px] font-semibold text-slate-400 leading-none mt-0.5">
+                  {item.genericName ? <span className="text-[#00796b] dark:text-teal-400 font-bold">{item.genericName} · </span> : null}
                   ৳{item.unitPrice.toFixed(2)} · Stock: {item.stockQty ?? "—"}
                 </p>
                 {item.drugInteraction && (
@@ -314,21 +326,25 @@ export function PharmacyPOSRightPanel({
 
               {/* Qty controls */}
               <div className={cn("flex items-center gap-0.5 border rounded-lg p-0.5", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-200")}>
-                <button
-                  type="button"
+                <CustomButton
+                  variant="ghost"
+                  size="xs"
                   onClick={() => onQty(idx, item.qty - 1)}
-                  className={cn("flex h-5 w-5 items-center justify-center rounded transition shadow-2xs", darkMode ? "bg-slate-700 text-slate-200 hover:bg-slate-600" : "bg-white text-slate-600 hover:bg-slate-100")}
+                  className={cn("h-5 w-5 !p-0 rounded flex items-center justify-center transition shadow-2xs", darkMode ? "bg-slate-700 text-slate-200 hover:bg-slate-600" : "bg-white text-slate-600 hover:bg-slate-100")}
+                  title="Decrease quantity"
                 >
-                  <Minus size={9} />
-                </button>
+                  <Minus size={10} strokeWidth={2.5} />
+                </CustomButton>
                 <span className={cn("w-5 text-center text-[10.5px] font-extrabold", darkMode ? "text-slate-100" : "text-slate-800")}>{item.qty}</span>
-                <button
-                  type="button"
+                <CustomButton
+                  variant="ghost"
+                  size="xs"
                   onClick={() => onQty(idx, item.qty + 1)}
-                  className={cn("flex h-5 w-5 items-center justify-center rounded transition shadow-2xs", darkMode ? "bg-slate-700 text-slate-200 hover:bg-slate-600" : "bg-white text-slate-600 hover:bg-slate-100")}
+                  className={cn("h-5 w-5 !p-0 rounded flex items-center justify-center transition shadow-2xs", darkMode ? "bg-slate-700 text-slate-200 hover:bg-slate-600" : "bg-white text-slate-600 hover:bg-slate-100")}
+                  title="Increase quantity"
                 >
-                  <Plus size={9} />
-                </button>
+                  <Plus size={10} strokeWidth={2.5} />
+                </CustomButton>
               </div>
 
               {/* Item total price */}
@@ -336,14 +352,29 @@ export function PharmacyPOSRightPanel({
                 ৳ {item.lineTotal.toFixed(2)}
               </div>
 
-              {/* Delete button */}
-              <button
-                type="button"
-                onClick={() => onRemove(idx)}
-                className="text-rose-400 hover:text-rose-600 transition p-0.5 rounded hover:bg-rose-50"
-              >
-                <Trash2 size={13} />
-              </button>
+              {/* Action buttons: Generics & Delete */}
+              <div className="flex items-center gap-0.5 shrink-0">
+                {onFindGenerics && (
+                  <CustomButton
+                    variant="ghost"
+                    size="xs"
+                    onClick={() => onFindGenerics(item.productId)}
+                    className="h-6 w-6 !p-0 text-emerald-600 dark:text-teal-400 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-teal-950/60 rounded flex items-center justify-center"
+                    title="View generic alternatives for this medicine"
+                  >
+                    <Leaf size={13} />
+                  </CustomButton>
+                )}
+                <CustomButton
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => onRemove(idx)}
+                  className="h-6 w-6 !p-0 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded flex items-center justify-center"
+                  title="Remove item"
+                >
+                  <Trash2 size={13} />
+                </CustomButton>
+              </div>
             </div>
           ))
         )}
@@ -352,27 +383,37 @@ export function PharmacyPOSRightPanel({
       {/* ═══ FIXED BOTTOM CHECKOUT & TOTALS ═══ */}
       <div className={cn("flex-none border-t px-3 py-2 space-y-2 transition", darkMode ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white")}>
         {/* Pharmacy Safety Check Accordion */}
-        <div className="rounded-xl border border-teal-200/80 bg-[#e8f7f5] overflow-hidden">
-          <button
-            type="button"
+        <div className={cn(
+          "rounded-sm border overflow-hidden transition",
+          darkMode ? "border-teal-900/60 bg-teal-950/40" : "border-teal-200/80 bg-[#e8f7f5]"
+        )}>
+          <CustomButton
+            variant="ghost"
+            fullWidth
             onClick={() => setSafetyOpen((v) => !v)}
-            className="flex w-full items-center justify-between px-2.5 py-1.5 text-left"
+            className={cn(
+              "flex items-center justify-between !px-2.5 !py-1.5 text-left h-auto",
+              darkMode ? "hover:bg-teal-900/30 text-teal-300" : "hover:bg-teal-100/50 text-[#00796b]"
+            )}
           >
-            <span className="inline-flex items-center gap-1.5 text-[11.5px] font-extrabold text-[#00796b]">
+            <span className={cn("inline-flex items-center gap-1.5 text-[11.5px] font-extrabold", darkMode ? "text-teal-300" : "text-[#00796b]")}>
               <ShieldCheck size={14} /> Pharmacy Safety Check
             </span>
-            <ChevronDown size={13} className={cn("text-[#00796b] transition", safetyOpen && "rotate-180")} />
-          </button>
+            <ChevronDown size={13} className={cn(darkMode ? "text-teal-300" : "text-[#00796b]", "transition", safetyOpen && "rotate-180")} />
+          </CustomButton>
           {safetyOpen && (
-            <div className="space-y-1 border-t border-teal-200/50 px-2.5 py-1.5 bg-white/40">
-              <div className="flex items-center gap-1.5 text-[10.5px] font-bold text-emerald-600">
+            <div className={cn(
+              "space-y-1 border-t px-2.5 py-1.5",
+              darkMode ? "border-teal-900/50 bg-slate-900/60" : "border-teal-200/50 bg-white/40"
+            )}>
+              <div className="flex items-center gap-1.5 text-[10.5px] font-bold text-emerald-500">
                 <CheckCircle2 size={12} /> Prescription verified
               </div>
-              <div className="flex items-center gap-1.5 text-[10.5px] font-bold text-emerald-600">
+              <div className="flex items-center gap-1.5 text-[10.5px] font-bold text-emerald-500">
                 <CheckCircle2 size={12} /> No drug interaction detected
               </div>
               {cart.some((i) => i.expiryDate) && (
-                <div className="flex items-center gap-1.5 text-[10.5px] font-bold text-amber-600">
+                <div className="flex items-center gap-1.5 text-[10.5px] font-bold text-amber-500">
                   <AlertTriangle size={12} /> Check expiry dates on items
                 </div>
               )}
@@ -384,54 +425,53 @@ export function PharmacyPOSRightPanel({
         <div className="grid grid-cols-2 gap-2">
           {/* Apply Discount */}
           <div>
-            <label className="block mb-0.5 text-[9.5px] font-bold text-slate-500">Apply Discount (%)</label>
-            <div className="flex items-center gap-1">
-              <div className="relative flex-1">
-                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">%</span>
-                <input
+            <label className={cn("block mb-0.5 text-[9.5px] font-bold", darkMode ? "text-slate-400" : "text-slate-500")}>Apply Discount (%)</label>
+            <div className="flex items-center gap-1.5">
+              <div className="flex-1">
+                <CustomInput
                   type="number"
                   min="0"
                   max="100"
                   value={discountInput}
                   onChange={(e) => setDiscountInput(e.target.value)}
                   placeholder="0"
+                  leftIcon={<span className="text-[10px] font-bold text-slate-400">%</span>}
+                  darkMode={darkMode}
+                  themeColor="teal"
                   className={cn(
-                    "w-full rounded-lg border pl-5 pr-1.5 py-1 text-[11px] font-bold focus:border-teal-500 focus:outline-none transition",
-                    discountApplied
-                      ? (darkMode ? "border-emerald-500 bg-emerald-950/60 text-emerald-300" : "border-emerald-400 bg-emerald-50 text-slate-800")
-                      : (darkMode ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500" : "border-slate-200 bg-white text-slate-800 placeholder-slate-400")
+                    "text-[11px] font-bold h-8",
+                    discountApplied && (darkMode ? "border-emerald-700 text-emerald-400 bg-emerald-950/40" : "border-emerald-500 text-emerald-600 bg-emerald-50/50")
                   )}
                 />
               </div>
-              <button
-                type="button"
+              <CustomButton
+                themeColor="teal"
+                size="sm"
                 onClick={applyDiscount}
-                className="rounded-lg bg-[#00796b] px-2.5 py-1 text-[10.5px] font-bold text-white hover:bg-[#005a50] transition shrink-0 shadow-2xs"
+                className="h-8 px-2.5 text-[10.5px] font-bold shrink-0"
               >
                 Apply
-              </button>
+              </CustomButton>
             </div>
           </div>
 
           {/* Sales Note */}
           <div>
-            <label className="block mb-0.5 text-[9.5px] font-bold text-slate-500">Sales Note</label>
-            <textarea
+            <label className={cn("block mb-0.5 text-[9.5px] font-bold", darkMode ? "text-slate-400" : "text-slate-500")}>Sales Note</label>
+            <CustomInput
               id="pharma-note"
-              rows={1}
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Add note..."
-              className={cn(
-                "w-full rounded-lg border px-2 py-1 text-[10.5px] font-semibold focus:border-teal-500 focus:outline-none resize-none transition",
-                darkMode ? "border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500" : "border-slate-200 bg-white text-slate-800 placeholder-slate-400"
-              )}
+              darkMode={darkMode}
+              themeColor="teal"
+              className="text-[10.5px] font-semibold h-8"
             />
           </div>
         </div>
 
         {/* Calculation Totals */}
-        <div className={cn("space-y-1 rounded-xl border p-2 text-[11.5px] transition", darkMode ? "border-slate-700 bg-slate-800/80" : "border-slate-200 bg-slate-50/70")}>
+        <div className={cn("space-y-1 rounded-sm border p-2 text-[11.5px] transition", darkMode ? "border-slate-700 bg-slate-800/80" : "border-slate-200 bg-slate-50/70")}>
           <div className={cn("flex justify-between font-semibold", darkMode ? "text-slate-300" : "text-slate-600")}>
             <span>Sub Total</span>
             <span className={cn("font-extrabold tabular-nums whitespace-nowrap", darkMode ? "text-slate-100" : "text-slate-800")}>৳ {subtotal.toFixed(2)}</span>
@@ -457,22 +497,20 @@ export function PharmacyPOSRightPanel({
           {PAY_METHODS.map(({ id, label, Icon }) => {
             const active = payMethod === id;
             return (
-              <button
+              <CustomButton
                 key={id}
-                type="button"
+                size="xs"
+                variant={active ? "primary" : "outline"}
+                themeColor={active ? "teal" : undefined}
                 onClick={() => setPayMethod(id)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 rounded-lg border py-1.5 text-center transition",
-                  active
-                    ? "border-[#00796b] bg-[#e6f7f5] text-[#00796b]"
-                    : darkMode
-                      ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
-                      : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50",
+                  "!flex-col h-11 !p-1 gap-0.5 rounded-sm text-center w-full min-w-0",
+                  !active && (darkMode ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50")
                 )}
               >
-                <Icon size={12} />
-                <span className="text-[9.5px] font-bold">{label}</span>
-              </button>
+                <Icon size={12} className="shrink-0" />
+                <span className="text-[9.5px] font-bold leading-none truncate w-full">{label}</span>
+              </CustomButton>
             );
           })}
         </div>
@@ -486,26 +524,26 @@ export function PharmacyPOSRightPanel({
         {/* Bottom Hold & Pay Buttons */}
         <div className="flex items-center gap-2">
           {/* Hold Bill */}
-          <button
-            type="button"
+          <CustomButton
+            variant="outline"
             onClick={holdBill}
             disabled={cart.length === 0}
             className={cn(
-              "flex flex-col items-center justify-center rounded-sm border px-3 py-2.5 transition shadow-2xs disabled:opacity-40 shrink-0",
+              "flex flex-col items-center justify-center h-12 px-3 gap-0.5 shrink-0 rounded-sm shadow-2xs",
               darkMode ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
             )}
           >
-            <PauseCircle size={16} />
-            <span className="text-[9.5px] font-extrabold mt-0.5">Hold Bill</span>
-            <span className="text-[7.5px] font-semibold text-slate-400">(F6)</span>
-          </button>
+            <PauseCircle size={15} />
+            <span className="text-[9.5px] font-extrabold leading-none mt-0.5">Hold Bill</span>
+            <span className="text-[7.5px] font-semibold text-slate-400 leading-none">(F6)</span>
+          </CustomButton>
 
           {/* Pay Button */}
-          <button
-            type="button"
+          <CustomButton
+            themeColor="teal"
             disabled={cart.length === 0 || submitting}
             onClick={onOpenCheckout}
-            className="flex-1 flex items-center justify-between rounded-sm bg-[#00695c] px-4 py-3 text-white shadow-md hover:bg-[#005247] active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 h-12 flex items-center justify-between px-4 py-3 rounded-sm shadow-md active:scale-[0.99] transition-all"
           >
             {/* Left: Cash Register Icon & Pay Text */}
             <div className="flex items-center gap-2">
@@ -525,7 +563,7 @@ export function PharmacyPOSRightPanel({
               <span className="text-[11.5px] font-semibold text-white/80">(F1)</span>
               <ArrowRight size={17} strokeWidth={2.5} className="shrink-0" />
             </div>
-          </button>
+          </CustomButton>
         </div>
       </div>
     </aside>

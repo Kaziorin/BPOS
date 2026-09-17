@@ -25,6 +25,8 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
+import { cn } from "@/lib/cn";
+import { CustomButton, CustomSelect } from "@/components/custom";
 
 export type InvoiceVerticalType =
   | "retail"
@@ -227,64 +229,73 @@ export function UniversalInvoiceModal({
 
           <div className="flex flex-wrap items-center gap-2">
             {/* Template Selector */}
-            <div className="relative flex items-center">
-              <select
+            <div className="w-[200px]">
+              <CustomSelect
                 value={activeVertical}
                 onChange={(e) => setActiveVertical(e.target.value as InvoiceVerticalType)}
-                className="appearance-none rounded-sm border border-sky-200/90 bg-white py-1.5 pl-3 pr-8 text-xs font-bold text-slate-800 shadow-2xs focus:border-[#0284C7] focus:outline-none cursor-pointer"
-              >
-                {VERTICAL_OPTIONS.map((opt) => (
-                  <option key={opt.id} value={opt.id}>
-                    Template: {opt.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={13} className="absolute right-2.5 text-[#0284C7] pointer-events-none" />
+                options={VERTICAL_OPTIONS.map((opt) => ({
+                  value: opt.id,
+                  label: `Template: ${opt.label}`,
+                }))}
+                className="text-xs font-bold py-1 h-8"
+              />
             </div>
 
             {/* Paper Size Selector */}
             <div className="flex rounded-sm bg-sky-100/80 p-0.5 text-[11px] font-bold border border-sky-200">
-              <button
+              <CustomButton
+                variant={printPaperSize === "thermal" ? "primary" : "ghost"}
+                size="xs"
                 onClick={() => setPrintPaperSize("thermal")}
-                className={`px-2.5 py-1 rounded-sm transition cursor-pointer ${
-                  printPaperSize === "thermal" ? "bg-white text-[#0369A1] shadow-2xs font-bold" : "text-slate-600 hover:text-[#0284C7]"
-                }`}
+                className={cn(
+                  "px-2.5 py-1 text-[11px]",
+                  printPaperSize !== "thermal" && "text-slate-600 hover:text-[#0284C7] bg-transparent"
+                )}
               >
                 Thermal (80mm)
-              </button>
-              <button
+              </CustomButton>
+              <CustomButton
+                variant={printPaperSize === "a4" ? "primary" : "ghost"}
+                size="xs"
                 onClick={() => setPrintPaperSize("a4")}
-                className={`px-2.5 py-1 rounded-sm transition cursor-pointer ${
-                  printPaperSize === "a4" ? "bg-white text-[#0369A1] shadow-2xs font-bold" : "text-slate-600 hover:text-[#0284C7]"
-                }`}
+                className={cn(
+                  "px-2.5 py-1 text-[11px]",
+                  printPaperSize !== "a4" && "text-slate-600 hover:text-[#0284C7] bg-transparent"
+                )}
               >
                 A4 / Letter
-              </button>
+              </CustomButton>
             </div>
 
-            <button
+            <CustomButton
+              variant="secondary"
+              size="xs"
               onClick={() => window.print()}
-              className="flex items-center gap-1.5 rounded-sm bg-slate-900 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-slate-800 shadow-2xs transition cursor-pointer"
+              className="gap-1.5 h-8 px-3 text-xs bg-slate-900 text-white hover:bg-slate-800"
             >
               <Printer size={14} /> Print
-            </button>
+            </CustomButton>
 
             {onNewSale && (
-              <button
+              <CustomButton
+                themeColor="primary"
+                size="xs"
                 onClick={onNewSale}
-                className="flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-bold text-white hover:brightness-105 shadow-2xs transition cursor-pointer"
+                className="gap-1.5 h-8 px-3 text-xs"
               >
                 <RotateCcw size={14} /> New Sale (F1)
-              </button>
+              </CustomButton>
             )}
 
-            <button
+            <CustomButton
+              variant="danger"
+              size="xs"
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-sm border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shadow-2xs"
+              className="h-8 w-8 !p-0 rounded-sm flex items-center justify-center border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition"
               aria-label="Close"
             >
               <X size={16} />
-            </button>
+            </CustomButton>
           </div>
         </div>
 

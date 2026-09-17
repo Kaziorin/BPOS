@@ -51,6 +51,19 @@ const THEME_HOVER_STYLES = (darkMode: boolean): Record<string, string> => ({
   violet: darkMode ? "hover:bg-violet-500/10 hover:text-violet-400" : "hover:bg-violet-50 hover:text-violet-600",
 });
 
+const THEME_ICON_COLORS = (darkMode: boolean): Record<string, string> => ({
+  primary: darkMode ? "text-sky-400" : "text-[#0284C7]",
+  blue: darkMode ? "text-blue-400" : "text-blue-600",
+  orange: darkMode ? "text-orange-400" : "text-orange-500",
+  teal: darkMode ? "text-teal-400" : "text-[#00796b]",
+  emerald: darkMode ? "text-emerald-400" : "text-emerald-600",
+  indigo: darkMode ? "text-indigo-400" : "text-indigo-600",
+  amber: darkMode ? "text-amber-400" : "text-amber-500",
+  rose: darkMode ? "text-rose-400" : "text-rose-600",
+  purple: darkMode ? "text-purple-400" : "text-purple-600",
+  violet: darkMode ? "text-violet-400" : "text-violet-600",
+});
+
 export function CustomTabs({
   tabs,
   activeTab,
@@ -66,6 +79,7 @@ export function CustomTabs({
 }: CustomTabsProps) {
   const activeStyle = activeClassName || THEME_ACTIVE_STYLES[themeColor] || THEME_ACTIVE_STYLES.primary;
   const hoverStyle = THEME_HOVER_STYLES(darkMode)[themeColor] || THEME_HOVER_STYLES(darkMode).primary;
+  const iconColor = THEME_ICON_COLORS(darkMode)[themeColor] || THEME_ICON_COLORS(darkMode).primary;
 
   return (
     <div
@@ -91,7 +105,7 @@ export function CustomTabs({
             className={cn(
               "flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-sm transition-all duration-200 whitespace-nowrap cursor-pointer select-none outline-none focus:outline-none focus-visible:outline-none focus:ring-0",
               isActive
-                ? cn(activeStyle, "border border-[#0284C7]")
+                ? cn(activeStyle, themeColor === "primary" && "border border-[#0284C7]")
                 : inactiveClassName
                   ? inactiveClassName
                   : cn(
@@ -107,9 +121,7 @@ export function CustomTabs({
               <span
                 className={cn(
                   "flex items-center justify-center shrink-0 w-4 h-4 transition-colors",
-                  isActive
-                    ? "text-white [&>svg]:text-white [&>svg]:stroke-white"
-                    : "text-[#0284C7] [&>svg]:text-[#0284C7]"
+                  isActive ? "text-white" : iconColor
                 )}
               >
                 {tab.icon}

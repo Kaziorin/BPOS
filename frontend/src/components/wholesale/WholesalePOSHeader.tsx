@@ -130,18 +130,18 @@ export function WholesalePOSHeader({
 
         <div className="hidden flex-1 md:block" />
 
-        <button
-          type="button"
+        <CustomButton
+          variant="outline"
           onClick={onSelectCustomer}
           className={cn(
-            "flex min-w-0 max-w-full flex-1 items-center gap-0 overflow-hidden rounded-sm px-4 py-2 text-left transition-all md:flex-none md:max-w-none cursor-pointer",
+            "flex min-w-0 max-w-full flex-1 items-center gap-0 overflow-hidden rounded-sm px-4 py-2 text-left transition-all md:flex-none md:max-w-none h-auto",
             darkMode
-              ? "border border-slate-700 bg-slate-800/90 shadow-[0_2px_12px_rgba(0,0,0,0.25)] hover:border-slate-600"
+              ? "border-slate-700 bg-slate-800/90 shadow-[0_2px_12px_rgba(0,0,0,0.25)] hover:border-slate-600"
               : "hover:shadow-md",
           )}
           style={darkMode ? undefined : { background: "#F5FAFE", border: `1px solid ${iceBorder}` }}
         >
-          <div className="min-w-0 shrink pr-4 sm:pr-5">
+          <div className="min-w-0 shrink pr-4 sm:pr-5 text-left">
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className={cn("truncate text-[14px] font-extrabold", darkMode ? "text-slate-100" : "")}
@@ -175,7 +175,7 @@ export function WholesalePOSHeader({
           <Metric label="Available Credit" value={fmt(customer.availableCredit)} valueClass="text-emerald-600 font-black" darkMode={darkMode} />
           <Divider darkMode={darkMode} />
           <Metric label="Outstanding" value={fmt(customer.outstanding)} valueClass="text-rose-600 font-black" darkMode={darkMode} />
-        </button>
+        </CustomButton>
 
         <div className="flex shrink-0 items-center gap-2.5 pl-1">
           <div className="hidden text-right sm:block">
@@ -221,19 +221,20 @@ export function WholesalePOSHeader({
 
           {/* Fullscreen Toggle */}
           {onToggleFullscreen && (
-            <button
-              type="button"
+            <CustomButton
+              variant="outline"
+              size="xs"
               onClick={onToggleFullscreen}
               title={isFullscreen ? "Exit Fullscreen (F)" : "Full Screen (F)"}
               className={cn(
-                "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all cursor-pointer shadow-sm active:scale-95",
+                "h-9 w-9 !p-0 rounded-xl border flex items-center justify-center shrink-0 shadow-sm",
                 darkMode
                   ? "border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-600 hover:bg-slate-700 hover:text-white"
                   : "border-slate-300 bg-slate-100 text-slate-700 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600",
               )}
             >
               {isFullscreen ? <Minimize size={16} strokeWidth={2.2} /> : <Maximize size={16} strokeWidth={2.2} />}
-            </button>
+            </CustomButton>
           )}
         </div>
       </header>
