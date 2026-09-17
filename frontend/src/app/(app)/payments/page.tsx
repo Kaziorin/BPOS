@@ -795,42 +795,36 @@ export default function PaymentsPage() {
           value={statsLoading ? "—" : `৳${Number(stats?.totalAmount || 0).toLocaleString()}`}
           icon={CheckCircle2}
           tone="green"
-          subtitle={`${stats?.totalCount || payments.length} transactions`}
         />
         <CustomStatCard
           label="Today's Inflow"
           value={statsLoading ? "—" : `৳${Number(stats?.todayAmount || 0).toLocaleString()}`}
           icon={Clock}
           tone="primary"
-          subtitle={`${stats?.todayCount || 0} today`}
         />
         <CustomStatCard
           label="Cash Drawer"
           value={statsLoading ? "—" : `৳${Number(stats?.cashAmount || 0).toLocaleString()}`}
           icon={Banknote}
           tone="blue"
-          subtitle="Physical currency"
         />
         <CustomStatCard
           label="Mobile MFS"
           value={statsLoading ? "—" : `৳${Number(stats?.mfsAmount || 0).toLocaleString()}`}
           icon={Wallet}
           tone="violet"
-          subtitle="bKash · Nagad · Rocket"
         />
         <CustomStatCard
           label="Cards / POS"
           value={statsLoading ? "—" : `৳${Number(stats?.cardAmount || 0).toLocaleString()}`}
           icon={CreditCard}
           tone="primary"
-          subtitle="Visa · Master · POS"
         />
         <CustomStatCard
           label="Refunds"
           value={statsLoading ? "—" : `৳${Number(stats?.refundAmount || 0).toLocaleString()}`}
           icon={RotateCcw}
           tone="red"
-          subtitle={`${stats?.refundCount || 0} reversed`}
         />
       </div>
 
@@ -897,34 +891,36 @@ export default function PaymentsPage() {
       )}
 
       {/* 5. QUICK STATUS TABS (LEFT) & VIEW / EXPORT BUTTONS (RIGHT) */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        {/* Tab sits on left, takes only its needed width */}
-        <CustomTabs
-          tabs={[
-            { id: "ALL", label: "All Receipts" },
-            { id: "COMPLETED", label: "Settled" },
-            { id: "CASH", label: "Cash" },
-            { id: "MFS", label: "Mobile MFS" },
-            { id: "CARD", label: "Card / POS" },
-            { id: "BANK", label: "Bank Transfer" },
-            { id: "REFUNDED", label: "Refunds / Void" },
-          ]}
-          activeTab={activeTab}
-          onChange={(tabId) => {
-            setActiveTab(tabId);
-            setPage(1);
-          }}
-          themeColor="primary"
-          className="w-auto border border-sky-100/90 bg-white shadow-2xs"
-        />
+      <div className="flex items-center gap-3">
+        {/* Tab sits on left, scrollable if too many */}
+        <div className="overflow-x-auto min-w-0 shrink">
+          <CustomTabs
+            tabs={[
+              { id: "ALL", label: "All Receipts" },
+              { id: "COMPLETED", label: "Settled" },
+              { id: "CASH", label: "Cash" },
+              { id: "MFS", label: "Mobile MFS" },
+              { id: "CARD", label: "Card / POS" },
+              { id: "BANK", label: "Bank Transfer" },
+              { id: "REFUNDED", label: "Refunds / Void" },
+            ]}
+            activeTab={activeTab}
+            onChange={(tabId) => {
+              setActiveTab(tabId);
+              setPage(1);
+            }}
+            themeColor="primary"
+            className="w-auto border border-sky-100/90 bg-white shadow-2xs"
+          />
+        </div>
 
         {/* Action Controls aligned strictly on the right */}
-        <div className="flex items-center gap-2 pr-1 shrink-0">
-          <div className="flex items-center rounded-sm border border-sky-200/80 bg-white p-0.5 shadow-2xs">
+        <div className="flex items-center gap-2 ml-auto shrink-0">
+          <div className="flex items-center rounded-sm border border-sky-200/80 bg-white py-1 px-0.5 shadow-2xs">
             <button
               type="button"
               onClick={() => setViewMode("table")}
-              className={`rounded-sm p-1.5 transition cursor-pointer ${
+              className={`rounded-sm p-1 transition cursor-pointer ${
                 viewMode === "table"
                   ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
                   : "text-slate-400 hover:text-gray-600"
@@ -936,7 +932,7 @@ export default function PaymentsPage() {
             <button
               type="button"
               onClick={() => setViewMode("grid")}
-              className={`rounded-sm p-1.5 transition cursor-pointer ${
+              className={`rounded-sm p-1 transition cursor-pointer ${
                 viewMode === "grid"
                   ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
                   : "text-slate-400 hover:text-gray-600"
@@ -948,7 +944,7 @@ export default function PaymentsPage() {
           </div>
 
           <CustomButton
-            variant="outline"
+            variant="primary"
             size="xs"
             leftIcon={Download}
             onClick={handleExportCSV}
@@ -1549,12 +1545,12 @@ export default function PaymentsPage() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-sky-100/80">
-            <div className="text-xs">
-              <span className="text-gray-500 font-medium">Total Allocated: </span>
-              <span className="font-black text-[#0369A1]">
+            <div className="flex items-center gap-3 bg-sky-50/80 rounded-sm px-4 py-2 border border-sky-200/60">
+              <span className="text-sm font-semibold text-gray-600">Total Allocated:</span>
+              <span className="text-lg font-black text-[#0369A1]">
                 ৳{allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0).toLocaleString()}
               </span>
-              <span className="text-gray-500"> / ৳{Number(allocAmount || 0).toLocaleString()}</span>
+              <span className="text-sm text-gray-500"> / ৳{Number(allocAmount || 0).toLocaleString()}</span>
             </div>
             <div className="flex gap-2">
               <CustomButton
