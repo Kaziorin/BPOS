@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useRef } from "react";
-import { Calendar, X } from "lucide-react";
+import { Calendar, Clock, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 export interface CustomDatePickerProps {
   value?: string;
   onChange?: (date: string) => void;
+  type?: "date" | "datetime-local" | "time";
   label?: string;
   placeholder?: string;
   className?: string;
@@ -28,6 +29,7 @@ export interface CustomDatePickerProps {
 export function CustomDatePicker({
   value = "",
   onChange,
+  type = "date",
   label,
   placeholder,
   className,
@@ -71,12 +73,19 @@ export function CustomDatePicker({
   const primaryIconColor =
     themeColor === "teal" ? "text-teal-600" : themeColor === "blue" ? "text-blue-600" : "text-[#0284C7]";
 
+  const defaultIcon =
+    type === "time" ? (
+      <Clock size={14} className={primaryIconColor} />
+    ) : (
+      <Calendar size={14} className={primaryIconColor} />
+    );
+
   return (
     <div className={cn("w-full flex flex-col", containerClassName)}>
       {label && (
         <label
           htmlFor={id}
-          className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1"
+          className="mb-1.5 block text-xs font-semibold text-[#0369A1]"
         >
           {label} {required && <span className="text-rose-500">*</span>}
         </label>
@@ -89,17 +98,17 @@ export function CustomDatePicker({
           disabled && "opacity-50 cursor-not-allowed"
         )}
       >
-        {/* Left Calendar Icon */}
+        {/* Left Calendar / Clock Icon */}
         <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
-          {icon || <Calendar size={14} className={primaryIconColor} />}
+          {icon || defaultIcon}
         </div>
 
-        {/* HTML5 Date Input */}
+        {/* HTML5 Date / Time / DateTime-local Input */}
         <input
           ref={inputRef}
           id={id}
           name={name}
-          type="date"
+          type={type}
           disabled={disabled}
           min={min}
           max={max}

@@ -516,7 +516,6 @@ export default function AppointmentsPage() {
       <CustomBreadcrumb
         title="Appointments & Bookings"
         breadcrumbs={[
-          { label: "Home", href: "/dashboard" },
           { label: "Operations", href: "/dashboard" },
           { label: "Appointments" },
         ]}
@@ -1258,14 +1257,14 @@ export default function AppointmentsPage() {
         open={showCreate}
         onClose={() => setShowCreate(false)}
         title="Schedule New Appointment"
-        size="2xl"
+        size="4xl"
         themeColor="primary"
         icon={<CalendarDays size={18} className="text-[#0284C7]" />}
       >
         <div className="space-y-4 py-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+              <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
                 Booking Type
               </label>
               <CustomDropdownSelect
@@ -1284,7 +1283,7 @@ export default function AppointmentsPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+              <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
                 Select Customer
               </label>
               <CustomDropdownSelect
@@ -1334,7 +1333,7 @@ export default function AppointmentsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+              <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
                 Service Item
               </label>
               <CustomDropdownSelect
@@ -1354,7 +1353,7 @@ export default function AppointmentsPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+              <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
                 Assigned Staff Member
               </label>
               <CustomDropdownSelect
@@ -1382,11 +1381,11 @@ export default function AppointmentsPage() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <CustomInput
+            <CustomDatePicker
               label="Start Date & Time"
               type="datetime-local"
               value={form.startAt}
-              onChange={(e) => setForm({ ...form, startAt: e.target.value })}
+              onChange={(val) => setForm({ ...form, startAt: val })}
             />
             <CustomInput
               label="Duration (Minutes)"
@@ -1412,23 +1411,21 @@ export default function AppointmentsPage() {
             rows={2}
           />
 
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-xs text-slate-400">
-              Clash detection is automatically validated on submission.
-            </span>
-            <div className="flex items-center gap-2">
-              <CustomButton variant="outline" onClick={() => setShowCreate(false)}>
-                Cancel
-              </CustomButton>
-              <CustomButton
-                variant="primary"
-                loading={saving}
-                onClick={handleCreateBooking}
-                leftIcon={<Check size={15} />}
-              >
-                Confirm Booking
-              </CustomButton>
-            </div>
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+            <CustomButton
+              variant="danger"
+              onClick={() => setShowCreate(false)}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              variant="primary"
+              loading={saving}
+              onClick={handleCreateBooking}
+              leftIcon={<Check size={15} />}
+            >
+              Confirm Booking
+            </CustomButton>
           </div>
         </div>
       </CustomModal>
@@ -1447,7 +1444,7 @@ export default function AppointmentsPage() {
             <div className="p-4 rounded-sm border border-sky-100/90 bg-white shadow-2xs space-y-3">
               <div className="flex items-center justify-between border-b border-sky-100/90 pb-3">
                 <div>
-                  <span className="font-mono text-xs text-slate-400">BOOKING TOKEN</span>
+                  <span className="font-mono text-xs text-slate-400">Booking Token</span>
                   <p className="font-mono text-lg font-extrabold text-[#0284C7]">
                     {selectedAppt.appointmentNo}
                   </p>
@@ -1503,7 +1500,7 @@ export default function AppointmentsPage() {
 
             {/* Quick Transition Status Controls */}
             <div className="space-y-2">
-              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#0369A1]">
                 Progress Status Workflow
               </span>
               <div className="flex flex-wrap gap-2">
@@ -1558,7 +1555,11 @@ export default function AppointmentsPage() {
               >
                 Print Slip
               </CustomButton>
-              <CustomButton variant="outline" onClick={() => setShowDetailModal(false)}>
+              <CustomButton
+                variant="secondary"
+                themeColor="primary"
+                onClick={() => setShowDetailModal(false)}
+              >
                 Close
               </CustomButton>
             </div>

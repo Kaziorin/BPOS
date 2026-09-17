@@ -36,7 +36,10 @@ export function CustomBreadcrumb({
   const router = useRouter();
   const desc = description || subtitle;
   const actionBtns = actions || action;
-  const pathItems = items.length > 0 ? items : breadcrumbs;
+  const rawPathItems = items.length > 0 ? items : breadcrumbs;
+  const pathItems = rawPathItems.filter(
+    (item) => item.label.trim().toLowerCase() !== "home"
+  );
 
   return (
     <div className="w-full bg-white rounded-sm border border-sky-100/90 p-3.5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
