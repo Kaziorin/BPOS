@@ -916,11 +916,11 @@ export default function PaymentsPage() {
 
         {/* Action Controls aligned strictly on the right */}
         <div className="flex items-center gap-2 ml-auto shrink-0">
-          <div className="flex items-center rounded-sm border border-sky-200/80 bg-white py-1 px-0.5 shadow-2xs">
+          <div className="flex items-center rounded-sm border border-sky-200/80 bg-white p-0.5 h-[28px] shadow-2xs">
             <button
               type="button"
               onClick={() => setViewMode("table")}
-              className={`rounded-sm p-1 transition cursor-pointer ${
+              className={`rounded-sm p-1 h-[22px] flex items-center transition cursor-pointer ${
                 viewMode === "table"
                   ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
                   : "text-slate-400 hover:text-gray-600"
@@ -932,7 +932,7 @@ export default function PaymentsPage() {
             <button
               type="button"
               onClick={() => setViewMode("grid")}
-              className={`rounded-sm p-1 transition cursor-pointer ${
+              className={`rounded-sm p-1 h-[22px] flex items-center transition cursor-pointer ${
                 viewMode === "grid"
                   ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
                   : "text-slate-400 hover:text-gray-600"
@@ -1433,6 +1433,7 @@ export default function PaymentsPage() {
         onClose={() => setShowAllocateModal(false)}
         title="Bulk Allocate Payment Across Invoices"
         size="4xl"
+        themeColor="primary"
       >
         <div className="space-y-4 text-xs text-gray-600">
           <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
