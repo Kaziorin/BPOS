@@ -2,116 +2,298 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Star, Wallet as WalletIcon, Gift, Plus, RefreshCw, Loader2, Crown,
-  Users, Coins, ArrowDownToLine, ArrowUpFromLine, Search, BadgePercent,
-  CircleDollarSign, CreditCard, RotateCcw, Ban, Receipt, ChevronRight,
-  Pencil, Trash2,
+  Star,
+  Wallet as WalletIcon,
+  Gift,
+  Plus,
+  Crown,
+  Users,
+  Coins,
+  Search,
+  CheckCircle2,
+  Pencil,
+  Trash2,
+  Settings,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Ban,
+  Receipt,
+  FileText,
+  Loader2,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomInput } from "@/components/custom/CustomInput";
-import { CustomSelect } from "@/components/custom/CustomSelect";
-import { CustomButton } from "@/components/custom/CustomButton";
-import { CustomModal } from "@/components/custom/CustomModal";
+import {
+  CustomBreadcrumb,
+  CustomButton,
+  CustomStatCard,
+  CustomTabs,
+  CustomTable,
+  type CustomTableColumn,
+  CustomModal,
+  ConfirmModal,
+  CustomDropdownSelect,
+} from "@/components/custom";
+import { toast } from "react-toastify";
 
 type Tab = "loyalty" | "wallet" | "gift";
 
-const currency = (v: any) => `৳${(Number(v) || 0).toLocaleString("en-BD", { minimumFractionDigits: 2 })}`;
+const currency = (v: any) =>
+  `৳${(Number(v) || 0).toLocaleString("en-BD", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 
-interface CustomerOption { id: string; name: string; phone: string | null; }
-interface LoyaltyAccount {
-  id: string; customerId: string; customerName?: string; phone?: string | null;
-  pointsBalance: number; lifetimeEarned: number; lifetimeRedeemed: number;
-  tier: string; status: string;
+interface CustomerOption {
+  id: string;
+  name: string;
+  phone: string | null;
 }
-interface Tier { id: string; name: string; code: string; minPoints: number; multiplier: number; cashbackRate: number; benefits: string | null; color: string | null; isActive: number; }
-interface LedgerRow { id: string; type: string; amount?: number; pointsEarned?: number; pointsRedeemed?: number; balanceBefore?: number; balanceAfter?: number; note?: string | null; createdAt: string; }
-interface WalletAccount { id: string; customerId: string; customerName?: string; phone?: string | null; balance: number; lifetimeCredited: number; lifetimeDebited: number; status: string; }
-interface GiftCard { id: string; cardNo: string; cardType: string; barcode: string | null; initialAmount: number; balance: number; expiryDate: string | null; status: string; issuedToName: string | null; issuedToCustomerId: string | null; }
 
-const TIER_COLORS: Record<string, string> = {
-  BRONZE: "bg-orange-50 text-orange-700 border-orange-200",
-  SILVER: "bg-slate-100 text-slate-600 border-slate-300",
-  GOLD: "bg-yellow-50 text-yellow-700 border-yellow-300",
-  VIP: "bg-violet-50 text-sky-700 border-violet-300",
+interface LoyaltyAccount {
+  id: string;
+  customerId: string;
+  customerName?: string;
+  phone?: string | null;
+  pointsBalance: number;
+  lifetimeEarned: number;
+  lifetimeRedeemed: number;
+  tier: string;
+  status: string;
+}
+
+interface Tier {
+  id: string;
+  name: string;
+  code: string;
+  minPoints: number;
+  multiplier: number;
+  cashbackRate: number;
+  benefits: string | null;
+  color: string | null;
+  isActive: number;
+}
+
+interface LedgerRow {
+  id: string;
+  type: string;
+  amount?: number;
+  pointsEarned?: number;
+  pointsRedeemed?: number;
+  balanceBefore?: number;
+  balanceAfter?: number;
+  note?: string | null;
+  createdAt: string;
+}
+
+interface WalletAccount {
+  id: string;
+  customerId: string;
+  customerName?: string;
+  phone?: string | null;
+  balance: number;
+  lifetimeCredited: number;
+  lifetimeDebited: number;
+  status: string;
+}
+
+interface GiftCard {
+  id: string;
+  cardNo: string;
+  cardType: string;
+  barcode: string | null;
+  initialAmount: number;
+  balance: number;
+  expiryDate: string | null;
+  status: string;
+  issuedToName: string | null;
+  issuedToCustomerId: string | null;
+}
+
+const TIER_BADGES: Record<string, { bg: string; border: string; text: string }> = {
+  BRONZE: {
+    bg: "bg-amber-50",
+    border: "border-amber-300",
+    text: "text-amber-800",
+  },
+  SILVER: {
+    bg: "bg-slate-100",
+    border: "border-slate-300",
+    text: "text-slate-700",
+  },
+  GOLD: {
+    bg: "bg-yellow-50",
+    border: "border-yellow-400",
+    text: "text-yellow-800",
+  },
+  VIP: {
+    bg: "bg-sky-50",
+    border: "border-sky-300",
+    text: "text-[#0369A1]",
+  },
+  PLATINUM: {
+    bg: "bg-cyan-50",
+    border: "border-cyan-300",
+    text: "text-cyan-800",
+  },
 };
 
 export default function LoyaltyPage() {
   const [tab, setTab] = useState<Tab>("loyalty");
-  const [message, setMessage] = useState<string | null>(null);
-  const showMessage = (m: string) => { setMessage(m); setTimeout(() => setMessage(null), 3500); };
 
-  // ── Loyalty ──
+  // ── Loyalty State ──
   const [tiers, setTiers] = useState<Tier[]>([]);
   const [accounts, setAccounts] = useState<LoyaltyAccount[]>([]);
   const [accSearch, setAccSearch] = useState("");
+  const [loadingLoyalty, setLoadingLoyalty] = useState(false);
+
+  // Modals for Loyalty
   const [showTier, setShowTier] = useState(false);
-  const [tierForm, setTierForm] = useState<any>({ name: "", code: "", minPoints: "", multiplier: "1.0", cashbackRate: "0", benefits: "", color: "amber" });
+  const [tierForm, setTierForm] = useState({
+    name: "",
+    code: "",
+    minPoints: "",
+    multiplier: "1.0",
+    cashbackRate: "0",
+    benefits: "",
+    color: "amber",
+  });
+  const [submittingTier, setSubmittingTier] = useState(false);
+
   const [editingTier, setEditingTier] = useState<Tier | null>(null);
   const [editTierForm, setEditTierForm] = useState<any>({});
+  const [savingEditTier, setSavingEditTier] = useState(false);
+
+  const [tierToDelete, setTierToDelete] = useState<Tier | null>(null);
+  const [deletingTier, setDeletingTier] = useState(false);
+
   const [earnAcc, setEarnAcc] = useState<LoyaltyAccount | null>(null);
   const [earnAmount, setEarnAmount] = useState("");
+  const [earningPoints, setEarningPoints] = useState(false);
+
   const [redeemAcc, setRedeemAcc] = useState<LoyaltyAccount | null>(null);
   const [redeemPts, setRedeemPts] = useState("");
+  const [redeemingPoints, setRedeemingPoints] = useState(false);
+
   const [ledger, setLedger] = useState<LedgerRow[]>([]);
   const [ledgerFor, setLedgerFor] = useState<LoyaltyAccount | null>(null);
+  const [ledgerLoading, setLedgerLoading] = useState(false);
+
   const [settings, setSettings] = useState<any>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [settingsForm, setSettingsForm] = useState<any>({});
+  const [savingSettings, setSavingSettings] = useState(false);
 
-  // ── Wallet ──
+  // ── Wallet State ──
   const [wallets, setWallets] = useState<WalletAccount[]>([]);
   const [walSearch, setWalSearch] = useState("");
+  const [loadingWallets, setLoadingWallets] = useState(false);
   const [walletDetail, setWalletDetail] = useState<any>(null);
   const [walTxModal, setWalTxModal] = useState<{ mode: "credit" | "debit"; account: WalletAccount } | null>(null);
-  const [walForm, setWalForm] = useState<any>({ type: "ADD", amount: "", note: "" });
+  const [walForm, setWalForm] = useState<{ type: string; amount: string; note: string }>({
+    type: "ADD",
+    amount: "",
+    note: "",
+  });
+  const [submittingWalTx, setSubmittingWalTx] = useState(false);
 
-  // ── Gift cards ──
+  // ── Gift Cards State ──
   const [giftCards, setGiftCards] = useState<GiftCard[]>([]);
   const [gcSearch, setGcSearch] = useState("");
+  const [loadingGiftCards, setLoadingGiftCards] = useState(false);
   const [showGc, setShowGc] = useState(false);
-  const [gcForm, setGcForm] = useState<any>({ cardNo: "", cardType: "DIGITAL", initialAmount: "", expiryDate: "", issuedToCustomerId: "" });
+  const [gcForm, setGcForm] = useState({
+    cardNo: "",
+    cardType: "DIGITAL",
+    initialAmount: "",
+    expiryDate: "",
+    issuedToCustomerId: "",
+  });
+  const [submittingGc, setSubmittingGc] = useState(false);
+
   const [gcDetail, setGcDetail] = useState<any>(null);
   const [gcTxModal, setGcTxModal] = useState<{ mode: "redeem" | "reload"; card: GiftCard } | null>(null);
-  const [gcTxForm, setGcTxForm] = useState<any>({ amount: "" });
+  const [gcTxForm, setGcTxForm] = useState({ amount: "" });
+  const [submittingGcTx, setSubmittingGcTx] = useState(false);
+  const [cardToDisable, setCardToDisable] = useState<GiftCard | null>(null);
+  const [disablingCard, setDisablingCard] = useState(false);
+
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
 
-  async function loadCustomers() {
+  // ── Data Fetching ──
+  const loadCustomers = useCallback(async () => {
     try {
       const res = await api.get<{ data: CustomerOption[] }>("/v1/customers?limit=200");
-      setCustomers(res.data);
-    } catch (err: any) { console.error(err); }
-  }
+      setCustomers(res.data || []);
+    } catch (err: any) {
+      console.error(err);
+    }
+  }, []);
 
   const loadLoyalty = useCallback(async () => {
+    setLoadingLoyalty(true);
     try {
       const [t, a, s] = await Promise.all([
         api.get<{ data: Tier[] }>("/v1/loyalty/tiers"),
-        api.get<{ data: LoyaltyAccount[] }>(`/v1/loyalty/accounts${accSearch ? `?search=${encodeURIComponent(accSearch)}` : ""}`),
+        api.get<{ data: LoyaltyAccount[] }>(
+          `/v1/loyalty/accounts${accSearch ? `?search=${encodeURIComponent(accSearch)}` : ""}`
+        ),
         api.get<{ data: any }>("/v1/loyalty/settings"),
       ]);
-      setTiers(t.data); setAccounts(a.data); setSettings(s.data);
-      setSettingsForm(s.data);
-    } catch (err: any) { console.error(err); }
+      setTiers(t.data || []);
+      setAccounts(a.data || []);
+      setSettings(s.data);
+      setSettingsForm(s.data || {});
+    } catch (err: any) {
+      console.error("Failed to load loyalty data:", err);
+      toast.error(err.message || "Failed to load loyalty information");
+    } finally {
+      setLoadingLoyalty(false);
+    }
   }, [accSearch]);
 
   const loadWallets = useCallback(async () => {
+    setLoadingWallets(true);
     try {
-      const res = await api.get<{ data: WalletAccount[] }>(`/v1/wallet/accounts${walSearch ? `?search=${encodeURIComponent(walSearch)}` : ""}`);
-      setWallets(res.data);
-    } catch (err: any) { console.error(err); }
+      const res = await api.get<{ data: WalletAccount[] }>(
+        `/v1/wallet/accounts${walSearch ? `?search=${encodeURIComponent(walSearch)}` : ""}`
+      );
+      setWallets(res.data || []);
+    } catch (err: any) {
+      console.error("Failed to load wallet accounts:", err);
+      toast.error(err.message || "Failed to load wallet data");
+    } finally {
+      setLoadingWallets(false);
+    }
   }, [walSearch]);
 
   const loadGiftCards = useCallback(async () => {
+    setLoadingGiftCards(true);
     try {
-      const res = await api.get<{ data: GiftCard[] }>(`/v1/gift-cards${gcSearch ? `?search=${encodeURIComponent(gcSearch)}` : ""}`);
-      setGiftCards(res.data);
-    } catch (err: any) { console.error(err); }
+      const res = await api.get<{ data: GiftCard[] }>(
+        `/v1/gift-cards${gcSearch ? `?search=${encodeURIComponent(gcSearch)}` : ""}`
+      );
+      setGiftCards(res.data || []);
+    } catch (err: any) {
+      console.error("Failed to load gift cards:", err);
+      toast.error(err.message || "Failed to load gift cards");
+    } finally {
+      setLoadingGiftCards(false);
+    }
   }, [gcSearch]);
 
-  useEffect(() => { loadLoyalty(); }, [loadLoyalty]);
-  useEffect(() => { loadWallets(); }, [loadWallets]);
-  useEffect(() => { loadGiftCards(); }, [loadGiftCards]);
+  useEffect(() => {
+    loadLoyalty();
+  }, [loadLoyalty]);
 
+  useEffect(() => {
+    loadWallets();
+  }, [loadWallets]);
+
+  useEffect(() => {
+    loadGiftCards();
+  }, [loadGiftCards]);
+
+  // Derived Totals
   const tierTotals = useMemo(() => {
     const c: Record<string, number> = {};
     for (const a of accounts) c[a.tier] = (c[a.tier] || 0) + 1;
@@ -120,841 +302,2147 @@ export default function LoyaltyPage() {
 
   const totalPoints = accounts.reduce((s, a) => s + Number(a.pointsBalance || 0), 0);
   const walletTotal = wallets.reduce((s, w) => s + Number(w.balance || 0), 0);
-  const gcBalance = giftCards.filter((g) => g.status === "ACTIVE").reduce((s, g) => s + Number(g.balance || 0), 0);
+  const gcBalance = giftCards
+    .filter((g) => g.status === "ACTIVE")
+    .reduce((s, g) => s + Number(g.balance || 0), 0);
 
-  // ── actions ──
+  // ── Actions ──
   async function createTier() {
-    if (!tierForm.name || !tierForm.code) { alert("Name and code required"); return; }
+    if (!tierForm.name.trim() || !tierForm.code.trim()) {
+      toast.warning("Tier name and code are required.");
+      return;
+    }
+    setSubmittingTier(true);
     try {
-      await api.post("/v1/loyalty/tiers", { ...tierForm, minPoints: Number(tierForm.minPoints) || 0, multiplier: Number(tierForm.multiplier) || 1, cashbackRate: Number(tierForm.cashbackRate) || 0 });
-      setShowTier(false); showMessage("Tier created"); loadLoyalty();
-    } catch (err: any) { alert(err?.message || "Failed"); }
+      await api.post("/v1/loyalty/tiers", {
+        name: tierForm.name.trim(),
+        code: tierForm.code.trim().toUpperCase(),
+        minPoints: Number(tierForm.minPoints) || 0,
+        multiplier: Number(tierForm.multiplier) || 1,
+        cashbackRate: Number(tierForm.cashbackRate) || 0,
+        benefits: tierForm.benefits.trim() || null,
+        color: tierForm.color || "amber",
+      });
+      setShowTier(false);
+      toast.success(`Tier "${tierForm.name.trim()}" created successfully!`);
+      loadLoyalty();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || err?.message || "Failed to create tier");
+    } finally {
+      setSubmittingTier(false);
+    }
   }
+
   async function toggleTier(t: Tier) {
     try {
-      await api.patch(`/v1/loyalty/tiers/${t.id}`, { isActive: t.isActive ? 0 : 1 });
+      const nextStatus = t.isActive ? 0 : 1;
+      await api.patch(`/v1/loyalty/tiers/${t.id}`, { isActive: nextStatus });
+      toast.success(`Tier "${t.name}" ${nextStatus ? "activated" : "deactivated"}.`);
       loadLoyalty();
-    } catch (err: any) { alert(err?.message || "Failed"); }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to update tier status");
+    }
   }
+
   function openEditTier(t: Tier) {
     setEditingTier(t);
     setEditTierForm({
-      name: t.name, code: t.code, minPoints: String(t.minPoints),
-      multiplier: String(t.multiplier), cashbackRate: String(t.cashbackRate),
-      benefits: t.benefits || "", color: t.color || "amber",
+      name: t.name,
+      code: t.code,
+      minPoints: String(t.minPoints),
+      multiplier: String(t.multiplier),
+      cashbackRate: String(t.cashbackRate),
+      benefits: t.benefits || "",
+      color: t.color || "amber",
     });
   }
+
   async function saveEditTier() {
     if (!editingTier) return;
-    if (!editTierForm.name || !editTierForm.code) { alert("Name and code required"); return; }
+    if (!editTierForm.name.trim() || !editTierForm.code.trim()) {
+      toast.warning("Tier name and code are required.");
+      return;
+    }
+    setSavingEditTier(true);
     try {
       await api.patch(`/v1/loyalty/tiers/${editingTier.id}`, {
-        name: editTierForm.name, code: editTierForm.code.toUpperCase(),
+        name: editTierForm.name.trim(),
+        code: editTierForm.code.trim().toUpperCase(),
         minPoints: Number(editTierForm.minPoints) || 0,
         multiplier: Number(editTierForm.multiplier) || 1,
         cashbackRate: Number(editTierForm.cashbackRate) || 0,
-        benefits: editTierForm.benefits, color: editTierForm.color,
+        benefits: editTierForm.benefits?.trim() || null,
+        color: editTierForm.color,
       });
-      setEditingTier(null); showMessage("Tier updated"); loadLoyalty();
-    } catch (err: any) { alert(err?.message || "Failed"); }
+      setEditingTier(null);
+      toast.success(`Tier "${editTierForm.name.trim()}" updated successfully!`);
+      loadLoyalty();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || err?.message || "Failed to update tier");
+    } finally {
+      setSavingEditTier(false);
+    }
   }
-  async function deleteTier(t: Tier) {
-    if (!confirm(`"${t.name}" tier সম্পূর্ণ delete করবেন?\n\nএই action undo করা যাবে না।`)) return;
+
+  async function confirmDeleteTier() {
+    if (!tierToDelete) return;
+    setDeletingTier(true);
     try {
-      await api.del(`/v1/loyalty/tiers/${t.id}`);
-      setTiers(prev => prev.filter(tier => tier.id !== t.id));
-      showMessage(`"${t.name}" tier deleted`);
-    } catch (err: any) { alert(err?.message || "Failed"); }
+      await api.del(`/v1/loyalty/tiers/${tierToDelete.id}`);
+      setTiers((prev) => prev.filter((t) => t.id !== tierToDelete.id));
+      toast.success(`Tier "${tierToDelete.name}" deleted successfully.`);
+      setTierToDelete(null);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || err?.message || "Failed to delete tier");
+    } finally {
+      setDeletingTier(false);
+    }
   }
+
   async function saveSettings() {
+    setSavingSettings(true);
     try {
       await api.put("/v1/loyalty/settings", {
-        pointsPerAmount: Number(settingsForm.pointsPerAmount), redeemValuePerPoint: Number(settingsForm.redeemValuePerPoint),
-        expiryMonths: Number(settingsForm.expiryMonths), minRedeemPoints: Number(settingsForm.minRedeemPoints),
-        earnEnabled: settingsForm.earnEnabled ? 1 : 0, redeemEnabled: settingsForm.redeemEnabled ? 1 : 0,
+        pointsPerAmount: Number(settingsForm.pointsPerAmount) || 0,
+        redeemValuePerPoint: Number(settingsForm.redeemValuePerPoint) || 0,
+        expiryMonths: Number(settingsForm.expiryMonths) || 0,
+        minRedeemPoints: Number(settingsForm.minRedeemPoints) || 0,
+        earnEnabled: settingsForm.earnEnabled ? 1 : 0,
+        redeemEnabled: settingsForm.redeemEnabled ? 1 : 0,
       });
-      setShowSettings(false); showMessage("Settings saved"); loadLoyalty();
-    } catch (err: any) { alert(err?.message || "Failed"); }
+      setShowSettings(false);
+      toast.success("Loyalty earn rules & settings updated successfully!");
+      loadLoyalty();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || err?.message || "Failed to save settings");
+    } finally {
+      setSavingSettings(false);
+    }
   }
+
   async function earnPoints() {
     if (!earnAcc || !earnAmount) return;
+    setEarningPoints(true);
     try {
-      const res = await api.post<{ data: any }>("/v1/loyalty/earn", { customerId: earnAcc.customerId, amount: Number(earnAmount) });
-      setEarnAcc(null); setEarnAmount("");
-      showMessage(`Earned ${res.data?.pointsEarned} pts → tier ${res.data?.tier}`);
+      const res = await api.post<{ data: any }>("/v1/loyalty/earn", {
+        customerId: earnAcc.customerId,
+        amount: Number(earnAmount),
+      });
+      setEarnAcc(null);
+      setEarnAmount("");
+      toast.success(
+        `Earned ${res.data?.pointsEarned || 0} pts for ${earnAcc.customerName} → Current Tier: ${res.data?.tier}`
+      );
       loadLoyalty();
-    } catch (err: any) { alert(err?.message || "Failed"); }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || err?.message || "Failed to process earned points");
+    } finally {
+      setEarningPoints(false);
+    }
   }
+
   async function redeemPoints() {
     if (!redeemAcc || !redeemPts) return;
+    setRedeemingPoints(true);
     try {
-      const res = await api.post<{ data: any }>("/v1/loyalty/redeem", { customerId: redeemAcc.customerId, points: Number(redeemPts) });
-      setRedeemAcc(null); setRedeemPts("");
-      showMessage(`Redeemed ${res.data?.pointsRedeemed} pts = ${currency(res.data?.discountValue)} credit`);
+      const res = await api.post<{ data: any }>("/v1/loyalty/redeem", {
+        customerId: redeemAcc.customerId,
+        points: Number(redeemPts),
+      });
+      setRedeemAcc(null);
+      setRedeemPts("");
+      toast.success(
+        `Redeemed ${res.data?.pointsRedeemed || 0} pts (${currency(res.data?.discountValue)}) for ${redeemAcc.customerName}`
+      );
       loadLoyalty();
-    } catch (err: any) { alert(err?.message || "Failed"); }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || err?.message || "Failed to redeem points");
+    } finally {
+      setRedeemingPoints(false);
+    }
   }
+
   async function openLedger(acc: LoyaltyAccount) {
     setLedgerFor(acc);
     setLedger([]);
+    setLedgerLoading(true);
     try {
       const res = await api.get<{ data: any }>(`/v1/loyalty/accounts/${acc.customerId}`);
       setLedger(res.data.transactions ?? []);
-    } catch (err: any) { console.error(err); }
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Failed to load loyalty ledger history");
+    } finally {
+      setLedgerLoading(false);
+    }
   }
+
   async function walletCredit() {
     if (!walTxModal || !walForm.amount) return;
+    setSubmittingWalTx(true);
     try {
-      await api.post("/v1/wallet/credit", { customerId: walTxModal.account.customerId, amount: Number(walForm.amount), type: walForm.type, note: walForm.note });
-      setWalTxModal(null); setWalForm({ type: "ADD", amount: "", note: "" }); showMessage("Wallet credited"); loadWallets();
-    } catch (err: any) { alert(err?.message || "Failed"); }
+      await api.post("/v1/wallet/credit", {
+        customerId: walTxModal.account.customerId,
+        amount: Number(walForm.amount),
+        type: walForm.type,
+        note: walForm.note.trim() || null,
+      });
+      setWalTxModal(null);
+      setWalForm({ type: "ADD", amount: "", note: "" });
+      toast.success(`Wallet credited with ${currency(walForm.amount)}!`);
+      loadWallets();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || err?.message || "Failed to credit wallet");
+    } finally {
+      setSubmittingWalTx(false);
+    }
   }
+
   async function walletDebit() {
     if (!walTxModal || !walForm.amount) return;
+    setSubmittingWalTx(true);
     try {
-      await api.post("/v1/wallet/debit", { customerId: walTxModal.account.customerId, amount: Number(walForm.amount), note: walForm.note });
-      setWalTxModal(null); setWalForm({ type: "ADD", amount: "", note: "" }); showMessage("Wallet debited"); loadWallets();
-    } catch (err: any) { alert(err?.message || "Failed"); }
+      await api.post("/v1/wallet/debit", {
+        customerId: walTxModal.account.customerId,
+        amount: Number(walForm.amount),
+        note: walForm.note.trim() || null,
+      });
+      setWalTxModal(null);
+      setWalForm({ type: "ADD", amount: "", note: "" });
+      toast.success(`Wallet debited with ${currency(walForm.amount)}.`);
+      loadWallets();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || err?.message || "Failed to debit wallet");
+    } finally {
+      setSubmittingWalTx(false);
+    }
   }
+
   async function openWalletDetail(acc: WalletAccount) {
     try {
       const res = await api.get<{ data: any }>(`/v1/wallet/accounts/${acc.customerId}`);
       const d = res.data;
-      // Backend returns: { wallet: {...}, customerName, phone, transactions }
-      // Flatten so the modal can access balance, lifetimeCredited, etc. directly
       setWalletDetail({
         ...(d.wallet ?? d),
         customerName: d.customerName ?? acc.customerName,
         phone: d.phone ?? acc.phone,
         transactions: d.transactions ?? [],
       });
-    } catch (err: any) { console.error(err); }
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Failed to load wallet ledger");
+    }
   }
+
   async function createGiftCard() {
-    if (!gcForm.initialAmount) { alert("Initial amount required"); return; }
+    if (!gcForm.initialAmount) {
+      toast.warning("Initial amount is required.");
+      return;
+    }
+    setSubmittingGc(true);
     try {
-      await api.post("/v1/gift-cards", { ...gcForm, initialAmount: Number(gcForm.initialAmount), issuedToCustomerId: gcForm.issuedToCustomerId || undefined });
-      setShowGc(false); showMessage("Gift card created"); loadGiftCards(); loadCustomers();
-    } catch (err: any) { alert(err?.message || "Failed"); }
+      await api.post("/v1/gift-cards", {
+        ...gcForm,
+        initialAmount: Number(gcForm.initialAmount),
+        issuedToCustomerId: gcForm.issuedToCustomerId || undefined,
+      });
+      setShowGc(false);
+      toast.success("Gift card issued successfully!");
+      loadGiftCards();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || err?.message || "Failed to issue gift card");
+    } finally {
+      setSubmittingGc(false);
+    }
   }
+
   async function openGcDetail(gc: GiftCard) {
     try {
       const res = await api.get<{ data: any }>(`/v1/gift-cards/${gc.id}`);
       setGcDetail(res.data);
-    } catch (err: any) { console.error(err); }
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Failed to load card details");
+    }
   }
+
   async function gcTx() {
     if (!gcTxModal || !gcTxForm.amount) return;
     const ep = gcTxModal.mode === "redeem" ? "redeem" : "reload";
+    setSubmittingGcTx(true);
     try {
-      await api.post(`/v1/gift-cards/${gcTxModal.card.id}/${ep}`, { amount: Number(gcTxForm.amount) });
-      setGcTxModal(null); setGcTxForm({ amount: "" }); showMessage(`Card ${ep === "redeem" ? "redeemed" : "reloaded"}`); loadGiftCards(); if (gcDetail) openGcDetail(gcDetail);
-    } catch (err: any) { alert(err?.message || "Failed"); }
+      await api.post(`/v1/gift-cards/${gcTxModal.card.id}/${ep}`, {
+        amount: Number(gcTxForm.amount),
+      });
+      setGcTxModal(null);
+      setGcTxForm({ amount: "" });
+      toast.success(`Card ${ep === "redeem" ? "redeemed" : "reloaded"} with ${currency(gcTxForm.amount)}!`);
+      loadGiftCards();
+      if (gcDetail) openGcDetail(gcDetail);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || err?.message || "Failed to process gift card transaction");
+    } finally {
+      setSubmittingGcTx(false);
+    }
   }
-  async function disableGc(gc: GiftCard) {
-    if (!confirm(`Disable card ${gc.cardNo}?`)) return;
+
+  async function confirmDisableGc() {
+    if (!cardToDisable) return;
+    setDisablingCard(true);
     try {
-      await api.post(`/v1/gift-cards/${gc.id}/disable`, { reason: "Disabled from console" });
-      showMessage("Card disabled"); loadGiftCards(); if (gcDetail) openGcDetail(gcDetail);
-    } catch (err: any) { alert(err?.message || "Failed"); }
+      await api.post(`/v1/gift-cards/${cardToDisable.id}/disable`, {
+        reason: "Disabled from administrative console",
+      });
+      toast.success(`Gift card ${cardToDisable.cardNo} has been disabled.`);
+      setCardToDisable(null);
+      loadGiftCards();
+      if (gcDetail) openGcDetail(gcDetail);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || err?.message || "Failed to disable card");
+    } finally {
+      setDisablingCard(false);
+    }
   }
+
+  // Common UI styling classes
+  const inputClass =
+    "w-full rounded-sm border border-sky-200/90 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs transition";
+  const labelClass = "block text-xs font-semibold text-[#0369A1] mb-1.5";
+
+  // ── CustomTable Columns ──
+  const loyaltyColumns: CustomTableColumn<LoyaltyAccount>[] = [
+    {
+      key: "customer",
+      header: "Customer",
+      render: (a) => (
+        <div>
+          <p className="text-xs font-bold text-gray-800">{a.customerName || "—"}</p>
+          <p className="text-[11px] font-medium text-gray-400 mt-0.5">{a.phone || "No phone"}</p>
+        </div>
+      ),
+    },
+    {
+      key: "tier",
+      header: "Tier",
+      render: (a) => {
+        const badge = TIER_BADGES[a.tier] || TIER_BADGES.VIP;
+        return (
+          <span
+            className={`inline-flex items-center gap-1 rounded-sm border px-2.5 py-0.5 text-[10.5px] font-bold ${badge.bg} ${badge.border} ${badge.text}`}
+          >
+            <Crown size={11} /> {a.tier}
+          </span>
+        );
+      },
+    },
+    {
+      key: "pointsBalance",
+      header: "Points Balance",
+      sortable: true,
+      getSortValue: (a) => Number(a.pointsBalance || 0),
+      render: (a) => (
+        <span className="inline-flex items-center gap-1.5 rounded-sm bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 border border-amber-200 shadow-2xs">
+          <Coins size={12} className="text-amber-600" />
+          {Number(a.pointsBalance || 0).toLocaleString()} pts
+        </span>
+      ),
+    },
+    {
+      key: "lifetimeEarned",
+      header: "Lifetime Earned",
+      sortable: true,
+      getSortValue: (a) => Number(a.lifetimeEarned || 0),
+      render: (a) => (
+        <span className="text-xs font-semibold text-gray-700">
+          {Number(a.lifetimeEarned || 0).toLocaleString()} pts
+        </span>
+      ),
+    },
+    {
+      key: "lifetimeRedeemed",
+      header: "Lifetime Redeemed",
+      sortable: true,
+      getSortValue: (a) => Number(a.lifetimeRedeemed || 0),
+      render: (a) => (
+        <span className="text-xs font-semibold text-gray-500">
+          {Number(a.lifetimeRedeemed || 0).toLocaleString()} pts
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (a) => (
+        <div className="flex items-center justify-end gap-1.5">
+          <CustomButton
+            variant="outline"
+            size="xs"
+            onClick={() => {
+              setEarnAcc(a);
+              setEarnAmount("");
+            }}
+            className="text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 border-emerald-200"
+            leftIcon={<Plus size={12} />}
+          >
+            Earn
+          </CustomButton>
+          <CustomButton
+            variant="outline"
+            size="xs"
+            onClick={() => {
+              setRedeemAcc(a);
+              setRedeemPts("");
+            }}
+            className="text-amber-700 hover:bg-amber-50 hover:border-amber-300 border-amber-200"
+            leftIcon={<Coins size={12} />}
+          >
+            Redeem
+          </CustomButton>
+          <CustomButton
+            variant="outline"
+            size="xs"
+            onClick={() => openLedger(a)}
+            leftIcon={<FileText size={12} />}
+          >
+            Ledger
+          </CustomButton>
+        </div>
+      ),
+    },
+  ];
+
+  const walletColumns: CustomTableColumn<WalletAccount>[] = [
+    {
+      key: "customer",
+      header: "Customer",
+      render: (w) => (
+        <div>
+          <p className="text-xs font-bold text-gray-800">{w.customerName || "—"}</p>
+          <p className="text-[11px] font-medium text-gray-400 mt-0.5">{w.phone || "No phone"}</p>
+        </div>
+      ),
+    },
+    {
+      key: "balance",
+      header: "Current Balance",
+      sortable: true,
+      getSortValue: (w) => Number(w.balance || 0),
+      render: (w) => (
+        <span className="font-bold text-xs text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-sm shadow-2xs">
+          {currency(w.balance)}
+        </span>
+      ),
+    },
+    {
+      key: "lifetimeCredited",
+      header: "Lifetime Credited",
+      sortable: true,
+      getSortValue: (w) => Number(w.lifetimeCredited || 0),
+      render: (w) => (
+        <span className="text-xs font-semibold text-gray-700">{currency(w.lifetimeCredited)}</span>
+      ),
+    },
+    {
+      key: "lifetimeDebited",
+      header: "Lifetime Debited",
+      sortable: true,
+      getSortValue: (w) => Number(w.lifetimeDebited || 0),
+      render: (w) => (
+        <span className="text-xs font-semibold text-gray-500">{currency(w.lifetimeDebited)}</span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Account Status",
+      render: (w) => (
+        <span
+          className={`inline-flex items-center rounded-sm px-2 py-0.5 text-[10.5px] font-semibold border ${
+            w.status === "ACTIVE"
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+              : "bg-slate-100 text-slate-600 border-slate-200"
+          }`}
+        >
+          {w.status}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (w) => (
+        <div className="flex items-center justify-end gap-1.5">
+          <CustomButton
+            variant="outline"
+            size="xs"
+            onClick={() => {
+              setWalTxModal({ mode: "credit", account: w });
+              setWalForm({ type: "ADD", amount: "", note: "" });
+            }}
+            className="text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 border-emerald-200"
+            leftIcon={<ArrowDownToLine size={12} />}
+          >
+            Credit
+          </CustomButton>
+          <CustomButton
+            variant="outline"
+            size="xs"
+            onClick={() => {
+              setWalTxModal({ mode: "debit", account: w });
+              setWalForm({ type: "ADD", amount: "", note: "" });
+            }}
+            className="text-rose-700 hover:bg-rose-50 hover:border-rose-300 border-rose-200"
+            leftIcon={<ArrowUpFromLine size={12} />}
+          >
+            Debit
+          </CustomButton>
+          <CustomButton
+            variant="outline"
+            size="xs"
+            onClick={() => openWalletDetail(w)}
+            leftIcon={<FileText size={12} />}
+          >
+            Ledger
+          </CustomButton>
+        </div>
+      ),
+    },
+  ];
+
+  const giftCardColumns: CustomTableColumn<GiftCard>[] = [
+    {
+      key: "cardNo",
+      header: "Card Details",
+      render: (g) => (
+        <div>
+          <p className="font-mono text-xs font-bold text-[#0369A1]">{g.cardNo}</p>
+          <p className="text-[11px] font-medium text-gray-400 mt-0.5">
+            {g.cardType}
+            {g.barcode && g.barcode !== g.cardNo ? ` · ${g.barcode}` : ""}
+          </p>
+        </div>
+      ),
+    },
+    {
+      key: "holder",
+      header: "Issued Holder",
+      render: (g) => (
+        <span className="text-xs font-semibold text-gray-700">{g.issuedToName || "— Anonymous —"}</span>
+      ),
+    },
+    {
+      key: "initialAmount",
+      header: "Initial Value",
+      render: (g) => (
+        <span className="text-xs font-semibold text-gray-600">{currency(g.initialAmount)}</span>
+      ),
+    },
+    {
+      key: "balance",
+      header: "Remaining Balance",
+      sortable: true,
+      getSortValue: (g) => Number(g.balance || 0),
+      render: (g) => (
+        <span className="font-bold text-xs text-[#0284C7] bg-sky-50 border border-sky-200/80 px-2.5 py-1 rounded-sm shadow-2xs">
+          {currency(g.balance)}
+        </span>
+      ),
+    },
+    {
+      key: "expiryDate",
+      header: "Expiry Date",
+      render: (g) => (
+        <span className="text-xs text-gray-500 font-medium">
+          {g.expiryDate ? new Date(g.expiryDate).toLocaleDateString("en-GB") : "Never"}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (g) => (
+        <span
+          className={`inline-flex items-center rounded-sm px-2 py-0.5 text-[10.5px] font-semibold border ${
+            g.status === "ACTIVE"
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+              : g.status === "EXPIRED"
+              ? "bg-slate-100 text-slate-600 border-slate-200"
+              : "bg-rose-50 text-rose-700 border-rose-200"
+          }`}
+        >
+          {g.status}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (g) => (
+        <div className="flex items-center justify-end gap-1.5">
+          <CustomButton
+            variant="outline"
+            size="xs"
+            disabled={g.status !== "ACTIVE"}
+            onClick={() => {
+              setGcTxModal({ mode: "redeem", card: g });
+              setGcTxForm({ amount: "" });
+            }}
+            className="text-sky-700 hover:bg-sky-50 hover:border-sky-300 border-sky-200"
+          >
+            Redeem
+          </CustomButton>
+          <CustomButton
+            variant="outline"
+            size="xs"
+            disabled={g.status !== "ACTIVE"}
+            onClick={() => {
+              setGcTxModal({ mode: "reload", card: g });
+              setGcTxForm({ amount: "" });
+            }}
+            className="text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 border-emerald-200"
+          >
+            Reload
+          </CustomButton>
+          <CustomButton
+            variant="outline"
+            size="xs"
+            onClick={() => openGcDetail(g)}
+            leftIcon={<Receipt size={12} />}
+          >
+            History
+          </CustomButton>
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div className="space-y-8 p-1">
-      {message && <div className="rounded-sm border border-emerald-500/40 bg-emerald-500/10 px-5 py-4 text-base font-semibold text-emerald-700 shadow">{message}</div>}
+    <div className="w-full space-y-5 pb-12 select-none">
+      {/* ── Breadcrumb Header ── */}
+      <CustomBreadcrumb
+        title="Loyalty, Wallets & Gift Cards"
+        subtitle="Manage customer loyalty points, membership tier rules, digital wallet credits, and gift voucher cards."
+        icon={<Star size={18} />}
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Customers", href: "/customers" },
+          { label: "Loyalty & Rewards" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            {tab === "loyalty" && (
+              <>
+                <CustomButton
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSettings(true)}
+                  leftIcon={<Settings size={14} className="text-[#0284C7]" />}
+                >
+                  Earn Rules & Settings
+                </CustomButton>
+                <CustomButton
+                  variant="primary"
+                  size="sm"
+                  onClick={() => {
+                    setTierForm({
+                      name: "",
+                      code: "",
+                      minPoints: "",
+                      multiplier: "1.0",
+                      cashbackRate: "0",
+                      benefits: "",
+                      color: "amber",
+                    });
+                    setShowTier(true);
+                  }}
+                  leftIcon={<Plus size={14} />}
+                >
+                  Create Tier
+                </CustomButton>
+              </>
+            )}
 
-      {/* ── Blue Ocean Header Banner ── */}
-      <div className="relative overflow-hidden rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] p-6 shadow-2xs border border-sky-200/70">
-        <div className="relative flex flex-wrap items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-white/15 border border-white/30 shadow-inner">
-              <Star className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-extrabold text-white tracking-tight">Customer Loyalty, Wallets & Gift Cards</h1>
-              <p className="mt-1 text-xs sm:text-sm text-white/90">Points, membership tiers, digital customer wallets, and gift vouchers</p>
-            </div>
+            {tab === "gift" && (
+              <CustomButton
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  loadCustomers();
+                  setGcForm({
+                    cardNo: "",
+                    cardType: "DIGITAL",
+                    initialAmount: "",
+                    expiryDate: "",
+                    issuedToCustomerId: "",
+                  });
+                  setShowGc(true);
+                }}
+                leftIcon={<Plus size={14} />}
+              >
+                Issue Gift Card
+              </CustomButton>
+            )}
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {tab === "loyalty" && (<>
-              <button onClick={() => setShowSettings(true)} className="flex items-center gap-2 rounded-sm border border-white/30 bg-white/15 px-4 py-2 text-xs font-bold text-white hover:bg-white/25 transition-all shadow-2xs">
-                <Coins size={14} /> Earn Rules
-              </button>
-              <button onClick={() => { setTierForm({ name: "", code: "", minPoints: "", multiplier: "1.0", cashbackRate: "0", benefits: "", color: "amber" }); setShowTier(true); }} className="flex items-center gap-2 rounded-sm bg-white text-sky-700 px-4 py-2 text-xs font-bold shadow-2xs hover:bg-sky-50 transition-all">
-                <Plus size={14} /> New Tier
-              </button>
-            </>)}
-            {tab === "gift" && <button onClick={() => { loadCustomers(); setGcForm({ cardNo: "", cardType: "DIGITAL", initialAmount: "", expiryDate: "", issuedToCustomerId: "" }); setShowGc(true); }} className="flex items-center gap-2 rounded-sm bg-white text-sky-700 px-4 py-2 text-xs font-bold shadow-2xs hover:bg-sky-50 transition-all">
-              <Plus size={14} /> Issue Gift Card
-            </button>}
-          </div>
-        </div>
+        }
+      />
+
+      {/* ── KPI Stat Cards ── */}
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+        <CustomStatCard
+          label="Total Loyalty Members"
+          value={String(accounts.length)}
+          subtitle="Enrolled customer accounts"
+          icon={Users}
+          tone="primary"
+        />
+        <CustomStatCard
+          label="Points in Circulation"
+          value={totalPoints.toLocaleString()}
+          subtitle="Active redeemable balance"
+          icon={Coins}
+          tone="amber"
+        />
+        <CustomStatCard
+          label="Digital Wallet Balance"
+          value={currency(walletTotal)}
+          subtitle="Customer prepaid credits"
+          icon={WalletIcon}
+          tone="green"
+        />
+        <CustomStatCard
+          label="Active Gift Cards Value"
+          value={currency(gcBalance)}
+          subtitle="Outstanding voucher funds"
+          icon={Gift}
+          tone="blue"
+        />
       </div>
 
-      {/* ── KPI Cards ── */}
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { label: "Total Members", value: accounts.length, icon: Users, gradient: "from-blue-50 to-slate-50", border: "border-blue-100", iconColor: "text-blue-400", textColor: "text-slate-800" },
-          { label: "Points in Circulation", value: totalPoints.toLocaleString(), icon: Coins, gradient: "from-amber-50 to-orange-50", border: "border-amber-100", iconColor: "text-amber-400", textColor: "text-amber-700" },
-          { label: "Wallet Balance", value: currency(walletTotal), icon: WalletIcon, gradient: "from-emerald-50 to-teal-50", border: "border-emerald-100", iconColor: "text-emerald-400", textColor: "text-emerald-700" },
-          { label: "Gift Cards Active", value: currency(gcBalance), icon: Gift, gradient: "from-violet-50 to-purple-50", border: "border-violet-100", iconColor: "text-violet-400", textColor: "text-sky-700" },
-        ].map(({ label, value, icon: Icon, gradient, border, iconColor, textColor }) => (
-          <div key={label} className={`group relative overflow-hidden rounded-sm bg-gradient-to-br ${gradient} p-6 border ${border} shadow-2xs hover:shadow-2xs hover:-translate-y-1 transition-all duration-300`}>
-            <div className="absolute right-3 top-3 opacity-15 group-hover:opacity-25 group-hover:scale-110 transition-all duration-500">
-              <Icon size={72} className={iconColor} />
-            </div>
-            <p className={`text-xs font-bold uppercase tracking-widest ${iconColor} opacity-80`}>{label}</p>
-            <p className={`mt-3 text-4xl font-black ${textColor} leading-none drop-shadow-2xs`}>{value}</p>
-          </div>
-        ))}
+      {/* ── Tabs Navigation (Clearly visible inactive tabs) ── */}
+      <div className="p-1 rounded-sm bg-sky-50/40 border border-sky-100/90 shadow-2xs">
+        <CustomTabs
+          tabs={[
+            {
+              id: "loyalty",
+              label: "Points & Membership Tiers",
+              icon: <Star size={14} />,
+              badge: accounts.length,
+            },
+            {
+              id: "wallet",
+              label: "Digital Customer Wallets",
+              icon: <WalletIcon size={14} />,
+              badge: wallets.length,
+            },
+            {
+              id: "gift",
+              label: "Gift Cards & Vouchers",
+              icon: <Gift size={14} />,
+              badge: giftCards.length,
+            },
+          ]}
+          activeTab={tab}
+          onChange={(id) => setTab(id as Tab)}
+          themeColor="primary"
+          className="bg-transparent border-0 shadow-none p-0"
+        />
       </div>
 
-      {/* ── Tabs ── */}
-      <div className="flex gap-1.5 rounded-sm bg-sky-50/70 border border-sky-100/90 p-1.5">
-        {([["loyalty", "Points & Tiers", Star], ["wallet", "Wallet", WalletIcon], ["gift", "Gift Cards", Gift]] as [Tab, string, any][]).map(([id, label, Icon]) => (
-          <button key={id} onClick={() => setTab(id)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-sm px-5 py-2.5 text-xs font-bold transition-all ${tab === id
-              ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs"
-              : "text-slate-600 hover:text-sky-700 hover:bg-white/80"}`}>
-            <Icon size={14} /> {label}
-          </button>
-        ))}
-      </div>
-
-      {/* ══════════ LOYALTY TAB ══════════ */}
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── TAB 1: LOYALTY & TIERS ── */}
+      {/* ══════════════════════════════════════════════════ */}
       {tab === "loyalty" && (
-        <div className="space-y-6">
-          {/* Tier cards */}
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {tiers.map((t) => {
-              const cfg = t.code === "BRONZE"
-                ? { g: "from-orange-400 to-amber-500", badge: "bg-orange-100 text-orange-800 border-orange-200", glow: "shadow-orange-200" }
-                : t.code === "SILVER"
-                ? { g: "from-slate-400 to-gray-500", badge: "bg-slate-100 text-slate-700 border-slate-300", glow: "shadow-slate-200" }
-                : t.code === "GOLD"
-                ? { g: "from-yellow-400 to-amber-400", badge: "bg-yellow-100 text-yellow-800 border-yellow-300", glow: "shadow-yellow-200" }
-                : t.code === "VIP"
-                ? { g: "from-violet-500 to-purple-600", badge: "bg-violet-100 text-violet-800 border-violet-300", glow: "shadow-violet-200" }
-                : { g: "from-slate-500 to-gray-600", badge: "bg-gray-100 text-gray-700 border-gray-300", glow: "shadow-gray-200" };
-              return (
-                <div key={t.id} className={`relative overflow-hidden rounded-sm border border-white/30 shadow-2xs ${cfg.glow} hover:-translate-y-1.5 transition-all duration-300 group`}>
-                  {/* Colored top strip */}
-                  <div className={`h-2 w-full bg-gradient-to-r ${cfg.g}`} />
-                  <div className="bg-white p-5">
-                    <div className="flex items-center justify-between">
-                      <span className={`inline-flex items-center gap-1.5 rounded-sm border px-3 py-1 text-xs font-black uppercase tracking-widest ${cfg.badge}`}>
-                        <Crown size={11} /> {t.name}
-                      </span>
-                      <button onClick={() => toggleTier(t)} title={t.isActive ? "Deactivate" : "Activate"}
-                        className={`relative h-5 w-9 rounded-full transition-all ${t.isActive ? "bg-emerald-500 shadow-emerald-300 shadow-inner" : "bg-slate-200"}`}>
-                        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${t.isActive ? "left-4" : "left-0.5"}`} />
-                      </button>
-                    </div>
-                    <p className="mt-3 text-sm font-medium text-slate-600 leading-snug min-h-[32px]">{t.benefits || "—"}</p>
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                      <div className="rounded-sm bg-slate-50 p-2.5 text-center border border-sky-100/70">
-                        <p className="text-[10px] font-bold uppercase text-slate-400">Min Points</p>
-                        <p className="text-base font-black text-slate-700 mt-0.5">{t.minPoints.toLocaleString()}</p>
+        <div className="space-y-5">
+          {/* Membership Tier Cards Section */}
+          <div className="space-y-3.5">
+            {/* Structured Section Title Header */}
+            <div className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3.5 px-4 sm:px-5 shadow-2xs">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 shadow-2xs">
+                  <Crown size={16} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-[#0369A1]">Configured Membership Tiers</h2>
+                  <p className="text-xs text-gray-500 font-medium">Automatic qualification rules, points multipliers & cashback tier benefits</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="rounded-sm bg-sky-50 border border-sky-200/80 px-2.5 py-1 text-xs font-bold text-[#0284C7] shadow-2xs">
+                  {tiers.length} Active Tiers
+                </span>
+              </div>
+            </div>
+
+            {/* Tier Cards Grid (No top color line, unified high-end cards) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {tiers.map((t) => {
+                const badge = TIER_BADGES[t.code] || TIER_BADGES.VIP;
+                return (
+                  <div
+                    key={t.id}
+                    className="relative flex flex-col justify-between rounded-sm border border-sky-200/80 bg-white p-4 shadow-2xs hover:border-[#0284C7] hover:shadow-md transition-all space-y-3.5"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-1 text-xs font-bold ${badge.bg} ${badge.border} ${badge.text}`}
+                        >
+                          <Crown size={12} /> {t.name}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => toggleTier(t)}
+                          title={t.isActive ? "Deactivate Tier" : "Activate Tier"}
+                          className={`relative h-5 w-9 rounded-full transition-colors cursor-pointer shrink-0 ${
+                            t.isActive ? "bg-emerald-500" : "bg-slate-200"
+                          }`}
+                        >
+                          <span
+                            className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-xs transition-all ${
+                              t.isActive ? "left-4" : "left-0.5"
+                            }`}
+                          />
+                        </button>
                       </div>
-                      <div className="rounded-sm bg-slate-50 p-2.5 text-center border border-sky-100/70">
-                        <p className="text-[10px] font-bold uppercase text-slate-400">Multiplier</p>
-                        <p className="text-base font-black text-slate-700 mt-0.5">{t.multiplier}×</p>
+
+                      <p className="text-xs font-medium text-gray-600 min-h-[32px] line-clamp-2 leading-relaxed">
+                        {t.benefits || "Standard tier benefits applied upon points qualification threshold."}
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-2 text-center rounded-sm bg-sky-50/50 border border-sky-100/80 p-2.5">
+                        <div>
+                          <p className="text-[10px] font-semibold text-slate-500">Min Points</p>
+                          <p className="text-xs sm:text-sm font-bold text-[#0369A1] mt-0.5">
+                            {t.minPoints.toLocaleString()}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-semibold text-slate-500">Multiplier</p>
+                          <p className="text-xs sm:text-sm font-bold text-[#0369A1] mt-0.5">{t.multiplier}×</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] text-gray-500 pt-0.5 font-semibold">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0369A1] bg-sky-50 border border-sky-200/60 px-2 py-0.5 rounded-sm">
+                          {tierTotals[t.code] || 0} Members
+                        </span>
+                        <span className="text-[11px] font-bold text-emerald-700">{t.cashbackRate}% Cashback</span>
                       </div>
                     </div>
-                    <p className="mt-2 text-xs font-semibold text-slate-400">{tierTotals[t.code] || 0} member(s) · {t.cashbackRate}% cashback</p>
-                    {/* Edit / Delete buttons — appear on hover */}
-                    <div className="mt-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      <button onClick={() => openEditTier(t)}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-sm border border-sky-100/90 bg-slate-50 py-1.5 text-xs font-bold text-slate-600 hover:bg-violet-50 hover:border-violet-200 hover:text-sky-700 transition-all">
-                        <Pencil size={12} /> Edit
-                      </button>
-                      <button onClick={() => deleteTier(t)}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-sm border border-sky-100/90 bg-slate-50 py-1.5 text-xs font-bold text-slate-600 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 transition-all">
-                        <Trash2 size={12} /> Delete
-                      </button>
+
+                    {/* Actions Row */}
+                    <div className="border-t border-sky-100/80 pt-2.5 flex items-center justify-end gap-1.5">
+                      <CustomButton
+                        variant="outline"
+                        size="xs"
+                        onClick={() => openEditTier(t)}
+                        leftIcon={<Pencil size={11} />}
+                      >
+                        Edit
+                      </CustomButton>
+                      <CustomButton
+                        variant="danger"
+                        size="xs"
+                        onClick={() => setTierToDelete(t)}
+                        leftIcon={<Trash2 size={11} />}
+                      >
+                        Delete
+                      </CustomButton>
                     </div>
                   </div>
+                );
+              })}
+
+              {tiers.length === 0 && !loadingLoyalty && (
+                <div className="col-span-full py-8 text-center rounded-sm border border-dashed border-sky-200 bg-sky-50/20 text-xs text-gray-400">
+                  No loyalty tiers configured yet. Click &ldquo;Create Tier&rdquo; above to set up membership ranks.
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Search bar */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative flex-1 min-w-[200px] max-w-sm">
-              <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input value={accSearch} onChange={(e) => setAccSearch(e.target.value)} placeholder="Search customer…"
-                className="h-11 w-full rounded-sm border border-sky-100/90 bg-white pl-11 pr-4 text-sm font-medium outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all shadow-2xs" />
+              )}
             </div>
-            <button onClick={() => loadLoyalty()} className="flex h-11 items-center gap-2 rounded-sm border border-sky-100/90 bg-white px-5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-sky-700 shadow-2xs transition-all">
-              <RefreshCw size={15} /> Refresh
-            </button>
           </div>
 
-          {/* Loyalty table */}
-          <div className="overflow-x-auto rounded-sm border border-sky-100/70 bg-white shadow-2xs shadow-slate-100">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-sky-100/70 bg-slate-50/70">
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Customer</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Tier</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Points</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Lifetime Earned</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Redeemed</th>
-                  <th className="px-6 py-4 text-right text-xs font-black uppercase tracking-widest text-slate-400">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {accounts.map((a) => {
-                  const color = TIER_COLORS[a.tier] || "bg-gray-50 text-gray-700 border-gray-200";
-                  return (
-                    <tr key={a.id} className="border-b border-slate-50 hover:bg-violet-50/30 transition-colors group">
-                      <td className="px-6 py-4">
-                        <p className="text-base font-bold text-slate-800">{a.customerName || "—"}</p>
-                        <p className="text-xs text-slate-400 font-medium mt-0.5">{a.phone || ""}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 rounded-sm border px-3 py-1 text-xs font-black uppercase tracking-wide ${color}`}><Crown size={10} /> {a.tier}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-xl font-black text-amber-600">{a.pointsBalance?.toLocaleString() ?? 0}</span>
-                        <span className="ml-1 text-xs text-slate-400 font-semibold">pts</span>
-                      </td>
-                      <td className="px-6 py-4 text-base font-semibold text-slate-600">{a.lifetimeEarned?.toLocaleString() ?? 0}</td>
-                      <td className="px-6 py-4 text-base font-semibold text-slate-600">{a.lifetimeRedeemed?.toLocaleString() ?? 0}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-end gap-2">
-                          <button onClick={() => { setEarnAcc(a); setEarnAmount(""); }} className="rounded-sm bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-600 shadow-2xs transition-all">+ Earn</button>
-                          <button onClick={() => { setRedeemAcc(a); setRedeemPts(""); }} className="rounded-sm bg-amber-500 px-4 py-2 text-xs font-bold text-white hover:bg-amber-600 shadow-2xs transition-all">Redeem</button>
-                          <button onClick={() => openLedger(a)} className="rounded-sm border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 shadow-2xs transition-all">Ledger</button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-                {accounts.length === 0 && (
-                  <tr><td colSpan={6} className="px-6 py-16 text-center text-sm font-medium text-slate-400">No loyalty members yet — points are auto-earned when customers buy, or use &ldquo;+ Earn&rdquo;.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          {/* Members Table (Integrated title & pagination into one solid card, NO refresh button) */}
+          <CustomTable
+            title="Loyalty Member Accounts"
+            subtitle="Customer points balance, current tier status & redemption activity"
+            icon={Users}
+            badge={
+              <span className="rounded-sm bg-sky-100/80 border border-sky-200/80 px-2 py-0.5 text-[10.5px] font-bold text-[#0284C7]">
+                {accounts.length} Records
+              </span>
+            }
+            toolbar={
+              <div className="relative w-full sm:w-64">
+                <Search
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  type="text"
+                  value={accSearch}
+                  onChange={(e) => setAccSearch(e.target.value)}
+                  placeholder="Search member name or phone..."
+                  className="w-full rounded-sm border border-sky-200/90 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                />
+              </div>
+            }
+            columns={loyaltyColumns}
+            data={accounts}
+            rowKey="id"
+            loading={loadingLoyalty}
+            emptyMessage="No customer loyalty accounts found."
+            pageSize={10}
+          />
         </div>
       )}
 
-      {/* ══════════ WALLET TAB ══════════ */}
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── TAB 2: WALLETS ── */}
+      {/* ══════════════════════════════════════════════════ */}
       {tab === "wallet" && (
-        <div className="space-y-6">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative flex-1 min-w-[200px] max-w-sm">
-              <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input value={walSearch} onChange={(e) => setWalSearch(e.target.value)} placeholder="Search customer…"
-                className="h-11 w-full rounded-sm border border-sky-100/90 bg-white pl-11 pr-4 text-sm font-medium outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all shadow-2xs" />
-            </div>
-            <button onClick={() => loadWallets()} className="flex h-11 items-center gap-2 rounded-sm border border-sky-100/90 bg-white px-5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-sky-700 shadow-2xs transition-all">
-              <RefreshCw size={15} /> Refresh
-            </button>
-          </div>
-          <div className="overflow-x-auto rounded-sm border border-sky-100/70 bg-white shadow-2xs shadow-slate-100">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-sky-100/70 bg-slate-50/70">
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Customer</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Balance</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Lifetime Credited</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Debited</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Status</th>
-                  <th className="px-6 py-4 text-right text-xs font-black uppercase tracking-widest text-slate-400">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {wallets.map((w) => (
-                  <tr key={w.id} className="border-b border-slate-50 hover:bg-emerald-50/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="text-base font-bold text-slate-800">{w.customerName || "—"}</p>
-                      <p className="text-xs text-slate-400 font-medium mt-0.5">{w.phone || ""}</p>
-                    </td>
-                    <td className="px-6 py-4"><span className="text-xl font-black text-emerald-600">{currency(w.balance)}</span></td>
-                    <td className="px-6 py-4 text-base font-semibold text-slate-600">{currency(w.lifetimeCredited)}</td>
-                    <td className="px-6 py-4 text-base font-semibold text-slate-600">{currency(w.lifetimeDebited)}</td>
-                    <td className="px-6 py-4">
-                      <span className={`rounded-sm px-3 py-1 text-xs font-bold ${w.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{w.status}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => { setWalTxModal({ mode: "credit", account: w }); setWalForm({ type: "ADD", amount: "", note: "" }); }} className="rounded-sm bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-600 shadow-2xs transition-all">Credit</button>
-                        <button onClick={() => { setWalTxModal({ mode: "debit", account: w }); setWalForm({ type: "ADD", amount: "", note: "" }); }} className="rounded-sm bg-rose-500 px-4 py-2 text-xs font-bold text-white hover:bg-rose-600 shadow-2xs transition-all">Debit</button>
-                        <button onClick={() => openWalletDetail(w)} className="rounded-sm border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 shadow-2xs transition-all">Ledger</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {wallets.length === 0 && <tr><td colSpan={6} className="px-6 py-16 text-center text-sm font-medium text-slate-400">No wallet accounts yet — credit a customer to open one.</td></tr>}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════ GIFT CARDS TAB ══════════ */}
-      {tab === "gift" && (
-        <div className="space-y-6">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative flex-1 min-w-[200px] max-w-sm">
-              <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input value={gcSearch} onChange={(e) => setGcSearch(e.target.value)} placeholder="Search card no / holder…"
-                className="h-11 w-full rounded-sm border border-sky-100/90 bg-white pl-11 pr-4 text-sm font-medium outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all shadow-2xs" />
-            </div>
-            <button onClick={() => loadGiftCards()} className="flex h-11 items-center gap-2 rounded-sm border border-sky-100/90 bg-white px-5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-sky-700 shadow-2xs transition-all">
-              <RefreshCw size={15} /> Refresh
-            </button>
-          </div>
-          <div className="overflow-x-auto rounded-sm border border-sky-100/70 bg-white shadow-2xs shadow-slate-100">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-sky-100/70 bg-slate-50/70">
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Card No</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Holder</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Initial</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Balance</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Expiry</th>
-                  <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Status</th>
-                  <th className="px-6 py-4 text-right text-xs font-black uppercase tracking-widest text-slate-400">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {giftCards.map((g) => (
-                  <tr key={g.id} className="border-b border-slate-50 hover:bg-violet-50/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="font-mono text-base font-bold text-slate-800">{g.cardNo}</p>
-                      <p className="text-xs text-slate-400 font-medium mt-0.5">{g.cardType}{g.barcode && g.barcode !== g.cardNo ? ` · ${g.barcode}` : ""}</p>
-                    </td>
-                    <td className="px-6 py-4 text-base font-semibold text-slate-700">{g.issuedToName || "—"}</td>
-                    <td className="px-6 py-4 text-base font-semibold text-slate-600">{currency(g.initialAmount)}</td>
-                    <td className="px-6 py-4"><span className="text-xl font-black text-sky-600">{currency(g.balance)}</span></td>
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-600">{g.expiryDate ? new Date(g.expiryDate).toLocaleDateString("en-GB") : "—"}</td>
-                    <td className="px-6 py-4">
-                      <span className={`rounded-sm px-3 py-1 text-xs font-bold ${g.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : g.status === "EXPIRED" ? "bg-slate-100 text-slate-500" : "bg-rose-100 text-rose-600"}`}>{g.status}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => { setGcTxModal({ mode: "redeem", card: g }); setGcTxForm({ amount: "" }); }} className="rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-bold text-white hover:bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] shadow-2xs transition-all">Redeem</button>
-                        <button onClick={() => { setGcTxModal({ mode: "reload", card: g }); setGcTxForm({ amount: "" }); }} className="rounded-sm bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-600 shadow-2xs transition-all">Reload</button>
-                        <button onClick={() => openGcDetail(g)} className="rounded-sm border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 shadow-2xs transition-all">History</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {giftCards.length === 0 && <tr><td colSpan={7} className="px-6 py-16 text-center text-sm font-medium text-slate-400">No gift cards yet — issue one to get started.</td></tr>}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════ MODAL: New Tier ══════════ */}
-      <CustomModal open={showTier} onClose={() => setShowTier(false)} title="Create New Loyalty Tier" size="md">
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <CustomInput label="Tier Name" placeholder="e.g. Platinum" value={tierForm.name}
-              onChange={(e) => setTierForm({ ...tierForm, name: e.target.value })} />
-            <CustomInput label="Code (UPPERCASE)" placeholder="e.g. PLATINUM" value={tierForm.code}
-              onChange={(e) => setTierForm({ ...tierForm, code: e.target.value.toUpperCase() })} />
+          <CustomTable
+            title="Customer Prepaid Digital Wallets"
+            subtitle="Customer stored prepaid balances, credits, debits and activity logs"
+            icon={WalletIcon}
+            badge={
+              <span className="rounded-sm bg-sky-100/80 border border-sky-200/80 px-2 py-0.5 text-[10.5px] font-bold text-[#0284C7]">
+                {wallets.length} Records
+              </span>
+            }
+            toolbar={
+              <div className="relative w-full sm:w-64">
+                <Search
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  type="text"
+                  value={walSearch}
+                  onChange={(e) => setWalSearch(e.target.value)}
+                  placeholder="Search wallet customer..."
+                  className="w-full rounded-sm border border-sky-200/90 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                />
+              </div>
+            }
+            columns={walletColumns}
+            data={wallets}
+            rowKey="id"
+            loading={loadingWallets}
+            emptyMessage="No customer digital wallets registered yet."
+            pageSize={10}
+          />
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── TAB 3: GIFT CARDS ── */}
+      {/* ══════════════════════════════════════════════════ */}
+      {tab === "gift" && (
+        <div className="space-y-4">
+          <CustomTable
+            title="Issued Gift Cards & Vouchers"
+            subtitle="Digital e-vouchers and physical gift cards issued to customers"
+            icon={Gift}
+            badge={
+              <span className="rounded-sm bg-sky-100/80 border border-sky-200/80 px-2 py-0.5 text-[10.5px] font-bold text-[#0284C7]">
+                {giftCards.length} Records
+              </span>
+            }
+            toolbar={
+              <div className="relative w-full sm:w-64">
+                <Search
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  type="text"
+                  value={gcSearch}
+                  onChange={(e) => setGcSearch(e.target.value)}
+                  placeholder="Search card number or holder..."
+                  className="w-full rounded-sm border border-sky-200/90 bg-white pl-8 pr-3 py-1.5 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                />
+              </div>
+            }
+            columns={giftCardColumns}
+            data={giftCards}
+            rowKey="id"
+            loading={loadingGiftCards}
+            emptyMessage="No gift cards or vouchers have been issued yet."
+            pageSize={10}
+          />
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── MODAL 1: Loyalty Earn Rules & Settings (ENLARGED) ── */}
+      {/* ══════════════════════════════════════════════════ */}
+      <CustomModal
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+        title="Loyalty Earn Rules & System Settings"
+        size="2xl"
+      >
+        <div className="space-y-5">
+          <div className="rounded-sm border border-sky-200/80 bg-gradient-to-r from-sky-50 via-sky-50/50 to-white p-4 shadow-2xs">
+            <div className="flex items-start gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-sky-100 text-[#0284C7] font-bold shrink-0">
+                <Coins size={18} />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold text-[#0369A1]">Points Calculation & Redemption Policy</h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Configure the global points conversion rates and redemption eligibility threshold for checkout.
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <CustomInput label="Min Points" type="number" placeholder="0" value={tierForm.minPoints}
-              onChange={(e) => setTierForm({ ...tierForm, minPoints: e.target.value })} />
-            <CustomInput label="Points Multiplier" type="number" step="0.1" placeholder="1.0" value={tierForm.multiplier}
-              onChange={(e) => setTierForm({ ...tierForm, multiplier: e.target.value })} />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Points per ৳1 spent</label>
+              <input
+                type="number"
+                step="any"
+                min="0"
+                value={settingsForm.pointsPerAmount ?? ""}
+                onChange={(e) =>
+                  setSettingsForm({ ...settingsForm, pointsPerAmount: e.target.value })
+                }
+                className={inputClass}
+                placeholder="e.g. 1 (1 pt per ৳1)"
+              />
+              <p className="mt-1 text-[11px] text-gray-400 font-medium">
+                Example: 1 = customer receives 1 point for every ৳1 spent.
+              </p>
+            </div>
+
+            <div>
+              <label className={labelClass}>৳ value per point</label>
+              <input
+                type="number"
+                step="any"
+                min="0"
+                value={settingsForm.redeemValuePerPoint ?? ""}
+                onChange={(e) =>
+                  setSettingsForm({ ...settingsForm, redeemValuePerPoint: e.target.value })
+                }
+                className={inputClass}
+                placeholder="e.g. 0.25 (৳0.25 per point)"
+              />
+              <p className="mt-1 text-[11px] text-gray-400 font-medium">
+                Example: 0.25 = 100 points equals ৳25 discount at checkout.
+              </p>
+            </div>
+
+            <div>
+              <label className={labelClass}>Minimum points to redeem</label>
+              <input
+                type="number"
+                min="0"
+                value={settingsForm.minRedeemPoints ?? ""}
+                onChange={(e) =>
+                  setSettingsForm({ ...settingsForm, minRedeemPoints: e.target.value })
+                }
+                className={inputClass}
+                placeholder="e.g. 100"
+              />
+              <p className="mt-1 text-[11px] text-gray-400 font-medium">
+                Customers must have at least this balance to redeem at POS.
+              </p>
+            </div>
+
+            <div>
+              <label className={labelClass}>Points expiry period (months)</label>
+              <input
+                type="number"
+                min="0"
+                value={settingsForm.expiryMonths ?? ""}
+                onChange={(e) =>
+                  setSettingsForm({ ...settingsForm, expiryMonths: e.target.value })
+                }
+                className={inputClass}
+                placeholder="e.g. 12 (0 = never expire)"
+              />
+              <p className="mt-1 text-[11px] text-gray-400 font-medium">
+                Set 0 if points should never expire.
+              </p>
+            </div>
           </div>
-          <CustomInput label="Cashback Rate (%)" type="number" step="0.01" placeholder="0" value={tierForm.cashbackRate}
-            onChange={(e) => setTierForm({ ...tierForm, cashbackRate: e.target.value })} />
-          <div>
-            <label className="mb-1.5 block text-[15px] font-semibold text-gray-600">Benefits / Description</label>
-            <textarea rows={3} value={tierForm.benefits} placeholder="e.g. Free delivery, priority support…"
-              onChange={(e) => setTierForm({ ...tierForm, benefits: e.target.value })}
-              className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
+
+          <div className="rounded-sm border border-sky-100/90 bg-sky-50/30 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-gray-700">Points Earning Enabled</p>
+                <p className="text-[11px] text-gray-500">Allow customers to automatically collect loyalty points on orders</p>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setSettingsForm({ ...settingsForm, earnEnabled: !settingsForm.earnEnabled })
+                }
+                className={`relative h-6 w-11 rounded-full transition-colors cursor-pointer shrink-0 ${
+                  settingsForm.earnEnabled ? "bg-emerald-500" : "bg-slate-300"
+                }`}
+              >
+                <span
+                  className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-xs transition-all ${
+                    settingsForm.earnEnabled ? "left-6" : "left-1"
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div className="border-t border-sky-100/90" />
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-gray-700">Redemption Enabled</p>
+                <p className="text-[11px] text-gray-500">Allow customers to redeem accumulated points for instant cash discount at POS</p>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setSettingsForm({ ...settingsForm, redeemEnabled: !settingsForm.redeemEnabled })
+                }
+                className={`relative h-6 w-11 rounded-full transition-colors cursor-pointer shrink-0 ${
+                  settingsForm.redeemEnabled ? "bg-emerald-500" : "bg-slate-300"
+                }`}
+              >
+                <span
+                  className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-xs transition-all ${
+                    settingsForm.redeemEnabled ? "left-6" : "left-1"
+                  }`}
+                />
+              </button>
+            </div>
           </div>
-          <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setShowTier(false)}
-              className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-sky-100">
+            <CustomButton
+              variant="danger"
+              size="sm"
+              onClick={() => setShowSettings(false)}
+            >
               Cancel
-            </button>
-            <button onClick={createTier}
-              className="rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-violet-500/30 hover:bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] transition-all">
-              Create Tier
-            </button>
+            </CustomButton>
+
+            <CustomButton
+              variant="primary"
+              size="sm"
+              loading={savingSettings}
+              onClick={saveSettings}
+              leftIcon={<CheckCircle2 size={14} />}
+            >
+              Save Settings
+            </CustomButton>
           </div>
         </div>
       </CustomModal>
 
-      {/* ══════════ MODAL: Edit Tier ══════════ */}
-      <CustomModal open={!!editingTier} onClose={() => setEditingTier(null)} title={`Edit Tier — ${editingTier?.name ?? ""}`} size="md">
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── MODAL 2: Create Loyalty Tier (ENLARGED) ── */}
+      {/* ══════════════════════════════════════════════════ */}
+      <CustomModal
+        open={showTier}
+        onClose={() => setShowTier(false)}
+        title="Create New Loyalty Membership Tier"
+        size="2xl"
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>
+                Tier Name <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Platinum, VIP Club"
+                value={tierForm.name}
+                onChange={(e) => setTierForm({ ...tierForm, name: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>
+                Tier Code <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. PLATINUM, VIP"
+                value={tierForm.code}
+                onChange={(e) => setTierForm({ ...tierForm, code: e.target.value.toUpperCase() })}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Min Points to Qualify</label>
+              <input
+                type="number"
+                min="0"
+                placeholder="e.g. 5000"
+                value={tierForm.minPoints}
+                onChange={(e) => setTierForm({ ...tierForm, minPoints: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Points Multiplier (Rate)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="1"
+                placeholder="1.0"
+                value={tierForm.multiplier}
+                onChange={(e) => setTierForm({ ...tierForm, multiplier: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Cashback Rate (%)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                value={tierForm.cashbackRate}
+                onChange={(e) => setTierForm({ ...tierForm, cashbackRate: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Tier Theme Style</label>
+              <CustomDropdownSelect
+                value={tierForm.color}
+                onChange={(val) => setTierForm({ ...tierForm, color: val })}
+                options={[
+                  { label: "Amber / Gold Tier", value: "amber" },
+                  { label: "VIP / Sky Blue", value: "VIP" },
+                  { label: "Platinum / Cyan", value: "cyan" },
+                  { label: "Silver / Slate", value: "slate" },
+                  { label: "Bronze / Orange", value: "orange" },
+                ]}
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className={labelClass}>Benefits & Privileges Description</label>
+              <textarea
+                rows={2}
+                placeholder="e.g. Priority customer support, free home delivery, dedicated discount rate..."
+                value={tierForm.benefits}
+                onChange={(e) => setTierForm({ ...tierForm, benefits: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-sky-100">
+            <CustomButton
+              variant="danger"
+              size="sm"
+              onClick={() => setShowTier(false)}
+            >
+              Cancel
+            </CustomButton>
+
+            <CustomButton
+              variant="primary"
+              size="sm"
+              loading={submittingTier}
+              onClick={createTier}
+              leftIcon={<Plus size={14} />}
+            >
+              Create Tier
+            </CustomButton>
+          </div>
+        </div>
+      </CustomModal>
+
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── MODAL 3: Edit Loyalty Tier (ENLARGED) ── */}
+      {/* ══════════════════════════════════════════════════ */}
+      <CustomModal
+        open={Boolean(editingTier)}
+        onClose={() => setEditingTier(null)}
+        title={`Edit Loyalty Tier — ${editingTier?.name ?? ""}`}
+        size="2xl"
+      >
         {editingTier && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <CustomInput label="Tier Name" placeholder="e.g. Platinum" value={editTierForm.name}
-                onChange={(e) => setEditTierForm({ ...editTierForm, name: e.target.value })} />
-              <CustomInput label="Code (UPPERCASE)" placeholder="e.g. PLATINUM" value={editTierForm.code}
-                onChange={(e) => setEditTierForm({ ...editTierForm, code: e.target.value.toUpperCase() })} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>
+                  Tier Name <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editTierForm.name || ""}
+                  onChange={(e) => setEditTierForm({ ...editTierForm, name: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>
+                  Tier Code <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editTierForm.code || ""}
+                  onChange={(e) => setEditTierForm({ ...editTierForm, code: e.target.value.toUpperCase() })}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Min Points to Qualify</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={editTierForm.minPoints || ""}
+                  onChange={(e) => setEditTierForm({ ...editTierForm, minPoints: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Points Multiplier</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="1"
+                  value={editTierForm.multiplier || ""}
+                  onChange={(e) => setEditTierForm({ ...editTierForm, multiplier: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Cashback Rate (%)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={editTierForm.cashbackRate || ""}
+                  onChange={(e) => setEditTierForm({ ...editTierForm, cashbackRate: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Tier Theme Style</label>
+                <CustomDropdownSelect
+                  value={editTierForm.color || "amber"}
+                  onChange={(val) => setEditTierForm({ ...editTierForm, color: val })}
+                  options={[
+                    { label: "Amber / Gold Tier", value: "amber" },
+                    { label: "VIP / Sky Blue", value: "VIP" },
+                    { label: "Platinum / Cyan", value: "cyan" },
+                    { label: "Silver / Slate", value: "slate" },
+                    { label: "Bronze / Orange", value: "orange" },
+                  ]}
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className={labelClass}>Benefits & Privileges Description</label>
+                <textarea
+                  rows={2}
+                  value={editTierForm.benefits || ""}
+                  onChange={(e) => setEditTierForm({ ...editTierForm, benefits: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <CustomInput label="Min Points" type="number" placeholder="0" value={editTierForm.minPoints}
-                onChange={(e) => setEditTierForm({ ...editTierForm, minPoints: e.target.value })} />
-              <CustomInput label="Points Multiplier" type="number" step="0.1" placeholder="1.0" value={editTierForm.multiplier}
-                onChange={(e) => setEditTierForm({ ...editTierForm, multiplier: e.target.value })} />
-            </div>
-            <CustomInput label="Cashback Rate (%)" type="number" step="0.01" placeholder="0" value={editTierForm.cashbackRate}
-              onChange={(e) => setEditTierForm({ ...editTierForm, cashbackRate: e.target.value })} />
-            <div>
-              <label className="mb-1.5 block text-[15px] font-semibold text-gray-600">Benefits / Description</label>
-              <textarea rows={3} value={editTierForm.benefits} placeholder="e.g. Free delivery, priority support…"
-                onChange={(e) => setEditTierForm({ ...editTierForm, benefits: e.target.value })}
-                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
-            </div>
-            <div className="flex justify-end gap-3 pt-2">
-              <button onClick={() => setEditingTier(null)}
-                className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-sky-100">
+              <CustomButton
+                variant="danger"
+                size="sm"
+                onClick={() => setEditingTier(null)}
+              >
                 Cancel
-              </button>
-              <button onClick={saveEditTier}
-                className="rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-violet-500/30 hover:bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] transition-all">
+              </CustomButton>
+
+              <CustomButton
+                variant="primary"
+                size="sm"
+                loading={savingEditTier}
+                onClick={saveEditTier}
+                leftIcon={<CheckCircle2 size={14} />}
+              >
                 Save Changes
-              </button>
+              </CustomButton>
             </div>
           </div>
         )}
       </CustomModal>
 
-      {/* ══════════ MODAL: Earn Rules (Settings) ══════════ */}
-      <CustomModal open={showSettings} onClose={() => setShowSettings(false)} title="Loyalty Earn Rules & Settings" size="md">
-        <div className="space-y-4">
-          <div className="rounded-sm bg-violet-50 border border-violet-100 p-4">
-            <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-1">Points Earning</p>
-            <p className="text-xs text-slate-500">How many points a customer earns per ৳1 spent</p>
-          </div>
-
-          {/* Row 1 */}
-          <div className="grid grid-cols-2 gap-4 items-start">
-            <div>
-              <label className="mb-1.5 block text-[13px] font-semibold text-gray-600">Points per ৳1 spent</label>
-              <input type="number" step="0.01" value={settingsForm.pointsPerAmount ?? ""}
-                onChange={(e) => setSettingsForm({ ...settingsForm, pointsPerAmount: e.target.value })}
-                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
-              <p className="mt-1 text-xs text-gray-400">e.g. 1 = 1 pt per ৳1</p>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-[13px] font-semibold text-gray-600">৳ value per point</label>
-              <input type="number" step="0.01" value={settingsForm.redeemValuePerPoint ?? ""}
-                onChange={(e) => setSettingsForm({ ...settingsForm, redeemValuePerPoint: e.target.value })}
-                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
-              <p className="mt-1 text-xs text-gray-400">e.g. 0.25 = ৳0.25/pt</p>
-            </div>
-          </div>
-
-          {/* Row 2 */}
-          <div className="grid grid-cols-2 gap-4 items-start">
-            <div>
-              <label className="mb-1.5 block text-[13px] font-semibold text-gray-600">Min points to redeem</label>
-              <input type="number" value={settingsForm.minRedeemPoints ?? ""}
-                onChange={(e) => setSettingsForm({ ...settingsForm, minRedeemPoints: e.target.value })}
-                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
-              <p className="mt-1 text-xs text-gray-400">Minimum to redeem</p>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-[13px] font-semibold text-gray-600">Points expiry (months)</label>
-              <input type="number" value={settingsForm.expiryMonths ?? ""}
-                onChange={(e) => setSettingsForm({ ...settingsForm, expiryMonths: e.target.value })}
-                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100" />
-              <p className="mt-1 text-xs text-gray-400">0 = never expire</p>
-            </div>
-          </div>
-
-          {/* Toggles */}
-          <div className="rounded-sm border border-sky-100/70 bg-slate-50 p-4 flex flex-col gap-3">
-            <label className="flex items-center justify-between cursor-pointer">
-              <span className="text-sm font-semibold text-slate-700">Points Earning Enabled</span>
-              <button type="button" onClick={() => setSettingsForm({ ...settingsForm, earnEnabled: !settingsForm.earnEnabled })}
-                className={`relative h-6 w-11 rounded-full transition-all flex-shrink-0 ${settingsForm.earnEnabled ? "bg-emerald-500" : "bg-slate-300"}`}>
-                <span className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-all ${settingsForm.earnEnabled ? "left-6" : "left-1"}`} />
-              </button>
-            </label>
-            <div className="border-t border-sky-100/90" />
-            <label className="flex items-center justify-between cursor-pointer">
-              <span className="text-sm font-semibold text-slate-700">Redemption Enabled</span>
-              <button type="button" onClick={() => setSettingsForm({ ...settingsForm, redeemEnabled: !settingsForm.redeemEnabled })}
-                className={`relative h-6 w-11 rounded-full transition-all flex-shrink-0 ${settingsForm.redeemEnabled ? "bg-emerald-500" : "bg-slate-300"}`}>
-                <span className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-all ${settingsForm.redeemEnabled ? "left-6" : "left-1"}`} />
-              </button>
-            </label>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-1">
-            <button onClick={() => setShowSettings(false)}
-              className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-              Cancel
-            </button>
-            <button onClick={saveSettings}
-              className="rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-violet-500/30 hover:bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] transition-all">
-              Save Settings
-            </button>
-          </div>
-        </div>
-      </CustomModal>
-
-      {/* ══════════ MODAL: Earn Points ══════════ */}
-      <CustomModal open={!!earnAcc} onClose={() => setEarnAcc(null)} title="Earn Points" size="sm">
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── MODAL 4: Earn Points (ENLARGED) ── */}
+      {/* ══════════════════════════════════════════════════ */}
+      <CustomModal
+        open={Boolean(earnAcc)}
+        onClose={() => setEarnAcc(null)}
+        title="Add Earned Loyalty Points"
+        size="lg"
+      >
         {earnAcc && (
           <div className="space-y-4">
-            <div className="rounded-sm bg-emerald-50 border border-emerald-100 p-4">
-              <p className="text-sm font-bold text-slate-700">{earnAcc.customerName}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{earnAcc.phone} · {earnAcc.pointsBalance?.toLocaleString()} pts current</p>
+            <div className="rounded-sm border border-emerald-200 bg-emerald-50/50 p-4 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xs font-bold text-emerald-900">{earnAcc.customerName}</h3>
+                  <p className="text-[11px] text-emerald-700 font-medium mt-0.5">
+                    {earnAcc.phone || "No phone registered"} · Current Rank: {earnAcc.tier}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-base font-black text-emerald-800">
+                    {Number(earnAcc.pointsBalance || 0).toLocaleString()}
+                  </span>
+                  <p className="text-[10px] text-emerald-600 font-bold uppercase">Current Points</p>
+                </div>
+              </div>
             </div>
-            <CustomInput label="Purchase Amount (৳)" type="number" step="0.01" placeholder="0.00" value={earnAmount}
-              onChange={(e) => setEarnAmount(e.target.value)} hint="Points will be auto-calculated based on earn rules" />
-            <div className="flex justify-end gap-3 pt-2">
-              <button onClick={() => setEarnAcc(null)}
-                className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
-              <button onClick={earnPoints} disabled={!earnAmount}
-                className="rounded-sm bg-emerald-600 px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-emerald-500/30 hover:bg-emerald-500 disabled:opacity-50 transition-all">
-                Earn Points
-              </button>
+
+            <div>
+              <label className={labelClass}>
+                Purchase / Transaction Amount (৳) <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0284C7] font-bold">
+                  ৳
+                </span>
+                <input
+                  type="number"
+                  step="any"
+                  min="0.01"
+                  required
+                  placeholder="0.00"
+                  value={earnAmount}
+                  onChange={(e) => setEarnAmount(e.target.value)}
+                  className={`${inputClass} pl-7`}
+                />
+              </div>
+              {Number(earnAmount) > 0 && (
+                <p className="mt-1.5 text-xs text-[#0284C7] font-semibold">
+                  Estimated Earn: ~{Math.round(Number(earnAmount) * (settings?.pointsPerAmount || 1))} points
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-sky-100">
+              <CustomButton
+                variant="danger"
+                size="sm"
+                onClick={() => setEarnAcc(null)}
+              >
+                Cancel
+              </CustomButton>
+
+              <CustomButton
+                variant="primary"
+                size="sm"
+                disabled={!earnAmount || Number(earnAmount) <= 0}
+                loading={earningPoints}
+                onClick={earnPoints}
+                leftIcon={<Plus size={14} />}
+              >
+                Confirm Points
+              </CustomButton>
             </div>
           </div>
         )}
       </CustomModal>
 
-      {/* ══════════ MODAL: Redeem Points ══════════ */}
-      <CustomModal open={!!redeemAcc} onClose={() => setRedeemAcc(null)} title="Redeem Points" size="sm">
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── MODAL 5: Redeem Points (ENLARGED) ── */}
+      {/* ══════════════════════════════════════════════════ */}
+      <CustomModal
+        open={Boolean(redeemAcc)}
+        onClose={() => setRedeemAcc(null)}
+        title="Redeem Loyalty Points for Discount"
+        size="lg"
+      >
         {redeemAcc && (
           <div className="space-y-4">
-            <div className="rounded-sm bg-amber-50 border border-amber-100 p-4">
-              <p className="text-sm font-bold text-slate-700">{redeemAcc.customerName}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{redeemAcc.phone} · <span className="font-semibold text-amber-600">{redeemAcc.pointsBalance?.toLocaleString()} pts available</span></p>
-            </div>
-            <CustomInput label="Points to Redeem" type="number" placeholder="0" value={redeemPts}
-              onChange={(e) => setRedeemPts(e.target.value)} hint="Discount value will be calculated from earn rules" />
-            <div className="flex justify-end gap-3 pt-2">
-              <button onClick={() => setRedeemAcc(null)}
-                className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
-              <button onClick={redeemPoints} disabled={!redeemPts}
-                className="rounded-sm bg-amber-500 px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-amber-500/30 hover:bg-amber-400 disabled:opacity-50 transition-all">
-                Redeem
-              </button>
-            </div>
-          </div>
-        )}
-      </CustomModal>
-
-      {/* ══════════ MODAL: Loyalty Ledger ══════════ */}
-      <CustomModal open={!!ledgerFor} onClose={() => setLedgerFor(null)} title={`Ledger — ${ledgerFor?.customerName ?? ""}`} size="2xl">
-        {ledgerFor && (
-          <div className="space-y-3">
-            {ledger.length === 0 && <p className="text-center text-sm text-slate-400 py-8">No transactions found.</p>}
-            {ledger.map((row) => (
-              <div key={row.id} className="flex items-center justify-between rounded-sm border border-sky-100/70 bg-slate-50 px-4 py-3">
+            <div className="rounded-sm border border-amber-200 bg-amber-50/50 p-4 shadow-2xs">
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-bold text-slate-700 capitalize">{row.type.replace(/_/g, " ")}</p>
-                  {row.note && <p className="text-xs text-slate-400 mt-0.5">{row.note}</p>}
-                  <p className="text-xs text-slate-400 mt-0.5">{new Date(row.createdAt).toLocaleString("en-BD")}</p>
+                  <h3 className="text-xs font-bold text-amber-900">{redeemAcc.customerName}</h3>
+                  <p className="text-[11px] text-amber-700 font-medium mt-0.5">
+                    {redeemAcc.phone || "No phone registered"} · Current Rank: {redeemAcc.tier}
+                  </p>
                 </div>
                 <div className="text-right">
-                  {row.pointsEarned != null && <p className="text-sm font-black text-emerald-600">+{row.pointsEarned} pts</p>}
-                  {row.pointsRedeemed != null && <p className="text-sm font-black text-rose-500">−{row.pointsRedeemed} pts</p>}
-                  {row.balanceAfter != null && <p className="text-xs text-slate-400">Balance: {row.balanceAfter} pts</p>}
+                  <span className="text-base font-black text-amber-800">
+                    {Number(redeemAcc.pointsBalance || 0).toLocaleString()}
+                  </span>
+                  <p className="text-[10px] text-amber-600 font-bold uppercase">Points Available</p>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className={labelClass}>
+                  Points to Redeem <span className="text-rose-500">*</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setRedeemPts(String(redeemAcc.pointsBalance || 0))}
+                  className="text-[11px] font-bold text-[#0284C7] hover:underline cursor-pointer"
+                >
+                  Use Max Available ({redeemAcc.pointsBalance || 0})
+                </button>
+              </div>
+
+              <input
+                type="number"
+                min="1"
+                max={redeemAcc.pointsBalance}
+                placeholder="0"
+                value={redeemPts}
+                onChange={(e) => setRedeemPts(e.target.value)}
+                className={inputClass}
+              />
+
+              {Number(redeemPts) > 0 && (
+                <p className="mt-1.5 text-xs text-emerald-700 font-bold">
+                  Discount Credit Equivalent: ~{currency(Number(redeemPts) * (settings?.redeemValuePerPoint || 0.25))}
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-sky-100">
+              <CustomButton
+                variant="danger"
+                size="sm"
+                onClick={() => setRedeemAcc(null)}
+              >
+                Cancel
+              </CustomButton>
+
+              <CustomButton
+                variant="primary"
+                size="sm"
+                disabled={!redeemPts || Number(redeemPts) <= 0 || Number(redeemPts) > redeemAcc.pointsBalance}
+                loading={redeemingPoints}
+                onClick={redeemPoints}
+                leftIcon={<Coins size={14} />}
+              >
+                Redeem Discount
+              </CustomButton>
+            </div>
           </div>
         )}
       </CustomModal>
 
-      {/* ══════════ MODAL: Wallet Credit / Debit ══════════ */}
-      <CustomModal open={!!walTxModal} onClose={() => setWalTxModal(null)}
-        title={walTxModal?.mode === "credit" ? "Credit Wallet" : "Debit Wallet"} size="sm">
-        {walTxModal && (
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── MODAL 6: Loyalty Ledger (ENLARGED) ── */}
+      {/* ══════════════════════════════════════════════════ */}
+      <CustomModal
+        open={Boolean(ledgerFor)}
+        onClose={() => setLedgerFor(null)}
+        title={`Points Ledger History — ${ledgerFor?.customerName ?? ""}`}
+        size="2xl"
+      >
+        {ledgerFor && (
           <div className="space-y-4">
-            <div className={`rounded-sm p-4 border ${walTxModal.mode === "credit" ? "bg-emerald-50 border-emerald-100" : "bg-rose-50 border-rose-100"}`}>
-              <p className="text-sm font-bold text-slate-700">{walTxModal.account.customerName}</p>
-              <p className="text-xs text-slate-400 mt-0.5">Current balance: <span className="font-bold text-slate-600">{currency(walTxModal.account.balance)}</span></p>
-            </div>
-            <CustomInput label="Amount (৳)" type="number" step="0.01" placeholder="0.00" value={walForm.amount}
-              onChange={(e) => setWalForm({ ...walForm, amount: e.target.value })} />
-            {walTxModal.mode === "credit" && (
+            <div className="flex items-center justify-between rounded-sm bg-sky-50/60 border border-sky-200/80 p-3.5 shadow-2xs">
               <div>
-                <label className="mb-1.5 block text-[15px] font-semibold text-gray-600">Transaction Type</label>
-                <select value={walForm.type} onChange={(e) => setWalForm({ ...walForm, type: e.target.value })}
-                  className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100">
-                  <option value="ADD">Add Funds</option>
-                  <option value="CASHBACK">Cashback</option>
-                  <option value="REFUND">Refund</option>
-                  <option value="BONUS">Bonus</option>
-                </select>
+                <h4 className="text-xs font-bold text-[#0369A1]">{ledgerFor.customerName}</h4>
+                <p className="text-[11px] text-gray-500">{ledgerFor.phone || "No contact"} · Membership: {ledgerFor.tier}</p>
+              </div>
+              <div className="text-right">
+                <span className="text-base font-black text-amber-700">
+                  {Number(ledgerFor.pointsBalance || 0).toLocaleString()} pts
+                </span>
+                <p className="text-[10px] text-gray-400 font-semibold">Current Balance</p>
+              </div>
+            </div>
+
+            {ledgerLoading ? (
+              <div className="py-12 text-center">
+                <Loader2 size={24} className="mx-auto animate-spin text-[#0284C7]" />
+                <p className="text-xs text-gray-500 mt-2">Loading transactions...</p>
+              </div>
+            ) : ledger.length === 0 ? (
+              <div className="py-12 text-center rounded-sm border border-dashed border-sky-200 bg-sky-50/20 text-xs text-gray-400">
+                No point transaction logs recorded yet for this customer.
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-1">
+                {ledger.map((row) => (
+                  <div
+                    key={row.id}
+                    className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs hover:border-sky-300 transition"
+                  >
+                    <div>
+                      <p className="text-xs font-bold text-gray-700 capitalize">
+                        {row.type.replace(/_/g, " ")}
+                      </p>
+                      {row.note && <p className="text-[11px] text-gray-500 mt-0.5">{row.note}</p>}
+                      <p className="text-[10.5px] text-gray-400 mt-0.5">
+                        {new Date(row.createdAt).toLocaleString("en-BD")}
+                      </p>
+                    </div>
+
+                    <div className="text-right">
+                      {row.pointsEarned != null && (
+                        <p className="text-xs font-black text-emerald-700">+{row.pointsEarned} pts</p>
+                      )}
+                      {row.pointsRedeemed != null && (
+                        <p className="text-xs font-black text-rose-600">−{row.pointsRedeemed} pts</p>
+                      )}
+                      {row.balanceAfter != null && (
+                        <p className="text-[10.5px] text-gray-400 font-medium">Balance: {row.balanceAfter} pts</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
-            <CustomInput label="Note (optional)" placeholder="Reason…" value={walForm.note}
-              onChange={(e) => setWalForm({ ...walForm, note: e.target.value })} />
-            <div className="flex justify-end gap-3 pt-2">
-              <button onClick={() => setWalTxModal(null)}
-                className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
-              <button onClick={walTxModal.mode === "credit" ? walletCredit : walletDebit} disabled={!walForm.amount}
-                className={`rounded-sm px-5 py-2.5 text-sm font-black text-white shadow-2xs disabled:opacity-50 transition-all ${walTxModal.mode === "credit" ? "bg-emerald-600 shadow-emerald-500/30 hover:bg-emerald-500" : "bg-rose-500 shadow-rose-500/30 hover:bg-rose-400"}`}>
-                {walTxModal.mode === "credit" ? "Credit" : "Debit"}
-              </button>
+
+            <div className="flex justify-end pt-2 border-t border-sky-100">
+              <CustomButton
+                variant="danger"
+                size="sm"
+                onClick={() => setLedgerFor(null)}
+              >
+                Close
+              </CustomButton>
             </div>
           </div>
         )}
       </CustomModal>
 
-      {/* ══════════ MODAL: Wallet Ledger Detail ══════════ */}
-      <CustomModal open={!!walletDetail} onClose={() => setWalletDetail(null)}
-        title={`Wallet — ${walletDetail?.customerName ?? ""}`} size="2xl">
-        {walletDetail && (
-          <div className="space-y-3">
-            <div className="flex gap-4 mb-4">
-              <div className="rounded-sm bg-emerald-50 border border-emerald-100 px-5 py-3 text-center flex-1">
-                <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Balance</p>
-                <p className="text-2xl font-black text-emerald-700 mt-1">{currency(walletDetail.balance)}</p>
-              </div>
-              <div className="rounded-sm bg-slate-50 border border-sky-100/70 px-5 py-3 text-center flex-1">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Credited</p>
-                <p className="text-2xl font-black text-slate-700 mt-1">{currency(walletDetail.lifetimeCredited)}</p>
-              </div>
-              <div className="rounded-sm bg-rose-50 border border-rose-100 px-5 py-3 text-center flex-1">
-                <p className="text-xs font-bold text-rose-400 uppercase tracking-widest">Total Debited</p>
-                <p className="text-2xl font-black text-rose-700 mt-1">{currency(walletDetail.lifetimeDebited)}</p>
-              </div>
-            </div>
-            {(walletDetail.transactions ?? []).length === 0 && <p className="text-center text-sm text-slate-400 py-8">No transactions found.</p>}
-            {(walletDetail.transactions ?? []).map((tx: any) => (
-              <div key={tx.id} className="flex items-center justify-between rounded-sm border border-sky-100/70 bg-slate-50 px-4 py-3">
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── MODAL 7: Wallet Credit / Debit (ENLARGED) ── */}
+      {/* ══════════════════════════════════════════════════ */}
+      <CustomModal
+        open={Boolean(walTxModal)}
+        onClose={() => setWalTxModal(null)}
+        title={walTxModal?.mode === "credit" ? "Credit Customer Wallet" : "Debit Customer Wallet"}
+        size="lg"
+      >
+        {walTxModal && (
+          <div className="space-y-4">
+            <div
+              className={`rounded-sm border p-4 shadow-2xs ${
+                walTxModal.mode === "credit"
+                  ? "border-emerald-200 bg-emerald-50/50"
+                  : "border-rose-200 bg-rose-50/50"
+              }`}
+            >
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-bold text-slate-700 capitalize">{tx.type?.replace(/_/g, " ")}</p>
-                  {tx.note && <p className="text-xs text-slate-400 mt-0.5">{tx.note}</p>}
-                  <p className="text-xs text-slate-400 mt-0.5">{new Date(tx.createdAt).toLocaleString("en-BD")}</p>
+                  <h3
+                    className={`text-xs font-bold ${
+                      walTxModal.mode === "credit" ? "text-emerald-900" : "text-rose-900"
+                    }`}
+                  >
+                    {walTxModal.account.customerName}
+                  </h3>
+                  <p className="text-[11px] text-gray-500 font-medium mt-0.5">
+                    {walTxModal.account.phone || "No phone"}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className={`text-sm font-black ${Number(tx.amount) >= 0 ? "text-emerald-600" : "text-rose-500"}`}>
-                    {Number(tx.amount) >= 0 ? "+" : ""}{currency(tx.amount)}
-                  </p>
-                  {tx.balanceAfter != null && <p className="text-xs text-slate-400">Balance: {currency(tx.balanceAfter)}</p>}
+                  <span
+                    className={`text-base font-black ${
+                      walTxModal.mode === "credit" ? "text-emerald-700" : "text-rose-700"
+                    }`}
+                  >
+                    {currency(walTxModal.account.balance)}
+                  </span>
+                  <p className="text-[10px] text-gray-500 font-semibold">Available Balance</p>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div>
+              <label className={labelClass}>
+                Transaction Amount (৳) <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0284C7] font-bold">
+                  ৳
+                </span>
+                <input
+                  type="number"
+                  step="any"
+                  min="0.01"
+                  required
+                  placeholder="0.00"
+                  value={walForm.amount}
+                  onChange={(e) => setWalForm({ ...walForm, amount: e.target.value })}
+                  className={`${inputClass} pl-7`}
+                />
+              </div>
+            </div>
+
+            {walTxModal.mode === "credit" && (
+              <div>
+                <label className={labelClass}>Credit Type</label>
+                <CustomDropdownSelect
+                  value={walForm.type}
+                  onChange={(val) => setWalForm({ ...walForm, type: val })}
+                  options={[
+                    { label: "Deposit / Add Funds", value: "ADD" },
+                    { label: "Cashback Reward", value: "CASHBACK" },
+                    { label: "Order Refund", value: "REFUND" },
+                    { label: "Promotional Bonus", value: "BONUS" },
+                  ]}
+                />
+              </div>
+            )}
+
+            <div>
+              <label className={labelClass}>Reference / Note (Optional)</label>
+              <input
+                type="text"
+                placeholder="Reason or transaction ID..."
+                value={walForm.note}
+                onChange={(e) => setWalForm({ ...walForm, note: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-sky-100">
+              <CustomButton
+                variant="danger"
+                size="sm"
+                onClick={() => setWalTxModal(null)}
+              >
+                Cancel
+              </CustomButton>
+
+              <CustomButton
+                variant="primary"
+                size="sm"
+                disabled={!walForm.amount || Number(walForm.amount) <= 0}
+                loading={submittingWalTx}
+                onClick={walTxModal.mode === "credit" ? walletCredit : walletDebit}
+                leftIcon={walTxModal.mode === "credit" ? <ArrowDownToLine size={14} /> : <ArrowUpFromLine size={14} />}
+              >
+                {walTxModal.mode === "credit" ? "Confirm Credit" : "Confirm Debit"}
+              </CustomButton>
+            </div>
           </div>
         )}
       </CustomModal>
 
-      {/* ══════════ MODAL: Issue Gift Card ══════════ */}
-      <CustomModal open={showGc} onClose={() => setShowGc(false)} title="Issue New Gift Card" size="md">
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <CustomInput label="Card No (optional)" placeholder="Auto-generated if blank" value={gcForm.cardNo}
-              onChange={(e) => setGcForm({ ...gcForm, cardNo: e.target.value })} />
-            <div>
-              <label className="mb-1.5 block text-[15px] font-semibold text-gray-600">Card Type</label>
-              <select value={gcForm.cardType} onChange={(e) => setGcForm({ ...gcForm, cardType: e.target.value })}
-                className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100">
-                <option value="DIGITAL">Digital</option>
-                <option value="PHYSICAL">Physical</option>
-              </select>
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── MODAL 8: Wallet Detail Ledger (ENLARGED) ── */}
+      {/* ══════════════════════════════════════════════════ */}
+      <CustomModal
+        open={Boolean(walletDetail)}
+        onClose={() => setWalletDetail(null)}
+        title={`Wallet Transactions — ${walletDetail?.customerName ?? ""}`}
+        size="2xl"
+      >
+        {walletDetail && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-sm bg-emerald-50/70 border border-emerald-200 p-3 text-center shadow-2xs">
+                <p className="text-[10.5px] font-bold text-emerald-800 uppercase">Balance</p>
+                <p className="text-lg font-black text-emerald-700 mt-0.5">
+                  {currency(walletDetail.balance)}
+                </p>
+              </div>
+              <div className="rounded-sm bg-sky-50/70 border border-sky-200 p-3 text-center shadow-2xs">
+                <p className="text-[10.5px] font-bold text-[#0369A1] uppercase">Total Credited</p>
+                <p className="text-lg font-black text-[#0369A1] mt-0.5">
+                  {currency(walletDetail.lifetimeCredited)}
+                </p>
+              </div>
+              <div className="rounded-sm bg-rose-50/70 border border-rose-200 p-3 text-center shadow-2xs">
+                <p className="text-[10.5px] font-bold text-rose-800 uppercase">Total Debited</p>
+                <p className="text-lg font-black text-rose-700 mt-0.5">
+                  {currency(walletDetail.lifetimeDebited)}
+                </p>
+              </div>
+            </div>
+
+            {(walletDetail.transactions ?? []).length === 0 ? (
+              <div className="py-12 text-center rounded-sm border border-dashed border-sky-200 bg-sky-50/20 text-xs text-gray-400">
+                No wallet transactions found.
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-1">
+                {(walletDetail.transactions ?? []).map((tx: any) => (
+                  <div
+                    key={tx.id}
+                    className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs hover:border-sky-300 transition"
+                  >
+                    <div>
+                      <p className="text-xs font-bold text-gray-700 capitalize">
+                        {tx.type?.replace(/_/g, " ")}
+                      </p>
+                      {tx.note && <p className="text-[11px] text-gray-500 mt-0.5">{tx.note}</p>}
+                      <p className="text-[10.5px] text-gray-400 mt-0.5">
+                        {new Date(tx.createdAt).toLocaleString("en-BD")}
+                      </p>
+                    </div>
+
+                    <div className="text-right">
+                      <p
+                        className={`text-xs font-black ${
+                          Number(tx.amount) >= 0 ? "text-emerald-700" : "text-rose-600"
+                        }`}
+                      >
+                        {Number(tx.amount) >= 0 ? "+" : ""}
+                        {currency(tx.amount)}
+                      </p>
+                      {tx.balanceAfter != null && (
+                        <p className="text-[10.5px] text-gray-400 font-medium">
+                          Balance: {currency(tx.balanceAfter)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex justify-end pt-2 border-t border-sky-100">
+              <CustomButton
+                variant="danger"
+                size="sm"
+                onClick={() => setWalletDetail(null)}
+              >
+                Close
+              </CustomButton>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <CustomInput label="Initial Amount (৳)" type="number" step="0.01" placeholder="0.00" value={gcForm.initialAmount}
-              onChange={(e) => setGcForm({ ...gcForm, initialAmount: e.target.value })} />
-            <CustomInput label="Expiry Date (optional)" type="date" value={gcForm.expiryDate}
-              onChange={(e) => setGcForm({ ...gcForm, expiryDate: e.target.value })} />
+        )}
+      </CustomModal>
+
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── MODAL 9: Issue Gift Card (ENLARGED) ── */}
+      {/* ══════════════════════════════════════════════════ */}
+      <CustomModal
+        open={showGc}
+        onClose={() => setShowGc(false)}
+        title="Issue New Gift Card Voucher"
+        size="2xl"
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Card Number (Optional)</label>
+              <input
+                type="text"
+                placeholder="Auto-generated if left blank"
+                value={gcForm.cardNo}
+                onChange={(e) => setGcForm({ ...gcForm, cardNo: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Card Format Type</label>
+              <CustomDropdownSelect
+                value={gcForm.cardType}
+                onChange={(val) => setGcForm({ ...gcForm, cardType: val })}
+                options={[
+                  { label: "Digital E-Voucher", value: "DIGITAL" },
+                  { label: "Physical Plastic Card", value: "PHYSICAL" },
+                ]}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>
+                Initial Amount (৳) <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0284C7] font-bold">
+                  ৳
+                </span>
+                <input
+                  type="number"
+                  step="any"
+                  min="1"
+                  required
+                  placeholder="0.00"
+                  value={gcForm.initialAmount}
+                  onChange={(e) => setGcForm({ ...gcForm, initialAmount: e.target.value })}
+                  className={`${inputClass} pl-7`}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className={labelClass}>Expiry Date (Optional)</label>
+              <input
+                type="date"
+                value={gcForm.expiryDate}
+                onChange={(e) => setGcForm({ ...gcForm, expiryDate: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className={labelClass}>Issue to Registered Customer (Optional)</label>
+              <CustomDropdownSelect
+                value={gcForm.issuedToCustomerId}
+                onChange={(val) => setGcForm({ ...gcForm, issuedToCustomerId: val })}
+                placeholder="— Anonymous Holder —"
+                options={[
+                  { label: "— Anonymous Holder —", value: "" },
+                  ...customers.map((c) => ({
+                    label: `${c.name}${c.phone ? ` (${c.phone})` : ""}`,
+                    value: c.id,
+                  })),
+                ]}
+              />
+            </div>
           </div>
-          <div>
-            <label className="mb-1.5 block text-[15px] font-semibold text-gray-600">Issue to Customer (optional)</label>
-            <select value={gcForm.issuedToCustomerId} onChange={(e) => setGcForm({ ...gcForm, issuedToCustomerId: e.target.value })}
-              className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100">
-              <option value="">— Anonymous —</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}{c.phone ? ` (${c.phone})` : ""}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setShowGc(false)}
-              className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
-            <button onClick={createGiftCard} disabled={!gcForm.initialAmount}
-              className="rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-violet-500/30 hover:bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] disabled:opacity-50 transition-all">
-              Issue Card
-            </button>
+
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-sky-100">
+            <CustomButton
+              variant="danger"
+              size="sm"
+              onClick={() => setShowGc(false)}
+            >
+              Cancel
+            </CustomButton>
+
+            <CustomButton
+              variant="primary"
+              size="sm"
+              disabled={!gcForm.initialAmount || Number(gcForm.initialAmount) <= 0}
+              loading={submittingGc}
+              onClick={createGiftCard}
+              leftIcon={<Gift size={14} />}
+            >
+              Issue Gift Card
+            </CustomButton>
           </div>
         </div>
       </CustomModal>
 
-      {/* ══════════ MODAL: Gift Card Redeem / Reload ══════════ */}
-      <CustomModal open={!!gcTxModal} onClose={() => setGcTxModal(null)}
-        title={gcTxModal?.mode === "redeem" ? "Redeem Gift Card" : "Reload Gift Card"} size="sm">
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── MODAL 10: Gift Card Redeem / Reload (ENLARGED) ── */}
+      {/* ══════════════════════════════════════════════════ */}
+      <CustomModal
+        open={Boolean(gcTxModal)}
+        onClose={() => setGcTxModal(null)}
+        title={gcTxModal?.mode === "redeem" ? "Redeem Gift Card" : "Reload Gift Card"}
+        size="lg"
+      >
         {gcTxModal && (
           <div className="space-y-4">
-            <div className={`rounded-sm p-4 border ${gcTxModal.mode === "redeem" ? "bg-violet-50 border-violet-100" : "bg-emerald-50 border-emerald-100"}`}>
-              <p className="font-mono text-sm font-bold text-slate-700">{gcTxModal.card.cardNo}</p>
-              <p className="text-xs text-slate-400 mt-0.5">Balance: <span className="font-bold text-slate-600">{currency(gcTxModal.card.balance)}</span></p>
+            <div className="rounded-sm border border-sky-200 bg-sky-50/50 p-4 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-mono text-xs font-bold text-[#0369A1]">{gcTxModal.card.cardNo}</p>
+                  <p className="text-[11px] text-gray-500 mt-0.5">
+                    Holder: {gcTxModal.card.issuedToName || "Anonymous"} · {gcTxModal.card.cardType}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-base font-black text-[#0284C7]">
+                    {currency(gcTxModal.card.balance)}
+                  </span>
+                  <p className="text-[10px] text-gray-500 font-semibold">Available Balance</p>
+                </div>
+              </div>
             </div>
-            <CustomInput label="Amount (৳)" type="number" step="0.01" placeholder="0.00" value={gcTxForm.amount}
-              onChange={(e) => setGcTxForm({ ...gcTxForm, amount: e.target.value })} />
-            <div className="flex justify-end gap-3 pt-2">
-              <button onClick={() => setGcTxModal(null)}
-                className="rounded-sm border border-sky-100/90 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
-              <button onClick={gcTx} disabled={!gcTxForm.amount}
-                className={`rounded-sm px-5 py-2.5 text-sm font-black text-white shadow-2xs disabled:opacity-50 transition-all ${gcTxModal.mode === "redeem" ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] shadow-violet-500/30 hover:bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8]" : "bg-emerald-600 shadow-emerald-500/30 hover:bg-emerald-500"}`}>
-                {gcTxModal.mode === "redeem" ? "Redeem" : "Reload"}
-              </button>
+
+            <div>
+              <label className={labelClass}>
+                Transaction Amount (৳) <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0284C7] font-bold">
+                  ৳
+                </span>
+                <input
+                  type="number"
+                  step="any"
+                  min="0.01"
+                  required
+                  placeholder="0.00"
+                  value={gcTxForm.amount}
+                  onChange={(e) => setGcTxForm({ ...gcTxForm, amount: e.target.value })}
+                  className={`${inputClass} pl-7`}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-sky-100">
+              <CustomButton
+                variant="danger"
+                size="sm"
+                onClick={() => setGcTxModal(null)}
+              >
+                Cancel
+              </CustomButton>
+
+              <CustomButton
+                variant="primary"
+                size="sm"
+                disabled={!gcTxForm.amount || Number(gcTxForm.amount) <= 0}
+                loading={submittingGcTx}
+                onClick={gcTx}
+                leftIcon={gcTxModal.mode === "redeem" ? <ArrowUpFromLine size={14} /> : <ArrowDownToLine size={14} />}
+              >
+                {gcTxModal.mode === "redeem" ? "Confirm Redemption" : "Confirm Reload"}
+              </CustomButton>
             </div>
           </div>
         )}
       </CustomModal>
 
-      {/* ══════════ MODAL: Gift Card History ══════════ */}
-      <CustomModal open={!!gcDetail} onClose={() => setGcDetail(null)}
-        title={`Gift Card — ${gcDetail?.cardNo ?? ""}`} size="2xl">
+      {/* ══════════════════════════════════════════════════ */}
+      {/* ── MODAL 11: Gift Card History (ENLARGED) ── */}
+      {/* ══════════════════════════════════════════════════ */}
+      <CustomModal
+        open={Boolean(gcDetail)}
+        onClose={() => setGcDetail(null)}
+        title={`Gift Card History — ${gcDetail?.cardNo ?? ""}`}
+        size="2xl"
+      >
         {gcDetail && (
-          <div className="space-y-3">
-            <div className="flex gap-3 mb-4 flex-wrap">
-              <div className="rounded-sm bg-violet-50 border border-violet-100 px-5 py-3 text-center flex-1 min-w-[120px]">
-                <p className="text-xs font-bold text-violet-500 uppercase tracking-widest">Balance</p>
-                <p className="text-2xl font-black text-sky-700 mt-1">{currency(gcDetail.balance)}</p>
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-sm bg-sky-50/70 border border-sky-200 p-3 text-center shadow-2xs">
+                <p className="text-[10.5px] font-bold text-[#0369A1] uppercase">Current Balance</p>
+                <p className="text-lg font-black text-[#0369A1] mt-0.5">
+                  {currency(gcDetail.balance)}
+                </p>
               </div>
-              <div className="rounded-sm bg-slate-50 border border-sky-100/70 px-5 py-3 text-center flex-1 min-w-[120px]">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Initial</p>
-                <p className="text-2xl font-black text-slate-700 mt-1">{currency(gcDetail.initialAmount)}</p>
+              <div className="rounded-sm bg-slate-50/70 border border-slate-200 p-3 text-center shadow-2xs">
+                <p className="text-[10.5px] font-bold text-slate-700 uppercase">Initial Amount</p>
+                <p className="text-lg font-black text-slate-700 mt-0.5">
+                  {currency(gcDetail.initialAmount)}
+                </p>
               </div>
-              <div className={`rounded-sm px-5 py-3 text-center flex-1 min-w-[120px] border ${gcDetail.status === "ACTIVE" ? "bg-emerald-50 border-emerald-100" : "bg-rose-50 border-rose-100"}`}>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Status</p>
-                <p className={`text-lg font-black mt-1 ${gcDetail.status === "ACTIVE" ? "text-emerald-700" : "text-rose-600"}`}>{gcDetail.status}</p>
+              <div
+                className={`rounded-sm p-3 text-center shadow-2xs border ${
+                  gcDetail.status === "ACTIVE"
+                    ? "bg-emerald-50/70 border-emerald-200"
+                    : "bg-rose-50/70 border-rose-200"
+                }`}
+              >
+                <p className="text-[10.5px] font-bold text-slate-700 uppercase">Card Status</p>
+                <p
+                  className={`text-lg font-black mt-0.5 ${
+                    gcDetail.status === "ACTIVE" ? "text-emerald-700" : "text-rose-700"
+                  }`}
+                >
+                  {gcDetail.status}
+                </p>
               </div>
             </div>
+
             {gcDetail.status === "ACTIVE" && (
-              <div className="flex justify-end pb-2">
-                <button onClick={() => disableGc(gcDetail)}
-                  className="flex items-center gap-2 rounded-sm bg-rose-500 px-4 py-2 text-xs font-bold text-white hover:bg-rose-600 shadow-2xs transition-all">
-                  <Ban size={13} /> Disable Card
-                </button>
+              <div className="flex justify-end">
+                <CustomButton
+                  variant="danger"
+                  size="xs"
+                  onClick={() => setCardToDisable(gcDetail)}
+                  leftIcon={<Ban size={12} />}
+                >
+                  Disable Card
+                </CustomButton>
               </div>
             )}
-            {(gcDetail.transactions ?? []).length === 0 && <p className="text-center text-sm text-slate-400 py-8">No transactions found.</p>}
-            {(gcDetail.transactions ?? []).map((tx: any) => (
-              <div key={tx.id} className="flex items-center justify-between rounded-sm border border-sky-100/70 bg-slate-50 px-4 py-3">
-                <div>
-                  <p className="text-sm font-bold text-slate-700 capitalize">{tx.type?.replace(/_/g, " ")}</p>
-                  {tx.note && <p className="text-xs text-slate-400 mt-0.5">{tx.note}</p>}
-                  <p className="text-xs text-slate-400 mt-0.5">{new Date(tx.createdAt).toLocaleString("en-BD")}</p>
-                </div>
-                <div className="text-right">
-                  <p className={`text-sm font-black ${tx.type === "RELOAD" ? "text-emerald-600" : "text-rose-500"}`}>
-                    {tx.type === "RELOAD" ? "+" : "−"}{currency(Math.abs(tx.amount ?? 0))}
-                  </p>
-                  {tx.balanceAfter != null && <p className="text-xs text-slate-400">Balance: {currency(tx.balanceAfter)}</p>}
-                </div>
+
+            {(gcDetail.transactions ?? []).length === 0 ? (
+              <div className="py-12 text-center rounded-sm border border-dashed border-sky-200 bg-sky-50/20 text-xs text-gray-400">
+                No transactions recorded for this gift card yet.
               </div>
-            ))}
+            ) : (
+              <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-1">
+                {(gcDetail.transactions ?? []).map((tx: any) => (
+                  <div
+                    key={tx.id}
+                    className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs hover:border-sky-300 transition"
+                  >
+                    <div>
+                      <p className="text-xs font-bold text-gray-700 capitalize">
+                        {tx.type?.replace(/_/g, " ")}
+                      </p>
+                      {tx.note && <p className="text-[11px] text-gray-500 mt-0.5">{tx.note}</p>}
+                      <p className="text-[10.5px] text-gray-400 mt-0.5">
+                        {new Date(tx.createdAt).toLocaleString("en-BD")}
+                      </p>
+                    </div>
+
+                    <div className="text-right">
+                      <p
+                        className={`text-xs font-black ${
+                          tx.type === "RELOAD" ? "text-emerald-700" : "text-rose-600"
+                        }`}
+                      >
+                        {tx.type === "RELOAD" ? "+" : "−"}
+                        {currency(Math.abs(tx.amount ?? 0))}
+                      </p>
+                      {tx.balanceAfter != null && (
+                        <p className="text-[10.5px] text-gray-400 font-medium">
+                          Balance: {currency(tx.balanceAfter)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex justify-end pt-2 border-t border-sky-100">
+              <CustomButton
+                variant="danger"
+                size="sm"
+                onClick={() => setGcDetail(null)}
+              >
+                Close
+              </CustomButton>
+            </div>
           </div>
         )}
       </CustomModal>
+
+      {/* ── Confirmation Modal: Delete Tier ── */}
+      <ConfirmModal
+        isOpen={Boolean(tierToDelete)}
+        onClose={() => setTierToDelete(null)}
+        onConfirm={confirmDeleteTier}
+        title="Delete Loyalty Tier"
+        message={`Are you sure you want to completely delete the loyalty tier "${tierToDelete?.name}"? Customers assigned to this rank will revert to default settings.`}
+        type="DANGER"
+        confirmText="Delete Tier"
+        loading={deletingTier}
+      />
+
+      {/* ── Confirmation Modal: Disable Gift Card ── */}
+      <ConfirmModal
+        isOpen={Boolean(cardToDisable)}
+        onClose={() => setCardToDisable(null)}
+        onConfirm={confirmDisableGc}
+        title="Disable Gift Card"
+        message={`Are you sure you want to deactivate gift card "${cardToDisable?.cardNo}"? It will no longer be redeemable or reloadable.`}
+        type="DANGER"
+        confirmText="Disable Card"
+        loading={disablingCard}
+      />
     </div>
   );
 }

@@ -26,7 +26,7 @@ export interface CustomTabsProps {
 }
 
 const THEME_ACTIVE_STYLES: Record<string, string> = {
-  primary: "bg-sky-600 text-white shadow-2xs font-bold",
+  primary: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs font-bold",
   blue: "bg-blue-600 text-white shadow-2xs",
   orange: "bg-orange-500 text-white shadow-2xs",
   teal: "bg-[#00796b] text-white shadow-2xs",
@@ -95,7 +95,9 @@ export function CustomTabs({
                 : inactiveClassName
                   ? inactiveClassName
                   : cn(
-                      darkMode ? "text-slate-400 bg-transparent border-transparent" : "text-gray-600 bg-transparent border-transparent",
+                      darkMode
+                        ? "text-slate-300 bg-slate-800/80 border-slate-700"
+                        : "text-gray-700 bg-white border-sky-200/90 shadow-2xs hover:bg-sky-50 hover:text-[#0284C7] hover:border-sky-300",
                       hoverStyle
                     )
             )}
@@ -104,7 +106,9 @@ export function CustomTabs({
               <span
                 className={cn(
                   "flex items-center justify-center shrink-0 w-4 h-4 transition-colors",
-                  isActive && "text-white [&>svg]:text-white [&>svg]:stroke-white"
+                  isActive
+                    ? "text-white [&>svg]:text-white [&>svg]:stroke-white"
+                    : "text-[#0284C7] [&>svg]:text-[#0284C7]"
                 )}
               >
                 {tab.icon}
@@ -116,8 +120,8 @@ export function CustomTabs({
                 className={cn(
                   "ml-1 px-1.5 py-0.5 text-[10px] rounded-full font-bold transition-colors",
                   isActive
-                    ? "bg-white/20 text-white"
-                    : tab.badgeClassName || "bg-slate-100 text-gray-600"
+                    ? "bg-white text-[#0369A1] font-black shadow-2xs"
+                    : tab.badgeClassName || (darkMode ? "bg-slate-700 text-slate-300" : "bg-sky-100 text-[#0284C7] border border-sky-200/80")
                 )}
               >
                 {tab.badge}

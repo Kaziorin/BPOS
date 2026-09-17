@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState, useMemo } from "react";
+import React, { ReactNode, useState, useMemo, isValidElement } from "react";
 import { type LucideIcon, Inbox, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -30,6 +30,12 @@ export interface CustomTableProps<T> {
   currentPage?: number;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
+  // Integrated Card Header Props
+  title?: ReactNode;
+  subtitle?: string;
+  icon?: LucideIcon | ReactNode;
+  badge?: ReactNode;
+  toolbar?: ReactNode;
 }
 
 export function CustomTable<T>({
@@ -46,6 +52,11 @@ export function CustomTable<T>({
   currentPage: serverCurrentPage,
   onPageChange,
   onPageSizeChange,
+  title,
+  subtitle,
+  icon,
+  badge,
+  toolbar,
 }: CustomTableProps<T>) {
   const getRowKey = (row: T, index: number): string => {
     if (typeof rowKey === "function") return rowKey(row);
@@ -139,7 +150,9 @@ export function CustomTable<T>({
     }
   };
 
-  if (loading) {
+  const hasHeader = Boolean(title || toolbar || icon);
+
+  if (loading && !hasHeader) {
     return (
       <div className="flex h-36 items-center justify-center p-4 text-slate-400">
         <div className="flex items-center gap-2">
@@ -150,7 +163,7 @@ export function CustomTable<T>({
     );
   }
 
-  if (rawRows.length === 0) {
+  if (rawRows.length === 0 && !hasHeader) {
     return (
       <div className="flex flex-col items-center justify-center gap-1.5 py-10 text-slate-400">
         <EmptyIcon size={28} className="text-slate-300" />
@@ -174,173 +187,241 @@ export function CustomTable<T>({
     pageNumbers.push(i);
   }
 
+  const headerNode = hasHeader ? (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-sky-100/90 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-4 py-3 shrink-0">
+      <div className="flex items-center gap-2.5">
+        {icon && (
+          <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-sky-100 text-[#0284C7] border border-sky-200/80 shrink-0">
+            {isValidElement(icon)
+              ? icon
+              : typeof icon === "function" ||
+                (typeof icon === "object" &&
+                  icon !== null &&
+                  ("$$typeof" in (icon as any) || "render" in (icon as any)))
+              ? React.createElement(icon as React.ElementType, { size: 15 })
+              : (icon as ReactNode)}
+          </div>
+        )}
+        <div>
+          <div className="flex items-center gap-2">
+            {typeof title === "string" ? (
+              <h3 className="text-xs sm:text-sm font-bold text-[#0369A1]">{title}</h3>
+            ) : (
+              title
+            )}
+            {badge}
+          </div>
+          {subtitle && (
+            <p className="text-[11px] text-gray-500 font-medium mt-0.5">{subtitle}</p>
+          )}
+        </div>
+      </div>
+      {toolbar && <div className="flex items-center gap-2 shrink-0">{toolbar}</div>}
+    </div>
+  ) : null;
+
+  const paginationNode = showPagination && totalItems > 0 ? (
+    <div
+      className={cn(
+        "flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-gray-600 font-medium",
+        hasHeader
+          ? "border-t border-sky-100/90 bg-sky-50/30 px-4 py-2.5 shrink-0"
+          : "px-1 py-1"
+      )}
+    >
+      <div className="flex items-center gap-2">
+        <span>Show:</span>
+        <select
+          value={activePageSize}
+          onChange={(e) => handleSizeChange(Number(e.target.value))}
+          className="rounded-sm border border-sky-200/90 bg-white px-2 py-1 text-xs font-semibold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 focus:outline-none shadow-2xs cursor-pointer"
+        >
+          {[5, 10, 25, 50].map((s) => (
+            <option key={s} value={s}>
+              {s} per page
+            </option>
+          ))}
+        </select>
+        <span className="text-gray-600 font-medium ml-1">
+          Showing <strong className="font-bold text-[#0284C7]">{startEntry}</strong>–
+          <strong className="font-bold text-[#0284C7]">{endEntry}</strong> of{" "}
+          <strong className="font-bold text-[#0284C7]">{totalItems}</strong>
+        </span>
+      </div>
+
+      {/* Page Buttons */}
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          disabled={validCurrentPage <= 1}
+          onClick={() => handlePageSelect(validCurrentPage - 1)}
+          className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-sky-200/80 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] hover:border-[#0284C7] disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold text-xs shadow-2xs gap-1 cursor-pointer"
+        >
+          <ChevronLeft size={13} /> Prev
+        </button>
+
+        {pageNumbers.map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => handlePageSelect(p)}
+            className={cn(
+              "flex h-7 w-7 items-center justify-center rounded-sm text-xs font-semibold transition shadow-2xs cursor-pointer",
+              p === validCurrentPage
+                ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white border-transparent shadow-2xs font-bold"
+                : "border border-sky-200/80 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] hover:border-[#0284C7]"
+            )}
+          >
+            {p}
+          </button>
+        ))}
+
+        <button
+          type="button"
+          disabled={validCurrentPage >= totalPages}
+          onClick={() => handlePageSelect(validCurrentPage + 1)}
+          className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-sky-200/80 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] hover:border-[#0284C7] disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold text-xs shadow-2xs gap-1 cursor-pointer"
+        >
+          Next <ChevronRight size={13} />
+        </button>
+      </div>
+    </div>
+  ) : null;
+
+  const tableNode = (
+    <table className="w-full text-sm border-collapse">
+      <thead>
+        <tr className="border-b border-sky-100/90 bg-gradient-to-r from-sky-50/90 via-white to-sky-50/50 text-[#0369A1] font-bold capitalize tracking-wide select-none">
+          {columns.map((col, idx) => {
+            const isFirst = idx === 0;
+            const alignMode = col.align || (isFirst ? "left" : "center");
+
+            const alignCss =
+              alignMode === "right"
+                ? "text-right"
+                : alignMode === "center"
+                ? "text-center"
+                : "text-left";
+
+            const flexJustify =
+              alignMode === "right"
+                ? "justify-end"
+                : alignMode === "center"
+                ? "justify-center"
+                : "justify-start";
+
+            const isSorted = sortKey === col.key;
+
+            return (
+              <th
+                key={col.key}
+                onClick={() => handleHeaderClick(col)}
+                className={cn(
+                  "px-4 py-3 text-[13px] font-bold text-[#0369A1] transition whitespace-nowrap",
+                  alignCss,
+                  col.sortable && "cursor-pointer hover:bg-sky-50/70 hover:text-[#0284C7]",
+                  col.className
+                )}
+              >
+                <div className={cn("inline-flex items-center gap-1.5 w-full", flexJustify)}>
+                  <span>{col.header}</span>
+                  {col.sortable && (
+                    <span className="text-slate-400 shrink-0">
+                      {isSorted ? (
+                        sortDirection === "asc" ? (
+                          <ArrowUp size={14} className="text-[#0284C7] font-bold" />
+                        ) : (
+                          <ArrowDown size={14} className="text-[#0284C7] font-bold" />
+                        )
+                      ) : (
+                        <ArrowUpDown size={13} className="opacity-40 hover:opacity-100" />
+                      )}
+                    </span>
+                  )}
+                </div>
+              </th>
+            );
+          })}
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-slate-100">
+        {paginatedRows.map((row, idx) => (
+          <tr
+            key={getRowKey(row, idx)}
+            onClick={() => onRowClick?.(row)}
+            className={cn(
+              "hover:bg-sky-50/40 transition",
+              onRowClick && "cursor-pointer"
+            )}
+          >
+            {columns.map((col, idx) => {
+              const isFirst = idx === 0;
+              const alignMode = col.align || (isFirst ? "left" : "center");
+              const alignCss =
+                alignMode === "right"
+                  ? "text-right"
+                  : alignMode === "center"
+                  ? "text-center"
+                  : "text-left";
+
+              const flexJustify =
+                alignMode === "right"
+                  ? "justify-end"
+                  : alignMode === "center"
+                  ? "justify-center"
+                  : "justify-start";
+
+              return (
+                <td
+                  key={col.key}
+                  className={cn(
+                    "px-4 py-3 font-medium text-gray-600 text-sm whitespace-nowrap",
+                    alignCss,
+                    col.className
+                  )}
+                >
+                  <div className={cn("flex items-center w-full", flexJustify)}>
+                    {col.render(row)}
+                  </div>
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  if (hasHeader) {
+    return (
+      <div className="w-full rounded-sm border border-sky-100/90 bg-white shadow-2xs overflow-hidden flex flex-col">
+        {headerNode}
+        {loading ? (
+          <div className="flex h-36 items-center justify-center p-4 text-slate-400">
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-sky-200 border-t-[#0284C7]" />
+              <span className="text-xs font-semibold text-slate-500">Loading records...</span>
+            </div>
+          </div>
+        ) : rawRows.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-1.5 py-12 text-slate-400">
+            <EmptyIcon size={28} className="text-slate-300" />
+            <p className="text-xs font-medium text-slate-500">{emptyMessage}</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">{tableNode}</div>
+        )}
+        {paginationNode}
+      </div>
+    );
+  }
+
   return (
     <div className="w-full space-y-2.5">
       <div className="overflow-x-auto rounded-sm border border-sky-100/90 bg-white shadow-2xs">
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="border-b border-sky-100/90 bg-gradient-to-r from-sky-50/90 via-white to-sky-50/50 text-[#0369A1] font-bold capitalize tracking-wide select-none">
-              {columns.map((col, idx) => {
-                const isFirst = idx === 0;
-                const alignMode = col.align || (isFirst ? "left" : "center");
-
-                const alignCss =
-                  alignMode === "right"
-                    ? "text-right"
-                    : alignMode === "center"
-                    ? "text-center"
-                    : "text-left";
-
-                const flexJustify =
-                  alignMode === "right"
-                    ? "justify-end"
-                    : alignMode === "center"
-                    ? "justify-center"
-                    : "justify-start";
-
-                const isSorted = sortKey === col.key;
-
-                return (
-                  <th
-                    key={col.key}
-                    onClick={() => handleHeaderClick(col)}
-                    className={cn(
-                      "px-4 py-3 text-[13px] font-bold text-[#0369A1] transition whitespace-nowrap",
-                      alignCss,
-                      col.sortable && "cursor-pointer hover:bg-sky-50/70 hover:text-[#0284C7]",
-                      col.className
-                    )}
-                  >
-                    <div className={cn("inline-flex items-center gap-1.5 w-full", flexJustify)}>
-                      <span>{col.header}</span>
-                      {col.sortable && (
-                        <span className="text-slate-400 shrink-0">
-                          {isSorted ? (
-                            sortDirection === "asc" ? (
-                              <ArrowUp size={14} className="text-[#0284C7] font-bold" />
-                            ) : (
-                              <ArrowDown size={14} className="text-[#0284C7] font-bold" />
-                            )
-                          ) : (
-                            <ArrowUpDown size={13} className="opacity-40 hover:opacity-100" />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {paginatedRows.map((row, idx) => (
-              <tr
-                key={getRowKey(row, idx)}
-                onClick={() => onRowClick?.(row)}
-                className={cn(
-                  "hover:bg-sky-50/40 transition",
-                  onRowClick && "cursor-pointer"
-                )}
-              >
-                {columns.map((col, idx) => {
-                  const isFirst = idx === 0;
-                  const alignMode = col.align || (isFirst ? "left" : "center");
-                  const alignCss =
-                    alignMode === "right"
-                      ? "text-right"
-                      : alignMode === "center"
-                      ? "text-center"
-                      : "text-left";
-
-                  const flexJustify =
-                    alignMode === "right"
-                      ? "justify-end"
-                      : alignMode === "center"
-                      ? "justify-center"
-                      : "justify-start";
-
-                  return (
-                    <td
-                      key={col.key}
-                      className={cn(
-                        "px-4 py-3 font-medium text-gray-600 text-sm whitespace-nowrap",
-                        alignCss,
-                        col.className
-                      )}
-                    >
-                      <div className={cn("flex items-center w-full", flexJustify)}>
-                        {col.render(row)}
-                      </div>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {tableNode}
       </div>
-
-      {/* Sleek Blue Ocean Pagination Footer */}
-      {showPagination && totalItems > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 px-1 py-1 text-xs text-gray-600 font-medium">
-          <div className="flex items-center gap-2">
-            <span>Show:</span>
-            <select
-              value={activePageSize}
-              onChange={(e) => handleSizeChange(Number(e.target.value))}
-              className="rounded-sm border border-sky-200/90 bg-white px-2 py-1 text-xs font-semibold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 focus:outline-none shadow-2xs cursor-pointer"
-            >
-              {[5, 10, 25, 50].map((s) => (
-                <option key={s} value={s}>
-                  {s} per page
-                </option>
-              ))}
-            </select>
-            <span className="text-gray-600 font-medium ml-1">
-              Showing <strong className="font-bold text-[#0284C7]">{startEntry}</strong>–
-              <strong className="font-bold text-[#0284C7]">{endEntry}</strong> of{" "}
-              <strong className="font-bold text-[#0284C7]">{totalItems}</strong>
-            </span>
-          </div>
-
-          {/* Page Buttons */}
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              disabled={validCurrentPage <= 1}
-              onClick={() => handlePageSelect(validCurrentPage - 1)}
-              className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-sky-200/80 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] hover:border-[#0284C7] disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold text-xs shadow-2xs gap-1 cursor-pointer"
-            >
-              <ChevronLeft size={13} /> Prev
-            </button>
-
-            {pageNumbers.map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => handlePageSelect(p)}
-                className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-sm text-xs font-semibold transition shadow-2xs cursor-pointer",
-                  p === validCurrentPage
-                    ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white border-transparent shadow-2xs font-bold"
-                    : "border border-sky-200/80 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] hover:border-[#0284C7]"
-                )}
-              >
-                {p}
-              </button>
-            ))}
-
-            <button
-              type="button"
-              disabled={validCurrentPage >= totalPages}
-              onClick={() => handlePageSelect(validCurrentPage + 1)}
-              className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-sky-200/80 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] hover:border-[#0284C7] disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold text-xs shadow-2xs gap-1 cursor-pointer"
-            >
-              Next <ChevronRight size={13} />
-            </button>
-          </div>
-        </div>
-      )}
+      {paginationNode}
     </div>
   );
 }

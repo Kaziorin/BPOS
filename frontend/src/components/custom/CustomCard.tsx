@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import React, { ReactNode, isValidElement } from "react";
 import { type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -37,8 +37,14 @@ export function CustomCard({
 
   const renderIcon = () => {
     if (!icon) return null;
-    if (typeof icon === "function") {
-      const IconComponent = icon as LucideIcon;
+    if (isValidElement(icon)) return icon;
+    if (
+      typeof icon === "function" ||
+      (typeof icon === "object" &&
+        icon !== null &&
+        ("$$typeof" in (icon as any) || "render" in (icon as any)))
+    ) {
+      const IconComponent = icon as React.ElementType;
       return <IconComponent size={16} className="text-[#0284C7] shrink-0" />;
     }
     return icon;
