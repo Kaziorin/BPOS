@@ -223,10 +223,8 @@ export function CustomTable<T>({
   const paginationNode = showPagination && totalItems > 0 ? (
     <div
       className={cn(
-        "flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-gray-600 font-medium",
-        hasHeader
-          ? "border-t border-sky-100/90 bg-sky-50/30 px-4 py-2.5 shrink-0"
-          : "px-1 py-1"
+        "flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600 font-medium",
+        "border-t border-sky-100/90 bg-sky-50/40 px-5 py-3.5 shrink-0"
       )}
     >
       <div className="flex items-center gap-2">
@@ -419,8 +417,8 @@ export function CustomTable<T>({
   }
 
   return (
-    <div className="w-full space-y-2.5">
-      <div className="overflow-x-auto rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+    <div className="w-full flex flex-col rounded-sm overflow-hidden">
+      <div className="overflow-x-auto">
         {tableNode}
       </div>
       {paginationNode}

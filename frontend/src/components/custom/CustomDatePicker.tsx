@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
 export interface CustomDatePickerProps {
   value?: string;
   onChange?: (date: string) => void;
-  type?: "date" | "datetime-local" | "time";
+  type?: "date" | "datetime-local" | "time" | "month";
   label?: string;
   placeholder?: string;
   className?: string;
@@ -89,9 +89,9 @@ export function CustomDatePicker({
       {label && (
         <label
           htmlFor={id}
-          className="block text-[11px] font-bold text-gray-600 capitalize mb-1"
+          className="mb-1.5 block text-xs font-bold text-gray-600 capitalize"
         >
-          {label} {required && <span className="text-rose-500">*</span>}
+          {label} {required && <span className="text-rose-500 ml-0.5">*</span>}
         </label>
       )}
 

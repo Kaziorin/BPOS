@@ -57,7 +57,7 @@ export function CustomModal({
   maxWidth,
   className,
   darkMode,
-  themeColor = "teal",
+  themeColor = "primary",
 }: CustomModalProps) {
   const isModalOpen = open ?? isOpen ?? false;
   if (!isModalOpen) return null;
@@ -70,10 +70,10 @@ export function CustomModal({
         localStorage.getItem("bpos_dark_mode") === "true"));
 
   const headerTitleColor =
-    themeColor === "teal"
-      ? isDark ? "text-teal-300" : "text-[#00796b]"
-      : themeColor === "primary"
+    themeColor === "primary"
       ? isDark ? "text-sky-300" : "text-[#0284C7]"
+      : themeColor === "teal"
+      ? isDark ? "text-teal-300" : "text-[#00796b]"
       : isDark ? "text-slate-100" : "text-gray-800";
 
   return (
@@ -96,6 +96,8 @@ export function CustomModal({
             "flex items-center justify-between border-b px-6 py-4 shrink-0 gap-3 transition-colors",
             isDark
               ? "border-slate-800 bg-slate-900/90"
+              : themeColor === "primary"
+              ? "border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50"
               : themeColor === "teal"
               ? "border-teal-100 bg-gradient-to-r from-teal-50/80 via-white to-teal-50/50"
               : "border-slate-200 bg-slate-50/80"
@@ -107,10 +109,14 @@ export function CustomModal({
                 className={cn(
                   "flex h-9 w-9 shrink-0 items-center justify-center rounded-sm",
                   isDark
-                    ? "bg-teal-950/70 text-teal-300 border border-teal-800"
+                    ? themeColor === "primary"
+                      ? "bg-sky-950/70 text-sky-300 border border-sky-800"
+                      : "bg-teal-950/70 text-teal-300 border border-teal-800"
+                    : themeColor === "primary"
+                    ? "bg-sky-50 text-[#0284C7] border border-sky-200/80"
                     : themeColor === "teal"
                     ? "bg-teal-50 text-[#00796b] border border-teal-200/80"
-                    : "bg-sky-50 text-[#0284C7]"
+                    : "bg-sky-50 text-[#0284C7] border border-sky-200/80"
                 )}
               >
                 {icon}
