@@ -39,6 +39,7 @@ import {
   CustomModal,
   CustomDropdownSelect,
   CustomInput,
+  CustomDatePicker,
 } from "@/components/custom";
 
 interface Payment {
@@ -144,7 +145,8 @@ export default function PaymentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterMethod, setFilterMethod] = useState("");
   const [filterBranch, setFilterBranch] = useState("");
-  const [dateRange, setDateRange] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [sortBy] = useState("createdAt");
   const [sortDir] = useState<"asc" | "desc">("desc");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
@@ -261,19 +263,8 @@ export default function PaymentsPage() {
       else if (activeTab === "BANK") params.set("method", "BANK_TRANSFER");
 
       // Dates
-      if (dateRange === "today") {
-        const todayStr = new Date().toISOString().split("T")[0];
-        params.set("dateFrom", todayStr);
-        params.set("dateTo", todayStr);
-      } else if (dateRange === "week") {
-        const d = new Date();
-        d.setDate(d.getDate() - 7);
-        params.set("dateFrom", d.toISOString().split("T")[0]);
-      } else if (dateRange === "month") {
-        const d = new Date();
-        d.setDate(1);
-        params.set("dateFrom", d.toISOString().split("T")[0]);
-      }
+      if (startDate) params.set("dateFrom", startDate);
+      if (endDate) params.set("dateTo", endDate);
 
       const res: any = await api.get(`/v1/payments?${params.toString()}`);
       const dataList = res.data?.data ?? [];
@@ -293,7 +284,7 @@ export default function PaymentsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, sortBy, sortDir, searchQuery, filterMethod, filterBranch, activeTab, dateRange]);
+  }, [page, limit, sortBy, sortDir, searchQuery, filterMethod, filterBranch, activeTab, startDate, endDate]);
 
   useEffect(() => {
     loadStats();
@@ -513,13 +504,6 @@ export default function PaymentsPage() {
   const branchFilterOptions = [
     { label: "All Outlets / Branches", value: "" },
     ...branches.map((b) => ({ label: b.name, value: b.id })),
-  ];
-
-  const dateRangeOptions = [
-    { label: "All Dates", value: "all" },
-    { label: "Today", value: "today" },
-    { label: "Past 7 Days", value: "week" },
-    { label: "This Month", value: "month" },
   ];
 
   const customerModalOptions = [
@@ -890,309 +874,515 @@ export default function PaymentsPage() {
         </div>
       )}
 
-      {/* 5. QUICK STATUS TABS (LEFT) & VIEW / EXPORT BUTTONS (RIGHT) */}
-      <div className="flex items-center gap-3">
-        {/* Tab sits on left, scrollable if too many */}
-        <div className="overflow-x-auto min-w-0 shrink">
-          <CustomTabs
-            tabs={[
-              { id: "ALL", label: "All Receipts" },
-              { id: "COMPLETED", label: "Settled" },
-              { id: "CASH", label: "Cash" },
-              { id: "MFS", label: "Mobile MFS" },
-              { id: "CARD", label: "Card / POS" },
-              { id: "BANK", label: "Bank Transfer" },
-              { id: "REFUNDED", label: "Refunds / Void" },
-            ]}
-            activeTab={activeTab}
-            onChange={(tabId) => {
-              setActiveTab(tabId);
-              setPage(1);
-            }}
-            themeColor="primary"
-            className="w-auto border border-sky-100/90 bg-white shadow-2xs"
-          />
-        </div>
-
-        {/* Action Controls aligned strictly on the right */}
-        <div className="flex items-center gap-2 ml-auto shrink-0">
-          <div className="flex items-center rounded-sm border border-sky-200/80 bg-white p-0.5 h-[28px] shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setViewMode("table")}
-              className={`rounded-sm p-1 h-[22px] flex items-center transition cursor-pointer ${
-                viewMode === "table"
-                  ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
-                  : "text-slate-400 hover:text-gray-600"
-              }`}
-              title="Table View"
-            >
-              <LayoutList size={14} />
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("grid")}
-              className={`rounded-sm p-1 h-[22px] flex items-center transition cursor-pointer ${
-                viewMode === "grid"
-                  ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
-                  : "text-slate-400 hover:text-gray-600"
-              }`}
-              title="Grid Card View"
-            >
-              <LayoutGrid size={14} />
-            </button>
-          </div>
-
-          <CustomButton
-            variant="primary"
-            size="xs"
-            leftIcon={Download}
-            onClick={handleExportCSV}
-            title="Export filtered records to CSV"
-          >
-            Export CSV
-          </CustomButton>
-        </div>
-      </div>
-
-      {/* 6. SEARCH & SELECT FILTERS ROW (EQUAL WIDTH COLUMNS) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {/* Custom Search Input */}
-        <CustomInput
-          leftIcon={<Search size={14} />}
-          rightIcon={
-            searchQuery ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery("");
+      {/* 5. MAIN UNIFIED CARD: TABS, SEARCH & FILTER TOOLBAR, TABLE (Like Invoices Page) */}
+      <div className="rounded-sm border border-sky-200/80 bg-white shadow-2xs overflow-hidden">
+        {/* Card Header Toolbar: Tabs, Search, View Switcher & Export */}
+        <div className="border-b border-sky-100/70 p-4 space-y-3 bg-white">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {/* Tab sits on left, scrollable if too many */}
+            <div className="overflow-x-auto min-w-0 shrink">
+              <CustomTabs
+                tabs={[
+                  { id: "ALL", label: "All Receipts" },
+                  { id: "COMPLETED", label: "Settled" },
+                  { id: "CASH", label: "Cash" },
+                  { id: "MFS", label: "Mobile MFS" },
+                  { id: "CARD", label: "Card / POS" },
+                  { id: "BANK", label: "Bank Transfer" },
+                  { id: "REFUNDED", label: "Refunds / Void" },
+                ]}
+                activeTab={activeTab}
+                onChange={(tabId) => {
+                  setActiveTab(tabId);
                   setPage(1);
                 }}
-                className="text-slate-400 hover:text-gray-600 cursor-pointer"
-              >
-                <X size={14} />
-              </button>
-            ) : null
-          }
-          placeholder="Search receipt #, customer, phone, invoice..."
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setPage(1);
-          }}
-          containerClassName="w-full"
-          className="h-[38px] text-xs text-gray-600 placeholder:text-slate-400 shadow-2xs"
-        />
-
-        {/* Method Filter with equal width */}
-        <CustomDropdownSelect
-          options={methodFilterOptions}
-          value={filterMethod}
-          onChange={(val) => {
-            setFilterMethod(val);
-            setPage(1);
-          }}
-          placeholder="All Payment Methods"
-          containerClassName="w-full"
-          className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
-        />
-
-        {/* Branch Filter with equal width */}
-        <CustomDropdownSelect
-          options={branchFilterOptions}
-          value={filterBranch}
-          onChange={(val) => {
-            setFilterBranch(val);
-            setPage(1);
-          }}
-          placeholder="All Outlets / Branches"
-          containerClassName="w-full"
-          className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
-        />
-
-        {/* Date Range Filter with equal width */}
-        <CustomDropdownSelect
-          options={dateRangeOptions}
-          value={dateRange}
-          onChange={(val) => {
-            setDateRange(val);
-            setPage(1);
-          }}
-          placeholder="All Dates"
-          containerClassName="w-full"
-          className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
-        />
-      </div>
-
-      {/* 7. TABLE OR GRID VIEW */}
-      {viewMode === "table" ? (
-        <CustomTable<Payment>
-          columns={tableColumns}
-          data={payments}
-          loading={loading}
-          rowKey="id"
-          title="Customer Receipts & Payment Ledger"
-          subtitle="Consolidated real-time accounts receivable records"
-          icon={<Receipt size={16} />}
-          badge={
-            <span className="rounded-sm bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-[#0284C7] border border-sky-200/80">
-              {totalRecords} Records
-            </span>
-          }
-          showPagination={true}
-          totalItems={totalRecords}
-          currentPage={page}
-          pageSize={limit}
-          onPageChange={(p) => setPage(p)}
-          onRowClick={(row) => setSelectedPaymentForDrawer(row)}
-          emptyMessage="No payment records found matching your filters."
-        />
-      ) : (
-        /* Grid Card View */
-        <div>
-          {loading ? (
-            <div className="flex h-64 flex-col items-center justify-center rounded-sm border border-sky-100/90 bg-white shadow-2xs">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-sky-200 border-t-[#0284C7]" />
-              <p className="mt-3 text-xs font-semibold text-gray-500">Loading payment records...</p>
+                themeColor="primary"
+                className="w-auto border border-sky-100/90 bg-white shadow-2xs"
+              />
             </div>
-          ) : payments.length === 0 ? (
-            <div className="flex h-72 flex-col items-center justify-center rounded-sm border border-dashed border-sky-200 bg-white p-8 text-center shadow-2xs">
-              <div className="rounded-sm bg-sky-50 p-4 text-[#0284C7] border border-sky-100">
-                <Receipt size={36} />
-              </div>
-              <h3 className="mt-3 text-sm font-bold text-gray-600">No payment records found</h3>
-              <p className="mt-1 max-w-sm text-xs text-gray-500 font-medium">
-                No payments matched your criteria. Record a customer payment or adjust your search filters.
-              </p>
-              <div className="mt-4">
-                <CustomButton
-                  variant="primary"
-                  size="sm"
-                  leftIcon={Plus}
-                  onClick={() => setShowRecordModal(true)}
-                >
-                  Record First Payment
-                </CustomButton>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                {payments.map((p) => {
-                  const methodCfg = METHOD_CONFIG[p.method] || METHOD_CONFIG.CASH;
-                  const MethodIcon = methodCfg.icon;
-                  const statusCfg = STATUS_CONFIG[p.status] || STATUS_CONFIG.COMPLETED;
-                  const isRefunded = p.status === "REFUNDED";
 
-                  return (
-                    <div
-                      key={p.id}
-                      className="group flex flex-col justify-between rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs transition hover:border-[#0284C7] hover:shadow-md"
+            {/* Action Controls aligned strictly on the right */}
+            <div className="flex items-center gap-2 ml-auto shrink-0">
+              {/* Custom Search Input */}
+              <CustomInput
+                leftIcon={<Search size={14} />}
+                rightIcon={
+                  searchQuery ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setPage(1);
+                      }}
+                      className="text-gray-400 hover:text-gray-700 cursor-pointer"
                     >
-                      <div>
-                        {/* Top row */}
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <div className="font-mono text-sm font-bold text-[#0369A1]">
-                              {p.reference || `PAY-${p.id.slice(0, 8)}`}
+                      <X size={14} />
+                    </button>
+                  ) : null
+                }
+                placeholder="Search receipt #, customer, phone, invoice..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPage(1);
+                }}
+                containerClassName="w-48 sm:w-64 md:w-72"
+                className="h-[34px] text-xs font-medium text-gray-700 placeholder:text-gray-500 shadow-2xs"
+              />
+
+              {/* Table / Grid Switcher */}
+              <div className="flex items-center rounded-sm border border-sky-200/80 bg-white p-0.5 h-[34px] shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("table")}
+                  className={`rounded-sm p-1.5 h-[28px] flex items-center transition cursor-pointer ${
+                    viewMode === "table"
+                      ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
+                      : "text-gray-500 hover:text-gray-800"
+                  }`}
+                  title="Table View"
+                >
+                  <LayoutList size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  className={`rounded-sm p-1.5 h-[28px] flex items-center transition cursor-pointer ${
+                    viewMode === "grid"
+                      ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
+                      : "text-gray-500 hover:text-gray-800"
+                  }`}
+                  title="Grid Card View"
+                >
+                  <LayoutGrid size={14} />
+                </button>
+              </div>
+
+              {/* Export CSV Button */}
+              <CustomButton
+                variant="primary"
+                size="xs"
+                leftIcon={Download}
+                onClick={handleExportCSV}
+                className="h-[34px]"
+                title="Export filtered records to CSV"
+              >
+                Export CSV
+              </CustomButton>
+            </div>
+          </div>
+
+          {/* Equal Width Filters Row: Method, Branch, Date Range */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-0.5 w-full">
+            {/* 1. Payment Method */}
+            <CustomDropdownSelect
+              options={methodFilterOptions}
+              value={filterMethod}
+              onChange={(val) => {
+                setFilterMethod(val);
+                setPage(1);
+              }}
+              placeholder="All Payment Methods"
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+            />
+
+            {/* 2. Outlet / Branch */}
+            <CustomDropdownSelect
+              options={branchFilterOptions}
+              value={filterBranch}
+              onChange={(val) => {
+                setFilterBranch(val);
+                setPage(1);
+              }}
+              placeholder="All Outlets / Branches"
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+            />
+
+            {/* 3. Date Range Filter with CustomDatePicker */}
+            <div className="flex items-center gap-1.5 w-full">
+              <div className="flex-1 min-w-0">
+                <CustomDatePicker
+                  value={startDate}
+                  onChange={(val) => {
+                    setStartDate(val);
+                    setPage(1);
+                  }}
+                  compact={true}
+                  placeholder="From Date"
+                  title="From Date"
+                  clearable={true}
+                  className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+                />
+              </div>
+              <span className="text-xs font-bold text-gray-500 shrink-0">to</span>
+              <div className="flex-1 min-w-0">
+                <CustomDatePicker
+                  value={endDate}
+                  onChange={(val) => {
+                    setEndDate(val);
+                    setPage(1);
+                  }}
+                  compact={true}
+                  placeholder="To Date"
+                  title="To Date"
+                  clearable={true}
+                  min={startDate || undefined}
+                  className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Records Content (Inside the same card) */}
+        {loading ? (
+          <div className="flex h-64 flex-col items-center justify-center bg-white">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-sky-200 border-t-[#0284C7]" />
+            <p className="mt-3 text-xs font-semibold text-gray-500">Loading payment records...</p>
+          </div>
+        ) : payments.length === 0 ? (
+          <div className="flex h-72 flex-col items-center justify-center p-8 text-center bg-white">
+            <div className="rounded-sm bg-sky-50 p-4 text-[#0284C7] border border-sky-100">
+              <Receipt size={36} />
+            </div>
+            <h3 className="mt-3 text-sm font-bold text-gray-700">No payment records found</h3>
+            <p className="mt-1 max-w-sm text-xs text-gray-500 font-medium">
+              No payments matched your criteria. Record a customer payment or adjust your search filters.
+            </p>
+            <div className="mt-4">
+              <CustomButton
+                variant="primary"
+                size="sm"
+                leftIcon={Plus}
+                onClick={() => setShowRecordModal(true)}
+              >
+                Record First Payment
+              </CustomButton>
+            </div>
+          </div>
+        ) : viewMode === "table" ? (
+          /* Table View: seamlessly integrated into this card, no double borders */
+          <div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-sky-200/80 bg-sky-50/40 text-xs font-bold capitalize text-gray-700">
+                    <th className="py-3.5 pl-4 pr-2 w-8">
+                      <button onClick={toggleSelectAll} className="text-gray-400 hover:text-gray-700 cursor-pointer">
+                        {selectedIds.length === payments.length && payments.length > 0 ? (
+                          <CheckSquare size={16} className="text-[#0284C7]" />
+                        ) : (
+                          <Square size={16} />
+                        )}
+                      </button>
+                    </th>
+                    <th className="py-3.5 pl-2 pr-3">Receipt / Trx ID</th>
+                    <th className="px-3 py-3.5">Customer</th>
+                    <th className="px-3 py-3.5">Payment Method</th>
+                    <th className="px-3 py-3.5">Linked Invoice</th>
+                    <th className="px-3 py-3.5 text-right">Amount (৳)</th>
+                    <th className="px-3 py-3.5 text-center">Status</th>
+                    <th className="px-3 py-3.5">Date & Time</th>
+                    <th className="py-3.5 pl-3 pr-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {payments.map((p) => {
+                    const isSelected = selectedIds.includes(p.id);
+                    const isRefunded = p.status === "REFUNDED";
+                    const methodCfg = METHOD_CONFIG[p.method] || METHOD_CONFIG.CASH;
+                    const MethodIcon = methodCfg.icon;
+                    const statusCfg = STATUS_CONFIG[p.status] || STATUS_CONFIG.COMPLETED;
+
+                    return (
+                      <tr
+                        key={p.id}
+                        onClick={() => setSelectedPaymentForDrawer(p)}
+                        className={`group transition cursor-pointer ${
+                          isSelected ? "bg-sky-50/30" : "hover:bg-slate-50/70"
+                        }`}
+                      >
+                        {/* Checkbox */}
+                        <td className="py-3.5 pl-4 pr-2" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={() => toggleSelectRow(p.id)}
+                            className="text-gray-400 hover:text-gray-700 cursor-pointer"
+                          >
+                            {isSelected ? <CheckSquare size={16} className="text-[#0284C7]" /> : <Square size={16} />}
+                          </button>
+                        </td>
+
+                        {/* Receipt / Trx ID */}
+                        <td className="py-3.5 pl-2 pr-3">
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copyToClipboard(p.reference || p.id, p.id);
+                                }}
+                                className="cursor-pointer font-mono font-bold text-gray-700 hover:text-[#0284C7] transition"
+                                title="Click to copy receipt #"
+                              >
+                                {p.reference || `PAY-${p.id.slice(0, 8)}`}
+                              </span>
+                              {copiedId === p.id ? (
+                                <Check size={12} className="text-emerald-600" />
+                              ) : (
+                                <Copy size={12} className="text-slate-300 opacity-0 group-hover:opacity-100 transition cursor-pointer" />
+                              )}
                             </div>
-                            <span
-                              className={`mt-1 inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-sky-100/80`}
-                            >
-                              <MethodIcon size={12} />
-                              {methodCfg.label}
-                            </span>
+                            {p.branchName && (
+                              <span className="text-[10px] text-gray-500 truncate max-w-[130px] font-medium">
+                                • {p.branchName}
+                              </span>
+                            )}
                           </div>
+                        </td>
+
+                        {/* Customer */}
+                        <td className="px-3 py-3.5">
+                          {p.customer ? (
+                            <div className="flex flex-col">
+                              <span className="font-bold text-gray-700">{p.customer.name}</span>
+                              {p.customer.phone && <span className="text-[11px] text-gray-500">{p.customer.phone}</span>}
+                            </div>
+                          ) : (
+                            <span className="text-gray-500 italic font-medium">Walk-in Customer</span>
+                          )}
+                        </td>
+
+                        {/* Payment Method */}
+                        <td className="px-3 py-3.5">
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-[11px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-sky-100/90`}
+                          >
+                            <MethodIcon size={13} />
+                            {methodCfg.label}
+                          </span>
+                        </td>
+
+                        {/* Linked Invoice */}
+                        <td className="px-3 py-3.5">
+                          {p.invoice?.invoiceNo ? (
+                            <div className="flex flex-col">
+                              <span className="font-mono font-bold text-gray-700">{p.invoice.invoiceNo}</span>
+                              <span className="text-[10px] text-gray-500 font-medium">
+                                Total: ৳{Number(p.invoice.total || 0).toLocaleString()}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-[11px] text-gray-500 italic">Direct Receipt</span>
+                          )}
+                        </td>
+
+                        {/* Amount */}
+                        <td className="px-3 py-3.5 text-right font-black tabular-nums text-xs sm:text-sm">
+                          <span className={isRefunded ? "text-rose-600 line-through" : "text-emerald-700"}>
+                            ৳{Number(p.amount).toLocaleString()}
+                          </span>
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-3 py-3.5 text-center">
                           <span
                             className={`inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
                           >
                             <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
                             {statusCfg.label}
                           </span>
-                        </div>
+                        </td>
 
-                        {/* Customer Info */}
-                        <div className="mt-3.5 rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
-                          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Customer</p>
-                          <p className="text-xs font-bold text-gray-600 mt-0.5">{p.customer?.name || "Walk-in Customer"}</p>
-                          {p.customer?.phone && <p className="text-[11px] text-gray-500">{p.customer.phone}</p>}
-                        </div>
+                        {/* Date & Time */}
+                        <td className="px-3 py-3.5 text-gray-600 font-medium text-xs">
+                          {new Date(p.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </td>
 
-                        {/* Financial Amount */}
-                        <div className="mt-3 flex items-center justify-between">
-                          <span className="text-xs font-medium text-gray-500">Collected Amount</span>
-                          <span
-                            className={`text-base font-black tabular-nums ${
-                              isRefunded ? "text-rose-600 line-through" : "text-emerald-700"
-                            }`}
-                          >
-                            ৳{Number(p.amount).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Bottom Action Footer */}
-                      <div className="mt-4 flex items-center justify-between border-t border-sky-100/70 pt-2.5 text-xs">
-                        <span className="text-[11px] text-gray-500">
-                          {new Date(p.createdAt).toLocaleDateString()}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          <CustomButton
-                            size="xs"
-                            variant="outline"
-                            leftIcon={Eye}
-                            onClick={() => setSelectedPaymentForDrawer(p)}
-                          >
-                            Receipt
-                          </CustomButton>
-                          {!isRefunded && (
+                        {/* Actions */}
+                        <td className="py-3.5 pl-3 pr-4 text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-1.5">
                             <CustomButton
                               size="xs"
-                              variant="danger"
-                              leftIcon={RotateCcw}
-                              onClick={() => {
-                                setSelectedPaymentForRefund(p);
-                                setShowRefundModal(true);
-                              }}
+                              variant="outline"
+                              leftIcon={Eye}
+                              onClick={() => setSelectedPaymentForDrawer(p)}
+                              title="View Receipt & Audit Details"
                             >
-                              Refund
+                              Receipt
                             </CustomButton>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                            {!isRefunded && (
+                              <CustomButton
+                                size="xs"
+                                variant="danger"
+                                leftIcon={RotateCcw}
+                                onClick={() => {
+                                  setSelectedPaymentForRefund(p);
+                                  setShowRefundModal(true);
+                                }}
+                                title="Refund / Void Payment"
+                              >
+                                Refund
+                              </CustomButton>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-              {/* Pagination footer for Grid */}
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-4 py-2.5 text-xs text-gray-600 shadow-2xs font-medium">
-                <span>
-                  Showing Page {page} of {totalPages} ({totalRecords} total records)
-                </span>
-                <div className="flex items-center gap-1.5">
-                  <CustomButton
-                    variant="outline"
-                    size="xs"
-                    disabled={page <= 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  >
-                    Previous
-                  </CustomButton>
-                  <CustomButton
-                    variant="outline"
-                    size="xs"
-                    disabled={page >= totalPages}
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  >
-                    Next
-                  </CustomButton>
-                </div>
+            {/* Pagination footer */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-sky-100/70 px-4 py-3 bg-sky-50/20 text-xs text-gray-600 font-medium">
+              <span>
+                Showing Page {page} of {totalPages} ({totalRecords} total records)
+              </span>
+              <div className="flex items-center gap-1.5">
+                <CustomButton
+                  variant="outline"
+                  size="xs"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  Previous
+                </CustomButton>
+                <CustomButton
+                  variant="outline"
+                  size="xs"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  Next
+                </CustomButton>
               </div>
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        ) : (
+          /* Grid View inside the same card */
+          <div className="p-4 sm:p-5">
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              {payments.map((p) => {
+                const methodCfg = METHOD_CONFIG[p.method] || METHOD_CONFIG.CASH;
+                const MethodIcon = methodCfg.icon;
+                const statusCfg = STATUS_CONFIG[p.status] || STATUS_CONFIG.COMPLETED;
+                const isRefunded = p.status === "REFUNDED";
+
+                return (
+                  <div
+                    key={p.id}
+                    className="group flex flex-col justify-between rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs transition hover:border-[#0284C7] hover:shadow-md"
+                  >
+                    <div>
+                      {/* Top row */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="font-mono text-sm font-bold text-[#0369A1]">
+                            {p.reference || `PAY-${p.id.slice(0, 8)}`}
+                          </div>
+                          <span
+                            className={`mt-1 inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-sky-100/80`}
+                          >
+                            <MethodIcon size={12} />
+                            {methodCfg.label}
+                          </span>
+                        </div>
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
+                        >
+                          <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
+                          {statusCfg.label}
+                        </span>
+                      </div>
+
+                      {/* Customer Info */}
+                      <div className="mt-3.5 rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
+                        <p className="text-[10px] font-bold text-gray-500 capitalize">Customer</p>
+                        <p className="text-xs font-bold text-gray-600 mt-0.5">{p.customer?.name || "Walk-in Customer"}</p>
+                        {p.customer?.phone && <p className="text-[11px] text-gray-500">{p.customer.phone}</p>}
+                      </div>
+
+                      {/* Financial Amount */}
+                      <div className="mt-3 flex items-center justify-between">
+                        <span className="text-xs font-medium text-gray-500">Collected Amount</span>
+                        <span
+                          className={`text-base font-black tabular-nums ${
+                            isRefunded ? "text-rose-600 line-through" : "text-emerald-700"
+                          }`}
+                        >
+                          ৳{Number(p.amount).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Footer */}
+                    <div className="mt-4 flex items-center justify-between border-t border-sky-100/70 pt-2.5 text-xs">
+                      <span className="text-[11px] text-gray-500">
+                        {new Date(p.createdAt).toLocaleDateString()}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <CustomButton
+                          size="xs"
+                          variant="outline"
+                          leftIcon={Eye}
+                          onClick={() => setSelectedPaymentForDrawer(p)}
+                        >
+                          Receipt
+                        </CustomButton>
+                        {!isRefunded && (
+                          <CustomButton
+                            size="xs"
+                            variant="danger"
+                            leftIcon={RotateCcw}
+                            onClick={() => {
+                              setSelectedPaymentForRefund(p);
+                              setShowRefundModal(true);
+                            }}
+                          >
+                            Refund
+                          </CustomButton>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination footer for Grid */}
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-4 py-2.5 text-xs text-gray-600 shadow-2xs font-medium">
+              <span>
+                Showing Page {page} of {totalPages} ({totalRecords} total records)
+              </span>
+              <div className="flex items-center gap-1.5">
+                <CustomButton
+                  variant="outline"
+                  size="xs"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  Previous
+                </CustomButton>
+                <CustomButton
+                  variant="outline"
+                  size="xs"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  Next
+                </CustomButton>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* ========================================================= */}
       {/* 1. RECORD PAYMENT MODAL (Spacious 2xl, Portal Selects)    */}
@@ -1546,17 +1736,23 @@ export default function PaymentsPage() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-sky-100/80">
-            <div className="flex items-center gap-3 bg-sky-50/80 rounded-sm px-4 py-2 border border-sky-200/60">
-              <span className="text-sm font-semibold text-gray-600">Total Allocated:</span>
-              <span className="text-lg font-black text-[#0369A1]">
+            <div className="h-[36px] flex items-center gap-2 rounded-sm border border-sky-200/90 bg-white px-3 shadow-2xs">
+              <span className="text-xs font-bold capitalize text-gray-600">Total Allocated:</span>
+              <span className="text-xs font-black text-[#0369A1]">
                 ৳{allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0).toLocaleString()}
               </span>
-              <span className="text-sm text-gray-500"> / ৳{Number(allocAmount || 0).toLocaleString()}</span>
+              <span className="text-gray-300 font-bold">/</span>
+              <span className="text-xs font-bold capitalize text-gray-600">Target:</span>
+              <span className="text-xs font-bold text-gray-600">
+                ৳{Number(allocAmount || 0).toLocaleString()}
+              </span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <CustomButton
                 type="button"
                 variant="danger"
+                size="sm"
+                className="h-[36px]"
                 onClick={() => setShowAllocateModal(false)}
               >
                 Cancel
@@ -1564,6 +1760,8 @@ export default function PaymentsPage() {
               <CustomButton
                 type="button"
                 variant="primary"
+                size="sm"
+                className="h-[36px]"
                 disabled={allocSubmitting || allocRows.length === 0}
                 loading={allocSubmitting}
                 onClick={handleSubmitAllocation}

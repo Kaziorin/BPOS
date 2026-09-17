@@ -23,6 +23,8 @@ export interface CustomDatePickerProps {
   required?: boolean;
   id?: string;
   name?: string;
+  compact?: boolean;
+  title?: string;
 }
 
 export function CustomDatePicker({
@@ -44,6 +46,8 @@ export function CustomDatePicker({
   required,
   id,
   name,
+  compact = false,
+  title,
 }: CustomDatePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -72,11 +76,11 @@ export function CustomDatePicker({
     themeColor === "teal" ? "text-teal-600" : themeColor === "blue" ? "text-blue-600" : "text-[#0284C7]";
 
   return (
-    <div className={cn("w-full flex flex-col", containerClassName)}>
+    <div className={cn("w-full flex flex-col", containerClassName)} title={title || placeholder}>
       {label && (
         <label
           htmlFor={id}
-          className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1"
+          className="block text-[11px] font-bold text-gray-600 capitalize mb-1"
         >
           {label} {required && <span className="text-rose-500">*</span>}
         </label>
@@ -90,11 +94,14 @@ export function CustomDatePicker({
         )}
       >
         {/* Left Calendar Icon */}
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
-          {icon || <Calendar size={14} className={primaryIconColor} />}
+        <div className={cn(
+          "absolute top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center z-10",
+          compact ? "left-2" : "left-3"
+        )}>
+          {icon || <Calendar size={compact ? 13 : 14} className={primaryIconColor} />}
         </div>
 
-        {/* HTML5 Date Input */}
+        {/* HTML5 Date Input (native calendar indicator hidden to avoid duplicate icons) */}
         <input
           ref={inputRef}
           id={id}
@@ -105,12 +112,17 @@ export function CustomDatePicker({
           max={max}
           required={required}
           value={value}
+          title={title || placeholder}
           placeholder={placeholder}
+          onClick={handleContainerClick}
           onChange={(e) => onChange?.(e.target.value)}
           className={cn(
-            "h-[38px] w-full rounded-sm border border-sky-100/90 bg-white pl-9 text-xs font-medium text-gray-600 shadow-2xs transition-colors cursor-pointer",
+            "h-[38px] w-full rounded-sm border border-sky-200/80 bg-white text-xs sm:text-[13px] font-semibold text-gray-600 shadow-2xs transition-colors cursor-pointer",
             "focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20",
-            clearable && value ? "pr-8" : "pr-3",
+            "[&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-inner-spin-button]:hidden",
+            "[&::-webkit-datetime-edit]:text-xs [&::-webkit-datetime-edit]:sm:text-[13px] [&::-webkit-datetime-edit]:font-semibold [&::-webkit-datetime-edit]:text-gray-600",
+            "[&::-webkit-datetime-edit-fields-wrapper]:p-0",
+            compact ? (clearable && value ? "pl-7.5 pr-6" : "pl-7.5 pr-2") : (clearable && value ? "pl-9 pr-8" : "pl-9 pr-3"),
             error && "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20",
             className
           )}
@@ -121,17 +133,20 @@ export function CustomDatePicker({
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-sm text-slate-400 hover:text-gray-600 transition-colors cursor-pointer"
+            className={cn(
+              "absolute z-10 top-1/2 -translate-y-1/2 p-0.5 rounded-sm text-gray-400 hover:text-gray-700 transition-colors cursor-pointer",
+              compact ? "right-1.5" : "right-2.5"
+            )}
             title="Clear date"
           >
-            <X size={13} />
+            <X size={compact ? 12 : 13} />
           </button>
         )}
       </div>
 
       {error && <span className="text-[11px] text-rose-500 mt-1 font-medium">{error}</span>}
       {helperText && !error && (
-        <span className="text-[11px] text-slate-400 mt-1">{helperText}</span>
+        <span className="text-[11px] text-gray-500 mt-1">{helperText}</span>
       )}
     </div>
   );

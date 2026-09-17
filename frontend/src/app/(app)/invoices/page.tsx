@@ -50,6 +50,7 @@ import {
   CustomTabs,
   CustomDropdownSelect,
   CustomInput,
+  CustomDatePicker,
 } from "@/components/custom";
 
 interface Invoice {
@@ -166,7 +167,8 @@ export default function InvoicesPage() {
   const [activeTab, setActiveTab] = useState<string>("ALL");
   const [filterType, setFilterType] = useState("");
   const [filterBranch, setFilterBranch] = useState("");
-  const [dateRange, setDateRange] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
@@ -327,19 +329,12 @@ export default function InvoicesPage() {
         }
       }
 
-      // Date Filters
-      if (dateRange === "today") {
-        const todayStr = new Date().toISOString().split("T")[0];
-        params.set("dateFrom", todayStr);
-        params.set("dateTo", todayStr);
-      } else if (dateRange === "week") {
-        const d = new Date();
-        d.setDate(d.getDate() - 7);
-        params.set("dateFrom", d.toISOString().split("T")[0]);
-      } else if (dateRange === "month") {
-        const d = new Date();
-        d.setDate(1);
-        params.set("dateFrom", d.toISOString().split("T")[0]);
+      // Date Range Filters
+      if (startDate) {
+        params.set("dateFrom", startDate);
+      }
+      if (endDate) {
+        params.set("dateTo", endDate);
       }
 
       const res: any = await api.get(`/v1/invoices?${params.toString()}`);
@@ -360,7 +355,7 @@ export default function InvoicesPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, sortBy, sortDir, searchQuery, filterType, filterBranch, activeTab, subSection, dateRange]);
+  }, [page, limit, sortBy, sortDir, searchQuery, filterType, filterBranch, activeTab, subSection, startDate, endDate]);
 
   useEffect(() => {
     loadStats();
@@ -862,13 +857,6 @@ export default function InvoicesPage() {
     ...branches.map((b) => ({ label: b.name, value: b.id })),
   ];
 
-  // Date Range Options
-  const dateRangeOptions = [
-    { label: "All Dates", value: "all" },
-    { label: "Today", value: "today" },
-    { label: "Past 7 Days", value: "week" },
-    { label: "This Month", value: "month" },
-  ];
 
   // Memoized Options for Modal Dropdown Selects
   const allocCustomerOptions = useMemo(() => [
@@ -1053,17 +1041,9 @@ export default function InvoicesPage() {
               <Clock size={18} />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-[#0369A1]">
-                  Receivables Aging & Recovery Timeline
-                </h3>
-                <span className="rounded-xs bg-sky-100 px-2 py-0.5 text-[10px] font-bold text-[#0284C7] border border-sky-200">
-                  Real-time Risk Matrix
-                </span>
-              </div>
-              <p className="text-xs text-gray-500 font-medium">
-                Cash-flow distribution across overdue aging buckets & delinquency exposure
-              </p>
+              <h3 className="text-sm font-bold text-[#0369A1]">
+                Receivables Aging & Recovery Timeline
+              </h3>
             </div>
           </div>
 
@@ -1141,7 +1121,7 @@ export default function InvoicesPage() {
           {/* Bucket 1: Current / Not Due */}
           <div className="relative flex flex-col justify-between rounded-sm border border-emerald-200/80 bg-gradient-to-b from-emerald-50/50 to-white p-3 shadow-2xs hover:shadow-xs transition">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+              <span className="text-[11px] font-bold capitalize text-emerald-800">
                 Current (Not Due)
               </span>
               <span className="rounded-xs bg-emerald-100/90 px-1.5 py-0.5 text-[9px] font-black text-emerald-800 border border-emerald-200">
@@ -1162,7 +1142,7 @@ export default function InvoicesPage() {
           {/* Bucket 2: 1 - 30 Days */}
           <div className="relative flex flex-col justify-between rounded-sm border border-amber-200/80 bg-gradient-to-b from-amber-50/50 to-white p-3 shadow-2xs hover:shadow-xs transition">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
+              <span className="text-[11px] font-bold capitalize text-amber-800">
                 1 - 30 Days
               </span>
               <span className="rounded-xs bg-amber-100/90 px-1.5 py-0.5 text-[9px] font-black text-amber-800 border border-amber-200">
@@ -1183,7 +1163,7 @@ export default function InvoicesPage() {
           {/* Bucket 3: 31 - 60 Days */}
           <div className="relative flex flex-col justify-between rounded-sm border border-orange-200/80 bg-gradient-to-b from-orange-50/50 to-white p-3 shadow-2xs hover:shadow-xs transition">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-orange-700">
+              <span className="text-[11px] font-bold capitalize text-orange-800">
                 31 - 60 Days
               </span>
               <span className="rounded-xs bg-orange-100/90 px-1.5 py-0.5 text-[9px] font-black text-orange-800 border border-orange-200">
@@ -1204,7 +1184,7 @@ export default function InvoicesPage() {
           {/* Bucket 4: 61 - 90 Days */}
           <div className="relative flex flex-col justify-between rounded-sm border border-rose-200/80 bg-gradient-to-b from-rose-50/50 to-white p-3 shadow-2xs hover:shadow-xs transition">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700">
+              <span className="text-[11px] font-bold capitalize text-rose-800">
                 61 - 90 Days
               </span>
               <span className="rounded-xs bg-rose-100/90 px-1.5 py-0.5 text-[9px] font-black text-rose-800 border border-rose-200">
@@ -1225,7 +1205,7 @@ export default function InvoicesPage() {
           {/* Bucket 5: 90+ Days Critical */}
           <div className="relative flex flex-col justify-between rounded-sm border border-red-300 bg-gradient-to-b from-red-100/60 to-white p-3 shadow-2xs hover:shadow-xs transition">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black uppercase tracking-wider text-red-800">
+              <span className="text-[11px] font-black capitalize text-red-800">
                 90+ Days Critical
               </span>
               <span className="rounded-xs bg-red-200 px-1.5 py-0.5 text-[9px] font-black text-red-900 border border-red-300">
@@ -1315,7 +1295,7 @@ export default function InvoicesPage() {
                         setSearchQuery("");
                         setPage(1);
                       }}
-                      className="text-slate-400 hover:text-gray-600 cursor-pointer"
+                      className="text-gray-400 hover:text-gray-700 cursor-pointer"
                     >
                       <X size={14} />
                     </button>
@@ -1328,7 +1308,7 @@ export default function InvoicesPage() {
                   setPage(1);
                 }}
                 containerClassName="w-48 sm:w-64 md:w-72"
-                className="h-[34px] text-xs text-gray-600 placeholder:text-slate-400 shadow-2xs"
+                className="h-[34px] text-xs font-medium text-gray-700 placeholder:text-gray-500 shadow-2xs"
               />
 
               {/* Table / Grid Switcher */}
@@ -1339,7 +1319,7 @@ export default function InvoicesPage() {
                   className={`rounded-sm p-1.5 h-[28px] flex items-center transition cursor-pointer ${
                     viewMode === "table"
                       ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
-                      : "text-slate-400 hover:text-gray-600"
+                      : "text-gray-500 hover:text-gray-800"
                   }`}
                   title="Table View"
                 >
@@ -1351,7 +1331,7 @@ export default function InvoicesPage() {
                   className={`rounded-sm p-1.5 h-[28px] flex items-center transition cursor-pointer ${
                     viewMode === "grid"
                       ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
-                      : "text-slate-400 hover:text-gray-600"
+                      : "text-gray-500 hover:text-gray-800"
                   }`}
                   title="Grid Card View"
                 >
@@ -1373,9 +1353,9 @@ export default function InvoicesPage() {
             </div>
           </div>
 
-          {/* 4-Column Dropdown Filters Row (Equal Width): Module/Section (Left of Invoice Type), Type, Branch, Date */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-0.5">
-            {/* 1. Module / Section Select (Converted from Upper Tab, Left of Invoice Type) */}
+          {/* 4-Column Equal Full-Width Filters Row: 3 Selects and 1 Date Range Picker (Same Width Each) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-0.5 w-full">
+            {/* 1. Module / Section Select */}
             <CustomDropdownSelect
               options={sectionFilterOptions}
               value={subSection}
@@ -1385,7 +1365,7 @@ export default function InvoicesPage() {
                 setPage(1);
               }}
               containerClassName="w-full"
-              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-100/90 shadow-2xs"
+              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
               placeholder="All Invoice Sections"
             />
 
@@ -1398,7 +1378,7 @@ export default function InvoicesPage() {
                 setPage(1);
               }}
               containerClassName="w-full"
-              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-100/90 shadow-2xs"
+              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
               placeholder="All Invoice Types"
             />
 
@@ -1411,22 +1391,43 @@ export default function InvoicesPage() {
                 setPage(1);
               }}
               containerClassName="w-full"
-              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-100/90 shadow-2xs"
+              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
               placeholder="All Outlets / Branches"
             />
 
-            {/* 4. Date Range Select */}
-            <CustomDropdownSelect
-              options={dateRangeOptions}
-              value={dateRange}
-              onChange={(val) => {
-                setDateRange(val);
-                setPage(1);
-              }}
-              containerClassName="w-full"
-              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-100/90 shadow-2xs"
-              placeholder="Date Range"
-            />
+            {/* 4. Date Range Filter with CustomDatePicker (Equal 1-Col Width) */}
+            <div className="flex items-center gap-1.5 w-full">
+              <div className="flex-1 min-w-0">
+                <CustomDatePicker
+                  value={startDate}
+                  onChange={(val) => {
+                    setStartDate(val);
+                    setPage(1);
+                  }}
+                  compact={true}
+                  placeholder="From Date"
+                  title="From Date"
+                  clearable={true}
+                  className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+                />
+              </div>
+              <span className="text-xs font-bold text-gray-500 shrink-0">to</span>
+              <div className="flex-1 min-w-0">
+                <CustomDatePicker
+                  value={endDate}
+                  onChange={(val) => {
+                    setEndDate(val);
+                    setPage(1);
+                  }}
+                  compact={true}
+                  placeholder="To Date"
+                  title="To Date"
+                  clearable={true}
+                  min={startDate || undefined}
+                  className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1459,9 +1460,9 @@ export default function InvoicesPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-sky-100/70 bg-slate-50/75 text-[11px] font-bold uppercase tracking-wider text-gray-600">
+                  <tr className="border-b border-sky-200/80 bg-sky-50/40 text-xs font-bold capitalize text-gray-700">
                     <th className="py-3.5 pl-4 pr-2 w-8">
-                      <button onClick={toggleSelectAll} className="text-slate-400 hover:text-slate-700 cursor-pointer">
+                      <button onClick={toggleSelectAll} className="text-gray-400 hover:text-gray-700 cursor-pointer">
                         {selectedIds.length === invoices.length && invoices.length > 0 ? (
                           <CheckSquare size={16} className="text-sky-600" />
                         ) : (
@@ -1492,7 +1493,7 @@ export default function InvoicesPage() {
                       <tr key={inv.id} className={`group transition ${isSelected ? "bg-sky-50/30" : "hover:bg-slate-50/70"}`}>
                         {/* Checkbox */}
                         <td className="py-3.5 pl-4 pr-2">
-                          <button onClick={() => toggleSelectRow(inv.id)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
+                          <button onClick={() => toggleSelectRow(inv.id)} className="text-gray-400 hover:text-gray-700 cursor-pointer">
                             {isSelected ? <CheckSquare size={16} className="text-sky-600" /> : <Square size={16} />}
                           </button>
                         </td>
@@ -1519,7 +1520,7 @@ export default function InvoicesPage() {
                                 {typeCfg.label}
                               </span>
                               {inv.branchName && (
-                                <span className="text-[10px] text-gray-400 truncate max-w-[120px]">
+                                <span className="text-[10px] text-gray-500 font-medium truncate max-w-[120px]">
                                   • {inv.branchName}
                                 </span>
                               )}
@@ -1532,7 +1533,7 @@ export default function InvoicesPage() {
                           {inv.customer ? (
                             <div className="flex flex-col">
                               <span className="font-bold text-gray-700">{inv.customer.name}</span>
-                              <div className="flex items-center gap-2 text-[11px] text-gray-400">
+                              <div className="flex items-center gap-2 text-[11px] text-gray-500 font-medium">
                                 {inv.customer.phone && <span>{inv.customer.phone}</span>}
                                 {inv.customer.binVatNo && (
                                   <span className="font-mono text-[10px] text-[#0284C7] font-semibold">BIN: {inv.customer.binVatNo}</span>
@@ -1540,28 +1541,28 @@ export default function InvoicesPage() {
                               </div>
                             </div>
                           ) : (
-                            <span className="font-medium italic text-gray-400">Walk-in Customer</span>
+                            <span className="font-medium italic text-gray-500">Walk-in Customer</span>
                           )}
                         </td>
 
                         {/* Issue & Due Date */}
                         <td className="px-3 py-3.5">
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-medium text-gray-600">
+                            <span className="font-medium text-gray-700">
                               {new Date(inv.issueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                             </span>
                             {inv.dueDate && (
                               <div className="flex items-center gap-1">
                                 <span
                                   className={`text-[11px] ${
-                                    overdue ? "font-bold text-rose-600" : "text-gray-400"
+                                    overdue ? "font-bold text-rose-600" : "text-gray-500 font-medium"
                                   }`}
                                 >
                                   Due: {new Date(inv.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                                 </span>
                                 {overdue && (
-                                  <span className="rounded-xs bg-rose-100 px-1 py-0.2 text-[9px] font-black text-rose-700">
-                                    OVERDUE
+                                  <span className="rounded-xs bg-rose-100 px-1 py-0.2 text-[9px] font-black text-rose-700 capitalize">
+                                    Overdue
                                   </span>
                                 )}
                               </div>
@@ -1596,7 +1597,7 @@ export default function InvoicesPage() {
                         <td className="px-3 py-3.5 text-right">
                           <span
                             className={`font-black tabular-nums ${
-                              dueAmt > 0 ? (overdue ? "text-rose-600 font-black" : "text-gray-700") : "text-gray-400"
+                              dueAmt > 0 ? (overdue ? "text-rose-600 font-black" : "text-gray-700") : "text-gray-500"
                             }`}
                           >
                             {dueAmt > 0 ? `৳${dueAmt.toLocaleString()}` : "—"}
@@ -1661,7 +1662,7 @@ export default function InvoicesPage() {
                               <button
                                 onClick={() => handleVoidInvoice(inv.id, inv.invoiceNo)}
                                 title="Void Invoice"
-                                className="rounded-sm p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 cursor-pointer active:scale-95"
+                                className="rounded-sm p-1.5 text-gray-400 transition hover:bg-rose-50 hover:text-rose-600 cursor-pointer active:scale-95"
                               >
                                 <Ban size={15} />
                               </button>
@@ -1735,7 +1736,7 @@ export default function InvoicesPage() {
 
                       {/* Customer Info */}
                       <div className="mt-4 rounded-sm bg-slate-50 p-3 border border-slate-100">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Customer</p>
+                        <p className="text-xs font-bold capitalize text-gray-600">Customer</p>
                         <p className="text-xs font-bold text-gray-700">{inv.customer?.name || "Walk-in Customer"}</p>
                         {inv.customer?.phone && <p className="text-[11px] text-gray-500">{inv.customer.phone}</p>}
                       </div>
@@ -1743,12 +1744,12 @@ export default function InvoicesPage() {
                       {/* Financials & Dates */}
                       <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
                         <div>
-                          <span className="text-[11px] text-gray-400">Total Invoiced</span>
+                          <span className="text-[11px] font-medium text-gray-600">Total Invoiced</span>
                           <p className="font-black text-gray-700">৳{Number(inv.total).toLocaleString()}</p>
                         </div>
                         <div className="text-right">
-                          <span className="text-[11px] text-gray-400">Due Balance</span>
-                          <p className={`font-black ${dueAmt > 0 ? "text-rose-600" : "text-gray-400"}`}>
+                          <span className="text-[11px] font-medium text-gray-600">Due Balance</span>
+                          <p className={`font-black ${dueAmt > 0 ? "text-rose-600" : "text-gray-500"}`}>
                             ৳{dueAmt.toLocaleString()}
                           </p>
                         </div>
@@ -1773,7 +1774,7 @@ export default function InvoicesPage() {
 
                     {/* Bottom Action Footer */}
                     <div className="mt-5 flex items-center justify-between border-t border-sky-100/70 pt-3 text-xs">
-                      <span className="text-[11px] text-gray-400">
+                      <span className="text-[11px] font-medium text-gray-500">
                         {new Date(inv.issueDate).toLocaleDateString()}
                       </span>
                       <div className="flex items-center gap-1.5">
@@ -1842,7 +1843,8 @@ export default function InvoicesPage() {
               </div>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-gray-700 transition"
+                className="rounded-sm p-1.5 text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 transition cursor-pointer"
+                title="Close"
               >
                 <X size={18} />
               </button>
@@ -1854,7 +1856,7 @@ export default function InvoicesPage() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {/* Branch */}
                 <div>
-                  <label className="mb-1.5 block text-xs font-bold text-gray-600">Outlet / Branch *</label>
+                  <label className="mb-1.5 block text-xs font-bold text-gray-600 capitalize">Outlet / Branch *</label>
                   <CustomDropdownSelect
                     options={modalBranchOptions}
                     value={form.branchId}
@@ -1866,7 +1868,7 @@ export default function InvoicesPage() {
 
                 {/* Invoice Type */}
                 <div>
-                  <label className="mb-1.5 block text-xs font-bold text-gray-600">Invoice Type *</label>
+                  <label className="mb-1.5 block text-xs font-bold text-gray-600 capitalize">Invoice Type *</label>
                   <CustomDropdownSelect
                     options={modalInvoiceTypeOptions}
                     value={form.invoiceType}
@@ -1876,25 +1878,26 @@ export default function InvoicesPage() {
                   />
                 </div>
 
-                {/* Issue Date */}
+                {/* Issue Date with CustomDatePicker */}
                 <div>
-                  <label className="mb-1.5 block text-xs font-bold text-gray-600">Issue Date *</label>
-                  <input
-                    type="date"
+                  <label className="mb-1.5 block text-xs font-bold text-gray-600 capitalize">Issue Date *</label>
+                  <CustomDatePicker
                     value={form.issueDate}
-                    onChange={(e) => setForm((p) => ({ ...p, issueDate: e.target.value }))}
-                    className="w-full rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
+                    onChange={(val) => setForm((p) => ({ ...p, issueDate: val }))}
+                    className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 border-sky-200/80"
                   />
                 </div>
 
-                {/* Due Date */}
+                {/* Due Date with CustomDatePicker */}
                 <div>
-                  <label className="mb-1.5 block text-xs font-bold text-gray-600">Due Date (Optional)</label>
-                  <input
-                    type="date"
+                  <label className="mb-1.5 block text-xs font-bold text-gray-600 capitalize">Due Date (Optional)</label>
+                  <CustomDatePicker
                     value={form.dueDate}
-                    onChange={(e) => setForm((p) => ({ ...p, dueDate: e.target.value }))}
-                    className="w-full rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
+                    onChange={(val) => setForm((p) => ({ ...p, dueDate: val }))}
+                    clearable={true}
+                    min={form.issueDate || undefined}
+                    placeholder="Select Due Date"
+                    className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 border-sky-200/80"
                   />
                 </div>
               </div>
@@ -1902,7 +1905,7 @@ export default function InvoicesPage() {
               {/* Customer Row */}
               <div className="rounded-sm border border-sky-200/80 bg-sky-50/30 p-3.5 sm:p-4">
                 <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
-                  <label className="text-xs font-bold text-gray-600">Customer & Tax Identity</label>
+                  <label className="text-xs font-bold text-gray-600 capitalize">Customer & Tax Identity</label>
                   <button
                     type="button"
                     onClick={() => setShowQuickAddCust(!showQuickAddCust)}
@@ -1971,7 +1974,7 @@ export default function InvoicesPage() {
               {/* Line Items Builder (Fully Device-Friendly) */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Itemized Line Items</span>
+                  <span className="text-xs font-bold text-gray-600 capitalize">Itemized Line Items</span>
                   <span className="text-xs font-bold text-[#0369A1]">{form.items.length} lines</span>
                 </div>
 
@@ -1979,7 +1982,7 @@ export default function InvoicesPage() {
                 <div className="hidden md:block overflow-x-auto rounded-sm border border-sky-200/80">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-sky-200/80 bg-sky-50/70 text-[11px] font-bold text-[#0369A1] uppercase">
+                      <tr className="border-b border-sky-200/80 bg-sky-50/70 text-xs font-bold text-[#0369A1] capitalize">
                         <th className="py-2.5 pl-4 pr-2 w-64">Product Autocomplete</th>
                         <th className="px-2 py-2.5">Description *</th>
                         <th className="px-2 py-2.5 w-20 text-center">Qty</th>
@@ -2239,12 +2242,12 @@ export default function InvoicesPage() {
                 {/* Themed Calculated Invoice Breakdown */}
                 <div className="flex flex-col justify-between rounded-sm border border-sky-200/80 bg-gradient-to-br from-sky-50/60 via-white to-sky-50/40 p-4 sm:p-5 shadow-2xs">
                   <div className="space-y-2.5">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Financial Calculation</h4>
+                    <h4 className="text-xs font-bold capitalize text-[#0369A1]">Financial Calculation</h4>
                     <div className="flex justify-between text-xs text-gray-600">
                       <span>Subtotal</span>
                       <span className="font-bold tabular-nums text-gray-600">৳{formSubtotal.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-xs text-rose-600">
+                    <div className="flex justify-between text-xs text-rose-600 font-semibold">
                       <span>Total Discounts</span>
                       <span className="font-bold tabular-nums">- ৳{formDiscountTotal.toLocaleString()}</span>
                     </div>
@@ -2252,7 +2255,7 @@ export default function InvoicesPage() {
                       <span>Total Tax / Mushak VAT</span>
                       <span className="font-bold tabular-nums">+ ৳{formTaxTotal.toLocaleString()}</span>
                     </div>
-                    <div className="border-t border-sky-200/80 pt-2.5 flex justify-between text-base font-black text-gray-600">
+                    <div className="border-t border-sky-200/80 pt-2.5 flex justify-between text-base font-bold text-gray-600">
                       <span>Grand Total</span>
                       <span className="tabular-nums text-[#0369A1] font-black text-lg">৳{formGrandTotal.toLocaleString()}</span>
                     </div>
@@ -2312,7 +2315,8 @@ export default function InvoicesPage() {
               </div>
               <button
                 onClick={() => setShowCollectModal(false)}
-                className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-gray-700 transition"
+                className="rounded-sm p-1.5 text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 transition cursor-pointer"
+                title="Close"
               >
                 <X size={18} />
               </button>
@@ -2324,18 +2328,18 @@ export default function InvoicesPage() {
               <div className="rounded-sm bg-sky-50/40 p-3.5 space-y-2 border border-sky-200/80">
                 <div className="flex justify-between text-gray-600">
                   <span className="font-semibold">Customer:</span>
-                  <span className="font-bold text-gray-800">{selectedInvoiceForCollect.customer?.name || "Walk-in"}</span>
+                  <span className="font-bold text-gray-600">{selectedInvoiceForCollect.customer?.name || "Walk-in"}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span className="font-semibold">Total Amount:</span>
-                  <span className="font-bold text-gray-800">৳{Number(selectedInvoiceForCollect.total).toLocaleString()}</span>
+                  <span className="font-bold text-gray-600">৳{Number(selectedInvoiceForCollect.total).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span className="font-semibold">Already Paid:</span>
                   <span className="font-bold text-emerald-700">৳{Number(selectedInvoiceForCollect.paidTotal).toLocaleString()}</span>
                 </div>
-                <div className="border-t border-sky-200/80 pt-2 flex justify-between font-black text-gray-900">
-                  <span className="font-bold text-gray-700">Current Due:</span>
+                <div className="border-t border-sky-200/80 pt-2 flex justify-between font-bold text-gray-600">
+                  <span className="font-bold text-gray-600">Current Due:</span>
                   <span className="text-rose-600 font-black text-sm">
                     ৳{Math.max(0, Number(selectedInvoiceForCollect.total) - Number(selectedInvoiceForCollect.paidTotal)).toLocaleString()}
                   </span>
@@ -2345,7 +2349,7 @@ export default function InvoicesPage() {
               {/* Payment inputs */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="font-bold text-gray-700">Payment Amount (৳) *</label>
+                  <label className="font-bold text-gray-600">Payment Amount (৳) *</label>
                   <button
                     type="button"
                     onClick={() =>
@@ -2361,18 +2365,18 @@ export default function InvoicesPage() {
                   min={1}
                   value={collectAmount}
                   onChange={(e) => setCollectAmount(Number(e.target.value))}
-                  className="w-full rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-sm font-black text-gray-900 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
+                  className="w-full rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-xs font-bold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block font-bold text-gray-700">Payment Channel *</label>
+                <label className="mb-1.5 block font-bold text-gray-600">Payment Channel *</label>
                 <CustomDropdownSelect
                   options={modalCollectMethodOptions}
                   value={collectMethod}
                   onChange={(val) => setCollectMethod(val)}
                   placeholder="Select Payment Channel"
-                  className="w-full text-xs font-semibold"
+                  className="w-full text-xs font-semibold text-gray-600"
                 />
               </div>
 
@@ -2434,7 +2438,8 @@ export default function InvoicesPage() {
               </div>
               <button
                 onClick={() => setShowAllocateModal(false)}
-                className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-gray-700 transition"
+                className="rounded-sm p-1.5 text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 transition cursor-pointer"
+                title="Close"
               >
                 <X size={18} />
               </button>
@@ -2493,7 +2498,7 @@ export default function InvoicesPage() {
               {/* Invoices to allocate table */}
               <div className="mt-2 space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                  <span className="text-xs font-bold capitalize text-gray-600">
                     Unpaid Invoices for Allocation
                   </span>
                   {allocRows.length > 0 && (
@@ -2513,13 +2518,13 @@ export default function InvoicesPage() {
                 {allocRows.length === 0 ? (
                   <div className="rounded-sm border border-dashed border-sky-200/80 py-10 text-center text-gray-500 bg-sky-50/20">
                     <p className="font-semibold">{allocCustId ? "No unpaid invoices found for this customer" : "Select a customer to view open invoices"}</p>
-                    <p className="text-[11px] text-gray-400 mt-1">Settlements can only be allocated to customers with open balances</p>
+                    <p className="text-xs text-gray-600 mt-1">Settlements can only be allocated to customers with open balances</p>
                   </div>
                 ) : (
                   <div className="overflow-hidden rounded-sm border border-sky-200/80">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-sky-200/80 bg-sky-50/70 text-[11px] font-bold uppercase text-[#0369A1]">
+                        <tr className="border-b border-sky-200/80 bg-sky-50/70 text-xs font-bold capitalize text-[#0369A1]">
                           <th className="py-2.5 pl-4">Invoice #</th>
                           <th className="py-2.5 text-right">Total</th>
                           <th className="py-2.5 text-right">Paid</th>
@@ -2567,44 +2572,45 @@ export default function InvoicesPage() {
               const isExceeded = diff < 0;
 
               return (
-                <div className="shrink-0 flex flex-wrap items-center justify-between gap-3 border-t border-sky-200/80 px-5 py-4 bg-sky-50/40">
-                  {/* High-visibility Allocation Summary Bar */}
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-2.5 rounded-sm border border-sky-200/90 bg-white px-3.5 py-2 shadow-2xs">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-600">Total Allocated:</span>
-                      <span className="text-sm sm:text-base font-black text-[#0369A1]">
+                <div className="shrink-0 flex flex-wrap items-center justify-between gap-3 border-t border-sky-200/80 px-5 py-3.5 bg-sky-50/40">
+                  {/* High-visibility Allocation Summary Bar (Matches Button Height) */}
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="h-[36px] flex items-center gap-2 rounded-sm border border-sky-200/90 bg-white px-3 shadow-2xs">
+                      <span className="text-xs font-bold capitalize text-gray-600">Total Allocated:</span>
+                      <span className="text-xs font-black text-[#0369A1]">
                         ৳{totalAllocated.toLocaleString()}
                       </span>
                       <span className="text-gray-300 font-bold">/</span>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-600">Target:</span>
-                      <span className="text-sm sm:text-base font-black text-gray-600">
+                      <span className="text-xs font-bold capitalize text-gray-600">Target:</span>
+                      <span className="text-xs font-bold text-gray-600">
                         ৳{targetSettlement.toLocaleString()}
                       </span>
                     </div>
 
                     {targetSettlement > 0 && (
                       isBalanced ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
+                        <span className="h-[36px] inline-flex items-center gap-1.5 px-3 rounded-sm text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
                           <CheckCircle2 size={14} className="text-emerald-600" /> Balanced (100%)
                         </span>
                       ) : isExceeded ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 shadow-2xs">
+                        <span className="h-[36px] inline-flex items-center gap-1.5 px-3 rounded-sm text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 shadow-2xs">
                           <AlertCircle size={14} className="text-rose-600" /> Exceeded by ৳{Math.abs(diff).toLocaleString()}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs">
+                        <span className="h-[36px] inline-flex items-center gap-1.5 px-3 rounded-sm text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs">
                           <Clock size={14} className="text-amber-600" /> Remaining: ৳{diff.toLocaleString()}
                         </span>
                       )
                     )}
                   </div>
 
-                  {/* Action buttons */}
+                  {/* Action buttons (Same Height) */}
                   <div className="flex items-center gap-2">
                     <CustomButton
                       type="button"
                       variant="danger"
                       size="sm"
+                      className="h-[36px]"
                       onClick={() => setShowAllocateModal(false)}
                     >
                       Cancel
@@ -2614,6 +2620,7 @@ export default function InvoicesPage() {
                       variant="primary"
                       themeColor="primary"
                       size="sm"
+                      className="h-[36px]"
                       disabled={allocSubmitting || allocRows.length === 0}
                       loading={allocSubmitting}
                       onClick={handleSubmitAllocation}
@@ -2647,7 +2654,8 @@ export default function InvoicesPage() {
               </div>
               <button
                 onClick={() => setShowReminderModal(false)}
-                className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-gray-700 transition"
+                className="rounded-sm p-1.5 text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 transition cursor-pointer"
+                title="Close"
               >
                 <X size={18} />
               </button>
@@ -2655,14 +2663,14 @@ export default function InvoicesPage() {
 
             <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
               <div className="rounded-sm bg-sky-50/40 p-3.5 border border-sky-200/80 space-y-1">
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Recipient</p>
-                <p className="font-bold text-gray-800 text-sm">{selectedInvoiceForReminder.customer?.name || "Customer"}</p>
+                <p className="text-xs font-bold capitalize text-gray-600">Recipient</p>
+                <p className="font-bold text-gray-600 text-sm">{selectedInvoiceForReminder.customer?.name || "Customer"}</p>
                 <p className="font-mono text-gray-600 font-semibold">{selectedInvoiceForReminder.customer?.phone || "No phone provided"}</p>
               </div>
 
               <div>
-                <label className="mb-1.5 block font-bold text-gray-700">Reminder Message Preview</label>
-                <div className="rounded-sm border border-sky-200/80 bg-sky-50/30 p-3.5 font-mono text-[11px] text-gray-800 leading-relaxed">
+                <label className="mb-1.5 block font-bold text-gray-600">Reminder Message Preview</label>
+                <div className="rounded-sm border border-sky-200/80 bg-sky-50/30 p-3.5 font-mono text-[11px] text-gray-600 leading-relaxed">
                   Dear {selectedInvoiceForReminder.customer?.name || "Customer"}, your invoice{" "}
                   <strong className="text-[#0369A1]">{selectedInvoiceForReminder.invoiceNo}</strong> has an outstanding balance of ৳
                   <strong className="text-rose-600">
@@ -2728,20 +2736,21 @@ export default function InvoicesPage() {
             {/* Drawer Sticky Header */}
             <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-5 py-4 bg-white">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Invoice Ledger View</span>
-                <h3 className="font-mono text-lg font-black text-slate-900">{selectedInvoiceForDrawer.invoiceNo}</h3>
+                <span className="text-xs font-bold capitalize text-gray-600">Invoice Ledger View</span>
+                <h3 className="font-mono text-lg font-black text-[#0369A1]">{selectedInvoiceForDrawer.invoiceNo}</h3>
               </div>
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => launchPrintModal(selectedInvoiceForDrawer)}
-                  className="flex items-center gap-1 rounded-sm border border-sky-100/90 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                  className="flex items-center gap-1 rounded-sm border border-sky-200/80 px-3 py-1.5 text-xs font-bold text-gray-600 hover:bg-sky-50"
                 >
                   <Printer size={14} />
                   Print
                 </button>
                 <button
                   onClick={() => setSelectedInvoiceForDrawer(null)}
-                  className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100"
+                  className="rounded-sm p-1.5 text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 transition cursor-pointer"
+                  title="Close"
                 >
                   <X size={18} />
                 </button>
@@ -2751,9 +2760,9 @@ export default function InvoicesPage() {
             {/* Scrollable Body */}
             <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
               {/* Customer & Info Cards */}
-              <div className="rounded-sm bg-slate-50 p-4 space-y-2 border border-sky-100/70">
+              <div className="rounded-sm bg-slate-50 p-4 space-y-2 border border-sky-200/80">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-slate-400 uppercase text-[10px]">Client / Buyer Info</span>
+                  <span className="font-bold text-gray-600 capitalize text-xs">Client / Buyer Info</span>
                   <span
                     className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                       TYPE_CONFIG[selectedInvoiceForDrawer.invoiceType]?.badge || ""
@@ -2762,11 +2771,11 @@ export default function InvoicesPage() {
                     {selectedInvoiceForDrawer.invoiceType}
                   </span>
                 </div>
-                <p className="text-sm font-bold text-slate-800">
+                <p className="text-sm font-bold text-gray-600">
                   {selectedInvoiceForDrawer.customer?.name || "Walk-in Customer"}
                 </p>
                 {selectedInvoiceForDrawer.customer?.phone && (
-                  <p className="flex items-center gap-1 text-slate-500">
+                  <p className="flex items-center gap-1 text-gray-500 font-medium">
                     <Phone size={13} /> {selectedInvoiceForDrawer.customer.phone}
                   </p>
                 )}
@@ -2776,19 +2785,19 @@ export default function InvoicesPage() {
                   </p>
                 )}
                 {selectedInvoiceForDrawer.customer?.address && (
-                  <p className="text-slate-500">{selectedInvoiceForDrawer.customer.address}</p>
+                  <p className="text-gray-500">{selectedInvoiceForDrawer.customer.address}</p>
                 )}
               </div>
 
               {/* Dates & Status */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-sm border border-sky-100/70 bg-white p-3">
-                  <span className="text-[10px] text-slate-400">Issue Date</span>
-                  <p className="font-bold text-slate-800">{new Date(selectedInvoiceForDrawer.issueDate).toLocaleDateString()}</p>
+                <div className="rounded-sm border border-sky-200/80 bg-white p-3">
+                  <span className="text-xs font-semibold text-gray-600">Issue Date</span>
+                  <p className="font-bold text-gray-600">{new Date(selectedInvoiceForDrawer.issueDate).toLocaleDateString()}</p>
                 </div>
-                <div className="rounded-sm border border-sky-100/70 bg-white p-3">
-                  <span className="text-[10px] text-slate-400">Due Date</span>
-                  <p className="font-bold text-slate-800">
+                <div className="rounded-sm border border-sky-200/80 bg-white p-3">
+                  <span className="text-xs font-semibold text-gray-600">Due Date</span>
+                  <p className="font-bold text-gray-600">
                     {selectedInvoiceForDrawer.dueDate
                       ? new Date(selectedInvoiceForDrawer.dueDate).toLocaleDateString()
                       : "Immediate"}
@@ -2798,11 +2807,11 @@ export default function InvoicesPage() {
 
               {/* Line Items Table */}
               <div>
-                <span className="font-bold text-slate-800 uppercase text-[11px]">Itemized Lines</span>
-                <div className="mt-2 overflow-hidden rounded-sm border border-sky-100/90">
+                <span className="font-bold text-gray-600 capitalize text-xs">Itemized Lines</span>
+                <div className="mt-2 overflow-hidden rounded-sm border border-sky-200/80">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-sky-100/90 bg-slate-50 text-[10px] font-bold uppercase text-slate-500">
+                      <tr className="border-b border-sky-200/80 bg-sky-50/70 text-xs font-bold capitalize text-[#0369A1]">
                         <th className="py-2 pl-3">Description</th>
                         <th className="py-2 text-center">Qty</th>
                         <th className="py-2 text-right">Price</th>
@@ -2812,10 +2821,10 @@ export default function InvoicesPage() {
                     <tbody className="divide-y divide-slate-100">
                       {(selectedInvoiceForDrawer.items || []).map((item, idx) => (
                         <tr key={idx} className="bg-white">
-                          <td className="py-2 pl-3 font-medium text-slate-800">{item.description}</td>
-                          <td className="py-2 text-center text-slate-600">{item.qty}</td>
-                          <td className="py-2 text-right text-slate-600">৳{Number(item.unitPrice).toLocaleString()}</td>
-                          <td className="py-2 pr-3 text-right font-bold text-slate-900">৳{Number(item.lineTotal).toLocaleString()}</td>
+                          <td className="py-2 pl-3 font-medium text-gray-600">{item.description}</td>
+                          <td className="py-2 text-center text-gray-600">{item.qty}</td>
+                          <td className="py-2 text-right text-gray-600">৳{Number(item.unitPrice).toLocaleString()}</td>
+                          <td className="py-2 pr-3 text-right font-bold text-gray-600">৳{Number(item.lineTotal).toLocaleString()}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -2824,8 +2833,8 @@ export default function InvoicesPage() {
               </div>
 
               {/* Themed Financial Totals */}
-              <div className="rounded-sm border border-sky-200/70 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 text-slate-800 space-y-2 shadow-2xs">
-                <div className="flex justify-between text-slate-600">
+              <div className="rounded-sm border border-sky-200/80 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 text-gray-600 space-y-2 shadow-2xs">
+                <div className="flex justify-between text-gray-600">
                   <span>Subtotal:</span>
                   <span className="font-bold">৳{Number(selectedInvoiceForDrawer.subtotal ?? selectedInvoiceForDrawer.total).toLocaleString()}</span>
                 </div>
@@ -2841,9 +2850,9 @@ export default function InvoicesPage() {
                     <span>+ ৳{Number(selectedInvoiceForDrawer.taxTotal).toLocaleString()}</span>
                   </div>
                 )}
-                <div className="border-t border-sky-100/90 pt-2 flex justify-between text-sm font-black text-slate-900">
+                <div className="border-t border-sky-200/80 pt-2 flex justify-between text-sm font-bold text-gray-600">
                   <span>Grand Total:</span>
-                  <span className="text-sky-700">৳{Number(selectedInvoiceForDrawer.total).toLocaleString()}</span>
+                  <span className="text-[#0369A1] font-black">৳{Number(selectedInvoiceForDrawer.total).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-xs text-emerald-700">
                   <span>Paid Total:</span>
@@ -2858,13 +2867,13 @@ export default function InvoicesPage() {
               {/* Payment History Timeline */}
               {selectedInvoiceForDrawer.payments && selectedInvoiceForDrawer.payments.length > 0 && (
                 <div>
-                  <span className="font-bold text-slate-800 uppercase text-[11px]">Payment Transaction History</span>
+                  <span className="font-bold text-gray-600 capitalize text-xs">Payment Transaction History</span>
                   <div className="mt-2 space-y-2">
                     {selectedInvoiceForDrawer.payments.map((p) => (
                       <div key={p.id} className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-2.5 shadow-2xs">
                         <div>
-                          <p className="font-bold text-slate-800">{p.method}</p>
-                          <p className="text-[10px] text-slate-400">{new Date(p.createdAt).toLocaleString()}</p>
+                          <p className="font-bold text-gray-600">{p.method}</p>
+                          <p className="text-[11px] text-gray-500 font-medium">{new Date(p.createdAt).toLocaleString()}</p>
                           {p.reference && <p className="text-[10px] text-slate-500 font-mono">Ref: {p.reference}</p>}
                         </div>
                         <span className="font-black text-emerald-600">৳{Number(p.amount).toLocaleString()}</span>
