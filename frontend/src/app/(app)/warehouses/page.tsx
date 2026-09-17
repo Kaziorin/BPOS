@@ -24,6 +24,7 @@ import {
   CustomStatCard,
   CustomTable,
   CustomDropdownSelect,
+  CustomCard,
   type CustomTableColumn,
 } from "@/components/custom";
 
@@ -582,49 +583,69 @@ export default function WarehousesPage() {
         />
       </div>
 
-      {/* 3. Search & Filter Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <CustomInput
-          placeholder="Search warehouse name, code, or branch..."
-          leftIcon={<Search size={14} />}
-          rightIcon={
-            search ? (
-              <button
-                type="button"
-                onClick={() => setSearch("")}
-                className="text-slate-400 hover:text-gray-600 cursor-pointer"
-              >
-                <X size={14} />
-              </button>
-            ) : null
-          }
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <CustomDropdownSelect
-          options={typeFilterOptions}
-          value={typeFilter}
-          onChange={setTypeFilter}
-          placeholder="Filter by Type..."
-        />
-        <CustomDropdownSelect
-          options={locationFilterOptions}
-          value={locationFilter}
-          onChange={setLocationFilter}
-          placeholder="Filter by Storage Hierarchy..."
-        />
-      </div>
+      {/* 3. MAIN UNIFIED CARD: TOOLBAR + WAREHOUSES TABLE */}
+      <CustomCard
+        title="Warehouse & Storage Directory"
+        icon={WhIcon}
+        actions={
+          <span className="rounded-sm bg-sky-100 px-2.5 py-1 text-[11px] font-bold text-[#0284C7] border border-sky-200/80">
+            {filteredWarehouses.length} Warehouses
+          </span>
+        }
+        bodyClassName="p-0"
+      >
+        {/* Card Header Toolbar: Search & Filters */}
+        <div className="border-b border-sky-100/70 p-3.5 bg-sky-50/20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <CustomInput
+              placeholder="Search warehouse name, code, or branch..."
+              leftIcon={<Search size={14} />}
+              rightIcon={
+                search ? (
+                  <button
+                    type="button"
+                    onClick={() => setSearch("")}
+                    className="text-slate-400 hover:text-gray-600 cursor-pointer"
+                  >
+                    <X size={14} />
+                  </button>
+                ) : null
+              }
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              containerClassName="w-full"
+              className="h-[38px] text-xs text-gray-600 placeholder:text-slate-400 shadow-2xs"
+            />
+            <CustomDropdownSelect
+              options={typeFilterOptions}
+              value={typeFilter}
+              onChange={setTypeFilter}
+              placeholder="Filter by Type..."
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
+            />
+            <CustomDropdownSelect
+              options={locationFilterOptions}
+              value={locationFilter}
+              onChange={setLocationFilter}
+              placeholder="Filter by Storage Hierarchy..."
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
+            />
+          </div>
+        </div>
 
-      {/* 4. Warehouses Table */}
-      <CustomTable<Warehouse>
-        columns={columns}
-        data={filteredWarehouses}
-        rowKey="id"
-        loading={loading}
-        emptyMessage="No warehouses found matching current criteria."
-        pageSize={10}
-        showPagination={true}
-      />
+        {/* Warehouses Table */}
+        <CustomTable<Warehouse>
+          columns={columns}
+          data={filteredWarehouses}
+          rowKey="id"
+          loading={loading}
+          emptyMessage="No warehouses found matching current criteria."
+          pageSize={10}
+          showPagination={true}
+        />
+      </CustomCard>
 
       {/* 5. CREATE WAREHOUSE MODAL */}
       <CustomModal

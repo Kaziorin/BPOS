@@ -23,6 +23,7 @@ import {
   CustomDropdownSelect,
   CustomStatCard,
   CustomTable,
+  CustomCard,
   type CustomTableColumn,
 } from "@/components/custom";
 
@@ -438,50 +439,70 @@ export default function MovementsPage() {
         />
       </div>
 
-      {/* 3. Search & Filter Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <CustomInput
-          placeholder="Search product name, SKU, reference..."
-          leftIcon={<Search size={14} />}
-          rightIcon={
-            search ? (
-              <button
-                type="button"
-                onClick={() => setSearch("")}
-                className="text-slate-400 hover:text-gray-600 cursor-pointer"
-              >
-                <X size={14} />
-              </button>
-            ) : null
-          }
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <CustomDropdownSelect
-          options={warehouseOptions}
-          value={warehouseId}
-          onChange={setWarehouseId}
-          placeholder="Filter by Warehouse..."
-        />
-        <CustomDropdownSelect
-          options={MOVEMENT_TYPE_OPTIONS}
-          value={movementType}
-          onChange={setMovementType}
-          placeholder="Filter by Movement Type..."
-        />
-      </div>
+      {/* 3. MAIN UNIFIED CARD: TOOLBAR + MOVEMENTS TABLE */}
+      <CustomCard
+        title="Stock Movement Directory"
+        icon={Activity}
+        actions={
+          <span className="rounded-sm bg-sky-100 px-2.5 py-1 text-[11px] font-bold text-[#0284C7] border border-sky-200/80">
+            {filteredMovements.length} Records
+          </span>
+        }
+        bodyClassName="p-0"
+      >
+        {/* Card Header Toolbar: Search & Custom Dropdowns */}
+        <div className="border-b border-sky-100/70 p-3.5 bg-sky-50/20">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <CustomInput
+              placeholder="Search product name, SKU, reference..."
+              leftIcon={<Search size={14} />}
+              rightIcon={
+                search ? (
+                  <button
+                    type="button"
+                    onClick={() => setSearch("")}
+                    className="text-slate-400 hover:text-gray-600 cursor-pointer"
+                  >
+                    <X size={14} />
+                  </button>
+                ) : null
+              }
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              containerClassName="w-full"
+              className="h-[38px] text-xs text-gray-600 placeholder:text-slate-400 shadow-2xs"
+            />
+            <CustomDropdownSelect
+              options={warehouseOptions}
+              value={warehouseId}
+              onChange={setWarehouseId}
+              placeholder="Filter by Warehouse..."
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
+            />
+            <CustomDropdownSelect
+              options={MOVEMENT_TYPE_OPTIONS}
+              value={movementType}
+              onChange={setMovementType}
+              placeholder="Filter by Movement Type..."
+              containerClassName="w-full"
+              className="h-[38px] text-xs font-medium text-gray-600 shadow-2xs"
+            />
+          </div>
+        </div>
 
-      {/* 4. Movements Table */}
-      <CustomTable<Movement>
-        columns={columns}
-        data={filteredMovements}
-        rowKey="id"
-        loading={loading}
-        emptyIcon={Activity}
-        emptyMessage="No stock movements found matching criteria."
-        pageSize={15}
-        showPagination={true}
-      />
+        {/* Custom Table Component */}
+        <CustomTable<Movement>
+          columns={columns}
+          data={filteredMovements}
+          rowKey="id"
+          loading={loading}
+          emptyIcon={Activity}
+          emptyMessage="No stock movements found matching criteria."
+          pageSize={15}
+          showPagination={true}
+        />
+      </CustomCard>
     </div>
   );
 }
