@@ -870,6 +870,76 @@ export default function InvoicesPage() {
     { label: "This Month", value: "month" },
   ];
 
+  // Memoized Options for Modal Dropdown Selects
+  const allocCustomerOptions = useMemo(() => [
+    { label: "-- Choose Customer --", value: "" },
+    ...customers.map((c) => ({
+      label: `${c.name}${c.phone ? ` (${c.phone})` : ""}`,
+      value: c.id,
+    })),
+  ], [customers]);
+
+  const allocMethodOptions = useMemo(() => [
+    { label: "Cash Drawer", value: "CASH" },
+    { label: "bKash", value: "BKASH" },
+    { label: "Nagad", value: "NAGAD" },
+    { label: "Card / POS", value: "CARD" },
+    { label: "Bank Wire Transfer", value: "BANK_TRANSFER" },
+  ], []);
+
+  const modalBranchOptions = useMemo(() => [
+    ...branches.map((b) => ({ label: b.name, value: b.id })),
+  ], [branches]);
+
+  const modalInvoiceTypeOptions = useMemo(() => [
+    { label: "Mushak 6.3 Tax Invoice (VAT Registered)", value: "TAX" },
+    { label: "Standard Commercial Invoice", value: "STANDARD" },
+    { label: "Credit Note (Sales Return / Rebate)", value: "CREDIT_NOTE" },
+    { label: "Debit Note (Price Adjustment)", value: "DEBIT_NOTE" },
+    { label: "Proforma Invoice", value: "PROFORMA" },
+  ], []);
+
+  const modalCustomerOptions = useMemo(() => [
+    { label: "Walk-in Customer (General Public)", value: "" },
+    ...customers.map((c) => ({
+      label: `${c.name}${c.phone ? ` (${c.phone})` : ""}${c.binVatNo ? ` [BIN: ${c.binVatNo}]` : ""}`,
+      value: c.id,
+    })),
+  ], [customers]);
+
+  const modalPaymentMethodOptions = useMemo(() => [
+    { label: "Cash Drawer", value: "CASH" },
+    { label: "bKash Merchant", value: "BKASH" },
+    { label: "Nagad", value: "NAGAD" },
+    { label: "POS / Card Gateway", value: "CARD" },
+    { label: "Bank Wire Transfer", value: "BANK_TRANSFER" },
+  ], []);
+
+  const modalPaymentTermsOptions = useMemo(() => [
+    { label: "Due on Receipt (Standard)", value: "Due on Receipt" },
+    { label: "Net 7 Days", value: "Net 7 Days" },
+    { label: "Net 15 Days", value: "Net 15 Days" },
+    { label: "Net 30 Days", value: "Net 30 Days" },
+    { label: "50% Advance, 50% on Delivery", value: "50% Advance, 50% on Delivery" },
+  ], []);
+
+  const modalCollectMethodOptions = useMemo(() => [
+    { label: "Cash Drawer", value: "CASH" },
+    { label: "bKash", value: "BKASH" },
+    { label: "Nagad", value: "NAGAD" },
+    { label: "Card / POS", value: "CARD" },
+    { label: "Bank Wire Transfer", value: "BANK_TRANSFER" },
+    { label: "Bank Cheque", value: "CHEQUE" },
+  ], []);
+
+  const modalProductOptions = useMemo(() => [
+    { label: "-- Custom item --", value: "" },
+    ...products.map((p) => ({
+      label: `${p.name}${p.retailPrice ? ` (৳${Number(p.retailPrice).toLocaleString()})` : ""}`,
+      value: p.id,
+    })),
+  ], [products]);
+
   return (
     <div className="w-full space-y-4">
       {/* Toast notification */}
@@ -1759,21 +1829,20 @@ export default function InvoicesPage() {
       {/* ========================================================= */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
+          <div className="relative w-full max-w-6xl max-h-[92vh] flex flex-col rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-200/80 animate-in zoom-in-95">
             {/* Sticky Header */}
-            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-4 py-3.5 sm:px-6 sm:py-4 bg-white">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-sm bg-sky-50 text-sky-600">
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-200/80 px-4 py-3.5 sm:px-6 sm:py-4 bg-white">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-sm bg-gradient-to-br from-[#0284C7] to-[#0369A1] text-white shadow-xs">
                   <PlusCircle size={20} />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-black text-slate-900">Create & Issue Invoice</h2>
-                  <p className="text-[11px] sm:text-xs text-slate-500">Government Mushak 6.3 or Commercial invoice with itemized tax</p>
+                  <h2 className="text-base sm:text-lg font-bold text-[#0369A1]">Create & Issue Invoice</h2>
                 </div>
               </div>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="rounded-sm p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-gray-700 transition"
               >
                 <X size={18} />
               </button>
@@ -1785,67 +1854,59 @@ export default function InvoicesPage() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {/* Branch */}
                 <div>
-                  <label className="mb-1 block text-xs font-bold text-slate-700">Outlet / Branch *</label>
-                  <select
+                  <label className="mb-1.5 block text-xs font-bold text-gray-600">Outlet / Branch *</label>
+                  <CustomDropdownSelect
+                    options={modalBranchOptions}
                     value={form.branchId}
-                    onChange={(e) => setForm((p) => ({ ...p, branchId: e.target.value }))}
-                    className="w-full rounded-sm border border-sky-100/90 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-                  >
-                    {branches.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setForm((p) => ({ ...p, branchId: val }))}
+                    placeholder="Select Branch"
+                    className="w-full text-xs font-semibold text-gray-600"
+                  />
                 </div>
 
                 {/* Invoice Type */}
                 <div>
-                  <label className="mb-1 block text-xs font-bold text-slate-700">Invoice Type *</label>
-                  <select
+                  <label className="mb-1.5 block text-xs font-bold text-gray-600">Invoice Type *</label>
+                  <CustomDropdownSelect
+                    options={modalInvoiceTypeOptions}
                     value={form.invoiceType}
-                    onChange={(e) => setForm((p) => ({ ...p, invoiceType: e.target.value }))}
-                    className="w-full rounded-sm border border-sky-100/90 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-                  >
-                    <option value="TAX">Mushak 6.3 Tax Invoice (VAT Registered)</option>
-                    <option value="STANDARD">Standard Commercial Invoice</option>
-                    <option value="CREDIT_NOTE">Credit Note (Sales Return / Rebate)</option>
-                    <option value="DEBIT_NOTE">Debit Note (Price Adjustment)</option>
-                    <option value="PROFORMA">Proforma Invoice</option>
-                  </select>
+                    onChange={(val) => setForm((p) => ({ ...p, invoiceType: val }))}
+                    placeholder="Select Invoice Type"
+                    className="w-full text-xs font-semibold text-gray-600"
+                  />
                 </div>
 
                 {/* Issue Date */}
                 <div>
-                  <label className="mb-1 block text-xs font-bold text-slate-700">Issue Date *</label>
+                  <label className="mb-1.5 block text-xs font-bold text-gray-600">Issue Date *</label>
                   <input
                     type="date"
                     value={form.issueDate}
                     onChange={(e) => setForm((p) => ({ ...p, issueDate: e.target.value }))}
-                    className="w-full rounded-sm border border-sky-100/90 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                    className="w-full rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                   />
                 </div>
 
                 {/* Due Date */}
                 <div>
-                  <label className="mb-1 block text-xs font-bold text-slate-700">Due Date (Optional)</label>
+                  <label className="mb-1.5 block text-xs font-bold text-gray-600">Due Date (Optional)</label>
                   <input
                     type="date"
                     value={form.dueDate}
                     onChange={(e) => setForm((p) => ({ ...p, dueDate: e.target.value }))}
-                    className="w-full rounded-sm border border-sky-100/90 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                    className="w-full rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                   />
                 </div>
               </div>
 
               {/* Customer Row */}
-              <div className="rounded-sm border border-sky-100/90 bg-slate-50/60 p-3.5 sm:p-4">
+              <div className="rounded-sm border border-sky-200/80 bg-sky-50/30 p-3.5 sm:p-4">
                 <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
-                  <label className="text-xs font-bold text-slate-800">Customer & Tax Identity</label>
+                  <label className="text-xs font-bold text-gray-600">Customer & Tax Identity</label>
                   <button
                     type="button"
                     onClick={() => setShowQuickAddCust(!showQuickAddCust)}
-                    className="flex items-center gap-1 text-xs font-bold text-sky-600 hover:underline"
+                    className="flex items-center gap-1 text-xs font-bold text-[#0369A1] hover:text-[#0284C7] transition"
                   >
                     <UserPlus size={14} />
                     {showQuickAddCust ? "Choose Existing Customer" : "+ Register New Customer"}
@@ -1859,21 +1920,21 @@ export default function InvoicesPage() {
                       placeholder="Company / Client Name *"
                       value={quickCustName}
                       onChange={(e) => setQuickCustName(e.target.value)}
-                      className="rounded-sm border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium focus:border-primary-500 focus:outline-none"
+                      className="rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                     />
                     <input
                       type="text"
                       placeholder="Phone Number"
                       value={quickCustPhone}
                       onChange={(e) => setQuickCustPhone(e.target.value)}
-                      className="rounded-sm border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium focus:border-primary-500 focus:outline-none"
+                      className="rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                     />
                     <input
                       type="text"
                       placeholder="BIN / VAT No (Optional)"
                       value={quickCustBin}
                       onChange={(e) => setQuickCustBin(e.target.value)}
-                      className="rounded-sm border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium focus:border-primary-500 focus:outline-none font-mono"
+                      className="rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none font-mono"
                     />
                     <div className="flex gap-2">
                       <input
@@ -1881,47 +1942,45 @@ export default function InvoicesPage() {
                         placeholder="Address"
                         value={quickCustAddress}
                         onChange={(e) => setQuickCustAddress(e.target.value)}
-                        className="flex-1 rounded-sm border border-sky-100/90 bg-white px-3 py-2 text-xs font-medium focus:border-primary-500 focus:outline-none"
+                        className="flex-1 rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                       />
-                      <button
+                      <CustomButton
                         type="button"
+                        variant="primary"
+                        themeColor="primary"
+                        size="sm"
                         disabled={quickCustSaving}
+                        loading={quickCustSaving}
                         onClick={handleCreateQuickCustomer}
-                        className="rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-bold text-white hover:bg-primary-700 disabled:opacity-50"
                       >
                         Save
-                      </button>
+                      </CustomButton>
                     </div>
                   </div>
                 ) : (
-                  <select
+                  <CustomDropdownSelect
+                    options={modalCustomerOptions}
                     value={form.customerId}
-                    onChange={(e) => setForm((p) => ({ ...p, customerId: e.target.value }))}
-                    className="w-full rounded-sm border border-sky-100/90 bg-white p-2.5 text-xs font-semibold text-slate-800 focus:border-primary-500 focus:outline-none"
-                  >
-                    <option value="">Walk-in Customer (General Public)</option>
-                    {customers.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} {c.phone ? `(${c.phone})` : ""} {c.binVatNo ? `[BIN: ${c.binVatNo}]` : ""}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setForm((p) => ({ ...p, customerId: val }))}
+                    placeholder="Walk-in Customer (General Public)"
+                    className="w-full text-xs font-semibold text-gray-600"
+                  />
                 )}
               </div>
 
               {/* Line Items Builder (Fully Device-Friendly) */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Itemized Line Items</span>
-                  <span className="text-xs text-slate-400">{form.items.length} lines</span>
+                  <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Itemized Line Items</span>
+                  <span className="text-xs font-bold text-[#0369A1]">{form.items.length} lines</span>
                 </div>
 
                 {/* Desktop View Table (md and up) */}
-                <div className="hidden md:block overflow-x-auto rounded-sm border border-sky-100/90">
+                <div className="hidden md:block overflow-x-auto rounded-sm border border-sky-200/80">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-sky-100/90 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase">
-                        <th className="py-2.5 pl-4 pr-2 w-44">Product Autocomplete</th>
+                      <tr className="border-b border-sky-200/80 bg-sky-50/70 text-[11px] font-bold text-[#0369A1] uppercase">
+                        <th className="py-2.5 pl-4 pr-2 w-64">Product Autocomplete</th>
                         <th className="px-2 py-2.5">Description *</th>
                         <th className="px-2 py-2.5 w-20 text-center">Qty</th>
                         <th className="px-2 py-2.5 w-28 text-right">Price (৳)</th>
@@ -1931,23 +1990,18 @@ export default function InvoicesPage() {
                         <th className="py-2.5 pl-2 pr-4 w-10"></th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-sky-100/70">
                       {form.items.map((item, idx) => (
-                        <tr key={idx} className="bg-white hover:bg-slate-50/50">
-                          {/* Product select */}
-                          <td className="py-2 pl-4 pr-2">
-                            <select
+                        <tr key={idx} className="bg-white hover:bg-sky-50/30 transition-colors">
+                          {/* Product Autocomplete with CustomDropdownSelect */}
+                          <td className="py-2 pl-4 pr-2 w-64">
+                            <CustomDropdownSelect
+                              options={modalProductOptions}
                               value={item.productId}
-                              onChange={(e) => handleProductSelect(idx, e.target.value)}
-                              className="w-full rounded-sm border border-sky-100/90 bg-slate-50/50 p-1.5 text-[11px] focus:bg-white focus:outline-none"
-                            >
-                              <option value="">-- Custom item --</option>
-                              {products.map((p) => (
-                                <option key={p.id} value={p.id}>
-                                  {p.name}
-                                </option>
-                              ))}
-                            </select>
+                              onChange={(val) => handleProductSelect(idx, val)}
+                              placeholder="-- Custom item --"
+                              className="w-full text-xs font-semibold text-gray-600"
+                            />
                           </td>
 
                           {/* Description */}
@@ -1957,7 +2011,7 @@ export default function InvoicesPage() {
                               placeholder="Item description *"
                               value={item.description}
                               onChange={(e) => updateLineItem(idx, "description", e.target.value)}
-                              className="w-full rounded-sm border border-sky-100/90 px-2 py-1.5 text-xs font-medium focus:border-primary-500 focus:outline-none"
+                              className="w-full rounded-sm border border-sky-200/80 bg-white px-2 py-1.5 text-xs font-medium text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                             />
                           </td>
 
@@ -1968,7 +2022,7 @@ export default function InvoicesPage() {
                               min={1}
                               value={item.qty}
                               onChange={(e) => updateLineItem(idx, "qty", e.target.value)}
-                              className="w-full rounded-sm border border-sky-100/90 px-2 py-1.5 text-center text-xs font-bold focus:border-primary-500 focus:outline-none"
+                              className="w-full rounded-sm border border-sky-200/80 bg-white px-2 py-1.5 text-center text-xs font-bold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                             />
                           </td>
 
@@ -1979,7 +2033,7 @@ export default function InvoicesPage() {
                               min={0}
                               value={item.unitPrice}
                               onChange={(e) => updateLineItem(idx, "unitPrice", e.target.value)}
-                              className="w-full rounded-sm border border-sky-100/90 px-2 py-1.5 text-right text-xs font-bold focus:border-primary-500 focus:outline-none"
+                              className="w-full rounded-sm border border-sky-200/80 bg-white px-2 py-1.5 text-right text-xs font-bold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                             />
                           </td>
 
@@ -1990,7 +2044,7 @@ export default function InvoicesPage() {
                               min={0}
                               value={item.discountAmount}
                               onChange={(e) => updateLineItem(idx, "discountAmount", e.target.value)}
-                              className="w-full rounded-sm border border-sky-100/90 px-2 py-1.5 text-right text-xs text-rose-600 focus:border-primary-500 focus:outline-none"
+                              className="w-full rounded-sm border border-sky-200/80 bg-white px-2 py-1.5 text-right text-xs font-semibold text-rose-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                             />
                           </td>
 
@@ -2001,12 +2055,12 @@ export default function InvoicesPage() {
                               min={0}
                               value={item.taxAmount}
                               onChange={(e) => updateLineItem(idx, "taxAmount", e.target.value)}
-                              className="w-full rounded-sm border border-sky-100/90 px-2 py-1.5 text-right text-xs text-sky-700 font-semibold focus:border-primary-500 focus:outline-none"
+                              className="w-full rounded-sm border border-sky-200/80 bg-white px-2 py-1.5 text-right text-xs text-[#0369A1] font-semibold focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                             />
                           </td>
 
                           {/* Total */}
-                          <td className="px-2 py-2 text-right font-black text-slate-800 tabular-nums">
+                          <td className="px-2 py-2 text-right font-bold text-gray-600 tabular-nums">
                             ৳{Number(item.lineTotal || 0).toLocaleString()}
                           </td>
 
@@ -2016,7 +2070,7 @@ export default function InvoicesPage() {
                               type="button"
                               onClick={() => removeLineItem(idx)}
                               disabled={form.items.length <= 1}
-                              className="rounded p-1 text-slate-400 hover:text-rose-600 disabled:opacity-30"
+                              className="rounded-sm p-1 text-gray-400 hover:text-rose-600 hover:bg-rose-50 disabled:opacity-30 transition"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -2030,16 +2084,16 @@ export default function InvoicesPage() {
                 {/* Mobile / Tablet Friendly Card View (Screen < md) */}
                 <div className="block md:hidden space-y-3">
                   {form.items.map((item, idx) => (
-                    <div key={idx} className="rounded-sm border border-sky-100/90 bg-white p-3.5 space-y-2.5 shadow-2xs">
+                    <div key={idx} className="rounded-sm border border-sky-200/80 bg-white p-3.5 space-y-2.5 shadow-2xs">
                       <div className="flex items-center justify-between">
-                        <span className="rounded-sm bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-700">
+                        <span className="rounded-sm bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-[#0369A1]">
                           Item #{idx + 1}
                         </span>
                         <button
                           type="button"
                           onClick={() => removeLineItem(idx)}
                           disabled={form.items.length <= 1}
-                          className="rounded-sm p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30"
+                          className="rounded-sm p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30 transition"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -2047,97 +2101,94 @@ export default function InvoicesPage() {
 
                       {/* Product select & Description */}
                       <div className="space-y-2">
-                        <select
+                        <CustomDropdownSelect
+                          options={modalProductOptions}
                           value={item.productId}
-                          onChange={(e) => handleProductSelect(idx, e.target.value)}
-                          className="w-full rounded-sm border border-sky-100/90 bg-slate-50/70 p-2 text-xs font-semibold focus:bg-white focus:outline-none"
-                        >
-                          <option value="">-- Choose from inventory --</option>
-                          {products.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.name}
-                            </option>
-                          ))}
-                        </select>
+                          onChange={(val) => handleProductSelect(idx, val)}
+                          placeholder="-- Choose from inventory --"
+                          className="w-full text-xs font-semibold text-gray-600"
+                        />
                         <input
                           type="text"
                           placeholder="Item Description *"
                           value={item.description}
                           onChange={(e) => updateLineItem(idx, "description", e.target.value)}
-                          className="w-full rounded-sm border border-sky-100/90 bg-white p-2 text-xs font-medium focus:border-primary-500 focus:outline-none"
+                          className="w-full rounded-sm border border-sky-200/80 bg-white p-2 text-xs font-medium text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                         />
                       </div>
 
                       {/* 2x2 Numeric Inputs */}
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Quantity</label>
+                          <label className="text-[10px] font-bold text-gray-600 block mb-0.5">Quantity</label>
                           <input
                             type="number"
                             min={1}
                             value={item.qty}
                             onChange={(e) => updateLineItem(idx, "qty", e.target.value)}
-                            className="w-full rounded-sm border border-sky-100/90 p-2 text-center text-xs font-bold focus:outline-none"
+                            className="w-full rounded-sm border border-sky-200/80 bg-white p-2 text-center text-xs font-bold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Unit Price (৳)</label>
+                          <label className="text-[10px] font-bold text-gray-600 block mb-0.5">Unit Price (৳)</label>
                           <input
                             type="number"
                             min={0}
                             value={item.unitPrice}
                             onChange={(e) => updateLineItem(idx, "unitPrice", e.target.value)}
-                            className="w-full rounded-sm border border-sky-100/90 p-2 text-right text-xs font-bold focus:outline-none"
+                            className="w-full rounded-sm border border-sky-200/80 bg-white p-2 text-right text-xs font-bold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] font-bold text-rose-500 block mb-0.5">Discount (৳)</label>
+                          <label className="text-[10px] font-bold text-rose-600 block mb-0.5">Discount (৳)</label>
                           <input
                             type="number"
                             min={0}
                             value={item.discountAmount}
                             onChange={(e) => updateLineItem(idx, "discountAmount", e.target.value)}
-                            className="w-full rounded-sm border border-sky-100/90 p-2 text-right text-xs font-semibold text-rose-600 focus:outline-none"
+                            className="w-full rounded-sm border border-sky-200/80 bg-white p-2 text-right text-xs font-semibold text-rose-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] font-bold text-sky-600 block mb-0.5">Tax/VAT (৳)</label>
+                          <label className="text-[10px] font-bold text-[#0369A1] block mb-0.5">Tax/VAT (৳)</label>
                           <input
                             type="number"
                             min={0}
                             value={item.taxAmount}
                             onChange={(e) => updateLineItem(idx, "taxAmount", e.target.value)}
-                            className="w-full rounded-sm border border-sky-100/90 p-2 text-right text-xs font-semibold text-sky-700 focus:outline-none"
+                            className="w-full rounded-sm border border-sky-200/80 bg-white p-2 text-right text-xs font-semibold text-[#0369A1] focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                           />
                         </div>
                       </div>
 
                       {/* Card Total */}
-                      <div className="flex items-center justify-between rounded-sm bg-slate-50 p-2 text-xs border border-sky-100/70">
-                        <span className="font-semibold text-slate-500">Line Subtotal:</span>
-                        <span className="font-black text-slate-900">৳{Number(item.lineTotal || 0).toLocaleString()}</span>
+                      <div className="flex items-center justify-between rounded-sm bg-sky-50/50 p-2 text-xs border border-sky-200/70">
+                        <span className="font-semibold text-gray-600">Line Subtotal:</span>
+                        <span className="font-bold text-gray-600">৳{Number(item.lineTotal || 0).toLocaleString()}</span>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <button
+                <CustomButton
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={addLineItem}
-                  className="mt-3 flex items-center gap-1.5 rounded-sm border border-sky-200/80 bg-sky-50/60 px-3.5 py-2 text-xs font-bold text-sky-700 hover:bg-sky-100/80 transition"
+                  leftIcon={Plus}
+                  className="mt-3 text-[#0369A1] border-sky-200/80 hover:bg-sky-50"
                 >
-                  <Plus size={14} />
                   Add another item line
-                </button>
+                </CustomButton>
               </div>
 
               {/* Summary and Payment row */}
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 {/* Notes & Immediate Payment */}
-                <div className="space-y-3 rounded-sm border border-sky-100/90 bg-slate-50/60 p-3.5 sm:p-4">
-                  <h4 className="text-xs font-bold text-slate-800">Payment Terms & Initial Settlement</h4>
+                <div className="space-y-3 rounded-sm border border-sky-200/80 bg-sky-50/30 p-3.5 sm:p-4">
+                  <h4 className="text-xs font-bold text-gray-600">Payment Terms & Initial Settlement</h4>
                   <div>
-                    <label className="mb-1 block text-[11px] font-semibold text-slate-600">
+                    <label className="mb-1 block text-[11px] font-bold text-gray-600">
                       Immediate Deposit / Initial Payment (৳)
                     </label>
                     <input
@@ -2147,79 +2198,69 @@ export default function InvoicesPage() {
                       value={form.initialPayment}
                       onChange={(e) => setForm((p) => ({ ...p, initialPayment: Number(e.target.value) }))}
                       placeholder="0.00 (Leave 0 for full credit)"
-                      className="w-full rounded-sm border border-sky-100/90 bg-white p-2 text-xs font-bold text-emerald-700 focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-sm border border-sky-200/80 bg-white p-2 text-xs font-bold text-emerald-700 focus:border-emerald-500 outline-none"
                     />
                   </div>
 
                   {form.initialPayment > 0 && (
                     <div>
-                      <label className="mb-1 block text-[11px] font-semibold text-slate-600">Payment Channel</label>
-                      <select
+                      <label className="mb-1.5 block text-[11px] font-bold text-gray-600">Payment Channel</label>
+                      <CustomDropdownSelect
+                        options={modalPaymentMethodOptions}
                         value={form.paymentMethod}
-                        onChange={(e) => setForm((p) => ({ ...p, paymentMethod: e.target.value }))}
-                        className="w-full rounded-sm border border-sky-100/90 bg-white p-2 text-xs font-semibold focus:outline-none"
-                      >
-                        <option value="CASH">Cash Drawer</option>
-                        <option value="BKASH">bKash Merchant</option>
-                        <option value="NAGAD">Nagad</option>
-                        <option value="CARD">POS / Card Gateway</option>
-                        <option value="BANK_TRANSFER">Bank Wire Transfer</option>
-                      </select>
+                        onChange={(val) => setForm((p) => ({ ...p, paymentMethod: val }))}
+                        className="w-full text-xs font-semibold text-gray-600"
+                      />
                     </div>
                   )}
 
                   <div>
-                    <label className="mb-1 block text-[11px] font-semibold text-slate-600">Payment Terms</label>
-                    <select
+                    <label className="mb-1.5 block text-[11px] font-bold text-gray-600">Payment Terms</label>
+                    <CustomDropdownSelect
+                      options={modalPaymentTermsOptions}
                       value={form.paymentTerms}
-                      onChange={(e) => setForm((p) => ({ ...p, paymentTerms: e.target.value }))}
-                      className="w-full rounded-sm border border-sky-100/90 bg-white p-2 text-xs font-semibold focus:outline-none"
-                    >
-                      <option value="Due on Receipt">Due on Receipt (Standard)</option>
-                      <option value="Net 7 Days">Net 7 Days</option>
-                      <option value="Net 15 Days">Net 15 Days</option>
-                      <option value="Net 30 Days">Net 30 Days</option>
-                      <option value="50% Advance, 50% on Delivery">50% Advance, 50% on Delivery</option>
-                    </select>
+                      onChange={(val) => setForm((p) => ({ ...p, paymentTerms: val }))}
+                      className="w-full text-xs font-semibold text-gray-600"
+                    />
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-[11px] font-semibold text-slate-600">Note / Instructions</label>
+                    <label className="mb-1 block text-[11px] font-bold text-gray-600">Note / Instructions</label>
                     <textarea
                       rows={2}
                       value={form.note}
                       onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))}
                       placeholder="Delivery remarks, transport challan details, bank account info..."
-                      className="w-full rounded-sm border border-sky-100/90 bg-white p-2 text-xs text-slate-700 focus:outline-none"
+                      className="w-full rounded-sm border border-sky-200/80 bg-white p-2 text-xs text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                     />
                   </div>
                 </div>
 
                 {/* Themed Calculated Invoice Breakdown */}
-                <div className="flex flex-col justify-between rounded-sm border border-sky-200/70 bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 sm:p-5 shadow-2xs">
+                <div className="flex flex-col justify-between rounded-sm border border-sky-200/80 bg-gradient-to-br from-sky-50/60 via-white to-sky-50/40 p-4 sm:p-5 shadow-2xs">
                   <div className="space-y-2.5">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">Financial Calculation</h4>
-                    <div className="flex justify-between text-xs text-slate-600">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Financial Calculation</h4>
+                    <div className="flex justify-between text-xs text-gray-600">
                       <span>Subtotal</span>
-                      <span className="font-bold tabular-nums text-slate-800">৳{formSubtotal.toLocaleString()}</span>
+                      <span className="font-bold tabular-nums text-gray-600">৳{formSubtotal.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-xs text-rose-600">
                       <span>Total Discounts</span>
                       <span className="font-bold tabular-nums">- ৳{formDiscountTotal.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-xs text-sky-700 font-semibold">
+                    <div className="flex justify-between text-xs text-[#0369A1] font-semibold">
                       <span>Total Tax / Mushak VAT</span>
                       <span className="font-bold tabular-nums">+ ৳{formTaxTotal.toLocaleString()}</span>
                     </div>
-                    <div className="border-t border-sky-100/90 pt-2.5 flex justify-between text-base font-black text-slate-900">
+                    <div className="border-t border-sky-200/80 pt-2.5 flex justify-between text-base font-black text-gray-600">
                       <span>Grand Total</span>
-                      <span className="tabular-nums text-sky-700">৳{formGrandTotal.toLocaleString()}</span>
+                      <span className="tabular-nums text-[#0369A1] font-black text-lg">৳{formGrandTotal.toLocaleString()}</span>
                     </div>
                   </div>
 
-                  <div className="mt-4 rounded-sm bg-white border border-sky-100/90 p-3 text-xs flex justify-between items-center shadow-2xs">
-                    <span className="text-slate-500 font-medium">Due Balance After Deposit:</span>
-                    <span className="font-black text-rose-600 tabular-nums text-sm">
+                  <div className="mt-4 rounded-sm bg-white border border-sky-200/80 p-3 text-xs flex justify-between items-center shadow-2xs">
+                    <span className="text-gray-600 font-bold">Due Balance After Deposit:</span>
+                    <span className="font-black text-rose-600 tabular-nums text-sm sm:text-base">
                       ৳{Math.max(0, formGrandTotal - form.initialPayment).toLocaleString()}
                     </span>
                   </div>
@@ -2228,22 +2269,25 @@ export default function InvoicesPage() {
             </div>
 
             {/* Sticky Action Footer */}
-            <div className="shrink-0 flex flex-wrap items-center justify-between sm:justify-end gap-2 border-t border-sky-100/70 px-4 py-3 sm:px-6 sm:py-4 bg-slate-50/80">
-              <button
+            <div className="shrink-0 flex flex-wrap items-center justify-between sm:justify-end gap-2 border-t border-sky-200/80 px-4 py-3 sm:px-6 sm:py-4 bg-sky-50/40">
+              <CustomButton
                 type="button"
+                variant="danger"
+                size="sm"
                 onClick={() => setShowCreateModal(false)}
-                className="rounded-sm border border-sky-100/90 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
               >
                 Cancel
-              </button>
-              <button
+              </CustomButton>
+              <CustomButton
                 type="button"
+                variant="primary"
+                themeColor="primary"
+                size="sm"
                 onClick={handleCreateInvoice}
-                className="flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-primary-600 via-primary-500 to-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-2xs shadow-primary-500/25 hover:brightness-110 active:scale-95"
+                leftIcon={CheckCircle2}
               >
-                <CheckCircle2 size={16} />
                 Confirm & Issue Invoice
-              </button>
+              </CustomButton>
             </div>
           </div>
         </div>
@@ -2254,45 +2298,45 @@ export default function InvoicesPage() {
       {/* ========================================================= */}
       {showCollectModal && selectedInvoiceForCollect && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
+          <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-200/80 animate-in zoom-in-95">
             {/* Header */}
-            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-50 text-emerald-600 border border-emerald-200/60 font-bold">
-                  <CreditCard size={16} />
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-200/80 px-5 py-4 bg-white">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold shadow-xs">
+                  <CreditCard size={18} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Record Payment</h3>
-                  <p className="text-[11px] text-slate-500">{selectedInvoiceForCollect.invoiceNo}</p>
+                  <h3 className="text-base font-bold text-[#0369A1]">Record Payment</h3>
+                  <p className="text-xs text-gray-500 font-mono">{selectedInvoiceForCollect.invoiceNo}</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowCollectModal(false)}
-                className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100"
+                className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-gray-700 transition"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
               {/* Invoice snapshot */}
-              <div className="rounded-sm bg-slate-50 p-3.5 space-y-1.5 border border-sky-100/70">
-                <div className="flex justify-between text-slate-600">
-                  <span>Customer:</span>
-                  <span className="font-bold text-slate-900">{selectedInvoiceForCollect.customer?.name || "Walk-in"}</span>
+              <div className="rounded-sm bg-sky-50/40 p-3.5 space-y-2 border border-sky-200/80">
+                <div className="flex justify-between text-gray-600">
+                  <span className="font-semibold">Customer:</span>
+                  <span className="font-bold text-gray-800">{selectedInvoiceForCollect.customer?.name || "Walk-in"}</span>
                 </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Total Amount:</span>
-                  <span className="font-bold text-slate-900">৳{Number(selectedInvoiceForCollect.total).toLocaleString()}</span>
+                <div className="flex justify-between text-gray-600">
+                  <span className="font-semibold">Total Amount:</span>
+                  <span className="font-bold text-gray-800">৳{Number(selectedInvoiceForCollect.total).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Already Paid:</span>
+                <div className="flex justify-between text-gray-600">
+                  <span className="font-semibold">Already Paid:</span>
                   <span className="font-bold text-emerald-700">৳{Number(selectedInvoiceForCollect.paidTotal).toLocaleString()}</span>
                 </div>
-                <div className="border-t border-sky-100/90 pt-1.5 flex justify-between font-black text-slate-900">
-                  <span>Current Due:</span>
-                  <span className="text-rose-600">
+                <div className="border-t border-sky-200/80 pt-2 flex justify-between font-black text-gray-900">
+                  <span className="font-bold text-gray-700">Current Due:</span>
+                  <span className="text-rose-600 font-black text-sm">
                     ৳{Math.max(0, Number(selectedInvoiceForCollect.total) - Number(selectedInvoiceForCollect.paidTotal)).toLocaleString()}
                   </span>
                 </div>
@@ -2300,14 +2344,14 @@ export default function InvoicesPage() {
 
               {/* Payment inputs */}
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="font-bold text-slate-700">Payment Amount (৳) *</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="font-bold text-gray-700">Payment Amount (৳) *</label>
                   <button
                     type="button"
                     onClick={() =>
                       setCollectAmount(Math.max(0, Number(selectedInvoiceForCollect.total) - Number(selectedInvoiceForCollect.paidTotal)))
                     }
-                    className="text-[11px] font-bold text-sky-600 hover:underline"
+                    className="text-[11px] font-bold text-[#0369A1] hover:underline"
                   >
                     Pay Full Due
                   </button>
@@ -2317,55 +2361,55 @@ export default function InvoicesPage() {
                   min={1}
                   value={collectAmount}
                   onChange={(e) => setCollectAmount(Number(e.target.value))}
-                  className="w-full rounded-sm border border-sky-100/90 p-2.5 text-sm font-black text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                  className="w-full rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-sm font-black text-gray-900 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block font-bold text-slate-700">Payment Channel *</label>
-                <select
+                <label className="mb-1.5 block font-bold text-gray-700">Payment Channel *</label>
+                <CustomDropdownSelect
+                  options={modalCollectMethodOptions}
                   value={collectMethod}
-                  onChange={(e) => setCollectMethod(e.target.value)}
-                  className="w-full rounded-sm border border-sky-100/90 p-2.5 text-xs font-semibold focus:outline-none"
-                >
-                  <option value="CASH">Cash Drawer</option>
-                  <option value="BKASH">bKash</option>
-                  <option value="NAGAD">Nagad</option>
-                  <option value="CARD">Card / POS</option>
-                  <option value="BANK_TRANSFER">Bank Wire Transfer</option>
-                  <option value="CHEQUE">Bank Cheque</option>
-                </select>
+                  onChange={(val) => setCollectMethod(val)}
+                  placeholder="Select Payment Channel"
+                  className="w-full text-xs font-semibold"
+                />
               </div>
 
               <div>
-                <label className="mb-1 block font-bold text-slate-700">Reference / Transaction ID</label>
+                <label className="mb-1.5 block font-bold text-gray-600">Reference / Transaction ID</label>
                 <input
                   type="text"
                   placeholder="Slip # / Trx ID / Check ref"
                   value={collectRef}
                   onChange={(e) => setCollectRef(e.target.value)}
-                  className="w-full rounded-sm border border-sky-100/90 p-2.5 text-xs focus:outline-none"
+                  className="w-full rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-xs text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                 />
               </div>
             </div>
 
             {/* Footer */}
-            <div className="shrink-0 flex items-center justify-end gap-2 border-t border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
-              <button
+            <div className="shrink-0 flex items-center justify-end gap-2 border-t border-sky-200/80 px-5 py-3.5 bg-sky-50/40">
+              <CustomButton
                 type="button"
+                variant="danger"
+                size="sm"
                 onClick={() => setShowCollectModal(false)}
-                className="rounded-sm border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
               >
                 Cancel
-              </button>
-              <button
+              </CustomButton>
+              <CustomButton
                 type="button"
+                variant="primary"
+                themeColor="emerald"
+                size="sm"
                 disabled={collectSubmitting}
+                loading={collectSubmitting}
                 onClick={handleCollectPayment}
-                className="flex items-center gap-1 rounded-sm bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700 disabled:opacity-50"
+                leftIcon={CheckCircle2}
               >
-                {collectSubmitting ? "Recording..." : "Record Payment"}
-              </button>
+                Record Payment
+              </CustomButton>
             </div>
           </div>
         </div>
@@ -2376,126 +2420,121 @@ export default function InvoicesPage() {
       {/* ========================================================= */}
       {showAllocateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
+          <div className="relative w-full max-w-5xl max-h-[92vh] flex flex-col rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-200/80 animate-in zoom-in-95">
             {/* Header */}
-            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-sky-600 font-bold border border-sky-200/80/60">
-                  <CreditCard size={16} />
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-200/80 px-5 py-4 bg-white">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-gradient-to-br from-[#0284C7] to-[#0369A1] text-white shadow-xs">
+                  <CreditCard size={18} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Bulk Allocate Payment</h3>
-                  <p className="text-[11px] text-slate-500">Apply single consolidated settlement across customer invoices</p>
+                  <h3 className="text-base font-bold text-[#0369A1]">Bulk Allocate Payment</h3>
+                  <p className="text-xs text-gray-500">Apply single consolidated settlement across customer invoices</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowAllocateModal(false)}
-                className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100"
+                className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-gray-700 transition"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5 text-xs">
               {/* Customer and Amount */}
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block font-bold text-slate-700">Select Customer *</label>
-                  <select
+                  <label className="mb-1.5 block font-bold text-gray-600">Select Customer *</label>
+                  <CustomDropdownSelect
+                    options={allocCustomerOptions}
                     value={allocCustId}
-                    onChange={(e) => handleCustomerSelectForAlloc(e.target.value)}
-                    className="w-full rounded-sm border border-sky-100/90 p-2 text-xs font-semibold focus:outline-none"
-                  >
-                    <option value="">-- Choose Customer --</option>
-                    {customers.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} {c.phone ? `(${c.phone})` : ""}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => handleCustomerSelectForAlloc(val)}
+                    placeholder="-- Choose Customer --"
+                    className="w-full text-xs font-semibold text-gray-600"
+                  />
                 </div>
 
                 <div>
-                  <label className="mb-1 block font-bold text-slate-700">Total Settlement Amount (৳) *</label>
+                  <label className="mb-1.5 block font-bold text-gray-600">Total Settlement Amount (৳) *</label>
                   <input
                     type="number"
                     min={1}
-                    value={allocAmount}
+                    value={allocAmount || ""}
                     onChange={(e) => setAllocAmount(Number(e.target.value))}
                     placeholder="e.g. 5000"
-                    className="w-full rounded-sm border border-sky-100/90 p-2 text-xs font-black text-slate-900 focus:outline-none"
+                    className="w-full rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-xs font-bold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block font-bold text-slate-700">Payment Channel</label>
-                  <select
+                  <label className="mb-1.5 block font-bold text-gray-600">Payment Channel</label>
+                  <CustomDropdownSelect
+                    options={allocMethodOptions}
                     value={allocMethod}
-                    onChange={(e) => setAllocMethod(e.target.value)}
-                    className="w-full rounded-sm border border-sky-100/90 p-2 text-xs font-semibold focus:outline-none"
-                  >
-                    <option value="CASH">Cash Drawer</option>
-                    <option value="BKASH">bKash</option>
-                    <option value="NAGAD">Nagad</option>
-                    <option value="CARD">Card / POS</option>
-                    <option value="BANK_TRANSFER">Bank Wire Transfer</option>
-                  </select>
+                    onChange={(val) => setAllocMethod(val)}
+                    className="w-full text-xs font-semibold text-gray-600"
+                  />
                 </div>
                 <div>
-                  <label className="mb-1 block font-bold text-slate-700">Reference / Notes</label>
+                  <label className="mb-1.5 block font-bold text-gray-600">Reference / Notes</label>
                   <input
                     type="text"
                     value={allocRef}
                     onChange={(e) => setAllocRef(e.target.value)}
                     placeholder="Transaction ID or Cheque #"
-                    className="w-full rounded-sm border border-sky-100/90 p-2 text-xs focus:outline-none"
+                    className="w-full rounded-sm border border-sky-200/80 bg-white px-3 py-2 text-xs text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                   />
                 </div>
               </div>
 
               {/* Invoices to allocate table */}
-              <div className="mt-2">
-                <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
-                  <span className="font-bold text-slate-800">Unpaid Invoices for Allocation</span>
+              <div className="mt-2 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                    Unpaid Invoices for Allocation
+                  </span>
                   {allocRows.length > 0 && (
-                    <button
+                    <CustomButton
                       type="button"
+                      variant="outline"
+                      size="xs"
                       onClick={handleAutoDistributeAlloc}
-                      className="flex items-center gap-1 text-[11px] font-bold text-sky-600 hover:underline"
+                      leftIcon={Sparkles}
+                      className="text-[#0369A1] border-sky-200/80 hover:bg-sky-50"
                     >
-                      <Sparkles size={13} />
                       Auto-Distribute (FIFO / Oldest First)
-                    </button>
+                    </CustomButton>
                   )}
                 </div>
 
                 {allocRows.length === 0 ? (
-                  <div className="rounded-sm border border-dashed border-sky-100/90 py-8 text-center text-slate-400">
-                    {allocCustId ? "No unpaid invoices found for this customer" : "Select a customer to view open invoices"}
+                  <div className="rounded-sm border border-dashed border-sky-200/80 py-10 text-center text-gray-500 bg-sky-50/20">
+                    <p className="font-semibold">{allocCustId ? "No unpaid invoices found for this customer" : "Select a customer to view open invoices"}</p>
+                    <p className="text-[11px] text-gray-400 mt-1">Settlements can only be allocated to customers with open balances</p>
                   </div>
                 ) : (
-                  <div className="max-h-60 overflow-y-auto rounded-sm border border-sky-100/90">
+                  <div className="overflow-hidden rounded-sm border border-sky-200/80">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-sky-100/90 bg-slate-50 text-[10px] font-bold uppercase text-slate-500">
-                          <th className="py-2 pl-3">Invoice #</th>
-                          <th className="py-2 text-right">Total</th>
-                          <th className="py-2 text-right">Paid</th>
-                          <th className="py-2 text-right">Due</th>
-                          <th className="py-2 pr-3 text-right w-28">Allocate (৳)</th>
+                        <tr className="border-b border-sky-200/80 bg-sky-50/70 text-[11px] font-bold uppercase text-[#0369A1]">
+                          <th className="py-2.5 pl-4">Invoice #</th>
+                          <th className="py-2.5 text-right">Total</th>
+                          <th className="py-2.5 text-right">Paid</th>
+                          <th className="py-2.5 text-right">Due</th>
+                          <th className="py-2.5 pr-4 text-right w-36">Allocate (৳)</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100">
+                      <tbody className="divide-y divide-sky-100/70">
                         {allocRows.map((r, idx) => (
-                          <tr key={r.invoiceId} className="bg-white">
-                            <td className="py-2 pl-3 font-mono font-bold text-slate-800">{r.invoiceNo}</td>
-                            <td className="py-2 text-right text-slate-600">৳{r.total.toLocaleString()}</td>
-                            <td className="py-2 text-right text-emerald-600">৳{r.paidTotal.toLocaleString()}</td>
-                            <td className="py-2 text-right font-bold text-rose-600">৳{r.due.toLocaleString()}</td>
-                            <td className="py-2 pr-3 text-right">
+                          <tr key={r.invoiceId} className="bg-white hover:bg-sky-50/30 transition-colors">
+                            <td className="py-2.5 pl-4 font-mono font-bold text-gray-600">{r.invoiceNo}</td>
+                            <td className="py-2.5 text-right font-medium text-gray-600">৳{r.total.toLocaleString()}</td>
+                            <td className="py-2.5 text-right font-semibold text-emerald-700">৳{r.paidTotal.toLocaleString()}</td>
+                            <td className="py-2.5 text-right font-bold text-rose-600">৳{r.due.toLocaleString()}</td>
+                            <td className="py-2.5 pr-4 text-right">
                               <input
                                 type="number"
                                 min={0}
@@ -2507,7 +2546,7 @@ export default function InvoicesPage() {
                                   updated[idx].allocated = val;
                                   setAllocRows(updated);
                                 }}
-                                className="w-24 rounded-sm border border-sky-100/90 p-1 text-right text-xs font-bold text-sky-700 focus:border-primary-500 focus:outline-none"
+                                className="w-28 rounded-sm border border-sky-200/80 p-1.5 text-right text-xs font-bold text-[#0369A1] focus:border-[#0284C7] focus:ring-1 focus:ring-sky-200 outline-none"
                               />
                             </td>
                           </tr>
@@ -2519,33 +2558,73 @@ export default function InvoicesPage() {
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 border-t border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
-              <div className="text-xs">
-                <span className="text-slate-500">Total Allocated: </span>
-                <span className="font-black text-slate-900">
-                  ৳{allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0).toLocaleString()}
-                </span>
-                <span className="text-slate-400"> / ৳{Number(allocAmount || 0).toLocaleString()}</span>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAllocateModal(false)}
-                  className="rounded-sm border border-sky-100/90 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  disabled={allocSubmitting || allocRows.length === 0}
-                  onClick={handleSubmitAllocation}
-                  className="flex items-center gap-1 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-bold text-white shadow hover:bg-primary-700 disabled:opacity-50"
-                >
-                  {allocSubmitting ? "Settling..." : "Settle Invoices"}
-                </button>
-              </div>
-            </div>
+            {/* Footer with High-Visibility Total Allocated Section */}
+            {(() => {
+              const totalAllocated = allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0);
+              const targetSettlement = Number(allocAmount || 0);
+              const diff = targetSettlement - totalAllocated;
+              const isBalanced = targetSettlement > 0 && diff === 0;
+              const isExceeded = diff < 0;
+
+              return (
+                <div className="shrink-0 flex flex-wrap items-center justify-between gap-3 border-t border-sky-200/80 px-5 py-4 bg-sky-50/40">
+                  {/* High-visibility Allocation Summary Bar */}
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-2.5 rounded-sm border border-sky-200/90 bg-white px-3.5 py-2 shadow-2xs">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-600">Total Allocated:</span>
+                      <span className="text-sm sm:text-base font-black text-[#0369A1]">
+                        ৳{totalAllocated.toLocaleString()}
+                      </span>
+                      <span className="text-gray-300 font-bold">/</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-600">Target:</span>
+                      <span className="text-sm sm:text-base font-black text-gray-600">
+                        ৳{targetSettlement.toLocaleString()}
+                      </span>
+                    </div>
+
+                    {targetSettlement > 0 && (
+                      isBalanced ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
+                          <CheckCircle2 size={14} className="text-emerald-600" /> Balanced (100%)
+                        </span>
+                      ) : isExceeded ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 shadow-2xs">
+                          <AlertCircle size={14} className="text-rose-600" /> Exceeded by ৳{Math.abs(diff).toLocaleString()}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs">
+                          <Clock size={14} className="text-amber-600" /> Remaining: ৳{diff.toLocaleString()}
+                        </span>
+                      )
+                    )}
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex items-center gap-2">
+                    <CustomButton
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      onClick={() => setShowAllocateModal(false)}
+                    >
+                      Cancel
+                    </CustomButton>
+                    <CustomButton
+                      type="button"
+                      variant="primary"
+                      themeColor="primary"
+                      size="sm"
+                      disabled={allocSubmitting || allocRows.length === 0}
+                      loading={allocSubmitting}
+                      onClick={handleSubmitAllocation}
+                      leftIcon={CheckCircle2}
+                    >
+                      Settle Invoices
+                    </CustomButton>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
@@ -2555,46 +2634,48 @@ export default function InvoicesPage() {
       {/* ========================================================= */}
       {showReminderModal && selectedInvoiceForReminder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-sm sm:rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-100/90 animate-in zoom-in-95">
-            <div className="shrink-0 flex items-center justify-between border-b border-sky-100/70 px-5 py-3.5 bg-slate-50/80">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-sky-600 font-bold border border-sky-200/80/60">
-                  <MessageSquare size={16} />
+          <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-sm bg-white shadow-2xl overflow-hidden border border-sky-200/80 animate-in zoom-in-95">
+            <div className="shrink-0 flex items-center justify-between border-b border-sky-200/80 px-5 py-4 bg-white">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-gradient-to-br from-[#0284C7] to-[#0369A1] text-white font-bold shadow-xs">
+                  <MessageSquare size={18} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Payment Reminder</h3>
-                  <p className="text-[11px] text-slate-500">{selectedInvoiceForReminder.invoiceNo}</p>
+                  <h3 className="text-base font-bold text-[#0369A1]">Payment Reminder</h3>
+                  <p className="text-xs text-gray-500 font-mono">{selectedInvoiceForReminder.invoiceNo}</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowReminderModal(false)}
-                className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100"
+                className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-gray-700 transition"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5 space-y-3 text-xs">
-              <div className="rounded-sm bg-slate-50 p-3 border border-sky-100/70">
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Recipient</p>
-                <p className="font-bold text-slate-800">{selectedInvoiceForReminder.customer?.name || "Customer"}</p>
-                <p className="font-mono text-slate-600">{selectedInvoiceForReminder.customer?.phone || "No phone provided"}</p>
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+              <div className="rounded-sm bg-sky-50/40 p-3.5 border border-sky-200/80 space-y-1">
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Recipient</p>
+                <p className="font-bold text-gray-800 text-sm">{selectedInvoiceForReminder.customer?.name || "Customer"}</p>
+                <p className="font-mono text-gray-600 font-semibold">{selectedInvoiceForReminder.customer?.phone || "No phone provided"}</p>
               </div>
 
               <div>
-                <label className="mb-1 block font-bold text-slate-700">Reminder Message Preview</label>
-                <div className="rounded-sm border border-sky-100/90 bg-slate-50/70 p-3 font-mono text-[11px] text-slate-700">
+                <label className="mb-1.5 block font-bold text-gray-700">Reminder Message Preview</label>
+                <div className="rounded-sm border border-sky-200/80 bg-sky-50/30 p-3.5 font-mono text-[11px] text-gray-800 leading-relaxed">
                   Dear {selectedInvoiceForReminder.customer?.name || "Customer"}, your invoice{" "}
-                  <strong>{selectedInvoiceForReminder.invoiceNo}</strong> has an outstanding balance of ৳
-                  {Math.max(
-                    0,
-                    Number(selectedInvoiceForReminder.total) - Number(selectedInvoiceForReminder.paidTotal)
-                  ).toLocaleString()}
+                  <strong className="text-[#0369A1]">{selectedInvoiceForReminder.invoiceNo}</strong> has an outstanding balance of ৳
+                  <strong className="text-rose-600">
+                    {Math.max(
+                      0,
+                      Number(selectedInvoiceForReminder.total) - Number(selectedInvoiceForReminder.paidTotal)
+                    ).toLocaleString()}
+                  </strong>
                   . Please settle at your earliest convenience. Thank you!
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2 pt-2">
+              <div className="flex flex-col gap-2.5 pt-2">
                 {selectedInvoiceForReminder.customer?.phone && (
                   <a
                     href={`https://wa.me/${selectedInvoiceForReminder.customer.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
@@ -2605,24 +2686,33 @@ export default function InvoicesPage() {
                     )}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center justify-center gap-2 rounded-sm bg-emerald-600 py-2.5 font-bold text-white shadow hover:bg-emerald-700"
+                    className="w-full"
                   >
-                    <Send size={14} />
-                    Send via WhatsApp
+                    <CustomButton
+                      type="button"
+                      variant="primary"
+                      themeColor="emerald"
+                      fullWidth
+                      leftIcon={Send}
+                    >
+                      Send via WhatsApp
+                    </CustomButton>
                   </a>
                 )}
 
-                <button
+                <CustomButton
                   type="button"
+                  variant="primary"
+                  themeColor="primary"
+                  fullWidth
                   onClick={() => {
                     showToast("SMS reminder sent to customer queue!");
                     setShowReminderModal(false);
                   }}
-                  className="flex items-center justify-center gap-2 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] py-2.5 font-bold text-white shadow hover:bg-primary-700"
+                  leftIcon={MessageSquare}
                 >
-                  <MessageSquare size={14} />
                   Send Instant SMS
-                </button>
+                </CustomButton>
               </div>
             </div>
           </div>
