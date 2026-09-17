@@ -1004,7 +1004,6 @@ export default function LoyaltyPage() {
       {/* ── Breadcrumb Header ── */}
       <CustomBreadcrumb
         title="Loyalty, Wallets & Gift Cards"
-        subtitle="Manage customer loyalty points, membership tier rules, digital wallet credits, and gift voucher cards."
         icon={<Star size={18} />}
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },

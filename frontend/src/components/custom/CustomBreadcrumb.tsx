@@ -39,10 +39,10 @@ export function CustomBreadcrumb({
   const pathItems = items.length > 0 ? items : breadcrumbs;
 
   return (
-    <div className="w-full bg-white rounded-sm border border-sky-100/90 p-3.5 shadow-2xs space-y-2">
-      {/* Top Section: Title & Actions */}
-      {(title || icon || actionBtns) && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="w-full bg-white rounded-sm border border-sky-100/90 p-3.5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Left Column: Title & Nav/Path Hierarchy */}
+      <div className="space-y-2">
+        {(title || icon) && (
           <div className="flex items-center gap-2.5">
             {icon && (
               <div className={iconClassName || "flex h-7 w-7 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 shrink-0"}>
@@ -51,15 +51,10 @@ export function CustomBreadcrumb({
             )}
             {title && <h1 className="text-base font-bold text-[#0369A1] leading-none">{title}</h1>}
           </div>
+        )}
 
-          {actionBtns && <div className="flex items-center gap-2 shrink-0">{actionBtns}</div>}
-        </div>
-      )}
-
-      {/* Bottom Section: Nav Buttons, Path, & Description */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 text-xs text-slate-500">
-        <div className="flex items-center gap-2.5">
-          {/* Nav Control Buttons (Back, Forward, Home) */}
+        {/* Nav Controls & Breadcrumb Path */}
+        <div className="flex flex-wrap items-center gap-2.5 text-xs text-slate-500">
           <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
@@ -88,7 +83,6 @@ export function CustomBreadcrumb({
             </Link>
           </div>
 
-          {/* Breadcrumb Path Hierarchy */}
           {pathItems.length > 0 && (
             <nav className="flex items-center gap-1 text-xs text-gray-600 font-medium">
               {pathItems.map((item, idx) => (
@@ -105,10 +99,17 @@ export function CustomBreadcrumb({
               ))}
             </nav>
           )}
-        </div>
 
-        {desc && <p className="text-xs text-slate-500 font-medium">{desc}</p>}
+          {desc && <p className="text-xs text-slate-500 font-medium">{desc}</p>}
+        </div>
       </div>
+
+      {/* Right Column: Action Buttons (Vertically Centered) */}
+      {actionBtns && (
+        <div className="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-center">
+          {actionBtns}
+        </div>
+      )}
     </div>
   );
 }
