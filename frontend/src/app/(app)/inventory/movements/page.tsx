@@ -1,12 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Activity, Search } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState, useMemo } from "react";
+import {
+  Activity,
+  Search,
+  X,
+  Package,
+  Warehouse as WarehouseIcon,
+  TrendingUp,
+  TrendingDown,
+  ArrowRightLeft,
+  ArrowRight,
+  Clock,
+  FileText,
+} from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomInput } from "@/components/custom/CustomInput";
-import { CustomSelect } from "@/components/custom/CustomSelect";
-import { CustomTable, type CustomTableColumn } from "@/components/custom/CustomTable";
-import { CustomBadge } from "@/components/custom/CustomBadge";
+import {
+  CustomBreadcrumb,
+  CustomButton,
+  CustomInput,
+  CustomDropdownSelect,
+  CustomStatCard,
+  CustomTable,
+  type CustomTableColumn,
+} from "@/components/custom";
 
 interface Movement {
   id: string;
@@ -23,153 +41,447 @@ interface Movement {
   warehouse: { id: string; name: string; code: string };
 }
 
-const MOVEMENT_TONE: Record<string, "green" | "red" | "gray" | "amber"> = {
-  OPENING: "primary" as any,
-  PURCHASE_IN: "green",
-  SALE_OUT: "red",
-  SALE_RETURN_IN: "green",
-  ADJUSTMENT_IN: "amber",
-  ADJUSTMENT_OUT: "amber",
-  TRANSFER_IN: "green",
-  TRANSFER_OUT: "red",
-  WRITE_OFF: "red",
-  PRODUCTION_IN: "green",
-  PRODUCTION_OUT: "red",
+interface Warehouse {
+  id: string;
+  name: string;
+  code: string;
+}
+
+const MOVEMENT_CONFIG: Record<
+  string,
+  { label: string; bg: string; text: string; dot: string; isInbound: boolean }
+> = {
+  OPENING: {
+    label: "Opening Stock",
+    bg: "bg-sky-50 border-sky-200",
+    text: "text-[#0369A1]",
+    dot: "bg-[#0284C7]",
+    isInbound: true,
+  },
+  PURCHASE_IN: {
+    label: "Purchase In",
+    bg: "bg-emerald-50 border-emerald-200",
+    text: "text-emerald-700",
+    dot: "bg-emerald-500",
+    isInbound: true,
+  },
+  SALE_OUT: {
+    label: "Sale Out",
+    bg: "bg-rose-50 border-rose-200",
+    text: "text-rose-700",
+    dot: "bg-rose-500",
+    isInbound: false,
+  },
+  SALE_RETURN_IN: {
+    label: "Sale Return",
+    bg: "bg-emerald-50 border-emerald-200",
+    text: "text-emerald-700",
+    dot: "bg-emerald-500",
+    isInbound: true,
+  },
+  ADJUSTMENT_IN: {
+    label: "Adjustment In",
+    bg: "bg-teal-50 border-teal-200",
+    text: "text-teal-700",
+    dot: "bg-teal-500",
+    isInbound: true,
+  },
+  ADJUSTMENT_OUT: {
+    label: "Adjustment Out",
+    bg: "bg-amber-50 border-amber-200",
+    text: "text-amber-700",
+    dot: "bg-amber-500",
+    isInbound: false,
+  },
+  TRANSFER_IN: {
+    label: "Transfer In",
+    bg: "bg-emerald-50 border-emerald-200",
+    text: "text-emerald-700",
+    dot: "bg-emerald-500",
+    isInbound: true,
+  },
+  TRANSFER_OUT: {
+    label: "Transfer Out",
+    bg: "bg-amber-50 border-amber-200",
+    text: "text-amber-700",
+    dot: "bg-amber-500",
+    isInbound: false,
+  },
+  WRITE_OFF: {
+    label: "Write Off",
+    bg: "bg-rose-50 border-rose-200",
+    text: "text-rose-700",
+    dot: "bg-rose-500",
+    isInbound: false,
+  },
+  PRODUCTION_IN: {
+    label: "Production In",
+    bg: "bg-emerald-50 border-emerald-200",
+    text: "text-emerald-700",
+    dot: "bg-emerald-500",
+    isInbound: true,
+  },
+  PRODUCTION_OUT: {
+    label: "Production Out",
+    bg: "bg-amber-50 border-amber-200",
+    text: "text-amber-700",
+    dot: "bg-amber-500",
+    isInbound: false,
+  },
 };
 
-const MOVEMENT_TYPES = [
-  "OPENING", "PURCHASE_IN", "SALE_OUT", "SALE_RETURN_IN",
-  "ADJUSTMENT_IN", "ADJUSTMENT_OUT", "TRANSFER_IN", "TRANSFER_OUT",
-  "WRITE_OFF", "PRODUCTION_IN", "PRODUCTION_OUT",
+const MOVEMENT_TYPE_OPTIONS = [
+  { value: "ALL", label: "All Movement Types" },
+  { value: "PURCHASE_IN", label: "Purchase In" },
+  { value: "SALE_OUT", label: "Sale Out" },
+  { value: "TRANSFER_IN", label: "Transfer In" },
+  { value: "TRANSFER_OUT", label: "Transfer Out" },
+  { value: "SALE_RETURN_IN", label: "Sale Return" },
+  { value: "OPENING", label: "Opening Stock" },
+  { value: "ADJUSTMENT_IN", label: "Adjustment In" },
+  { value: "ADJUSTMENT_OUT", label: "Adjustment Out" },
+  { value: "WRITE_OFF", label: "Write Off / Damage" },
+  { value: "PRODUCTION_IN", label: "Production In" },
+  { value: "PRODUCTION_OUT", label: "Production Out" },
 ];
 
 export default function MovementsPage() {
   const [movements, setMovements] = useState<Movement[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [warehouseId, setWarehouseId] = useState("ALL");
+  const [movementType, setMovementType] = useState("ALL");
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
-  const [movementType, setMovementType] = useState("");
-  const limit = 50;
 
+  // 1. Fetch Warehouses for filter dropdown
+  useEffect(() => {
+    api
+      .get<{ data: Warehouse[] }>("/api/v1/warehouses")
+      .then((res) => {
+        setWarehouses(res.data || []);
+      })
+      .catch(() => {});
+  }, []);
+
+  // 2. Fetch Movements
   useEffect(() => {
     setLoading(true);
-    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-    if (movementType) params.set("movementType", movementType);
-    api
-      .get<{ data: Movement[]; total: number }>(`/api/v1/inventory/movements?${params}`)
-      .then((res) => { setMovements(res.data); setTotal(res.total); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [page, movementType]);
+    const params = new URLSearchParams({ limit: "200" });
+    if (warehouseId !== "ALL") params.set("warehouseId", warehouseId);
+    if (movementType !== "ALL") params.set("movementType", movementType);
 
+    api
+      .get<{ data: Movement[]; total: number }>(`/api/v1/inventory/movements?${params.toString()}`)
+      .then((res) => {
+        setMovements(res.data || []);
+      })
+      .catch(() => {
+        setMovements([]);
+      })
+      .finally(() => setLoading(false));
+  }, [warehouseId, movementType]);
+
+  // 3. Client-side Search Filtering
+  const filteredMovements = useMemo(() => {
+    if (!search.trim()) return movements;
+    const q = search.toLowerCase();
+    return movements.filter((m) => {
+      const pName = (m.product?.name || "").toLowerCase();
+      const pSku = (m.product?.sku || "").toLowerCase();
+      const wName = (m.warehouse?.name || "").toLowerCase();
+      const refId = (m.refId || "").toLowerCase();
+      const note = (m.note || "").toLowerCase();
+      return (
+        pName.includes(q) ||
+        pSku.includes(q) ||
+        wName.includes(q) ||
+        refId.includes(q) ||
+        note.includes(q)
+      );
+    });
+  }, [movements, search]);
+
+  // 4. Executive KPI Stats
+  const stats = useMemo(() => {
+    let inboundCount = 0;
+    let outboundCount = 0;
+    const uniqueWhs = new Set<string>();
+
+    movements.forEach((m) => {
+      const cfg = MOVEMENT_CONFIG[m.movementType];
+      if (cfg?.isInbound) {
+        inboundCount++;
+      } else {
+        outboundCount++;
+      }
+      if (m.warehouse?.name) {
+        uniqueWhs.add(m.warehouse.name);
+      }
+    });
+
+    return {
+      total: movements.length,
+      inboundCount,
+      outboundCount,
+      warehouseCount: uniqueWhs.size,
+    };
+  }, [movements]);
+
+  // 5. Warehouse Filter Options
+  const warehouseOptions = useMemo(() => {
+    return [
+      { value: "ALL", label: "All Warehouses" },
+      ...warehouses.map((w) => ({ value: w.id, label: `${w.name} (${w.code})` })),
+    ];
+  }, [warehouses]);
+
+  // 6. Custom Table Columns (Balanced percentages = 100%)
   const columns: CustomTableColumn<Movement>[] = [
     {
+      key: "date",
+      header: "Date & Time",
+      align: "left",
+      width: "16%",
+      render: (r) => {
+        const d = new Date(r.createdAt);
+        const isValid = !isNaN(d.getTime());
+        const datePart = isValid
+          ? d.toLocaleDateString("en-BD", { month: "short", day: "numeric", year: "numeric" })
+          : r.createdAt;
+        const timePart = isValid
+          ? d.toLocaleTimeString("en-BD", { hour: "2-digit", minute: "2-digit" })
+          : "";
+
+        return (
+          <div className="flex flex-col">
+            <span className="font-semibold text-xs text-slate-800 flex items-center gap-1.5">
+              <Clock size={12} className="text-slate-400 shrink-0" />
+              {datePart}
+            </span>
+            {timePart && <span className="text-[11px] text-slate-400 pl-4">{timePart}</span>}
+          </div>
+        );
+      },
+    },
+    {
       key: "type",
-      header: "Type",
-      render: (r) => (
-        <CustomBadge tone={MOVEMENT_TONE[r.movementType] ?? "gray"}>
-          {r.movementType.replace(/_/g, " ")}
-        </CustomBadge>
-      ),
+      header: "Movement Type",
+      align: "left",
+      width: "14%",
+      render: (r) => {
+        const cfg = MOVEMENT_CONFIG[r.movementType] || {
+          label: r.movementType.replace(/_/g, " "),
+          bg: "bg-slate-50 border-slate-200",
+          text: "text-slate-700",
+          dot: "bg-slate-400",
+          isInbound: false,
+        };
+
+        return (
+          <span
+            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm text-[11px] font-bold border ${cfg.bg} ${cfg.text}`}
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+            {cfg.label}
+          </span>
+        );
+      },
     },
     {
       key: "product",
-      header: "Product",
+      header: "Product / Item",
+      align: "left",
+      width: "22%",
       render: (r) => (
-        <div>
-          <p className="font-medium text-gray-900">{r.product?.name ?? (r as any).productName ?? "Unknown Product"}</p>
-          <p className="text-xs text-gray-400">{r.product?.sku ?? (r as any).productSku ?? (r as any).sku ?? "—"}</p>
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80">
+            <Package size={14} />
+          </div>
+          <div className="min-w-0">
+            <p className="font-bold text-xs text-slate-900 truncate">
+              {r.product?.name ?? (r as any).productName ?? "Unknown Product"}
+            </p>
+            <p className="font-mono text-[11px] text-slate-400 mt-0.5">
+              {r.product?.sku ?? (r as any).productSku ?? "—"}
+            </p>
+          </div>
         </div>
       ),
     },
     {
       key: "warehouse",
       header: "Warehouse",
-      render: (r) => <span className="text-gray-600">{r.warehouse?.code ?? r.warehouse?.name ?? (r as any).warehouseName ?? "MAIN"}</span>,
+      align: "left",
+      width: "14%",
+      render: (r) => (
+        <span className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium">
+          <WarehouseIcon size={13} className="text-[#0284C7] shrink-0" />
+          {r.warehouse?.name ?? (r as any).warehouseName ?? "Main Warehouse"}
+        </span>
+      ),
     },
     {
       key: "qty",
-      header: "Qty",
+      header: "Qty Delta",
       align: "right",
+      width: "10%",
       render: (r) => {
         const q = Number(r.qty);
+        const isPos = q > 0;
         return (
-          <span className={q > 0 ? "text-emerald-600 font-medium" : "text-red-600 font-medium"}>
-            {q > 0 ? `+${q}` : q}
+          <span
+            className={`font-mono font-black text-xs inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm ${
+              isPos ? "text-emerald-700 bg-emerald-50" : "text-rose-700 bg-rose-50"
+            }`}
+          >
+            {isPos ? `+${q.toLocaleString()}` : q.toLocaleString()}
           </span>
         );
       },
     },
     {
-      key: "before",
-      header: "Before → After",
+      key: "beforeAfter",
+      header: "Stock Transition",
       align: "right",
+      width: "12%",
       render: (r) => (
-        <span className="text-gray-500 text-xs">
-          {Number(r.qtyBefore)} → {Number(r.qtyAfter)}
-        </span>
+        <div className="inline-flex items-center gap-1 font-mono text-xs font-semibold text-slate-600 bg-slate-50 px-2 py-0.5 rounded-sm border border-slate-200">
+          <span className="text-slate-500">{Number(r.qtyBefore).toLocaleString()}</span>
+          <ArrowRight size={11} className="text-slate-400" />
+          <span className="font-bold text-slate-900">{Number(r.qtyAfter).toLocaleString()}</span>
+        </div>
       ),
     },
     {
       key: "ref",
       header: "Reference",
-      render: (r) => (
-        <span className="text-xs text-gray-400">{r.refType ?? "—"} {r.refId ? `#${r.refId.slice(-6)}` : ""}</span>
-      ),
-    },
-    {
-      key: "note",
-      header: "Note",
-      render: (r) => <span className="text-xs text-gray-500 truncate max-w-[160px] block">{r.note ?? "—"}</span>,
-    },
-    {
-      key: "date",
-      header: "Date",
-      render: (r) => (
-        <span className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleString()}</span>
-      ),
+      align: "center",
+      width: "12%",
+      render: (r) => {
+        const refLabel = r.refType ? r.refType.replace(/_/g, " ") : "Direct Action";
+        const shortId = r.refId ? `#${r.refId.slice(-6)}` : "";
+
+        return (
+          <div className="flex flex-col items-center">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+              <FileText size={10} className="text-slate-400" />
+              {refLabel} {shortId}
+            </span>
+            {r.note && (
+              <span className="text-[10px] text-slate-400 truncate max-w-[120px] mt-0.5" title={r.note}>
+                {r.note}
+              </span>
+            )}
+          </div>
+        );
+      },
     },
   ];
 
-  const totalPages = Math.ceil(total / limit);
-
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Stock Movements</h1>
-        <p className="mt-1 text-sm text-gray-500">Full audit trail — every stock change is recorded here</p>
-      </div>
-
-      <div className="flex gap-3">
-        <CustomSelect
-          containerClassName="w-56"
-          value={movementType}
-          onChange={(e) => { setMovementType(e.target.value); setPage(1); }}
-          placeholder="All movement types"
-          options={MOVEMENT_TYPES.map((t) => ({ value: t, label: t.replace(/_/g, " ") }))}
-        />
-      </div>
-
-      <div className="rounded-xl border border-gray-200 bg-white">
-        <CustomTable
-          columns={columns}
-          data={movements}
-          rowKey={(r) => r.id}
-          loading={loading}
-          emptyIcon={Activity}
-          emptyMessage="No stock movements yet"
-        />
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm text-gray-500">
-            <span>{total} records</span>
-            <div className="flex gap-2">
-              <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="px-3 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Prev</button>
-              <span className="px-2 py-1">{page} / {totalPages}</span>
-              <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="px-3 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Next</button>
-            </div>
+    <div className="space-y-4 pb-12">
+      {/* 1. Top Breadcrumb with Actions */}
+      <CustomBreadcrumb
+        title="Stock Movements & Audit"
+        icon={<Activity size={16} className="text-[#0284C7]" />}
+        breadcrumbs={[
+          { label: "Operations", href: "/dashboard" },
+          { label: "Inventory", href: "/inventory" },
+          { label: "Stock Movements" },
+        ]}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/inventory/transfers">
+              <CustomButton size="sm" variant="secondary" leftIcon={ArrowRightLeft}>
+                Transfer Stock
+              </CustomButton>
+            </Link>
+            <Link href="/inventory/stock">
+              <CustomButton
+                size="sm"
+                variant="primary"
+                themeColor="primary"
+                leftIcon={Package}
+              >
+                Stock Levels
+              </CustomButton>
+            </Link>
           </div>
-        )}
+        }
+      />
+
+      {/* 2. Executive KPI Stat Cards */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <CustomStatCard
+          label="Total Logged Movements"
+          value={loading ? "—" : String(stats.total)}
+          icon={Activity}
+          tone="primary"
+        />
+        <CustomStatCard
+          label="Inbound Operations"
+          value={loading ? "—" : String(stats.inboundCount)}
+          icon={TrendingUp}
+          tone="green"
+        />
+        <CustomStatCard
+          label="Outbound Operations"
+          value={loading ? "—" : String(stats.outboundCount)}
+          icon={TrendingDown}
+          tone="red"
+        />
+        <CustomStatCard
+          label="Active Warehouses"
+          value={loading ? "—" : String(stats.warehouseCount)}
+          icon={WarehouseIcon}
+          tone="violet"
+        />
       </div>
+
+      {/* 3. Search & Filter Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <CustomInput
+          placeholder="Search product name, SKU, reference..."
+          leftIcon={<Search size={14} />}
+          rightIcon={
+            search ? (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="text-slate-400 hover:text-gray-600 cursor-pointer"
+              >
+                <X size={14} />
+              </button>
+            ) : null
+          }
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <CustomDropdownSelect
+          options={warehouseOptions}
+          value={warehouseId}
+          onChange={setWarehouseId}
+          placeholder="Filter by Warehouse..."
+        />
+        <CustomDropdownSelect
+          options={MOVEMENT_TYPE_OPTIONS}
+          value={movementType}
+          onChange={setMovementType}
+          placeholder="Filter by Movement Type..."
+        />
+      </div>
+
+      {/* 4. Movements Table */}
+      <CustomTable<Movement>
+        columns={columns}
+        data={filteredMovements}
+        rowKey="id"
+        loading={loading}
+        emptyIcon={Activity}
+        emptyMessage="No stock movements found matching criteria."
+        pageSize={15}
+        showPagination={true}
+      />
     </div>
   );
 }
