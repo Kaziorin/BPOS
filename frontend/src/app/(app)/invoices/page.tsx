@@ -43,6 +43,10 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { UniversalInvoiceModal, InvoiceData, InvoiceItem, InvoiceVerticalType } from "@/components/invoices/UniversalInvoiceModal";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomTabs } from "@/components/custom/CustomTabs";
+import { CustomStatCard } from "@/components/custom/CustomStatCard";
+import { CustomButton } from "@/components/custom/CustomButton";
 
 interface Invoice {
   id: string;
@@ -813,220 +817,141 @@ export default function InvoicesPage() {
         </div>
       )}
 
-      {/* Top Banner / Header */}
-      <div className="border-b border-sky-100/90 bg-white px-4 sm:px-8 py-5 shadow-2xs w-full">
-        <div className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-2xs shadow-primary-500/25">
-                <Receipt size={22} className="stroke-[2.2]" />
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">Invoice Engine & Billing</h1>
-                  <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-emerald-700 ring-1 ring-emerald-200">
-                    NBR 6.3 Compliant
-                  </span>
-                </div>
-                <p className="text-xs font-medium text-slate-500">
-                  Mushak 6.3 Tax Invoices · Multi-Vertical Commercial Challans · Smart Aging & Credit Ledger
-                </p>
-              </div>
-            </div>
-          </div>
-
+      {/* Top Breadcrumb */}
+      <CustomBreadcrumb
+        title="Invoice Engine & Billing"
+        breadcrumbs={[
+          { label: "Finance", href: "/invoices" },
+          { label: "Invoices" },
+        ]}
+        icon={<Receipt size={16} className="text-[#0284C7]" />}
+        actions={
           <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href="/invoices/collection"
-              className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
-            >
-              <Wallet size={14} className="text-sky-600" />
-              Collections Hub
+            <Link href="/invoices/collection">
+              <CustomButton
+                variant="secondary"
+                size="sm"
+                leftIcon={Wallet}
+              >
+                Collections Hub
+              </CustomButton>
             </Link>
 
-            <button
+            <CustomButton
+              variant="secondary"
+              size="sm"
+              leftIcon={CreditCard}
               onClick={() => setShowAllocateModal(true)}
-              className="flex items-center gap-1.5 rounded-sm border border-sky-200/80 bg-sky-50/70 px-3.5 py-2 text-xs font-semibold text-sky-700 shadow-2xs transition hover:bg-sky-100/80 active:scale-95"
             >
-              <CreditCard size={14} />
               Bulk Settle
-            </button>
+            </CustomButton>
 
-            <button
+            <CustomButton
+              variant="primary"
+              size="sm"
+              leftIcon={Plus}
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-primary-600 via-primary-500 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-2xs shadow-primary-500/25 transition hover:brightness-110 active:scale-95"
             >
-              <Plus size={16} className="stroke-[2.5]" />
               New Invoice
-            </button>
+            </CustomButton>
           </div>
-        </div>
+        }
+      />
 
-        {/* Module Sub-Navigation Bar */}
-        <div className="w-full mt-5 flex items-center gap-2 overflow-x-auto border-t border-sky-100/70 pt-3 pb-1 no-scrollbar">
-          {[
-            { id: "all", label: "Invoice Management", icon: FileText },
-            { id: "aging", label: "Aging & Due Intelligence", icon: Clock },
-            { id: "tax_mushak", label: "Mushak 6.3 Tax Invoices", icon: ShieldCheck },
-            { id: "credit_notes", label: "Credit & Debit Notes", icon: RotateCcw },
-          ].map((s) => {
-            const Icon = s.icon;
-            const active = subSection === s.id;
-            return (
-              <button
-                key={s.id}
-                onClick={() => {
-                  setSubSection(s.id as any);
-                  setActiveTab("ALL");
-                  setPage(1);
-                }}
-                className={`flex items-center gap-2 rounded-sm px-3.5 py-2 text-xs font-bold transition whitespace-nowrap ${
-                  active
-                    ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/25"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                }`}
-              >
-                <Icon size={14} className={active ? "text-white" : "text-slate-400"} />
-                <span>{s.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* Module Sub-Navigation Tabs */}
+      <CustomTabs
+        tabs={[
+          { id: "all", label: "Invoice Management", icon: <FileText size={14} /> },
+          { id: "aging", label: "Aging & Due Intelligence", icon: <Clock size={14} /> },
+          { id: "tax_mushak", label: "Mushak 6.3 Tax Invoices", icon: <ShieldCheck size={14} /> },
+          { id: "credit_notes", label: "Credit & Debit Notes", icon: <RotateCcw size={14} /> },
+        ]}
+        activeTab={subSection}
+        onChange={(tabId) => {
+          setSubSection(tabId as any);
+          setActiveTab("ALL");
+          setPage(1);
+        }}
+        themeColor="primary"
+        className="w-auto"
+      />
 
       <div className="w-full px-4 sm:px-8 pt-5">
         {/* Executive KPI Stats Cards */}
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {/* 1. Total Invoiced */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Invoiced</span>
-              <div className="rounded-sm bg-sky-50 p-1.5 text-sky-600">
-                <FileText size={14} />
-              </div>
-            </div>
-            <div className="mt-2 text-lg sm:text-xl font-black text-slate-900">
-              {statsLoading ? "—" : `৳${Number(stats?.totalAmount || 0).toLocaleString()}`}
-            </div>
-            <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-slate-500">
-              <span>{stats?.totalInvoices || invoices.length} total issued</span>
-            </div>
-          </div>
-
-          {/* 2. Total Paid / Collections */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Collected</span>
-              <div className="rounded-sm bg-emerald-50 p-1.5 text-emerald-600">
-                <CheckCircle2 size={14} />
-              </div>
-            </div>
-            <div className="mt-2 text-lg sm:text-xl font-black text-emerald-700">
-              {statsLoading ? "—" : `৳${Number(stats?.paidAmount || 0).toLocaleString()}`}
-            </div>
-            <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
-              <span>{stats?.paidCount || 0} fully settled</span>
-            </div>
-          </div>
-
-          {/* 3. Outstanding Receivables */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-sky-600">Outstanding</span>
-              <div className="rounded-sm bg-sky-50 p-1.5 text-sky-600">
-                <Clock size={14} />
-              </div>
-            </div>
-            <div className="mt-2 text-lg sm:text-xl font-black text-sky-700">
-              {statsLoading ? "—" : `৳${Number(stats?.outstandingAmount || 0).toLocaleString()}`}
-            </div>
-            <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-sky-600">
-              <span>{stats?.partiallyPaidCount || 0} partial balances</span>
-            </div>
-          </div>
-
-          {/* 4. Overdue Invoices */}
-          <div className="rounded-sm border border-rose-200/80 bg-rose-50/40 p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
-            <div className="flex items-center justify-between text-rose-600">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700">Overdue Alert</span>
-              <div className="rounded-sm bg-rose-100 p-1.5 text-rose-700">
-                <AlertTriangle size={14} />
-              </div>
-            </div>
-            <div className="mt-2 text-lg sm:text-xl font-black text-rose-700">
-              {statsLoading ? "—" : `৳${Number(stats?.overdueAmount || 0).toLocaleString()}`}
-            </div>
-            <div className="mt-1 flex items-center gap-1 text-[11px] font-bold text-rose-600">
-              <span>{stats?.overdueCount || 0} past due date</span>
-            </div>
-          </div>
-
-          {/* 5. Mushak 6.3 Tax Invoices */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700">Mushak 6.3</span>
-              <div className="rounded-sm bg-sky-50 p-1.5 text-sky-700">
-                <ShieldCheck size={14} />
-              </div>
-            </div>
-            <div className="mt-2 text-lg sm:text-xl font-black text-slate-900">
-              {statsLoading ? "—" : stats?.taxCount ?? 0}
-            </div>
-            <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-sky-700">
-              <span>Govt NBR Registered</span>
-            </div>
-          </div>
-
-          {/* 6. Collection Recovery Rate */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Recovery Rate</span>
-              <div className="rounded-sm bg-slate-100 p-1.5 text-slate-600">
-                <TrendingUp size={14} />
-              </div>
-            </div>
-            <div className="mt-2 text-lg sm:text-xl font-black text-slate-900">
-              {stats && stats.totalAmount > 0
+          <CustomStatCard
+            label="Total Invoiced"
+            value={statsLoading ? "—" : `৳${Number(stats?.totalAmount || 0).toLocaleString()}`}
+            icon={FileText}
+            tone="primary"
+          />
+          <CustomStatCard
+            label="Collected"
+            value={statsLoading ? "—" : `৳${Number(stats?.paidAmount || 0).toLocaleString()}`}
+            icon={CheckCircle2}
+            tone="green"
+          />
+          <CustomStatCard
+            label="Outstanding"
+            value={statsLoading ? "—" : `৳${Number(stats?.outstandingAmount || 0).toLocaleString()}`}
+            icon={Clock}
+            tone="blue"
+          />
+          <CustomStatCard
+            label="Overdue Alert"
+            value={statsLoading ? "—" : `৳${Number(stats?.overdueAmount || 0).toLocaleString()}`}
+            icon={AlertTriangle}
+            tone="red"
+          />
+          <CustomStatCard
+            label="Mushak 6.3"
+            value={statsLoading ? "—" : `${stats?.taxCount ?? 0}`}
+            icon={ShieldCheck}
+            tone="violet"
+          />
+          <CustomStatCard
+            label="Recovery Rate"
+            value={
+              stats && stats.totalAmount > 0
                 ? `${Math.min(100, Math.round((Number(stats.paidAmount) / Number(stats.totalAmount)) * 100))}%`
-                : "100%"}
-            </div>
-            <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-slate-500">
-              <span>Health benchmark 95%+</span>
-            </div>
-          </div>
+                : "100%"
+            }
+            icon={TrendingUp}
+            tone="amber"
+          />
         </div>
 
         {/* Executive Aging Intelligence Bar */}
-        <div className="mb-5 rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
+        <div className="mb-5 rounded-sm border border-sky-100/90 bg-gradient-to-br from-white via-sky-50/30 to-white p-4 shadow-2xs">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                 Receivables Aging & Recovery Timeline
               </h3>
-              <p className="text-[11px] text-slate-500">Cash-flow distribution across overdue aging buckets</p>
+              <p className="text-[11px] text-gray-500">Cash-flow distribution across overdue aging buckets</p>
             </div>
 
             {/* Buckets grid */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 text-xs">
-              <div className="rounded-sm bg-slate-50 p-2.5 text-center">
-                <span className="text-[10px] font-bold text-slate-500">Current (Not Due)</span>
-                <p className="font-black text-slate-800">৳{agingBuckets.notDue.toLocaleString()}</p>
+              <div className="rounded-sm bg-slate-50 p-3 text-center border border-slate-200/60">
+                <span className="text-[10px] font-bold text-gray-600">Current (Not Due)</span>
+                <p className="font-black text-gray-600 mt-1">৳{agingBuckets.notDue.toLocaleString()}</p>
               </div>
-              <div className="rounded-sm bg-amber-50/70 p-2.5 text-center border border-amber-100">
+              <div className="rounded-sm bg-amber-50/70 p-3 text-center border border-amber-200/60">
                 <span className="text-[10px] font-bold text-amber-700">1 - 30 Days</span>
-                <p className="font-black text-amber-800">৳{agingBuckets.b1_30.toLocaleString()}</p>
+                <p className="font-black text-amber-800 mt-1">৳{agingBuckets.b1_30.toLocaleString()}</p>
               </div>
-              <div className="rounded-sm bg-orange-50/70 p-2.5 text-center border border-orange-100">
+              <div className="rounded-sm bg-orange-50/70 p-3 text-center border border-orange-200/60">
                 <span className="text-[10px] font-bold text-orange-700">31 - 60 Days</span>
-                <p className="font-black text-orange-800">৳{agingBuckets.b31_60.toLocaleString()}</p>
+                <p className="font-black text-orange-800 mt-1">৳{agingBuckets.b31_60.toLocaleString()}</p>
               </div>
-              <div className="rounded-sm bg-rose-50/70 p-2.5 text-center border border-rose-100">
+              <div className="rounded-sm bg-rose-50/70 p-3 text-center border border-rose-200/60">
                 <span className="text-[10px] font-bold text-rose-700">61 - 90 Days</span>
-                <p className="font-black text-rose-800">৳{agingBuckets.b61_90.toLocaleString()}</p>
+                <p className="font-black text-rose-800 mt-1">৳{agingBuckets.b61_90.toLocaleString()}</p>
               </div>
-              <div className="rounded-sm bg-rose-100 p-2.5 text-center border border-rose-200">
+              <div className="rounded-sm bg-rose-100 p-3 text-center border border-rose-200">
                 <span className="text-[10px] font-black text-rose-800">90+ Days Critical</span>
-                <p className="font-black text-rose-900">৳{agingBuckets.b90_plus.toLocaleString()}</p>
+                <p className="font-black text-rose-900 mt-1">৳{agingBuckets.b90_plus.toLocaleString()}</p>
               </div>
             </div>
           </div>
