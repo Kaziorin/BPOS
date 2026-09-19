@@ -1,95 +1,109 @@
 "use client";
 
 import { siteConfig } from "@/config/site";
-import { Waves } from "lucide-react";
+import { Waves, Mail, Phone, MapPin, Store } from "lucide-react";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative shrink-0 w-full select-none z-20 overflow-hidden bg-transparent">
-      {/* ── Dynamic Varying-Gap 3-Layer Ocean Waves ── */}
-      <div className="relative w-full h-14 sm:h-15 flex items-end">
-        {/* Full-Height Dynamic SVG Waves with Non-Uniform Gaps */}
-        <div className="pointer-events-none absolute inset-0 w-full h-full z-0">
+    <footer className="relative shrink-0 w-full select-none z-20 overflow-hidden bg-[#edf5fd]">
+      {/* ── Main Footer Card with Left Tab Curve and Right Ocean Wave ── */}
+      <div className="relative w-full bg-white/95 backdrop-blur-md border-t border-sky-200/60 shadow-[0_-2px_12px_rgba(2,132,199,0.06)]">
+        {/* Left Curved Tab Ambient Background SVG */}
+        <div className="pointer-events-none absolute inset-0 w-full h-full z-0 overflow-hidden">
+          {/* Top-Left Soft Sky/Cyan Tab Glow Curve */}
           <svg
-            className="w-full h-full"
-            viewBox="0 0 1440 90"
+            className="absolute left-0 top-0 h-full w-[200px] sm:w-[280px]"
+            viewBox="0 0 280 50"
+            preserveAspectRatio="none"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* Soft background curve matching the red-circled mock */}
+            <path
+              d="M 0,50 C 0,15 20,0 60,0 L 280,0 L 280,50 Z"
+              fill="#ffffff"
+            />
+            <path
+              d="M 0,50 C 0,15 20,0 60,0"
+              stroke="#bae6fd"
+              strokeWidth="1.5"
+              fill="none"
+            />
+          </svg>
+
+          {/* Right Side: Flowing 3-Layer Ocean Waves (Exact match with screenshot) */}
+          <svg
+            className="absolute right-0 top-0 h-full w-[180px] sm:w-[260px] md:w-[320px] lg:w-[380px]"
+            viewBox="0 0 380 50"
             preserveAspectRatio="none"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
             <defs>
-              {/* Layer 1: Bright Sky Cyan (Translucent Glowing Top Crest) */}
-              <linearGradient id="dynamicWaveL1" x1="0%" y1="0%" x2="100%" y2="50%">
-                <stop offset="0%" stopColor="#bae6fd" stopOpacity="0.9" />
-                <stop offset="40%" stopColor="#7dd3fc" stopOpacity="0.85" />
-                <stop offset="75%" stopColor="#38bdf8" stopOpacity="0.9" />
-                <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.75" />
+              <linearGradient id="footerRightL1" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#7dd3fc" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#bae6fd" stopOpacity="0.75" />
               </linearGradient>
-
-              {/* Layer 2: Vibrant Mid Ocean Blue */}
-              <linearGradient id="dynamicWaveL2" x1="0%" y1="0%" x2="100%" y2="50%">
-                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.95" />
-                <stop offset="35%" stopColor="#0ea5e9" stopOpacity="0.9" />
-                <stop offset="70%" stopColor="#0284c7" stopOpacity="0.95" />
-                <stop offset="100%" stopColor="#0369a1" />
+              <linearGradient id="footerRightL2" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.75" />
+                <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.9" />
               </linearGradient>
-
-              {/* Layer 3: Deep Signature Ocean Blue Base */}
-              <linearGradient id="dynamicWaveL3" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="footerRightL3" x1="0%" y1="100%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#0284c7" />
-                <stop offset="50%" stopColor="#0284c7" />
                 <stop offset="100%" stopColor="#0369a1" />
               </linearGradient>
             </defs>
-
-            {/* ── 1. Top Wave: Dramatic high crests on left and right-center ── */}
-            <path
-              d="M 0,0 C 220,0 340,32 540,32 C 740,32 860,6 1060,8 C 1220,10 1340,22 1440,16 L 1440,90 L 0,90 Z"
-              fill="url(#dynamicWaveL1)"
-            />
-
-            {/* ── 2. Middle Wave: Drops deeper in right-center for huge color flare gap ── */}
-            <path
-              d="M 0,16 C 200,18 400,26 620,28 C 840,30 960,46 1160,44 C 1280,42 1360,32 1440,28 L 1440,90 L 0,90 Z"
-              fill="url(#dynamicWaveL2)"
-            />
-
-            {/* ── 3. Base Wave: Smooth baseline supporting text perfectly ── */}
-            <path
-              d="M 0,34 C 240,36 460,42 720,40 C 980,38 1220,44 1440,36 L 1440,90 L 0,90 Z"
-              fill="url(#dynamicWaveL3)"
-            />
+            {/* Layer 1: Top Cyan Wave */}
+            <path d="M 0,50 C 100,50 180,18 380,0 L 380,50 Z" fill="url(#footerRightL1)" />
+            {/* Layer 2: Mid Ocean Blue Wave */}
+            <path d="M 70,50 C 150,50 220,24 380,8 L 380,50 Z" fill="url(#footerRightL2)" />
+            {/* Layer 3: Solid Ocean Blue Base */}
+            <path d="M 140,50 C 200,50 260,32 380,18 L 380,50 Z" fill="url(#footerRightL3)" />
           </svg>
         </div>
 
-        {/* ── Footer Content ── */}
-        <div className="relative z-10 w-full px-4 sm:px-8 pb-2 sm:pb-2.5 pt-3 text-white">
-          <div className="mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-6 text-xs">
-            {/* Left: Brand Icon + Name + Copyright */}
-            <div className="flex items-center gap-2.5 flex-wrap justify-center sm:justify-start">
-              <div className="flex items-center gap-1.5 font-bold tracking-tight text-white text-xs">
-                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-white/20 text-white backdrop-blur-xs shadow-2xs">
-                  <Waves size={12} className="stroke-[2.5]" />
-                </span>
-                <span className="font-bold text-xs sm:text-sm tracking-tight text-white drop-shadow-xs">
-                  {siteConfig.name}
-                </span>
+        {/* ── Footer Bar Content ── */}
+        <div className="relative z-10 w-full px-5 sm:px-8 lg:px-10 py-2 sm:py-2.5">
+          <div className="mx-auto flex flex-wrap items-center justify-between gap-y-2 gap-x-4 text-xs">
+            {/* Left: Brand Circle Badge + Name + Copyright */}
+            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 pl-1 sm:pl-3">
+              <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-full bg-[#0284c7] text-white shadow-xs">
+                <Store size={13} className="stroke-[2.5]" />
               </div>
-
-              <span className="text-sky-200/50 hidden sm:inline text-xs font-light">|</span>
-
-              <span className="text-sky-100/95 text-[11px] sm:text-xs font-medium drop-shadow-2xs">
+              <span className="font-bold text-[#0284c7] text-xs sm:text-[13px] tracking-tight">
+                {siteConfig.name}
+              </span>
+              <span className="text-slate-300 hidden sm:inline text-xs">|</span>
+              <span className="text-slate-500 text-[11px] hidden sm:inline font-normal">
                 &copy; {currentYear} {siteConfig.name}. All rights reserved.
               </span>
             </div>
 
-            {/* Right: Tagline + Status Accent Icon */}
-            <div className="flex items-center gap-2 text-sky-100 text-[11px] sm:text-xs font-semibold drop-shadow-2xs">
-              <span>Smarter Business &bull; Better Tomorrow</span>
-              <span className="flex items-center text-sky-200">
-                <Waves size={13} className="stroke-[2.5]" />
+            {/* Middle: Contact Details (Email, Phone, Location) */}
+            <div className="hidden lg:flex items-center gap-6 text-slate-600 text-[11px] font-medium">
+              <div className="flex items-center gap-1.5 hover:text-[#0284c7] transition">
+                <Mail size={13} className="text-[#0284c7] shrink-0" />
+                <span>support@blueoceanspos.com</span>
+              </div>
+              <div className="flex items-center gap-1.5 hover:text-[#0284c7] transition">
+                <Phone size={13} className="text-[#0284c7] shrink-0" />
+                <span>+880 1730 000000</span>
+              </div>
+              <div className="flex items-center gap-1.5 hover:text-[#0284c7] transition">
+                <MapPin size={13} className="text-[#0284c7] shrink-0" />
+                <span>Dhaka, Bangladesh</span>
+              </div>
+            </div>
+
+            {/* Right: Italicized Tagline + Wave Icon */}
+            <div className="flex items-center gap-2 shrink-0 ml-auto sm:ml-0 pr-1">
+              <span className="italic text-slate-600 sm:text-sky-800 text-[11px] font-medium">
+                Smarter Business &bull; Better Tomorrow
+              </span>
+              <span className="flex items-center text-white drop-shadow-xs">
+                <Waves size={14} className="stroke-[2.5] text-sky-100" />
               </span>
             </div>
           </div>
@@ -98,6 +112,10 @@ export function Footer() {
     </footer>
   );
 }
+
+
+
+
 
 
 
