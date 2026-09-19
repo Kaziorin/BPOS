@@ -75,18 +75,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Full-width Top Ocean Wave Header */}
       <Header />
 
-      {/* Main Body: Sidebar on Left + Content Card on Right */}
+      {/* Main Body: Sidebar on Left + Content & Footer on Right */}
       <div className="flex flex-1 overflow-hidden min-h-0 relative">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-5 custom-scrollbar">
-          <div className="min-h-full w-full rounded-2xl border border-sky-100/90 bg-white/95 p-4 sm:p-6 shadow-xs">
-            {children}
-          </div>
-        </main>
-      </div>
+        <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+          <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-5 custom-scrollbar">
+            <div className="min-h-full w-full rounded-2xl border border-sky-100/90 bg-white/95 p-4 sm:p-6 shadow-xs">
+              {children}
+            </div>
+          </main>
 
-      {/* Slim & Beautiful Compact Ocean Footer */}
-      <Footer />
+          {/* Footer sits next to sidebar with rounded top-left tab */}
+          <Footer />
+        </div>
+      </div>
       <MobileNav open={menuOpen} onOpenChange={setMenuOpen} />
       <ToastContainer
         position="top-right"
