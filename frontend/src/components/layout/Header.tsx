@@ -71,29 +71,48 @@ export function Header() {
 
   return (
     <>
-      <header className="relative flex h-14 sm:h-15 shrink-0 items-center justify-between px-3 sm:px-4 md:px-6 z-30 select-none overflow-hidden bg-gradient-to-r from-[#0284c7] via-[#0ea5e9] to-[#38bdf8] shadow-md border-b border-sky-400/30">
-        {/* Decorative Fluid Ocean Wave SVGs in Background */}
+      <header className="relative flex h-16 shrink-0 items-center justify-between px-3 sm:px-4 md:px-6 z-30 select-none bg-transparent">
+        {/* Dual Side Ocean Wave Curves Background */}
         <div className="pointer-events-none absolute inset-0 w-full h-full z-0 overflow-hidden">
+          {/* Top-Left Ocean Blue Wave Curve (Behind Logo) */}
           <svg
-            className="absolute inset-0 w-full h-full opacity-25"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1440 320"
+            className="absolute left-0 top-0 h-full w-[320px] sm:w-[380px] md:w-[420px] lg:w-[450px]"
+            viewBox="0 0 450 64"
             preserveAspectRatio="none"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
           >
+            <defs>
+              <linearGradient id="headerLeftWave" x1="0%" y1="0%" x2="100%" y2="80%">
+                <stop offset="0%" stopColor="#0284c7" />
+                <stop offset="70%" stopColor="#0284c7" />
+                <stop offset="100%" stopColor="#0ea5e9" />
+              </linearGradient>
+            </defs>
             <path
-              fill="#ffffff"
-              d="M0,192L48,176C96,160,192,128,288,144C384,160,480,224,576,224C672,224,768,160,864,133.3C960,107,1056,117,1152,144C1248,171,1344,213,1392,234.7L1440,256L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"
+              d="M 0,0 L 450,0 C 370,10 290,52 200,56 C 110,60 50,63 0,64 Z"
+              fill="url(#headerLeftWave)"
             />
           </svg>
+
+          {/* Top-Right Soft Sky/Ocean Blue Wave Curve */}
           <svg
-            className="absolute -bottom-3 left-0 w-full h-14 opacity-30"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1200 120"
+            className="absolute right-0 top-0 h-full w-[240px] sm:w-[300px] md:w-[360px] lg:w-[400px]"
+            viewBox="0 0 400 64"
             preserveAspectRatio="none"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
           >
+            <defs>
+              <linearGradient id="headerRightWave" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.4" />
+                <stop offset="50%" stopColor="#0ea5e9" stopOpacity="0.75" />
+                <stop offset="100%" stopColor="#0284c7" stopOpacity="0.9" />
+              </linearGradient>
+            </defs>
             <path
-              d="M0,0 C150,90 350,-40 500,45 C650,130 900,10 1200,60 L1200,120 L0,120 Z"
-              fill="#f0f7ff"
+              d="M 400,0 L 30,0 C 90,22 160,54 250,54 C 310,54 360,35 400,15 Z"
+              fill="url(#headerRightWave)"
             />
           </svg>
         </div>
@@ -101,20 +120,23 @@ export function Header() {
         {/* ── Mobile Layout (< lg) ── */}
         <div className="relative z-10 flex w-full items-center justify-between lg:hidden">
           {/* Mobile Left: Circular Hamburger + Logo */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={() => window.dispatchEvent(new Event("omni:open-mobile-menu"))}
-              className="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white/95 text-sky-700 hover:bg-white shadow-xs transition cursor-pointer shrink-0 border border-white/60"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0284c7] text-white hover:bg-[#0369a1] shadow-xs transition active:scale-95 cursor-pointer shrink-0 border border-white/40"
               title="Open Navigation Menu"
               aria-label="Open Navigation Menu"
             >
               <Menu size={16} className="stroke-[2.5]" />
             </button>
             <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-sky-600 border border-white/80 shadow-xs">
+              <div className="flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-xl bg-white text-[#0284c7] border border-white/80 shadow-xs">
                 <Logo size={18} />
               </div>
-              <span className="font-bold text-white text-xs tracking-tight">{siteConfig.name}</span>
+              <div className="flex flex-col text-left">
+                <span className="font-bold text-white text-xs tracking-tight leading-tight">{siteConfig.name}</span>
+                <span className="text-[9px] text-sky-100/90 leading-tight">Smart • Fast • All Industries</span>
+              </div>
             </Link>
           </div>
 
@@ -209,11 +231,11 @@ export function Header() {
 
         {/* ── Desktop Layout (lg+) ── */}
         <div className="relative z-10 hidden w-full items-center justify-between gap-3 lg:flex">
-          {/* Left: Brand Logo Block + Circle Toggle Button + Branch Pill */}
+          {/* Left: Brand Logo Block (Over Ocean Blue Wave) + Circle Toggle + Branch Pill */}
           <div className="flex min-w-0 items-center gap-3">
             {/* Brand Logo & Tagline Block */}
-            <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0 mr-1 group">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-sky-600 border border-white/80 shadow-xs group-hover:scale-105 transition">
+            <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0 mr-2 group">
+              <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-xl bg-white text-[#0284c7] border border-white/80 shadow-xs group-hover:scale-105 transition">
                 <Logo size={20} />
               </div>
               <div className="flex flex-col min-w-0 text-left">
@@ -226,10 +248,10 @@ export function Header() {
               </div>
             </Link>
 
-            {/* Circular Hamburger Toggle Button */}
+            {/* Circular Blue Hamburger Toggle Button */}
             <button
               onClick={() => window.dispatchEvent(new Event("bpos:toggle-sidebar"))}
-              className="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-[#0284c7] hover:bg-[#0369a1] text-white shadow-xs transition active:scale-95 cursor-pointer shrink-0 border border-white/30"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0284c7] hover:bg-[#0369a1] text-white shadow-xs transition active:scale-95 cursor-pointer shrink-0 border border-white/40"
               title="Toggle Sidebar"
               aria-label="Toggle Sidebar"
             >
@@ -237,10 +259,10 @@ export function Header() {
             </button>
 
             {/* Branch / Terminal Pill Selector */}
-            <div className="flex items-center gap-2 rounded-full border border-white/80 bg-white/95 px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs backdrop-blur-xs hover:bg-white hover:border-sky-200 transition cursor-pointer">
-              <Building2 size={13} className="text-[#0284c7] shrink-0" />
+            <div className="flex items-center gap-2 rounded-full border border-sky-100/80 bg-white/95 px-4 py-2 text-xs font-semibold text-slate-700 shadow-xs hover:bg-white hover:border-sky-200 transition cursor-pointer">
+              <Building2 size={14} className="text-[#0284c7] shrink-0" />
               <span className="text-slate-800 font-bold">Main Branch - Terminal-01</span>
-              <ChevronDown size={12} className="text-slate-400 ml-0.5 shrink-0" />
+              <ChevronDown size={13} className="text-slate-400 ml-0.5 shrink-0" />
             </div>
           </div>
 
@@ -248,25 +270,25 @@ export function Header() {
           <div className="flex-1 max-w-xs xl:max-w-md mx-2">
             <button
               onClick={() => setPaletteOpen(true)}
-              className="w-full flex items-center gap-2.5 rounded-full border border-white/80 bg-white/95 px-4 py-1.5 text-xs text-slate-600 shadow-xs backdrop-blur-xs hover:bg-white hover:border-sky-300 transition cursor-pointer group"
+              className="w-full flex items-center gap-2.5 rounded-full border border-sky-100/80 bg-white/95 px-4.5 py-2 text-xs text-slate-600 shadow-xs hover:bg-white hover:border-sky-300 transition cursor-pointer group"
               title="Quick Search (Ctrl + K)"
             >
-              <Search size={13} className="text-sky-600 group-hover:text-sky-700 shrink-0" />
+              <Search size={14} className="text-sky-600 group-hover:text-sky-700 shrink-0" />
               <span className="font-medium text-slate-400 truncate">Search pages, items, actions...</span>
             </button>
           </div>
 
           {/* Right: Quick POS Terminal Button + User Profile Pill */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             {/* Quick POS Terminal Action Button */}
             <button
               onClick={() => setPosModalOpen(true)}
-              className="flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-600 via-sky-500 to-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-md shadow-sky-700/20 transition hover:brightness-105 active:scale-95 cursor-pointer shrink-0 border border-white/25"
+              className="flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0284c7] via-[#0284c7] to-[#0369a1] px-4.5 py-2 text-xs font-bold text-white shadow-md shadow-sky-700/20 transition hover:brightness-105 active:scale-95 cursor-pointer shrink-0 border border-white/25"
               title="Access All POS Terminals"
             >
-              <ShoppingCart size={13} className="stroke-[2.5]" />
+              <ShoppingCart size={14} className="stroke-[2.5]" />
               <span>POS Terminal</span>
-              <ChevronDown size={12} className="opacity-80 ml-0.5 shrink-0" />
+              <ChevronDown size={13} className="opacity-80 ml-0.5 shrink-0" />
             </button>
 
             {/* User Profile Pill Card */}
@@ -274,14 +296,14 @@ export function Header() {
               <button
                 onClick={() => setOpen((v) => !v)}
                 className={cn(
-                  "flex items-center gap-2 rounded-full border border-white/80 bg-white/95 px-2.5 py-1 shadow-xs transition hover:bg-white hover:border-sky-200 hover:shadow-md cursor-pointer",
+                  "flex items-center gap-2.5 rounded-full border border-sky-100/90 bg-white/95 pl-1.5 pr-3.5 py-1.5 shadow-xs transition hover:bg-white hover:border-sky-200 hover:shadow-md cursor-pointer",
                   open && "bg-white border-sky-400 ring-2 ring-sky-200"
                 )}
                 aria-expanded={open}
                 aria-haspopup="true"
               >
                 {/* Avatar Icon */}
-                <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-sky-600 to-blue-500 text-xs font-bold text-white shadow-xs">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0284c7] text-xs font-bold text-white shadow-xs">
                   {userInitial}
                 </div>
 
@@ -290,14 +312,14 @@ export function Header() {
                   <p className="truncate text-xs font-bold text-slate-800 leading-tight">
                     {displayName}
                   </p>
-                  <p className="truncate text-[10px] font-medium text-slate-500 leading-tight">
+                  <p className="truncate text-[10px] font-medium text-slate-400 leading-tight">
                     {displayRole}
                   </p>
                 </div>
 
                 {/* Chevron */}
                 <ChevronDown
-                  size={12}
+                  size={13}
                   className={cn(
                     "text-slate-400 transition-transform shrink-0",
                     open && "rotate-180 text-sky-600"
