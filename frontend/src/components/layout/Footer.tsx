@@ -8,35 +8,47 @@ export function Footer() {
 
   return (
     <footer className="relative shrink-0 w-full select-none z-20 bg-white/95 backdrop-blur-md rounded-tl-2xl border-t border-l border-sky-200/70 shadow-[0_-2px_10px_rgba(2,132,199,0.05)] overflow-hidden">
-      {/* ── Background Wave Accent on Far Right Corner ── */}
-      <div className="pointer-events-none absolute right-0 inset-y-0 w-44 sm:w-64 md:w-80 z-0 overflow-hidden">
+      {/* ── Prominent Multi-Layer Ocean Wave Accent on Right Corner ── */}
+      <div className="pointer-events-none absolute right-0 inset-y-0 w-72 sm:w-96 md:w-[480px] lg:w-[600px] xl:w-[720px] z-0 overflow-hidden">
         <svg
           className="w-full h-full"
-          viewBox="0 0 320 44"
+          viewBox="0 0 720 48"
           preserveAspectRatio="none"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
             <linearGradient id="footerCornerL1" x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#bae6fd" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#7dd3fc" stopOpacity="0.65" />
+              <stop offset="0%" stopColor="#bae6fd" stopOpacity="0.2" />
+              <stop offset="40%" stopColor="#7dd3fc" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.75" />
             </linearGradient>
             <linearGradient id="footerCornerL2" x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.7" />
-              <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.85" />
+              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.5" />
+              <stop offset="50%" stopColor="#0ea5e9" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#0284c7" stopOpacity="0.95" />
             </linearGradient>
             <linearGradient id="footerCornerL3" x1="0%" y1="100%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#0ea5e9" />
-              <stop offset="100%" stopColor="#0284c7" />
+              <stop offset="50%" stopColor="#0284c7" />
+              <stop offset="100%" stopColor="#0369a1" />
             </linearGradient>
           </defs>
-          {/* Layer 1: Soft Sky Wave */}
-          <path d="M 0,44 C 100,44 180,14 320,0 L 320,44 Z" fill="url(#footerCornerL1)" />
-          {/* Layer 2: Mid Aqua Wave */}
-          <path d="M 60,44 C 140,44 210,20 320,6 L 320,44 Z" fill="url(#footerCornerL2)" />
-          {/* Layer 3: Vibrant Ocean Blue Front Wave */}
-          <path d="M 120,44 C 190,44 250,26 320,12 L 320,44 Z" fill="url(#footerCornerL3)" />
+          {/* Layer 1: Wide Sky Translucent Base Wave */}
+          <path
+            d="M 0,48 C 160,48 300,14 480,4 C 570,-1 640,5 720,0 L 720,48 Z"
+            fill="url(#footerCornerL1)"
+          />
+          {/* Layer 2: Sweeping Mid Aqua/Cyan Wave */}
+          <path
+            d="M 120,48 C 260,48 400,18 540,8 C 610,3 670,7 720,3 L 720,48 Z"
+            fill="url(#footerCornerL2)"
+          />
+          {/* Layer 3: Vibrant Signature Ocean Blue Front Wave */}
+          <path
+            d="M 260,48 C 380,48 480,20 580,10 C 640,4 685,7 720,5 L 720,48 Z"
+            fill="url(#footerCornerL3)"
+          />
         </svg>
       </div>
 
@@ -74,12 +86,12 @@ export function Footer() {
           </div>
 
           {/* Right: Tagline + Status Waves */}
-          <div className="flex items-center gap-2 shrink-0 ml-auto">
-            <span className="italic text-slate-600 text-[10.5px] sm:text-[11px] font-medium hidden sm:inline truncate">
+          <div className="flex items-center gap-2 shrink-0 ml-auto pr-1">
+            <span className="italic text-white drop-shadow-[0_1px_2px_rgba(2,132,199,0.5)] text-[10.5px] sm:text-[11px] font-semibold hidden sm:inline truncate">
               Smarter Business &bull; Better Tomorrow
             </span>
-            <span className="flex items-center text-white drop-shadow-2xs">
-              <Waves size={13} className="stroke-[2.5] text-sky-100" />
+            <span className="flex items-center text-white drop-shadow-[0_1px_2px_rgba(2,132,199,0.5)]">
+              <Waves size={14} className="stroke-[2.5] text-white" />
             </span>
           </div>
         </div>
