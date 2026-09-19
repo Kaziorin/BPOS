@@ -30,6 +30,18 @@ import { CustomButton } from "@/components/custom/CustomButton";
 import { ConfirmModal } from "@/components/custom/ConfirmModal";
 import { toast } from "react-toastify";
 
+const VERTICAL_THEME_MAP: Record<string, string> = {
+  RESTAURANT: "restaurant-flame",
+  GROCERY: "grocery-emerald",
+  PHARMACY: "pharmacy-cyan",
+  RETAIL: "retail-blue",
+  WHOLESALE: "wholesale-action",
+  SALON: "salon-rose",
+  MANUFACTURING: "manufacturing-amber",
+  REPAIR: "repair-violet",
+  FRANCHISE: "franchise-corporate",
+};
+
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
@@ -97,7 +109,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   if (loading) {
     return (
       <div className="flex h-96 w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
       </div>
     );
   }
@@ -109,7 +121,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         <h3 className="text-base font-bold text-gray-700">Product Not Found</h3>
         <p className="text-xs text-slate-500 mt-1 mb-4">The requested product could not be found or has been removed.</p>
         <Link href="/products">
-          <CustomButton size="sm" className="bg-teal-600 text-white hover:bg-teal-700">
+          <CustomButton size="sm" className="bg-brand-primary text-white hover:opacity-90">
             Back to Products Catalog
           </CustomButton>
         </Link>
@@ -123,13 +135,18 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const marginPct = cost > 0 ? ((profit / cost) * 100).toFixed(1) : "0.0";
 
   const inputClass =
-    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500";
+    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border";
   const labelClass = "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1";
 
   const imgUrl = product.imageUrl || product.images?.[0]?.url;
 
+  const verticalKey = (product.businessType || product.vertical || "").toUpperCase();
+
   return (
-    <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
+    <div
+      data-theme={VERTICAL_THEME_MAP[verticalKey] || undefined}
+      className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen"
+    >
       {/* Header Breadcrumb & Actions */}
       <CustomBreadcrumb
         title={product.name}
@@ -164,7 +181,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   onClick={handleSave}
                   loading={saving}
                   leftIcon={<Save size={14} />}
-                  className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+                  className="bg-brand-primary hover:opacity-90 text-white rounded-md text-xs font-semibold"
                 >
                   Save Changes
                 </CustomButton>
@@ -173,7 +190,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <>
                 <button
                   onClick={() => router.push(`/products/create?id=${id}`)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-200 rounded-md hover:bg-teal-100 transition cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-dark bg-brand-50 border border-brand-border rounded-md hover:bg-brand-50 transition cursor-pointer"
                 >
                   <Edit size={14} /> Edit Product
                 </button>
@@ -222,7 +239,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 className="h-16 w-16 rounded-md object-cover border border-slate-200 shrink-0 bg-slate-50 shadow-2xs"
               />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-md bg-teal-50 text-teal-600 border border-teal-100 shrink-0 shadow-2xs">
+              <div className="flex h-16 w-16 items-center justify-center rounded-md bg-brand-50 text-brand-primary border border-slate-200 shrink-0 shadow-2xs">
                 <Package size={30} />
               </div>
             )}
@@ -238,7 +255,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 >
                   {product.status}
                 </span>
-                <span className="inline-flex rounded-md bg-teal-50 px-2 py-0.5 text-[10px] font-bold text-teal-700 border border-teal-200">
+                <span className="inline-flex rounded-md bg-brand-50 px-2 py-0.5 text-[10px] font-bold text-brand-dark border border-brand-border">
                   {product.productType}
                 </span>
               </div>
@@ -266,9 +283,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Cost</span>
               <span className="text-sm font-bold text-gray-700">৳{Number(cost).toFixed(2)}</span>
             </div>
-            <div className="bg-teal-50 rounded-md border border-teal-200 px-3.5 py-2 text-right">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600 block">Selling</span>
-              <span className="text-sm font-bold text-teal-700">৳{Number(selling).toFixed(2)}</span>
+            <div className="bg-brand-50 rounded-md border border-brand-border px-3.5 py-2 text-right">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-primary block">Selling</span>
+              <span className="text-sm font-bold text-brand-dark">৳{Number(selling).toFixed(2)}</span>
             </div>
             <div className="bg-emerald-50 rounded-md border border-emerald-200 px-3.5 py-2 text-right">
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 block">Margin</span>
@@ -285,7 +302,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           {/* Card 1: Basic Information */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-              <Info size={16} className="text-teal-600" />
+              <Info size={16} className="text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">Basic Information</h2>
             </div>
 
@@ -393,7 +410,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           {/* Card 2: Stock & Inventory Levels */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-              <Warehouse size={16} className="text-teal-600" />
+              <Warehouse size={16} className="text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">
                 Warehouse Stock & Inventory ({product.stockRows?.length || 0})
               </h2>
@@ -418,7 +435,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         </td>
                         <td className="py-2 px-3 text-right font-medium text-slate-600">{s.qtyOnHand || 0}</td>
                         <td className="py-2 px-3 text-right font-medium text-slate-400">{s.qtyReserved || 0}</td>
-                        <td className="py-2 px-3 text-right font-bold text-teal-700">
+                        <td className="py-2 px-3 text-right font-bold text-brand-dark">
                           {(s.qtyOnHand || 0) - (s.qtyReserved || 0)}
                         </td>
                       </tr>
@@ -435,7 +452,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           {product.variants?.length > 0 && (
             <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                <Layers size={16} className="text-teal-600" />
+                <Layers size={16} className="text-brand-primary" />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">
                   Product Variants ({product.variants.length})
                 </h2>
@@ -490,7 +507,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           {/* Card: Pricing Breakdown */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-              <DollarSign size={16} className="text-teal-600" />
+              <DollarSign size={16} className="text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">Pricing & Tax Breakdown</h2>
             </div>
 
@@ -518,10 +535,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     step="0.01"
                     value={form.sellingPrice || ""}
                     onChange={(e) => setForm({ ...form, sellingPrice: e.target.value })}
-                    className="w-28 rounded border border-slate-200 px-2 py-1 text-xs text-right font-bold text-teal-700"
+                    className="w-28 rounded border border-slate-200 px-2 py-1 text-xs text-right font-bold text-brand-dark"
                   />
                 ) : (
-                  <span className="text-xs font-bold text-teal-700">৳{Number(product.sellingPrice || 0).toFixed(2)}</span>
+                  <span className="text-xs font-bold text-brand-dark">৳{Number(product.sellingPrice || 0).toFixed(2)}</span>
                 )}
               </div>
 
@@ -568,12 +585,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Calculated Profit Margin Banner */}
-            <div className="rounded-md bg-teal-50 border border-teal-200 p-3 space-y-1">
-              <div className="flex items-center justify-between text-xs font-bold text-teal-800">
+            <div className="rounded-md bg-brand-50 border border-brand-border p-3 space-y-1">
+              <div className="flex items-center justify-between text-xs font-bold text-brand-dark">
                 <span>Profit per Unit:</span>
                 <span>৳{profit.toFixed(2)}</span>
               </div>
-              <div className="flex items-center justify-between text-[11px] font-semibold text-teal-600">
+              <div className="flex items-center justify-between text-[11px] font-semibold text-brand-primary">
                 <span>Profit Margin (%):</span>
                 <span>+{marginPct}%</span>
               </div>
@@ -583,7 +600,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           {/* Card: Extended System Metadata */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-              <Sparkles size={16} className="text-teal-600" />
+              <Sparkles size={16} className="text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">Metadata & System Info</h2>
             </div>
 

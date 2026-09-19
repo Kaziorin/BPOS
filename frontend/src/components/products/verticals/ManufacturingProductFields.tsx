@@ -23,13 +23,13 @@ const ITEM_ROLES = [
 
 export const ManufacturingProductFields: React.FC<Props> = ({ formData, onChange }) => {
   const inputClass =
-    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 placeholder:text-slate-400";
+    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border placeholder:text-slate-400";
   const labelClass = "block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-1";
 
   return (
     <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
       <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-        <Factory className="h-4 w-4 text-teal-600" />
+        <Factory className="h-4 w-4 text-brand-primary" />
         <div>
           <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
             Manufacturing & Production Setup
@@ -44,7 +44,7 @@ export const ManufacturingProductFields: React.FC<Props> = ({ formData, onChange
         {/* Item Role */}
         <div>
           <label className={labelClass}>
-            <Cpu size={13} className="text-teal-600" />
+            <Cpu size={13} className="text-brand-primary" />
             Manufacturing Inventory Role *
           </label>
           <select
@@ -63,7 +63,7 @@ export const ManufacturingProductFields: React.FC<Props> = ({ formData, onChange
         {/* Yield Factor % */}
         <div>
           <label className={labelClass}>
-            <Layers size={13} className="text-teal-600" />
+            <Layers size={13} className="text-brand-primary" />
             Expected Production Yield (%)
           </label>
           <input
@@ -80,7 +80,7 @@ export const ManufacturingProductFields: React.FC<Props> = ({ formData, onChange
         {/* Labor Cost */}
         <div>
           <label className={labelClass}>
-            <DollarSign size={13} className="text-teal-600" />
+            <DollarSign size={13} className="text-brand-primary" />
             Standard Assembly Labor Cost per Unit
           </label>
           <input
@@ -97,7 +97,7 @@ export const ManufacturingProductFields: React.FC<Props> = ({ formData, onChange
         {/* Overhead Cost */}
         <div>
           <label className={labelClass}>
-            <DollarSign size={13} className="text-teal-600" />
+            <DollarSign size={13} className="text-brand-primary" />
             Factory Overhead Cost per Unit
           </label>
           <input

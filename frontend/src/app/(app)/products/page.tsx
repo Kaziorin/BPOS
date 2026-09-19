@@ -143,13 +143,13 @@ export default function ProductsPage() {
                 className="h-9 w-9 rounded-md object-cover border border-slate-200 shrink-0 bg-slate-50"
               />
             ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-teal-50 text-teal-600 border border-teal-100 shrink-0">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-brand-50 text-brand-primary border border-slate-200 shrink-0">
                 <Package size={16} />
               </div>
             )}
             <Link
               href={`/products/${product.id}`}
-              className="font-bold text-gray-700 text-xs hover:text-teal-600 transition block truncate max-w-[180px]"
+              className="font-bold text-gray-700 text-xs hover:text-brand-primary transition block truncate max-w-[180px]"
             >
               {product.name}
             </Link>
@@ -195,7 +195,7 @@ export default function ProductsPage() {
       sortable: true,
       render: (product: any) => (
         product.subCategory?.name ? (
-          <span className="inline-flex items-center rounded-md bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-teal-700 border border-teal-200">
+          <span className="inline-flex items-center rounded-md bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-dark border border-brand-border">
             {product.subCategory.name}
           </span>
         ) : (

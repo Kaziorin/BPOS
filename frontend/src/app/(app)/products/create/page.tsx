@@ -98,6 +98,18 @@ const BUSINESS_VERTICALS = [
   { id: "FRANCHISE", label: "Franchise Control", icon: Building2 },
 ];
 
+const VERTICAL_THEME_MAP: Record<string, string> = {
+  RESTAURANT: "restaurant-flame",
+  GROCERY: "grocery-emerald",
+  PHARMACY: "pharmacy-cyan",
+  RETAIL: "retail-blue",
+  WHOLESALE: "wholesale-action",
+  SALON: "salon-rose",
+  MANUFACTURING: "manufacturing-amber",
+  REPAIR: "repair-violet",
+  FRANCHISE: "franchise-corporate",
+};
+
 export default function CreateProductPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -824,11 +836,14 @@ export default function CreateProductPage() {
   }));
 
   const inputClass =
-    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 placeholder:text-slate-400";
+    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border placeholder:text-slate-400";
   const labelClass = "block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize";
 
   return (
-    <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
+    <div
+      data-theme={VERTICAL_THEME_MAP[selectedVertical] || undefined}
+      className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen"
+    >
       {/* Reusable Custom Breadcrumb Header */}
       <CustomBreadcrumb
         title={isEditMode ? "Edit Product" : "Add New Product"}
@@ -840,16 +855,16 @@ export default function CreateProductPage() {
         actions={
           <div className="flex items-center gap-2">
             {isSuperAdmin ? (
-              <div className="flex items-center gap-2 bg-teal-50/90 border border-teal-300 rounded-lg px-2.5 py-1 text-xs shadow-xs">
+              <div className="flex items-center gap-2 bg-brand-50 border border-brand-border rounded-lg px-2.5 py-1 text-xs shadow-xs">
                 {React.createElement(
                   BUSINESS_VERTICALS.find((v) => v.id === selectedVertical)?.icon || Package,
-                  { size: 14, className: "text-teal-700 shrink-0" }
+                  { size: 14, className: "text-brand-dark shrink-0" }
                 )}
-                <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wider">Vertical:</span>
+                <span className="text-[10px] font-bold text-brand-dark uppercase tracking-wider">Vertical:</span>
                 <select
                   value={selectedVertical}
                   onChange={(e) => setSelectedVertical(e.target.value)}
-                  className="bg-transparent font-bold text-teal-900 text-xs outline-none cursor-pointer pr-1"
+                  className="bg-transparent font-bold text-brand-dark text-xs outline-none cursor-pointer pr-1"
                 >
                   {BUSINESS_VERTICALS.map((v) => (
                     <option key={v.id} value={v.id} className="text-slate-900 bg-white">
@@ -857,7 +872,7 @@ export default function CreateProductPage() {
                     </option>
                   ))}
                 </select>
-                <span className="text-[10px] font-semibold text-teal-700 bg-teal-200/70 px-1.5 py-0.5 rounded ml-0.5">
+                <span className="text-[10px] font-semibold text-brand-dark bg-brand-50 px-1.5 py-0.5 rounded ml-0.5">
                   Super Admin
                 </span>
               </div>
@@ -868,7 +883,7 @@ export default function CreateProductPage() {
               >
                 {React.createElement(
                   BUSINESS_VERTICALS.find((v) => v.id === selectedVertical)?.icon || Package,
-                  { size: 13, className: "text-teal-600 shrink-0" }
+                  { size: 13, className: "text-brand-primary shrink-0" }
                 )}
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vertical:</span>
                 <span className="font-bold text-slate-700 text-xs">
@@ -896,7 +911,7 @@ export default function CreateProductPage() {
               onClick={(e) => handleSubmit(e, false)}
               loading={saving}
               leftIcon={<Check size={14} />}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:opacity-90 text-white rounded-md text-xs font-semibold"
             >
               {isEditMode ? "Update Product" : "Add Product"}
             </CustomButton>
@@ -924,7 +939,7 @@ export default function CreateProductPage() {
           {/* BOX 1: Basic Information */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-              <Package className="h-4 w-4 text-teal-600" />
+              <Package className="h-4 w-4 text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                 {isRestaurant ? "Dish / Food Information" : isPharmacy ? "Medicine Information" : "Basic Information"}
               </h2>
@@ -981,7 +996,7 @@ export default function CreateProductPage() {
                   <button
                     type="button"
                     onClick={generateSku}
-                    className="absolute right-2 text-slate-400 hover:text-teal-600 transition cursor-pointer"
+                    className="absolute right-2 text-slate-400 hover:text-brand-primary transition cursor-pointer"
                     title="Generate New SKU"
                   >
                     <RefreshCw className="h-3.5 w-3.5" />
@@ -1006,7 +1021,7 @@ export default function CreateProductPage() {
                   <button
                     type="button"
                     onClick={generateBarcode}
-                    className="text-xs font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-semibold text-brand-primary hover:text-brand-dark flex items-center gap-1 cursor-pointer"
                   >
                     <Sparkles className="h-3.5 w-3.5" /> Auto Generate Barcode
                   </button>
@@ -1042,7 +1057,7 @@ export default function CreateProductPage() {
           {/* BOX 2: Media */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-              <ImageIcon className="h-4 w-4 text-teal-600" />
+              <ImageIcon className="h-4 w-4 text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                 {isRestaurant ? "Dish Photo & POS Thumbnail" : "Product Media & Image"}
               </h2>
@@ -1059,7 +1074,7 @@ export default function CreateProductPage() {
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
               <div className="flex items-center gap-2 text-gray-600">
-                <DollarSign className="h-4 w-4 text-teal-600" />
+                <DollarSign className="h-4 w-4 text-brand-primary" />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                   {isRestaurant ? "Menu Pricing & Cost" : "Pricing"}
                 </h2>
@@ -1092,7 +1107,7 @@ export default function CreateProductPage() {
                       onClick={() => handleMarginTypeChange("PERCENTAGE")}
                       className={`px-3 py-1 text-[11px] rounded-xs font-bold transition-all duration-150 cursor-pointer flex items-center gap-1 ${
                         marginType === "PERCENTAGE"
-                          ? "bg-teal-600 text-white shadow-2xs scale-[1.02]"
+                          ? "bg-brand-primary text-white shadow-2xs scale-[1.02]"
                           : "text-slate-600 hover:text-gray-900 hover:bg-slate-200/60"
                       }`}
                     >
@@ -1103,7 +1118,7 @@ export default function CreateProductPage() {
                       onClick={() => handleMarginTypeChange("FLAT")}
                       className={`px-3 py-1 text-[11px] rounded-xs font-bold transition-all duration-150 cursor-pointer flex items-center gap-1 ${
                         marginType === "FLAT"
-                          ? "bg-teal-600 text-white shadow-2xs scale-[1.02]"
+                          ? "bg-brand-primary text-white shadow-2xs scale-[1.02]"
                           : "text-slate-600 hover:text-gray-900 hover:bg-slate-200/60"
                       }`}
                     >
@@ -1135,7 +1150,7 @@ export default function CreateProductPage() {
                   step="0.01"
                   value={form.sellingPrice}
                   onChange={(e) => updateForm("sellingPrice", e.target.value)}
-                  className={`${inputClass} font-bold text-teal-700 bg-teal-50/50`}
+                  className={`${inputClass} font-bold text-brand-dark bg-brand-50/50`}
                   placeholder="0.00"
                   required
                 />
@@ -1192,12 +1207,12 @@ export default function CreateProductPage() {
             <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
                 <div className="flex items-center gap-2">
-                  <Scale className="h-4 w-4 text-teal-600" />
+                  <Scale className="h-4 w-4 text-brand-primary" />
                   <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">
                     Variation &amp; Size (Optional)
                   </h2>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-bold shrink-0">
+                <span className="px-2 py-0.5 rounded-full bg-brand-50 border border-brand-border text-brand-dark text-[11px] font-bold shrink-0">
                   {enabledPortionSizesCount > 0
                     ? `${enabledPortionSizesCount} ${enabledPortionSizesCount === 1 ? "Size" : "Sizes"} Active`
                     : "Single Price Mode (Menu Price)"}
@@ -1216,7 +1231,7 @@ export default function CreateProductPage() {
                       key={size.id}
                       className={`px-3 py-2.5 rounded-lg border transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 ${
                         size.isEnabled
-                          ? "bg-white border-teal-300 shadow-2xs ring-1 ring-teal-500/10"
+                          ? "bg-white border-brand-border shadow-2xs ring-1 ring-brand-border"
                           : "bg-slate-50/70 border-slate-200 opacity-70 hover:opacity-100"
                       }`}
                     >
@@ -1225,11 +1240,11 @@ export default function CreateProductPage() {
                           type="checkbox"
                           checked={size.isEnabled}
                           onChange={() => togglePortionSizeInCreate(size.id)}
-                          className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 accent-teal-600 cursor-pointer"
+                          className="h-4 w-4 rounded border-slate-300 text-brand-primary focus:ring-brand-border accent-brand-primary cursor-pointer"
                         />
                         <span className="text-xs font-bold text-slate-800 truncate">{size.name}</span>
                         {size.isDefault && size.isEnabled && (
-                          <span className="px-1.5 py-0.2 rounded-full bg-teal-600 text-white text-[9px] font-black uppercase tracking-wide shrink-0">
+                          <span className="px-1.5 py-0.2 rounded-full bg-brand-primary text-white text-[9px] font-black uppercase tracking-wide shrink-0">
                             Default
                           </span>
                         )}
@@ -1246,7 +1261,7 @@ export default function CreateProductPage() {
                               value={size.price}
                               onChange={(e) => updatePortionSizePriceInCreate(size.id, e.target.value)}
                               placeholder="0.00"
-                              className="w-full rounded border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-gray-800 focus:border-teal-500 focus:outline-none"
+                              className="w-full rounded border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-gray-800 focus:border-brand-primary focus:outline-none"
                             />
                           </div>
 
@@ -1255,7 +1270,7 @@ export default function CreateProductPage() {
                             onClick={() => setDefaultPortionSizeInCreate(size.id)}
                             className={`px-2 py-1 rounded text-[10px] font-bold transition cursor-pointer shrink-0 ${
                               size.isDefault
-                                ? "bg-teal-600 text-white shadow-2xs"
+                                ? "bg-brand-primary text-white shadow-2xs"
                                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                             }`}
                           >
@@ -1301,19 +1316,19 @@ export default function CreateProductPage() {
                     placeholder="Size Name (e.g. Medium, Half, 1 Litre, Family Pack)"
                     value={createCustomSizeName}
                     onChange={(e) => setCreateCustomSizeName(e.target.value)}
-                    className="flex-1 rounded border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium focus:border-teal-500 focus:outline-none"
+                    className="flex-1 rounded border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium focus:border-brand-primary focus:outline-none"
                   />
                   <input
                     type="number"
                     placeholder="Price (৳)"
                     value={createCustomSizePrice}
                     onChange={(e) => setCreateCustomSizePrice(e.target.value)}
-                    className="w-full sm:w-28 rounded border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium focus:border-teal-500 focus:outline-none"
+                    className="w-full sm:w-28 rounded border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium focus:border-brand-primary focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={addCustomPortionSizeInCreate}
-                    className="px-3.5 py-1.5 rounded bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs"
+                    className="px-3.5 py-1.5 rounded bg-brand-primary text-white text-xs font-bold hover:opacity-90 transition cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs"
                   >
                     <Plus size={13} /> Add Size
                   </button>
@@ -1325,7 +1340,7 @@ export default function CreateProductPage() {
           {/* BOX 4: Units */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-              <Layers className="h-4 w-4 text-teal-600" />
+              <Layers className="h-4 w-4 text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                 {isRestaurant ? "Serving Unit" : "Units & Measurement"}
               </h2>
@@ -1375,7 +1390,7 @@ export default function CreateProductPage() {
             <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                 <div className="flex items-center gap-2 text-gray-600">
-                  <Tag className="h-4 w-4 text-teal-600" />
+                  <Tag className="h-4 w-4 text-brand-primary" />
                   <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Variants (Size, Color, Model)</h2>
                 </div>
               </div>
@@ -1393,7 +1408,7 @@ export default function CreateProductPage() {
                       <button
                         type="button"
                         onClick={addVariant}
-                        className="flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-700 bg-teal-50 px-2.5 py-1.5 rounded-md border border-teal-200 cursor-pointer"
+                        className="flex items-center gap-1 text-xs font-semibold text-brand-primary hover:text-brand-dark bg-brand-50 px-2.5 py-1.5 rounded-md border border-brand-border cursor-pointer"
                       >
                         <Plus className="h-3.5 w-3.5" /> Add Variant Item
                       </button>
@@ -1470,7 +1485,7 @@ export default function CreateProductPage() {
           {!isServiceOnly && (
             <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-                <Package className="h-4 w-4 text-teal-600" />
+                <Package className="h-4 w-4 text-brand-primary" />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Inventory Controls</h2>
               </div>
 
@@ -1521,7 +1536,7 @@ export default function CreateProductPage() {
           {/* SIDEBAR 1: Organization */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-              <Layers className="h-4 w-4 text-teal-600" />
+              <Layers className="h-4 w-4 text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                 {isRestaurant ? "Menu Category" : "Organization"}
               </h2>
@@ -1590,7 +1605,7 @@ export default function CreateProductPage() {
           {/* SIDEBAR 2: Status & Badges */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-              <ShieldCheck className="h-4 w-4 text-teal-600" />
+              <ShieldCheck className="h-4 w-4 text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Status & Badges</h2>
             </div>
 
@@ -1604,7 +1619,7 @@ export default function CreateProductPage() {
                   type="button"
                   onClick={() => updateForm("isFeatured", !form.isFeatured)}
                   className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    form.isFeatured ? "bg-teal-600" : "bg-slate-200"
+                    form.isFeatured ? "bg-brand-primary" : "bg-slate-200"
                   }`}
                 >
                   <span
@@ -1625,7 +1640,7 @@ export default function CreateProductPage() {
                     type="button"
                     onClick={() => updateForm("isEmbeddedBarcode", !form.isEmbeddedBarcode)}
                     className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      form.isEmbeddedBarcode ? "bg-teal-600" : "bg-slate-200"
+                      form.isEmbeddedBarcode ? "bg-brand-primary" : "bg-slate-200"
                     }`}
                   >
                     <span
@@ -1643,7 +1658,7 @@ export default function CreateProductPage() {
           {showWarranty && (
             <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-                <ShieldCheck className="h-4 w-4 text-teal-600" />
+                <ShieldCheck className="h-4 w-4 text-brand-primary" />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                   Warranty & Guarantee
                 </h2>
@@ -1692,7 +1707,7 @@ export default function CreateProductPage() {
           {/* SIDEBAR 4: Inventory Settings */}
           <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-              <Info className="h-4 w-4 text-teal-600" />
+              <Info className="h-4 w-4 text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                 Inventory Settings
               </h2>
@@ -1788,7 +1803,7 @@ export default function CreateProductPage() {
                   size="sm"
                   loading={creatingItem}
                   leftIcon={<Plus className="h-3.5 w-3.5" />}
-                  className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs"
+                  className="bg-brand-primary hover:opacity-90 text-white rounded-md text-xs"
                 >
                   Save & Select
                 </CustomButton>
