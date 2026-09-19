@@ -361,14 +361,8 @@ export function Sidebar() {
         }}
         aria-hidden={!collapsed}
       >
-        {/* Centered Brand Header (72px wide, 40px icon centered with 16px margins) */}
-        <div className="flex h-16 shrink-0 items-center justify-center border-b border-brand-light bg-transparent">
-          <Link href="/dashboard" className="flex items-center justify-center" title={siteConfig.name}>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-white border border-white/60 shadow-2xs">
-              <Logo size={21} />
-            </div>
-          </Link>
-        </div>
+        {/* Top Padding for Collapsed Track */}
+        <div className="pt-2"></div>
 
         {/* Centered Navigation Column (no scrollbar distortion, perfectly centered 40px squares) */}
         <nav
@@ -456,39 +450,22 @@ export function Sidebar() {
         }}
         aria-hidden={collapsed}
       >
-        {/* Brand Header */}
-        <div className="flex h-16 shrink-0 items-center justify-between border-b border-brand-light px-4 bg-transparent">
-          <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-white border border-white/60 shadow-2xs">
-              <Logo size={21} />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="truncate font-bold text-brand-dark tracking-tight text-sm">
-                {siteConfig.name}
-              </span>
-              <span className="truncate text-[10.5px] text-brand-primary font-semibold tracking-wide">
-                Smart · Fast · All Industries
-              </span>
-            </div>
-          </Link>
-        </div>
-
         {/* Menu Quick Search */}
         <div className="px-3 pt-3 pb-1">
           <div className="relative flex items-center">
-            <Search size={14} className="pointer-events-none absolute left-3 text-brand-primary" />
+            <Search size={14} className="pointer-events-none absolute left-3 text-sky-500" />
             <input
               type="text"
               placeholder="Search menu..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-sm border border-brand-border bg-white pl-9 pr-8 py-1.5 text-xs text-gray-600 placeholder:text-slate-400 outline-none focus:outline-none focus:border-brand-primary focus:ring-0 shadow-none transition-colors"
+              className="w-full rounded-full border border-sky-100 bg-sky-50/50 pl-9 pr-8 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 outline-none focus:outline-none focus:border-sky-400 focus:bg-white focus:ring-1 focus:ring-sky-200 shadow-2xs transition-colors"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 text-slate-400 hover:text-gray-600 transition-colors cursor-pointer"
+                className="absolute right-2.5 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
               >
                 <X size={13} />
               </button>
