@@ -39,6 +39,7 @@ from app.api.v1.search import router as search_router
 from app.api.v1.localization import router as localization_router
 from app.api.v1.audit import router as audit_router
 from app.api.v1.system import router as system_router
+from app.api.v1.labels import router as labels_router
 
 api_v1_router = APIRouter()
 
@@ -46,6 +47,7 @@ MODULE_ROUTERS = [
     auth_router,
     rbac_router,
     catalog_router,
+    labels_router,
     pos_router,
     sales_router,
     accounting_router,
