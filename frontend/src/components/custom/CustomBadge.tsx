@@ -3,7 +3,7 @@ import { cn } from "@/lib/cn";
 export type BadgeTone = "primary" | "gray" | "green" | "amber" | "red";
 
 const TONE_CLASSES: Record<BadgeTone, string> = {
-  primary: "bg-sky-50 text-[#0284C7] border border-sky-200/90",
+  primary: "bg-brand-50 text-brand-primary border border-brand-border",
   gray: "bg-slate-100 text-slate-600 border border-slate-200/90",
   green: "bg-emerald-50 text-emerald-700 border border-emerald-300/80",
   amber: "bg-amber-50 text-amber-700 border border-amber-300/80",

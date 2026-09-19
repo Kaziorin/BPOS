@@ -48,7 +48,7 @@ export function CustomFileUploader({
   return (
     <div className={cn("w-full", containerClassName)}>
       {label && (
-        <label htmlFor={inputId} className="mb-1.5 block text-xs font-semibold capitalize text-[#0369A1]">
+        <label htmlFor={inputId} className="mb-1.5 block text-xs font-semibold capitalize text-brand-dark">
           {label}
         </label>
       )}
@@ -63,13 +63,13 @@ export function CustomFileUploader({
         onDrop={handleDrop}
         className={cn(
           "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed px-4 py-7 text-center transition",
-          dragging ? "border-[#0284C7] bg-sky-50/70" : "border-sky-200/90 bg-sky-50/20 hover:border-[#0284C7] hover:bg-sky-50/40",
+          dragging ? "border-brand-primary bg-brand-50/70" : "border-brand-border bg-brand-50/20 hover:border-brand-primary hover:bg-brand-50/40",
           error && "border-red-300"
         )}
       >
-        <UploadCloud size={22} className="text-[#0284C7]" />
+        <UploadCloud size={22} className="text-brand-primary" />
         <p className="text-xs text-slate-600">
-          <span className="font-bold text-[#0284C7]">Click to upload</span> or drag and drop
+          <span className="font-bold text-brand-primary">Click to upload</span> or drag and drop
         </p>
         {hint && <p className="text-[11px] text-slate-400">{hint}</p>}
         <input
@@ -88,10 +88,10 @@ export function CustomFileUploader({
           {value.map((file, i) => (
             <li
               key={`${file.name}-${i}`}
-              className="flex items-center justify-between rounded-sm border border-sky-100 bg-white px-3 py-2 text-xs"
+              className="flex items-center justify-between rounded-sm border border-brand-border bg-white px-3 py-2 text-xs"
             >
               <span className="flex items-center gap-2 truncate text-slate-700">
-                <FileText size={14} className="shrink-0 text-[#0284C7]" />
+                <FileText size={14} className="shrink-0 text-brand-primary" />
                 <span className="truncate">{file.name}</span>
               </span>
               <button

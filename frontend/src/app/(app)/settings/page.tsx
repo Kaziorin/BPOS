@@ -198,7 +198,7 @@ const SETTINGS_TABS: SettingsTabDef[] = [
     category: "security",
     icon: Users,
     badge: "Policy",
-    badgeColor: "bg-slate-100 text-slate-700 border-sky-100/90",
+    badgeColor: "bg-slate-100 text-slate-700 border-slate-200",
     description: "Session idle timeouts, PIN rules, and 2FA password complexity",
   },
   {
@@ -426,7 +426,7 @@ function SettingsContent() {
       />
 
       {/* ── Executive Hero Glow Banner ── */}
-      <div className="relative overflow-hidden rounded-sm bg-gradient-to-br from-[#0c4a6e] via-[#0369a1] to-[#0284c7] border border-sky-400/20 text-white p-6 sm:p-7 shadow-xl">
+      <div className="relative overflow-hidden rounded-sm bg-brand-gradient border border-white/20 text-white p-6 sm:p-7 shadow-xl">
         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-sky-400/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-1/3 -mb-8 w-64 h-64 bg-sky-300/15 rounded-full blur-3xl pointer-events-none" />
 
@@ -485,7 +485,7 @@ function SettingsContent() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* ── Left Navigation Sidebar (4 cols on lg) ── */}
         <div className="lg:col-span-4 xl:col-span-3 space-y-4">
-          <div className="bg-white rounded-sm border border-sky-100/90 p-4 shadow-2xs space-y-4">
+          <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-4">
             {/* Search Input for tabs */}
             <div className="relative">
               <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -494,7 +494,7 @@ function SettingsContent() {
                 value={tabSearch}
                 onChange={(e) => setTabSearch(e.target.value)}
                 placeholder="Search settings (e.g. VAT, printer, sync)..."
-                className="w-full pl-9 pr-3 py-2 rounded-sm text-xs font-semibold bg-white border border-sky-200/90 focus:outline-none focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] transition"
+                className="w-full pl-9 pr-3 py-2 rounded-sm text-xs font-semibold bg-white border border-brand-border focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-border transition"
               />
               {tabSearch && (
                 <button
@@ -516,7 +516,7 @@ function SettingsContent() {
                 return (
                   <div key={cat.id} className="space-y-1">
                     <div className="flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      <CatIcon size={12} className="text-[#0284C7]" />
+                      <CatIcon size={12} className="text-brand-primary" />
                       <span>{cat.label}</span>
                     </div>
 
@@ -532,8 +532,8 @@ function SettingsContent() {
                             className={cn(
                               "flex w-full items-center justify-between rounded-sm px-3 py-2.5 text-xs font-bold transition group text-left cursor-pointer",
                               isAct
-                                ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs"
-                                : "text-slate-600 hover:bg-sky-50 hover:text-[#0284C7]"
+                                ? "bg-brand-gradient text-white shadow-xs"
+                                : "text-slate-600 hover:bg-brand-50/50 hover:text-brand-primary"
                             )}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
@@ -542,7 +542,7 @@ function SettingsContent() {
                                   "w-7 h-7 rounded-sm flex items-center justify-center shrink-0 transition",
                                   isAct
                                     ? "bg-white/20 text-white"
-                                    : "bg-sky-50 text-[#0284C7] group-hover:bg-sky-100"
+                                    : "bg-brand-50 text-brand-primary group-hover:bg-brand-50"
                                 )}
                               >
                                 <Icon size={14} />
@@ -558,7 +558,7 @@ function SettingsContent() {
                                   "text-[9px] px-1.5 py-0.5 rounded-sm font-bold shrink-0 ml-1.5 border transition",
                                   isAct
                                     ? "bg-white/20 text-white border-white/20"
-                                    : tab.badgeColor || "bg-sky-50 text-sky-700 border-sky-200"
+                                    : tab.badgeColor || "bg-brand-50 text-sky-700 border-brand-border"
                                 )}
                               >
                                 {tab.badge}
@@ -575,9 +575,9 @@ function SettingsContent() {
           </div>
 
           {/* Offline Resiliency Help Card */}
-          <div className="p-4 rounded-sm bg-sky-50/50 border border-sky-100/90 text-slate-700 space-y-2 text-xs shadow-2xs">
-            <div className="flex items-center gap-2 font-black text-[#0369A1]">
-              <HardDrive size={15} className="text-[#0284C7]" />
+          <div className="p-4 rounded-sm bg-brand-50/50 border border-slate-200 text-slate-700 space-y-2 text-xs shadow-2xs">
+            <div className="flex items-center gap-2 font-black text-brand-dark">
+              <HardDrive size={15} className="text-brand-primary" />
               <span>Offline Architecture (§13)</span>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed">
@@ -585,7 +585,7 @@ function SettingsContent() {
             </p>
             <button
               onClick={() => handleTabChange("sync")}
-              className="text-[11px] font-bold text-[#0284C7] hover:text-[#0369A1] flex items-center gap-1 cursor-pointer"
+              className="text-[11px] font-bold text-brand-primary hover:text-brand-dark flex items-center gap-1 cursor-pointer"
             >
               Inspect Offline Engine →
             </button>
@@ -593,16 +593,16 @@ function SettingsContent() {
         </div>
 
         {/* ── Right Content Panel (8 cols on lg) ── */}
-        <div className="lg:col-span-8 xl:col-span-9 bg-white rounded-sm border border-sky-100/90 p-6 sm:p-8 shadow-2xs">
+        <div className="lg:col-span-8 xl:col-span-9 bg-white rounded-sm border border-slate-200 p-6 sm:p-8 shadow-2xs">
           {/* Active Tab Header Title */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-sky-100 pb-5 mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-5 mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/60 flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-10 h-10 rounded-sm bg-brand-50 text-brand-primary border border-brand-border flex items-center justify-center shrink-0 shadow-2xs">
                 <CurrentIcon size={20} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-black text-[#0369A1]">{currentTabDef.label}</h2>
+                  <h2 className="text-lg font-black text-brand-dark">{currentTabDef.label}</h2>
                   {currentTabDef.badge && (
                     <span className={cn("text-[10px] px-2 py-0.5 rounded-sm font-bold border", currentTabDef.badgeColor)}>
                       {currentTabDef.badge}
@@ -853,7 +853,7 @@ function CompanySettingsTab({
   return (
     <form id="active-settings-form" onSubmit={handleSubmit} className="space-y-6 text-xs">
       {/* Visual Identity Preview Card */}
-      <div className="p-4 rounded-sm bg-slate-50/80 border border-sky-100/90 flex flex-wrap items-center justify-between gap-4">
+      <div className="p-4 rounded-sm bg-slate-50/80 border border-slate-200 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-sm bg-gradient-to-tr from-primary-600 to-teal-500 text-white flex items-center justify-center font-black text-xl shadow-md">
             {name.charAt(0)}
@@ -898,7 +898,7 @@ function CompanySettingsTab({
           <textarea
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="w-full rounded-xl border border-sky-100/90 px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60"
+            className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60"
             rows={2}
             required
           />
@@ -977,13 +977,13 @@ function CompanySettingsTab({
                   "p-3 rounded-sm border cursor-pointer transition flex items-start gap-2.5",
                   isSel
                     ? "border-primary-500 bg-primary-50/50 shadow-xs ring-1 ring-primary-400"
-                    : "border-sky-100/90 bg-slate-50/30 hover:bg-slate-50 hover:border-slate-300"
+                    : "border-slate-200 bg-slate-50/30 hover:bg-slate-50 hover:border-slate-300"
                 )}
               >
                 <span
                   className={cn(
                     "w-8 h-8 rounded-xl flex items-center justify-center shrink-0",
-                    isSel ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-xs" : "bg-slate-100 text-slate-500"
+                    isSel ? "bg-brand-gradient text-white shadow-2xs shadow-xs" : "bg-slate-100 text-slate-500"
                   )}
                 >
                   <Icon size={15} />
@@ -1131,7 +1131,7 @@ function BranchSettingsTab({
                 { name: "Chittagong Hub", code: "CTG-01", address: "GEC Circle, Chittagong", phone: "+880 1811-000000" },
               ]
           ).map((b, i) => (
-            <div key={i} className="p-4 rounded-sm border border-sky-100/90 bg-slate-50/50 space-y-1.5">
+            <div key={i} className="p-4 rounded-sm border border-slate-200 bg-slate-50/50 space-y-1.5">
               <div className="flex justify-between items-center">
                 <h4 className="font-bold text-slate-900">{b.name}</h4>
                 <span className="text-[10px] font-mono font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md">
@@ -1228,7 +1228,7 @@ function POSSettingsTab({
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <label className="p-4 rounded-sm border border-sky-100/90 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
+          <label className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
             <input
               type="checkbox"
               checked={autoPrint}
@@ -1243,7 +1243,7 @@ function POSSettingsTab({
             </div>
           </label>
 
-          <label className="p-4 rounded-sm border border-sky-100/90 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
+          <label className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
             <input
               type="checkbox"
               checked={soundEffects}
@@ -1270,7 +1270,7 @@ function POSSettingsTab({
             </div>
           </label>
 
-          <label className="p-4 rounded-sm border border-sky-100/90 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
+          <label className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
             <input
               type="checkbox"
               checked={allowPriceOverride}
@@ -1285,7 +1285,7 @@ function POSSettingsTab({
             </div>
           </label>
 
-          <label className="p-4 rounded-sm border border-sky-100/90 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
+          <label className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
             <input
               type="checkbox"
               checked={requireCustomer}
@@ -1300,7 +1300,7 @@ function POSSettingsTab({
             </div>
           </label>
 
-          <label className="p-4 rounded-sm border border-sky-100/90 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3 sm:col-span-2">
+          <label className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3 sm:col-span-2">
             <input
               type="checkbox"
               checked={quickCashTender}
@@ -1377,7 +1377,7 @@ function OfflineSyncTab({
           </span>
         </div>
 
-        <div className="p-4 rounded-sm bg-slate-50 border border-sky-100/90 space-y-1">
+        <div className="p-4 rounded-sm bg-slate-50 border border-slate-200 space-y-1">
           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pending Push Queue</span>
           <p className="text-2xl font-black text-slate-900">{pendingCount}</p>
           <span className="text-[11px] text-slate-400">Transactions waiting in local storage</span>
@@ -1510,7 +1510,7 @@ function TaxSettingsTab({
       </div>
 
       {/* Mushak 6.3 Toggle */}
-      <div className="p-4 rounded-sm bg-slate-50/70 border border-sky-100/90">
+      <div className="p-4 rounded-sm bg-slate-50/70 border border-slate-200">
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
@@ -1530,7 +1530,7 @@ function TaxSettingsTab({
       </div>
 
       {/* Live Tax Computation Simulator */}
-      <div className="p-4 rounded-sm border border-sky-100/90 bg-slate-50/50 space-y-3">
+      <div className="p-4 rounded-sm border border-slate-200 bg-slate-50/50 space-y-3">
         <span className="font-bold text-slate-800 uppercase tracking-wider text-[10px] block">
           Live Tax Computation Simulator
         </span>
@@ -1541,14 +1541,14 @@ function TaxSettingsTab({
               type="number"
               value={samplePrice}
               onChange={(e) => setSamplePrice(e.target.value)}
-              className="w-full rounded-xl border border-sky-100/90 px-3 py-1.5 font-bold font-mono bg-white"
+              className="w-full rounded-xl border border-slate-200 px-3 py-1.5 font-bold font-mono bg-white"
             />
           </div>
-          <div className="p-2.5 rounded-xl bg-white border border-sky-100/90">
+          <div className="p-2.5 rounded-xl bg-white border border-slate-200">
             <span className="text-[10px] text-slate-400 block">Taxable Base</span>
             <span className="font-mono font-bold text-slate-800">৳{calcBase.toFixed(2)}</span>
           </div>
-          <div className="p-2.5 rounded-xl bg-white border border-sky-100/90">
+          <div className="p-2.5 rounded-xl bg-white border border-slate-200">
             <span className="text-[10px] text-slate-400 block">VAT ({defaultVatRate}%)</span>
             <span className="font-mono font-bold text-amber-700">+৳{calcVat.toFixed(2)}</span>
           </div>
@@ -1619,12 +1619,12 @@ function InvoiceSettingsTab({
             <textarea
               value={footerMsg}
               onChange={(e) => setFooterMsg(e.target.value)}
-              className="w-full rounded-xl border border-sky-100/90 px-3.5 py-2.5 font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60 text-xs"
+              className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60 text-xs"
               rows={3}
             />
           </div>
 
-          <div className="space-y-2.5 p-4 rounded-sm bg-slate-50/70 border border-sky-100/90">
+          <div className="space-y-2.5 p-4 rounded-sm bg-slate-50/70 border border-slate-200">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -1717,7 +1717,7 @@ function InvoiceSettingsTab({
                 <span>VAT (5%):</span>
                 <span>৳31.00</span>
               </div>
-              <div className="flex justify-between font-black text-xs pt-1 text-slate-900 border-t border-dotted border-sky-100/90">
+              <div className="flex justify-between font-black text-xs pt-1 text-slate-900 border-t border-dotted border-slate-200">
                 <span>GRAND TOTAL:</span>
                 <span>৳651.00</span>
               </div>
@@ -1785,7 +1785,7 @@ function PaymentSettingsTab({ onSave }: { onSave: () => void }) {
                   "p-4 rounded-sm border cursor-pointer transition",
                   isAct
                     ? "border-primary-500 bg-primary-50/40 shadow-2xs"
-                    : "border-sky-100/90 bg-slate-50/40 hover:bg-slate-50"
+                    : "border-slate-200 bg-slate-50/40 hover:bg-slate-50"
                 )}
               >
                 <div className="flex items-center justify-between">
@@ -1798,7 +1798,7 @@ function PaymentSettingsTab({ onSave }: { onSave: () => void }) {
                   <span
                     className={cn(
                       "w-5 h-5 rounded-full flex items-center justify-center transition",
-                      isAct ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-xs" : "border border-slate-300 bg-white"
+                      isAct ? "bg-brand-gradient text-white shadow-2xs shadow-xs" : "border border-slate-300 bg-white"
                     )}
                   >
                     {isAct && <Check size={11} />}
@@ -1852,7 +1852,7 @@ function InventorySettingsTab({ onSave }: { onSave: () => void }) {
         />
       </div>
 
-      <div className="p-4 rounded-sm bg-slate-50/70 border border-sky-100/90 space-y-3">
+      <div className="p-4 rounded-sm bg-slate-50/70 border border-slate-200 space-y-3">
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
@@ -1936,7 +1936,7 @@ function CurrencySettingsTab({
             { code: "EUR", name: "Euro", symbol: "€", rate: "132.80", isBase: false },
             { code: "SAR", name: "Saudi Riyal", symbol: "﷼", rate: "32.65", isBase: false },
           ].map((c) => (
-            <div key={c.code} className="p-3.5 rounded-sm border border-sky-100/90 bg-slate-50/50 space-y-1">
+            <div key={c.code} className="p-3.5 rounded-sm border border-slate-200 bg-slate-50/50 space-y-1">
               <div className="flex justify-between items-center">
                 <span className="font-black text-sm text-slate-900">{c.symbol} {c.code}</span>
                 {c.isBase && <span className="text-[9px] font-bold bg-primary-100 text-primary-800 px-1.5 py-0.5 rounded">BASE</span>}
@@ -1968,7 +1968,7 @@ function NotificationSettingsTab({ onSave }: { onSave: () => void }) {
 
   return (
     <div className="space-y-6 text-xs">
-      <div className="p-4 rounded-sm bg-slate-50/70 border border-sky-100/90 space-y-3">
+      <div className="p-4 rounded-sm bg-slate-50/70 border border-slate-200 space-y-3">
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
@@ -2034,7 +2034,7 @@ function UserSettingsTab({ onSave }: { onSave: () => void }) {
 
   return (
     <div className="space-y-6 text-xs">
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-sm bg-slate-100/70 border border-sky-100/90">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-sm bg-slate-100/70 border border-slate-200">
         <div>
           <h4 className="font-bold text-slate-900 text-sm">Security & Access Policies</h4>
           <p className="text-slate-500 text-[11px]">
@@ -2085,7 +2085,7 @@ function UserSettingsTab({ onSave }: { onSave: () => void }) {
 function RoleSettingsTab({ onSave }: { onSave: () => void }) {
   return (
     <div className="space-y-6 text-xs">
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-sm bg-slate-50 border border-sky-100/90">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-sm bg-slate-50 border border-slate-200">
         <div>
           <h4 className="font-bold text-slate-900 text-sm">Role-Based Access Control (RBAC)</h4>
           <p className="text-slate-500 text-[11px]">
@@ -2105,7 +2105,7 @@ function RoleSettingsTab({ onSave }: { onSave: () => void }) {
           { role: "STORE_MANAGER", perms: "Price Override, Shift Close, Stock Adjustment, Refunds", badge: "Branch" },
           { role: "ADMINISTRATOR", perms: "Full System Access, Accounting, Settings, SaaS Management", badge: "Superuser" },
         ].map((r) => (
-          <div key={r.role} className="p-4 rounded-sm border border-sky-100/90 bg-slate-50/50 space-y-1.5">
+          <div key={r.role} className="p-4 rounded-sm border border-slate-200 bg-slate-50/50 space-y-1.5">
             <div className="flex justify-between items-center">
               <span className="font-mono font-bold text-slate-900 text-xs">{r.role}</span>
               <span className="text-[9px] font-bold bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">{r.badge}</span>
@@ -2149,7 +2149,7 @@ function IntegrationSettingsTab({ onSave }: { onSave: () => void }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-4 rounded-sm border border-sky-100/90 bg-slate-50/50 space-y-2">
+        <div className="p-4 rounded-sm border border-slate-200 bg-slate-50/50 space-y-2">
           <div className="flex justify-between items-center">
             <h4 className="font-bold text-slate-900">Shopify & WooCommerce Bridge</h4>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
@@ -2159,7 +2159,7 @@ function IntegrationSettingsTab({ onSave }: { onSave: () => void }) {
           <p className="text-slate-400 text-[11px]">Two-way inventory stock & order synchronization</p>
         </div>
 
-        <div className="p-4 rounded-sm border border-sky-100/90 bg-slate-50/50 space-y-2">
+        <div className="p-4 rounded-sm border border-slate-200 bg-slate-50/50 space-y-2">
           <div className="flex justify-between items-center">
             <h4 className="font-bold text-slate-900">Steadfast / Pathao Courier API</h4>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
@@ -2178,7 +2178,7 @@ function IntegrationSettingsTab({ onSave }: { onSave: () => void }) {
           placeholder="https://your-domain.com/webhooks/pos"
         />
 
-        <div className="flex items-center justify-between p-3 rounded-xl bg-slate-100 border border-sky-100/90">
+        <div className="flex items-center justify-between p-3 rounded-xl bg-slate-100 border border-slate-200">
           <div>
             <span className="text-[10px] font-bold text-slate-500 uppercase">Signing Secret (HMAC SHA-256)</span>
             <p className="font-mono font-bold text-slate-900 text-xs">whsec_live_9a8f7b6c5d4e3f2a1b0c</p>
@@ -2340,7 +2340,7 @@ function ThemeSettingsTab({ onSave }: { onSave: () => void }) {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-slate-500">Active Theme:</span>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary-50 text-primary-700 border border-primary-200 capitalize">
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-50 text-brand-dark border border-brand-border capitalize">
             {GLOBAL_THEMES[selectedTheme]?.name || selectedTheme}
           </span>
         </div>
@@ -2356,8 +2356,8 @@ function ThemeSettingsTab({ onSave }: { onSave: () => void }) {
               className={cn(
                 "group relative cursor-pointer rounded-sm border-2 p-4 transition-all duration-200 shadow-2xs hover:shadow-md flex flex-col justify-between overflow-hidden",
                 isSelected
-                  ? "border-primary-600 bg-primary-50/20 ring-2 ring-primary-500/20"
-                  : "border-sky-100/90 bg-white hover:border-slate-300"
+                  ? "border-brand-primary bg-brand-50/20 ring-2 ring-brand-border/40"
+                  : "border-slate-200 bg-white hover:border-slate-300"
               )}
             >
               <div>
@@ -2370,7 +2370,7 @@ function ThemeSettingsTab({ onSave }: { onSave: () => void }) {
                     <h4 className="text-sm font-bold text-slate-900">{t.name}</h4>
                   </div>
                   {isSelected && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-gradient text-white shadow-2xs">
                       <Check size={12} />
                     </span>
                   )}
@@ -2409,7 +2409,7 @@ function ThemeSettingsTab({ onSave }: { onSave: () => void }) {
                   className={cn(
                     "text-xs font-bold px-3 py-1 rounded-lg transition",
                     isSelected
-                      ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-2xs"
+                      ? "bg-brand-gradient text-white shadow-2xs"
                       : "bg-slate-100 text-slate-700 group-hover:bg-slate-200"
                   )}
                 >

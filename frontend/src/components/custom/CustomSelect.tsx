@@ -36,10 +36,10 @@ const THEME_SELECT_STYLES: Record<
   { light: string; dark: string; chevron: string; label: string }
 > = {
   primary: {
-    light: "bg-white border-sky-200/90 text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
-    dark: "bg-slate-800 border-slate-700 text-slate-100 focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8]/20",
-    chevron: "text-[#0284C7]",
-    label: "text-[#0369A1]",
+    light: "bg-white border-brand-border text-slate-800 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20",
+    dark: "bg-slate-800 border-slate-700 text-slate-100 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/20",
+    chevron: "text-brand-primary",
+    label: "text-brand-dark",
   },
   blue: {
     light: "bg-white border-blue-200 text-slate-700 focus:border-blue-600 focus:ring-1 focus:ring-blue-600/20",

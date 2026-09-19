@@ -146,7 +146,7 @@ export function CustomDropdownSelect({
         onClick={handleToggle}
         className={cn(
           "flex w-full items-center justify-between gap-2 rounded-sm border px-3 py-2 text-xs font-semibold transition cursor-pointer shadow-2xs outline-none",
-          "border-sky-200/90 bg-white text-gray-700 hover:border-[#0284C7] hover:bg-sky-50/40 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
+          "border-brand-border bg-white text-slate-700 hover:border-brand-primary hover:bg-brand-50/40 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20",
           disabled && "cursor-not-allowed opacity-50 bg-slate-100",
           className
         )}
@@ -157,7 +157,7 @@ export function CustomDropdownSelect({
         </span>
         <ChevronDown
           size={14}
-          className={cn("text-[#0284C7] shrink-0 transition-transform duration-200", isOpen && "rotate-180")}
+          className={cn("text-brand-primary shrink-0 transition-transform duration-200", isOpen && "rotate-180")}
         />
       </button>
 
@@ -175,7 +175,7 @@ export function CustomDropdownSelect({
               maxWidth: "380px",
               zIndex: 99999,
             }}
-            className="rounded-sm border border-sky-200/90 bg-white p-1 shadow-2xl animate-in fade-in-50 zoom-in-95 duration-100 select-none"
+            className="rounded-sm border border-brand-border bg-white p-1 shadow-2xl animate-in fade-in-50 zoom-in-95 duration-100 select-none"
           >
             <div className="max-h-60 overflow-y-auto space-y-0.5 custom-scrollbar">
               {options.map((opt) => {
@@ -191,15 +191,15 @@ export function CustomDropdownSelect({
                     className={cn(
                       "flex w-full items-center justify-between gap-2 px-3 py-2 rounded-sm text-xs font-semibold transition cursor-pointer text-left",
                       isSelected
-                        ? "bg-[#E0F2FE] text-[#0369A1] font-bold"
-                        : "text-gray-600 hover:bg-sky-50 hover:text-[#0284C7]"
+                        ? "bg-brand-100 text-brand-dark font-bold"
+                        : "text-slate-600 hover:bg-brand-50 hover:text-brand-primary"
                     )}
                   >
                     <div className="flex items-center gap-2 truncate">
                       {opt.icon && <span className="shrink-0">{opt.icon}</span>}
                       <span className="truncate">{opt.label}</span>
                     </div>
-                    {isSelected && <Check size={14} className="text-[#0284C7] shrink-0" />}
+                    {isSelected && <Check size={14} className="text-brand-primary shrink-0" />}
                   </button>
                 );
               })}

@@ -22,12 +22,12 @@ const SWITCH_THEME_MAP: Record<string, { activeBg: string; focusRing: string }> 
     focusRing: "focus-visible:ring-[#00897b]/30",
   },
   primary: {
-    activeBg: "bg-[#0284c7]",
-    focusRing: "focus-visible:ring-[#0284c7]/30",
+    activeBg: "bg-brand-primary",
+    focusRing: "focus-visible:ring-brand-primary/30",
   },
   blue: {
-    activeBg: "bg-[#0284c7]",
-    focusRing: "focus-visible:ring-[#0284c7]/30",
+    activeBg: "bg-brand-primary",
+    focusRing: "focus-visible:ring-brand-primary/30",
   },
   emerald: {
     activeBg: "bg-emerald-600",

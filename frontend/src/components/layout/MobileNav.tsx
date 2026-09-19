@@ -194,11 +194,11 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
     <>
       {/* ── Bottom Bar on Smaller Screens (< lg) ── */}
       {/* Icon button for Menu on Left + Search bar taking full remaining width */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-sky-100 bg-white/95 backdrop-blur-md px-3 py-2 flex items-center gap-2.5 lg:hidden shadow-lg select-none">
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-brand-light bg-white/95 backdrop-blur-md px-3 py-2 flex items-center gap-2.5 lg:hidden shadow-lg select-none">
         {/* Left: Menu On/Off Icon Button */}
         <button
           onClick={() => onOpenChange(!open)}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-sky-200/90 bg-sky-50/90 text-[#0284C7] hover:bg-[#E0F2FE] hover:text-[#0369A1] transition cursor-pointer shadow-2xs"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-brand-border bg-brand-50 text-brand-primary hover:bg-brand-100 hover:text-brand-dark transition cursor-pointer shadow-2xs"
           aria-label={open ? "Close navigation menu" : "Open navigation menu"}
           title={open ? "Close navigation menu" : "Open navigation menu"}
         >
@@ -208,11 +208,11 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
         {/* Right: Search Bar Taking Full Remaining Width */}
         <button
           onClick={() => window.dispatchEvent(new Event("omni:open-command-palette"))}
-          className="flex flex-1 h-10 items-center justify-between gap-2 px-3.5 rounded-sm border border-[#0284C7] bg-white text-xs text-slate-500 hover:bg-[#E0F2FE] hover:border-[#0284C7] transition cursor-pointer shadow-none min-w-0"
+          className="flex flex-1 h-10 items-center justify-between gap-2 px-3.5 rounded-sm border border-brand-border bg-white text-xs text-slate-500 hover:bg-brand-50 hover:border-brand-primary transition cursor-pointer shadow-none min-w-0"
           aria-label="Search pages and items"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <Search size={15} className="text-[#0284C7] shrink-0" />
+            <Search size={15} className="text-brand-primary shrink-0" />
             <span className="truncate font-medium text-slate-600">Search pages, items, actions...</span>
           </div>
         </button>
@@ -223,27 +223,27 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
         <div className="fixed inset-0 z-50 lg:hidden animate-[fade-in_150ms_ease-out]">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-sky-950/40 backdrop-blur-xs"
+            className="absolute inset-0 bg-slate-950/40 backdrop-blur-xs"
             onClick={() => onOpenChange(false)}
           />
 
           {/* Drawer Container (left-0, slides in from left) */}
           <div className="absolute inset-y-0 left-0 flex w-[86%] max-w-xs sm:max-w-sm flex-col bg-white shadow-2xl animate-[slide-right_200ms_ease-out]">
             {/* Drawer Brand Header */}
-            <div className="flex items-center justify-between border-b border-sky-100 bg-white px-4 py-3.5">
+            <div className="flex items-center justify-between border-b border-brand-light bg-white px-4 py-3.5">
               <Link
                 href="/dashboard"
                 onClick={() => onOpenChange(false)}
                 className="flex items-center gap-3 min-w-0"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-white border border-white/60 shadow-2xs">
                   <Logo size={19} />
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="truncate font-bold text-[#0369A1] tracking-tight text-sm">
+                  <span className="truncate font-bold text-brand-dark tracking-tight text-sm">
                     {siteConfig.name}
                   </span>
-                  <span className="truncate text-[10px] text-[#0284C7] font-semibold tracking-wide">
+                  <span className="truncate text-[10px] text-brand-primary font-semibold tracking-wide">
                     Smart · Fast · All Industries
                   </span>
                 </div>
@@ -258,15 +258,15 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
             </div>
 
             {/* Menu Search Box (same as big screen sidebar) */}
-            <div className="px-3 pt-3 pb-1 border-b border-sky-100/60">
+            <div className="px-3 pt-3 pb-1 border-b border-brand-light">
               <div className="relative flex items-center">
-                <Search size={14} className="pointer-events-none absolute left-3 text-[#0284C7]" />
+                <Search size={14} className="pointer-events-none absolute left-3 text-brand-primary" />
                 <input
                   type="text"
                   placeholder="Search menu..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-sm border border-[#0284C7] bg-white pl-9 pr-8 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:outline-none focus:border-[#0284C7] focus:ring-0 shadow-none transition-colors"
+                  className="w-full rounded-sm border border-brand-border bg-white pl-9 pr-8 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:outline-none focus:border-brand-primary focus:ring-0 shadow-none transition-colors"
                 />
                 {searchQuery && (
                   <button
@@ -284,7 +284,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
             <nav className="flex-1 overflow-y-auto px-2.5 py-2 space-y-1 no-scrollbar">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
-                  <Loader2 size={20} className="animate-spin text-[#0284C7]" />
+                  <Loader2 size={20} className="animate-spin text-brand-primary" />
                   <span className="text-xs font-medium">Loading navigation...</span>
                 </div>
               ) : filteredNavGroups.length === 0 ? (
@@ -311,8 +311,8 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                             className={cn(
                               "group flex items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-200",
                               active
-                                ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold shadow-2xs"
-                                : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]"
+                                ? "bg-brand-gradient text-white font-bold shadow-2xs"
+                                : "text-brand-primary font-semibold hover:bg-brand-50 hover:text-brand-dark"
                             )}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
@@ -320,7 +320,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                 size={16}
                                 className={cn(
                                   "shrink-0",
-                                  active ? "text-white" : "text-[#0284C7]"
+                                  active ? "text-white" : "text-brand-primary"
                                 )}
                               />
                               <span className="truncate">{item.label}</span>
@@ -331,7 +331,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                   "shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
                                   active
                                     ? "bg-white/20 text-white"
-                                    : "bg-sky-500/15 text-sky-800 border border-sky-500/30"
+                                    : "bg-brand-100 text-brand-primary border border-brand-border"
                                 )}
                               >
                                 {item.badge}
@@ -350,10 +350,10 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                             className={cn(
                               "group flex w-full items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
                               active
-                                ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
+                                ? "bg-brand-gradient text-white font-bold"
                                 : moduleExpanded
-                                ? "text-[#0284C7] font-bold bg-[#E0F2FE]/80"
-                                : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]"
+                                ? "text-brand-primary font-bold bg-brand-50"
+                                : "text-brand-primary font-semibold hover:bg-brand-50 hover:text-brand-dark"
                             )}
                           >
                             <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -361,7 +361,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                 size={16}
                                 className={cn(
                                   "shrink-0",
-                                  active ? "text-white" : "text-[#0284C7]"
+                                  active ? "text-white" : "text-brand-primary"
                                 )}
                               />
                               <span className="truncate text-left">{item.label}</span>
@@ -373,7 +373,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                     "text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
                                     active
                                       ? "bg-white/20 text-white"
-                                      : "bg-sky-500/15 text-sky-800 border border-sky-500/30"
+                                      : "bg-brand-100 text-brand-primary border border-brand-border"
                                   )}
                                 >
                                   {item.badge}
@@ -383,7 +383,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                 size={14}
                                 className={cn(
                                   "transition-transform duration-200",
-                                  active ? "text-white" : "text-[#0284C7]",
+                                  active ? "text-white" : "text-brand-primary",
                                   moduleExpanded && "rotate-180"
                                 )}
                               />
@@ -392,7 +392,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
 
                           {/* Expanded Module Submenu Children */}
                           {moduleExpanded && item.children && (
-                            <div className="ml-3 pl-2.5 border-l-2 border-sky-200/80 my-1 space-y-0.5">
+                            <div className="ml-3 pl-2.5 border-l-2 border-brand-border my-1 space-y-0.5">
                               {item.children.map((child) => {
                                 const ChildIcon = child.icon;
                                 const hasSub = !!child.children?.length;
@@ -409,10 +409,10 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                         className={cn(
                                           "group flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-xs transition-all duration-150 cursor-pointer",
                                           childActive
-                                            ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
+                                            ? "font-bold text-white bg-brand-gradient"
                                             : itemExpanded
-                                            ? "text-[#0284C7] font-bold bg-[#E0F2FE]/80"
-                                            : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]"
+                                            ? "text-brand-primary font-bold bg-brand-50"
+                                            : "text-brand-primary font-semibold hover:bg-brand-50 hover:text-brand-dark"
                                         )}
                                       >
                                         <div className="flex items-center gap-2 min-w-0">
@@ -420,7 +420,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                             size={13}
                                             className={cn(
                                               "shrink-0",
-                                              childActive ? "text-white" : "text-[#0284C7]"
+                                              childActive ? "text-white" : "text-brand-primary"
                                             )}
                                           />
                                           <span className="truncate">{child.label}</span>
@@ -429,7 +429,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                           size={12}
                                           className={cn(
                                             "transition-transform duration-150",
-                                            childActive ? "text-white" : "text-[#0284C7]",
+                                            childActive ? "text-white" : "text-brand-primary",
                                             itemExpanded && "rotate-180"
                                           )}
                                         />
@@ -437,7 +437,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
 
                                       {/* Nested sub-children */}
                                       {itemExpanded && (
-                                        <div className="ml-3 pl-2 border-l border-sky-200 my-0.5 space-y-0.5">
+                                        <div className="ml-3 pl-2 border-l border-brand-border my-0.5 space-y-0.5">
                                           {child.children!.map((sub) => {
                                             const SubIcon = sub.icon;
                                             const subActive = isRouteActive(sub.href, pathname, allHrefs);
@@ -449,15 +449,15 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                                 className={cn(
                                                   "group flex items-center gap-2 rounded-sm px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
                                                   subActive
-                                                    ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
-                                                    : "text-[#0284C7] hover:bg-[#E0F2FE] hover:text-[#0369A1]"
+                                                    ? "font-bold text-white bg-brand-gradient"
+                                                    : "text-brand-primary hover:bg-brand-50 hover:text-brand-dark"
                                                 )}
                                               >
                                                 <SubIcon
                                                   size={11}
                                                   className={cn(
                                                     "shrink-0",
-                                                    subActive ? "text-white" : "text-[#0284C7]"
+                                                    subActive ? "text-white" : "text-brand-primary"
                                                   )}
                                                 />
                                                 <span className="truncate">{sub.label}</span>
@@ -478,15 +478,15 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                     className={cn(
                                       "group flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-xs transition-all duration-150",
                                       exactActive
-                                        ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
-                                        : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]"
+                                        ? "bg-brand-gradient text-white font-bold"
+                                        : "text-brand-primary font-semibold hover:bg-brand-50 hover:text-brand-dark"
                                     )}
                                   >
                                     <ChildIcon
                                       size={13}
                                       className={cn(
                                         "shrink-0",
-                                        exactActive ? "text-white" : "text-[#0284C7]"
+                                        exactActive ? "text-white" : "text-brand-primary"
                                       )}
                                     />
                                     <span className="truncate">{child.label}</span>
@@ -504,23 +504,23 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
             </nav>
 
             {/* Drawer Footer with Branch info & Direct Logout Button */}
-            <div className="border-t border-sky-100 bg-sky-50/60 p-3 space-y-2">
-              <div className="flex items-center justify-between rounded-sm border border-sky-100 bg-white p-2">
+            <div className="border-t border-brand-light bg-brand-50/60 p-3 space-y-2">
+              <div className="flex items-center justify-between rounded-sm border border-brand-light bg-white p-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-xs font-bold text-white shadow-2xs">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-xs font-bold text-white shadow-2xs">
                     {(user?.name || "A")[0].toUpperCase()}
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="truncate text-xs font-bold text-[#0369A1]">
+                    <span className="truncate text-xs font-bold text-brand-dark">
                       {user?.name || "Administrator"}
                     </span>
-                    <span className="truncate text-[10px] text-[#0284C7] font-semibold">
+                    <span className="truncate text-[10px] text-brand-primary font-semibold">
                       {displayRole}
                     </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium">
-                  <Building2 size={11} className="text-[#0284C7]" />
+                  <Building2 size={11} className="text-brand-primary" />
                   <span>Terminal-01</span>
                 </div>
               </div>

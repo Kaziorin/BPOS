@@ -48,7 +48,7 @@ export function CustomPromptModal({
   };
 
   return (
-    <CustomModal open={isOpen} onClose={onClose} title={title} size="xl" themeColor="teal" darkMode={darkMode}>
+    <CustomModal open={isOpen} onClose={onClose} title={title} size="xl" themeColor="primary" darkMode={darkMode}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {description && (
           <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{description}</p>
@@ -69,7 +69,7 @@ export function CustomPromptModal({
             value={val}
             onChange={(e) => setVal(e.target.value)}
             placeholder={placeholder}
-            themeColor="teal"
+            themeColor="primary"
             autoFocus
             darkMode={darkMode}
           />
@@ -79,7 +79,7 @@ export function CustomPromptModal({
           <CustomButton variant="danger" size="sm" type="button" onClick={onClose}>
             {cancelText}
           </CustomButton>
-          <CustomButton themeColor="teal" size="sm" type="submit">
+          <CustomButton themeColor="primary" size="sm" type="submit">
             {confirmText}
           </CustomButton>
         </div>

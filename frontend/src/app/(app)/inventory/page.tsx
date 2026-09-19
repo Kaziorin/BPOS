@@ -30,14 +30,14 @@ const CARDS = [
     icon: Package,
     label: "Stock Levels",
     desc: "On-hand, reserved, available per warehouse",
-    color: "bg-sky-50 text-[#0284C7] border-sky-200/80",
+    color: "bg-brand-50 text-brand-primary border-brand-border",
   },
   {
     href: "/inventory/movements",
     icon: Activity,
     label: "Stock Movements",
     desc: "Full audit trail of every stock change",
-    color: "bg-sky-50 text-[#0369A1] border-sky-200/80",
+    color: "bg-brand-50 text-brand-dark border-brand-border",
   },
   {
     href: "/inventory/transfers",
@@ -108,7 +108,7 @@ export default function InventoryPage() {
       {/* Breadcrumb: No subtitle, clean Operations > Inventory */}
       <CustomBreadcrumb
         title="Inventory & Warehouse"
-        icon={<Warehouse size={16} className="text-[#0284C7]" />}
+        icon={<Warehouse size={16} className="text-brand-primary" />}
         breadcrumbs={[{ label: "Operations", href: "/dashboard" }, { label: "Inventory" }]}
       />
 
@@ -148,13 +148,13 @@ export default function InventoryPage() {
             <Link
               key={card.href}
               href={card.href}
-              className="group rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs transition-all hover:border-[#0284C7] hover:shadow-md flex flex-col justify-between"
+              className="group rounded-sm border border-slate-200 bg-white p-4 shadow-2xs transition-all hover:border-brand-primary hover:shadow-md flex flex-col justify-between"
             >
               <div>
                 <div className={`mb-3 inline-flex h-9 w-9 items-center justify-center rounded-sm border ${card.color} transition-transform group-hover:scale-105`}>
                   <Icon size={18} />
                 </div>
-                <p className="font-bold text-slate-800 text-xs group-hover:text-[#0284C7] transition-colors">
+                <p className="font-bold text-slate-800 text-xs group-hover:text-brand-primary transition-colors">
                   {card.label}
                 </p>
                 <p className="mt-1 text-xs text-slate-500 leading-relaxed">

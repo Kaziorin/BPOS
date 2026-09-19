@@ -5,34 +5,34 @@ export type StatTone = "primary" | "blue" | "violet" | "green" | "amber" | "red"
 
 const TONE_STYLES: Record<StatTone, { bg: string; icon: string; border: string }> = {
   primary: {
-    bg: "from-sky-100/70 via-sky-50/40 to-white",
-    icon: "bg-gradient-to-tr from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs",
-    border: "border-sky-200/90 hover:border-[#0284C7]",
+    bg: "bg-gradient-to-br from-brand-50/70 via-white to-brand-50/30",
+    icon: "bg-brand-gradient text-white shadow-2xs",
+    border: "border-brand-border hover:border-brand-primary",
   },
   blue: {
-    bg: "from-sky-100/70 via-sky-50/40 to-white",
-    icon: "bg-gradient-to-tr from-[#0369A1] to-[#0284C7] text-white shadow-2xs",
-    border: "border-sky-200/90 hover:border-[#0284C7]",
+    bg: "bg-gradient-to-br from-blue-50/70 via-white to-blue-50/30",
+    icon: "bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-2xs",
+    border: "border-blue-100 hover:border-blue-400",
   },
   violet: {
-    bg: "from-indigo-100/50 via-sky-50/30 to-white",
-    icon: "bg-gradient-to-tr from-indigo-500 to-sky-500 text-white shadow-2xs",
-    border: "border-sky-200/90 hover:border-[#0284C7]",
+    bg: "bg-gradient-to-br from-indigo-50/70 via-white to-violet-50/30",
+    icon: "bg-gradient-to-tr from-indigo-500 to-violet-600 text-white shadow-2xs",
+    border: "border-violet-100 hover:border-violet-400",
   },
   green: {
-    bg: "from-emerald-100/50 via-sky-50/30 to-white",
-    icon: "bg-gradient-to-tr from-emerald-500 to-teal-500 text-white shadow-2xs",
-    border: "border-sky-200/90 hover:border-[#0284C7]",
+    bg: "bg-gradient-to-br from-emerald-50/70 via-white to-teal-50/30",
+    icon: "bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-2xs",
+    border: "border-emerald-100 hover:border-emerald-400",
   },
   amber: {
-    bg: "from-amber-100/50 via-sky-50/30 to-white",
+    bg: "bg-gradient-to-br from-amber-50/70 via-white to-orange-50/30",
     icon: "bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-2xs",
-    border: "border-sky-200/90 hover:border-[#0284C7]",
+    border: "border-amber-100 hover:border-amber-400",
   },
   red: {
-    bg: "from-rose-100/50 via-sky-50/30 to-white",
+    bg: "bg-gradient-to-br from-rose-50/70 via-white to-pink-50/30",
     icon: "bg-gradient-to-tr from-rose-500 to-pink-500 text-white shadow-2xs",
-    border: "border-sky-200/90 hover:border-[#0284C7]",
+    border: "border-rose-100 hover:border-rose-400",
   },
 };
 
@@ -51,7 +51,7 @@ export function CustomStatCard({ label, value, icon: Icon, tone = "primary", cla
   return (
     <div
       className={cn(
-        "group relative h-full flex items-center justify-between gap-3 overflow-hidden rounded-sm border bg-gradient-to-br p-4 sm:p-5 shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
+        "group relative h-full flex items-center justify-between gap-3 overflow-hidden rounded-sm border p-4 sm:p-5 shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
         style.bg,
         style.border,
         className
@@ -69,14 +69,14 @@ export function CustomStatCard({ label, value, icon: Icon, tone = "primary", cla
 
       {/* Right side: Value on top, Name below */}
       <div className="flex flex-col items-end text-right min-w-0">
-        <p className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0369A1] [font-variant-numeric:tabular-nums]">
+        <p className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 group-hover:text-brand-dark transition-colors [font-variant-numeric:tabular-nums]">
           {value}
         </p>
-        <p className="mt-0.5 text-xs sm:text-[12.5px] font-bold text-gray-600 leading-snug truncate">
+        <p className="mt-0.5 text-xs sm:text-[12.5px] font-bold text-slate-600 leading-snug truncate">
           {label}
         </p>
         {subtitle && (
-          <p className="mt-0.5 text-[10.5px] text-[#0284C7] font-medium leading-tight">
+          <p className="mt-0.5 text-[10.5px] text-brand-primary font-medium leading-tight">
             {subtitle}
           </p>
         )}

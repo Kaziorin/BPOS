@@ -71,7 +71,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
             {supplier.status}
           </span>
           {editing ? (
-            <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50">
+            <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50">
               {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
               Save
             </button>
@@ -106,7 +106,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as any)}
-              className={`border-b-2 pb-3 text-sm font-medium transition ${activeTab === tab.key ? "border-primary-600 text-primary-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+              className={`border-b-2 pb-3 text-sm font-medium transition ${activeTab === tab.key ? "border-brand-primary text-primary-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
             >
               {tab.label}
             </button>

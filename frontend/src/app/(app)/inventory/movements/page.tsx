@@ -54,9 +54,9 @@ const MOVEMENT_CONFIG: Record<
 > = {
   OPENING: {
     label: "Opening Stock",
-    bg: "bg-sky-50 border-sky-200",
-    text: "text-[#0369A1]",
-    dot: "bg-[#0284C7]",
+    bg: "bg-brand-50 border-brand-border",
+    text: "text-brand-dark",
+    dot: "bg-brand-primary",
     isInbound: true,
   },
   PURCHASE_IN: {
@@ -295,7 +295,7 @@ export default function MovementsPage() {
       width: "22%",
       render: (r) => (
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border">
             <Package size={14} />
           </div>
           <div className="min-w-0">
@@ -316,7 +316,7 @@ export default function MovementsPage() {
       width: "14%",
       render: (r) => (
         <span className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium">
-          <WarehouseIcon size={13} className="text-[#0284C7] shrink-0" />
+          <WarehouseIcon size={13} className="text-brand-primary shrink-0" />
           {r.warehouse?.name ?? (r as any).warehouseName ?? "Main Warehouse"}
         </span>
       ),
@@ -384,7 +384,7 @@ export default function MovementsPage() {
       {/* 1. Top Breadcrumb with Actions */}
       <CustomBreadcrumb
         title="Stock Movements & Audit"
-        icon={<Activity size={16} className="text-[#0284C7]" />}
+        icon={<Activity size={16} className="text-brand-primary" />}
         breadcrumbs={[
           { label: "Operations", href: "/dashboard" },
           { label: "Inventory", href: "/inventory" },
@@ -444,14 +444,14 @@ export default function MovementsPage() {
         title="Stock Movement Directory"
         icon={Activity}
         actions={
-          <span className="rounded-sm bg-sky-100 px-2.5 py-1 text-[11px] font-bold text-[#0284C7] border border-sky-200/80">
+          <span className="rounded-sm bg-brand-50 px-2.5 py-1 text-[11px] font-bold text-brand-primary border border-brand-border">
             {filteredMovements.length} Records
           </span>
         }
         bodyClassName="p-0"
       >
         {/* Card Header Toolbar: Search & Custom Dropdowns */}
-        <div className="border-b border-sky-100/70 p-3.5 bg-sky-50/20">
+        <div className="border-b border-slate-100 p-3.5 bg-slate-50/40">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <CustomInput
               placeholder="Search product name, SKU, reference..."

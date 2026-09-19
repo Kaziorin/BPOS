@@ -69,9 +69,9 @@ export default function PurchasingPage() {
 
   // Lifecycle pipeline steps
   const steps = [
-    { icon: ClipboardList, label: "Requisition", count: summary?.pendingRequisitions ?? 0, href: "/purchasing/requisitions", color: "text-[#0284C7]", bg: "bg-sky-50", pending: true },
-    { icon: ShoppingCart, label: "Purchase Order", count: summary?.activeOrders ?? 0, href: "/purchasing/orders", color: "text-[#0369A1]", bg: "bg-sky-50" },
-    { icon: PackageCheck, label: "GRN Receive", count: summary?.grnsLast30Days ?? 0, href: "/purchasing/grns", color: "text-[#0284C7]", bg: "bg-sky-50" },
+    { icon: ClipboardList, label: "Requisition", count: summary?.pendingRequisitions ?? 0, href: "/purchasing/requisitions", color: "text-brand-primary", bg: "bg-brand-50", pending: true },
+    { icon: ShoppingCart, label: "Purchase Order", count: summary?.activeOrders ?? 0, href: "/purchasing/orders", color: "text-brand-dark", bg: "bg-brand-50" },
+    { icon: PackageCheck, label: "GRN Receive", count: summary?.grnsLast30Days ?? 0, href: "/purchasing/grns", color: "text-brand-primary", bg: "bg-brand-50" },
     { icon: FileText, label: "Invoice", count: summary?.unpaidInvoices ?? 0, href: "/purchasing/orders", color: "text-amber-600", bg: "bg-amber-50" },
     { icon: CreditCard, label: "Payment", count: 0, href: "/purchasing/orders", color: "text-emerald-600", bg: "bg-emerald-50" },
     { icon: Undo2, label: "Return", count: summary?.returnsLast30Days ?? 0, href: "/purchasing/returns", color: "text-rose-600", bg: "bg-rose-50" },
@@ -89,17 +89,17 @@ export default function PurchasingPage() {
             <button
               onClick={load}
               disabled={loading}
-              className="rounded-sm border border-sky-200 bg-white p-2 text-slate-600 shadow-2xs transition hover:bg-sky-50 hover:text-slate-900 disabled:opacity-50 cursor-pointer"
+              className="rounded-sm border border-brand-border bg-white p-2 text-slate-600 shadow-2xs transition hover:bg-brand-50/50 hover:text-slate-900 disabled:opacity-50 cursor-pointer"
               title="Refresh Data"
             >
-              <RefreshCw size={15} className={loading ? "animate-spin text-[#0284C7]" : ""} />
+              <RefreshCw size={15} className={loading ? "animate-spin text-brand-primary" : ""} />
             </button>
             <Link href="/purchasing/requisitions">
               <CustomButton
                 variant="outline"
                 size="sm"
                 className="rounded-sm"
-                leftIcon={<ClipboardList size={14} className="text-[#0284C7]" />}
+                leftIcon={<ClipboardList size={14} className="text-brand-primary" />}
               >
                 New PR
               </CustomButton>
@@ -119,7 +119,7 @@ export default function PurchasingPage() {
       />
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto rounded-sm border border-sky-100/90 bg-white p-1.5 shadow-2xs">
+      <div className="flex items-center gap-1.5 overflow-x-auto rounded-sm border border-slate-200 bg-white p-1.5 shadow-2xs">
         {[
           { href: "/purchasing", label: "Overview", icon: Layers, active: true },
           { href: "/purchasing/requisitions", label: "Requisitions (PR)", icon: ClipboardList },
@@ -132,8 +132,8 @@ export default function PurchasingPage() {
             href={tab.href}
             className={`flex items-center gap-2 rounded-sm px-3.5 py-1.5 text-xs font-semibold transition whitespace-nowrap ${
               tab.active
-                ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs"
-                : "text-slate-600 hover:bg-sky-50 hover:text-[#0284C7]"
+                ? "bg-brand-gradient text-white shadow-2xs"
+                : "text-slate-600 hover:bg-brand-50/50 hover:text-brand-primary"
             }`}
           >
             <tab.icon size={14} />
@@ -149,19 +149,19 @@ export default function PurchasingPage() {
       )}
 
       {/* Lifecycle pipeline */}
-      <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs">
-        <p className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">Procurement Lifecycle</p>
+      <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs">
+        <p className="text-xs font-bold uppercase tracking-wider text-brand-dark">Procurement Lifecycle</p>
         <div className="mt-3.5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {steps.map((step, i) => (
             <Link
               key={step.label}
               href={step.href}
-              className="group relative rounded-sm border border-sky-100/80 bg-white p-3.5 shadow-2xs transition hover:border-sky-300 hover:shadow-xs"
+              className="group relative rounded-sm border border-slate-200/80 bg-white p-3.5 shadow-2xs transition hover:border-brand-border hover:shadow-xs"
             >
               {i < steps.length - 1 && (
-                <ChevronRight size={15} className="absolute -right-2 top-1/2 z-10 hidden -translate-y-1/2 text-sky-300 lg:block" />
+                <ChevronRight size={15} className="absolute -right-2 top-1/2 z-10 hidden -translate-y-1/2 text-brand-primary/40 lg:block" />
               )}
-              <div className={`flex h-9 w-9 items-center justify-center rounded-sm ${step.bg} border border-sky-100 transition group-hover:scale-105`}>
+              <div className={`flex h-9 w-9 items-center justify-center rounded-sm ${step.bg} border border-slate-200 transition group-hover:scale-105`}>
                 <step.icon size={17} className={step.color} />
               </div>
               <p className="mt-2.5 text-xs font-semibold text-slate-800">{step.label}</p>
@@ -180,36 +180,36 @@ export default function PurchasingPage() {
       <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
         {[
           { label: "Payable to Suppliers", value: summary ? fmt(summary.totalPayable) : "—", icon: CreditCard, accent: "text-amber-600", bg: "bg-amber-50" },
-          { label: "Active Orders", value: summary?.activeOrders ?? "—", icon: Truck, accent: "text-[#0284C7]", bg: "bg-sky-50" },
-          { label: "GRNs (30 days)", value: summary?.grnsLast30Days ?? "—", icon: PackageCheck, accent: "text-[#0369A1]", bg: "bg-sky-50" },
+          { label: "Active Orders", value: summary?.activeOrders ?? "—", icon: Truck, accent: "text-brand-primary", bg: "bg-brand-50" },
+          { label: "GRNs (30 days)", value: summary?.grnsLast30Days ?? "—", icon: PackageCheck, accent: "text-brand-dark", bg: "bg-brand-50" },
           { label: "Returns (30 days)", value: summary?.returnsLast30Days ?? "—", icon: Undo2, accent: "text-rose-600", bg: "bg-rose-50" },
         ].map((s) => (
-          <div key={s.label} className="flex items-center justify-between rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs hover:border-sky-300 transition">
+          <div key={s.label} className="flex items-center justify-between rounded-sm border border-slate-200 bg-white p-4 shadow-2xs hover:border-brand-border transition">
             <div>
               <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{s.label}</p>
               <p className="mt-1.5 text-xl font-bold text-slate-900">{s.value}</p>
             </div>
-            <div className={`rounded-sm p-2.5 ${s.bg} border border-sky-100/60`}><s.icon size={20} className={s.accent} /></div>
+            <div className={`rounded-sm p-2.5 ${s.bg} border border-slate-200/60`}><s.icon size={20} className={s.accent} /></div>
           </div>
         ))}
       </div>
 
       {/* Recent POs */}
-      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
-        <div className="flex items-center justify-between border-b border-sky-100 px-5 py-3.5 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50">
-          <h2 className="flex items-center gap-2 font-bold text-sm text-[#0369A1]">
-            <Boxes size={16} className="text-[#0284C7]" /> Recent Purchase Orders
+      <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-2xs">
+        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5 bg-gradient-to-r from-brand-50/50 via-white to-brand-50/30">
+          <h2 className="flex items-center gap-2 font-bold text-sm text-brand-dark">
+            <Boxes size={16} className="text-brand-primary" /> Recent Purchase Orders
           </h2>
-          <Link href="/purchasing/orders" className="flex items-center gap-1 text-xs font-semibold text-[#0284C7] hover:text-[#0369A1]">
+          <Link href="/purchasing/orders" className="flex items-center gap-1 text-xs font-semibold text-brand-primary hover:text-brand-dark">
             View all <ChevronRight size={12} />
           </Link>
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-12"><Loader2 size={24} className="animate-spin text-[#0284C7]" /></div>
+          <div className="flex justify-center py-12"><Loader2 size={24} className="animate-spin text-brand-primary" /></div>
         ) : recentPos.length === 0 ? (
           <div className="p-10 text-center">
-            <ShoppingCart size={36} className="mx-auto text-sky-200" />
+            <ShoppingCart size={36} className="mx-auto text-slate-300" />
             <p className="mt-2.5 font-bold text-xs text-slate-700">No purchase orders yet</p>
             <p className="mt-1 text-xs text-gray-400">Create a requisition or a direct PO to get started.</p>
           </div>
@@ -217,7 +217,7 @@ export default function PurchasingPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-sky-100 bg-sky-50/40 text-left text-[11px] font-bold uppercase tracking-wider text-[#0369A1]">
+                <tr className="border-b border-slate-200 bg-brand-50/40 text-left text-[11px] font-bold uppercase tracking-wider text-brand-dark">
                   <th className="px-5 py-3">PO No</th>
                   <th className="px-5 py-3">Supplier</th>
                   <th className="px-5 py-3 text-center">Received</th>
@@ -233,9 +233,9 @@ export default function PurchasingPage() {
                   const received = po.items.reduce((s, i) => s + Number(i.qtyReceived), 0);
                   const pct = ordered > 0 ? Math.round((received / ordered) * 100) : 0;
                   return (
-                    <tr key={po.id} className="transition hover:bg-sky-50/40">
+                    <tr key={po.id} className="transition hover:bg-brand-50/50/40">
                       <td className="px-5 py-3.5">
-                        <Link href="/purchasing/orders" className="font-mono text-xs font-bold text-[#0284C7] hover:underline">{po.poNo}</Link>
+                        <Link href="/purchasing/orders" className="font-mono text-xs font-bold text-brand-primary hover:underline">{po.poNo}</Link>
                       </td>
                       <td className="px-5 py-3.5 font-semibold text-slate-800">{po.supplier?.name ?? "—"}</td>
                       <td className="px-5 py-3.5">
@@ -244,8 +244,8 @@ export default function PurchasingPage() {
                             <span>{received}/{ordered}</span>
                             <span>{pct}%</span>
                           </div>
-                          <div className="mt-0.5 h-1.5 overflow-hidden rounded-sm bg-sky-100">
-                            <div className={`h-full rounded-sm ${pct === 100 ? "bg-emerald-500" : pct > 0 ? "bg-amber-500" : "bg-sky-200"}`} style={{ width: `${pct}%` }} />
+                          <div className="mt-0.5 h-1.5 overflow-hidden rounded-sm bg-brand-50">
+                            <div className={`h-full rounded-sm ${pct === 100 ? "bg-emerald-500" : pct > 0 ? "bg-amber-500" : "bg-slate-200"}`} style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       </td>
@@ -268,15 +268,15 @@ export default function PurchasingPage() {
       {/* Quick links */}
       <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { href: "/purchasing/requisitions", icon: ClipboardList, title: "Requisitions", desc: "Internal requests awaiting approval", color: "from-[#0284C7] to-[#38BDF8]" },
+          { href: "/purchasing/requisitions", icon: ClipboardList, title: "Requisitions", desc: "Internal requests awaiting approval", color: "bg-brand-gradient" },
           { href: "/purchasing/orders", icon: ShoppingCart, title: "Purchase Orders", desc: "Order + partial receiving tracking", color: "from-[#0369A1] to-[#0EA5E9]" },
-          { href: "/purchasing/grns", icon: PackageCheck, title: "Goods Received", desc: "Receive stock into warehouse", color: "from-[#0284C7] to-[#0EA5E9]" },
+          { href: "/purchasing/grns", icon: PackageCheck, title: "Goods Received", desc: "Receive stock into warehouse", color: "bg-brand-gradient" },
           { href: "/purchasing/returns", icon: Undo2, title: "Purchase Returns", desc: "Reverse stock + supplier payable", color: "from-rose-500 to-rose-600" },
         ].map((l) => (
           <Link key={l.href} href={l.href}
-            className="group relative overflow-hidden rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs transition hover:border-sky-300 hover:shadow-xs">
+            className="group relative overflow-hidden rounded-sm border border-slate-200 bg-white p-4 shadow-2xs transition hover:border-brand-border hover:shadow-xs">
             <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${l.color}`} />
-            <l.icon size={20} className="text-gray-400 transition group-hover:text-[#0284C7]" />
+            <l.icon size={20} className="text-gray-400 transition group-hover:text-brand-primary" />
             <p className="mt-2.5 font-bold text-xs text-slate-900">{l.title}</p>
             <p className="mt-0.5 text-[11px] text-gray-400">{l.desc}</p>
           </Link>

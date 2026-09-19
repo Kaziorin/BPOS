@@ -253,9 +253,9 @@ export default function CustomersPage() {
   const segBadgeMap: Record<string, { bg: string; text: string; label: string }> = {
     VIP: { bg: "bg-amber-50 text-amber-700 border-amber-200/60", text: "text-amber-700", label: "VIP" },
     HIGH_VALUE: { bg: "bg-emerald-50 text-emerald-700 border-emerald-200/60", text: "text-emerald-700", label: "High Value" },
-    WHOLESALE: { bg: "bg-sky-50 text-[#0284C7] border-sky-200/60", text: "text-[#0284C7]", label: "Wholesale" },
+    WHOLESALE: { bg: "bg-brand-50 text-brand-primary border-brand-border", text: "text-brand-primary", label: "Wholesale" },
     CORPORATE: { bg: "bg-purple-50 text-purple-700 border-purple-200/60", text: "text-purple-700", label: "Corporate" },
-    NEW: { bg: "bg-sky-50 text-[#0369A1] border-sky-200/60", text: "text-[#0369A1]", label: "New" },
+    NEW: { bg: "bg-brand-50 text-brand-dark border-brand-border", text: "text-brand-dark", label: "New" },
     REGULAR: { bg: "bg-slate-50 text-gray-600 border-slate-200/80", text: "text-gray-600", label: "Regular" },
     AT_RISK: { bg: "bg-rose-50 text-rose-700 border-rose-200/60", text: "text-rose-700", label: "At Risk" },
     INACTIVE: { bg: "bg-rose-50/60 text-rose-600 border-rose-200/50", text: "text-rose-600", label: "Inactive" },
@@ -288,14 +288,14 @@ export default function CustomersPage() {
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => handleOpenDrawer(c.id)}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 text-xs font-bold hover:bg-sky-100 transition cursor-pointer"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border text-xs font-bold hover:bg-brand-50 transition cursor-pointer"
             >
               {getInitials(c.name)}
             </button>
             <div className="min-w-0">
               <button
                 onClick={() => handleOpenDrawer(c.id)}
-                className="font-semibold text-gray-600 hover:text-[#0284C7] text-left transition truncate max-w-[170px] block cursor-pointer"
+                className="font-semibold text-gray-600 hover:text-brand-primary text-left transition truncate max-w-[170px] block cursor-pointer"
               >
                 {c.name}
               </button>
@@ -314,7 +314,7 @@ export default function CustomersPage() {
         render: (c) =>
           c.phone ? (
             <div className="flex items-center gap-1.5 text-gray-600 font-medium">
-              <a href={`tel:${c.phone}`} className="hover:text-[#0284C7] transition">
+              <a href={`tel:${c.phone}`} className="hover:text-brand-primary transition">
                 {c.phone}
               </a>
               <a
@@ -423,21 +423,21 @@ export default function CustomersPage() {
           <div className="flex items-center justify-end gap-1">
             <button
               onClick={() => handleOpenDrawer(c.id)}
-              className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+              className="rounded-sm p-1 text-gray-400 hover:bg-brand-50/50 hover:text-brand-primary transition cursor-pointer"
               title="Quick Drawer"
             >
               <Eye size={14} />
             </button>
             <button
               onClick={() => handleOpenEdit(c)}
-              className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+              className="rounded-sm p-1 text-gray-400 hover:bg-brand-50/50 hover:text-brand-primary transition cursor-pointer"
               title="Edit"
             >
               <Edit3 size={14} />
             </button>
             <Link
               href={`/customers/${c.id}`}
-              className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+              className="rounded-sm p-1 text-gray-400 hover:bg-brand-50/50 hover:text-brand-primary transition cursor-pointer"
               title="Full Details"
             >
               <ArrowUpRight size={14} />
@@ -538,7 +538,7 @@ export default function CustomersPage() {
       </div>
 
       {/* ── Segment Navigation Bar ── */}
-      <div className="flex items-center gap-1.5 overflow-x-auto border-b border-sky-100/90 pb-2 scrollbar-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto border-b border-slate-200 pb-2 scrollbar-none">
         {segmentTabs.map((tab) => {
           const isActive = activeSegmentTab === tab.id;
           return (
@@ -550,18 +550,18 @@ export default function CustomersPage() {
               }}
               className={`flex items-center gap-1.5 shrink-0 rounded-sm px-3 py-1.5 text-xs font-semibold transition cursor-pointer shadow-2xs ${
                 isActive
-                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-xs font-bold"
-                  : "bg-white text-gray-600 border border-sky-100/90 hover:bg-sky-50/60 hover:text-[#0284C7]"
+                  ? "bg-brand-gradient text-white shadow-xs font-bold"
+                  : "bg-white text-gray-600 border border-slate-200 hover:bg-brand-50/60 hover:text-brand-primary"
               }`}
             >
               <span>{tab.label}</span>
               {tab.count !== undefined && (
                 <span className={`rounded-sm px-1.5 py-0.5 text-[11px] font-black tabular-nums transition-colors ${
                   isActive
-                    ? "bg-white text-[#0369A1] shadow-2xs"
+                    ? "bg-white text-brand-dark shadow-2xs"
                     : tab.isDue
                     ? "bg-rose-100 text-rose-700 border border-rose-200"
-                    : "bg-sky-100/80 text-[#0284C7] border border-sky-200/80"
+                    : "bg-brand-50 text-brand-primary border border-brand-border"
                 }`}>
                   {tab.count}
                 </span>
@@ -572,7 +572,7 @@ export default function CustomersPage() {
       </div>
 
       {/* ── Filter & Search Toolbar (CustomDropdownSelect & Theme Controls) ── */}
-      <div className="rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="rounded-sm border border-slate-200 bg-white p-3 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Search input */}
         <div className="relative w-full md:w-80">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -584,7 +584,7 @@ export default function CustomersPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-sm border border-sky-200/90 py-1.5 pl-9 pr-8 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition shadow-2xs"
+            className="w-full rounded-sm border border-brand-border py-1.5 pl-9 pr-8 text-xs text-gray-600 placeholder-slate-400 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition shadow-2xs"
           />
           {search && (
             <button
@@ -650,18 +650,18 @@ export default function CustomersPage() {
           {/* Sort Direction Toggle */}
           <button
             onClick={() => setSortDir((prev) => (prev === "asc" ? "desc" : "asc"))}
-            className="rounded-sm border border-sky-200/90 p-2 text-[#0369A1] hover:bg-sky-50 transition cursor-pointer shadow-2xs"
+            className="rounded-sm border border-brand-border p-2 text-brand-dark hover:bg-brand-50/50 transition cursor-pointer shadow-2xs"
             title={`Sort Direction: ${sortDir.toUpperCase()}`}
           >
             <ArrowUpDown size={14} />
           </button>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center rounded-sm border border-sky-200/90 p-0.5 bg-sky-50/40 shadow-2xs">
+          <div className="flex items-center rounded-sm border border-brand-border p-0.5 bg-slate-50 shadow-2xs">
             <button
               onClick={() => setViewMode("table")}
               className={`rounded-xs p-1 transition cursor-pointer ${
-                viewMode === "table" ? "bg-white text-[#0284C7] shadow-xs font-bold" : "text-gray-400 hover:text-gray-600"
+                viewMode === "table" ? "bg-white text-brand-primary shadow-xs font-bold" : "text-gray-400 hover:text-gray-600"
               }`}
               title="Table View"
             >
@@ -670,7 +670,7 @@ export default function CustomersPage() {
             <button
               onClick={() => setViewMode("grid")}
               className={`rounded-xs p-1 transition cursor-pointer ${
-                viewMode === "grid" ? "bg-white text-[#0284C7] shadow-xs font-bold" : "text-gray-400 hover:text-gray-600"
+                viewMode === "grid" ? "bg-white text-brand-primary shadow-xs font-bold" : "text-gray-400 hover:text-gray-600"
               }`}
               title="Grid View"
             >
@@ -718,8 +718,8 @@ export default function CustomersPage() {
         /* ── CLEAN CARD GRID VIEW ── */
         <div className="space-y-4">
           {customers.length === 0 && !loading ? (
-            <div className="rounded-sm border-2 border-dashed border-sky-200/70 bg-white p-12 text-center shadow-xs">
-              <Users size={32} className="mx-auto text-sky-300 mb-3" />
+            <div className="rounded-sm border-2 border-dashed border-brand-border bg-white p-12 text-center shadow-xs">
+              <Users size={32} className="mx-auto text-brand-primary/40 mb-3" />
               <h3 className="text-sm font-bold text-gray-600">No Customers Found</h3>
               <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
                 {search || activeSegmentTab !== "ALL" || filterGroup || filterStatus
@@ -738,7 +738,7 @@ export default function CustomersPage() {
                       setFilterStatus("");
                       setPage(1);
                     }}
-                    className="border-sky-200/90 text-[#0369A1]"
+                    className="border-brand-border text-brand-dark"
                   >
                     Clear Filters
                   </CustomButton>
@@ -762,21 +762,21 @@ export default function CustomersPage() {
                 return (
                   <div
                     key={c.id}
-                    className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs hover:border-sky-300 transition flex flex-col justify-between"
+                    className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs hover:border-brand-border transition flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2.5">
                           <button
                             onClick={() => handleOpenDrawer(c.id)}
-                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 text-xs font-bold cursor-pointer hover:bg-sky-100 transition"
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border text-xs font-bold cursor-pointer hover:bg-brand-50 transition"
                           >
                             {getInitials(c.name)}
                           </button>
                           <div className="min-w-0">
                             <h3
                               onClick={() => handleOpenDrawer(c.id)}
-                              className="font-bold text-gray-600 hover:text-[#0284C7] cursor-pointer transition text-xs truncate max-w-[150px]"
+                              className="font-bold text-gray-600 hover:text-brand-primary cursor-pointer transition text-xs truncate max-w-[150px]"
                             >
                               {c.name}
                             </h3>
@@ -792,16 +792,16 @@ export default function CustomersPage() {
                       </div>
 
                       {/* Single-line metric pills */}
-                      <div className="mt-3 grid grid-cols-3 gap-1.5 border-t border-sky-100/90 pt-2.5">
+                      <div className="mt-3 grid grid-cols-3 gap-1.5 border-t border-slate-200 pt-2.5">
                         <div className="flex items-center justify-between gap-1 rounded-sm border border-slate-200/80 bg-slate-50/70 px-2 py-1.5 shadow-2xs">
                           <span className="text-[11px] font-semibold text-gray-500">Due</span>
                           <span className={`text-[11px] font-bold tabular-nums ${isDue ? "text-rose-600" : "text-gray-600"}`}>
                             ৳{due.toLocaleString()}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between gap-1 rounded-sm border border-sky-100/90 bg-sky-50/50 px-2 py-1.5 shadow-2xs">
-                          <span className="text-[11px] font-semibold text-[#0369A1]">Orders</span>
-                          <span className="text-[11px] font-bold text-[#0284C7] tabular-nums">{c._count?.sales || 0}</span>
+                        <div className="flex items-center justify-between gap-1 rounded-sm border border-slate-200 bg-slate-50 px-2 py-1.5 shadow-2xs">
+                          <span className="text-[11px] font-semibold text-brand-dark">Orders</span>
+                          <span className="text-[11px] font-bold text-brand-primary tabular-nums">{c._count?.sales || 0}</span>
                         </div>
                         <div className="flex items-center justify-between gap-1 rounded-sm border border-amber-200/80 bg-amber-50/50 px-2 py-1.5 shadow-2xs">
                           <span className="text-[11px] font-semibold text-amber-700">Points</span>
@@ -810,7 +810,7 @@ export default function CustomersPage() {
                       </div>
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-sky-100/90 flex items-center justify-between">
+                    <div className="mt-3 pt-2.5 border-t border-slate-200 flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         {c.phone && (
                           <a
@@ -836,21 +836,21 @@ export default function CustomersPage() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => handleOpenDrawer(c.id)}
-                          className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+                          className="rounded-sm p-1.5 text-gray-400 hover:bg-brand-50/50 hover:text-brand-primary transition cursor-pointer"
                           title="Quick Drawer"
                         >
                           <Eye size={14} />
                         </button>
                         <button
                           onClick={() => handleOpenEdit(c)}
-                          className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+                          className="rounded-sm p-1.5 text-gray-400 hover:bg-brand-50/50 hover:text-brand-primary transition cursor-pointer"
                           title="Edit"
                         >
                           <Edit3 size={14} />
                         </button>
                         <Link
                           href={`/customers/${c.id}`}
-                          className="rounded-sm p-1.5 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+                          className="rounded-sm p-1.5 text-gray-400 hover:bg-brand-50/50 hover:text-brand-primary transition cursor-pointer"
                           title="Full Details"
                         >
                           <ArrowUpRight size={14} />
@@ -872,32 +872,32 @@ export default function CustomersPage() {
 
           {/* Grid View Pagination Bar */}
           {pagination.totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-sm border border-slate-200 bg-white p-3 shadow-2xs">
               <p className="text-xs text-gray-600 font-medium">
-                Showing <strong className="font-bold text-[#0284C7]">{(page - 1) * perPage + 1}</strong> -{" "}
-                <strong className="font-bold text-[#0284C7]">
+                Showing <strong className="font-bold text-brand-primary">{(page - 1) * perPage + 1}</strong> -{" "}
+                <strong className="font-bold text-brand-primary">
                   {Math.min(page * perPage, pagination.total)}
                 </strong>{" "}
-                of <strong className="font-bold text-[#0284C7]">{pagination.total}</strong> customers
+                of <strong className="font-bold text-brand-primary">{pagination.total}</strong> customers
               </p>
 
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
-                  className="flex items-center gap-1 rounded-sm border border-sky-200/90 px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] disabled:opacity-40 transition cursor-pointer"
+                  className="flex items-center gap-1 rounded-sm border border-brand-border px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-brand-50/50 hover:text-brand-primary disabled:opacity-40 transition cursor-pointer"
                 >
                   <ChevronLeft size={13} /> Prev
                 </button>
 
-                <span className="text-xs text-[#0284C7] font-bold px-1">
+                <span className="text-xs text-brand-primary font-bold px-1">
                   Page {page} of {pagination.totalPages}
                 </span>
 
                 <button
                   onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
                   disabled={page >= pagination.totalPages}
-                  className="flex items-center gap-1 rounded-sm border border-sky-200/90 px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] disabled:opacity-40 transition cursor-pointer"
+                  className="flex items-center gap-1 rounded-sm border border-brand-border px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-brand-50/50 hover:text-brand-primary disabled:opacity-40 transition cursor-pointer"
                 >
                   Next <ChevronRight size={13} />
                 </button>

@@ -64,7 +64,7 @@ export default function CreateJournalPage() {
       <div className="flex items-center gap-3">
         <Link href="/accounting/journals" className="rounded-sm p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"><ArrowLeft size={18} /></Link>
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-sky-50 text-sky-700"><BookMarked size={19} /></div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><BookMarked size={19} /></div>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-gray-900">Create Journal</h1>
             <p className="text-sm text-gray-500">Post a balanced double-entry journal</p>
@@ -74,7 +74,7 @@ export default function CreateJournalPage() {
 
       {error && <div className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
-      <form onSubmit={submit} className="space-y-5 rounded-sm border border-sky-100/90 bg-white p-6 shadow-2xs">
+      <form onSubmit={submit} className="space-y-5 rounded-sm border border-slate-200 bg-white p-6 shadow-2xs">
         <div className="grid gap-4 sm:grid-cols-2">
           <CustomInput label="Narration" value={form.narration} onChange={(e) => setForm({ ...form, narration: e.target.value })} placeholder="e.g. Opening balance entry" />
           <CustomInput label="Journal Date" type="date" value={form.journalDate} onChange={(e) => setForm({ ...form, journalDate: e.target.value })} />
@@ -87,7 +87,7 @@ export default function CreateJournalPage() {
           </div>
           <div className="space-y-2">
             {lines.map((l, i) => (
-              <div key={i} className="grid grid-cols-12 items-end gap-2 rounded-sm border border-sky-100/90 p-2">
+              <div key={i} className="grid grid-cols-12 items-end gap-2 rounded-sm border border-slate-200 p-2">
                 <div className="col-span-12 sm:col-span-4">
                   <select value={l.accountCode} onChange={(e) => setLine(i, { accountCode: e.target.value })} className="w-full rounded-sm border border-gray-300 px-2 py-2 text-sm">
                     <option value="">Select account…</option>

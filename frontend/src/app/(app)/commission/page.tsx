@@ -25,7 +25,7 @@ interface Commission {
 }
 
 const STATUS_META: Record<string, { label: string; cls: string; dot: string; icon: any }> = {
-  CALCULATED: { label: "Calculated", cls: "bg-slate-100 text-slate-700 border-sky-100/90", dot: "bg-slate-400", icon: Percent },
+  CALCULATED: { label: "Calculated", cls: "bg-slate-100 text-slate-700 border-slate-200", dot: "bg-slate-400", icon: Percent },
   PENDING: { label: "Pending Review", cls: "bg-amber-50 text-amber-700 border-amber-200", dot: "bg-amber-500", icon: Clock },
   APPROVED: { label: "Approved", cls: "bg-blue-50 text-blue-700 border-blue-200", dot: "bg-blue-500", icon: BadgeCheck },
   PAYABLE: { label: "Payable", cls: "bg-violet-50 text-violet-700 border-violet-200", dot: "bg-violet-500", icon: DollarSign },
@@ -118,7 +118,7 @@ export default function CommissionPage() {
           <Link href="/commission/agents" className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50">
             <Users size={16} className="text-primary-600" /> Agents
           </Link>
-          <Link href="/commission/rules" className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-primary-700">
+          <Link href="/commission/rules" className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:opacity-90">
             <Settings size={16} /> Rules
           </Link>
         </div>
@@ -224,7 +224,7 @@ export default function CommissionPage() {
               onClick={() => setStatusFilter(s)}
               className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition ${
                 active
-                  ? "border-primary-600 bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-sm"
+                  ? "border-brand-primary bg-brand-gradient text-white shadow-2xs shadow-sm"
                   : meta
                     ? `${meta.cls} hover:shadow-sm`
                     : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"

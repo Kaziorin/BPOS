@@ -237,7 +237,7 @@ export default function OnboardingPage() {
         </div>
 
         {/* Stepper Navigation */}
-        <div className="mb-8 rounded-sm border border-sky-100/90 bg-white p-4 shadow-xs">
+        <div className="mb-8 rounded-sm border border-slate-200 bg-white p-4 shadow-xs">
           <div className="flex items-center justify-between overflow-x-auto pb-2 scrollbar-none">
             {STEPS.map((step, index) => {
               const isCompleted = completedSteps.has(step.id);
@@ -261,7 +261,7 @@ export default function OnboardingPage() {
                         isCompleted
                           ? "border-emerald-600 bg-emerald-600 text-white shadow-emerald-200"
                           : isCurrent
-                          ? "border-primary-600 bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-200 ring-4 ring-primary-100"
+                          ? "border-brand-primary bg-brand-gradient text-white shadow-2xs shadow-sm ring-4 ring-brand-border"
                           : "border-slate-300 bg-slate-50 text-slate-400"
                       }`}
                     >
@@ -310,7 +310,7 @@ export default function OnboardingPage() {
         )}
 
         {/* Main Card Content */}
-        <div className="rounded-sm border border-sky-100/90 bg-white p-6 sm:p-8 shadow-sm">
+        <div className="rounded-sm border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
           {currentStep === "business-type" && (
             <BusinessTypeStep
               selected={selectedBusinessType}
@@ -441,13 +441,13 @@ function BusinessTypeStep({
               onClick={() => onSelect(type.id)}
               className={`p-4 rounded-xl border-2 text-left transition-all duration-150 flex items-start gap-3.5 ${
                 isSelected
-                  ? "border-primary-600 bg-primary-50/50 shadow-xs ring-2 ring-primary-100"
-                  : "border-sky-100/90 bg-white hover:border-slate-300 hover:bg-slate-50/50"
+                  ? "border-brand-primary bg-primary-50/50 shadow-xs ring-2 ring-brand-border"
+                  : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
               }`}
             >
               <div
                 className={`p-2.5 rounded-lg shrink-0 ${
-                  isSelected ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs" : "bg-slate-100 text-slate-600"
+                  isSelected ? "bg-brand-gradient text-white shadow-2xs" : "bg-slate-100 text-slate-600"
                 }`}
               >
                 <Icon size={20} />
@@ -517,7 +517,7 @@ function CompanySetupStep({
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1.5">Registered Address</label>
         <textarea
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100 placeholder:text-slate-400"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-brand-border placeholder:text-slate-400"
           rows={2}
           placeholder="e.g., House 12, Road 4, Dhanmondi, Dhaka-1205"
           value={form.address}
@@ -586,7 +586,7 @@ function BranchSetupStep({
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1.5">Branch Location Address</label>
         <textarea
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100 placeholder:text-slate-400"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-brand-border placeholder:text-slate-400"
           rows={2}
           placeholder="e.g., Plot 24, Satmasjid Road, Dhanmondi, Dhaka"
           value={form.address}
@@ -634,7 +634,7 @@ function WarehouseSetupStep({
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1.5">Warehouse Type</label>
         <select
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-brand-border"
           value={form.type}
           onChange={(e) => onChange("type", e.target.value)}
         >
@@ -673,7 +673,7 @@ function TaxSetupStep({
         </p>
       </div>
 
-      <div className="flex items-center gap-3 p-3 rounded-lg border border-sky-100/90 bg-slate-50/60">
+      <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50/60">
         <input
           type="checkbox"
           id="taxEnabled"
@@ -758,7 +758,7 @@ function PaymentSetupStep({
               className={`flex items-center justify-between p-3.5 rounded-xl border transition cursor-pointer ${
                 isEnabled
                   ? "border-primary-400 bg-primary-50/40"
-                  : "border-sky-100/90 bg-white opacity-70"
+                  : "border-slate-200 bg-white opacity-70"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -779,7 +779,7 @@ function PaymentSetupStep({
       <div className="pt-2">
         <label className="block text-sm font-medium text-slate-700 mb-1.5">Default Payment Method</label>
         <select
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-brand-border"
           value={form.defaultMethod}
           onChange={(e) => onChange("defaultMethod", e.target.value)}
         >
@@ -912,8 +912,8 @@ Login URL: ${window.location.origin}/login
         </p>
 
         {/* Credentials Card */}
-        <div className="mt-6 rounded-sm border border-sky-100/90 bg-slate-50/90 p-5 text-left max-w-xl mx-auto space-y-3">
-          <div className="flex items-center justify-between border-b border-sky-100/90 pb-3">
+        <div className="mt-6 rounded-sm border border-slate-200 bg-slate-50/90 p-5 text-left max-w-xl mx-auto space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Business Client</span>
               <h3 className="text-lg font-bold text-slate-900">{provisionResult.tenant?.name}</h3>
@@ -942,7 +942,7 @@ Login URL: ${window.location.origin}/login
             </div>
           </div>
 
-          <div className="pt-2 border-t border-sky-100/90 flex items-center justify-between gap-3">
+          <div className="pt-2 border-t border-slate-200 flex items-center justify-between gap-3">
             <CustomButton
               variant="outline"
               size="sm"
@@ -987,7 +987,7 @@ Login URL: ${window.location.origin}/login
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Business & Company Info */}
-        <div className="p-4 rounded-xl border border-sky-100/90 bg-slate-50 space-y-2">
+        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Business &amp; Vertical</span>
           <div className="text-sm font-semibold text-slate-900">{company.name || "Untitled Business"}</div>
           <div className="text-xs text-slate-600">Type: <span className="font-semibold text-teal-700">{businessType}</span></div>
@@ -996,7 +996,7 @@ Login URL: ${window.location.origin}/login
         </div>
 
         {/* Branch & Warehouse */}
-        <div className="p-4 rounded-xl border border-sky-100/90 bg-slate-50 space-y-2">
+        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Branch &amp; Stock Ledger</span>
           <div className="text-sm font-semibold text-slate-900">Branch: {branch.name} ({branch.code})</div>
           <div className="text-xs text-slate-600">Warehouse: <span className="font-semibold">{warehouse.name} ({warehouse.code})</span></div>

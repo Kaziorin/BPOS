@@ -97,7 +97,7 @@ interface UserOption {
 }
 
 const STATUS_META: Record<string, { label: string; badge: string; dot: string; bg: string }> = {
-  PENDING: { label: "Pending", badge: "bg-slate-50 text-slate-700 border-sky-100/90", dot: "bg-slate-400", bg: "bg-slate-50/70" },
+  PENDING: { label: "Pending", badge: "bg-slate-50 text-slate-700 border-slate-200", dot: "bg-slate-400", bg: "bg-slate-50/70" },
   IN_PROGRESS: { label: "In Progress", badge: "bg-blue-50 text-blue-700 border-blue-200", dot: "bg-blue-600", bg: "bg-blue-50/40" },
   BLOCKED: { label: "Blocked", badge: "bg-rose-50 text-rose-700 border-rose-200", dot: "bg-rose-600", bg: "bg-rose-50/40" },
   COMPLETED: { label: "Completed", badge: "bg-emerald-50 text-emerald-700 border-emerald-200", dot: "bg-emerald-600", bg: "bg-emerald-50/40" },
@@ -109,7 +109,7 @@ const PRIORITY_META: Record<string, { label: string; chip: string; icon: any }> 
   URGENT: { label: "Urgent", chip: "bg-rose-50 text-rose-700 border-rose-200", icon: Flag },
   HIGH: { label: "High", chip: "bg-amber-50 text-amber-700 border-amber-200", icon: Flag },
   NORMAL: { label: "Normal", chip: "bg-blue-50 text-blue-700 border-blue-200", icon: Flag },
-  LOW: { label: "Low", chip: "bg-slate-100 text-slate-600 border-sky-100/90", icon: Flag },
+  LOW: { label: "Low", chip: "bg-slate-100 text-slate-600 border-slate-200", icon: Flag },
 };
 
 const BOARD_COLS = ["PENDING", "IN_PROGRESS", "BLOCKED", "COMPLETED", "APPROVED"];
@@ -384,17 +384,17 @@ export default function TasksPage() {
     if (st === "PENDING") {
       btns.push({ status: "IN_PROGRESS", label: "Start", icon: Play, color: "bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200" });
       btns.push({ status: "BLOCKED", label: "Block", icon: AlertTriangle, color: "bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200" });
-      btns.push({ status: "CANCELLED", label: "Cancel", icon: XCircle, color: "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-sky-100/90", reason: true });
+      btns.push({ status: "CANCELLED", label: "Cancel", icon: XCircle, color: "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200", reason: true });
     } else if (st === "IN_PROGRESS") {
       btns.push({ status: "COMPLETED", label: "Complete", icon: CheckCircle2, color: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200" });
       btns.push({ status: "BLOCKED", label: "Block", icon: AlertTriangle, color: "bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200" });
-      btns.push({ status: "CANCELLED", label: "Cancel", icon: XCircle, color: "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-sky-100/90", reason: true });
+      btns.push({ status: "CANCELLED", label: "Cancel", icon: XCircle, color: "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200", reason: true });
     } else if (st === "BLOCKED") {
       btns.push({ status: "IN_PROGRESS", label: "Resume", icon: Play, color: "bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200" });
-      btns.push({ status: "CANCELLED", label: "Cancel", icon: XCircle, color: "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-sky-100/90", reason: true });
+      btns.push({ status: "CANCELLED", label: "Cancel", icon: XCircle, color: "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200", reason: true });
     } else if (st === "COMPLETED") {
       btns.push({ status: "APPROVED", label: "Approve", icon: ShieldCheck, color: "bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200" });
-      btns.push({ status: "IN_PROGRESS", label: "Reopen", icon: RotateCcw, color: "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-sky-100/90" });
+      btns.push({ status: "IN_PROGRESS", label: "Reopen", icon: RotateCcw, color: "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200" });
     }
 
     if (btns.length === 0) return null;
@@ -512,7 +512,7 @@ export default function TasksPage() {
       </div>
 
       {/* ── Filter Bar & View Mode Toggle ── */}
-      <div className="rounded-xl border border-sky-100/90 bg-white p-4 shadow-2xs space-y-3">
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Search Box */}
           <div className="relative flex-1 max-w-md">
@@ -522,7 +522,7 @@ export default function TasksPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search task title, #, entity or assignee..."
-              className="h-9 w-full rounded-lg border border-sky-100/90 bg-slate-50/50 pl-9 pr-3 text-xs text-slate-700 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50/50 pl-9 pr-3 text-xs text-slate-700 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
             />
           </div>
 
@@ -531,7 +531,7 @@ export default function TasksPage() {
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="h-9 rounded-lg border border-sky-100/90 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
             >
               <option value="ALL">All Priorities</option>
               <option value="URGENT">Urgent Priority</option>
@@ -543,7 +543,7 @@ export default function TasksPage() {
             <select
               value={assigneeFilter}
               onChange={(e) => setAssigneeFilter(e.target.value)}
-              className="h-9 rounded-lg border border-sky-100/90 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 max-w-44 truncate"
+              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 max-w-44 truncate"
             >
               <option value="ALL">All Assignees</option>
               {employees.map((emp) => (
@@ -554,7 +554,7 @@ export default function TasksPage() {
             </select>
 
             {/* View Mode Switcher */}
-            <div className="flex rounded-lg border border-sky-100/90 bg-slate-50 p-0.5">
+            <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
               <button
                 onClick={() => setViewMode("board")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition cursor-pointer ${
@@ -595,7 +595,7 @@ export default function TasksPage() {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                   active
                     ? "bg-teal-600 text-white shadow-2xs"
-                    : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-sky-100/90"
+                    : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
                 <span>{label}</span>
@@ -614,7 +614,7 @@ export default function TasksPage() {
 
       {/* ── MAIN WORKSPACE: KANBAN BOARD OR TABLE VIEW ── */}
       {loading ? (
-        <div className="flex h-72 items-center justify-center rounded-xl border border-sky-100/90 bg-white shadow-2xs">
+        <div className="flex h-72 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-2xs">
           <div className="flex flex-col items-center gap-3">
             <RefreshCw className="h-8 w-8 animate-spin text-teal-600" />
             <p className="text-sm font-medium text-slate-500">Loading task items...</p>
@@ -644,14 +644,14 @@ export default function TasksPage() {
             const meta = STATUS_META[col];
             const colTasks = filteredTasks.filter((t) => t.status === col);
             return (
-              <div key={col} className={`rounded-xl border border-sky-100/90 p-3 space-y-3 ${meta.bg}`}>
+              <div key={col} className={`rounded-xl border border-slate-200 p-3 space-y-3 ${meta.bg}`}>
                 {/* Column Header */}
-                <div className="flex items-center justify-between pb-1 border-b border-sky-100/90/60">
+                <div className="flex items-center justify-between pb-1 border-b border-slate-200/60">
                   <div className="flex items-center gap-2">
                     <span className={`h-2.5 w-2.5 rounded-full ${meta.dot}`} />
                     <span className="text-xs font-bold text-slate-800">{meta.label}</span>
                   </div>
-                  <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-bold text-slate-600 shadow-2xs border border-sky-100/90">
+                  <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-bold text-slate-600 shadow-2xs border border-slate-200">
                     {colTasks.length}
                   </span>
                 </div>
@@ -672,7 +672,7 @@ export default function TasksPage() {
                       <div
                         key={t.id}
                         onClick={() => openDetail(t)}
-                        className="rounded-xl border border-sky-100/90 bg-white p-3.5 shadow-2xs hover:shadow-md transition hover:-translate-y-0.5 cursor-pointer space-y-2.5"
+                        className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs hover:shadow-md transition hover:-translate-y-0.5 cursor-pointer space-y-2.5"
                       >
                         {/* Task header */}
                         <div className="flex items-start justify-between gap-2">
@@ -733,7 +733,7 @@ export default function TasksPage() {
         </div>
       ) : (
         /* ── TABLE VIEW ── */
-        <div className="rounded-xl border border-sky-100/90 bg-white p-5 shadow-2xs">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs">
           <CustomTable<Task>
             columns={[
               {
@@ -864,7 +864,7 @@ export default function TasksPage() {
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               placeholder="e.g. Follow up with client regarding overdue invoice INV-1042"
-              className="w-full rounded-lg border border-sky-100/90 px-3.5 py-2 text-sm font-semibold text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
               autoFocus
               required
             />
@@ -879,7 +879,7 @@ export default function TasksPage() {
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={3}
               placeholder="Provide actionable context, expected outcomes, or specific requirements..."
-              className="w-full rounded-lg border border-sky-100/90 px-3 py-2 text-xs text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
             />
           </div>
 
@@ -889,7 +889,7 @@ export default function TasksPage() {
               <select
                 value={form.priority}
                 onChange={(e) => setForm({ ...form, priority: e.target.value })}
-                className="w-full rounded-lg border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
               >
                 <option value="URGENT">🔴 Urgent Priority</option>
                 <option value="HIGH">🟠 High Priority</option>
@@ -904,7 +904,7 @@ export default function TasksPage() {
                 type="date"
                 value={form.dueAt}
                 onChange={(e) => setForm({ ...form, dueAt: e.target.value })}
-                className="w-full rounded-lg border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
               />
             </div>
           </div>
@@ -917,7 +917,7 @@ export default function TasksPage() {
               <select
                 value={form.assigneeType}
                 onChange={(e) => setForm({ ...form, assigneeType: e.target.value, assigneeId: "" })}
-                className="w-full rounded-lg border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
               >
                 <option value="EMPLOYEE">HRM Employee</option>
                 <option value="USER">System User</option>
@@ -931,7 +931,7 @@ export default function TasksPage() {
               <select
                 value={form.assigneeId}
                 onChange={(e) => setForm({ ...form, assigneeId: e.target.value })}
-                className="w-full rounded-lg border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
               >
                 <option value="">-- Unassigned --</option>
                 {assigneeOptions.map((opt) => (
@@ -944,7 +944,7 @@ export default function TasksPage() {
           </div>
 
           {/* Linked Record section */}
-          <div className="rounded-xl border border-sky-100/90 bg-slate-50/50 p-4 space-y-3">
+          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
             <span className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase tracking-wider">
               <Link2 className="w-3.5 h-3.5 text-teal-600" /> Link to Record (Optional)
             </span>
@@ -953,7 +953,7 @@ export default function TasksPage() {
                 <select
                   value={form.entityType}
                   onChange={(e) => setForm({ ...form, entityType: e.target.value })}
-                  className="w-full rounded-lg border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
                 >
                   <option value="">None (General Task)</option>
                   {ENTITY_TYPES.map((v) => (
@@ -971,7 +971,7 @@ export default function TasksPage() {
                     value={form.entityLabel}
                     onChange={(e) => setForm({ ...form, entityLabel: e.target.value })}
                     placeholder="e.g. INV-1042 or Customer #..."
-                    className="w-full rounded-lg border border-sky-100/90 bg-white px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
                   />
                 </div>
               )}
@@ -999,7 +999,7 @@ export default function TasksPage() {
         {detail && (
           <div className="space-y-5">
             {/* Header metadata */}
-            <div className="rounded-xl border border-sky-100/90 bg-slate-50/70 p-4 space-y-3">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-bold ${STATUS_META[detail.status]?.badge}`}>
@@ -1021,29 +1021,29 @@ export default function TasksPage() {
               <h3 className="text-base font-bold text-slate-900">{detail.title}</h3>
 
               {detail.description && (
-                <p className="text-xs text-slate-600 whitespace-pre-wrap leading-relaxed bg-white p-3 rounded-lg border border-sky-100/90">
+                <p className="text-xs text-slate-600 whitespace-pre-wrap leading-relaxed bg-white p-3 rounded-lg border border-slate-200">
                   {detail.description}
                 </p>
               )}
 
               {/* Grid Metadata */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <div className="rounded-lg bg-white p-2.5 border border-sky-100/90">
+                <div className="rounded-lg bg-white p-2.5 border border-slate-200">
                   <span className="text-[10px] font-bold uppercase text-slate-400">Assignee</span>
                   <p className="font-semibold text-slate-800 mt-0.5">{detail.assigneeName || "Unassigned"}</p>
                 </div>
 
-                <div className="rounded-lg bg-white p-2.5 border border-sky-100/90">
+                <div className="rounded-lg bg-white p-2.5 border border-slate-200">
                   <span className="text-[10px] font-bold uppercase text-slate-400">Due Date</span>
                   <p className="font-semibold text-slate-800 mt-0.5">{detail.dueAt ? dateOnly(detail.dueAt) : "None"}</p>
                 </div>
 
-                <div className="rounded-lg bg-white p-2.5 border border-sky-100/90">
+                <div className="rounded-lg bg-white p-2.5 border border-slate-200">
                   <span className="text-[10px] font-bold uppercase text-slate-400">Completed At</span>
                   <p className="font-semibold text-slate-800 mt-0.5">{detail.completedAt ? dateOnly(detail.completedAt) : "—"}</p>
                 </div>
 
-                <div className="rounded-lg bg-white p-2.5 border border-sky-100/90">
+                <div className="rounded-lg bg-white p-2.5 border border-slate-200">
                   <span className="text-[10px] font-bold uppercase text-slate-400">Approved At</span>
                   <p className="font-semibold text-slate-800 mt-0.5">{detail.approvedAt ? dateOnly(detail.approvedAt) : "—"}</p>
                 </div>
@@ -1066,7 +1066,7 @@ export default function TasksPage() {
             </div>
 
             {/* Transition Action Bar */}
-            <div className="rounded-xl border border-sky-100/90 bg-white p-4 space-y-2">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Status Workflow Actions</span>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <ActionButtons t={detail} />
@@ -1110,7 +1110,7 @@ export default function TasksPage() {
                   onChange={(e) => setNewComment(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && addComment()}
                   placeholder="Write a message or update..."
-                  className="flex-1 rounded-lg border border-sky-100/90 px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                  className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
                 />
                 <CustomButton variant="primary" size="sm" icon={<Send className="w-3.5 h-3.5" />} onClick={addComment}>
                   Post
@@ -1127,7 +1127,7 @@ export default function TasksPage() {
               {(detail.attachments || []).length > 0 && (
                 <div className="space-y-1.5">
                   {(detail.attachments || []).map((a) => (
-                    <div key={a.id} className="flex items-center justify-between rounded-lg border border-sky-100/90 px-3 py-2 bg-slate-50/50 text-xs">
+                    <div key={a.id} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 bg-slate-50/50 text-xs">
                       <div className="flex items-center gap-2">
                         <Paperclip className="w-3.5 h-3.5 text-slate-400" />
                         <span className="font-semibold text-slate-800">{a.fileName}</span>
@@ -1155,14 +1155,14 @@ export default function TasksPage() {
                   value={attachName}
                   onChange={(e) => setAttachName(e.target.value)}
                   placeholder="Document Name (e.g. proof.pdf)"
-                  className="rounded-lg border border-sky-100/90 px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-teal-600"
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-teal-600"
                 />
                 <input
                   type="text"
                   value={attachUrl}
                   onChange={(e) => setAttachUrl(e.target.value)}
                   placeholder="Link URL (optional)"
-                  className="rounded-lg border border-sky-100/90 px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-teal-600"
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:border-teal-600"
                 />
                 <CustomButton variant="outline" size="sm" icon={<Plus className="w-3.5 h-3.5" />} onClick={addAttachment}>
                   Add File
@@ -1184,7 +1184,7 @@ export default function TasksPage() {
             onChange={(e) => setCancelReason(e.target.value)}
             rows={2}
             placeholder="e.g. Duplicate requirement, client withdrew request, or superseded by task #..."
-            className="w-full rounded-lg border border-sky-100/90 px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
             autoFocus
           />
           <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">

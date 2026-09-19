@@ -35,7 +35,7 @@ export default function PnlPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-sky-50 text-sky-700"><BarChart3 size={19} /></div>
+        <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><BarChart3 size={19} /></div>
         <div>
           <h1 className="text-xl font-bold tracking-tight text-gray-900">Profit &amp; Loss</h1>
           <p className="text-sm text-gray-500">Revenue minus expenses for the period</p>
@@ -59,8 +59,8 @@ export default function PnlPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
-          <div className="border-b border-sky-100/70 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-5 py-4"><h2 className="font-semibold text-emerald-700">Revenue</h2></div>
+        <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-2xs">
+          <div className="border-b border-slate-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-5 py-4"><h2 className="font-semibold text-emerald-700">Revenue</h2></div>
           <CustomTable
             columns={[
               { key: "code", header: "Code", render: (r) => <span className="font-mono text-xs text-gray-500">{r.code}</span> },
@@ -74,8 +74,8 @@ export default function PnlPage() {
             emptyMessage="No revenue posted yet."
           />
         </div>
-        <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
-          <div className="border-b border-sky-100/70 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-5 py-4"><h2 className="font-semibold text-red-600">Expenses</h2></div>
+        <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-2xs">
+          <div className="border-b border-slate-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-5 py-4"><h2 className="font-semibold text-red-600">Expenses</h2></div>
           <CustomTable
             columns={[
               { key: "code", header: "Code", render: (r) => <span className="font-mono text-xs text-gray-500">{r.code}</span> },

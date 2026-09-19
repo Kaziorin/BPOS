@@ -184,7 +184,7 @@ interface CommissionRow {
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string }> = {
   ACTIVE: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
-  INACTIVE: { bg: "bg-slate-100", text: "text-slate-600", border: "border-sky-100/90" },
+  INACTIVE: { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200" },
   TERMINATED: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200" },
   ON_LEAVE: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
   PRESENT: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
@@ -194,7 +194,7 @@ const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string }
   PENDING: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
   APPROVED: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
   REJECTED: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200" },
-  DRAFT: { bg: "bg-slate-100", text: "text-slate-600", border: "border-sky-100/90" },
+  DRAFT: { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200" },
   PROCESSED: { bg: "bg-primary-50", text: "text-primary-700", border: "border-primary-200" },
   PAID: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
 };
@@ -285,7 +285,7 @@ export default function HRMPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => loadSummary()}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-sky-100/90 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
+              className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
               title="Refresh HRM Data"
             >
               <RefreshCw size={13} />
@@ -323,7 +323,7 @@ export default function HRMPage() {
       </div>
 
       {/* Segmented Navigation Tabs */}
-      <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-md border border-sky-100/90 shadow-2xs overflow-x-auto">
+      <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-md border border-slate-200 shadow-2xs overflow-x-auto">
         {[
           { id: "employees", label: "Employees", icon: Users },
           { id: "attendance", label: "Attendance & Punch", icon: Clock },
@@ -441,7 +441,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div className="relative w-full sm:w-72">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -449,7 +449,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
             placeholder="Search by name, ID, phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-sky-100/90 bg-white pl-9 pr-3 py-2 text-xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
           />
         </div>
 
@@ -457,7 +457,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
           >
             <option value="ALL">All Statuses</option>
             <option value="ACTIVE">Active</option>
@@ -468,7 +468,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
-            className="rounded-xl border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
           >
             <option value="ALL">All Departments</option>
             {departments.map((d) => (
@@ -478,7 +478,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
 
           <button
             onClick={() => { setEditingEmp(null); setShowAddModal(true); }}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700 active:scale-95 transition"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90 active:scale-95 transition"
           >
             <UserPlus size={14} /> Add Employee
           </button>
@@ -486,7 +486,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
       </div>
 
       {/* Directory Table */}
-      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm">
         <CustomTable
           columns={[
             {
@@ -848,7 +848,7 @@ function EmployeeFormModal({
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700 active:scale-95 disabled:opacity-50 transition"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-xs shadow-primary-500/25 hover:opacity-90 active:scale-95 disabled:opacity-50 transition"
             >
               {saving ? "Saving..." : "Create Employee"}
             </button>
@@ -914,7 +914,7 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
   return (
     <div className="space-y-4">
       {/* Quick Punch Action Grid for Today */}
-      <div className="rounded-sm bg-white p-5 border border-sky-100/90 shadow-sm space-y-3">
+      <div className="rounded-sm bg-white p-5 border border-slate-200 shadow-sm space-y-3">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
             <Clock size={18} className="text-primary-600" />
@@ -951,7 +951,7 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
                   ) : isClockedIn ? (
                     <button
                       onClick={() => handleClockOut(emp.id)}
-                      className="flex-1 rounded-xl bg-primary-600 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-primary-700 transition"
+                      className="flex-1 rounded-xl bg-primary-600 py-1.5 text-xs font-bold text-white shadow-xs hover:opacity-90 transition"
                     >
                       Clock OUT
                     </button>
@@ -968,7 +968,7 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
       </div>
 
       {/* Filter & History Table */}
-      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm">
         <div className="p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
           <h4 className="font-bold text-slate-900 text-sm">Attendance Logs</h4>
           <div className="flex items-center gap-2">
@@ -976,12 +976,12 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="rounded-xl border border-sky-100/90 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
+              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
             />
             <select
               value={selectedEmp}
               onChange={(e) => setSelectedEmp(e.target.value)}
-              className="rounded-xl border border-sky-100/90 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
+              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
             >
               <option value="">All Employees</option>
               {employees.map((e) => (
@@ -1109,7 +1109,7 @@ function LeaveTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "er
   return (
     <div className="space-y-4">
       {/* Action Header */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">Staff Leave Requests</h3>
           <p className="text-xs text-slate-500">Review pending leave applications and approve time off.</p>
@@ -1117,14 +1117,14 @@ function LeaveTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "er
 
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
         >
           <Plus size={14} /> New Leave Request
         </button>
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm">
         <CustomTable
           columns={[
             {
@@ -1325,7 +1325,7 @@ function LeaveRequestModal({
 
           <div className="flex justify-end gap-3 pt-3 border-t">
             <button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-sm text-slate-600 hover:bg-slate-100">Cancel</button>
-            <button type="submit" disabled={saving} className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white hover:bg-primary-700 disabled:opacity-50">
+            <button type="submit" disabled={saving} className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white hover:opacity-90 disabled:opacity-50">
               {saving ? "Submitting..." : "Submit Application"}
             </button>
           </div>
@@ -1406,7 +1406,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">Monthly Payroll Ledger</h3>
           <p className="text-xs text-slate-500">Calculate salary footings, deductions, and post double-entry payroll journals.</p>
@@ -1414,7 +1414,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
 
         <button
           onClick={handleGenerate}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700 active:scale-95 transition"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90 active:scale-95 transition"
         >
           <Wallet size={14} /> Run Payroll for This Month
         </button>
@@ -1422,7 +1422,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {payrolls.map((p) => (
-          <div key={p.id} className="rounded-sm border border-sky-100/90 bg-white p-6 shadow-sm space-y-4">
+          <div key={p.id} className="rounded-sm border border-slate-200 bg-white p-6 shadow-sm space-y-4">
             <div className="flex items-start justify-between">
               <div>
                 <p className="font-bold text-slate-900 text-base">{p.payrollNo}</p>
@@ -1440,11 +1440,11 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
                 <span className="text-slate-500 block">Total Net Pay:</span>
                 <span className="font-bold text-emerald-700 text-sm">{money(p.totalNetPay)}</span>
               </div>
-              <div className="pt-2 border-t border-sky-100/90">
+              <div className="pt-2 border-t border-slate-200">
                 <span className="text-slate-500 block">Basic Salaries:</span>
                 <span className="font-semibold text-slate-700">{money(p.totalBasic)}</span>
               </div>
-              <div className="pt-2 border-t border-sky-100/90">
+              <div className="pt-2 border-t border-slate-200">
                 <span className="text-slate-500 block">Total Deductions:</span>
                 <span className="font-semibold text-rose-600">-{money(p.totalDeductions)}</span>
               </div>
@@ -1468,7 +1468,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
               {p.status === "APPROVED" && (
                 <button
                   onClick={() => handlePay(p.id)}
-                  className="flex-1 rounded-xl bg-primary-600 py-2 text-xs font-bold text-white shadow-xs hover:bg-primary-700 transition"
+                  className="flex-1 rounded-xl bg-primary-600 py-2 text-xs font-bold text-white shadow-xs hover:opacity-90 transition"
                 >
                   Mark Paid & Post Journal
                 </button>
@@ -1492,7 +1492,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
               </button>
             </div>
 
-            <div className="overflow-hidden rounded-sm border border-sky-100/90">
+            <div className="overflow-hidden rounded-sm border border-slate-200">
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b bg-slate-50 text-slate-500 font-bold">
@@ -1555,7 +1555,7 @@ function ShiftsTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "e
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">Shift Templates & Schedules</h3>
           <p className="text-xs text-slate-500">Configure operating store shift windows and meal breaks.</p>
@@ -1563,7 +1563,7 @@ function ShiftsTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "e
 
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
         >
           <Plus size={14} /> Create Shift
         </button>
@@ -1571,7 +1571,7 @@ function ShiftsTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "e
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {shifts.map((s) => (
-          <div key={s.id} className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-3">
+          <div key={s.id} className="rounded-sm border border-slate-200 bg-white p-5 shadow-sm space-y-3">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary-50 text-primary-700 border border-primary-100">
                 <Briefcase size={20} />
@@ -1670,7 +1670,7 @@ function CreateShiftModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
           </div>
           <div className="flex justify-end gap-3 pt-3 border-t">
             <button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-sm">Cancel</button>
-            <button type="submit" disabled={saving} className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700">Create Shift</button>
+            <button type="submit" disabled={saving} className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Create Shift</button>
           </div>
         </form>
       </div>
@@ -1710,7 +1710,7 @@ function DepartmentsTab({ onNotify }: { onNotify: (msg: string, type?: "success"
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">Organization Structure</h3>
           <p className="text-xs text-slate-500">Manage business units, departments, and position designations.</p>
@@ -1718,7 +1718,7 @@ function DepartmentsTab({ onNotify }: { onNotify: (msg: string, type?: "success"
 
         <button
           onClick={() => setShowDeptModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
         >
           <Plus size={14} /> Add Department
         </button>
@@ -1726,7 +1726,7 @@ function DepartmentsTab({ onNotify }: { onNotify: (msg: string, type?: "success"
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {departments.map((d) => (
-          <div key={d.id} className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-2">
+          <div key={d.id} className="rounded-sm border border-slate-200 bg-white p-5 shadow-sm space-y-2">
             <div className="flex items-start justify-between">
               <div>
                 <h4 className="font-bold text-slate-900 text-sm">{d.name}</h4>
@@ -1739,7 +1739,7 @@ function DepartmentsTab({ onNotify }: { onNotify: (msg: string, type?: "success"
       </div>
 
       {/* Designations Table */}
-      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm">
         <div className="p-4 border-b border-slate-100">
           <h4 className="font-bold text-slate-900 text-sm">Position Designations & Pay Grades</h4>
         </div>
@@ -1825,7 +1825,7 @@ function CreateDeptModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
           </div>
           <div className="flex justify-end gap-3 pt-3 border-t">
             <button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-sm">Cancel</button>
-            <button type="submit" disabled={saving} className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700">Create Department</button>
+            <button type="submit" disabled={saving} className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Create Department</button>
           </div>
         </form>
       </div>
@@ -1865,7 +1865,7 @@ function SalesTargetsTab({ onNotify }: { onNotify: (msg: string, type?: "success
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">Staff Sales Targets & Quotas</h3>
           <p className="text-xs text-slate-500">Live achievement tracking against confirmed POS sales invoices.</p>
@@ -1873,7 +1873,7 @@ function SalesTargetsTab({ onNotify }: { onNotify: (msg: string, type?: "success
 
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
         >
           <Plus size={14} /> Set Target
         </button>
@@ -1881,7 +1881,7 @@ function SalesTargetsTab({ onNotify }: { onNotify: (msg: string, type?: "success
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {targets.map((t) => (
-          <div key={t.id} className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-sm space-y-3">
+          <div key={t.id} className="rounded-sm border border-slate-200 bg-white p-5 shadow-sm space-y-3">
             <div className="flex items-start justify-between">
               <div>
                 <h4 className="font-bold text-slate-900 text-sm">{t.scopeName}</h4>
@@ -1974,7 +1974,7 @@ function CreateTargetModal({ employees, onClose, onSaved }: { employees: Employe
           </div>
           <div className="flex justify-end gap-3 pt-3 border-t">
             <button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-sm">Cancel</button>
-            <button type="submit" className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700">Set Target</button>
+            <button type="submit" className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Set Target</button>
           </div>
         </form>
       </div>
@@ -2014,7 +2014,7 @@ function PerformanceTab({ onNotify }: { onNotify: (msg: string, type?: "success"
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
+      <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div>
           <h3 className="font-bold text-slate-900 text-sm">Staff Performance Appraisals</h3>
           <p className="text-xs text-slate-500">KPI evaluations, star ratings, and performance notes.</p>
@@ -2022,13 +2022,13 @@ function PerformanceTab({ onNotify }: { onNotify: (msg: string, type?: "success"
 
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
         >
           <Plus size={14} /> New Review
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm">
         <CustomTable
           columns={[
             {
@@ -2157,7 +2157,7 @@ function CreateReviewModal({ employees, onClose, onSaved }: { employees: Employe
           </div>
           <div className="flex justify-end gap-3 pt-3 border-t">
             <button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-sm">Cancel</button>
-            <button type="submit" className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700">Save Review</button>
+            <button type="submit" className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Save Review</button>
           </div>
         </form>
       </div>
@@ -2223,7 +2223,7 @@ function EmployeeCommissionsTab({ onNotify }: { onNotify: (msg: string, type?: "
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-sm border border-sky-100/90 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div className="flex items-center gap-3">
           <select
             value={selected}
@@ -2239,7 +2239,7 @@ function EmployeeCommissionsTab({ onNotify }: { onNotify: (msg: string, type?: "
         <button
           onClick={runCalc}
           disabled={!selected || loading}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:bg-primary-700 disabled:opacity-50 transition"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90 disabled:opacity-50 transition"
         >
           <TrendingUp size={14} /> Re-Calculate Commissions
         </button>
@@ -2253,7 +2253,7 @@ function EmployeeCommissionsTab({ onNotify }: { onNotify: (msg: string, type?: "
         </div>
       )}
 
-      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm">
         <CustomTable
           columns={[
             { key: "sale", header: "Invoice #", render: (c: CommissionRow) => <span className="font-bold text-slate-800 text-xs">{c.saleNo || "POS-SALE"}</span> },

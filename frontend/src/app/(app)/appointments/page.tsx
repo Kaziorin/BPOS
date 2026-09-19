@@ -104,9 +104,9 @@ const STATUS_CONFIG: Record<
 > = {
   BOOKED: {
     label: "Booked",
-    bg: "bg-sky-50 border-sky-200/80",
-    text: "text-[#0284C7]",
-    dot: "bg-[#0284C7]",
+    bg: "bg-brand-50 border-brand-border",
+    text: "text-brand-primary",
+    dot: "bg-brand-primary",
     icon: Calendar,
   },
   CONFIRMED: {
@@ -171,7 +171,7 @@ function TypeBadge({ type }: { type: string }) {
 
   return (
     <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500">
-      <Icon size={11} className="text-[#0284C7]" />
+      <Icon size={11} className="text-brand-primary" />
       {labels[type] || type}
     </span>
   );
@@ -518,7 +518,7 @@ export default function AppointmentsPage() {
           { label: "Operations", href: "/dashboard" },
           { label: "Appointments" },
         ]}
-        icon={<CalendarDays size={16} className="text-[#0284C7]" />}
+        icon={<CalendarDays size={16} className="text-brand-primary" />}
         actions={
           <CustomButton
             variant="primary"
@@ -598,7 +598,7 @@ export default function AppointmentsPage() {
             activeTab={activeTab}
             onChange={(tabId) => setActiveTab(tabId as ViewMode)}
             themeColor="primary"
-            className="w-auto border border-sky-100/90 bg-white shadow-2xs"
+            className="w-auto border border-slate-200 bg-white shadow-2xs"
           />
         </div>
       </div>
@@ -709,7 +709,7 @@ export default function AppointmentsPage() {
             title="Appointments & Bookings Directory"
             icon={<CalendarDays size={16} />}
             badge={
-              <span className="rounded-sm bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-[#0284C7] border border-sky-200/80">
+              <span className="rounded-sm bg-brand-50 px-2 py-0.5 text-[11px] font-bold text-brand-primary border border-brand-border">
                 {filteredAppointments.length} Records
               </span>
             }
@@ -733,7 +733,7 @@ export default function AppointmentsPage() {
                         setSelectedAppt(row);
                         setShowDetailModal(true);
                       }}
-                      className="font-mono text-xs font-bold text-gray-700 hover:text-[#0284C7] transition text-left cursor-pointer"
+                      className="font-mono text-xs font-bold text-gray-700 hover:text-brand-primary transition text-left cursor-pointer"
                       title="Click to view booking"
                     >
                       {row.appointmentNo}
@@ -748,7 +748,7 @@ export default function AppointmentsPage() {
                 width: "180px",
                 render: (row) => (
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-100 to-sky-200 text-[#0284C7] flex items-center justify-center font-bold text-xs shrink-0 border border-sky-200/80 shadow-2xs">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-100 to-sky-200 text-brand-primary flex items-center justify-center font-bold text-xs shrink-0 border border-brand-border shadow-2xs">
                       {(row.customerName || "W")[0].toUpperCase()}
                     </div>
                     <div className="min-w-0">
@@ -778,8 +778,8 @@ export default function AppointmentsPage() {
                       {row.serviceName || "General Service"}
                     </p>
                     <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#0369A1]">
-                        <User size={11} className="text-[#0284C7]" />
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-brand-dark">
+                        <User size={11} className="text-brand-primary" />
                         {row.staffName || "Unassigned"}
                       </span>
                       <span className="text-slate-300">•</span>
@@ -812,7 +812,7 @@ export default function AppointmentsPage() {
                   return (
                     <div className="space-y-0.5">
                       <p className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
-                        <Calendar size={12} className="text-[#0284C7]" />
+                        <Calendar size={12} className="text-brand-primary" />
                         {formatted}
                       </p>
                       <p className="text-[11px] text-gray-500 font-mono flex items-center gap-1.5">
@@ -958,10 +958,10 @@ export default function AppointmentsPage() {
       {/* 5b. Day Grid / Calendar View */}
       {activeTab === "calendar" && (
         <div className="space-y-3">
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+          <div className="rounded-sm border border-slate-200 bg-white p-3.5 shadow-2xs flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Calendar size={16} className="text-[#0284C7]" />
-              <h2 className="text-xs font-bold text-[#0369A1]">
+              <Calendar size={16} className="text-brand-primary" />
+              <h2 className="text-xs font-bold text-brand-dark">
                 Timeline & Day Schedule Ledger
               </h2>
             </div>
@@ -979,7 +979,7 @@ export default function AppointmentsPage() {
           </div>
 
           {appointmentsByDate.length === 0 ? (
-            <div className="rounded-sm border border-sky-100/90 bg-white p-12 text-center shadow-2xs text-slate-400">
+            <div className="rounded-sm border border-slate-200 bg-white p-12 text-center shadow-2xs text-slate-400">
               <CalendarDays size={36} className="mx-auto text-slate-300 mb-2" />
               <p className="font-semibold text-slate-600 text-xs">No appointments recorded for this timeframe.</p>
             </div>
@@ -999,16 +999,16 @@ export default function AppointmentsPage() {
                 return (
                   <div
                     key={dateStr}
-                    className="rounded-sm border border-sky-100/90 bg-white shadow-2xs overflow-hidden"
+                    className="rounded-sm border border-slate-200 bg-white shadow-2xs overflow-hidden"
                   >
-                    <div className="bg-sky-50/50 border-b border-sky-100/90 px-4 py-2.5 flex items-center justify-between">
+                    <div className="bg-brand-50/50 border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Calendar size={14} className="text-[#0284C7]" />
+                        <Calendar size={14} className="text-brand-primary" />
                         <span className="text-xs font-bold text-slate-800">
                           {formattedHeading}
                         </span>
                       </div>
-                      <span className="text-[11px] font-bold text-[#0284C7] bg-sky-50 border border-sky-200/80 px-2 py-0.5 rounded-sm">
+                      <span className="text-[11px] font-bold text-brand-primary bg-brand-50 border border-brand-border px-2 py-0.5 rounded-sm">
                         {list.length} booking{list.length > 1 ? "s" : ""}
                       </span>
                     </div>
@@ -1017,10 +1017,10 @@ export default function AppointmentsPage() {
                       {list.map((appt) => (
                         <div
                           key={appt.id}
-                          className="p-3.5 hover:bg-sky-50/30 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-3"
+                          className="p-3.5 hover:bg-brand-50/50/30 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-3"
                         >
                           <div className="flex items-start sm:items-center gap-3">
-                            <div className="w-14 shrink-0 font-mono text-xs font-bold text-[#0284C7] bg-sky-50 border border-sky-200/80 rounded-sm p-1.5 text-center">
+                            <div className="w-14 shrink-0 font-mono text-xs font-bold text-brand-primary bg-brand-50 border border-brand-border rounded-sm p-1.5 text-center">
                               {(appt.startAt || "").slice(11, 16) || "TBD"}
                             </div>
                             <div>
@@ -1075,9 +1075,9 @@ export default function AppointmentsPage() {
       {/* 5c. Staff Slot Radar / Availability Tab */}
       {activeTab === "availability" && (
         <div className="space-y-3">
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs space-y-3">
-            <h2 className="text-xs font-bold text-[#0369A1] flex items-center gap-2">
-              <Clock4 size={15} className="text-[#0284C7]" />
+          <div className="rounded-sm border border-slate-200 bg-white p-3.5 shadow-2xs space-y-3">
+            <h2 className="text-xs font-bold text-brand-dark flex items-center gap-2">
+              <Clock4 size={15} className="text-brand-primary" />
               Live Staff Availability & Free Slot Radar
             </h2>
 
@@ -1092,7 +1092,7 @@ export default function AppointmentsPage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
+                <label className="mb-1.5 block text-xs font-semibold text-brand-dark">
                   Staff Member
                 </label>
                 <CustomDropdownSelect
@@ -1112,7 +1112,7 @@ export default function AppointmentsPage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
+                <label className="mb-1.5 block text-xs font-semibold text-brand-dark">
                   Slot Duration (Minutes)
                 </label>
                 <CustomDropdownSelect
@@ -1147,8 +1147,8 @@ export default function AppointmentsPage() {
           </div>
 
           {/* Slots Output */}
-          <div className="rounded-sm border border-sky-100/90 bg-white shadow-2xs p-4">
-            <h3 className="text-xs font-bold text-[#0369A1] mb-3 flex items-center justify-between">
+          <div className="rounded-sm border border-slate-200 bg-white shadow-2xs p-4">
+            <h3 className="text-xs font-bold text-brand-dark mb-3 flex items-center justify-between">
               <span>
                 Available Windows for {availDate} ({availDuration}m)
               </span>
@@ -1159,11 +1159,11 @@ export default function AppointmentsPage() {
 
             {checkingSlots ? (
               <div className="py-10 text-center text-slate-400">
-                <Loader2 size={22} className="animate-spin mx-auto text-[#0284C7] mb-2" />
+                <Loader2 size={22} className="animate-spin mx-auto text-brand-primary mb-2" />
                 <p className="text-xs">Calculating staff availability & avoiding clashes...</p>
               </div>
             ) : availSlots.length === 0 ? (
-              <div className="p-8 text-center bg-sky-50/40 rounded-sm border border-sky-100/80">
+              <div className="p-8 text-center bg-brand-50/40 rounded-sm border border-slate-200">
                 <p className="text-xs font-semibold text-slate-600">
                   No free slots available for this staff on this date.
                 </p>
@@ -1187,15 +1187,15 @@ export default function AppointmentsPage() {
                           durationMin: availDuration,
                         });
                       }}
-                      className="group p-2.5 rounded-sm border border-sky-200/80 bg-sky-50/50 hover:bg-[#0284C7] hover:border-[#0284C7] transition-all text-left flex flex-col justify-between cursor-pointer shadow-2xs"
+                      className="group p-2.5 rounded-sm border border-brand-border bg-brand-50/50 hover:bg-brand-primary hover:border-brand-primary transition-all text-left flex flex-col justify-between cursor-pointer shadow-2xs"
                     >
                       <div className="flex items-center justify-between w-full">
-                        <span className="text-xs font-mono font-bold text-[#0369A1] group-hover:text-white">
+                        <span className="text-xs font-mono font-bold text-brand-dark group-hover:text-white">
                           {startTime}
                         </span>
-                        <Plus size={12} className="text-[#0284C7] group-hover:text-white" />
+                        <Plus size={12} className="text-brand-primary group-hover:text-white" />
                       </div>
-                      <span className="text-[10px] text-[#0284C7]/80 group-hover:text-sky-100 mt-1 font-mono">
+                      <span className="text-[10px] text-brand-primary/80 group-hover:text-sky-100 mt-1 font-mono">
                         to {endTime}
                       </span>
                     </button>
@@ -1210,10 +1210,10 @@ export default function AppointmentsPage() {
       {/* 5d. Services Catalog Quick-Book Tab */}
       {activeTab === "services" && (
         <div className="space-y-3">
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+          <div className="rounded-sm border border-slate-200 bg-white p-3.5 shadow-2xs flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Scissors size={16} className="text-[#0284C7]" />
-              <h2 className="text-xs font-bold text-[#0369A1]">
+              <Scissors size={16} className="text-brand-primary" />
+              <h2 className="text-xs font-bold text-brand-dark">
                 Service Catalog & Instant Booking
               </h2>
             </div>
@@ -1232,15 +1232,15 @@ export default function AppointmentsPage() {
             {servicesList.map((svc) => (
               <div
                 key={svc.id}
-                className="rounded-sm border border-sky-100/90 bg-white shadow-2xs p-4 flex flex-col justify-between hover:border-sky-300 transition-all"
+                className="rounded-sm border border-slate-200 bg-white shadow-2xs p-4 flex flex-col justify-between hover:border-brand-border transition-all"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-[11px] font-bold text-[#0284C7] bg-sky-50 border border-sky-200/80 px-2 py-0.5 rounded-sm">
+                    <span className="text-[11px] font-bold text-brand-primary bg-brand-50 border border-brand-border px-2 py-0.5 rounded-sm">
                       {svc.category || "General"}
                     </span>
                     <span className="text-xs font-mono text-slate-500 flex items-center gap-1">
-                      <Timer size={12} className="text-[#0284C7]" />
+                      <Timer size={12} className="text-brand-primary" />
                       {svc.durationMin} mins
                     </span>
                   </div>
@@ -1250,7 +1250,7 @@ export default function AppointmentsPage() {
                   </p>
                 </div>
 
-                <div className="pt-3 mt-3 border-t border-sky-100/80 flex items-center justify-between">
+                <div className="pt-3 mt-3 border-t border-slate-200 flex items-center justify-between">
                   <span className="text-sm font-extrabold text-slate-900 [font-variant-numeric:tabular-nums]">
                     {money(Number(svc.price) || 0)}
                   </span>
@@ -1284,12 +1284,12 @@ export default function AppointmentsPage() {
         title="Schedule New Appointment"
         size="4xl"
         themeColor="primary"
-        icon={<CalendarDays size={18} className="text-[#0284C7]" />}
+        icon={<CalendarDays size={18} className="text-brand-primary" />}
       >
         <div className="space-y-4 py-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
+              <label className="mb-1.5 block text-xs font-semibold text-brand-dark">
                 Booking Type
               </label>
               <CustomDropdownSelect
@@ -1308,7 +1308,7 @@ export default function AppointmentsPage() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
+              <label className="mb-1.5 block text-xs font-semibold text-brand-dark">
                 Select Customer
               </label>
               <CustomDropdownSelect
@@ -1338,7 +1338,7 @@ export default function AppointmentsPage() {
 
           {/* If Walk-in / Unregistered customer */}
           {!form.customerId && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-sky-50/40 rounded-sm border border-sky-100/90">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-brand-50/40 rounded-sm border border-slate-200">
               <CustomInput
                 label="Walk-in Customer Name"
                 value={form.customerName}
@@ -1358,7 +1358,7 @@ export default function AppointmentsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
+              <label className="mb-1.5 block text-xs font-semibold text-brand-dark">
                 Service Item
               </label>
               <CustomDropdownSelect
@@ -1378,7 +1378,7 @@ export default function AppointmentsPage() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-[#0369A1]">
+              <label className="mb-1.5 block text-xs font-semibold text-brand-dark">
                 Assigned Staff Member
               </label>
               <CustomDropdownSelect
@@ -1463,14 +1463,14 @@ export default function AppointmentsPage() {
           title={`Booking Details — ${selectedAppt.appointmentNo}`}
           size="xl"
           themeColor="primary"
-          icon={<CalendarDays size={18} className="text-[#0284C7]" />}
+          icon={<CalendarDays size={18} className="text-brand-primary" />}
         >
           <div className="space-y-4 py-1">
-            <div className="p-4 rounded-sm border border-sky-100/90 bg-white shadow-2xs space-y-3">
-              <div className="flex items-center justify-between border-b border-sky-100/90 pb-3">
+            <div className="p-4 rounded-sm border border-slate-200 bg-white shadow-2xs space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div>
                   <span className="font-mono text-xs text-slate-400">Booking Token</span>
-                  <p className="font-mono text-lg font-extrabold text-[#0284C7]">
+                  <p className="font-mono text-lg font-extrabold text-brand-primary">
                     {selectedAppt.appointmentNo}
                   </p>
                 </div>
@@ -1507,16 +1507,16 @@ export default function AppointmentsPage() {
 
                 <div>
                   <span className="text-slate-400">Total Price</span>
-                  <p className="font-extrabold text-[#0284C7] text-base mt-0.5 [font-variant-numeric:tabular-nums]">
+                  <p className="font-extrabold text-brand-primary text-base mt-0.5 [font-variant-numeric:tabular-nums]">
                     {money(Number(selectedAppt.price) || 0)}
                   </p>
                 </div>
               </div>
 
               {selectedAppt.notes && (
-                <div className="pt-2 border-t border-sky-100/90 text-xs">
+                <div className="pt-2 border-t border-slate-200 text-xs">
                   <span className="text-slate-400">Notes & Instructions:</span>
-                  <p className="text-slate-700 mt-0.5 bg-sky-50/50 p-2 rounded-sm border border-sky-100/90 text-xs">
+                  <p className="text-slate-700 mt-0.5 bg-brand-50/50 p-2 rounded-sm border border-slate-200 text-xs">
                     {selectedAppt.notes}
                   </p>
                 </div>
@@ -1525,7 +1525,7 @@ export default function AppointmentsPage() {
 
             {/* Quick Transition Status Controls */}
             <div className="space-y-2">
-              <span className="text-xs font-semibold text-[#0369A1]">
+              <span className="text-xs font-semibold text-brand-dark">
                 Progress Status Workflow
               </span>
               <div className="flex flex-wrap gap-2">

@@ -13,14 +13,14 @@ export interface CustomCheckboxProps extends Omit<InputHTMLAttributes<HTMLInputE
 
 const CHECKBOX_THEME_MAP: Record<string, { hover: string; focus: string; checked: string }> = {
   primary: {
-    hover: "group-hover:border-[#0284C7]",
-    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-[#0284C7]/30 peer-focus-visible:border-[#0284C7]",
-    checked: "peer-checked:bg-[#0284C7] peer-checked:border-[#0284C7]",
+    hover: "group-hover:border-brand-primary",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-brand-primary/30 peer-focus-visible:border-brand-primary",
+    checked: "peer-checked:bg-brand-primary peer-checked:border-brand-primary",
   },
   blue: {
-    hover: "group-hover:border-[#0284C7]",
-    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-[#0284C7]/30 peer-focus-visible:border-[#0284C7]",
-    checked: "peer-checked:bg-[#0284C7] peer-checked:border-[#0284C7]",
+    hover: "group-hover:border-brand-primary",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-brand-primary/30 peer-focus-visible:border-brand-primary",
+    checked: "peer-checked:bg-brand-primary peer-checked:border-brand-primary",
   },
   teal: {
     hover: "group-hover:border-[#00897b]",
@@ -28,9 +28,9 @@ const CHECKBOX_THEME_MAP: Record<string, { hover: string; focus: string; checked
     checked: "peer-checked:bg-[#00897b] peer-checked:border-[#00897b]",
   },
   orange: {
-    hover: "group-hover:border-[#0284C7]",
-    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-[#0284C7]/30 peer-focus-visible:border-[#0284C7]",
-    checked: "peer-checked:bg-[#0284C7] peer-checked:border-[#0284C7]",
+    hover: "group-hover:border-orange-500",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-orange-500/30 peer-focus-visible:border-orange-500",
+    checked: "peer-checked:bg-orange-600 peer-checked:border-orange-600",
   },
   emerald: {
     hover: "group-hover:border-emerald-500",
@@ -38,9 +38,9 @@ const CHECKBOX_THEME_MAP: Record<string, { hover: string; focus: string; checked
     checked: "peer-checked:bg-emerald-600 peer-checked:border-emerald-600",
   },
   indigo: {
-    hover: "group-hover:border-[#0284C7]",
-    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-[#0284C7]/30 peer-focus-visible:border-[#0284C7]",
-    checked: "peer-checked:bg-[#0284C7] peer-checked:border-[#0284C7]",
+    hover: "group-hover:border-indigo-500",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-500/30 peer-focus-visible:border-indigo-500",
+    checked: "peer-checked:bg-indigo-600 peer-checked:border-indigo-600",
   },
   amber: {
     hover: "group-hover:border-amber-500",

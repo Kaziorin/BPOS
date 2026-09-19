@@ -153,7 +153,7 @@ export default function CommissionAgentsPage() {
                     disabled={!hasPayable || payingOut === agent.id}
                     className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                       hasPayable
-                        ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs hover:bg-primary-700"
+                        ? "bg-brand-gradient text-white shadow-2xs hover:opacity-90"
                         : "cursor-not-allowed bg-gray-100 text-gray-400"
                     }`}
                   >

@@ -26,7 +26,7 @@ export interface CustomTabsProps {
 }
 
 const THEME_ACTIVE_STYLES: Record<string, string> = {
-  primary: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold border border-[#0284C7] shadow-xs outline-none",
+  primary: "bg-brand-gradient text-white font-bold border border-brand-primary shadow-xs outline-none",
   blue: "bg-blue-600 text-white shadow-2xs border border-blue-600 outline-none",
   orange: "bg-orange-500 text-white shadow-2xs border border-orange-500 outline-none",
   teal: "bg-[#00796b] text-white shadow-2xs border border-[#00796b] outline-none",
@@ -39,7 +39,7 @@ const THEME_ACTIVE_STYLES: Record<string, string> = {
 };
 
 const THEME_HOVER_STYLES = (darkMode: boolean): Record<string, string> => ({
-  primary: darkMode ? "hover:bg-sky-500/10 hover:text-sky-400" : "hover:bg-sky-50 hover:text-sky-700",
+  primary: darkMode ? "hover:bg-slate-800 hover:text-brand-primary" : "hover:bg-brand-50 hover:text-brand-dark",
   blue: darkMode ? "hover:bg-blue-500/10 hover:text-blue-400" : "hover:bg-blue-50 hover:text-blue-700",
   orange: darkMode ? "hover:bg-orange-500/10 hover:text-orange-400" : "hover:bg-orange-50 hover:text-orange-700",
   teal: darkMode ? "hover:bg-teal-500/10 hover:text-teal-400" : "hover:bg-teal-50 hover:text-teal-750",
@@ -52,7 +52,7 @@ const THEME_HOVER_STYLES = (darkMode: boolean): Record<string, string> => ({
 });
 
 const THEME_ICON_COLORS = (darkMode: boolean): Record<string, string> => ({
-  primary: darkMode ? "text-sky-400" : "text-[#0284C7]",
+  primary: darkMode ? "text-brand-primary" : "text-brand-primary",
   blue: darkMode ? "text-blue-400" : "text-blue-600",
   orange: darkMode ? "text-orange-400" : "text-orange-500",
   teal: darkMode ? "text-teal-400" : "text-[#00796b]",
@@ -89,7 +89,7 @@ export function CustomTabs({
         wrap ? "flex-wrap overflow-x-visible" : "overflow-x-auto",
         darkMode
           ? "border border-slate-800 bg-slate-900 shadow-none"
-          : "border border-sky-100/90 bg-white shadow-2xs",
+          : "border border-brand-border bg-white shadow-2xs",
         className
       )}
     >
@@ -105,14 +105,14 @@ export function CustomTabs({
             className={cn(
               "flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-sm transition-all duration-200 whitespace-nowrap cursor-pointer select-none outline-none focus:outline-none focus-visible:outline-none focus:ring-0",
               isActive
-                ? cn(activeStyle, themeColor === "primary" && "border border-[#0284C7]")
+                ? cn(activeStyle, themeColor === "primary" && "border border-brand-primary")
                 : inactiveClassName
                   ? inactiveClassName
                   : cn(
                       "border",
                       darkMode
                         ? "text-slate-300 bg-slate-800/80 border-slate-700"
-                        : "text-gray-600 bg-white border-sky-200/90 shadow-2xs hover:bg-sky-50 hover:text-[#0284C7] hover:border-sky-300",
+                        : "text-slate-600 bg-white border-brand-border shadow-2xs hover:bg-brand-50 hover:text-brand-primary hover:border-brand-primary",
                       hoverStyle
                     )
             )}
@@ -133,8 +133,8 @@ export function CustomTabs({
                 className={cn(
                   "inline-flex items-center justify-center min-w-[20px] h-[18px] px-1.5 text-[10.5px] font-bold leading-none rounded-sm transition-colors shrink-0",
                   isActive
-                    ? "bg-white text-[#0369A1] font-black shadow-2xs"
-                    : tab.badgeClassName || (darkMode ? "bg-slate-700 text-slate-300" : "bg-sky-100 text-[#0284C7] border border-sky-200/80")
+                    ? "bg-white text-brand-dark font-black shadow-2xs"
+                    : tab.badgeClassName || (darkMode ? "bg-slate-700 text-slate-300" : "bg-brand-50 text-brand-primary border border-brand-border")
                 )}
               >
                 {tab.badge}

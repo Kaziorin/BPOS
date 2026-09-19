@@ -19,7 +19,7 @@ export const CustomTextarea = forwardRef<HTMLTextAreaElement, CustomTextareaProp
     return (
       <div className={cn("w-full", containerClassName)}>
         {label && (
-          <label htmlFor={textareaId} className={cn("mb-1.5 block text-xs font-semibold capitalize", darkMode ? "text-slate-300" : "text-[#0369A1]")}>
+          <label htmlFor={textareaId} className={cn("mb-1.5 block text-xs font-semibold capitalize", darkMode ? "text-slate-300" : "text-brand-dark")}>
             {label}
           </label>
         )}
@@ -30,8 +30,8 @@ export const CustomTextarea = forwardRef<HTMLTextAreaElement, CustomTextareaProp
           className={cn(
             "w-full resize-y rounded-sm border px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 shadow-2xs",
             darkMode
-              ? "bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500/20"
-              : "bg-white border-sky-200/90 text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
+              ? "bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20"
+              : "bg-white border-brand-border text-slate-700 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20",
             error ? "border-red-400 focus:border-red-500" : "",
             className
           )}

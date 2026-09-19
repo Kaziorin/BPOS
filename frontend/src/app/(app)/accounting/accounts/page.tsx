@@ -41,7 +41,7 @@ export default function AccountsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-sky-50 text-sky-700"><BookOpen size={19} /></div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><BookOpen size={19} /></div>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-gray-900">Chart of Accounts</h1>
             <p className="text-sm text-gray-500">{accounts.length} accounts · auto-seeded COA (§10.20)</p>
@@ -54,7 +54,7 @@ export default function AccountsPage() {
 
       {error && <div className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
-      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+      <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-2xs">
         <CustomTable
           columns={[
             { key: "code", header: "Code", render: (a) => <span className="font-mono text-xs font-semibold text-gray-700">{a.code}</span> },

@@ -45,7 +45,7 @@ export function CustomCard({
         ("$$typeof" in (icon as any) || "render" in (icon as any)))
     ) {
       const IconComponent = icon as React.ElementType;
-      return <IconComponent size={16} className="text-[#0284C7] shrink-0" />;
+      return <IconComponent size={16} className="text-brand-primary shrink-0" />;
     }
     return icon;
   };
@@ -56,7 +56,7 @@ export function CustomCard({
         "w-full rounded-sm border transition-all duration-200 shadow-2xs overflow-hidden flex flex-col justify-between",
         darkMode
           ? "border-slate-800 bg-slate-900 text-slate-100"
-          : "border-sky-100/90 bg-white text-slate-900",
+          : "border-brand-border bg-white text-slate-900",
         className
       )}
     >
@@ -67,8 +67,8 @@ export function CustomCard({
             darkMode
               ? "border-slate-800 bg-slate-900/80"
               : headerGradient
-              ? "border-sky-100/90 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50"
-              : "border-sky-100/90 bg-white",
+              ? "border-brand-light bg-brand-50/60"
+              : "border-brand-light bg-white",
             headerClassName
           )}
         >
@@ -76,14 +76,14 @@ export function CustomCard({
             {renderIcon()}
             <div className="min-w-0">
               {typeof title === "string" ? (
-                <h3 className="text-sm sm:text-[15px] font-bold text-[#0369A1] tracking-tight truncate">
+                <h3 className="text-sm sm:text-[15px] font-bold text-brand-dark tracking-tight truncate">
                   {title}
                 </h3>
               ) : (
                 title
               )}
               {subtitle && (
-                <p className="text-[11px] text-[#0284C7] font-medium leading-tight mt-0.5 truncate">
+                <p className="text-[11px] text-brand-primary font-medium leading-tight mt-0.5 truncate">
                   {subtitle}
                 </p>
               )}
@@ -102,7 +102,7 @@ export function CustomCard({
             "px-4 sm:px-5 py-3 border-t shrink-0",
             darkMode
               ? "border-slate-800 bg-slate-900/50 text-slate-400"
-              : "border-sky-100/90 bg-sky-50/30 text-slate-600",
+              : "border-brand-light bg-brand-50/30 text-slate-600",
             footerClassName
           )}
         >

@@ -364,7 +364,7 @@ function ReportsContent() {
               ? "border-emerald-200 bg-emerald-50 text-emerald-800"
               : toast.type === "error"
               ? "border-rose-200 bg-rose-50 text-rose-800"
-              : "border-sky-200 bg-sky-50 text-sky-800"
+              : "border-brand-border bg-brand-50 text-sky-800"
           }`}
         >
           <div className="flex items-center gap-2">
@@ -396,7 +396,7 @@ function ReportsContent() {
       />
 
       {/* Master Top Banner */}
-      <div className="relative overflow-hidden rounded-sm border border-sky-200/70 bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] p-6 text-white shadow-2xs">
+      <div className="relative overflow-hidden rounded-sm border border-brand-border bg-brand-gradient p-6 text-white shadow-2xs">
         <div className="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-primary-500/15 blur-3xl" />
         <div className="absolute right-1/3 -bottom-12 h-48 w-48 rounded-full bg-emerald-500/10 blur-2xl" />
 
@@ -429,7 +429,7 @@ function ReportsContent() {
             <CustomButton
               size="sm"
               onClick={() => handleExport(activeTab)}
-              className="bg-white text-sky-700 hover:bg-sky-50 shadow-2xs font-semibold rounded-sm"
+              className="bg-white text-sky-700 hover:bg-brand-50/50 shadow-2xs font-semibold rounded-sm"
             >
               <Download size={14} />
               <span>Export CSV</span>
@@ -439,11 +439,11 @@ function ReportsContent() {
       </div>
 
       {/* Global Filter Bar */}
-      <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs">
+      <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           {/* Date Range Inputs */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <div className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 bg-sky-50/40 px-3 py-1.5 text-xs text-slate-700">
+            <div className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-brand-50/40 px-3 py-1.5 text-xs text-slate-700">
               <CalendarRange size={14} className="text-slate-400" />
               <input
                 type="date"
@@ -472,7 +472,7 @@ function ReportsContent() {
                   key={p.val}
                   type="button"
                   onClick={() => applyDatePreset(p.val as any)}
-                  className="rounded-sm border border-sky-100/90 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-sky-50/50 transition"
+                  className="rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-brand-50/50 transition"
                 >
                   {p.label}
                 </button>
@@ -504,7 +504,7 @@ function ReportsContent() {
                 else if (activeTab === "saved" || activeTab === "scheduled") loadSaved();
               }}
               disabled={loading}
-              className="border-sky-100/90 bg-white hover:bg-sky-50/50 shadow-2xs"
+              className="border-slate-200 bg-white hover:bg-brand-50/50 shadow-2xs"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
               <span>Refresh</span>
@@ -514,7 +514,7 @@ function ReportsContent() {
       </div>
 
       {/* Main Tab Strip */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-sky-100/90 pb-3">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
         {[
           { id: "sales", label: "Sales & Revenue", icon: ShoppingCart },
           { id: "inventory", label: "Inventory & Stock", icon: Package },
@@ -533,8 +533,8 @@ function ReportsContent() {
               onClick={() => switchTab(t.id as TabType)}
               className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition cursor-pointer ${
                 isActive
-                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs"
-                  : "bg-white text-slate-600 hover:bg-sky-50/60 border border-sky-100/90"
+                  ? "bg-brand-gradient text-white shadow-2xs"
+                  : "bg-white text-slate-600 hover:bg-brand-50/60 border border-slate-200"
               }`}
             >
               <Icon size={14} />
@@ -557,7 +557,7 @@ function ReportsContent() {
             <>
               {/* Sales KPIs */}
               <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Gross Sales Revenue</span>
                     <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-100 text-emerald-700">
@@ -569,15 +569,15 @@ function ReportsContent() {
                       {currencyShort(salesTotals.totalRev)}
                     </span>
                   </div>
-                  <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
+                  <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
                     Total billing volume in period
                   </p>
                 </div>
 
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Orders Invoiced</span>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-100 text-sky-700">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-50 text-sky-700">
                       <ShoppingCart size={16} />
                     </span>
                   </div>
@@ -585,12 +585,12 @@ function ReportsContent() {
                     <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{salesTotals.totalCount}</span>
                     <span className="text-xs text-slate-400 font-medium">sales invoices</span>
                   </div>
-                  <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
+                  <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
                     Completed POS & commercial checkouts
                   </p>
                 </div>
 
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Settled & Paid</span>
                     <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-teal-100 text-teal-700">
@@ -602,12 +602,12 @@ function ReportsContent() {
                       {currencyShort(salesTotals.totalPaid)}
                     </span>
                   </div>
-                  <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
+                  <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
                     Cash, cards & mobile banking received
                   </p>
                 </div>
 
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer Receivables (Due)</span>
                     <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-amber-100 text-amber-700">
@@ -619,7 +619,7 @@ function ReportsContent() {
                       {currencyShort(salesTotals.totalDue)}
                     </span>
                   </div>
-                  <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
+                  <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
                     Credit sales balance pending collection
                   </p>
                 </div>
@@ -628,7 +628,7 @@ function ReportsContent() {
               {/* Grid: Sales By Product & Sales By Category */}
               <div className="grid gap-6 lg:grid-cols-2">
                 {/* Sales by Product */}
-                <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
+                <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-slate-900">Top Performing Products</h3>
@@ -645,7 +645,7 @@ function ReportsContent() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-sky-100/70 bg-sky-50/40 font-bold uppercase text-slate-500 text-[10px]">
+                        <tr className="border-b border-slate-100 bg-brand-50/40 font-bold uppercase text-slate-500 text-[10px]">
                           <th className="py-2.5 px-3">Product Name</th>
                           <th className="py-2.5 px-3 text-right">Quantity Sold</th>
                           <th className="py-2.5 px-3 text-right">Total Revenue</th>
@@ -656,7 +656,7 @@ function ReportsContent() {
                           <tr><td colSpan={3} className="py-8 text-center text-slate-400">No product sales in period</td></tr>
                         ) : (
                           salesByProduct.slice(0, 10).map((r: any, i: number) => (
-                            <tr key={i} className="hover:bg-sky-50/50/60">
+                            <tr key={i} className="hover:bg-brand-50/50/60">
                               <td className="py-2.5 px-3 font-semibold text-slate-800">{r.productName}</td>
                               <td className="py-2.5 px-3 text-right font-mono text-slate-600">{r.totalQty}</td>
                               <td className="py-2.5 px-3 text-right font-bold text-slate-900">{currency(r.totalRevenue)}</td>
@@ -669,7 +669,7 @@ function ReportsContent() {
                 </div>
 
                 {/* Sales by Category */}
-                <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
+                <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-slate-900">Sales by Category</h3>
@@ -686,7 +686,7 @@ function ReportsContent() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-sky-100/70 bg-sky-50/40 font-bold uppercase text-slate-500 text-[10px]">
+                        <tr className="border-b border-slate-100 bg-brand-50/40 font-bold uppercase text-slate-500 text-[10px]">
                           <th className="py-2.5 px-3">Category Name</th>
                           <th className="py-2.5 px-3 text-right">Units Sold</th>
                           <th className="py-2.5 px-3 text-right">Revenue</th>
@@ -697,7 +697,7 @@ function ReportsContent() {
                           <tr><td colSpan={3} className="py-8 text-center text-slate-400">No category sales in period</td></tr>
                         ) : (
                           salesByCategory.map((r: any, i: number) => (
-                            <tr key={i} className="hover:bg-sky-50/50/60">
+                            <tr key={i} className="hover:bg-brand-50/50/60">
                               <td className="py-2.5 px-3 font-semibold text-slate-800">{r.categoryName}</td>
                               <td className="py-2.5 px-3 text-right font-mono text-slate-600">{r.totalQty}</td>
                               <td className="py-2.5 px-3 text-right font-bold text-slate-900">{currency(r.totalRevenue)}</td>
@@ -711,7 +711,7 @@ function ReportsContent() {
               </div>
 
               {/* Payment Method Distribution */}
-              <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
+              <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">Tender & Payment Method Breakdown</h3>
@@ -721,7 +721,7 @@ function ReportsContent() {
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {salesByPayment.map((p: any, i: number) => (
-                    <div key={i} className="rounded-sm border border-sky-100/70 bg-sky-50/40 p-4">
+                    <div key={i} className="rounded-sm border border-slate-100 bg-brand-50/40 p-4">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{p.method}</span>
                       <p className="mt-1 text-lg font-bold text-slate-900">{currency(p.totalAmount)}</p>
                       <p className="mt-1 text-xs text-slate-500">{p.saleCount} transactions</p>
@@ -740,10 +740,10 @@ function ReportsContent() {
             <>
               {/* Inventory KPIs */}
               <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Stock Valuation</span>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-100 text-sky-700">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-50 text-sky-700">
                       <Package size={16} />
                     </span>
                   </div>
@@ -752,12 +752,12 @@ function ReportsContent() {
                       {currencyShort(aging.totalStockValue || stockValuation.reduce((s, r) => s + Number(r.costValue || 0), 0))}
                     </span>
                   </div>
-                  <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
+                  <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
                     Warehouse assets at cost value
                   </p>
                 </div>
 
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Low Stock Warnings</span>
                     <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-amber-100 text-amber-700">
@@ -768,12 +768,12 @@ function ReportsContent() {
                     <span className="text-3xl font-extrabold text-amber-600 tracking-tight">{lowStock.length}</span>
                     <span className="text-xs text-slate-400 font-medium">SKUs below reorder point</span>
                   </div>
-                  <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
+                  <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
                     Requires immediate replenishment
                   </p>
                 </div>
 
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Expiring Batches (30d)</span>
                     <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-orange-100 text-orange-700">
@@ -786,12 +786,12 @@ function ReportsContent() {
                     </span>
                     <span className="text-xs text-slate-400 font-medium">batches</span>
                   </div>
-                  <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
+                  <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
                     FEFO priority liquidation
                   </p>
                 </div>
 
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Expiry Value at Risk</span>
                     <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-100 text-rose-700">
@@ -803,14 +803,14 @@ function ReportsContent() {
                       {currencyShort(expiry.totalAtRisk || 0)}
                     </span>
                   </div>
-                  <p className="mt-2 text-xs text-slate-500 border-t border-sky-100/70 pt-2">
+                  <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
                     Total cost of expiring items
                   </p>
                 </div>
               </div>
 
               {/* Stock Valuation Table */}
-              <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
+              <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">Stock Valuation Ledger</h3>
@@ -827,7 +827,7 @@ function ReportsContent() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-sky-100/70 bg-sky-50/40 font-bold uppercase text-slate-500 text-[10px]">
+                      <tr className="border-b border-slate-100 bg-brand-50/40 font-bold uppercase text-slate-500 text-[10px]">
                         <th className="py-2.5 px-3">Product Name</th>
                         <th className="py-2.5 px-3">Warehouse</th>
                         <th className="py-2.5 px-3 text-right">Qty On Hand</th>
@@ -840,7 +840,7 @@ function ReportsContent() {
                         <tr><td colSpan={5} className="py-8 text-center text-slate-400">No stock valuation records</td></tr>
                       ) : (
                         stockValuation.slice(0, 15).map((r: any, i: number) => (
-                          <tr key={i} className="hover:bg-sky-50/50/60">
+                          <tr key={i} className="hover:bg-brand-50/50/60">
                             <td className="py-2.5 px-3 font-semibold text-slate-800">{r.productName}</td>
                             <td className="py-2.5 px-3 text-slate-600">{r.warehouseName || "Main HQ"}</td>
                             <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-700">{r.qtyOnHand}</td>
@@ -862,25 +862,25 @@ function ReportsContent() {
               {/* P&L Cards */}
               {pnl && (
                 <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                  <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Gross Revenue</span>
                     <p className="mt-2 text-3xl font-extrabold text-slate-900 tracking-tight">{currency(pnl.revenue)}</p>
                     <p className="mt-1 text-xs text-slate-500">Total earned sales turnover</p>
                   </div>
 
-                  <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                  <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Cost of Goods Sold (COGS)</span>
                     <p className="mt-2 text-3xl font-extrabold text-orange-600 tracking-tight">{currency(pnl.cogs)}</p>
                     <p className="mt-1 text-xs text-slate-500">Direct product acquisition costs</p>
                   </div>
 
-                  <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                  <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Gross Operating Profit</span>
                     <p className="mt-2 text-3xl font-extrabold text-blue-600 tracking-tight">{currency(pnl.grossProfit)}</p>
                     <p className="mt-1 text-xs text-slate-500">Margin prior to overhead expenses</p>
                   </div>
 
-                  <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                  <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Net Bottomline Profit</span>
                     <p className="mt-2 text-3xl font-extrabold text-emerald-600 tracking-tight">{currency(pnl.netProfit)}</p>
                     <p className="mt-1 text-xs text-slate-500">Net retained operational earnings</p>
@@ -892,8 +892,8 @@ function ReportsContent() {
               {balanceSheet && (
                 <div className="grid gap-4 lg:grid-cols-3">
                   {/* Assets */}
-                  <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-3">
-                    <div className="flex items-center justify-between border-b border-sky-100/70 pb-2">
+                  <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                       <h4 className="text-sm font-bold text-emerald-700 uppercase">1. Assets</h4>
                       <span className="text-base font-extrabold text-emerald-700">{currency(balanceSheet.totalAssets)}</span>
                     </div>
@@ -908,8 +908,8 @@ function ReportsContent() {
                   </div>
 
                   {/* Liabilities */}
-                  <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-3">
-                    <div className="flex items-center justify-between border-b border-sky-100/70 pb-2">
+                  <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                       <h4 className="text-sm font-bold text-rose-700 uppercase">2. Liabilities</h4>
                       <span className="text-base font-extrabold text-rose-700">{currency(balanceSheet.totalLiabilities)}</span>
                     </div>
@@ -924,8 +924,8 @@ function ReportsContent() {
                   </div>
 
                   {/* Equity */}
-                  <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-3">
-                    <div className="flex items-center justify-between border-b border-sky-100/70 pb-2">
+                  <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                       <h4 className="text-sm font-bold text-blue-700 uppercase">3. Equity</h4>
                       <span className="text-base font-extrabold text-blue-700">{currency(balanceSheet.totalEquity)}</span>
                     </div>
@@ -947,26 +947,26 @@ function ReportsContent() {
           {activeTab === "commission" && commissions && (
             <>
               <div className="grid gap-3.5 sm:grid-cols-3">
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Commission Earned</span>
                   <p className="mt-2 text-3xl font-extrabold text-emerald-600">{currency(commissions.totalEarned)}</p>
                 </div>
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Commission Paid Out</span>
                   <p className="mt-2 text-3xl font-extrabold text-blue-600">{currency(commissions.totalPaid)}</p>
                 </div>
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Settlement</span>
                   <p className="mt-2 text-3xl font-extrabold text-amber-600">{currency(commissions.totalPending)}</p>
                 </div>
               </div>
 
-              <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
+              <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
                 <h3 className="text-sm font-bold text-slate-900">Commission by Sales Agent</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-sky-100/70 bg-sky-50/40 font-bold uppercase text-slate-500 text-[10px]">
+                      <tr className="border-b border-slate-100 bg-brand-50/40 font-bold uppercase text-slate-500 text-[10px]">
                         <th className="py-2.5 px-3">Agent Name</th>
                         <th className="py-2.5 px-3 text-right">Invoiced Sales</th>
                         <th className="py-2.5 px-3 text-right">Total Turnover</th>
@@ -976,7 +976,7 @@ function ReportsContent() {
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {(commissions.agents || []).map((r: any, i: number) => (
-                        <tr key={i} className="hover:bg-sky-50/50/60">
+                        <tr key={i} className="hover:bg-brand-50/50/60">
                           <td className="py-2.5 px-3 font-semibold text-slate-800">{r.agentName}</td>
                           <td className="py-2.5 px-3 text-right font-mono text-slate-600">{r.saleCount}</td>
                           <td className="py-2.5 px-3 text-right font-semibold text-slate-800">{currency(r.totalSales)}</td>
@@ -995,23 +995,23 @@ function ReportsContent() {
           {activeTab === "installments" && installmentSummary && (
             <>
               <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Financed</span>
                   <p className="mt-2 text-2xl font-extrabold text-blue-600">{currency(installmentSummary.totalFinanced)}</p>
                 </div>
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Collected</span>
                   <p className="mt-2 text-2xl font-extrabold text-emerald-600">{currency(installmentSummary.totalCollected)}</p>
                 </div>
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Outstanding Due</span>
                   <p className="mt-2 text-2xl font-extrabold text-amber-600">{currency(installmentSummary.totalOutstanding)}</p>
                 </div>
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Overdue Balance</span>
                   <p className="mt-2 text-2xl font-extrabold text-rose-600">{currency(installmentSummary.totalOverdue)}</p>
                 </div>
-                <div className="rounded-sm border border-sky-100/90 bg-white p-4.5 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Due This Week</span>
                   <p className="mt-2 text-2xl font-extrabold text-purple-600">{currency(installmentSummary.dueThisWeek)}</p>
                 </div>
@@ -1023,7 +1023,7 @@ function ReportsContent() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-sky-100/70 bg-sky-50/40 font-bold uppercase text-slate-500 text-[10px]">
+                        <tr className="border-b border-slate-100 bg-brand-50/40 font-bold uppercase text-slate-500 text-[10px]">
                           <th className="py-2.5 px-3">Customer</th>
                           <th className="py-2.5 px-3">Phone</th>
                           <th className="py-2.5 px-3">Plan #</th>
@@ -1034,7 +1034,7 @@ function ReportsContent() {
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {overdueInstallments.map((r: any, i: number) => (
-                          <tr key={i} className="hover:bg-sky-50/50/60">
+                          <tr key={i} className="hover:bg-brand-50/50/60">
                             <td className="py-2.5 px-3 font-semibold text-slate-800">{r.customerName}</td>
                             <td className="py-2.5 px-3 font-mono text-slate-600">{r.customerPhone}</td>
                             <td className="py-2.5 px-3 font-mono font-bold text-slate-700">{r.planNo}</td>
@@ -1053,13 +1053,13 @@ function ReportsContent() {
 
           {/* ── 6. SAVED PRESETS TAB ── */}
           {activeTab === "saved" && (
-            <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
+            <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-bold text-slate-900">Saved Report Views</h3>
                   <p className="text-xs text-slate-500">Custom filter presets for instant 1-click execution</p>
                 </div>
-                <CustomButton size="sm" onClick={() => setShowSaveDialog(true)} className="bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white">
+                <CustomButton size="sm" onClick={() => setShowSaveDialog(true)} className="bg-brand-gradient text-white">
                   <Plus size={14} /> Save Current View
                 </CustomButton>
               </div>
@@ -1074,7 +1074,7 @@ function ReportsContent() {
                   {savedReports.map((r: any) => (
                     <div
                       key={r.id}
-                      className="flex items-center justify-between rounded-sm border border-sky-100/70 bg-sky-50/40 p-3.5 hover:bg-sky-50/50 transition"
+                      className="flex items-center justify-between rounded-sm border border-slate-100 bg-brand-50/40 p-3.5 hover:bg-brand-50/50 transition"
                     >
                       <div>
                         <p className="text-sm font-bold text-slate-800">{r.name}</p>
@@ -1099,7 +1099,7 @@ function ReportsContent() {
 
           {/* ── 7. SCHEDULED AUTOMATION TAB ── */}
           {activeTab === "scheduled" && (
-            <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
+            <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-bold text-slate-900">Automated Scheduled Reports</h3>
@@ -1117,7 +1117,7 @@ function ReportsContent() {
                   {scheduledReports.map((r: any) => (
                     <div
                       key={r.id}
-                      className="flex items-center justify-between rounded-sm border border-sky-100/70 bg-sky-50/40 p-3.5 hover:bg-sky-50/50 transition"
+                      className="flex items-center justify-between rounded-sm border border-slate-100 bg-brand-50/40 p-3.5 hover:bg-brand-50/50 transition"
                     >
                       <div>
                         <p className="text-sm font-bold text-slate-800">{r.name}</p>
@@ -1152,11 +1152,11 @@ function ReportsContent() {
           <p className="text-xs text-slate-500">
             Saves current tab ({activeTab.toUpperCase()}), date ranges, and branch filters for fast retrieval.
           </p>
-          <div className="flex justify-end gap-2 border-t border-sky-100/70 pt-3">
+          <div className="flex justify-end gap-2 border-t border-slate-100 pt-3">
             <CustomButton variant="outline" onClick={() => setShowSaveDialog(false)}>
               Cancel
             </CustomButton>
-            <CustomButton onClick={saveReport} className="bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] hover:bg-primary-700 text-white">
+            <CustomButton onClick={saveReport} className="bg-brand-gradient hover:opacity-90 text-white">
               Save Preset
             </CustomButton>
           </div>

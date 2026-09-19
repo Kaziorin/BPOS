@@ -361,7 +361,7 @@ export default function AgingReportPage() {
       )}
 
       {/* ── TOP BANNER / HEADER (THEME COMPLIANT) ── */}
-      <div className="border-b border-sky-100/90 bg-white px-4 sm:px-8 py-5 shadow-2xs w-full">
+      <div className="border-b border-slate-200 bg-white px-4 sm:px-8 py-5 shadow-2xs w-full">
         <div className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-3">
@@ -373,7 +373,7 @@ export default function AgingReportPage() {
                   <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
                     AR Aging Report & Overdue Recovery
                   </h1>
-                  <span className="rounded-full bg-sky-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-sky-700 ring-1 ring-primary-200">
+                  <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-sky-700 ring-1 ring-primary-200">
                     Risk & Collections
                   </span>
                 </div>
@@ -388,7 +388,7 @@ export default function AgingReportPage() {
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/credit"
-              className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
             >
               <ChevronLeft size={14} className="text-slate-500" />
               Credit Overview
@@ -396,7 +396,7 @@ export default function AgingReportPage() {
 
             <Link
               href="/invoices"
-              className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
             >
               <FileText size={14} className="text-sky-600" />
               Invoices
@@ -404,7 +404,7 @@ export default function AgingReportPage() {
 
             <Link
               href="/payments"
-              className="flex items-center gap-1.5 rounded-sm border border-sky-200/80 bg-sky-50/70 px-3.5 py-2 text-xs font-semibold text-sky-700 shadow-2xs transition hover:bg-sky-100/80 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-brand-border bg-brand-50/70 px-3.5 py-2 text-xs font-semibold text-sky-700 shadow-2xs transition hover:bg-brand-50/80 active:scale-95"
             >
               <Wallet size={14} />
               Payments Hub
@@ -412,7 +412,7 @@ export default function AgingReportPage() {
 
             <button
               onClick={() => fetchAgingData()}
-              className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 active:scale-95"
               title="Refresh Aging Data"
             >
               <RefreshCw size={14} className={loading ? "animate-spin text-sky-600" : "text-slate-500"} />
@@ -420,7 +420,7 @@ export default function AgingReportPage() {
 
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-1.5 rounded-sm border border-sky-100/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 active:scale-95"
             >
               <Download size={14} className="text-slate-500" />
               Export
@@ -428,7 +428,7 @@ export default function AgingReportPage() {
 
             <button
               onClick={() => window.print()}
-              className="flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-2 text-xs font-semibold text-white shadow-2xs shadow-primary-500/25 transition hover:bg-primary-700 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm bg-brand-gradient px-3.5 py-2 text-xs font-semibold text-white shadow-2xs shadow-primary-500/25 transition hover:opacity-90 active:scale-95"
             >
               <Printer size={14} />
               Print
@@ -441,10 +441,10 @@ export default function AgingReportPage() {
         {/* ── AGING SUMMARY SCORECARD CARDS (THEME TOKEN COMPLIANT) ── */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {/* 1. Total Outstanding AR */}
-          <div className="rounded-sm border border-sky-200/80/80 bg-gradient-to-br from-primary-50/80 via-white to-sky-50/40 p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
+          <div className="rounded-sm border border-brand-border/80 bg-gradient-to-br from-primary-50/80 via-white to-sky-50/40 p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-sky-700">
               <span className="text-[11px] font-bold uppercase tracking-wider text-sky-600">Total Outstanding</span>
-              <div className="rounded-sm bg-sky-100/80 p-1.5 text-sky-700">
+              <div className="rounded-sm bg-brand-50 p-1.5 text-sky-700">
                 <DollarSign size={14} />
               </div>
             </div>
@@ -458,7 +458,7 @@ export default function AgingReportPage() {
           </div>
 
           {/* 2. Current / 0-30 Days */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
+          <div className="rounded-sm border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Current (0–30d)</span>
               <div className="rounded-sm bg-emerald-50 p-1.5 text-emerald-600">
@@ -475,7 +475,7 @@ export default function AgingReportPage() {
           </div>
 
           {/* 3. 1-30 Days Overdue */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
+          <div className="rounded-sm border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">1–30 Days</span>
               <div className="rounded-sm bg-amber-50 p-1.5 text-amber-600">
@@ -492,7 +492,7 @@ export default function AgingReportPage() {
           </div>
 
           {/* 4. 31-60 Days Overdue */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
+          <div className="rounded-sm border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">31–60 Days</span>
               <div className="rounded-sm bg-orange-50 p-1.5 text-orange-600">
@@ -509,7 +509,7 @@ export default function AgingReportPage() {
           </div>
 
           {/* 5. 61-90 Days Overdue */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
+          <div className="rounded-sm border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-rose-600">61–90 Days</span>
               <div className="rounded-sm bg-rose-50 p-1.5 text-rose-600">
@@ -544,7 +544,7 @@ export default function AgingReportPage() {
         </div>
 
         {/* ── FILTER TABS, SEARCH & CONTROLS ── */}
-        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs space-y-3.5">
+        <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
@@ -554,7 +554,7 @@ export default function AgingReportPage() {
                 placeholder="Search by customer name, phone, or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-sky-100/90 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-slate-800 placeholder-slate-400"
+                className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-slate-800 placeholder-slate-400"
               />
               {searchQuery && (
                 <button
@@ -568,7 +568,7 @@ export default function AgingReportPage() {
 
             {/* Sort & View Toggle */}
             <div className="flex items-center gap-2 self-end lg:self-auto">
-              <div className="flex items-center gap-1.5 bg-slate-50 border border-sky-100/90 rounded-sm px-2.5 py-1.5 text-xs text-slate-600">
+              <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-sm px-2.5 py-1.5 text-xs text-slate-600">
                 <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                 <span>Sort:</span>
                 <select
@@ -591,7 +591,7 @@ export default function AgingReportPage() {
                 </button>
               </div>
 
-              <div className="flex items-center bg-slate-100 p-1 rounded-sm border border-sky-100/90">
+              <div className="flex items-center bg-slate-100 p-1 rounded-sm border border-slate-200">
                 <button
                   onClick={() => setViewMode("table")}
                   className={`p-1.5 rounded-sm text-xs font-medium transition-all ${
@@ -638,8 +638,8 @@ export default function AgingReportPage() {
                   onClick={() => setActiveBucket(tab.id)}
                   className={`px-3 py-1.5 rounded-sm font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                     isActive
-                      ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-primary-500/20"
-                      : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-sky-100/90"
+                      ? "bg-brand-gradient text-white shadow-2xs shadow-sm"
+                      : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200"
                   }`}
                 >
                   <span>{tab.label}</span>
@@ -660,11 +660,11 @@ export default function AgingReportPage() {
 
         {/* ── AGING TABLE OR GRID VIEW ── */}
         {viewMode === "table" ? (
-          <div className="rounded-sm border border-sky-100/90 bg-white shadow-2xs overflow-hidden">
+          <div className="rounded-sm border border-slate-200 bg-white shadow-2xs overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs sm:text-sm">
                 <thead>
-                  <tr className="bg-slate-50/80 border-b border-sky-100/90 text-slate-600 text-[11px] font-bold uppercase tracking-wider">
+                  <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-wider">
                     <th className="py-3.5 px-4">Customer & Account</th>
                     <th className="py-3.5 px-3 text-right">Credit Limit</th>
                     <th className="py-3.5 px-3 text-right text-emerald-700">Current (0–30)</th>
@@ -709,7 +709,7 @@ export default function AgingReportPage() {
                             <div className="flex items-center gap-2.5">
                               <button
                                 onClick={() => setSelectedForDrawer(r)}
-                                className="w-8 h-8 rounded-sm bg-sky-50 text-sky-700 font-bold text-xs flex items-center justify-center border border-sky-200/70 shrink-0 hover:bg-sky-100 transition-colors"
+                                className="w-8 h-8 rounded-sm bg-brand-50 text-sky-700 font-bold text-xs flex items-center justify-center border border-brand-border shrink-0 hover:bg-brand-50 transition-colors"
                                 title="Open Customer Statement"
                               >
                                 {r.customerName.charAt(0).toUpperCase()}
@@ -822,7 +822,7 @@ export default function AgingReportPage() {
                                   setSelectedCustomer(r);
                                   setShowReminderModal(true);
                                 }}
-                                className="p-1.5 rounded-sm bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200/80 transition-colors"
+                                className="p-1.5 rounded-sm bg-brand-50 text-sky-700 hover:bg-brand-50 border border-brand-border transition-colors"
                                 title="Send Reminder"
                               >
                                 <Send className="w-3.5 h-3.5" />
@@ -832,7 +832,7 @@ export default function AgingReportPage() {
                                 className={`p-1.5 rounded-sm border transition-colors ${
                                   r.isOnCreditHold
                                     ? "bg-rose-100 text-rose-800 border-rose-300 hover:bg-rose-200"
-                                    : "bg-slate-50 text-slate-600 border-sky-100/90 hover:bg-slate-100"
+                                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                                 }`}
                                 title={r.isOnCreditHold ? "Release Credit Hold" : "Freeze Credit"}
                               >
@@ -844,7 +844,7 @@ export default function AgingReportPage() {
                               </button>
                               <button
                                 onClick={() => setSelectedForDrawer(r)}
-                                className="p-1.5 rounded-sm bg-slate-50 text-slate-600 hover:bg-slate-100 border border-sky-100/90 transition-colors"
+                                className="p-1.5 rounded-sm bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors"
                                 title="View Statement & History"
                               >
                                 <Eye className="w-3.5 h-3.5" />
@@ -859,7 +859,7 @@ export default function AgingReportPage() {
 
                 {/* Table Footer with Overall Totals */}
                 {sortedRows.length > 0 && (
-                  <tfoot className="bg-slate-50/90 border-t-2 border-sky-100/90 font-bold text-xs sm:text-sm text-slate-900">
+                  <tfoot className="bg-slate-50/90 border-t-2 border-slate-200 font-bold text-xs sm:text-sm text-slate-900">
                     <tr>
                       <td className="py-4 px-4 uppercase tracking-wider">PORTFOLIO TOTAL</td>
                       <td className="py-4 px-3 text-right">
@@ -917,12 +917,12 @@ export default function AgingReportPage() {
                   <div
                     key={r.customerId}
                     className={`bg-white border rounded-sm p-5 shadow-2xs space-y-4 hover:border-primary-300 transition-all ${
-                      r.isOnCreditHold ? "border-rose-300 bg-rose-50/20" : "border-sky-100/90"
+                      r.isOnCreditHold ? "border-rose-300 bg-rose-50/20" : "border-slate-200"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-sm bg-sky-50 text-sky-700 font-bold text-sm flex items-center justify-center border border-sky-200/70">
+                        <div className="w-10 h-10 rounded-sm bg-brand-50 text-sky-700 font-bold text-sm flex items-center justify-center border border-brand-border">
                           {r.customerName.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -942,7 +942,7 @@ export default function AgingReportPage() {
                     </div>
 
                     {/* Total & Limit */}
-                    <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-sm border border-sky-100/90/70 text-xs">
+                    <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-sm border border-slate-200/70 text-xs">
                       <div>
                         <span className="text-slate-400 text-[11px]">Total Outstanding</span>
                         <div className="font-bold text-slate-900 text-base">{fmt(r.aging.total)}</div>
@@ -973,7 +973,7 @@ export default function AgingReportPage() {
                     </div>
 
                     {/* Aging Bucket Grid */}
-                    <div className="grid grid-cols-5 gap-1 text-center text-[10px] pt-1 border-t border-sky-100/70">
+                    <div className="grid grid-cols-5 gap-1 text-center text-[10px] pt-1 border-t border-slate-100">
                       <div className="p-1.5 bg-emerald-50/60 rounded-sm text-emerald-800">
                         <div className="opacity-70">0–30</div>
                         <div className="font-bold mt-0.5">{r.aging.current > 0 ? fmt(r.aging.current) : "0"}</div>
@@ -1014,14 +1014,14 @@ export default function AgingReportPage() {
                           setSelectedCustomer(r);
                           setShowReminderModal(true);
                         }}
-                        className="p-2 text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/80 rounded-sm transition-all"
+                        className="p-2 text-sky-700 bg-brand-50 hover:bg-brand-50 border border-brand-border rounded-sm transition-all"
                         title="Send Reminder"
                       >
                         <Send className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => setSelectedForDrawer(r)}
-                        className="p-2 text-slate-700 bg-slate-50 hover:bg-slate-100 border border-sky-100/90 rounded-sm transition-all"
+                        className="p-2 text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-sm transition-all"
                         title="View Customer Statement"
                       >
                         <Eye className="w-4 h-4" />
@@ -1038,8 +1038,8 @@ export default function AgingReportPage() {
       {/* ── QUICK COLLECT PAYMENT MODAL ── */}
       {showCollectModal && selectedCustomer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-sm max-w-lg w-full p-6 shadow-xl border border-sky-100/90 space-y-5 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-sky-100/70 pb-3">
+          <div className="bg-white rounded-sm max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-sm bg-emerald-50 text-emerald-600">
                   <DollarSign className="w-5 h-5" />
@@ -1058,7 +1058,7 @@ export default function AgingReportPage() {
             </div>
 
             <form onSubmit={handleCollectSubmit} className="space-y-4">
-              <div className="bg-slate-50 p-3.5 rounded-sm border border-sky-100/90 flex justify-between items-center text-xs">
+              <div className="bg-slate-50 p-3.5 rounded-sm border border-slate-200 flex justify-between items-center text-xs">
                 <div>
                   <span className="text-slate-400">Total Outstanding AR</span>
                   <div className="font-bold text-slate-900 text-sm">
@@ -1085,7 +1085,7 @@ export default function AgingReportPage() {
                   required
                   value={collectAmount}
                   onChange={(e) => setCollectAmount(e.target.value)}
-                  className="w-full px-3.5 py-2 text-sm bg-white border border-sky-100/90 rounded-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-bold text-slate-900"
+                  className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-bold text-slate-900"
                   placeholder="0.00"
                 />
               </div>
@@ -1098,7 +1098,7 @@ export default function AgingReportPage() {
                   <select
                     value={collectMethod}
                     onChange={(e) => setCollectMethod(e.target.value)}
-                    className="w-full px-3 py-2 text-xs sm:text-sm bg-white border border-sky-100/90 rounded-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium"
+                    className="w-full px-3 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium"
                   >
                     <option value="CASH">Cash</option>
                     <option value="BANK_TRANSFER">Bank Transfer</option>
@@ -1117,7 +1117,7 @@ export default function AgingReportPage() {
                     value={collectRef}
                     onChange={(e) => setCollectRef(e.target.value)}
                     placeholder="e.g. TR-994102"
-                    className="w-full px-3 py-2 text-xs sm:text-sm bg-white border border-sky-100/90 rounded-sm focus:outline-none"
+                    className="w-full px-3 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-sm focus:outline-none"
                   />
                 </div>
               </div>
@@ -1131,11 +1131,11 @@ export default function AgingReportPage() {
                   value={collectNote}
                   onChange={(e) => setCollectNote(e.target.value)}
                   placeholder="e.g. Cleared via AR Aging settlement"
-                  className="w-full px-3 py-2 text-xs sm:text-sm bg-white border border-sky-100/90 rounded-sm focus:outline-none"
+                  className="w-full px-3 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-sm focus:outline-none"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-sky-100/70">
+              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowCollectModal(false)}
@@ -1159,10 +1159,10 @@ export default function AgingReportPage() {
       {/* ── SEND REMINDER MODAL ── */}
       {showReminderModal && selectedCustomer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-sm max-w-lg w-full p-6 shadow-xl border border-sky-100/90 space-y-5 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-sky-100/70 pb-3">
+          <div className="bg-white rounded-sm max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <span className="p-2 rounded-sm bg-sky-50 text-sky-600">
+                <span className="p-2 rounded-sm bg-brand-50 text-sky-600">
                   <Send className="w-5 h-5" />
                 </span>
                 <div>
@@ -1196,8 +1196,8 @@ export default function AgingReportPage() {
                       onClick={() => setReminderChannel(ch.id as any)}
                       className={`p-2.5 rounded-sm border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
                         reminderChannel === ch.id
-                          ? "bg-sky-50 border-primary-300 text-sky-700 shadow-2xs"
-                          : "bg-slate-50 border-sky-100/90 text-slate-600 hover:bg-slate-100"
+                          ? "bg-brand-50 border-primary-300 text-sky-700 shadow-2xs"
+                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                       }`}
                     >
                       <ch.icon className="w-3.5 h-3.5" />
@@ -1215,7 +1215,7 @@ export default function AgingReportPage() {
                 <select
                   value={reminderTemplate}
                   onChange={(e) => setReminderTemplate(e.target.value)}
-                  className="w-full px-3 py-2 text-xs sm:text-sm bg-white border border-sky-100/90 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                  className="w-full px-3 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                 >
                   <option value="polite">Friendly Reminder (Gentle)</option>
                   <option value="firm">Standard Statement (Firm)</option>
@@ -1242,12 +1242,12 @@ export default function AgingReportPage() {
                     )}
                   </button>
                 </div>
-                <div className="p-3 bg-slate-50 border border-sky-100/90 rounded-sm text-xs text-slate-800 leading-relaxed font-mono">
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-sm text-xs text-slate-800 leading-relaxed font-mono">
                   {reminderMessage}
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-sky-100/70">
+              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowReminderModal(false)}
@@ -1258,7 +1258,7 @@ export default function AgingReportPage() {
                 <button
                   type="button"
                   onClick={handleSendReminderAction}
-                  className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] hover:bg-primary-700 rounded-sm transition-all shadow-2xs shadow-primary-500/20"
+                  className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-brand-gradient hover:opacity-90 rounded-sm transition-all shadow-2xs shadow-sm"
                 >
                   {reminderChannel === "WHATSAPP"
                     ? "Open WhatsApp"
@@ -1276,9 +1276,9 @@ export default function AgingReportPage() {
       {selectedForDrawer && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-2xs">
           <div className="bg-white w-full max-w-md h-full shadow-2xl p-6 overflow-y-auto space-y-6 animate-in slide-in-from-right duration-200">
-            <div className="flex items-center justify-between border-b border-sky-100/70 pb-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-sm bg-sky-50 text-sky-700 font-bold flex items-center justify-center border border-sky-200/70">
+                <div className="w-10 h-10 rounded-sm bg-brand-50 text-sky-700 font-bold flex items-center justify-center border border-brand-border">
                   {selectedForDrawer.customerName.charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -1296,13 +1296,13 @@ export default function AgingReportPage() {
 
             {/* Quick Stats in Drawer */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3.5 bg-sky-50/70 border border-sky-200/70 rounded-sm">
+              <div className="p-3.5 bg-brand-50/70 border border-brand-border rounded-sm">
                 <span className="text-xs text-sky-700 font-semibold">Total Outstanding</span>
                 <div className="text-xl font-bold text-slate-900 mt-1">
                   {fmt(selectedForDrawer.aging.total)}
                 </div>
               </div>
-              <div className="p-3.5 bg-slate-50 border border-sky-100/90 rounded-sm">
+              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-sm">
                 <span className="text-xs text-slate-500 font-semibold">Credit Limit</span>
                 <div className="text-xl font-bold text-slate-800 mt-1">
                   {fmt(selectedForDrawer.creditLimit)}
@@ -1340,7 +1340,7 @@ export default function AgingReportPage() {
             </div>
 
             {/* Customer Contact details */}
-            <div className="space-y-2 pt-2 border-t border-sky-100/70 text-xs">
+            <div className="space-y-2 pt-2 border-t border-slate-100 text-xs">
               <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">
                 Customer Profile
               </h4>
@@ -1359,7 +1359,7 @@ export default function AgingReportPage() {
             </div>
 
             {/* Drawer Actions */}
-            <div className="pt-4 border-t border-sky-100/70 space-y-2">
+            <div className="pt-4 border-t border-slate-100 space-y-2">
               <button
                 onClick={() => {
                   setSelectedCustomer(selectedForDrawer);
@@ -1380,7 +1380,7 @@ export default function AgingReportPage() {
                   setSelectedCustomer(selectedForDrawer);
                   setShowReminderModal(true);
                 }}
-                className="w-full py-2.5 text-xs sm:text-sm font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/80 rounded-sm transition-all flex items-center justify-center gap-2"
+                className="w-full py-2.5 text-xs sm:text-sm font-semibold text-sky-700 bg-brand-50 hover:bg-brand-50 border border-brand-border rounded-sm transition-all flex items-center justify-center gap-2"
               >
                 <Send className="w-4 h-4" />
                 Send Overdue Notice

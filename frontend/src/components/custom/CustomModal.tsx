@@ -71,10 +71,10 @@ export function CustomModal({
 
   const headerTitleColor =
     themeColor === "primary"
-      ? isDark ? "text-sky-300" : "text-[#0284C7]"
+      ? isDark ? "text-brand-light" : "text-brand-dark"
       : themeColor === "teal"
       ? isDark ? "text-teal-300" : "text-[#00796b]"
-      : isDark ? "text-slate-100" : "text-gray-800";
+      : isDark ? "text-slate-100" : "text-slate-800";
 
   return (
     <div
@@ -97,7 +97,7 @@ export function CustomModal({
             isDark
               ? "border-slate-800 bg-slate-900/90"
               : themeColor === "primary"
-              ? "border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50"
+              ? "border-brand-border bg-brand-50/60"
               : themeColor === "teal"
               ? "border-teal-100 bg-gradient-to-r from-teal-50/80 via-white to-teal-50/50"
               : "border-slate-200 bg-slate-50/80"
@@ -110,13 +110,9 @@ export function CustomModal({
                   "flex h-9 w-9 shrink-0 items-center justify-center rounded-sm",
                   isDark
                     ? themeColor === "primary"
-                      ? "bg-sky-950/70 text-sky-300 border border-sky-800"
+                      ? "bg-slate-800 text-brand-primary border border-brand-border"
                       : "bg-teal-950/70 text-teal-300 border border-teal-800"
-                    : themeColor === "primary"
-                    ? "bg-sky-50 text-[#0284C7] border border-sky-200/80"
-                    : themeColor === "teal"
-                    ? "bg-teal-50 text-[#00796b] border border-teal-200/80"
-                    : "bg-sky-50 text-[#0284C7] border border-sky-200/80"
+                    : "bg-brand-50 text-brand-primary border border-brand-border"
                 )}
               >
                 {icon}
@@ -151,8 +147,10 @@ export function CustomModal({
           </CustomButton>
         </div>
 
-        {/* Content Body */}
-        <div className={cn("overflow-y-auto px-6 py-5 custom-scrollbar flex-1", isDark ? "bg-slate-900" : "bg-white")}>{children}</div>
+        {/* Modal Body */}
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+          {children}
+        </div>
       </div>
     </div>
   );

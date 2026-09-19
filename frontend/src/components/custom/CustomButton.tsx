@@ -21,7 +21,7 @@ export interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
-  primary: "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-md shadow-sky-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-sky-300 font-bold",
+  primary: "bg-brand-gradient text-white shadow-md hover:brightness-110 active:scale-98 focus-visible:ring-brand-border font-bold",
   blue: "bg-gradient-to-r from-blue-600 via-sky-500 to-sky-400 text-white shadow-md shadow-blue-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-blue-300 font-bold",
   teal: "bg-gradient-to-r from-[#00796b] via-[#00897b] to-[#26a69a] text-white shadow-md shadow-teal-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-teal-300 font-bold",
   orange: "bg-gradient-to-r from-orange-500 via-amber-500 to-amber-400 text-white shadow-md shadow-orange-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-orange-300 font-bold",
@@ -34,16 +34,16 @@ const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
 
 const VARIANT_CLASSES = (darkMode: boolean): Record<ButtonVariant, string> => ({
   primary:
-    "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-md shadow-sky-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-sky-300 font-bold",
+    "bg-brand-gradient text-white shadow-md hover:brightness-110 active:scale-98 focus-visible:ring-brand-border font-bold",
   secondary: darkMode
     ? "bg-slate-800 text-slate-200 hover:bg-slate-700 focus-visible:ring-slate-700 font-bold"
-    : "bg-sky-50 text-sky-700 hover:bg-sky-100 hover:text-sky-800 border border-sky-200/80 focus-visible:ring-sky-300 font-bold",
+    : "bg-brand-50 text-brand-dark hover:bg-brand-100 hover:text-brand-dark border border-brand-border focus-visible:ring-brand-border font-bold",
   outline: darkMode
     ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 focus-visible:ring-slate-700 font-bold"
-    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-sky-400 focus-visible:ring-sky-300 font-bold shadow-2xs",
+    : "border border-brand-border bg-white text-slate-700 hover:bg-brand-50 hover:border-brand-primary focus-visible:ring-brand-border font-bold shadow-2xs",
   ghost: darkMode
     ? "text-slate-400 hover:bg-slate-800 focus-visible:ring-slate-700 font-bold"
-    : "text-sky-600 hover:bg-sky-50 focus-visible:ring-sky-300 font-bold",
+    : "text-brand-primary hover:bg-brand-50 focus-visible:ring-brand-border font-bold",
   danger: "bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-300 shadow-md font-bold",
 });
 
@@ -80,18 +80,18 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
       if (themeColor === "primary") {
         if (variant === "secondary") {
           return darkMode
-            ? "bg-slate-800 text-sky-300 hover:bg-slate-700 focus-visible:ring-sky-400 font-bold"
-            : "bg-sky-50 text-sky-700 hover:bg-sky-100 hover:text-sky-800 border border-sky-200/80 focus-visible:ring-sky-300 font-bold";
+            ? "bg-slate-800 text-brand-primary hover:bg-slate-700 focus-visible:ring-brand-border font-bold"
+            : "bg-brand-50 text-brand-dark hover:bg-brand-100 hover:text-brand-dark border border-brand-border focus-visible:ring-brand-border font-bold";
         }
         if (variant === "outline") {
           return darkMode
-            ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:border-sky-500 hover:text-sky-300 focus-visible:ring-sky-400 font-bold"
-            : "border border-sky-200 bg-white text-sky-700 hover:bg-sky-50/70 hover:border-sky-400 hover:text-[#0284C7] focus-visible:ring-sky-300 font-bold shadow-2xs";
+            ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:border-brand-primary hover:text-brand-primary focus-visible:ring-brand-border font-bold"
+            : "border border-brand-border bg-white text-brand-dark hover:bg-brand-50 hover:border-brand-primary hover:text-brand-primary focus-visible:ring-brand-border font-bold shadow-2xs";
         }
         if (variant === "ghost") {
           return darkMode
-            ? "text-slate-400 hover:bg-slate-800 hover:text-sky-300 focus-visible:ring-sky-400 font-bold"
-            : "text-[#0284C7] hover:bg-sky-50 focus-visible:ring-sky-300 font-bold";
+            ? "text-slate-400 hover:bg-slate-800 hover:text-brand-primary focus-visible:ring-brand-border font-bold"
+            : "text-brand-primary hover:bg-brand-50 focus-visible:ring-brand-border font-bold";
         }
       }
       if (themeColor === "teal") {

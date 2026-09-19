@@ -130,23 +130,23 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
   }
 
   const inputClass =
-    "w-full rounded-sm border border-sky-200 bg-white px-3 py-2 text-xs text-gray-900 placeholder-gray-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7] transition";
-  const labelClass = "block text-[11px] font-semibold text-gray-700 mb-1";
+    "w-full rounded-sm border border-brand-border bg-white px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition";
+  const labelClass = "block text-[11px] font-semibold text-slate-700 mb-1";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100">
-      <div className="relative w-full max-w-2xl rounded-sm bg-white shadow-2xl border border-sky-100/90 overflow-hidden my-8 animate-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-2xl rounded-sm bg-white shadow-2xl border border-brand-border overflow-hidden my-8 animate-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-sky-100 px-6 py-4 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50">
+        <div className="flex items-center justify-between border-b border-brand-light px-6 py-4 bg-brand-50/60">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-white shadow-xs font-bold">
+            <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-brand-gradient text-white shadow-xs font-bold">
               <Truck size={18} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#0369A1]">
+              <h2 className="text-sm font-bold text-brand-dark">
                 {isEdit ? "Edit Supplier" : "Add New Supplier"}
               </h2>
-              <p className="text-[11px] text-gray-500">
+              <p className="text-[11px] text-slate-500">
                 {isEdit ? "Update vendor details, credit terms, and contact information." : "Register a new procurement vendor / distributor in directory."}
               </p>
             </div>
@@ -168,14 +168,14 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
         )}
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-sky-100 px-6 pt-2 bg-white gap-2">
+        <div className="flex border-b border-brand-light px-6 pt-2 bg-white gap-2">
           <button
             type="button"
             onClick={() => setActiveTab("basic")}
             className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-semibold transition cursor-pointer ${
               activeTab === "basic"
-                ? "border-[#0284C7] text-[#0284C7]"
-                : "border-transparent text-gray-500 hover:text-gray-800"
+                ? "border-brand-primary text-brand-primary font-bold"
+                : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <Building2 size={14} />
@@ -186,8 +186,8 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
             onClick={() => setActiveTab("financial")}
             className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-semibold transition cursor-pointer ${
               activeTab === "financial"
-                ? "border-[#0284C7] text-[#0284C7]"
-                : "border-transparent text-gray-500 hover:text-gray-800"
+                ? "border-brand-primary text-brand-primary font-bold"
+                : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <DollarSign size={14} />
@@ -198,8 +198,8 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
             onClick={() => setActiveTab("notes")}
             className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-semibold transition cursor-pointer ${
               activeTab === "notes"
-                ? "border-primary-600 text-primary-600"
-                : "border-transparent text-gray-500 hover:text-gray-800"
+                ? "border-brand-primary text-brand-primary font-bold"
+                : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <FileText size={14} />
@@ -446,13 +446,13 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-between border-t border-sky-100 px-6 py-3.5 bg-gradient-to-r from-sky-50/50 via-white to-sky-50/30">
+          <div className="flex items-center justify-between border-t border-slate-200 px-6 py-3.5 bg-gradient-to-r from-brand-50/50 via-white to-brand-50/30">
             <div className="flex gap-2">
               {activeTab !== "basic" && (
                 <button
                   type="button"
                   onClick={() => setActiveTab(activeTab === "notes" ? "financial" : "basic")}
-                  className="rounded-sm border border-sky-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer"
+                  className="rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition cursor-pointer"
                 >
                   Previous
                 </button>
@@ -461,7 +461,7 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
                 <button
                   type="button"
                   onClick={() => setActiveTab(activeTab === "basic" ? "financial" : "notes")}
-                  className="rounded-sm border border-sky-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer"
+                  className="rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition cursor-pointer"
                 >
                   Next Tab &rarr;
                 </button>
@@ -472,14 +472,14 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-sm border border-sky-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer"
+                className="rounded-sm border border-brand-border bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-brand-50 transition cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:brightness-105 disabled:opacity-50 transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-sm bg-brand-gradient px-4 py-1.5 text-xs font-semibold text-white shadow-xs hover:brightness-105 disabled:opacity-50 transition cursor-pointer"
               >
                 {saving && <Loader2 size={13} className="animate-spin" />}
                 {isEdit ? "Update Supplier" : "Create Supplier"}

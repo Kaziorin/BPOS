@@ -105,19 +105,19 @@ export function PosTerminalModal({ isOpen, onClose }: PosTerminalModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 select-none animate-[fade-in_150ms_ease-out]">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-sky-950/50 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
-      <div className="relative z-10 flex max-h-[92vh] w-full max-w-4xl flex-col rounded-sm border border-sky-200/90 bg-white shadow-2xl animate-[scale-in_150ms_ease-out] overflow-hidden">
+      <div className="relative z-10 flex max-h-[92vh] w-full max-w-4xl flex-col rounded-sm border border-brand-border bg-white shadow-2xl animate-[scale-in_150ms_ease-out] overflow-hidden">
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-4 sm:px-6 py-3.5">
+        <div className="flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-brand-50/50 via-white to-brand-50/30 px-4 sm:px-6 py-3.5">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-white shadow-2xs">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-white shadow-2xs">
               <Monitor size={18} />
             </div>
-            <h2 className="text-base font-bold text-[#0369A1] sm:text-lg tracking-tight">
+            <h2 className="text-base font-bold text-brand-dark sm:text-lg tracking-tight">
               POS Terminals
             </h2>
           </div>
@@ -147,8 +147,8 @@ export function PosTerminalModal({ isOpen, onClose }: PosTerminalModalProps) {
                   className={cn(
                     "group flex items-center gap-3.5 rounded-sm border p-3.5 transition-all duration-150 hover:shadow-md hover:-translate-y-0.5 cursor-pointer",
                     isActive
-                      ? "border-[#0284C7] bg-[#E0F2FE]/60 ring-1 ring-[#0284C7]"
-                      : "border-sky-100 bg-white hover:border-[#0284C7] hover:bg-sky-50/50 shadow-2xs"
+                      ? "border-brand-primary bg-brand-50 ring-1 ring-brand-border"
+                      : "border-slate-200 bg-white hover:border-brand-primary hover:bg-brand-50/50 shadow-2xs"
                   )}
                 >
                   <div
@@ -159,7 +159,7 @@ export function PosTerminalModal({ isOpen, onClose }: PosTerminalModalProps) {
                   >
                     <Icon size={20} />
                   </div>
-                  <span className="font-bold text-xs sm:text-sm text-[#0369A1] group-hover:text-[#0284C7] transition-colors truncate">
+                  <span className="font-bold text-xs sm:text-sm text-brand-dark group-hover:text-brand-primary transition-colors truncate">
                     {term.name}
                   </span>
                 </Link>
@@ -169,7 +169,7 @@ export function PosTerminalModal({ isOpen, onClose }: PosTerminalModalProps) {
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-end border-t border-sky-100 bg-sky-50/50 px-4 sm:px-6 py-2.5">
+        <div className="flex items-center justify-end border-t border-slate-200 bg-brand-50/50 px-4 sm:px-6 py-2.5">
           <button
             onClick={onClose}
             className="rounded-sm border border-rose-200 bg-rose-50 px-4 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shadow-2xs"

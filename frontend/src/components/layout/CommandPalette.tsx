@@ -122,20 +122,20 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-20 p-3 sm:p-4 bg-sky-950/45 backdrop-blur-xs select-none animate-[fade-in_150ms_ease-out]"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-20 p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs select-none animate-[fade-in_150ms_ease-out]"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl overflow-hidden rounded-sm bg-white shadow-2xl border border-sky-200/90 animate-[scale-in_150ms_ease-out]"
+        className="w-full max-w-2xl overflow-hidden rounded-sm bg-white shadow-2xl border border-brand-border animate-[scale-in_150ms_ease-out]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input Bar */}
-        <div className="relative flex items-center border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-4 py-3">
-          <Search size={17} className="text-[#0284C7] shrink-0 mr-3" />
+        <div className="relative flex items-center border-b border-brand-light bg-brand-50/60 px-4 py-3">
+          <Search size={17} className="text-brand-primary shrink-0 mr-3" />
           <input
             autoFocus
             type="text"
-            className="w-full bg-transparent text-sm font-medium text-gray-700 placeholder:text-sky-900/40 outline-none"
+            className="w-full bg-transparent text-sm font-medium text-slate-800 placeholder:text-slate-400 outline-none"
             placeholder="Search pages, items, actions... (e.g. 'pos', 'bakery', 'stock', 'tax')"
             value={query}
             onChange={(e) => {
@@ -169,7 +169,7 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
         {/* Results List */}
         <div className="max-h-96 overflow-y-auto p-2 space-y-1 custom-scrollbar">
           {filtered.length === 0 ? (
-            <div className="py-12 text-center text-xs font-medium text-gray-500">
+            <div className="py-12 text-center text-xs font-medium text-slate-500">
               No matching pages or commands found for &ldquo;{query}&rdquo;
             </div>
           ) : (
@@ -185,8 +185,8 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
                   className={cn(
                     "group flex items-center justify-between p-2.5 rounded-sm border cursor-pointer transition-all duration-150 shadow-2xs",
                     isSelected
-                      ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-[#0284C7] text-white shadow-md"
-                      : "bg-white hover:bg-sky-50/50 border-sky-100/90 text-gray-700"
+                      ? "bg-brand-gradient border-brand-primary text-white shadow-md"
+                      : "bg-white hover:bg-brand-50 border-brand-border text-slate-700"
                   )}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -195,7 +195,7 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
                         "flex h-8 w-8 items-center justify-center rounded-sm shrink-0 transition-colors shadow-2xs",
                         isSelected
                           ? "bg-white/20 text-white border border-white/30"
-                          : "bg-sky-50 border border-sky-200/80 text-[#0284C7] group-hover:bg-[#E0F2FE]"
+                          : "bg-brand-50 border border-brand-border text-brand-primary group-hover:bg-brand-100"
                       )}
                     >
                       <Icon size={16} />
@@ -203,7 +203,7 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
                     <span
                       className={cn(
                         "font-semibold text-xs sm:text-sm truncate min-w-0 flex-1",
-                        isSelected ? "text-white font-bold" : "text-gray-700 group-hover:text-[#0369A1]"
+                        isSelected ? "text-white font-bold" : "text-slate-700 group-hover:text-brand-dark"
                       )}
                     >
                       {cmd.title}
@@ -213,7 +213,7 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
                     size={14}
                     className={cn(
                       "shrink-0 transition-transform ml-2",
-                      isSelected ? "text-white translate-x-0.5" : "text-slate-400 group-hover:text-[#0284C7]"
+                      isSelected ? "text-white translate-x-0.5" : "text-slate-400 group-hover:text-brand-primary"
                     )}
                   />
                 </div>

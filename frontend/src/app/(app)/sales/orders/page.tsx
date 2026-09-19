@@ -289,7 +289,7 @@ export default function SalesOrdersPage() {
 
           <Link
             href="/retail-pos"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-primary-700 transition"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:opacity-90 transition"
           >
             <Store size={14} />
             New POS Order
@@ -502,7 +502,7 @@ export default function SalesOrdersPage() {
           <div className="mt-4 flex items-center justify-center gap-2">
             <Link
               href="/restaurant/pos"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-primary-700"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:opacity-90"
             >
               <Store size={14} /> Open Restaurant POS
             </Link>
@@ -847,7 +847,7 @@ export default function SalesOrdersPage() {
               <div className="border-t border-gray-200 bg-gray-50/80 p-4 flex items-center justify-between gap-2">
                 <button
                   onClick={() => handleOpenInvoice(selectedOrderForDrawer)}
-                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary-600 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 transition"
+                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary-600 py-2 text-xs font-semibold text-white shadow-sm hover:opacity-90 transition"
                 >
                   <Printer size={13} /> Print Order Invoice
                 </button>

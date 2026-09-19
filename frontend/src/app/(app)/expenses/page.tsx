@@ -338,9 +338,9 @@ export default function ExpensesPage() {
                         {money(c.total)} <span className="text-[10px] text-teal-600 font-semibold">({pct}%)</span>
                       </span>
                     </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-sm bg-sky-100">
+                    <div className="h-1.5 w-full overflow-hidden rounded-sm bg-brand-50">
                       <div
-                        className="h-full rounded-sm bg-[#0284C7] transition-all duration-500"
+                        className="h-full rounded-sm bg-brand-primary transition-all duration-500"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -352,7 +352,7 @@ export default function ExpensesPage() {
       )}
 
       {/* Main Expenses Table Container */}
-      <div className="bg-white rounded-sm border border-sky-100/90 p-4 shadow-2xs space-y-3">
+      <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-3">
         {/* Search & Multi-Filters Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div className="relative flex-1 min-w-[200px] max-w-md">
@@ -678,12 +678,12 @@ function ExpenseFormModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="w-full max-w-lg rounded-sm bg-white shadow-2xl border border-sky-100/90 overflow-hidden my-8"
+        className="w-full max-w-lg rounded-sm bg-white shadow-2xl border border-slate-200 overflow-hidden my-8"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-sky-100 px-5 py-3.5 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50">
+        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50">
           <div>
-            <h3 className="text-base font-bold text-[#0369A1]">
+            <h3 className="text-base font-bold text-brand-dark">
               {expense ? "Edit Expense" : "Record New Expense"}
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
@@ -716,7 +716,7 @@ function ExpenseFormModal({
                 required
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition"
+                className="w-full rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-medium text-slate-800 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition"
                 placeholder="e.g. Office Electricity Bill - September"
               />
             </div>
@@ -733,7 +733,7 @@ function ExpenseFormModal({
                   required
                   value={form.amount}
                   onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                  className="w-full rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition tabular-nums"
+                  className="w-full rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-bold text-slate-800 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition tabular-nums"
                   placeholder="2500"
                 />
               </div>
@@ -746,7 +746,7 @@ function ExpenseFormModal({
                   type="date"
                   value={form.expenseDate}
                   onChange={(e) => setForm({ ...form, expenseDate: e.target.value })}
-                  className="w-full rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition"
+                  className="w-full rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition"
                 />
               </div>
             </div>
@@ -759,7 +759,7 @@ function ExpenseFormModal({
                 <select
                   value={form.categoryId}
                   onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-[#0284C7] focus:outline-none transition"
+                  className="w-full rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-brand-primary focus:outline-none transition"
                 >
                   <option value="">Uncategorized</option>
                   {categories.map((c) => (
@@ -775,7 +775,7 @@ function ExpenseFormModal({
                 <select
                   value={form.paymentMethod}
                   onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}
-                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-[#0284C7] focus:outline-none transition"
+                  className="w-full rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-brand-primary focus:outline-none transition"
                 >
                   {PAYMENT_METHODS.map((m) => (
                     <option key={m.value} value={m.value}>{m.icon} {m.label}</option>
@@ -792,7 +792,7 @@ function ExpenseFormModal({
                 <select
                   value={form.branchId}
                   onChange={(e) => setForm({ ...form, branchId: e.target.value })}
-                  className="w-full rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-[#0284C7] focus:outline-none transition"
+                  className="w-full rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-brand-primary focus:outline-none transition"
                 >
                   <option value="">All / Headquarters</option>
                   {branches.map((b) => (
@@ -810,16 +810,16 @@ function ExpenseFormModal({
                 rows={2}
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full rounded-sm border border-sky-200/90 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7] focus:outline-none transition"
+                className="w-full rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-medium text-slate-800 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition"
                 placeholder="e.g. Paid cash from register during morning shift"
               />
             </div>
 
-            <div className="rounded-sm bg-sky-50/70 p-2.5 border border-sky-200/70 text-[11px] text-[#0369A1] font-medium">
+            <div className="rounded-sm bg-brand-50/70 p-2.5 border border-brand-border text-[11px] text-brand-dark font-medium">
               💡 Cash expenses recorded in an active shift are automatically posted as a <code>CASH_EXPENSE</code> movement in the cashier ledger.
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-sky-100">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
               <CustomButton
                 type="button"
                 variant="outline"

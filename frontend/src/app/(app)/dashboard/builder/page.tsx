@@ -90,18 +90,18 @@ function WidgetCard({
 
   return (
     <div
-      className="bg-white rounded-sm border border-sky-100/90 shadow-2xs overflow-hidden group hover:border-[#0284C7] hover:shadow-md transition-all flex flex-col justify-between"
+      className="bg-white rounded-sm border border-slate-200 shadow-2xs overflow-hidden group hover:border-brand-primary hover:shadow-md transition-all flex flex-col justify-between"
       style={{ minHeight: Math.max(160, widget.height * 36) }}
       draggable
       onDragStart={onDragStart}
     >
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 border-b border-sky-100/90">
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 border-b border-slate-200">
         <div className="flex items-center gap-2.5">
           <GripVertical className="w-4 h-4 text-slate-300 cursor-grab" />
-          <div className="p-1.5 rounded-sm border border-sky-200/80 bg-sky-50 text-[#0284C7]">
+          <div className="p-1.5 rounded-sm border border-brand-border bg-brand-50 text-brand-primary">
             <IconComponent className="w-3.5 h-3.5" />
           </div>
-          <span className="text-xs sm:text-sm font-bold text-[#0369A1]">
+          <span className="text-xs sm:text-sm font-bold text-brand-dark">
             {widget.title || widget.widgetType}
           </span>
         </div>
@@ -119,7 +119,7 @@ function WidgetCard({
       <div className="p-5 flex-1 flex flex-col items-center justify-center">
         {loading ? (
           <div className="flex items-center justify-center h-20">
-            <RefreshCw className="h-5 w-5 animate-spin text-[#0284C7]" />
+            <RefreshCw className="h-5 w-5 animate-spin text-brand-primary" />
           </div>
         ) : (
           <div className="text-center w-full">
@@ -128,7 +128,7 @@ function WidgetCard({
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   {data.label || widget.title}
                 </p>
-                <p className="text-2xl sm:text-3xl font-black text-[#0369A1] tracking-tight [font-variant-numeric:tabular-nums]">
+                <p className="text-2xl sm:text-3xl font-black text-brand-dark tracking-tight [font-variant-numeric:tabular-nums]">
                   {typeof data.value === "number" ? currency(data.value) : data.value ?? 0}
                 </p>
                 {data.change !== undefined && (
@@ -145,7 +145,7 @@ function WidgetCard({
                   {[35, 65, 45, 90, 60, 80, 50].map((h, i) => (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1">
                       <div
-                        className="w-full bg-gradient-to-t from-[#0284C7] to-[#38BDF8] hover:brightness-110 rounded-t-xs transition-all"
+                        className="w-full bg-brand-gradient hover:brightness-110 rounded-t-xs transition-all"
                         style={{ height: `${h}%` }}
                       />
                       <span className="text-[9px] text-slate-400 font-medium">D{i + 1}</span>
@@ -164,10 +164,10 @@ function WidgetCard({
                 ].map((row, i) => (
                   <div
                     key={i}
-                    className="flex justify-between items-center p-2 bg-sky-50/40 rounded-sm border border-sky-100 text-slate-700"
+                    className="flex justify-between items-center p-2 bg-brand-50/40 rounded-sm border border-slate-200 text-slate-700"
                   >
                     <span className="font-medium text-slate-700">{row.name}</span>
-                    <span className="font-bold text-[#0369A1]">{row.val}</span>
+                    <span className="font-bold text-brand-dark">{row.val}</span>
                   </div>
                 ))}
               </div>
@@ -176,10 +176,10 @@ function WidgetCard({
             {widget.widgetType === "GAUGE" && (
               <div className="flex flex-col items-center justify-center space-y-2">
                 <div className="relative w-20 h-20 flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-full border-4 border-sky-100 border-t-[#0284C7] animate-spin" />
-                  <span className="absolute font-black text-sm text-[#0369A1]">84%</span>
+                  <div className="w-20 h-20 rounded-full border-4 border-slate-200 border-t-brand-primary animate-spin" />
+                  <span className="absolute font-black text-sm text-brand-dark">84%</span>
                 </div>
-                <span className="text-[11px] text-[#0284C7] font-semibold">Monthly Target Realized</span>
+                <span className="text-[11px] text-brand-primary font-semibold">Monthly Target Realized</span>
               </div>
             )}
 
@@ -192,10 +192,10 @@ function WidgetCard({
                 ].map((item, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between p-2 bg-sky-50/40 rounded-sm border border-sky-100"
+                    className="flex items-center justify-between p-2 bg-brand-50/40 rounded-sm border border-slate-200"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#0284C7]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
                       <span className="font-medium text-slate-700">{item.title}</span>
                     </div>
                     <span className="text-[10px] text-slate-400">{item.time}</span>
@@ -364,24 +364,24 @@ export default function DashboardBuilderPage() {
             <div
               key={d.id}
               onClick={() => setActiveDashboard(d)}
-              className="p-5 bg-white rounded-sm border border-sky-100/90 hover:border-[#0284C7] hover:shadow-md cursor-pointer transition-all space-y-3 group shadow-2xs"
+              className="p-5 bg-white rounded-sm border border-slate-200 hover:border-brand-primary hover:shadow-md cursor-pointer transition-all space-y-3 group shadow-2xs"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="p-2 rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 group-hover:scale-105 transition-transform shrink-0">
+                  <div className="p-2 rounded-sm bg-brand-50 text-brand-primary border border-brand-border group-hover:scale-105 transition-transform shrink-0">
                     <LayoutGrid className="w-5 h-5" />
                   </div>
-                  <h3 className="font-bold text-[#0369A1] text-sm truncate">{d.name}</h3>
+                  <h3 className="font-bold text-brand-dark text-sm truncate">{d.name}</h3>
                 </div>
                 {d.isDefault && (
-                  <span className="text-[10px] font-bold bg-sky-100 text-[#0284C7] border border-sky-200 px-2 py-0.5 rounded-sm shrink-0">
+                  <span className="text-[10px] font-bold bg-brand-50 text-brand-primary border border-brand-border px-2 py-0.5 rounded-sm shrink-0">
                     Default
                   </span>
                 )}
               </div>
-              <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-sky-100">
+              <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200">
                 <span>Custom Board</span>
-                <span className="text-[#0284C7] font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                <span className="text-brand-primary font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                   Open Builder <ArrowRight size={12} />
                 </span>
               </div>
@@ -389,9 +389,9 @@ export default function DashboardBuilderPage() {
           ))}
 
           {dashboards.length === 0 && !loading && (
-            <div className="col-span-full text-center py-16 bg-white rounded-sm border border-sky-100/90 p-8 space-y-3 shadow-2xs">
+            <div className="col-span-full text-center py-16 bg-white rounded-sm border border-slate-200 p-8 space-y-3 shadow-2xs">
               <LayoutGrid className="w-10 h-10 mx-auto text-sky-300" />
-              <h3 className="font-bold text-[#0369A1] text-base">No Custom Dashboards Yet</h3>
+              <h3 className="font-bold text-brand-dark text-base">No Custom Dashboards Yet</h3>
               <p className="text-xs text-slate-500 max-w-md mx-auto">
                 Build custom KPI boards for branch managers, cashier shifts, and executive reviews.
               </p>
@@ -424,7 +424,7 @@ export default function DashboardBuilderPage() {
               placeholder="e.g. Executive Sales & Recovery Board"
             />
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-sky-100">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
               <CustomButton
                 variant="outline"
                 size="md"
@@ -501,9 +501,9 @@ export default function DashboardBuilderPage() {
         ))}
 
         {widgets.length === 0 && (
-          <div className="col-span-full text-center py-20 bg-white rounded-sm border-2 border-dashed border-sky-200/80 p-8 space-y-3 shadow-2xs">
+          <div className="col-span-full text-center py-20 bg-white rounded-sm border-2 border-dashed border-brand-border p-8 space-y-3 shadow-2xs">
             <LayoutGrid className="w-10 h-10 mx-auto text-sky-300" />
-            <h3 className="font-bold text-[#0369A1] text-base">This Dashboard Canvas is Empty</h3>
+            <h3 className="font-bold text-brand-dark text-base">This Dashboard Canvas is Empty</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
               Add KPI cards, sales trend charts, AR aging metrics, and customer lists to populate your board.
             </p>
@@ -528,7 +528,7 @@ export default function DashboardBuilderPage() {
       >
         <form onSubmit={addWidget} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#0369A1] mb-2">
+            <label className="block text-xs font-semibold text-brand-dark mb-2">
               Widget Display Type
             </label>
             <div className="grid grid-cols-5 gap-2">
@@ -542,15 +542,15 @@ export default function DashboardBuilderPage() {
                     onClick={() => setNewWidgetType(wt.type)}
                     className={`flex flex-col items-center gap-1.5 p-2.5 rounded-sm border transition-all cursor-pointer ${
                       isSelected
-                        ? "border-[#0284C7] bg-[#E0F2FE] shadow-2xs"
-                        : "border-sky-100 hover:border-sky-300 bg-white"
+                        ? "border-brand-primary bg-brand-50 shadow-2xs"
+                        : "border-slate-200 hover:border-brand-border bg-white"
                     }`}
                   >
-                    <div className="p-1.5 rounded-sm border border-sky-200/80 bg-sky-50 text-[#0284C7]">
+                    <div className="p-1.5 rounded-sm border border-brand-border bg-brand-50 text-brand-primary">
                       <WIcon className="w-4 h-4" />
                     </div>
                     <span className={`text-[10px] font-bold text-center line-clamp-1 ${
-                      isSelected ? "text-[#0369A1]" : "text-slate-700"
+                      isSelected ? "text-brand-dark" : "text-slate-700"
                     }`}>
                       {wt.label}
                     </span>
@@ -576,7 +576,7 @@ export default function DashboardBuilderPage() {
             />
           )}
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-sky-100">
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-200">
             <CustomButton
               variant="outline"
               size="md"

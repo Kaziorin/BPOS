@@ -42,17 +42,17 @@ export function CustomBreadcrumb({
   );
 
   return (
-    <div className="w-full bg-white rounded-sm border border-sky-100/90 p-3.5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="w-full bg-white rounded-sm border border-brand-border p-3.5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       {/* Left Column: Title & Nav/Path Hierarchy */}
       <div className="space-y-2">
         {(title || icon) && (
           <div className="flex items-center gap-2.5">
             {icon && (
-              <div className={iconClassName || "flex h-7 w-7 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 shrink-0"}>
+              <div className={iconClassName || "flex h-7 w-7 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border shrink-0"}>
                 {icon}
               </div>
             )}
-            {title && <h1 className="text-base font-bold text-[#0369A1] leading-none">{title}</h1>}
+            {title && <h1 className="text-base font-bold text-brand-dark leading-none">{title}</h1>}
           </div>
         )}
 
@@ -62,7 +62,7 @@ export function CustomBreadcrumb({
             <button
               type="button"
               onClick={() => router.back()}
-              className="flex h-6 w-6 items-center justify-center rounded-sm border border-sky-200/80 bg-slate-50 text-slate-600 hover:bg-[#E0F2FE] hover:text-[#0284C7] hover:border-[#0284C7] transition shadow-2xs cursor-pointer"
+              className="flex h-6 w-6 items-center justify-center rounded-sm border border-brand-border bg-slate-50 text-slate-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-primary transition shadow-2xs cursor-pointer"
               title="Go Back"
             >
               <ArrowLeft size={13} />
@@ -71,7 +71,7 @@ export function CustomBreadcrumb({
             <button
               type="button"
               onClick={() => router.forward()}
-              className="flex h-6 w-6 items-center justify-center rounded-sm border border-sky-200/80 bg-slate-50 text-slate-600 hover:bg-[#E0F2FE] hover:text-[#0284C7] hover:border-[#0284C7] transition shadow-2xs cursor-pointer"
+              className="flex h-6 w-6 items-center justify-center rounded-sm border border-brand-border bg-slate-50 text-slate-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-primary transition shadow-2xs cursor-pointer"
               title="Go Forward"
             >
               <ArrowRight size={13} />
@@ -79,7 +79,7 @@ export function CustomBreadcrumb({
 
             <Link
               href="/dashboard"
-              className="flex h-6 w-6 items-center justify-center rounded-sm border border-sky-200/80 bg-slate-50 text-slate-600 hover:bg-[#E0F2FE] hover:text-[#0284C7] hover:border-[#0284C7] transition shadow-2xs cursor-pointer"
+              className="flex h-6 w-6 items-center justify-center rounded-sm border border-brand-border bg-slate-50 text-slate-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-primary transition shadow-2xs cursor-pointer"
               title="Go to Home / Dashboard"
             >
               <Home size={13} />
@@ -87,16 +87,16 @@ export function CustomBreadcrumb({
           </div>
 
           {pathItems.length > 0 && (
-            <nav className="flex items-center gap-1 text-xs text-gray-600 font-medium">
+            <nav className="flex items-center gap-1 text-xs text-slate-600 font-medium">
               {pathItems.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-1 shrink-0">
-                  {idx > 0 && <ChevronRight size={13} className="text-gray-400" />}
+                  {idx > 0 && <ChevronRight size={13} className="text-slate-400" />}
                   {item.href ? (
-                    <Link href={item.href} className="text-gray-600 hover:text-[#0284C7] transition">
+                    <Link href={item.href} className="text-slate-600 hover:text-brand-primary transition">
                       {item.label}
                     </Link>
                   ) : (
-                    <span className="font-semibold text-gray-600">{item.label}</span>
+                    <span className="font-semibold text-slate-700">{item.label}</span>
                   )}
                 </div>
               ))}

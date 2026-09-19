@@ -270,3 +270,121 @@ export function getThemeConfig(themeId: VerticalThemeId = "restaurant"): Vertica
   return VERTICAL_THEMES[themeId] || VERTICAL_THEMES.restaurant;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// BUSINESS TO THEME MAPPING & EXTENSIBLE CATALOG
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const BUSINESS_TYPE_TO_DEFAULT_THEME: Record<string, GlobalThemeId> = {
+  RESTAURANT: "restaurant",
+  GROCERY: "grocery",
+  PHARMACY: "pharmacy",
+  RETAIL: "retail",
+  WHOLESALE: "wholesale",
+  MANUFACTURING: "manufacturing",
+  SALON: "salon",
+  REPAIR: "repair",
+  FRANCHISE: "franchise",
+  BAKERY: "manufacturing",
+  GENERAL: "ocean-teal",
+};
+
+/**
+ * Extensible multi-theme catalog per business vertical.
+ * Future expansion: Add new theme IDs here for any business without touching other files.
+ */
+export const BUSINESS_THEMES_CATALOG: Record<string, GlobalThemeId[]> = {
+  RESTAURANT: ["restaurant", "ocean-teal", "slate-charcoal"],
+  GROCERY: ["grocery", "ocean-teal"],
+  PHARMACY: ["pharmacy", "ocean-teal"],
+  RETAIL: ["retail", "royal-sapphire", "midnight-violet", "ocean-teal"],
+  WHOLESALE: ["wholesale", "royal-sapphire", "ocean-teal"],
+  MANUFACTURING: ["manufacturing", "slate-charcoal", "ocean-teal"],
+  SALON: ["salon", "midnight-violet", "ocean-teal"],
+  REPAIR: ["repair", "midnight-violet", "slate-charcoal", "ocean-teal"],
+  FRANCHISE: ["franchise", "slate-charcoal", "ocean-teal"],
+  GENERAL: ["ocean-teal", "royal-sapphire", "midnight-violet", "slate-charcoal"],
+};
+
+/**
+ * Resolves the active theme for a given tenant.
+ * - If user explicitly selected a theme, use it.
+ * - Else if tenant has a businessType, map to the default business theme.
+ * - Defaults to 'ocean-teal' (Blue Ocean Default).
+ */
+export function resolveThemeForTenant(
+  businessType?: string | null,
+  userSelectedTheme?: string | null
+): GlobalThemeId {
+  if (userSelectedTheme && GLOBAL_THEMES[userSelectedTheme as GlobalThemeId]) {
+    return userSelectedTheme as GlobalThemeId;
+  }
+  if (businessType) {
+    const key = businessType.toUpperCase().trim();
+    if (BUSINESS_TYPE_TO_DEFAULT_THEME[key]) {
+      return BUSINESS_TYPE_TO_DEFAULT_THEME[key];
+    }
+  }
+  return "ocean-teal";
+}
+
+/**
+ * Determines if a user account is a Super Administrator or Admin.
+ * Admin users default to the Blue Ocean POS default theme ('ocean-teal').
+ */
+export function isUserAdmin(user: any): boolean {
+  if (!user) return false;
+  const email = String(user.email || "").toLowerCase().trim();
+  const name = String(user.name || "").toLowerCase().trim();
+  const role = String(user.role || user.roleName || "").toLowerCase().trim();
+
+  if (
+    email === "admin@gmail.com" ||
+    email === "admin@blueoceanspos.com" ||
+    email.startsWith("admin@")
+  ) {
+    return true;
+  }
+
+  if (
+    name.includes("super administrator") ||
+    name.includes("super admin") ||
+    name === "admin"
+  ) {
+    return true;
+  }
+
+  if (
+    role.includes("super") ||
+    role === "admin" ||
+    role === "super administrator"
+  ) {
+    return true;
+  }
+
+  if (user.isSuperAdmin === true || user.isAdmin === true) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Detects if the current URL pathname is inside a specific business vertical terminal or module.
+ */
+export function getRouteBusinessType(pathname: string | null): GlobalThemeId | null {
+  if (!pathname) return null;
+  const path = pathname.toLowerCase();
+
+  if (path === "/retail-pos" || path.startsWith("/retail")) return "retail";
+  if (path.startsWith("/restaurant")) return "restaurant";
+  if (path.startsWith("/grocery")) return "grocery";
+  if (path.startsWith("/pharmacy")) return "pharmacy";
+  if (path.startsWith("/wholesale")) return "wholesale";
+  if (path.startsWith("/bakery") || path.startsWith("/manufacturing")) return "manufacturing";
+  if (path.startsWith("/salon")) return "salon";
+  if (path.startsWith("/repair")) return "repair";
+  if (path.startsWith("/franchise")) return "franchise";
+
+  return null;
+}
+

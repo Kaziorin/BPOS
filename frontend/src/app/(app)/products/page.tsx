@@ -227,7 +227,7 @@ export default function ProductsPage() {
       align: "center",
       sortable: true,
       render: (product) => (
-        <span className="inline-flex items-center rounded-sm bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-[#0284C7] border border-sky-200/80">
+        <span className="inline-flex items-center rounded-sm bg-brand-50 px-2 py-0.5 text-[11px] font-bold text-brand-primary border border-brand-border">
           {product.productType}
         </span>
       ),
@@ -254,7 +254,7 @@ export default function ProductsPage() {
               <span>{stock} {product.unit?.name ? `(${product.unit.name})` : ""}</span>
             </span>
             {variantCount > 0 && (
-              <span className="text-[10px] font-semibold text-[#0284C7] bg-sky-50 px-1.5 py-0.5 rounded-sm border border-sky-200/80">
+              <span className="text-[10px] font-semibold text-brand-primary bg-brand-50 px-1.5 py-0.5 rounded-sm border border-brand-border">
                 {variantCount} Variants
               </span>
             )}
@@ -407,7 +407,7 @@ export default function ProductsPage() {
       sortable: true,
       render: (product: any) => (
         product.attributes?.dailySaleObjective ? (
-          <span className="text-xs font-bold text-[#0284C7] bg-sky-50 px-2 py-0.5 rounded-sm border border-sky-200/80">
+          <span className="text-xs font-bold text-brand-primary bg-brand-50 px-2 py-0.5 rounded-sm border border-brand-border">
             {product.attributes.dailySaleObjective} Qty
           </span>
         ) : (
@@ -455,14 +455,14 @@ export default function ProductsPage() {
         <div className="flex items-center justify-center gap-1" onClick={(e) => e.stopPropagation()}>
           <Link
             href={`/products/create?id=${product.id}`}
-            className="p-1.5 text-slate-500 hover:text-[#0284C7] hover:bg-sky-50 rounded-sm transition"
+            className="p-1.5 text-slate-500 hover:text-brand-primary hover:bg-brand-50 rounded-sm transition"
             title="Edit Product"
           >
             <Edit3 size={15} />
           </Link>
           <Link
             href={`/products/${product.id}`}
-            className="p-1.5 text-slate-500 hover:text-[#0284C7] hover:bg-sky-50 rounded-sm transition"
+            className="p-1.5 text-slate-500 hover:text-brand-primary hover:bg-brand-50 rounded-sm transition"
             title="View Details"
           >
             <Eye size={15} />
@@ -509,13 +509,13 @@ export default function ProductsPage() {
       )}
 
       {/* Table & Controls Container */}
-      <div className="bg-white rounded-sm border border-sky-100/90 p-4 shadow-2xs space-y-3">
+      <div className="bg-white rounded-sm border border-brand-border/60 p-4 shadow-2xs space-y-3">
         {/* Search & Filter Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-100/90 pb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-border/60 pb-3">
           <div className="flex flex-wrap items-center gap-2 flex-1 max-w-3xl">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-[#0284C7]" />
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-brand-primary" />
               <input
                 type="text"
                 placeholder="Search by name, SKU, or barcode..."
@@ -524,7 +524,7 @@ export default function ProductsPage() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-sm border border-sky-200/90 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-[#0284C7] focus:outline-none transition shadow-2xs"
+                className="w-full rounded-sm border border-brand-border bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-brand-primary focus:outline-none transition shadow-2xs"
               />
             </div>
 
@@ -535,7 +535,7 @@ export default function ProductsPage() {
                 setFilterType(e.target.value);
                 setPage(1);
               }}
-              className="rounded-sm border border-sky-200/90 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#0284C7] focus:outline-none transition cursor-pointer shadow-2xs"
+              className="rounded-sm border border-brand-border bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-brand-primary focus:outline-none transition cursor-pointer shadow-2xs"
             >
               <option value="">All Product Types</option>
               <option value="Standard">Standard Product</option>
@@ -555,7 +555,7 @@ export default function ProductsPage() {
                 setFilterStatus(e.target.value);
                 setPage(1);
               }}
-              className="rounded-sm border border-sky-200/90 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#0284C7] focus:outline-none transition cursor-pointer shadow-2xs"
+              className="rounded-sm border border-brand-border bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-brand-primary focus:outline-none transition cursor-pointer shadow-2xs"
             >
               <option value="">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -569,7 +569,7 @@ export default function ProductsPage() {
                 setFilterWarehouse(e.target.value);
                 setPage(1);
               }}
-              className="rounded-sm border border-sky-200/90 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#0284C7] focus:outline-none transition cursor-pointer shadow-2xs"
+              className="rounded-sm border border-brand-border bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-brand-primary focus:outline-none transition cursor-pointer shadow-2xs"
             >
               <option value="">All Warehouses</option>
               {warehouses.map((w) => (
@@ -584,7 +584,7 @@ export default function ProductsPage() {
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="flex items-center gap-1 rounded-sm border border-sky-200/80 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-[#0284C7] hover:border-[#0284C7] hover:bg-[#E0F2FE] transition cursor-pointer shadow-2xs"
+                className="flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-brand-primary hover:border-brand-primary hover:bg-brand-50 transition cursor-pointer shadow-2xs"
               >
                 <RotateCcw size={12} />
                 <span>Reset</span>

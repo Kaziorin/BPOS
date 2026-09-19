@@ -290,10 +290,10 @@ export default function SuppliersPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         
         {/* Total Suppliers */}
-        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs hover:border-sky-300 transition">
+        <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs hover:border-brand-border transition">
           <div className="flex items-center justify-between text-gray-500">
             <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Total Suppliers</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-50 text-brand-primary">
               <Truck size={16} />
             </div>
           </div>
@@ -319,7 +319,7 @@ export default function SuppliersPage() {
           className={`rounded-sm border p-4 shadow-2xs transition cursor-pointer ${
             activeTab === "WITH_DUE"
               ? "border-rose-500 bg-rose-50/40 ring-1 ring-rose-500/20"
-              : "border-sky-100/90 bg-white hover:border-rose-300"
+              : "border-slate-200 bg-white hover:border-rose-300"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -341,7 +341,7 @@ export default function SuppliersPage() {
         </div>
 
         {/* Total Purchase Volume */}
-        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs hover:border-sky-300 transition">
+        <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs hover:border-brand-border transition">
           <div className="flex items-center justify-between text-gray-500">
             <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Procurement Volume</span>
             <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-50 text-emerald-600">
@@ -359,7 +359,7 @@ export default function SuppliersPage() {
         </div>
 
         {/* On-Time Delivery & Quality */}
-        <div className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs hover:border-sky-300 transition">
+        <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs hover:border-brand-border transition">
           <div className="flex items-center justify-between text-gray-500">
             <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Vendor Reliability</span>
             <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-amber-50 text-amber-600">
@@ -377,7 +377,7 @@ export default function SuppliersPage() {
       </div>
 
       {/* ── Navigation Segment Tabs ── */}
-      <div className="flex items-center gap-1.5 overflow-x-auto border-b border-sky-100 pb-2 scrollbar-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto border-b border-slate-200 pb-2 scrollbar-none">
         {navTabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -389,14 +389,14 @@ export default function SuppliersPage() {
               }}
               className={`flex items-center gap-1.5 shrink-0 rounded-sm px-3 py-1.5 text-xs font-medium transition cursor-pointer ${
                 isActive
-                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs font-semibold"
-                  : "bg-white text-slate-600 border border-sky-100 hover:bg-sky-50/50 hover:text-slate-900"
+                  ? "bg-brand-gradient text-white shadow-2xs font-semibold"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-brand-50/50 hover:text-slate-900"
               }`}
             >
               <span>{tab.label}</span>
               {tab.count !== undefined && (
                 <span className={`rounded-sm px-1.5 py-0.2 text-[10px] font-bold ${
-                  isActive ? "bg-white/20 text-white" : tab.isDue ? "bg-rose-100 text-rose-700" : "bg-sky-100 text-sky-800"
+                  isActive ? "bg-white/20 text-white" : tab.isDue ? "bg-rose-100 text-rose-700" : "bg-brand-50 text-sky-800"
                 }`}>
                   {tab.count}
                 </span>
@@ -407,7 +407,7 @@ export default function SuppliersPage() {
       </div>
 
       {/* ── Filter & Search Toolbar ── */}
-      <div className="rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="rounded-sm border border-slate-200 bg-white p-3 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Search Input */}
         <div className="relative w-full md:w-80">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -419,7 +419,7 @@ export default function SuppliersPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-sm border border-sky-200/90 py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7] transition"
+            className="w-full rounded-sm border border-brand-border py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border transition"
           />
           {search && (
             <button
@@ -439,7 +439,7 @@ export default function SuppliersPage() {
               setFilterStatus(e.target.value);
               setPage(1);
             }}
-            className="rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
+            className="rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-brand-primary focus:outline-none"
           >
             <option value="">All Statuses</option>
             <option value="ACTIVE">Active</option>
@@ -452,7 +452,7 @@ export default function SuppliersPage() {
               setSortBy(e.target.value);
               setPage(1);
             }}
-            className="rounded-sm border border-sky-200/90 bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
+            className="rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-brand-primary focus:outline-none"
           >
             <option value="createdAt">Newest First</option>
             <option value="name">Supplier Name (A-Z)</option>
@@ -463,24 +463,24 @@ export default function SuppliersPage() {
 
           <button
             onClick={() => setSortDir((prev) => (prev === "asc" ? "desc" : "asc"))}
-            className="rounded-sm border border-sky-200 p-1.5 text-gray-600 hover:bg-sky-50 transition cursor-pointer"
+            className="rounded-sm border border-brand-border p-1.5 text-gray-600 hover:bg-brand-50/50 transition cursor-pointer"
             title={`Sort Direction: ${sortDir.toUpperCase()}`}
           >
             <ArrowUpDown size={14} />
           </button>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center rounded-sm border border-sky-200 p-0.5 bg-sky-50/50">
+          <div className="flex items-center rounded-sm border border-brand-border p-0.5 bg-slate-50">
             <button
               onClick={() => setViewMode("table")}
-              className={`rounded-sm p-1 transition cursor-pointer ${viewMode === "table" ? "bg-white text-[#0284C7] shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1 transition cursor-pointer ${viewMode === "table" ? "bg-white text-brand-primary shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
               title="Table View"
             >
               <LayoutList size={14} />
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`rounded-sm p-1 transition cursor-pointer ${viewMode === "grid" ? "bg-white text-[#0284C7] shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1 transition cursor-pointer ${viewMode === "grid" ? "bg-white text-brand-primary shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
               title="Grid View"
             >
               <LayoutGrid size={14} />
@@ -492,10 +492,10 @@ export default function SuppliersPage() {
               loadSuppliers();
               loadStats();
             }}
-            className="rounded-sm border border-sky-200 p-1.5 text-gray-600 hover:bg-sky-50 transition cursor-pointer"
+            className="rounded-sm border border-brand-border p-1.5 text-gray-600 hover:bg-brand-50/50 transition cursor-pointer"
             title="Refresh List"
           >
-            <RefreshCw size={14} className={loading ? "animate-spin text-[#0284C7]" : ""} />
+            <RefreshCw size={14} className={loading ? "animate-spin text-brand-primary" : ""} />
           </button>
         </div>
       </div>
@@ -515,13 +515,13 @@ export default function SuppliersPage() {
 
       {/* ── Suppliers Data List ── */}
       {loading ? (
-        <div className="rounded-sm border border-sky-100/90 bg-white p-12 text-center shadow-2xs">
-          <RefreshCw size={24} className="mx-auto animate-spin text-[#0284C7] mb-2" />
+        <div className="rounded-sm border border-slate-200 bg-white p-12 text-center shadow-2xs">
+          <RefreshCw size={24} className="mx-auto animate-spin text-brand-primary mb-2" />
           <p className="text-xs font-semibold text-gray-700">Loading suppliers directory...</p>
         </div>
       ) : suppliers.length === 0 ? (
-        <div className="rounded-sm border-2 border-dashed border-sky-200 bg-white p-12 text-center shadow-2xs">
-          <Truck size={32} className="mx-auto text-sky-300 mb-3" />
+        <div className="rounded-sm border-2 border-dashed border-brand-border bg-white p-12 text-center shadow-2xs">
+          <Truck size={32} className="mx-auto text-brand-primary/40 mb-3" />
           <h3 className="text-sm font-bold text-gray-900">No Suppliers Found</h3>
           <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
             {search || activeTab !== "ALL" || filterStatus
@@ -558,11 +558,11 @@ export default function SuppliersPage() {
         </div>
       ) : viewMode === "table" ? (
         /* ── CLEAN ENTERPRISE TABLE VIEW ── */
-        <div className="rounded-sm border border-sky-100/90 bg-white shadow-2xs overflow-hidden">
+        <div className="rounded-sm border border-slate-200 bg-white shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 text-[11px] font-bold uppercase tracking-wider text-[#0369A1]">
+                <tr className="border-b border-slate-200 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 text-[11px] font-bold uppercase tracking-wider text-brand-dark">
                   <th className="px-4 py-3">Supplier / Vendor</th>
                   <th className="px-3 py-3">Contact Person</th>
                   <th className="px-3 py-3">Purchases / POs</th>
@@ -579,20 +579,20 @@ export default function SuppliersPage() {
                   const totalPurchased = Number(s.totalPurchased || 0);
 
                   return (
-                    <tr key={s.id} className="hover:bg-sky-50/40 transition-colors">
+                    <tr key={s.id} className="hover:bg-brand-50/50/40 transition-colors">
                       {/* Name & Initials */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
                           <button
                             onClick={() => handleOpenDrawer(s.id)}
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/60 text-xs font-bold hover:bg-sky-100 transition cursor-pointer"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border text-xs font-bold hover:bg-brand-50 transition cursor-pointer"
                           >
                             {getInitials(s.name)}
                           </button>
                           <div className="min-w-0">
                             <button
                               onClick={() => handleOpenDrawer(s.id)}
-                              className="font-semibold text-gray-900 hover:text-[#0284C7] text-left transition truncate max-w-[190px] block cursor-pointer"
+                              className="font-semibold text-gray-900 hover:text-brand-primary text-left transition truncate max-w-[190px] block cursor-pointer"
                             >
                               {s.name}
                             </button>
@@ -616,7 +616,7 @@ export default function SuppliersPage() {
                           <p className="font-medium text-gray-800 text-xs">{s.contactPerson || "—"}</p>
                           {s.phone ? (
                             <div className="flex items-center gap-1.5 text-[11px] text-gray-600 mt-0.5">
-                              <a href={`tel:${s.phone}`} className="hover:text-[#0284C7] transition">
+                              <a href={`tel:${s.phone}`} className="hover:text-brand-primary transition">
                                 {s.phone}
                               </a>
                               <a
@@ -689,7 +689,7 @@ export default function SuppliersPage() {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => handleOpenDrawer(s.id)}
-                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-brand-50/50 hover:text-brand-primary transition cursor-pointer"
                             title="Quick Drawer"
                           >
                             <Eye size={14} />
@@ -697,7 +697,7 @@ export default function SuppliersPage() {
 
                           <button
                             onClick={() => handleOpenEdit(s)}
-                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition cursor-pointer"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-brand-50/50 hover:text-brand-primary transition cursor-pointer"
                             title="Edit Supplier"
                           >
                             <Edit3 size={14} />
@@ -705,7 +705,7 @@ export default function SuppliersPage() {
 
                           <Link
                             href={`/suppliers/${s.id}`}
-                            className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] transition"
+                            className="rounded-sm p-1 text-gray-400 hover:bg-brand-50/50 hover:text-brand-primary transition"
                             title="Full Details & Ledger"
                           >
                             <ArrowUpRight size={14} />
@@ -738,21 +738,21 @@ export default function SuppliersPage() {
             return (
               <div
                 key={s.id}
-                className="rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs hover:border-sky-300 transition flex flex-col justify-between"
+                className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs hover:border-brand-border transition flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2.5">
                       <button
                         onClick={() => handleOpenDrawer(s.id)}
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/60 text-xs font-bold cursor-pointer"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border text-xs font-bold cursor-pointer"
                       >
                         {getInitials(s.name)}
                       </button>
                       <div className="min-w-0">
                         <h3
                           onClick={() => handleOpenDrawer(s.id)}
-                          className="font-bold text-gray-900 hover:text-[#0284C7] cursor-pointer transition text-xs truncate max-w-[160px]"
+                          className="font-bold text-gray-900 hover:text-brand-primary cursor-pointer transition text-xs truncate max-w-[160px]"
                         >
                           {s.name}
                         </h3>
@@ -770,20 +770,20 @@ export default function SuppliersPage() {
                   </div>
 
                   {/* 3-Col Stats Grid */}
-                  <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-sky-100 text-center">
-                    <div className="rounded-sm bg-sky-50/50 p-1.5">
+                  <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-slate-200 text-center">
+                    <div className="rounded-sm bg-slate-50 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Payable Due</p>
                       <p className={`text-xs font-bold ${isDue ? "text-rose-600" : "text-gray-700"}`}>
                         ৳{due.toLocaleString()}
                       </p>
                     </div>
-                    <div className="rounded-sm bg-sky-50/50 p-1.5">
+                    <div className="rounded-sm bg-slate-50 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Orders</p>
                       <p className="text-xs font-bold text-gray-700">
                         {s._count?.purchaseOrders || 0}
                       </p>
                     </div>
-                    <div className="rounded-sm bg-sky-50/50 p-1.5">
+                    <div className="rounded-sm bg-slate-50 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Purchased</p>
                       <p className="text-xs font-bold text-emerald-700 truncate">
                         ৳{totalPurchased > 1000 ? `${(totalPurchased/1000).toFixed(1)}k` : totalPurchased}
@@ -793,7 +793,7 @@ export default function SuppliersPage() {
                 </div>
 
                 {/* Card Action Footer */}
-                <div className="mt-3 pt-2.5 border-t border-sky-100 flex items-center justify-between">
+                <div className="mt-3 pt-2.5 border-t border-slate-200 flex items-center justify-between">
                   <div className="flex gap-1.5">
                     {s.phone && (
                       <a
@@ -818,21 +818,21 @@ export default function SuppliersPage() {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleOpenDrawer(s.id)}
-                      className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] cursor-pointer"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-brand-50/50 hover:text-brand-primary cursor-pointer"
                       title="Drawer"
                     >
                       <Eye size={14} />
                     </button>
                     <button
                       onClick={() => handleOpenEdit(s)}
-                      className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7] cursor-pointer"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-brand-50/50 hover:text-brand-primary cursor-pointer"
                       title="Edit"
                     >
                       <Edit3 size={14} />
                     </button>
                     <Link
                       href={`/suppliers/${s.id}`}
-                      className="rounded-sm p-1 text-gray-400 hover:bg-sky-50 hover:text-[#0284C7]"
+                      className="rounded-sm p-1 text-gray-400 hover:bg-brand-50/50 hover:text-brand-primary"
                       title="Full Profile"
                     >
                       <ArrowUpRight size={14} />
@@ -847,7 +847,7 @@ export default function SuppliersPage() {
 
       {/* ── Clean Pagination Footer ── */}
       {pagination.totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-sm border border-sky-100/90 bg-white p-3 shadow-2xs">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-sm border border-slate-200 bg-white p-3 shadow-2xs">
           <p className="text-xs text-gray-500">
             Showing <span className="font-semibold text-gray-800">{(page - 1) * perPage + 1}</span> -{" "}
             <span className="font-semibold text-gray-800">
@@ -863,7 +863,7 @@ export default function SuppliersPage() {
                 setPerPage(Number(e.target.value));
                 setPage(1);
               }}
-              className="rounded-sm border border-sky-200/90 px-2 py-1 text-xs text-gray-700 focus:border-[#0284C7] focus:outline-none"
+              className="rounded-sm border border-brand-border px-2 py-1 text-xs text-gray-700 focus:border-brand-primary focus:outline-none"
             >
               <option value="10">10 / page</option>
               <option value="20">20 / page</option>
@@ -874,7 +874,7 @@ export default function SuppliersPage() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="flex items-center gap-1 rounded-sm border border-sky-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-sky-50 disabled:opacity-40 transition cursor-pointer"
+              className="flex items-center gap-1 rounded-sm border border-brand-border px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-brand-50/50 disabled:opacity-40 transition cursor-pointer"
             >
               <ChevronLeft size={13} /> Prev
             </button>
@@ -886,7 +886,7 @@ export default function SuppliersPage() {
             <button
               onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
               disabled={page >= pagination.totalPages}
-              className="flex items-center gap-1 rounded-sm border border-sky-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-sky-50 disabled:opacity-40 transition cursor-pointer"
+              className="flex items-center gap-1 rounded-sm border border-brand-border px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-brand-50/50 disabled:opacity-40 transition cursor-pointer"
             >
               Next <ChevronRight size={13} />
             </button>

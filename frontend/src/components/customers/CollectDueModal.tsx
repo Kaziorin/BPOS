@@ -77,18 +77,18 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100 select-none">
-      <div className="relative w-full max-w-md rounded-sm bg-white shadow-xl border border-sky-200/90 overflow-hidden my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100 select-none">
+      <div className="relative w-full max-w-md rounded-sm bg-white shadow-xl border border-brand-border overflow-hidden my-6">
         
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-sky-100 px-5 py-3.5 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50">
+        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5 bg-gradient-to-r from-brand-50/80 via-white to-brand-50/50">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] font-bold border border-sky-200/80 shadow-2xs">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-50 text-brand-primary font-bold border border-brand-border/80 shadow-2xs">
               <DollarSign size={16} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#0369A1]">Collect Due Payment</h2>
-              <p className="text-[11px] text-[#0284C7] font-medium truncate max-w-[220px]">{customer.name}</p>
+              <h2 className="text-sm font-bold text-brand-dark">Collect Due Payment</h2>
+              <p className="text-[11px] text-brand-primary font-medium truncate max-w-[220px]">{customer.name}</p>
             </div>
           </div>
           <button
@@ -111,7 +111,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
             </div>
 
             {/* Receipt Summary */}
-            <div className="rounded-sm border border-sky-100 bg-sky-50/40 p-3.5 text-left text-xs space-y-2">
+            <div className="rounded-sm border border-slate-200 bg-brand-50/40 p-3.5 text-left text-xs space-y-2">
               <div className="flex justify-between text-gray-500">
                 <span>Customer</span>
                 <span className="font-semibold text-gray-600">{successReceipt.customerName}</span>
@@ -124,7 +124,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
                 <span>Method</span>
                 <span className="font-semibold text-gray-600">{successReceipt.paymentMethod}</span>
               </div>
-              <div className="border-t border-sky-200/60 pt-1.5 flex justify-between text-gray-500">
+              <div className="border-t border-brand-border pt-1.5 flex justify-between text-gray-500">
                 <span>Remaining Due</span>
                 <span className={`font-bold ${successReceipt.remainingDue > 0 ? "text-rose-600" : "text-emerald-700"}`}>
                   ৳{successReceipt.remainingDue.toLocaleString()}
@@ -135,13 +135,13 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
             <div className="flex gap-2 pt-1">
               <button
                 onClick={() => window.print()}
-                className="flex-1 inline-flex items-center justify-center gap-1 rounded-sm border border-sky-200/80 bg-white py-2 text-xs font-semibold text-[#0369A1] hover:bg-sky-50 shadow-2xs transition cursor-pointer"
+                className="flex-1 inline-flex items-center justify-center gap-1 rounded-sm border border-brand-border/80 bg-white py-2 text-xs font-semibold text-brand-dark hover:bg-brand-50/50 shadow-2xs transition cursor-pointer"
               >
                 <Receipt size={13} /> Print
               </button>
               <button
                 onClick={onClose}
-                className="flex-1 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] py-2 text-xs font-bold text-white shadow-xs hover:brightness-105 transition cursor-pointer"
+                className="flex-1 rounded-sm bg-brand-gradient py-2 text-xs font-bold text-white shadow-xs hover:brightness-105 transition cursor-pointer"
               >
                 Close
               </button>
@@ -167,11 +167,11 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-[#0369A1] mb-1">
+              <label className="block text-xs font-semibold text-brand-dark mb-1">
                 Payment Amount (৳) <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0284C7] font-bold">৳</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-primary font-bold">৳</span>
                 <input
                   type="number"
                   step="any"
@@ -180,14 +180,14 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
                   placeholder="0.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-sm border border-sky-200/90 py-2 pl-7 pr-3 text-sm font-bold text-gray-600 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                  className="w-full rounded-sm border border-brand-border py-2 pl-7 pr-3 text-sm font-bold text-gray-600 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 shadow-2xs"
                 />
               </div>
               <div className="flex gap-1.5 mt-1.5">
                 <button
                   type="button"
                   onClick={() => setAmount(String(currDue))}
-                  className="rounded-sm bg-sky-50 border border-sky-200/80 px-2 py-0.5 text-[10px] font-semibold text-[#0284C7] hover:bg-sky-100 transition cursor-pointer"
+                  className="rounded-sm bg-brand-50 border border-brand-border/80 px-2 py-0.5 text-[10px] font-semibold text-brand-primary hover:bg-brand-50 transition cursor-pointer"
                 >
                   Full Due (৳{currDue.toLocaleString()})
                 </button>
@@ -195,7 +195,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
                   <button
                     type="button"
                     onClick={() => setAmount(String(Math.round(currDue / 2)))}
-                    className="rounded-sm bg-sky-50 border border-sky-200/80 px-2 py-0.5 text-[10px] font-semibold text-[#0284C7] hover:bg-sky-100 transition cursor-pointer"
+                    className="rounded-sm bg-brand-50 border border-brand-border/80 px-2 py-0.5 text-[10px] font-semibold text-brand-primary hover:bg-brand-50 transition cursor-pointer"
                   >
                     50% (৳{Math.round(currDue / 2).toLocaleString()})
                   </button>
@@ -205,7 +205,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
 
             {/* Payment Method */}
             <div>
-              <label className="block text-xs font-semibold text-[#0369A1] mb-1">
+              <label className="block text-xs font-semibold text-brand-dark mb-1">
                 Payment Mode
               </label>
               <div className="grid grid-cols-5 gap-1.5">
@@ -219,8 +219,8 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
                       onClick={() => setPaymentMethod(m.id)}
                       className={`flex flex-col items-center justify-center rounded-sm border py-2 px-1 text-[11px] font-semibold transition cursor-pointer ${
                         isSelected
-                          ? "border-[#0284C7] bg-[#E0F2FE] text-[#0369A1] shadow-2xs font-bold"
-                          : "border-sky-100 bg-white text-gray-600 hover:border-sky-300"
+                          ? "border-brand-primary bg-brand-50 text-brand-dark shadow-2xs font-bold"
+                          : "border-slate-200 bg-white text-gray-600 hover:border-brand-border"
                       }`}
                     >
                       <Icon size={14} className="mb-0.5" />
@@ -232,7 +232,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#0369A1] mb-1">
+              <label className="block text-xs font-semibold text-brand-dark mb-1">
                 Note / Reference (Optional)
               </label>
               <input
@@ -240,11 +240,11 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
                 placeholder="e.g. TrxID or Cheque No..."
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="w-full rounded-sm border border-sky-200/90 px-3 py-1.5 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                className="w-full rounded-sm border border-brand-border px-3 py-1.5 text-xs text-gray-600 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 shadow-2xs"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-sky-100">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
               <button
                 type="button"
                 onClick={onClose}
@@ -255,7 +255,7 @@ export function CollectDueModal({ isOpen, onClose, onSuccess, customer }: Collec
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-98 transition disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-sm bg-brand-gradient px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-98 transition disabled:opacity-50 cursor-pointer"
               >
                 {submitting ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
                 {submitting ? "Saving..." : "Confirm Collection"}

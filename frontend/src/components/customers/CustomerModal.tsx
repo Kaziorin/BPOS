@@ -150,24 +150,24 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
   }
 
   const inputClass =
-    "w-full rounded-sm border border-sky-200/90 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 transition shadow-2xs";
-  const labelClass = "block text-xs font-semibold text-[#0369A1] mb-1.5";
+    "w-full rounded-sm border border-brand-border bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 transition shadow-2xs";
+  const labelClass = "block text-xs font-semibold text-brand-dark mb-1.5";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100 select-none">
-      <div className="relative w-full max-w-3xl rounded-sm bg-white shadow-2xl border border-sky-200/90 overflow-hidden my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100 select-none">
+      <div className="relative w-full max-w-3xl rounded-sm bg-white shadow-2xl border border-brand-border overflow-hidden my-6">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-sky-100 px-6 py-4 bg-gradient-to-r from-sky-50/90 via-white to-sky-50/60">
+        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-gradient-to-r from-brand-50/60 via-white to-brand-50/40">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] font-bold border border-sky-200/80 shadow-2xs">
+            <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-brand-primary font-bold border border-brand-border/80 shadow-2xs">
               <User size={18} />
             </div>
             <div>
-              <h2 className="text-sm sm:text-base font-bold text-[#0369A1]">
+              <h2 className="text-sm sm:text-base font-bold text-brand-dark">
                 {isEdit ? "Edit Customer Profile" : "Create New Customer"}
               </h2>
-              <p className="text-xs text-[#0284C7] font-medium">
+              <p className="text-xs text-brand-primary font-medium">
                 {isEdit ? `Updating details for ${customer?.name}` : "Add customer contact details, credit terms, and classification"}
               </p>
             </div>
@@ -182,14 +182,14 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
         </div>
 
         {/* Tab Selection */}
-        <div className="flex border-b border-sky-100 bg-white px-6 pt-1 gap-2">
+        <div className="flex border-b border-slate-200 bg-white px-6 pt-1 gap-2">
           <button
             type="button"
             onClick={() => setActiveTab("basic")}
             className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === "basic"
-                ? "border-[#0284C7] text-[#0284C7]"
-                : "border-transparent text-gray-500 hover:text-[#0284C7]"
+                ? "border-brand-primary text-brand-primary"
+                : "border-transparent text-gray-500 hover:text-brand-primary"
             }`}
           >
             <User size={14} /> Basic Information
@@ -199,8 +199,8 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
             onClick={() => setActiveTab("credit")}
             className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === "credit"
-                ? "border-[#0284C7] text-[#0284C7]"
-                : "border-transparent text-gray-500 hover:text-[#0284C7]"
+                ? "border-brand-primary text-brand-primary"
+                : "border-transparent text-gray-500 hover:text-brand-primary"
             }`}
           >
             <CreditCard size={14} /> Credit & Classification
@@ -210,8 +210,8 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
             onClick={() => setActiveTab("notes")}
             className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === "notes"
-                ? "border-[#0284C7] text-[#0284C7]"
-                : "border-transparent text-gray-500 hover:text-[#0284C7]"
+                ? "border-brand-primary text-brand-primary"
+                : "border-transparent text-gray-500 hover:text-brand-primary"
             }`}
           >
             <FileText size={14} /> Additional Details
@@ -453,7 +453,7 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
           )}
 
           {/* Footer Actions (No Back Button, Clean Alignment) */}
-          <div className="flex items-center justify-end gap-2.5 border-t border-sky-100 pt-4">
+          <div className="flex items-center justify-end gap-2.5 border-t border-slate-200 pt-4">
             <CustomButton
               type="button"
               variant="danger"

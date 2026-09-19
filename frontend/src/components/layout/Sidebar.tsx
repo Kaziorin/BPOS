@@ -308,7 +308,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "relative hidden shrink-0 flex-col border-r border-sky-100 bg-white text-[#0284C7] lg:flex shadow-lg select-none overflow-hidden",
+        "relative hidden shrink-0 flex-col border-r border-brand-light bg-white text-brand-primary lg:flex shadow-lg select-none overflow-hidden",
         collapsed ? "w-[72px]" : "w-64",
       )}
       style={{
@@ -318,20 +318,21 @@ export function Sidebar() {
     >
       {/* ── Fixed-Width Gradient & SVG Backdrop (Zero Relayout During Width Animation) ── */}
       <div className="pointer-events-none absolute inset-0 h-full w-64 overflow-hidden z-0 bg-white">
-        {/* Soft sky blue glow */}
+        {/* Soft ambient theme glow */}
         <div
           className="absolute inset-0 w-full h-full"
           style={{
             background: `
-              radial-gradient(ellipse at 50% 0%, rgba(186, 230, 253, 0.45) 0%, transparent 65%),
-              radial-gradient(ellipse at 100% 100%, rgba(125, 211, 252, 0.22) 0%, transparent 55%)
+              radial-gradient(ellipse at 50% 0%, var(--theme-primary-100, #bae6fd) 0%, transparent 65%),
+              radial-gradient(ellipse at 100% 100%, var(--theme-primary-200, #7dd3fc) 0%, transparent 55%)
             `,
+            opacity: 0.5,
           }}
         />
 
-        {/* Ocean wave backdrop */}
+        {/* Dynamic decorative backdrop wave */}
         <svg
-          className="absolute bottom-0 left-0 w-64 h-48 opacity-30"
+          className="absolute bottom-0 left-0 w-64 h-48 opacity-25"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
           viewBox="0 0 256 120"
@@ -342,8 +343,8 @@ export function Sidebar() {
           />
           <defs>
             <linearGradient id="wave-sb-1" x1="0%" y1="50%" x2="100%" y2="50%">
-              <stop offset="0%" stopColor="#BAE6FD" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="#7DD3FC" stopOpacity="0.2" />
+              <stop offset="0%" stopColor="var(--theme-primary-200, #BAE6FD)" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="var(--theme-primary-300, #7DD3FC)" stopOpacity="0.2" />
             </linearGradient>
           </defs>
         </svg>
@@ -361,9 +362,9 @@ export function Sidebar() {
         aria-hidden={!collapsed}
       >
         {/* Centered Brand Header (72px wide, 40px icon centered with 16px margins) */}
-        <div className="flex h-16 shrink-0 items-center justify-center border-b border-sky-100 bg-transparent">
+        <div className="flex h-16 shrink-0 items-center justify-center border-b border-brand-light bg-transparent">
           <Link href="/dashboard" className="flex items-center justify-center" title={siteConfig.name}>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-gradient text-white border border-white/60 shadow-2xs">
               <Logo size={21} />
             </div>
           </Link>
@@ -376,7 +377,7 @@ export function Sidebar() {
         >
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 size={18} className="animate-spin text-[#0284C7]" />
+              <Loader2 size={18} className="animate-spin text-brand-primary" />
             </div>
           ) : (
             filteredNavGroups.map((group) =>
@@ -395,8 +396,8 @@ export function Sidebar() {
                         className={cn(
                           "flex h-10 w-10 items-center justify-center rounded-sm border transition-colors duration-150 shrink-0 shadow-2xs",
                           active
-                            ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white shadow-2xs"
-                            : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
+                            ? "bg-brand-gradient border-brand-border text-white shadow-2xs"
+                            : "border-brand-light bg-white text-brand-primary hover:border-brand-border hover:bg-brand-50 hover:text-brand-dark",
                         )}
                       >
                         <Icon size={20} />
@@ -419,8 +420,8 @@ export function Sidebar() {
                       className={cn(
                         "flex h-10 w-10 items-center justify-center rounded-sm border transition-colors duration-150 cursor-pointer shrink-0 shadow-2xs",
                         active || isFlyoutOpen
-                          ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] border-sky-400/60 text-white shadow-2xs"
-                          : "border-sky-100 bg-white text-[#0284C7] hover:border-sky-300 hover:bg-[#E0F2FE] hover:text-[#0369A1]",
+                          ? "bg-brand-gradient border-brand-border text-white shadow-2xs"
+                          : "border-brand-light bg-white text-brand-primary hover:border-brand-border hover:bg-brand-50 hover:text-brand-dark",
                       )}
                     >
                       <Icon size={20} />
@@ -433,7 +434,7 @@ export function Sidebar() {
         </nav>
 
         {/* Centered Footer (72px wide, 40px square logout icon centered with 16px margins) */}
-        <div className="flex h-14 shrink-0 items-center justify-center border-t border-sky-100 bg-white p-2">
+        <div className="flex h-14 shrink-0 items-center justify-center border-t border-brand-light bg-white p-2">
           <button
             onClick={logout}
             title="Sign Out / Logout"
@@ -456,16 +457,16 @@ export function Sidebar() {
         aria-hidden={collapsed}
       >
         {/* Brand Header */}
-        <div className="flex h-16 shrink-0 items-center justify-between border-b border-sky-100 px-4 bg-transparent">
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-brand-light px-4 bg-transparent">
           <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-gradient text-white border border-white/60 shadow-2xs">
               <Logo size={21} />
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="truncate font-bold text-[#0369A1] tracking-tight text-sm">
+              <span className="truncate font-bold text-brand-dark tracking-tight text-sm">
                 {siteConfig.name}
               </span>
-              <span className="truncate text-[10.5px] text-[#0284C7] font-semibold tracking-wide">
+              <span className="truncate text-[10.5px] text-brand-primary font-semibold tracking-wide">
                 Smart · Fast · All Industries
               </span>
             </div>
@@ -475,13 +476,13 @@ export function Sidebar() {
         {/* Menu Quick Search */}
         <div className="px-3 pt-3 pb-1">
           <div className="relative flex items-center">
-            <Search size={14} className="pointer-events-none absolute left-3 text-[#0284C7]" />
+            <Search size={14} className="pointer-events-none absolute left-3 text-brand-primary" />
             <input
               type="text"
               placeholder="Search menu..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-sm border border-[#0284C7] bg-white pl-9 pr-8 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:outline-none focus:border-[#0284C7] focus:ring-0 shadow-none transition-colors"
+              className="w-full rounded-sm border border-brand-border bg-white pl-9 pr-8 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:outline-none focus:border-brand-primary focus:ring-0 shadow-none transition-colors"
             />
             {searchQuery && (
               <button
@@ -502,7 +503,7 @@ export function Sidebar() {
         >
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
-              <Loader2 size={20} className="animate-spin text-[#0284C7]" />
+              <Loader2 size={20} className="animate-spin text-brand-primary" />
               <span className="text-xs font-medium">Loading navigation...</span>
             </div>
           ) : filteredNavGroups.length === 0 ? (
@@ -531,17 +532,17 @@ export function Sidebar() {
         </nav>
 
         {/* Sidebar Footer User Info & Logout */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-t border-sky-100 px-2.5 bg-white">
+        <div className="flex h-14 shrink-0 items-center justify-between border-t border-brand-light px-2.5 bg-white">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-xs font-bold text-white shadow-2xs">
+            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-xs font-bold text-white shadow-2xs">
               {(user?.name || "A")[0].toUpperCase()}
               <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="truncate text-xs font-bold text-[#0369A1]">
+              <span className="truncate text-xs font-bold text-brand-dark">
                 {user?.name || "Administrator"}
               </span>
-              <span className="truncate text-[10px] text-[#0284C7] font-semibold">
+              <span className="truncate text-[10px] text-brand-primary font-semibold">
                 {displayRole}
               </span>
             </div>
@@ -571,23 +572,23 @@ export function Sidebar() {
           }}
           className="pl-2 select-none"
         >
-          <div className="min-w-[210px] max-w-[260px] overflow-hidden rounded-sm border border-sky-200 bg-white shadow-xl select-none">
+          <div className="min-w-[210px] max-w-[260px] overflow-hidden rounded-sm border border-brand-border bg-white shadow-xl select-none">
             {/* Header (Clean title without background color) */}
             {(() => {
               const FlyoutIcon = activeFlyout.item.icon;
               return (
-                <div className="flex items-center justify-between border-b border-sky-100 px-3.5 py-2.5 bg-white">
+                <div className="flex items-center justify-between border-b border-brand-light px-3.5 py-2.5 bg-white">
                   <div className="flex items-center gap-2">
                     <FlyoutIcon
                       size={16}
-                      className="shrink-0 text-[#0284C7]"
+                      className="shrink-0 text-brand-primary"
                     />
-                    <span className="text-xs font-bold tracking-tight text-[#0369A1]">
+                    <span className="text-xs font-bold tracking-tight text-brand-dark">
                       {activeFlyout.item.label}
                     </span>
                   </div>
                   {activeFlyout.item.badge && (
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm border bg-sky-50 text-[#0284C7] border-sky-200">
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm border bg-brand-50 text-brand-primary border-brand-border">
                       {activeFlyout.item.badge}
                     </span>
                   )}
@@ -610,19 +611,19 @@ export function Sidebar() {
                       className={cn(
                         "flex items-center justify-between gap-2.5 px-3 py-2 text-xs rounded-sm transition-colors",
                         childActive
-                          ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
-                          : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]"
+                          ? "bg-brand-gradient text-white font-bold"
+                          : "text-brand-primary font-semibold hover:bg-brand-50 hover:text-brand-dark"
                       )}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <ChildIcon size={14} className={cn("shrink-0", childActive ? "text-white" : "text-[#0284C7]")} />
+                        <ChildIcon size={14} className={cn("shrink-0", childActive ? "text-white" : "text-brand-primary")} />
                         <span className="truncate">{child.label}</span>
                       </div>
                     </Link>
 
                     {/* Sub-children if any */}
                     {hasSub && (
-                      <div className="ml-4 pl-2 border-l border-sky-200 my-1 space-y-0.5">
+                      <div className="ml-4 pl-2 border-l border-brand-border my-1 space-y-0.5">
                         {child.children!.map((sub, sIdx) => {
                           const SubIcon = sub.icon;
                           const subActive = isRouteActive(sub.href, pathname, allHrefs);
@@ -634,11 +635,11 @@ export function Sidebar() {
                               className={cn(
                                 "flex items-center gap-2 px-2 py-1.5 text-[11px] rounded-sm transition-colors",
                                 subActive
-                                  ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
-                                  : "text-[#0284C7] font-medium hover:bg-[#E0F2FE] hover:text-[#0369A1]"
+                                  ? "bg-brand-gradient text-white font-bold"
+                                  : "text-brand-primary font-medium hover:bg-brand-50 hover:text-brand-dark"
                               )}
                             >
-                              <SubIcon size={11} className={cn("shrink-0", subActive ? "text-white" : "text-[#0284C7]")} />
+                              <SubIcon size={11} className={cn("shrink-0", subActive ? "text-white" : "text-brand-primary")} />
                               <span className="truncate">{sub.label}</span>
                             </Link>
                           );
@@ -691,8 +692,8 @@ function ExpandedModuleRow({
         className={cn(
           "group flex items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-150",
           active
-            ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
-            : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
+            ? "bg-brand-gradient text-white font-bold"
+            : "text-brand-primary font-semibold hover:bg-brand-50 hover:text-brand-dark",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0">
@@ -700,7 +701,7 @@ function ExpandedModuleRow({
             size={16}
             className={cn(
               "transition-colors shrink-0",
-              active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
+              active ? "text-white" : "text-brand-primary group-hover:text-brand-dark",
             )}
           />
           <span className="truncate">{item.label}</span>
@@ -708,7 +709,7 @@ function ExpandedModuleRow({
         {item.badge && (
           <span className={cn(
             "shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
-            active ? "bg-white/20 text-white" : "bg-sky-500/15 text-sky-800 border border-sky-500/30"
+            active ? "bg-white/20 text-white" : "bg-brand-100 text-brand-primary border border-brand-border"
           )}>
             {item.badge}
           </span>
@@ -725,10 +726,10 @@ function ExpandedModuleRow({
         className={cn(
           "group flex w-full items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-150 cursor-pointer",
           active
-            ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white font-bold"
+            ? "bg-brand-gradient text-white font-bold"
             : moduleExpanded
-            ? "text-[#0284C7] font-bold bg-[#E0F2FE]/80"
-            : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
+            ? "text-brand-primary font-bold bg-brand-50"
+            : "text-brand-primary font-semibold hover:bg-brand-50 hover:text-brand-dark",
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -736,7 +737,7 @@ function ExpandedModuleRow({
             size={16}
             className={cn(
               "transition-colors shrink-0",
-              active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
+              active ? "text-white" : "text-brand-primary group-hover:text-brand-dark",
             )}
           />
           <span className="truncate text-left">{item.label}</span>
@@ -744,7 +745,7 @@ function ExpandedModuleRow({
         {item.badge && (
           <span className={cn(
             "shrink-0 mr-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
-            active ? "bg-white/20 text-white" : "bg-sky-500/15 text-sky-800 border border-sky-500/30"
+            active ? "bg-white/20 text-white" : "bg-brand-100 text-brand-primary border border-brand-border"
           )}>
             {item.badge}
           </span>
@@ -753,15 +754,15 @@ function ExpandedModuleRow({
           size={13}
           className={cn(
             "shrink-0 transition-transform duration-200",
-            active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
+            active ? "text-white" : "text-brand-primary group-hover:text-brand-dark",
             moduleExpanded && "rotate-180",
           )}
         />
       </button>
 
-      {/* Submenu Children Container with sky visual guide line */}
+      {/* Submenu Children Container with brand visual guide line */}
       {moduleExpanded && (
-        <div className="ml-3.5 mt-1 space-y-1 border-l-2 border-sky-300/60 pl-2.5 py-0.5 transition-all">
+        <div className="ml-3.5 mt-1 space-y-1 border-l-2 border-brand-border pl-2.5 py-0.5 transition-all">
           {item.children!.map((child, idx) => (
             <MenuItemRow
               key={`${child.label}-${child.href}-${idx}`}
@@ -803,21 +804,21 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
           className={cn(
             "group flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-xs transition-colors duration-150 cursor-pointer",
             active
-              ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
+              ? "font-bold text-white bg-brand-gradient"
               : itemExpanded
-              ? "text-[#0284C7] font-bold bg-[#E0F2FE]/80"
-              : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
+              ? "text-brand-primary font-bold bg-brand-50"
+              : "text-brand-primary font-semibold hover:bg-brand-50 hover:text-brand-dark",
           )}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <ChildIcon size={13} className={cn("shrink-0", active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900")} />
+            <ChildIcon size={13} className={cn("shrink-0", active ? "text-white" : "text-brand-primary group-hover:text-brand-dark")} />
             <span className="truncate text-left">{child.label}</span>
           </div>
           <ChevronDown
             size={12}
             className={cn(
               "shrink-0 transition-transform duration-200",
-              active ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
+              active ? "text-white" : "text-brand-primary group-hover:text-brand-dark",
               itemExpanded && "rotate-180",
             )}
           />
@@ -825,7 +826,7 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
 
         {/* Render ONLY sub-children cleanly with border guide line */}
         {itemExpanded && (
-          <div className="ml-3 mt-1 space-y-1 border-l border-sky-300/50 pl-2 py-0.5">
+          <div className="ml-3 mt-1 space-y-1 border-l border-brand-border pl-2 py-0.5">
             {child.children!.map((sub, idx) => {
               const SubIcon = sub.icon;
               const subActive = isRouteActive(sub.href, pathname, allHrefs);
@@ -836,11 +837,11 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
                   className={cn(
                     "group flex items-center gap-2 rounded-sm px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
                     subActive
-                      ? "font-bold text-white bg-gradient-to-r from-[#0284C7] to-[#38BDF8]"
-                      : "text-[#0284C7] hover:bg-[#E0F2FE] hover:text-[#0369A1]",
+                      ? "font-bold text-white bg-brand-gradient"
+                      : "text-brand-primary hover:bg-brand-50 hover:text-brand-dark",
                   )}
                 >
-                  <SubIcon size={11} className={cn("shrink-0", subActive ? "text-white" : "text-[#0284C7] group-hover:text-sky-900")} />
+                  <SubIcon size={11} className={cn("shrink-0", subActive ? "text-white" : "text-brand-primary group-hover:text-brand-dark")} />
                   <span className="truncate">{sub.label}</span>
                 </Link>
               );
@@ -858,15 +859,15 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
       className={cn(
         "group flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-xs transition-all duration-150",
         exactActive
-          ? "bg-gradient-to-r from-[#0284C7] to-[#38BDF8] text-white font-bold"
-          : "text-[#0284C7] font-semibold hover:bg-[#E0F2FE] hover:text-[#0369A1]",
+          ? "bg-brand-gradient text-white font-bold"
+          : "text-brand-primary font-semibold hover:bg-brand-50 hover:text-brand-dark",
       )}
     >
       <ChildIcon
         size={13}
         className={cn(
           "transition-colors shrink-0",
-          exactActive ? "text-white" : "text-[#0284C7] group-hover:text-sky-900",
+          exactActive ? "text-white" : "text-brand-primary group-hover:text-brand-dark",
         )}
       />
       <span className="truncate">{child.label}</span>

@@ -162,7 +162,7 @@ export default function StockPage() {
 
         return (
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-sky-50 border border-sky-200/80 text-[#0284C7] shrink-0 font-bold text-xs shadow-2xs">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-50 border border-brand-border text-brand-primary shrink-0 font-bold text-xs shadow-2xs">
               <Package size={14} />
             </div>
             <div className="min-w-0">
@@ -178,7 +178,7 @@ export default function StockPage() {
       header: "Warehouse Location",
       render: (r) => (
         <span className="inline-flex items-center gap-1.5 text-xs text-gray-600 font-medium">
-          <WarehouseIcon size={12} className="text-[#0284C7]" />
+          <WarehouseIcon size={12} className="text-brand-primary" />
           {r.warehouse?.name || "Main Warehouse"}
         </span>
       ),
@@ -268,7 +268,7 @@ export default function StockPage() {
       {/* 1. Header & Breadcrumb */}
       <CustomBreadcrumb
         title="Stock Levels"
-        icon={<Package size={16} className="text-[#0284C7]" />}
+        icon={<Package size={16} className="text-brand-primary" />}
         breadcrumbs={[
           { label: "Operations", href: "/dashboard" },
           { label: "Inventory", href: "/inventory" },
@@ -409,9 +409,9 @@ export default function StockPage() {
         rowKey="id"
         loading={loading}
         title="Warehouse Stock Ledger"
-        icon={<Package size={16} className="text-[#0284C7]" />}
+        icon={<Package size={16} className="text-brand-primary" />}
         badge={
-          <span className="rounded-sm bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-[#0284C7] border border-sky-200/80">
+          <span className="rounded-sm bg-brand-50 px-2 py-0.5 text-[11px] font-bold text-brand-primary border border-brand-border">
             {total} Total Records
           </span>
         }

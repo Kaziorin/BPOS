@@ -72,7 +72,7 @@ const METHOD_CONFIG: Record<string, { label: string; icon: any; color: string }>
 const SCHED_STATUS: Record<string, { label: string; bg: string; text: string }> = {
   COMPLETED: { label: "Completed", bg: "bg-emerald-50 border-emerald-200", text: "text-emerald-700" },
   PENDING: { label: "Pending Visit", bg: "bg-amber-50 border-amber-200", text: "text-amber-700" },
-  PARTIAL: { label: "Partially Collected", bg: "bg-sky-50 border-sky-200", text: "text-sky-700" },
+  PARTIAL: { label: "Partially Collected", bg: "bg-brand-50 border-brand-border", text: "text-brand-dark" },
   MISSED: { label: "Missed / Rescheduled", bg: "bg-rose-50 border-rose-200", text: "text-rose-700" },
 };
 
@@ -534,7 +534,7 @@ export default function CollectionPage() {
           { label: "Invoices", href: "/invoices" },
           { label: "Collections" },
         ]}
-        icon={<Wallet size={16} className="text-[#0284C7]" />}
+        icon={<Wallet size={16} className="text-brand-primary" />}
         action={
           <div className="flex items-center gap-2 flex-wrap">
             {/* Button 1: Distinct Indigo Gradient */}
@@ -613,9 +613,9 @@ export default function CollectionPage() {
       </div>
 
       {/* 3. MAIN UNIFIED CARD: TABS, TOOLBAR, FILTERS, TABLE */}
-      <div className="rounded-sm border border-sky-200/80 bg-white shadow-2xs overflow-hidden">
+      <div className="rounded-sm border border-brand-border bg-white shadow-2xs overflow-hidden">
         {/* Card Header Toolbar */}
-        <div className="border-b border-sky-100/70 p-4 space-y-3 bg-white">
+        <div className="border-b border-slate-100 p-4 space-y-3 bg-white">
           {/* Row 1: Tabs on Left, Export CSV on Right (No Refresh Button) */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="overflow-x-auto min-w-0 shrink">
@@ -624,7 +624,7 @@ export default function CollectionPage() {
                 activeTab={tab}
                 onChange={(tabId) => setTab(tabId)}
                 themeColor="primary"
-                className="w-auto border border-sky-100/90 bg-white shadow-2xs"
+                className="w-auto border border-slate-200 bg-white shadow-2xs"
               />
             </div>
 
@@ -676,7 +676,7 @@ export default function CollectionPage() {
                   onChange={(val) => setFilterMethod(val)}
                   placeholder="All Payment Methods"
                   containerClassName="w-full"
-                  className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+                  className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-brand-border shadow-2xs"
                 />
               </div>
 
@@ -690,7 +690,7 @@ export default function CollectionPage() {
                     placeholder="From Date"
                     title="From Date"
                     clearable={true}
-                    className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+                    className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-brand-border shadow-2xs"
                   />
                 </div>
                 <span className="text-xs font-bold text-gray-400 shrink-0">to</span>
@@ -703,7 +703,7 @@ export default function CollectionPage() {
                     title="To Date"
                     clearable={true}
                     min={startDate || undefined}
-                    className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+                    className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-brand-border shadow-2xs"
                   />
                 </div>
               </div>
@@ -745,8 +745,8 @@ export default function CollectionPage() {
         {tab === "performance" && (
           <div className="p-4 sm:p-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-sm border border-sky-200/80 bg-white p-5 shadow-2xs space-y-4">
-                <h3 className="text-xs font-bold text-[#0369A1] capitalize flex items-center gap-1.5">
+              <div className="rounded-sm border border-brand-border bg-white p-5 shadow-2xs space-y-4">
+                <h3 className="text-xs font-bold text-brand-dark capitalize flex items-center gap-1.5">
                   <Target size={15} />
                   Monthly Target vs Achievement Leaderboard
                 </h3>
@@ -766,7 +766,7 @@ export default function CollectionPage() {
                       </div>
                       <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] rounded-full transition-all duration-500"
+                          className="h-full bg-brand-gradient rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(100, p.achievementPct || Math.round((p.collectedAmount/p.targetAmount)*100))}%` }}
                         />
                       </div>
@@ -775,9 +775,9 @@ export default function CollectionPage() {
                 </div>
               </div>
 
-              <div className="rounded-sm border border-sky-200/80 bg-white p-5 shadow-2xs flex flex-col justify-between">
+              <div className="rounded-sm border border-brand-border bg-white p-5 shadow-2xs flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xs font-bold text-[#0369A1] capitalize mb-2">Field Collection Guidelines</h3>
+                  <h3 className="text-xs font-bold text-brand-dark capitalize mb-2">Field Collection Guidelines</h3>
                   <ul className="text-xs text-gray-600 space-y-2 list-disc pl-4 leading-relaxed font-medium">
                     <li>Always issue digital or printed money receipts immediately upon collecting cash.</li>
                     <li>Offline payments sync automatically upon regaining network connectivity.</li>
@@ -785,7 +785,7 @@ export default function CollectionPage() {
                   </ul>
                 </div>
 
-                <div className="pt-4 border-t border-sky-100/80 flex gap-2">
+                <div className="pt-4 border-t border-slate-200 flex gap-2">
                   <CustomButton
                     variant="primary"
                     size="sm"
@@ -829,7 +829,7 @@ export default function CollectionPage() {
                 placeholder="0.00"
                 value={entryForm.amount}
                 onChange={(e) => setEntryForm({ ...entryForm, amount: e.target.value })}
-                className="h-[42px] text-base font-black text-[#0369A1]"
+                className="h-[42px] text-base font-black text-brand-dark"
               />
             </div>
 
@@ -846,7 +846,7 @@ export default function CollectionPage() {
                 ]}
                 value={entryForm.method}
                 onChange={(val) => setEntryForm({ ...entryForm, method: val })}
-                className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+                className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
               />
 
               <CustomDatePicker
@@ -854,7 +854,7 @@ export default function CollectionPage() {
                 value={entryForm.collectedAt}
                 onChange={(val) => setEntryForm({ ...entryForm, collectedAt: val })}
                 placeholder="Select Date"
-                className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 border-sky-200/80"
+                className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 border-brand-border"
               />
             </div>
 
@@ -865,7 +865,7 @@ export default function CollectionPage() {
                 placeholder="e.g. Acme Corp"
                 value={entryForm.customerName}
                 onChange={(e) => setEntryForm({ ...entryForm, customerName: e.target.value })}
-                className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+                className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
               />
 
               <CustomInput
@@ -874,7 +874,7 @@ export default function CollectionPage() {
                 placeholder="e.g. Officer Rafiq (ID: COL-102)"
                 value={entryForm.collectorId}
                 onChange={(e) => setEntryForm({ ...entryForm, collectorId: e.target.value })}
-                className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+                className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
               />
             </div>
 
@@ -884,7 +884,7 @@ export default function CollectionPage() {
               placeholder="e.g. MR-90214"
               value={entryForm.receiptNo}
               onChange={(e) => setEntryForm({ ...entryForm, receiptNo: e.target.value })}
-              className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+              className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
             />
 
             <div className="flex items-center gap-2 pt-1">
@@ -893,14 +893,14 @@ export default function CollectionPage() {
                 id="offlineCheck"
                 checked={entryForm.isOffline}
                 onChange={(e) => setEntryForm({ ...entryForm, isOffline: e.target.checked })}
-                className="rounded text-[#0284C7] focus:ring-[#0284C7]/20 cursor-pointer"
+                className="rounded text-brand-primary focus:ring-brand-border cursor-pointer"
               />
               <label htmlFor="offlineCheck" className="text-gray-600 text-xs font-medium cursor-pointer">
                 Offline field collection (auto-sync with financial ledger)
               </label>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-sky-100/80">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
               <CustomButton
                 type="button"
                 variant="danger"
@@ -944,7 +944,7 @@ export default function CollectionPage() {
                 placeholder="Customer or Organization Name"
                 value={schedForm.customerName}
                 onChange={(e) => setSchedForm({ ...schedForm, customerName: e.target.value })}
-                className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+                className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
               />
 
               <CustomDatePicker
@@ -954,7 +954,7 @@ export default function CollectionPage() {
                 value={schedForm.scheduledAt}
                 onChange={(val) => setSchedForm({ ...schedForm, scheduledAt: val })}
                 placeholder="Select appointment date & time"
-                className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 border-sky-200/80"
+                className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 border-brand-border"
               />
             </div>
 
@@ -965,7 +965,7 @@ export default function CollectionPage() {
               placeholder="0.00"
               value={schedForm.expectedAmount}
               onChange={(e) => setSchedForm({ ...schedForm, expectedAmount: e.target.value })}
-              className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+              className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
             />
 
             <div>
@@ -977,11 +977,11 @@ export default function CollectionPage() {
                 placeholder="e.g. Call before arrival at Gulshan office"
                 value={schedForm.note}
                 onChange={(e) => setSchedForm({ ...schedForm, note: e.target.value })}
-                className="w-full rounded-sm border border-sky-200/80 p-2.5 text-xs font-semibold text-gray-600 placeholder:text-gray-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                className="w-full rounded-sm border border-brand-border p-2.5 text-xs font-semibold text-gray-600 placeholder:text-gray-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border shadow-2xs"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-sky-100/80">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
               <CustomButton
                 type="button"
                 variant="danger"
@@ -1025,7 +1025,7 @@ export default function CollectionPage() {
                 value={targetForm.period}
                 onChange={(val) => setTargetForm({ ...targetForm, period: val })}
                 placeholder="Select Target Month"
-                className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 border-sky-200/80"
+                className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 border-brand-border"
               />
 
               <CustomInput
@@ -1036,11 +1036,11 @@ export default function CollectionPage() {
                 placeholder="e.g. 500000"
                 value={targetForm.targetAmount}
                 onChange={(e) => setTargetForm({ ...targetForm, targetAmount: e.target.value })}
-                className="h-[38px] text-xs font-semibold text-gray-600 border-sky-200/80"
+                className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-sky-100/80">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
               <CustomButton
                 type="button"
                 variant="danger"

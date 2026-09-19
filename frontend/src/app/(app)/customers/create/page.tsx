@@ -55,8 +55,8 @@ export default function CreateCustomerPage() {
     }
   }
 
-  const inputClass = "mt-1 block w-full rounded-sm border border-sky-200/90 bg-white px-3 py-2 text-xs text-gray-600 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs";
-  const labelClass = "block text-xs font-semibold text-[#0369A1]";
+  const inputClass = "mt-1 block w-full rounded-sm border border-brand-border bg-white px-3 py-2 text-xs text-gray-600 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 shadow-2xs";
+  const labelClass = "block text-xs font-semibold text-brand-dark";
 
   return (
     <div className="w-full space-y-5 pb-12">
@@ -76,8 +76,8 @@ export default function CreateCustomerPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="rounded-sm border border-sky-100/90 bg-white p-5 space-y-3.5 shadow-2xs">
-          <h2 className="text-xs font-bold text-[#0369A1]">Basic Information</h2>
+        <div className="rounded-sm border border-slate-200 bg-white p-5 space-y-3.5 shadow-2xs">
+          <h2 className="text-xs font-bold text-brand-dark">Basic Information</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Name *</label>
@@ -119,8 +119,8 @@ export default function CreateCustomerPage() {
           </div>
         </div>
 
-        <div className="rounded-sm border border-sky-100/90 bg-white p-5 space-y-3.5 shadow-2xs">
-          <h2 className="text-xs font-bold text-[#0369A1]">Classification & Credit</h2>
+        <div className="rounded-sm border border-slate-200 bg-white p-5 space-y-3.5 shadow-2xs">
+          <h2 className="text-xs font-bold text-brand-dark">Classification & Credit</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Customer Segment</label>
@@ -152,8 +152,8 @@ export default function CreateCustomerPage() {
           </div>
         </div>
 
-        <div className="rounded-sm border border-sky-100/90 bg-white p-5 space-y-3.5 shadow-2xs">
-          <h2 className="text-xs font-bold text-[#0369A1]">Notes</h2>
+        <div className="rounded-sm border border-slate-200 bg-white p-5 space-y-3.5 shadow-2xs">
+          <h2 className="text-xs font-bold text-brand-dark">Notes</h2>
           <textarea
             value={form.notes}
             onChange={(e) => updateForm("notes", e.target.value)}
@@ -174,7 +174,7 @@ export default function CreateCustomerPage() {
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-98 transition disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-sm bg-brand-gradient px-4 py-2 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-98 transition disabled:opacity-50 cursor-pointer"
           >
             {saving && <Loader2 size={13} className="animate-spin" />}
             {saving ? "Creating..." : "Create Customer"}

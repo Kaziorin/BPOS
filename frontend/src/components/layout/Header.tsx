@@ -69,15 +69,16 @@ export function Header() {
 
   return (
     <>
-      <header className="relative flex h-16 shrink-0 items-center justify-between border-b border-sky-100 bg-white px-3 sm:px-4 md:px-6 shadow-2xs z-30 select-none">
-        {/* Subtle Ocean Breeze top gradient glow */}
+      <header className="relative flex h-16 shrink-0 items-center justify-between border-b border-brand-light bg-white px-3 sm:px-4 md:px-6 shadow-2xs z-30 select-none">
+        {/* Dynamic theme ambient glow */}
         <div
           className="pointer-events-none absolute inset-0 w-full h-full z-0 overflow-hidden"
           style={{
             background: `
-              radial-gradient(ellipse at 0% 0%, rgba(186, 230, 253, 0.45) 0%, transparent 50%),
-              radial-gradient(ellipse at 100% 100%, rgba(125, 211, 252, 0.20) 0%, transparent 50%)
+              radial-gradient(ellipse at 0% 0%, var(--theme-primary-100, #bae6fd) 0%, transparent 50%),
+              radial-gradient(ellipse at 100% 100%, var(--theme-primary-200, #7dd3fc) 0%, transparent 50%)
             `,
+            opacity: 0.45,
           }}
         />
 
@@ -87,14 +88,14 @@ export function Header() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => window.dispatchEvent(new Event("omni:open-mobile-menu"))}
-              className="flex h-9 w-9 items-center justify-center rounded-sm border border-sky-200/90 bg-sky-50/70 text-[#0284C7] hover:bg-[#E0F2FE] hover:border-[#0284C7] hover:text-[#0369A1] transition shadow-2xs cursor-pointer shrink-0"
+              className="flex h-9 w-9 items-center justify-center rounded-sm border border-brand-border bg-brand-50/70 text-brand-primary hover:bg-brand-100 hover:border-brand-primary hover:text-brand-dark transition shadow-2xs cursor-pointer shrink-0"
               title="Open Navigation Menu"
               aria-label="Open Navigation Menu"
             >
               <Menu size={18} className="stroke-[2.2]" />
             </button>
             <Link href="/dashboard" className="flex items-center">
-              <div className="flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#38BDF8] via-[#0284C7] to-[#0369A1] text-white border border-white/60 shadow-2xs">
+              <div className="flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-white border border-white/60 shadow-2xs">
                 <Logo size={19} />
               </div>
             </Link>
@@ -102,7 +103,7 @@ export function Header() {
 
           {/* Mobile Center: Page Name */}
           <div className="flex-1 text-center px-2 min-w-0">
-            <h1 className="truncate text-base font-bold text-[#0369A1] tracking-tight">
+            <h1 className="truncate text-base font-bold text-brand-dark tracking-tight">
               {cleanTitle || siteConfig.name}
             </h1>
           </div>
@@ -111,7 +112,7 @@ export function Header() {
           <div className="relative" ref={mobileMenuRef}>
             <button
               onClick={() => setOpen((v) => !v)}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-xs font-bold text-white shadow-2xs border border-white/60 hover:ring-2 hover:ring-[#0284C7] transition cursor-pointer"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-xs font-bold text-white shadow-2xs border border-white/60 hover:ring-2 hover:ring-brand-primary transition cursor-pointer"
               aria-label="User account menu"
             >
               {user?.name?.[0]?.toUpperCase() ?? "A"}
@@ -119,17 +120,17 @@ export function Header() {
 
             {/* Mobile Dropdown Menu (Pops Down from Avatar) */}
             {open && (
-              <div className="absolute right-0 top-full z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-sm border border-sky-200/90 bg-white p-2 shadow-2xl animate-[scale-in_140ms_ease-out]">
+              <div className="absolute right-0 top-full z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-sm border border-brand-border bg-white p-2 shadow-2xl animate-[scale-in_140ms_ease-out]">
                 {/* Profile Header */}
-                <div className="flex items-center gap-2.5 rounded-sm bg-[#E0F2FE]/70 border border-sky-100 p-2.5 mb-1.5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-xs font-bold text-white shadow-xs border border-white/80">
+                <div className="flex items-center gap-2.5 rounded-sm bg-brand-50 border border-brand-light p-2.5 mb-1.5">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-xs font-bold text-white shadow-xs border border-white/80">
                     {user?.name?.[0]?.toUpperCase() ?? "A"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="truncate text-xs font-bold text-[#0369A1]">{user?.name || "Store Admin"}</p>
-                    <p className="truncate text-[10.5px] text-[#0284C7]">{user?.email || ""}</p>
+                    <p className="truncate text-xs font-bold text-brand-dark">{user?.name || "Store Admin"}</p>
+                    <p className="truncate text-[10.5px] text-brand-primary">{user?.email || ""}</p>
                     <div className="mt-0.5">
-                      <span className="inline-flex items-center rounded-sm bg-white px-1.5 py-0.5 text-[9px] font-bold text-[#0284C7] border border-sky-200 shadow-2xs">
+                      <span className="inline-flex items-center rounded-sm bg-white px-1.5 py-0.5 text-[9px] font-bold text-brand-primary border border-brand-border shadow-2xs">
                         <ShieldCheck size={10} className="mr-1 text-emerald-600" />
                         {displayRole}
                       </span>
@@ -142,9 +143,9 @@ export function Header() {
                   <Link
                     href="/dashboard"
                     onClick={() => setOpen(false)}
-                    className="flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                    className="flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 font-semibold text-brand-dark hover:bg-brand-100 hover:text-brand-primary transition"
                   >
-                    <LayoutDashboard size={14} className="text-[#0284C7]" />
+                    <LayoutDashboard size={14} className="text-brand-primary" />
                     Dashboard
                   </Link>
                   <button
@@ -152,36 +153,36 @@ export function Header() {
                       setOpen(false);
                       setPosModalOpen(true);
                     }}
-                    className="flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition cursor-pointer text-left"
+                    className="flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 font-semibold text-brand-dark hover:bg-brand-100 hover:text-brand-primary transition cursor-pointer text-left"
                   >
                     <div className="flex items-center gap-2">
-                      <ShoppingCart size={14} className="text-[#0284C7]" />
+                      <ShoppingCart size={14} className="text-brand-primary" />
                       <span>All POS Terminals</span>
                     </div>
-                    <span className="rounded-sm bg-sky-100 px-1.5 py-0.5 text-[9.5px] font-bold text-[#0284C7]">
+                    <span className="rounded-sm bg-brand-100 px-1.5 py-0.5 text-[9.5px] font-bold text-brand-primary">
                       9 Modes
                     </span>
                   </button>
                   <Link
                     href="/settings"
                     onClick={() => setOpen(false)}
-                    className="flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                    className="flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 font-semibold text-brand-dark hover:bg-brand-100 hover:text-brand-primary transition"
                   >
-                    <Settings size={14} className="text-[#0284C7]" />
+                    <Settings size={14} className="text-brand-primary" />
                     Store Settings
                   </Link>
                   <Link
                     href="/reports"
                     onClick={() => setOpen(false)}
-                    className="flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                    className="flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 font-semibold text-brand-dark hover:bg-brand-100 hover:text-brand-primary transition"
                   >
-                    <FileText size={14} className="text-[#0284C7]" />
+                    <FileText size={14} className="text-brand-primary" />
                     Reports & Analytics
                   </Link>
                 </div>
 
                 {/* Logout Button */}
-                <div className="border-t border-sky-100 pt-2 mt-1.5">
+                <div className="border-t border-brand-light pt-2 mt-1.5">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -205,23 +206,23 @@ export function Header() {
           <div className="flex min-w-0 items-center gap-2.5">
             <button
               onClick={() => window.dispatchEvent(new Event("bpos:toggle-sidebar"))}
-              className="flex h-9 w-9 items-center justify-center rounded-sm border border-sky-200/90 bg-sky-50/70 text-[#0284C7] hover:bg-[#E0F2FE] hover:border-[#0284C7] hover:text-[#0369A1] transition shadow-2xs cursor-pointer shrink-0"
+              className="flex h-9 w-9 items-center justify-center rounded-sm border border-brand-border bg-brand-50/70 text-brand-primary hover:bg-brand-100 hover:border-brand-primary hover:text-brand-dark transition shadow-2xs cursor-pointer shrink-0"
               title="Toggle Sidebar (Collapse / Expand)"
               aria-label="Toggle Sidebar"
             >
               <Menu size={18} className="stroke-[2.2]" />
             </button>
 
-            <h1 className="truncate text-base font-bold text-[#0369A1] sm:text-lg tracking-tight">
+            <h1 className="truncate text-base font-bold text-brand-dark sm:text-lg tracking-tight">
               {cleanTitle || siteConfig.name}
             </h1>
 
             {/* Store / Branch Badge */}
-            <div className="hidden items-center gap-1.5 rounded-sm border border-sky-200/90 bg-sky-50/60 px-2.5 py-1 text-xs font-semibold text-[#0369A1] shadow-2xs xl:flex">
-              <Building2 size={12} className="text-[#0284C7]" />
+            <div className="hidden items-center gap-1.5 rounded-sm border border-brand-border bg-brand-50/60 px-2.5 py-1 text-xs font-semibold text-brand-dark shadow-2xs xl:flex">
+              <Building2 size={12} className="text-brand-primary" />
               <span>Main Branch</span>
-              <span className="text-sky-300">•</span>
-              <span className="text-[#0284C7] font-normal">Terminal-01</span>
+              <span className="text-brand-accent">•</span>
+              <span className="text-brand-primary font-normal">Terminal-01</span>
             </div>
           </div>
 
@@ -230,17 +231,17 @@ export function Header() {
             {/* Global Search Button */}
             <button
               onClick={() => setPaletteOpen(true)}
-              className="flex items-center gap-2 rounded-sm border border-sky-200/90 bg-sky-50/50 px-3 py-1.5 text-xs text-[#0284C7] hover:border-[#0284C7] hover:bg-[#E0F2FE] transition cursor-pointer shadow-2xs"
+              className="flex items-center gap-2 rounded-sm border border-brand-border bg-brand-50/50 px-3 py-1.5 text-xs text-brand-primary hover:border-brand-primary hover:bg-brand-100 transition cursor-pointer shadow-2xs"
               title="Search"
             >
-              <Search size={14} className="text-[#0284C7] shrink-0" />
+              <Search size={14} className="text-brand-primary shrink-0" />
               <span className="font-medium">Search pages, items, actions...</span>
             </button>
 
             {/* Quick POS action button - Opens All POS Terminals */}
             <button
               onClick={() => setPosModalOpen(true)}
-              className="flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs transition hover:brightness-105 cursor-pointer"
+              className="flex items-center gap-1.5 rounded-sm bg-brand-gradient px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs transition hover:brightness-105 cursor-pointer"
               title="Access All POS Terminals & Counters"
             >
               <ShoppingCart size={13} />
@@ -253,23 +254,23 @@ export function Header() {
               <button
                 onClick={() => setOpen((v) => !v)}
                 className={cn(
-                  "flex items-center gap-2 rounded-sm border border-sky-200/90 bg-white/95 px-2.5 py-1.5 shadow-2xs transition hover:bg-[#E0F2FE] hover:border-[#0284C7] cursor-pointer",
-                  open && "bg-[#E0F2FE] border-[#0284C7] ring-2 ring-sky-100"
+                  "flex items-center gap-2 rounded-sm border border-brand-border bg-white/95 px-2.5 py-1.5 shadow-2xs transition hover:bg-brand-50 hover:border-brand-primary cursor-pointer",
+                  open && "bg-brand-50 border-brand-primary ring-2 ring-brand-border/40"
                 )}
                 aria-expanded={open}
                 aria-haspopup="true"
               >
                 {/* 1. Avatar icon FIRST */}
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-xs font-bold text-white shadow-2xs border border-white/60">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-xs font-bold text-white shadow-2xs border border-white/60">
                   {user?.name?.[0]?.toUpperCase() ?? "A"}
                 </div>
 
                 {/* 2. Then Name and Role */}
                 <div className="text-left min-w-0 max-w-[140px] xl:max-w-[180px]">
-                  <p className="truncate text-xs font-bold text-[#0369A1] leading-tight">
+                  <p className="truncate text-xs font-bold text-brand-dark leading-tight">
                     {user?.name || "Store Admin"}
                   </p>
-                  <p className="truncate text-[10.5px] font-semibold text-[#0284C7] leading-tight">
+                  <p className="truncate text-[10.5px] font-semibold text-brand-primary leading-tight">
                     {displayRole}
                   </p>
                 </div>
@@ -278,25 +279,25 @@ export function Header() {
                 <ChevronDown
                   size={14}
                   className={cn(
-                    "text-[#0284C7] transition-transform shrink-0",
-                    open && "rotate-180 text-[#0369A1]"
+                    "text-brand-primary transition-transform shrink-0",
+                    open && "rotate-180 text-brand-dark"
                   )}
                 />
               </button>
 
               {/* Desktop Profile Dropdown Card */}
               {open && (
-                <div className="absolute right-0 top-full z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-sm border border-sky-200/90 bg-white p-2 shadow-2xl animate-[scale-in_140ms_ease-out]">
+                <div className="absolute right-0 top-full z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-sm border border-brand-border bg-white p-2 shadow-2xl animate-[scale-in_140ms_ease-out]">
                   {/* User Profile Header Card */}
-                  <div className="flex items-center gap-3 rounded-sm bg-[#E0F2FE]/70 border border-sky-100 p-3 mb-1.5">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-sm font-bold text-white shadow-xs border border-white/80">
+                  <div className="flex items-center gap-3 rounded-sm bg-brand-50 border border-brand-light p-3 mb-1.5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-sm font-bold text-white shadow-xs border border-white/80">
                       {user?.name?.[0]?.toUpperCase() ?? "A"}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="truncate text-xs font-bold text-[#0369A1]">{user?.name || "Store Admin"}</p>
-                      <p className="truncate text-[11px] text-[#0284C7]">{user?.email || ""}</p>
+                      <p className="truncate text-xs font-bold text-brand-dark">{user?.name || "Store Admin"}</p>
+                      <p className="truncate text-[11px] text-brand-primary">{user?.email || ""}</p>
                       <div className="mt-1 flex items-center gap-1.5">
-                        <span className="inline-flex items-center rounded-sm bg-white px-2 py-0.5 text-[9.5px] font-bold text-[#0284C7] border border-sky-200 shadow-2xs">
+                        <span className="inline-flex items-center rounded-sm bg-white px-2 py-0.5 text-[9.5px] font-bold text-brand-primary border border-brand-border shadow-2xs">
                           <ShieldCheck size={10} className="mr-1 text-emerald-600" />
                           {displayRole}
                         </span>
@@ -305,11 +306,11 @@ export function Header() {
                   </div>
 
                   {/* Branch / Terminal Context */}
-                  <div className="flex items-center justify-between px-2.5 py-1.5 text-[11px] text-[#0284C7] font-medium border-b border-sky-100 mb-1">
+                  <div className="flex items-center justify-between px-2.5 py-1.5 text-[11px] text-brand-primary font-medium border-b border-brand-light mb-1">
                     <span className="flex items-center gap-1 text-slate-500">
-                      <Building2 size={12} className="text-[#0284C7]" /> Branch:
+                      <Building2 size={12} className="text-brand-primary" /> Branch:
                     </span>
-                    <span className="font-semibold text-[#0369A1]">Main • Terminal-01</span>
+                    <span className="font-semibold text-brand-dark">Main • Terminal-01</span>
                   </div>
 
                   {/* Quick Action Navigation Links */}
@@ -317,9 +318,9 @@ export function Header() {
                     <Link
                       href="/dashboard"
                       onClick={() => setOpen(false)}
-                      className="flex w-full items-center gap-2.5 rounded-sm px-2.5 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                      className="flex w-full items-center gap-2.5 rounded-sm px-2.5 py-2 text-xs font-semibold text-brand-dark hover:bg-brand-100 hover:text-brand-primary transition"
                     >
-                      <LayoutDashboard size={14} className="text-[#0284C7]" />
+                      <LayoutDashboard size={14} className="text-brand-primary" />
                       Dashboard
                     </Link>
 
@@ -328,13 +329,13 @@ export function Header() {
                         setOpen(false);
                         setPosModalOpen(true);
                       }}
-                      className="flex w-full items-center justify-between rounded-sm px-2.5 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition cursor-pointer text-left"
+                      className="flex w-full items-center justify-between rounded-sm px-2.5 py-2 text-xs font-semibold text-brand-dark hover:bg-brand-100 hover:text-brand-primary transition cursor-pointer text-left"
                     >
                       <div className="flex items-center gap-2.5">
-                        <ShoppingCart size={14} className="text-[#0284C7]" />
+                        <ShoppingCart size={14} className="text-brand-primary" />
                         <span>All POS Terminals</span>
                       </div>
-                      <span className="rounded-sm bg-sky-100 px-1.5 py-0.5 text-[9.5px] font-bold text-[#0284C7]">
+                      <span className="rounded-sm bg-brand-100 px-1.5 py-0.5 text-[9.5px] font-bold text-brand-primary">
                         9 Modes
                       </span>
                     </button>
@@ -342,18 +343,18 @@ export function Header() {
                     <Link
                       href="/settings"
                       onClick={() => setOpen(false)}
-                      className="flex w-full items-center gap-2.5 rounded-sm px-2.5 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                      className="flex w-full items-center gap-2.5 rounded-sm px-2.5 py-2 text-xs font-semibold text-brand-dark hover:bg-brand-100 hover:text-brand-primary transition"
                     >
-                      <Settings size={14} className="text-[#0284C7]" />
+                      <Settings size={14} className="text-brand-primary" />
                       Store Settings
                     </Link>
 
                     <Link
                       href="/reports"
                       onClick={() => setOpen(false)}
-                      className="flex w-full items-center gap-2.5 rounded-sm px-2.5 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition"
+                      className="flex w-full items-center gap-2.5 rounded-sm px-2.5 py-2 text-xs font-semibold text-brand-dark hover:bg-brand-100 hover:text-brand-primary transition"
                     >
-                      <FileText size={14} className="text-[#0284C7]" />
+                      <FileText size={14} className="text-brand-primary" />
                       Reports & Analytics
                     </Link>
 
@@ -362,15 +363,15 @@ export function Header() {
                         setOpen(false);
                         setPaletteOpen(true);
                       }}
-                      className="flex w-full items-center gap-2.5 rounded-sm px-2.5 py-2 text-xs font-semibold text-[#0369A1] hover:bg-[#E0F2FE] hover:text-[#0284C7] transition text-left cursor-pointer"
+                      className="flex w-full items-center gap-2.5 rounded-sm px-2.5 py-2 text-xs font-semibold text-brand-dark hover:bg-brand-100 hover:text-brand-primary transition text-left cursor-pointer"
                     >
-                      <Search size={14} className="text-[#0284C7]" />
+                      <Search size={14} className="text-brand-primary" />
                       Command Palette
                     </button>
                   </div>
 
                   {/* Sign Out Button - Highly visible and prominent */}
-                  <div className="border-t border-sky-100 pt-2 mt-1.5">
+                  <div className="border-t border-brand-light pt-2 mt-1.5">
                     <button
                       type="button"
                       onClick={(e) => {

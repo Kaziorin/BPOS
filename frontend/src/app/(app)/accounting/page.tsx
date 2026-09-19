@@ -65,7 +65,7 @@ export default function AccountingPage() {
         ]}
       />
 
-      <div className="flex items-center justify-between rounded-sm border border-sky-200/70 bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] p-6 text-white shadow-2xs">
+      <div className="flex items-center justify-between rounded-sm border border-brand-border bg-brand-gradient p-6 text-white shadow-2xs">
         <div>
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white/90"><Landmark size={15} /> Accounting Engine</p>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight">Double-entry ledger, live financial statements</h1>
@@ -90,8 +90,8 @@ export default function AccountingPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-3 lg:col-span-2">
           {MODULES.map((m) => (
-            <Link key={m.href} href={m.href} className="group flex items-center gap-4 rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs transition hover:border-sky-300 hover:shadow-xs">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-sky-50 text-sky-700"><m.icon size={20} /></div>
+            <Link key={m.href} href={m.href} className="group flex items-center gap-4 rounded-sm border border-slate-200 bg-white p-4 shadow-2xs transition hover:border-brand-border hover:shadow-xs">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><m.icon size={20} /></div>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-gray-900">{m.label}</p>
                 <p className="truncate text-sm text-gray-500">{m.desc}</p>
@@ -101,9 +101,9 @@ export default function AccountingPage() {
           ))}
         </div>
 
-        <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
-          <div className="flex items-center justify-between border-b border-sky-100/70 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-5 py-4">
-            <h2 className="flex items-center gap-2 font-semibold text-[#0369A1]"><BookMarked size={16} className="text-sky-600" /> Recent Journals</h2>
+        <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-2xs">
+          <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-5 py-4">
+            <h2 className="flex items-center gap-2 font-semibold text-brand-dark"><BookMarked size={16} className="text-sky-600" /> Recent Journals</h2>
             <Link href="/accounting/journals" className="text-xs font-semibold text-sky-600 hover:underline">View all</Link>
           </div>
           <div className="max-h-96 divide-y divide-gray-50">

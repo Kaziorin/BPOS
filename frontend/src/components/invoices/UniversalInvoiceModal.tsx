@@ -206,24 +206,24 @@ export function UniversalInvoiceModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/50 p-3 sm:p-5 backdrop-blur-xs overflow-y-auto select-none"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-3 sm:p-5 backdrop-blur-xs overflow-y-auto select-none"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-4xl rounded-sm bg-white shadow-2xl border border-sky-200/90 my-auto overflow-hidden flex flex-col max-h-[92vh]"
+        className="w-full max-w-4xl rounded-sm bg-white shadow-2xl border border-brand-border my-auto overflow-hidden flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Top Control Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-brand-light bg-brand-50/60">
           <div className="flex items-center gap-2.5">
-            <span className="p-2 rounded-sm bg-gradient-to-tr from-[#38BDF8] to-[#0284C7] text-white shadow-2xs">
+            <span className="p-2 rounded-sm bg-brand-gradient text-white shadow-2xs">
               <FileText size={16} />
             </span>
             <div>
-              <h3 className="text-sm font-bold text-[#0369A1] flex items-center gap-2">
-                Invoice Details: <span className="font-mono text-[#0284C7]">{data.invoiceNo}</span>
+              <h3 className="text-sm font-bold text-brand-dark flex items-center gap-2">
+                Invoice Details: <span className="font-mono text-brand-primary">{data.invoiceNo}</span>
               </h3>
-              <p className="text-[11px] text-[#0284C7] font-medium">Vertical-specific print and receipt generation</p>
+              <p className="text-[11px] text-brand-primary font-medium">Vertical-specific print and receipt generation</p>
             </div>
           </div>
 
@@ -242,14 +242,14 @@ export function UniversalInvoiceModal({
             </div>
 
             {/* Paper Size Selector */}
-            <div className="flex rounded-sm bg-sky-100/80 p-0.5 text-[11px] font-bold border border-sky-200">
+            <div className="flex rounded-sm bg-brand-100/70 p-0.5 text-[11px] font-bold border border-brand-border">
               <CustomButton
                 variant={printPaperSize === "thermal" ? "primary" : "ghost"}
                 size="xs"
                 onClick={() => setPrintPaperSize("thermal")}
                 className={cn(
                   "px-2.5 py-1 text-[11px]",
-                  printPaperSize !== "thermal" && "text-slate-600 hover:text-[#0284C7] bg-transparent"
+                  printPaperSize !== "thermal" && "text-slate-600 hover:text-brand-primary bg-transparent"
                 )}
               >
                 Thermal (80mm)
@@ -260,7 +260,7 @@ export function UniversalInvoiceModal({
                 onClick={() => setPrintPaperSize("a4")}
                 className={cn(
                   "px-2.5 py-1 text-[11px]",
-                  printPaperSize !== "a4" && "text-slate-600 hover:text-[#0284C7] bg-transparent"
+                  printPaperSize !== "a4" && "text-slate-600 hover:text-brand-primary bg-transparent"
                 )}
               >
                 A4 / Letter
@@ -303,7 +303,7 @@ export function UniversalInvoiceModal({
         <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-100/60 flex justify-center">
           <div
             id="printable-invoice"
-            className={`w-full bg-white border border-sky-100/90 shadow-md p-6 sm:p-8 transition-all ${
+            className={`w-full bg-white border border-slate-200 shadow-md p-6 sm:p-8 transition-all ${
               printPaperSize === "thermal" ? "max-w-[420px] rounded-sm" : "max-w-3xl rounded-sm"
             }`}
           >
@@ -568,7 +568,7 @@ function WholesaleInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDat
       </div>
 
       {/* Buyer Client & Transport Info Grid */}
-      <div className="grid grid-cols-2 gap-4 p-4 rounded-sm bg-slate-50 border border-sky-100/90">
+      <div className="grid grid-cols-2 gap-4 p-4 rounded-sm bg-slate-50 border border-slate-200">
         <div>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Consignee / B2B Client Details</p>
           <h4 className="text-sm font-bold text-slate-900 mt-0.5">{data.customer?.name || "Corporate Wholesale Client"}</h4>

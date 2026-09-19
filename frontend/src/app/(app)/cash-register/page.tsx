@@ -80,11 +80,11 @@ interface Summary {
 
 const TXN_META: Record<string, { label: string; icon: any; cls: string; sign: "+" | "-" }> = {
   CASH_SALE: { label: "POS Cash Sale", icon: CheckCircle2, cls: "text-emerald-700 bg-emerald-50 border-emerald-200", sign: "+" },
-  CASH_IN: { label: "Cash In (Top-up)", icon: ArrowDownToLine, cls: "text-[#0284C7] bg-sky-50 border-sky-200", sign: "+" },
+  CASH_IN: { label: "Cash In (Top-up)", icon: ArrowDownToLine, cls: "text-brand-primary bg-brand-50 border-brand-border", sign: "+" },
   CASH_OUT: { label: "Cash Out (Drop)", icon: ArrowUpFromLine, cls: "text-indigo-700 bg-indigo-50 border-indigo-200", sign: "-" },
   CASH_EXPENSE: { label: "Cash Expense", icon: Wallet, cls: "text-amber-700 bg-amber-50 border-amber-200", sign: "-" },
   CASH_REFUND: { label: "Cash Refund", icon: XCircle, cls: "text-rose-700 bg-rose-50 border-rose-200", sign: "-" },
-  CASH_PAYMENT_IN: { label: "Customer Debt Pay", icon: ArrowDownToLine, cls: "text-[#0369A1] bg-sky-50 border-sky-200", sign: "+" },
+  CASH_PAYMENT_IN: { label: "Customer Debt Pay", icon: ArrowDownToLine, cls: "text-brand-dark bg-brand-50 border-brand-border", sign: "+" },
 };
 
 const DENOMINATIONS = [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1];
@@ -377,7 +377,7 @@ export default function CashRegisterPage() {
         getSortValue: (row) => row.shiftNo,
         render: (row) => (
           <div className="flex items-center gap-2 whitespace-nowrap">
-            <span className="font-mono text-xs font-bold text-[#0284C7] whitespace-nowrap select-all inline-block">
+            <span className="font-mono text-xs font-bold text-brand-primary whitespace-nowrap select-all inline-block">
               {row.shiftNo}
             </span>
             {Boolean(row.needsApproval) ? (
@@ -434,7 +434,7 @@ export default function CashRegisterPage() {
         sortable: true,
         getSortValue: (row) => Number(row.countedCash) || 0,
         render: (row) => (
-          <span className="font-mono text-xs font-bold text-[#0284C7]">
+          <span className="font-mono text-xs font-bold text-brand-primary">
             {row.countedCash != null ? money(row.countedCash) : "—"}
           </span>
         ),
@@ -503,8 +503,8 @@ export default function CashRegisterPage() {
             <CustomButton
               variant="outline"
               size="xs"
-              className="text-gray-600 border-sky-200 hover:bg-sky-50 hover:text-[#0284C7] font-semibold"
-              leftIcon={<Eye className="w-3.5 h-3.5 text-[#0284C7]" />}
+              className="text-gray-600 border-brand-border hover:bg-brand-50 hover:text-brand-primary font-semibold"
+              leftIcon={<Eye className="w-3.5 h-3.5 text-brand-primary" />}
               onClick={() => openDetail(row)}
             >
               Audit
@@ -592,7 +592,7 @@ export default function CashRegisterPage() {
       <div className="w-full max-w-full space-y-4 p-4 bg-slate-50/50 min-h-screen">
         <div className="flex h-72 items-center justify-center">
           <div className="flex flex-col items-center gap-3">
-            <RefreshCw className="h-8 w-8 animate-spin text-[#0284C7]" />
+            <RefreshCw className="h-8 w-8 animate-spin text-brand-primary" />
             <p className="text-sm font-medium text-gray-600">Loading cash register & drawer data...</p>
           </div>
         </div>
@@ -607,11 +607,11 @@ export default function CashRegisterPage() {
         <div
           className={`fixed top-5 right-5 z-50 flex items-center gap-2 rounded-sm border px-4 py-3 text-sm font-medium shadow-lg animate-in slide-in-from-top duration-200 ${
             toast.ok
-              ? "border-sky-200 bg-sky-50 text-[#0369A1]"
+              ? "border-brand-border bg-brand-50 text-brand-dark"
               : "border-rose-200 bg-rose-50 text-rose-800"
           }`}
         >
-          {toast.ok ? <CheckCircle2 className="w-5 h-5 text-[#0284C7]" /> : <AlertTriangle className="w-5 h-5 text-rose-600" />}
+          {toast.ok ? <CheckCircle2 className="w-5 h-5 text-brand-primary" /> : <AlertTriangle className="w-5 h-5 text-rose-600" />}
           <span className="text-gray-600 font-semibold">{toast.text}</span>
         </div>
       )}
@@ -705,8 +705,8 @@ export default function CashRegisterPage() {
 
       {/* ── ACTIVE SHIFT HERO OR EMPTY STATE ── */}
       {!isOpen ? (
-        <div className="rounded-sm border border-dashed border-sky-200 bg-white p-10 text-center shadow-2xs">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200">
+        <div className="rounded-sm border border-dashed border-brand-border bg-white p-10 text-center shadow-2xs">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border">
             <Lock className="h-8 w-8" />
           </div>
           <h3 className="mt-4 text-base font-bold text-gray-600">No Shift Currently Open for {selectedBranchName}</h3>
@@ -730,13 +730,13 @@ export default function CashRegisterPage() {
       ) : (
         <div className="space-y-4">
           {/* Main Active Shift Panel */}
-          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-sky-100/90 pb-4">
+          <div className="rounded-sm border border-brand-border/60 bg-white p-5 shadow-2xs">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-brand-border/60 pb-4">
               <div className="flex items-center gap-3.5">
                 <div
                   className={`flex h-12 w-12 items-center justify-center rounded-sm ${
                     shift!.status === "OPEN"
-                      ? "bg-sky-50 text-[#0284C7] border border-sky-200"
+                      ? "bg-brand-50 text-brand-primary border border-brand-border"
                       : "bg-amber-50 text-amber-700 border border-amber-200"
                   }`}
                 >
@@ -744,7 +744,7 @@ export default function CashRegisterPage() {
                 </div>
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-base font-bold text-[#0284C7] whitespace-nowrap select-all">{shift!.shiftNo}</span>
+                    <span className="font-mono text-base font-bold text-brand-primary whitespace-nowrap select-all">{shift!.shiftNo}</span>
                     <span
                       className={`inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-bold ${
                         shift!.status === "OPEN"
@@ -756,8 +756,8 @@ export default function CashRegisterPage() {
                     </span>
                   </div>
                   <p className="mt-1.5 text-xs text-gray-500 font-medium">
-                    Opened at <span className="font-bold text-[#0369A1]">{dateTime(shift!.openedAt)}</span> · Initial Float:{" "}
-                    <span className="font-bold text-[#0284C7]">{money(shift!.openingCash)}</span>
+                    Opened at <span className="font-bold text-brand-dark">{dateTime(shift!.openedAt)}</span> · Initial Float:{" "}
+                    <span className="font-bold text-brand-primary">{money(shift!.openingCash)}</span>
                   </p>
                 </div>
               </div>
@@ -835,9 +835,9 @@ export default function CashRegisterPage() {
                   <span className="text-xs font-bold text-emerald-700 tabular-nums whitespace-nowrap">{money(summary.cashSales)}</span>
                 </div>
 
-                <div className="flex items-center justify-between gap-1.5 rounded-sm border border-sky-200 bg-sky-50/50 px-2.5 py-2 shadow-2xs">
-                  <span className="text-xs font-semibold capitalize text-[#0284C7] whitespace-nowrap">Cash In (+)</span>
-                  <span className="text-xs font-bold text-[#0284C7] tabular-nums whitespace-nowrap">
+                <div className="flex items-center justify-between gap-1.5 rounded-sm border border-brand-border bg-brand-50/50 px-2.5 py-2 shadow-2xs">
+                  <span className="text-xs font-semibold capitalize text-brand-primary whitespace-nowrap">Cash In (+)</span>
+                  <span className="text-xs font-bold text-brand-primary tabular-nums whitespace-nowrap">
                     {money(summary.cashIn + summary.customerPaymentsIn)}
                   </span>
                 </div>
@@ -859,14 +859,10 @@ export default function CashRegisterPage() {
               </div>
             )}
 
-            {/* Expected Cash in Drawer Hero Strip with Dashboard Top Card Background & Ocean Waves (Deu) */}
+            {/* Expected Cash in Drawer Hero Strip with Dynamic Brand Gradient & Silky Waves */}
             {summary && (
               <div
-                className="relative mt-4 flex flex-col gap-4 overflow-hidden rounded-sm p-6 text-white sm:flex-row sm:items-center sm:justify-between shadow-md select-none border-0"
-                style={{
-                  background:
-                    "linear-gradient(115deg, #0284C7 0%, #0396E6 28%, #0EA5E9 48%, #38BDF8 70%, #7DD3FC 92%, #A0E1FD 100%)",
-                }}
+                className="relative mt-4 flex flex-col gap-4 overflow-hidden rounded-sm p-6 text-white sm:flex-row sm:items-center sm:justify-between shadow-md select-none border-0 bg-brand-gradient"
               >
                 {/* Ambient luminous glow on the left & top-right */}
                 <div
@@ -877,24 +873,24 @@ export default function CashRegisterPage() {
                   }}
                 />
 
-                {/* Silky Wave Ribbons Flowing from Center to Right (Same as Dashboard Hero Card) */}
+                {/* Silky Wave Ribbons Flowing from Center to Right */}
                 <svg
-                  className="pointer-events-none absolute inset-0 h-full w-full opacity-70"
+                  className="pointer-events-none absolute inset-0 h-full w-full opacity-60"
                   xmlns="http://www.w3.org/2000/svg"
                   preserveAspectRatio="none"
                   viewBox="0 0 1000 200"
                 >
                   <defs>
                     <linearGradient id="cashWave1" x1="30%" y1="100%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.15" />
-                      <stop offset="35%" stopColor="#7DD3FC" stopOpacity="0.30" />
-                      <stop offset="70%" stopColor="#BAE6FD" stopOpacity="0.45" />
-                      <stop offset="100%" stopColor="#E0F2FE" stopOpacity="0.60" />
+                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.25" />
+                      <stop offset="35%" stopColor="#ffffff" stopOpacity="0.20" />
+                      <stop offset="70%" stopColor="#ffffff" stopOpacity="0.10" />
+                      <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
                     </linearGradient>
                     <linearGradient id="cashWave2" x1="45%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.40" />
-                      <stop offset="50%" stopColor="#38BDF8" stopOpacity="0.25" />
-                      <stop offset="100%" stopColor="#BAE6FD" stopOpacity="0.50" />
+                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.30" />
+                      <stop offset="50%" stopColor="#ffffff" stopOpacity="0.15" />
+                      <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
                     </linearGradient>
                   </defs>
                   {/* Wave 1: Flowing smooth organic wave rising from center toward right */}
@@ -966,10 +962,10 @@ export default function CashRegisterPage() {
       )}
 
       {/* ─── SHIFT HISTORY & RECONCILIATION TABLE ─── */}
-      <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-sky-100/90 pb-4">
+      <div className="rounded-sm border border-brand-border/60 bg-white p-5 shadow-2xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-border/60 pb-4">
           <div className="flex items-center gap-2">
-            <History className="w-5 h-5 text-[#0284C7]" />
+            <History className="w-5 h-5 text-brand-primary" />
             <h3 className="text-base font-bold text-gray-600 capitalize">Shift History & Reconciliation Audit</h3>
           </div>
 
@@ -981,7 +977,7 @@ export default function CashRegisterPage() {
                 value={historySearch}
                 onChange={(e) => setHistorySearch(e.target.value)}
                 placeholder="Search Shift # or note..."
-                leftIcon={<Search className="h-3.5 w-3.5 text-[#0284C7]" />}
+                leftIcon={<Search className="h-3.5 w-3.5 text-brand-primary" />}
                 rounded="sm"
               />
             </div>
@@ -1025,11 +1021,11 @@ export default function CashRegisterPage() {
       {/* ─── MODAL: OPEN SHIFT ─── */}
       <CustomModal open={openModal} onClose={() => setOpenModal(false)} title="Open New Cash Register Shift" size="md">
         <form onSubmit={handleOpenShift} className="space-y-4">
-          <div className="rounded-sm bg-sky-50 border border-sky-200/90 p-3.5 text-xs text-[#0369A1] flex items-start gap-2.5">
-            <PlayCircle className="w-4 h-4 text-[#0284C7] shrink-0 mt-0.5" />
+          <div className="rounded-sm bg-brand-50 border border-brand-border p-3.5 text-xs text-brand-dark flex items-start gap-2.5">
+            <PlayCircle className="w-4 h-4 text-brand-primary shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold capitalize">Starting A New POS Selling Session</p>
-              <p className="text-sky-700 mt-0.5">
+              <p className="text-gray-600 mt-0.5">
                 The opening cash float balance will be recorded in the register drawer for branch{" "}
                 <span className="font-semibold text-gray-600">{selectedBranchName}</span>.
               </p>
@@ -1056,7 +1052,7 @@ export default function CashRegisterPage() {
                   type="button"
                   variant="outline"
                   size="xs"
-                  className="text-gray-600 border-sky-200 hover:bg-sky-50 font-semibold"
+                  className="text-gray-600 border-brand-border hover:bg-brand-50 font-semibold"
                   onClick={() => setOpeningCash(String(amt))}
                 >
                   +{money(amt)}
@@ -1076,7 +1072,7 @@ export default function CashRegisterPage() {
             />
           </div>
 
-          <div className="flex justify-end gap-2.5 pt-3 border-t border-sky-100/90">
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-brand-border/60">
             <CustomButton
               variant="outline"
               size="sm"
@@ -1111,12 +1107,12 @@ export default function CashRegisterPage() {
           <div
             className={`rounded-sm border p-3.5 text-xs flex items-start gap-2.5 ${
               cashMoveModal === "in"
-                ? "bg-sky-50/80 border-sky-200 text-[#0369A1]"
+                ? "bg-brand-50/80 border-brand-border text-brand-dark"
                 : "bg-indigo-50/70 border-indigo-200 text-indigo-900"
             }`}
           >
             {cashMoveModal === "in" ? (
-              <ArrowDownToLine className="w-4 h-4 text-[#0284C7] shrink-0 mt-0.5" />
+              <ArrowDownToLine className="w-4 h-4 text-brand-primary shrink-0 mt-0.5" />
             ) : (
               <ArrowUpFromLine className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
             )}
@@ -1148,7 +1144,7 @@ export default function CashRegisterPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold capitalize text-[#0369A1] mb-1.5">
+            <label className="block text-xs font-semibold capitalize text-brand-dark mb-1.5">
               Quick Category / Reason
             </label>
             <div className="flex flex-wrap gap-1.5 mb-2">
@@ -1161,7 +1157,7 @@ export default function CashRegisterPage() {
                   type="button"
                   variant={cashMoveReason === reason ? "primary" : "outline"}
                   size="xs"
-                  className={cashMoveReason === reason ? "" : "text-gray-600 border-sky-200 font-semibold hover:bg-sky-50"}
+                  className={cashMoveReason === reason ? "" : "text-gray-600 border-brand-border font-semibold hover:bg-brand-50"}
                   onClick={() => setCashMoveReason(reason)}
                 >
                   {reason}
@@ -1178,7 +1174,7 @@ export default function CashRegisterPage() {
             />
           </div>
 
-          <div className="flex justify-end gap-2.5 pt-3 border-t border-sky-100/90">
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-brand-border/60">
             <CustomButton
               variant="outline"
               size="sm"
@@ -1208,11 +1204,7 @@ export default function CashRegisterPage() {
             {/* Expected Summary Banner with Dashboard Top Card Background & Ocean Waves */}
             {summary && (
               <div
-                className="relative rounded-sm p-4 text-white shadow-md overflow-hidden"
-                style={{
-                  background:
-                    "linear-gradient(115deg, #0284C7 0%, #0396E6 28%, #0EA5E9 48%, #38BDF8 70%, #7DD3FC 92%, #A0E1FD 100%)",
-                }}
+                className="relative rounded-sm p-4 text-white shadow-md overflow-hidden bg-brand-gradient"
               >
                 <div
                   className="pointer-events-none absolute inset-0"
@@ -1229,15 +1221,15 @@ export default function CashRegisterPage() {
                 >
                   <defs>
                     <linearGradient id="modalWave1" x1="30%" y1="100%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.15" />
-                      <stop offset="35%" stopColor="#7DD3FC" stopOpacity="0.30" />
-                      <stop offset="70%" stopColor="#BAE6FD" stopOpacity="0.45" />
-                      <stop offset="100%" stopColor="#E0F2FE" stopOpacity="0.60" />
+                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.25" />
+                      <stop offset="35%" stopColor="#ffffff" stopOpacity="0.20" />
+                      <stop offset="70%" stopColor="#ffffff" stopOpacity="0.10" />
+                      <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
                     </linearGradient>
                     <linearGradient id="modalWave2" x1="45%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.40" />
-                      <stop offset="50%" stopColor="#38BDF8" stopOpacity="0.25" />
-                      <stop offset="100%" stopColor="#BAE6FD" stopOpacity="0.50" />
+                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.30" />
+                      <stop offset="50%" stopColor="#ffffff" stopOpacity="0.15" />
+                      <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
                     </linearGradient>
                   </defs>
                   <path
@@ -1270,13 +1262,13 @@ export default function CashRegisterPage() {
             {/* Counted Cash Input & Denominations Toggle */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold capitalize text-[#0369A1]">
+                <label className="text-xs font-semibold capitalize text-brand-dark">
                   Actual Counted Cash In Drawer (Tk) *
                 </label>
                 <CustomButton
                   variant="ghost"
                   size="xs"
-                  className="text-[#0284C7] hover:bg-sky-50 font-semibold"
+                  className="text-brand-primary hover:bg-brand-50 font-semibold"
                   leftIcon={<Calculator className="w-3.5 h-3.5" />}
                   onClick={() => setShowDenomCalc(!showDenomCalc)}
                   type="button"
@@ -1299,15 +1291,15 @@ export default function CashRegisterPage() {
 
               {/* Denominations Calculator Grid */}
               {showDenomCalc && (
-                <div className="mt-3 rounded-sm border border-sky-200/90 bg-sky-50/40 p-4 space-y-3">
-                  <div className="flex items-center justify-between border-b border-sky-200/80 pb-2">
+                <div className="mt-3 rounded-sm border border-brand-border bg-brand-50/40 p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-brand-border/80 pb-2">
                     <span className="text-xs font-bold text-gray-600 capitalize">Cash Note / Coin Counter</span>
-                    <span className="font-mono text-xs font-bold text-[#0284C7]">Tally Sum: {money(denomTotal)}</span>
+                    <span className="font-mono text-xs font-bold text-brand-primary">Tally Sum: {money(denomTotal)}</span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                     {DENOMINATIONS.map((d) => (
-                      <div key={d} className="rounded-sm border border-sky-200/90 bg-white p-2 text-center">
+                      <div key={d} className="rounded-sm border border-brand-border bg-white p-2 text-center">
                         <span className="text-[11px] font-bold text-gray-600">Tk {d}</span>
                         <input
                           type="number"
@@ -1315,7 +1307,7 @@ export default function CashRegisterPage() {
                           value={denoms[d] || ""}
                           onChange={(e) => handleDenomChange(d, e.target.value)}
                           placeholder="0"
-                          className="mt-1 w-full rounded-sm border border-sky-200/90 px-1.5 py-1 text-center font-mono text-xs text-gray-600 focus:border-[#0284C7] focus:outline-hidden"
+                          className="mt-1 w-full rounded-sm border border-brand-border px-1.5 py-1 text-center font-mono text-xs text-gray-600 focus:border-brand-primary focus:outline-hidden"
                         />
                         <span className="text-[10px] font-medium text-gray-400 block mt-0.5">
                           ={money(d * (denoms[d] || 0))}
@@ -1407,7 +1399,7 @@ export default function CashRegisterPage() {
               />
             </div>
 
-            <div className="flex justify-end gap-2.5 pt-3 border-t border-sky-100/90">
+            <div className="flex justify-end gap-2.5 pt-3 border-t border-brand-border/60">
               <CustomButton
                 variant="outline"
                 size="sm"
@@ -1442,7 +1434,7 @@ export default function CashRegisterPage() {
         {detail && (
           <div className="space-y-5">
             {/* Shift Header Meta */}
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm bg-sky-50/60 p-4 border border-sky-100/90">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm bg-brand-50/60 p-4 border border-brand-border/60">
               <div>
                 <p className="text-xs text-gray-500 font-medium">
                   Shift Period: <span className="font-semibold text-gray-600">{dateTime(detail.shift.openedAt)}</span> →{" "}
@@ -1451,7 +1443,7 @@ export default function CashRegisterPage() {
                   </span>
                 </p>
                 <p className="text-xs text-gray-500 font-medium mt-1">
-                  Status: <span className="font-bold text-[#0284C7]">{detail.shift.status}</span> · Approved By:{" "}
+                  Status: <span className="font-bold text-brand-primary">{detail.shift.status}</span> · Approved By:{" "}
                   <span className="font-semibold text-gray-600">{detail.shift.approvedBy || "N/A"}</span>
                 </p>
               </div>
@@ -1459,8 +1451,8 @@ export default function CashRegisterPage() {
               <CustomButton
                 variant="outline"
                 size="sm"
-                className="text-gray-600 border-sky-200 hover:bg-sky-50 font-semibold"
-                icon={<Printer className="w-4 h-4 text-[#0284C7]" />}
+                className="text-gray-600 border-brand-border hover:bg-brand-50 font-semibold"
+                icon={<Printer className="w-4 h-4 text-brand-primary" />}
                 onClick={handlePrintZReport}
               >
                 Print Z-Report
@@ -1469,12 +1461,12 @@ export default function CashRegisterPage() {
 
             {/* Reconciliation KPI Strip (Single-Line) */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="flex items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-3.5 py-2.5 shadow-2xs">
+              <div className="flex items-center justify-between gap-2 rounded-sm border border-brand-border/60 bg-white px-3.5 py-2.5 shadow-2xs">
                 <span className="text-xs font-semibold capitalize text-gray-600 truncate">Expected In Drawer</span>
-                <span className="font-mono text-sm font-bold text-[#0284C7] shrink-0">{money(detail.summary.expectedCash)}</span>
+                <span className="font-mono text-sm font-bold text-brand-primary shrink-0">{money(detail.summary.expectedCash)}</span>
               </div>
 
-              <div className="flex items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-3.5 py-2.5 shadow-2xs">
+              <div className="flex items-center justify-between gap-2 rounded-sm border border-brand-border/60 bg-white px-3.5 py-2.5 shadow-2xs">
                 <span className="text-xs font-semibold capitalize text-gray-600 truncate">Physical Counted</span>
                 <span className="font-mono text-sm font-bold text-gray-600 shrink-0">
                   {detail.shift.countedCash != null ? money(detail.shift.countedCash) : "—"}
@@ -1518,7 +1510,7 @@ export default function CashRegisterPage() {
 
             {/* Note & Remarks */}
             {detail.shift.note && (
-              <div className="rounded-sm border border-sky-100/90 bg-sky-50/50 p-3 text-xs text-gray-600">
+              <div className="rounded-sm border border-brand-border/60 bg-brand-50/50 p-3 text-xs text-gray-600">
                 <span className="font-semibold text-gray-600">Shift Notes: </span>
                 {detail.shift.note}
               </div>

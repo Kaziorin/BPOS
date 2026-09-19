@@ -147,7 +147,7 @@ export default function CreateSupplierPage() {
           <button type="button" onClick={() => router.push("/suppliers")} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
             Cancel
           </button>
-          <button type="submit" disabled={saving} className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50">
+          <button type="submit" disabled={saving} className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50">
             {saving && <Loader2 size={16} className="animate-spin" />}
             {saving ? "Creating..." : "Create Supplier"}
           </button>

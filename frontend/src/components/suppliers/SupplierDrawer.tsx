@@ -64,7 +64,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
         <div className="w-screen max-w-lg bg-white shadow-2xl border-l border-gray-200 flex flex-col animate-in slide-in-from-right duration-150">
           
           {/* Drawer Top Header */}
-          <div className="border-b border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 p-5 relative">
+          <div className="border-b border-slate-200 bg-gradient-to-r from-brand-50/80 via-white to-brand-50/50 p-5 relative">
             <button
               onClick={onClose}
               className="absolute right-4 top-4 rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-rose-600 hover:bg-rose-600 hover:text-white transition shadow-2xs cursor-pointer"
@@ -74,18 +74,18 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
 
             {loading ? (
               <div className="flex items-center gap-2 py-3">
-                <Loader2 size={18} className="animate-spin text-[#0284C7]" />
+                <Loader2 size={18} className="animate-spin text-brand-primary" />
                 <span className="text-xs text-gray-500 font-medium">Loading supplier details...</span>
               </div>
             ) : supplier ? (
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-white shadow-xs text-base font-bold">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-white shadow-xs text-base font-bold">
                     {getInitials(supplier.name)}
                   </div>
                   <div className="flex-1 min-w-0 pr-6">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="text-base font-bold text-[#0369A1] truncate">{supplier.name}</h2>
+                      <h2 className="text-base font-bold text-brand-dark truncate">{supplier.name}</h2>
                       <span className={`inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] font-semibold ${
                         supplier.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-gray-100 text-gray-600 border border-gray-200"
                       }`}>
@@ -111,9 +111,9 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                   {supplier.phone && (
                     <a
                       href={`tel:${supplier.phone}`}
-                      className="inline-flex items-center gap-1 rounded-sm border border-sky-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition"
+                      className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition"
                     >
-                      <Phone size={12} className="text-[#0284C7]" />
+                      <Phone size={12} className="text-brand-primary" />
                       Call
                     </a>
                   )}
@@ -133,9 +133,9 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                   {supplier.email && (
                     <a
                       href={`mailto:${supplier.email}`}
-                      className="inline-flex items-center gap-1 rounded-sm border border-sky-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition"
+                      className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition"
                     >
-                      <Mail size={12} className="text-[#0284C7]" />
+                      <Mail size={12} className="text-brand-primary" />
                       Email
                     </a>
                   )}
@@ -152,7 +152,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
 
                   <button
                     onClick={() => onEdit(supplier)}
-                    className="inline-flex items-center gap-1 rounded-sm border border-sky-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition cursor-pointer"
                   >
                     <Edit3 size={12} />
                     Edit
@@ -160,7 +160,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
 
                   <Link
                     href={`/suppliers/${supplier.id}`}
-                    className="inline-flex items-center gap-1 rounded-sm border border-sky-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-sky-50 hover:text-[#0284C7] transition ml-auto"
+                    className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 hover:text-brand-primary transition ml-auto"
                   >
                     <span>Full Page</span>
                     <ExternalLink size={12} />
@@ -172,7 +172,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
 
           {/* Key Metrics Bar */}
           {supplier && (
-            <div className="grid grid-cols-3 divide-x divide-sky-100 border-b border-sky-100 bg-white text-center py-3">
+            <div className="grid grid-cols-3 divide-x divide-slate-100 border-b border-slate-200 bg-white text-center py-3">
               <div className="px-2">
                 <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Payable Due</span>
                 <p className={`text-sm font-bold mt-0.5 ${due > 0 ? "text-rose-600" : "text-gray-800"}`}>
@@ -195,12 +195,12 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
           )}
 
           {/* Drawer Navigation Tabs */}
-          <div className="flex border-b border-sky-100 px-5 bg-white">
+          <div className="flex border-b border-slate-200 px-5 bg-white">
             <button
               onClick={() => setActiveTab("overview")}
               className={`border-b-2 px-3 py-2.5 text-xs font-semibold transition cursor-pointer ${
                 activeTab === "overview"
-                  ? "border-[#0284C7] text-[#0284C7]"
+                  ? "border-brand-primary text-brand-primary"
                   : "border-transparent text-gray-500 hover:text-gray-800"
               }`}
             >
@@ -210,7 +210,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
               onClick={() => setActiveTab("purchases")}
               className={`border-b-2 px-3 py-2.5 text-xs font-semibold transition cursor-pointer ${
                 activeTab === "purchases"
-                  ? "border-[#0284C7] text-[#0284C7]"
+                  ? "border-brand-primary text-brand-primary"
                   : "border-transparent text-gray-500 hover:text-gray-800"
               }`}
             >
@@ -220,7 +220,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
               onClick={() => setActiveTab("performance")}
               className={`border-b-2 px-3 py-2.5 text-xs font-semibold transition cursor-pointer ${
                 activeTab === "performance"
-                  ? "border-[#0284C7] text-[#0284C7]"
+                  ? "border-brand-primary text-brand-primary"
                   : "border-transparent text-gray-500 hover:text-gray-800"
               }`}
             >
@@ -230,7 +230,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
               onClick={() => setActiveTab("notes")}
               className={`border-b-2 px-3 py-2.5 text-xs font-semibold transition cursor-pointer ${
                 activeTab === "notes"
-                  ? "border-[#0284C7] text-[#0284C7]"
+                  ? "border-brand-primary text-brand-primary"
                   : "border-transparent text-gray-500 hover:text-gray-800"
               }`}
             >
@@ -247,7 +247,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
             ) : activeTab === "overview" ? (
               <div className="space-y-4">
                 {/* Contact & Address Card */}
-                <div className="rounded-sm border border-sky-100 bg-white p-4 shadow-2xs space-y-3">
+                <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
                   <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Contact & Address</h3>
                   
                   <div className="grid grid-cols-2 gap-3 text-xs">
@@ -279,7 +279,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                 </div>
 
                 {/* Financial & Terms Card */}
-                <div className="rounded-sm border border-sky-100 bg-white p-4 shadow-2xs space-y-3">
+                <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
                   <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Financial & Terms</h3>
                   
                   <div className="grid grid-cols-2 gap-3 text-xs">
@@ -327,7 +327,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                   supplier.recentPOs.map((po: any) => (
                     <div
                       key={po.id}
-                      className="rounded-sm border border-sky-100 bg-white p-3 shadow-2xs hover:border-sky-300 transition flex items-center justify-between"
+                      className="rounded-sm border border-slate-200 bg-white p-3 shadow-2xs hover:border-brand-border transition flex items-center justify-between"
                     >
                       <div>
                         <div className="flex items-center gap-2">
@@ -357,7 +357,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                 <div className="pt-2">
                   <Link
                     href={`/purchasing/orders?supplierId=${supplier.id}`}
-                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-sm border border-sky-200 bg-white py-2 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition"
+                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-sm border border-brand-border bg-white py-2 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition"
                   >
                     View All Purchasing Orders <ChevronRight size={13} />
                   </Link>
@@ -365,9 +365,9 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
               </div>
             ) : activeTab === "performance" ? (
               <div className="space-y-4">
-                <div className="rounded-sm border border-sky-100 bg-white p-4 shadow-2xs space-y-3">
+                <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
                   <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <ShieldCheck size={14} className="text-[#0284C7]" />
+                    <ShieldCheck size={14} className="text-brand-primary" />
                     Supplier Scorecard
                   </h3>
 
@@ -375,10 +375,10 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                     <div>
                       <div className="flex justify-between text-xs font-semibold mb-1">
                         <span className="text-gray-600">On-Time Delivery Score</span>
-                        <span className="text-[#0284C7]">{supplier.deliveryPerformanceScore || 95}%</span>
+                        <span className="text-brand-primary">{supplier.deliveryPerformanceScore || 95}%</span>
                       </div>
-                      <div className="h-2 w-full rounded-sm bg-sky-100 overflow-hidden">
-                        <div className="h-full bg-[#0284C7] rounded-sm" style={{ width: `${supplier.deliveryPerformanceScore || 95}%` }} />
+                      <div className="h-2 w-full rounded-sm bg-brand-50 overflow-hidden">
+                        <div className="h-full bg-brand-primary rounded-sm" style={{ width: `${supplier.deliveryPerformanceScore || 95}%` }} />
                       </div>
                     </div>
 
@@ -387,7 +387,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                         <span className="text-gray-600">Product Quality Rating</span>
                         <span className="text-emerald-600">{supplier.qualityScore || 98}%</span>
                       </div>
-                      <div className="h-2 w-full rounded-sm bg-sky-100 overflow-hidden">
+                      <div className="h-2 w-full rounded-sm bg-brand-50 overflow-hidden">
                         <div className="h-full bg-emerald-500 rounded-sm" style={{ width: `${supplier.qualityScore || 98}%` }} />
                       </div>
                     </div>
@@ -397,7 +397,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                         <span className="text-gray-600">Defect Rate</span>
                         <span className="text-gray-700">{supplier.defectRate || 1.2}%</span>
                       </div>
-                      <div className="h-2 w-full rounded-sm bg-sky-100 overflow-hidden">
+                      <div className="h-2 w-full rounded-sm bg-brand-50 overflow-hidden">
                         <div className="h-full bg-amber-500 rounded-sm" style={{ width: `${Math.min(100, (supplier.defectRate || 1.2) * 10)}%` }} />
                       </div>
                     </div>
@@ -406,7 +406,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="rounded-sm border border-sky-100 bg-white p-4 shadow-2xs">
+                <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
                   <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Supplier Notes</h3>
                   <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
                     {supplier.notes || "No notes entered for this supplier."}
@@ -417,10 +417,10 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
           </div>
 
           {/* Footer */}
-          <div className="border-t border-sky-100 bg-gradient-to-r from-sky-50/50 via-white to-sky-50/30 p-4 flex items-center justify-between">
+          <div className="border-t border-slate-200 bg-gradient-to-r from-brand-50/50 via-white to-brand-50/30 p-4 flex items-center justify-between">
             <button
               onClick={() => onEdit(supplier)}
-              className="inline-flex items-center gap-1.5 rounded-sm border border-sky-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-sky-50 transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition cursor-pointer"
             >
               <Edit3 size={13} />
               Edit Supplier
@@ -428,7 +428,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
 
             <Link
               href={`/suppliers/${supplier?.id}`}
-              className="inline-flex items-center gap-1.5 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:brightness-105 transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-sm bg-brand-gradient px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:brightness-105 transition cursor-pointer"
             >
               Full Profile & Ledger &rarr;
             </Link>

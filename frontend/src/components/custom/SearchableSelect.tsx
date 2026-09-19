@@ -28,25 +28,25 @@ export interface SearchableSelectProps {
 
 const THEME_MAP: Record<string, { focus: string; addBtn: string; optionHover: string; optionSelected: string; checkIcon: string }> = {
   primary: {
-    focus: "focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
-    addBtn: "border-sky-200 bg-sky-50 text-[#0284C7] hover:bg-[#0284C7] hover:text-white shadow-2xs",
-    optionHover: "hover:bg-sky-50 hover:text-[#0284C7]",
-    optionSelected: "bg-[#E0F2FE] text-[#0369A1] font-bold",
-    checkIcon: "text-[#0284C7]",
+    focus: "focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20",
+    addBtn: "border-brand-border bg-brand-50 text-brand-primary hover:bg-brand-primary hover:text-white shadow-2xs",
+    optionHover: "hover:bg-brand-50 hover:text-brand-primary",
+    optionSelected: "bg-brand-100 text-brand-dark font-bold",
+    checkIcon: "text-brand-primary",
   },
   teal: {
-    focus: "focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
-    addBtn: "border-sky-200 bg-sky-50 text-[#0284C7] hover:bg-[#0284C7] hover:text-white shadow-2xs",
-    optionHover: "hover:bg-sky-50 hover:text-[#0284C7]",
-    optionSelected: "bg-[#E0F2FE] text-[#0369A1] font-bold",
-    checkIcon: "text-[#0284C7]",
+    focus: "focus:border-teal-500 focus:ring-teal-500/20",
+    addBtn: "border-teal-200 bg-teal-50 text-teal-600 hover:bg-teal-600 hover:text-white shadow-2xs",
+    optionHover: "hover:bg-teal-50 hover:text-teal-700",
+    optionSelected: "bg-teal-50 text-teal-800 font-bold",
+    checkIcon: "text-teal-600",
   },
   orange: {
-    focus: "focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
-    addBtn: "border-sky-200 bg-sky-50 text-[#0284C7] hover:bg-[#0284C7] hover:text-white shadow-2xs",
-    optionHover: "hover:bg-sky-50 hover:text-[#0284C7]",
-    optionSelected: "bg-[#E0F2FE] text-[#0369A1] font-bold",
-    checkIcon: "text-[#0284C7]",
+    focus: "focus:border-orange-500 focus:ring-orange-500/20",
+    addBtn: "border-orange-200 bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white shadow-2xs",
+    optionHover: "hover:bg-orange-50 hover:text-orange-700",
+    optionSelected: "bg-orange-50 text-orange-800 font-bold",
+    checkIcon: "text-orange-600",
   },
   emerald: {
     focus: "focus:border-emerald-500 focus:ring-emerald-500",
@@ -56,11 +56,11 @@ const THEME_MAP: Record<string, { focus: string; addBtn: string; optionHover: st
     checkIcon: "text-emerald-600",
   },
   indigo: {
-    focus: "focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20",
-    addBtn: "border-sky-200 bg-sky-50 text-[#0284C7] hover:bg-[#0284C7] hover:text-white shadow-2xs",
-    optionHover: "hover:bg-sky-50 hover:text-[#0284C7]",
-    optionSelected: "bg-[#E0F2FE] text-[#0369A1] font-bold",
-    checkIcon: "text-[#0284C7]",
+    focus: "focus:border-indigo-500 focus:ring-indigo-500/20",
+    addBtn: "border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white shadow-2xs",
+    optionHover: "hover:bg-indigo-50 hover:text-indigo-700",
+    optionSelected: "bg-indigo-50 text-indigo-800 font-bold",
+    checkIcon: "text-indigo-600",
   },
   amber: {
     focus: "focus:border-amber-500 focus:ring-amber-500",
@@ -180,7 +180,7 @@ export function SearchableSelect({
   return (
     <div className={cn("relative w-full", className)} ref={containerRef}>
       {label && (
-        <label className="mb-1.5 block text-xs font-semibold capitalize text-[#0369A1]">
+        <label className="mb-1.5 block text-xs font-semibold capitalize text-brand-dark">
           {label} {required && <span className="text-rose-500">*</span>}
         </label>
       )}
@@ -197,7 +197,7 @@ export function SearchableSelect({
             themeStyles.focus,
             disabled
               ? "cursor-not-allowed bg-slate-100/90 text-slate-400 border-slate-300 border-dashed shadow-none select-none"
-              : "border-sky-200/90 bg-white text-slate-800 cursor-pointer hover:border-sky-300",
+              : "border-brand-border bg-white text-slate-800 cursor-pointer hover:border-brand-primary",
             !selectedOption && !disabled && "text-slate-400"
           )}
         >
@@ -218,7 +218,7 @@ export function SearchableSelect({
               Locked
             </span>
           ) : (
-            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[#0284C7]" />
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-brand-primary" />
           )}
         </button>
 
@@ -260,7 +260,7 @@ export function SearchableSelect({
               width: `${coords.width}px`,
               zIndex: 99999,
             }}
-            className="rounded-sm border border-sky-100/90 bg-white p-1.5 shadow-xl animate-in fade-in-50 zoom-in-95 duration-100"
+            className="rounded-sm border border-brand-border bg-white p-1.5 shadow-xl animate-in fade-in-50 zoom-in-95 duration-100"
           >
             <div className="relative mb-1.5 flex items-center border-b border-slate-100 pb-1.5">
               <Search className="absolute left-2.5 h-3.5 w-3.5 text-slate-400" />

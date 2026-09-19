@@ -117,8 +117,8 @@ const METHOD_CONFIG: Record<
   BKASH: { label: "bKash", bg: "bg-pink-50", text: "text-pink-700", ring: "ring-pink-200", icon: Wallet },
   NAGAD: { label: "Nagad", bg: "bg-orange-50", text: "text-orange-700", ring: "ring-orange-200", icon: Wallet },
   ROCKET: { label: "Rocket", bg: "bg-purple-50", text: "text-purple-700", ring: "ring-purple-200", icon: Wallet },
-  CARD: { label: "Card / POS", bg: "bg-sky-50", text: "text-[#0284C7]", ring: "ring-sky-200", icon: CreditCard },
-  POS: { label: "POS Terminal", bg: "bg-sky-50", text: "text-[#0284C7]", ring: "ring-sky-200", icon: CreditCard },
+  CARD: { label: "Card / POS", bg: "bg-brand-50", text: "text-brand-primary", ring: "ring-brand-border", icon: CreditCard },
+  POS: { label: "POS Terminal", bg: "bg-brand-50", text: "text-brand-primary", ring: "ring-brand-border", icon: CreditCard },
   BANK_TRANSFER: { label: "Bank Transfer", bg: "bg-indigo-50", text: "text-indigo-700", ring: "ring-indigo-200", icon: Building2 },
   BANK: { label: "Bank Deposit", bg: "bg-indigo-50", text: "text-indigo-700", ring: "ring-indigo-200", icon: Building2 },
   CHEQUE: { label: "Bank Cheque", bg: "bg-amber-50", text: "text-amber-700", ring: "ring-amber-200", icon: Receipt },
@@ -131,7 +131,7 @@ const STATUS_CONFIG: Record<
   COMPLETED: { label: "Settled / Paid", bg: "bg-emerald-50 border-emerald-200", text: "text-emerald-700", dot: "bg-emerald-500" },
   REFUNDED: { label: "Refunded / Void", bg: "bg-rose-50 border-rose-200", text: "text-rose-700", dot: "bg-rose-500" },
   PENDING: { label: "Pending Processing", bg: "bg-amber-50 border-amber-200", text: "text-amber-700", dot: "bg-amber-500" },
-  FAILED: { label: "Failed / Declined", bg: "bg-slate-100 border-sky-100/90", text: "text-gray-500", dot: "bg-slate-400" },
+  FAILED: { label: "Failed / Declined", bg: "bg-slate-100 border-slate-200", text: "text-gray-500", dot: "bg-slate-400" },
 };
 
 export default function PaymentsPage() {
@@ -560,9 +560,9 @@ export default function PaymentsPage() {
               e.stopPropagation();
               toggleSelectRow(p.id);
             }}
-            className="text-slate-400 hover:text-[#0284C7] transition cursor-pointer"
+            className="text-slate-400 hover:text-brand-primary transition cursor-pointer"
           >
-            {isSelected ? <CheckSquare size={16} className="text-[#0284C7]" /> : <Square size={16} />}
+            {isSelected ? <CheckSquare size={16} className="text-brand-primary" /> : <Square size={16} />}
           </button>
         );
       },
@@ -578,7 +578,7 @@ export default function PaymentsPage() {
                 e.stopPropagation();
                 copyToClipboard(p.reference || p.id, p.id);
               }}
-              className="cursor-pointer font-mono font-bold text-gray-600 hover:text-[#0284C7] transition"
+              className="cursor-pointer font-mono font-bold text-gray-600 hover:text-brand-primary transition"
               title="Click to copy receipt #"
             >
               {p.reference || `PAY-${p.id.slice(0, 8)}`}
@@ -618,7 +618,7 @@ export default function PaymentsPage() {
         const MethodIcon = methodCfg.icon;
         return (
           <span
-            className={`inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-[11px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-sky-100/90`}
+            className={`inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-[11px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-slate-200`}
           >
             <MethodIcon size={13} />
             {methodCfg.label}
@@ -733,7 +733,7 @@ export default function PaymentsPage() {
           { label: "Finance", href: "/invoices" },
           { label: "Payments" },
         ]}
-        icon={<Wallet size={16} className="text-[#0284C7]" />}
+        icon={<Wallet size={16} className="text-brand-primary" />}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             {/* Button 1: Distinct Indigo Gradient */}
@@ -814,10 +814,10 @@ export default function PaymentsPage() {
 
       {/* 3. CHANNEL BREAKDOWN INTELLIGENCE BAR */}
       {stats?.byMethod && stats.byMethod.length > 0 && (
-        <div className="rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-2xs">
+        <div className="rounded-sm border border-slate-200 bg-white p-3.5 shadow-2xs">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#0369A1]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-brand-dark">
                 Payment Channels & Settlement Share
               </h3>
               <p className="text-[11px] text-gray-500 font-medium">Live breakdown of received revenues across payment gateways</p>
@@ -831,7 +831,7 @@ export default function PaymentsPage() {
                 return (
                   <div
                     key={bm.method}
-                    className={`flex items-center gap-2 rounded-sm px-3 py-1.5 border border-sky-100/90 ${cfg.bg}`}
+                    className={`flex items-center gap-2 rounded-sm px-3 py-1.5 border border-slate-200 ${cfg.bg}`}
                   >
                     <Icon size={14} className={cfg.text} />
                     <div className="flex items-baseline gap-1.5">
@@ -849,7 +849,7 @@ export default function PaymentsPage() {
 
       {/* 4. BATCH OPERATIONS FLOATING BAR */}
       {selectedIds.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] px-5 py-3 text-xs text-white shadow-md animate-in fade-in slide-in-from-top-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm bg-brand-gradient px-5 py-3 text-xs text-white shadow-md animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center gap-2">
             <CheckSquare size={16} className="text-white" />
             <span className="font-bold">{selectedIds.length} payment records selected</span>
@@ -866,7 +866,7 @@ export default function PaymentsPage() {
             <button
               type="button"
               onClick={() => setSelectedIds([])}
-              className="rounded-sm px-2.5 py-1.5 text-sky-100 hover:text-white transition cursor-pointer font-semibold"
+              className="rounded-sm px-2.5 py-1.5 text-white/80 hover:text-white transition cursor-pointer font-semibold"
             >
               Clear Selection
             </button>
@@ -875,9 +875,9 @@ export default function PaymentsPage() {
       )}
 
       {/* 5. MAIN UNIFIED CARD: TABS, SEARCH & FILTER TOOLBAR, TABLE (Like Invoices Page) */}
-      <div className="rounded-sm border border-sky-200/80 bg-white shadow-2xs overflow-hidden">
+      <div className="rounded-sm border border-brand-border bg-white shadow-2xs overflow-hidden">
         {/* Card Header Toolbar: Tabs, Search, View Switcher & Export */}
-        <div className="border-b border-sky-100/70 p-4 space-y-3 bg-white">
+        <div className="border-b border-slate-100 p-4 space-y-3 bg-white">
           <div className="flex flex-wrap items-center justify-between gap-3">
             {/* Tab sits on left, scrollable if too many */}
             <div className="overflow-x-auto min-w-0 shrink">
@@ -897,7 +897,7 @@ export default function PaymentsPage() {
                   setPage(1);
                 }}
                 themeColor="primary"
-                className="w-auto border border-sky-100/90 bg-white shadow-2xs"
+                className="w-auto border border-slate-200 bg-white shadow-2xs"
               />
             </div>
 
@@ -931,13 +931,13 @@ export default function PaymentsPage() {
               />
 
               {/* Table / Grid Switcher */}
-              <div className="flex items-center rounded-sm border border-sky-200/80 bg-white p-0.5 h-[34px] shadow-2xs">
+              <div className="flex items-center rounded-sm border border-brand-border bg-white p-0.5 h-[34px] shadow-2xs">
                 <button
                   type="button"
                   onClick={() => setViewMode("table")}
                   className={`rounded-sm p-1.5 h-[28px] flex items-center transition cursor-pointer ${
                     viewMode === "table"
-                      ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
+                      ? "bg-brand-50 text-brand-primary shadow-2xs font-bold"
                       : "text-gray-500 hover:text-gray-800"
                   }`}
                   title="Table View"
@@ -949,7 +949,7 @@ export default function PaymentsPage() {
                   onClick={() => setViewMode("grid")}
                   className={`rounded-sm p-1.5 h-[28px] flex items-center transition cursor-pointer ${
                     viewMode === "grid"
-                      ? "bg-sky-50 text-[#0284C7] shadow-2xs font-bold"
+                      ? "bg-brand-50 text-brand-primary shadow-2xs font-bold"
                       : "text-gray-500 hover:text-gray-800"
                   }`}
                   title="Grid Card View"
@@ -984,7 +984,7 @@ export default function PaymentsPage() {
               }}
               placeholder="All Payment Methods"
               containerClassName="w-full"
-              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-brand-border shadow-2xs"
             />
 
             {/* 2. Outlet / Branch */}
@@ -997,7 +997,7 @@ export default function PaymentsPage() {
               }}
               placeholder="All Outlets / Branches"
               containerClassName="w-full"
-              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+              className="h-[38px] text-xs font-semibold text-gray-600 bg-white border-brand-border shadow-2xs"
             />
 
             {/* 3. Date Range Filter with CustomDatePicker */}
@@ -1013,7 +1013,7 @@ export default function PaymentsPage() {
                   placeholder="From Date"
                   title="From Date"
                   clearable={true}
-                  className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+                  className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-brand-border shadow-2xs"
                 />
               </div>
               <span className="text-xs font-bold text-gray-500 shrink-0">to</span>
@@ -1029,7 +1029,7 @@ export default function PaymentsPage() {
                   title="To Date"
                   clearable={true}
                   min={startDate || undefined}
-                  className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-sky-200/80 shadow-2xs"
+                  className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 bg-white border-brand-border shadow-2xs"
                 />
               </div>
             </div>
@@ -1039,12 +1039,12 @@ export default function PaymentsPage() {
         {/* Payment Records Content (Inside the same card) */}
         {loading ? (
           <div className="flex h-64 flex-col items-center justify-center bg-white">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-sky-200 border-t-[#0284C7]" />
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-border border-t-brand-primary" />
             <p className="mt-3 text-xs font-semibold text-gray-500">Loading payment records...</p>
           </div>
         ) : payments.length === 0 ? (
           <div className="flex h-72 flex-col items-center justify-center p-8 text-center bg-white">
-            <div className="rounded-sm bg-sky-50 p-4 text-[#0284C7] border border-sky-100">
+            <div className="rounded-sm bg-brand-50 p-4 text-brand-primary border border-brand-border">
               <Receipt size={36} />
             </div>
             <h3 className="mt-3 text-sm font-bold text-gray-700">No payment records found</h3>
@@ -1068,11 +1068,11 @@ export default function PaymentsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-sky-200/80 bg-sky-50/40 text-xs font-bold capitalize text-gray-700">
+                  <tr className="border-b border-brand-border bg-slate-50 text-xs font-bold capitalize text-gray-700">
                     <th className="py-3.5 pl-4 pr-2 w-8">
                       <button onClick={toggleSelectAll} className="text-gray-400 hover:text-gray-700 cursor-pointer">
                         {selectedIds.length === payments.length && payments.length > 0 ? (
-                          <CheckSquare size={16} className="text-[#0284C7]" />
+                          <CheckSquare size={16} className="text-brand-primary" />
                         ) : (
                           <Square size={16} />
                         )}
@@ -1101,7 +1101,7 @@ export default function PaymentsPage() {
                         key={p.id}
                         onClick={() => setSelectedPaymentForDrawer(p)}
                         className={`group transition cursor-pointer ${
-                          isSelected ? "bg-sky-50/30" : "hover:bg-slate-50/70"
+                          isSelected ? "bg-brand-50/30" : "hover:bg-slate-50/70"
                         }`}
                       >
                         {/* Checkbox */}
@@ -1111,7 +1111,7 @@ export default function PaymentsPage() {
                             onClick={() => toggleSelectRow(p.id)}
                             className="text-gray-400 hover:text-gray-700 cursor-pointer"
                           >
-                            {isSelected ? <CheckSquare size={16} className="text-[#0284C7]" /> : <Square size={16} />}
+                            {isSelected ? <CheckSquare size={16} className="text-brand-primary" /> : <Square size={16} />}
                           </button>
                         </td>
 
@@ -1124,7 +1124,7 @@ export default function PaymentsPage() {
                                   e.stopPropagation();
                                   copyToClipboard(p.reference || p.id, p.id);
                                 }}
-                                className="cursor-pointer font-mono font-bold text-gray-700 hover:text-[#0284C7] transition"
+                                className="cursor-pointer font-mono font-bold text-gray-700 hover:text-brand-primary transition"
                                 title="Click to copy receipt #"
                               >
                                 {p.reference || `PAY-${p.id.slice(0, 8)}`}
@@ -1158,7 +1158,7 @@ export default function PaymentsPage() {
                         {/* Payment Method */}
                         <td className="px-3 py-3.5">
                           <span
-                            className={`inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-[11px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-sky-100/90`}
+                            className={`inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-[11px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-slate-200`}
                           >
                             <MethodIcon size={13} />
                             {methodCfg.label}
@@ -1241,7 +1241,7 @@ export default function PaymentsPage() {
             </div>
 
             {/* Pagination footer */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-sky-100/70 px-4 py-3 bg-sky-50/20 text-xs text-gray-600 font-medium">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 bg-slate-50/40 text-xs text-gray-600 font-medium">
               <span>
                 Showing Page {page} of {totalPages} ({totalRecords} total records)
               </span>
@@ -1278,17 +1278,17 @@ export default function PaymentsPage() {
                 return (
                   <div
                     key={p.id}
-                    className="group flex flex-col justify-between rounded-sm border border-sky-100/90 bg-white p-4 shadow-2xs transition hover:border-[#0284C7] hover:shadow-md"
+                    className="group flex flex-col justify-between rounded-sm border border-slate-200 bg-white p-4 shadow-2xs transition hover:border-brand-primary hover:shadow-md"
                   >
                     <div>
                       {/* Top row */}
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <div className="font-mono text-sm font-bold text-[#0369A1]">
+                          <div className="font-mono text-sm font-bold text-brand-dark">
                             {p.reference || `PAY-${p.id.slice(0, 8)}`}
                           </div>
                           <span
-                            className={`mt-1 inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-sky-100/80`}
+                            className={`mt-1 inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-slate-200`}
                           >
                             <MethodIcon size={12} />
                             {methodCfg.label}
@@ -1303,7 +1303,7 @@ export default function PaymentsPage() {
                       </div>
 
                       {/* Customer Info */}
-                      <div className="mt-3.5 rounded-sm bg-slate-50 p-2.5 border border-sky-100/70">
+                      <div className="mt-3.5 rounded-sm bg-slate-50 p-2.5 border border-slate-100">
                         <p className="text-[10px] font-bold text-gray-500 capitalize">Customer</p>
                         <p className="text-xs font-bold text-gray-600 mt-0.5">{p.customer?.name || "Walk-in Customer"}</p>
                         {p.customer?.phone && <p className="text-[11px] text-gray-500">{p.customer.phone}</p>}
@@ -1323,7 +1323,7 @@ export default function PaymentsPage() {
                     </div>
 
                     {/* Bottom Action Footer */}
-                    <div className="mt-4 flex items-center justify-between border-t border-sky-100/70 pt-2.5 text-xs">
+                    <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-2.5 text-xs">
                       <span className="text-[11px] text-gray-500">
                         {new Date(p.createdAt).toLocaleDateString()}
                       </span>
@@ -1357,7 +1357,7 @@ export default function PaymentsPage() {
             </div>
 
             {/* Pagination footer for Grid */}
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-sky-100/90 bg-white px-4 py-2.5 text-xs text-gray-600 shadow-2xs font-medium">
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-slate-200 bg-white px-4 py-2.5 text-xs text-gray-600 shadow-2xs font-medium">
               <span>
                 Showing Page {page} of {totalPages} ({totalRecords} total records)
               </span>
@@ -1448,7 +1448,7 @@ export default function PaymentsPage() {
               placeholder="0.00"
               value={recordForm.amount}
               onChange={(e) => setRecordForm((p) => ({ ...p, amount: e.target.value }))}
-              className="w-full rounded-sm border border-sky-200 p-3 text-base font-black text-[#0369A1] focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20"
+              className="w-full rounded-sm border border-brand-border p-3 text-base font-black text-brand-dark focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20"
             />
           </div>
 
@@ -1473,11 +1473,11 @@ export default function PaymentsPage() {
                     onClick={() => setRecordForm((p) => ({ ...p, method: m.id }))}
                     className={`flex items-center gap-2 rounded-sm p-2.5 text-xs font-bold border transition cursor-pointer ${
                       active
-                        ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white border-[#0284C7] shadow-xs"
-                        : "bg-white border-sky-100/90 text-gray-600 hover:bg-sky-50/50"
+                        ? "bg-brand-gradient text-white border-brand-primary shadow-xs"
+                        : "bg-white border-slate-200 text-gray-600 hover:bg-slate-50"
                     }`}
                   >
-                    <Icon size={15} className={active ? "text-white" : "text-[#0284C7]"} />
+                    <Icon size={15} className={active ? "text-white" : "text-brand-primary"} />
                     <span>{m.label}</span>
                   </button>
                 );
@@ -1494,7 +1494,7 @@ export default function PaymentsPage() {
                 placeholder="Auto-generated if empty"
                 value={recordForm.reference}
                 onChange={(e) => setRecordForm((p) => ({ ...p, reference: e.target.value }))}
-                className="w-full rounded-sm border border-sky-200 p-2.5 text-xs text-gray-600 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20"
+                className="w-full rounded-sm border border-brand-border p-2.5 text-xs text-gray-600 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20"
               />
             </div>
 
@@ -1517,12 +1517,12 @@ export default function PaymentsPage() {
               value={recordForm.note}
               onChange={(e) => setRecordForm((p) => ({ ...p, note: e.target.value }))}
               placeholder="Additional settlement remarks..."
-              className="w-full rounded-sm border border-sky-200 p-2 text-xs text-gray-600 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20"
+              className="w-full rounded-sm border border-brand-border p-2 text-xs text-gray-600 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20"
             />
           </div>
 
           {/* Modal Actions */}
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-sky-100/80">
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200">
             <CustomButton
               type="button"
               variant="danger"
@@ -1563,12 +1563,12 @@ export default function PaymentsPage() {
                 <RotateCcw size={20} />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[#0369A1]">Reverse Transaction & Balance</h3>
+                <h3 className="text-sm font-bold text-brand-dark">Reverse Transaction & Balance</h3>
                 <p className="text-[11px] text-gray-500">Restores customer balance and voids this receipt.</p>
               </div>
             </div>
 
-            <div className="rounded-sm bg-slate-50 p-3.5 space-y-2 border border-sky-100/90">
+            <div className="rounded-sm bg-slate-50 p-3.5 space-y-2 border border-slate-200">
               <div className="flex justify-between">
                 <span className="text-gray-500 font-medium">Receipt Ref:</span>
                 <span className="font-mono font-bold text-gray-600">
@@ -1594,7 +1594,7 @@ export default function PaymentsPage() {
               {Number(selectedPaymentForRefund.amount).toLocaleString()} to the customer's open due balance.
             </p>
 
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-sky-100/80">
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200">
               <CustomButton
                 type="button"
                 variant="outline"
@@ -1645,7 +1645,7 @@ export default function PaymentsPage() {
                 value={allocAmount || ""}
                 onChange={(e) => setAllocAmount(Number(e.target.value))}
                 placeholder="e.g. 5000"
-                className="w-full rounded-sm border border-sky-200 p-2 text-xs font-black text-[#0369A1] focus:border-[#0284C7] focus:outline-none"
+                className="w-full rounded-sm border border-brand-border p-2 text-xs font-black text-brand-dark focus:border-brand-primary focus:outline-none"
               />
             </div>
           </div>
@@ -1667,7 +1667,7 @@ export default function PaymentsPage() {
                 value={allocRef}
                 onChange={(e) => setAllocRef(e.target.value)}
                 placeholder="Transaction ID or Cheque #"
-                className="w-full rounded-sm border border-sky-200 p-2 text-xs text-gray-600 focus:border-[#0284C7] focus:outline-none"
+                className="w-full rounded-sm border border-brand-border p-2 text-xs text-gray-600 focus:border-brand-primary focus:outline-none"
               />
             </div>
           </div>
@@ -1675,7 +1675,7 @@ export default function PaymentsPage() {
           {/* Invoices to allocate table */}
           <div className="mt-2">
             <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
-              <span className="font-bold text-[#0369A1]">Unpaid Invoices for Allocation</span>
+              <span className="font-bold text-brand-dark">Unpaid Invoices for Allocation</span>
               {allocRows.length > 0 && (
                 <CustomButton
                   type="button"
@@ -1690,14 +1690,14 @@ export default function PaymentsPage() {
             </div>
 
             {allocRows.length === 0 ? (
-              <div className="rounded-sm border border-dashed border-sky-200 py-8 text-center text-gray-500 font-medium">
+              <div className="rounded-sm border border-dashed border-brand-border py-8 text-center text-gray-500 font-medium">
                 {allocCustId ? "No unpaid invoices found for this customer" : "Select a customer to view open invoices"}
               </div>
             ) : (
-              <div className="max-h-60 overflow-y-auto rounded-sm border border-sky-100/90">
+              <div className="max-h-60 overflow-y-auto rounded-sm border border-slate-200">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-sky-100/90 bg-sky-50/50 text-[10px] font-bold uppercase text-gray-500">
+                    <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-bold uppercase text-gray-500">
                       <th className="py-2 pl-3">Invoice #</th>
                       <th className="py-2 text-right">Total</th>
                       <th className="py-2 text-right">Paid</th>
@@ -1705,9 +1705,9 @@ export default function PaymentsPage() {
                       <th className="py-2 pr-3 text-right w-32">Allocate (৳)</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-sky-100/70">
+                  <tbody className="divide-y divide-slate-100">
                     {allocRows.map((r, idx) => (
-                      <tr key={r.invoiceId} className="bg-white hover:bg-sky-50/30 transition">
+                      <tr key={r.invoiceId} className="bg-white hover:bg-brand-50/30 transition">
                         <td className="py-2 pl-3 font-mono font-bold text-gray-600">{r.invoiceNo}</td>
                         <td className="py-2 text-right text-gray-600">৳{r.total.toLocaleString()}</td>
                         <td className="py-2 text-right text-emerald-600">৳{r.paidTotal.toLocaleString()}</td>
@@ -1724,7 +1724,7 @@ export default function PaymentsPage() {
                               updated[idx].allocated = val;
                               setAllocRows(updated);
                             }}
-                            className="w-24 rounded-sm border border-sky-200 p-1 text-right text-xs font-bold text-[#0284C7] focus:border-[#0284C7] focus:outline-none"
+                            className="w-24 rounded-sm border border-brand-border p-1 text-right text-xs font-bold text-brand-primary focus:border-brand-primary focus:outline-none"
                           />
                         </td>
                       </tr>
@@ -1735,10 +1735,10 @@ export default function PaymentsPage() {
             )}
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-sky-100/80">
-            <div className="h-[36px] flex items-center gap-2 rounded-sm border border-sky-200/90 bg-white px-3 shadow-2xs">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200">
+            <div className="h-[36px] flex items-center gap-2 rounded-sm border border-brand-border bg-white px-3 shadow-2xs">
               <span className="text-xs font-bold capitalize text-gray-600">Total Allocated:</span>
-              <span className="text-xs font-black text-[#0369A1]">
+              <span className="text-xs font-black text-brand-dark">
                 ৳{allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0).toLocaleString()}
               </span>
               <span className="text-gray-300 font-bold">/</span>
@@ -1785,11 +1785,11 @@ export default function PaymentsPage() {
         >
           <div className="space-y-4 text-xs text-gray-600">
             {/* Receipt Amount Hero */}
-            <div className="rounded-sm border border-sky-200 bg-gradient-to-br from-sky-50 via-white to-sky-100/50 p-5 text-center shadow-2xs">
+            <div className="rounded-sm border border-brand-border bg-gradient-to-br from-brand-50 via-white to-brand-50/50 p-5 text-center shadow-2xs">
               <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
                 Collected Amount
               </span>
-              <div className="mt-1 text-3xl font-black text-[#0369A1]">
+              <div className="mt-1 text-3xl font-black text-brand-dark">
                 ৳{Number(selectedPaymentForDrawer.amount).toLocaleString()}
               </div>
               <div className="mt-2 flex items-center justify-center gap-2">
@@ -1815,8 +1815,8 @@ export default function PaymentsPage() {
             </div>
 
             {/* Client Details */}
-            <div className="rounded-sm bg-white p-4 space-y-2 border border-sky-100/90 shadow-2xs">
-              <span className="font-bold text-[#0369A1] uppercase text-[10px] tracking-wider">
+            <div className="rounded-sm bg-white p-4 space-y-2 border border-slate-200 shadow-2xs">
+              <span className="font-bold text-brand-dark uppercase text-[10px] tracking-wider">
                 Client / Payer Details
               </span>
               <p className="text-sm font-bold text-gray-600">
@@ -1824,7 +1824,7 @@ export default function PaymentsPage() {
               </p>
               {selectedPaymentForDrawer.customer?.phone && (
                 <p className="flex items-center gap-1 text-gray-500">
-                  <Phone size={13} className="text-[#0284C7]" /> {selectedPaymentForDrawer.customer.phone}
+                  <Phone size={13} className="text-brand-primary" /> {selectedPaymentForDrawer.customer.phone}
                 </p>
               )}
               {selectedPaymentForDrawer.customer?.address && (
@@ -1834,13 +1834,13 @@ export default function PaymentsPage() {
 
             {/* Target Invoice */}
             {selectedPaymentForDrawer.invoice && (
-              <div className="rounded-sm bg-white p-4 space-y-2 border border-sky-100/90 shadow-2xs">
-                <span className="font-bold text-[#0369A1] uppercase text-[10px] tracking-wider">Target Invoice</span>
+              <div className="rounded-sm bg-white p-4 space-y-2 border border-slate-200 shadow-2xs">
+                <span className="font-bold text-brand-dark uppercase text-[10px] tracking-wider">Target Invoice</span>
                 <div className="flex justify-between items-center">
                   <span className="font-mono font-bold text-gray-600">
                     {selectedPaymentForDrawer.invoice.invoiceNo}
                   </span>
-                  <span className="font-bold text-[#0284C7]">
+                  <span className="font-bold text-brand-primary">
                     ৳{Number(selectedPaymentForDrawer.invoice.total || 0).toLocaleString()}
                   </span>
                 </div>
@@ -1848,8 +1848,8 @@ export default function PaymentsPage() {
             )}
 
             {/* Audit & Trace */}
-            <div className="rounded-sm border border-sky-100/90 bg-slate-50/70 p-4 space-y-2 text-xs">
-              <span className="font-bold text-[#0369A1] uppercase text-[10px] tracking-wider">Audit & Trace</span>
+            <div className="rounded-sm border border-slate-200 bg-slate-50/70 p-4 space-y-2 text-xs">
+              <span className="font-bold text-brand-dark uppercase text-[10px] tracking-wider">Audit & Trace</span>
               <div className="flex justify-between text-gray-600">
                 <span className="text-gray-500">Transaction ID:</span>
                 <span className="font-mono">{selectedPaymentForDrawer.id}</span>
@@ -1867,7 +1867,7 @@ export default function PaymentsPage() {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between pt-3 border-t border-sky-100/80">
+            <div className="flex items-center justify-between pt-3 border-t border-slate-200">
               <CustomButton
                 type="button"
                 variant="outline"

@@ -399,7 +399,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
             size="sm"
             onClick={load}
             disabled={loading}
-            className="border-sky-100/90 bg-white hover:bg-slate-50 shadow-xs"
+            className="border-slate-200 bg-white hover:bg-slate-50 shadow-xs"
           >
             <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
             <span>Refresh</span>
@@ -408,7 +408,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
           <CustomButton
             size="sm"
             onClick={openNew}
-            className="bg-primary-600 hover:bg-primary-700 text-white shadow-xs"
+            className="bg-primary-600 hover:opacity-90 text-white shadow-xs"
           >
             <Plus size={14} />
             <span>New Approval Rule</span>
@@ -431,7 +431,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
             <button
               key={p.name}
               onClick={() => applyPreset(p)}
-              className="group flex flex-col justify-between rounded-xl border border-dashed border-sky-100/90 bg-white p-3.5 text-left shadow-xs transition hover:border-primary-400 hover:bg-primary-50/20 hover:shadow-sm"
+              className="group flex flex-col justify-between rounded-xl border border-dashed border-slate-200 bg-white p-3.5 text-left shadow-xs transition hover:border-primary-400 hover:bg-primary-50/20 hover:shadow-sm"
             >
               <div>
                 <div className="flex items-center justify-between">
@@ -454,7 +454,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-sky-100/90 bg-white p-3.5 shadow-xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-slate-200 bg-white p-3.5 shadow-xs">
         <div className="flex items-center gap-2">
           <CustomSelect
             value={filterEntity}
@@ -480,7 +480,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
             <p className="mt-2 text-xs font-medium text-slate-500">Loading workflow rules…</p>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-sm border-2 border-dashed border-sky-100/90 bg-white p-12 text-center">
+          <div className="rounded-sm border-2 border-dashed border-slate-200 bg-white p-12 text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
               <GitBranch size={22} />
             </div>
@@ -490,7 +490,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
             </p>
             <button
               onClick={openNew}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-primary-700"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:opacity-90"
             >
               <Plus size={14} /> Create Your First Rule
             </button>
@@ -506,14 +506,14 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
             return (
               <div
                 key={t.id}
-                className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-xs hover:shadow-md transition-all"
+                className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-xs hover:shadow-md transition-all"
               >
                 {/* Card Header Strip */}
                 <div className="flex flex-wrap items-center justify-between gap-3 p-4">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <button
                       onClick={() => setExpanded((e) => ({ ...e, [t.id]: !isOpen }))}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-sky-100/90 text-slate-500 hover:bg-slate-50 transition"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition"
                     >
                       {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                     </button>
@@ -528,7 +528,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
                           className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
                             t.isActive
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : "bg-slate-100 text-slate-400 border border-sky-100/90"
+                              : "bg-slate-100 text-slate-400 border border-slate-200"
                           }`}
                         >
                           <CircleDot size={8} /> {t.isActive ? "ACTIVE" : "PAUSED"}
@@ -549,20 +549,20 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => toggleActive(t)}
-                      className="rounded-lg border border-sky-100/90 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
+                      className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
                     >
                       {t.isActive ? "Pause" : "Activate"}
                     </button>
                     <button
                       onClick={() => duplicateRule(t)}
                       title="Duplicate rule"
-                      className="rounded-lg border border-sky-100/90 bg-white p-1.5 text-xs font-semibold text-slate-600 shadow-xs hover:bg-slate-50 transition"
+                      className="rounded-lg border border-slate-200 bg-white p-1.5 text-xs font-semibold text-slate-600 shadow-xs hover:bg-slate-50 transition"
                     >
                       <Copy size={13} />
                     </button>
                     <button
                       onClick={() => openEdit(t)}
-                      className="rounded-lg border border-sky-100/90 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
+                      className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
                     >
                       <Edit3 size={12} className="inline mr-1" /> Edit
                     </button>
@@ -599,8 +599,8 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
                       {/* Tier Nodes */}
                       {t.levels.map((l, i) => (
                         <div key={i} className="flex items-center gap-2">
-                          <div className="flex items-center gap-2.5 rounded-xl border border-sky-100/90 bg-white p-2.5 shadow-xs">
-                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 font-bold text-xs text-slate-700 border border-sky-100/90">
+                          <div className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white p-2.5 shadow-xs">
+                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 font-bold text-xs text-slate-700 border border-slate-200">
                               L{l.level}
                             </div>
                             <div>
@@ -660,7 +660,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
           />
 
           {/* Condition Builder */}
-          <div className="rounded-xl border border-sky-100/90 bg-slate-50/50 p-3.5 space-y-2">
+          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 space-y-2">
             <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
               <SlidersHorizontal size={13} className="text-primary-600" />
               Evaluation Threshold Condition
@@ -702,7 +702,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
           </div>
 
           {/* Multi-Tier Chain Builder */}
-          <div className="rounded-xl border border-sky-100/90 bg-white p-3.5 space-y-3">
+          <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                 <GitBranch size={13} className="text-primary-600" />
@@ -771,7 +771,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
             <CustomButton variant="outline" onClick={() => setShowForm(false)}>
               Cancel
             </CustomButton>
-            <CustomButton onClick={save} disabled={saving} className="bg-primary-600 hover:bg-primary-700 text-white">
+            <CustomButton onClick={save} disabled={saving} className="bg-primary-600 hover:opacity-90 text-white">
               {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
               <span>{editing ? "Save Rule Changes" : "Create Approval Rule"}</span>
             </CustomButton>

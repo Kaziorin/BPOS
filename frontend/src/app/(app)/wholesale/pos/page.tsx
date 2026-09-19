@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { ShoppingBag } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -636,7 +635,7 @@ function WholesalePOSInner() {
           >
             {loading ? (
               <div className="flex flex-1 items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
               </div>
             ) : (
               <WholesalePOSLeftPanel

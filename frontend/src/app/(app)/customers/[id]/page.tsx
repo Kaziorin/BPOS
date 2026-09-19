@@ -111,7 +111,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center p-6">
-        <Loader2 size={28} className="animate-spin text-[#0284C7] mb-2" />
+        <Loader2 size={28} className="animate-spin text-brand-primary mb-2" />
         <p className="text-xs font-semibold text-gray-500">Loading customer profile...</p>
       </div>
     );
@@ -121,7 +121,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
   if (!customer) {
     return (
       <div className="flex min-h-[70vh] items-center justify-center p-4">
-        <div className="w-full max-w-md rounded-sm border border-sky-100/90 bg-white p-8 text-center shadow-md">
+        <div className="w-full max-w-md rounded-sm border border-slate-200 bg-white p-8 text-center shadow-md">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-sm bg-amber-50 text-amber-600 border border-amber-200/80 mb-3.5 shadow-2xs">
             <AlertTriangle size={28} />
           </div>
@@ -147,8 +147,8 @@ export default function CustomerDetailPage({ params }: PageProps) {
   const segBadgeMap: Record<string, { bg: string; text: string; label: string }> = {
     VIP: { bg: "bg-amber-50 text-amber-700 border-amber-300", text: "text-amber-700", label: "VIP Customer" },
     HIGH_VALUE: { bg: "bg-purple-50 text-purple-700 border-purple-300", text: "text-purple-700", label: "High Value" },
-    REGULAR: { bg: "bg-sky-50 text-[#0284C7] border-sky-300", text: "text-[#0284C7]", label: "Regular" },
-    NEW: { bg: "bg-sky-50 text-[#0369A1] border-sky-300", text: "text-[#0369A1]", label: "New Customer" },
+    REGULAR: { bg: "bg-brand-50 text-brand-primary border-brand-border", text: "text-brand-primary", label: "Regular" },
+    NEW: { bg: "bg-brand-50 text-brand-dark border-brand-border", text: "text-brand-dark", label: "New Customer" },
     WHOLESALE: { bg: "bg-indigo-50 text-indigo-700 border-indigo-300", text: "text-indigo-700", label: "Wholesale" },
     CORPORATE: { bg: "bg-emerald-50 text-emerald-700 border-emerald-300", text: "text-emerald-700", label: "Corporate" },
     AT_RISK: { bg: "bg-rose-50 text-rose-700 border-rose-300", text: "text-rose-700", label: "At Risk" },
@@ -165,8 +165,8 @@ export default function CustomerDetailPage({ params }: PageProps) {
   };
 
   const inputClass =
-    "w-full rounded-sm border border-sky-200/90 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs";
-  const labelClass = "block text-xs font-semibold text-[#0369A1] mb-1.5";
+    "w-full rounded-sm border border-brand-border bg-white px-3.5 py-2 text-xs font-bold text-gray-700 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border shadow-2xs";
+  const labelClass = "block text-xs font-semibold text-brand-dark mb-1.5";
 
   const tabs = [
     { key: "details", label: "Profile & Settings" },
@@ -192,9 +192,9 @@ export default function CustomerDetailPage({ params }: PageProps) {
               variant="outline"
               size="sm"
               onClick={() => router.push("/customers")}
-              className="border-sky-200/90 bg-white text-[#0369A1] hover:bg-sky-50 font-bold shadow-2xs"
+              className="border-brand-border bg-white text-brand-dark hover:bg-brand-50/50 font-bold shadow-2xs"
             >
-              <ArrowLeft size={14} className="text-[#0284C7]" />
+              <ArrowLeft size={14} className="text-brand-primary" />
               Back to List
             </CustomButton>
 
@@ -235,10 +235,10 @@ export default function CustomerDetailPage({ params }: PageProps) {
       />
 
       {/* ── Profile Header Card ── */}
-      <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs">
+      <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-sm bg-gradient-to-br from-sky-100 to-sky-50 text-[#0284C7] border border-sky-300 font-black text-lg shadow-2xs">
+            <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-sm bg-gradient-to-br from-brand-50 to-white text-brand-primary border border-brand-border font-black text-lg shadow-2xs">
               {getInitials(customer.name)}
             </div>
             <div>
@@ -266,9 +266,9 @@ export default function CustomerDetailPage({ params }: PageProps) {
             {customer.phone && (
               <a
                 href={`tel:${customer.phone}`}
-                className="inline-flex items-center gap-1.5 rounded-sm border border-sky-200 bg-sky-50 text-[#0284C7] px-3.5 py-2 text-xs font-bold hover:bg-sky-100 hover:text-[#0369A1] transition shadow-2xs"
+                className="inline-flex items-center gap-1.5 rounded-sm border border-brand-border bg-brand-50 text-brand-primary px-3.5 py-2 text-xs font-bold hover:bg-brand-50 hover:text-brand-dark transition shadow-2xs"
               >
-                <Phone size={13} className="text-[#0284C7]" /> {customer.phone}
+                <Phone size={13} className="text-brand-primary" /> {customer.phone}
               </a>
             )}
             {customer.phone && (
@@ -284,9 +284,9 @@ export default function CustomerDetailPage({ params }: PageProps) {
             {customer.email && (
               <a
                 href={`mailto:${customer.email}`}
-                className="inline-flex items-center gap-1.5 rounded-sm border border-sky-200 bg-sky-50 text-[#0284C7] px-3.5 py-2 text-xs font-bold hover:bg-sky-100 hover:text-[#0369A1] transition shadow-2xs"
+                className="inline-flex items-center gap-1.5 rounded-sm border border-brand-border bg-brand-50 text-brand-primary px-3.5 py-2 text-xs font-bold hover:bg-brand-50 hover:text-brand-dark transition shadow-2xs"
               >
-                <Mail size={13} className="text-[#0284C7]" /> Email
+                <Mail size={13} className="text-brand-primary" /> Email
               </a>
             )}
           </div>
@@ -329,15 +329,15 @@ export default function CustomerDetailPage({ params }: PageProps) {
       </div>
 
       {/* ── Tabs Bar ── */}
-      <div className="flex border-b border-sky-200/90 bg-white rounded-sm px-3 shadow-2xs overflow-x-auto">
+      <div className="flex border-b border-brand-border bg-white rounded-sm px-3 shadow-2xs overflow-x-auto">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setActiveTab(t.key as any)}
             className={`border-b-2 py-2.5 px-4 text-xs font-bold transition cursor-pointer whitespace-nowrap ${
               activeTab === t.key
-                ? "border-[#0284C7] text-[#0284C7]"
-                : "border-transparent text-gray-500 hover:text-[#0284C7]"
+                ? "border-brand-primary text-brand-primary"
+                : "border-transparent text-gray-500 hover:text-brand-primary"
             }`}
           >
             {t.label}
@@ -351,13 +351,13 @@ export default function CustomerDetailPage({ params }: PageProps) {
         {activeTab === "details" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Contact & Personal */}
-            <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
-              <div className="flex items-center gap-2 border-b border-sky-100/80 pb-3">
-                <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-sky-100 text-[#0284C7]">
+            <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-brand-50 text-brand-primary">
                   <User size={15} />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-[#0369A1]">Contact & Personal Information</h3>
+                  <h3 className="text-xs font-bold text-brand-dark">Contact & Personal Information</h3>
                   <p className="text-[11px] text-gray-400 font-medium">Customer contact details and primary address</p>
                 </div>
               </div>
@@ -374,8 +374,8 @@ export default function CustomerDetailPage({ params }: PageProps) {
                       placeholder="Enter customer name"
                     />
                   ) : (
-                    <div className="flex items-center gap-2.5 rounded-sm border border-sky-200/80 bg-sky-50/50 px-3.5 py-2 text-xs font-bold text-gray-700 shadow-2xs min-h-[38px]">
-                      <User size={14} className="text-[#0284C7] shrink-0" />
+                    <div className="flex items-center gap-2.5 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 shadow-2xs min-h-[38px]">
+                      <User size={14} className="text-brand-primary shrink-0" />
                       <span className="text-sm font-black text-gray-700">{customer.name}</span>
                     </div>
                   )}
@@ -393,9 +393,9 @@ export default function CustomerDetailPage({ params }: PageProps) {
                         placeholder="e.g. 017xxxxxxxx"
                       />
                     ) : (
-                      <div className="flex items-center justify-between gap-2 rounded-sm border border-sky-200/80 bg-sky-50/50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
+                      <div className="flex items-center justify-between gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
                         <div className="flex items-center gap-2 min-w-0">
-                          <Phone size={14} className="text-[#0284C7] shrink-0" />
+                          <Phone size={14} className="text-brand-primary shrink-0" />
                           {customer.phone ? (
                             <span className="font-bold text-gray-700 tabular-nums">{customer.phone}</span>
                           ) : (
@@ -427,8 +427,8 @@ export default function CustomerDetailPage({ params }: PageProps) {
                         placeholder="e.g. customer@example.com"
                       />
                     ) : (
-                      <div className="flex items-center gap-2 rounded-sm border border-sky-200/80 bg-sky-50/50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
-                        <Mail size={14} className="text-[#0284C7] shrink-0" />
+                      <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
+                        <Mail size={14} className="text-brand-primary shrink-0" />
                         {customer.email ? (
                           <span className="font-bold text-gray-700 truncate">{customer.email}</span>
                         ) : (
@@ -451,8 +451,8 @@ export default function CustomerDetailPage({ params }: PageProps) {
                         placeholder="e.g. Dhaka"
                       />
                     ) : (
-                      <div className="flex items-center gap-2 rounded-sm border border-sky-200/80 bg-sky-50/50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
-                        <Building size={14} className="text-[#0284C7] shrink-0" />
+                      <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
+                        <Building size={14} className="text-brand-primary shrink-0" />
                         {customer.city ? (
                           <span className="font-bold text-gray-700">{customer.city}</span>
                         ) : (
@@ -473,8 +473,8 @@ export default function CustomerDetailPage({ params }: PageProps) {
                         placeholder="e.g. 1234567890"
                       />
                     ) : (
-                      <div className="flex items-center gap-2 rounded-sm border border-sky-200/80 bg-sky-50/50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
-                        <FileText size={14} className="text-[#0284C7] shrink-0" />
+                      <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
+                        <FileText size={14} className="text-brand-primary shrink-0" />
                         {customer.taxRegNo ? (
                           <span className="font-bold text-gray-700 font-mono">{customer.taxRegNo}</span>
                         ) : (
@@ -496,8 +496,8 @@ export default function CustomerDetailPage({ params }: PageProps) {
                       placeholder="Full delivery / billing address"
                     />
                   ) : (
-                    <div className="flex items-start gap-2.5 rounded-sm border border-sky-200/80 bg-sky-50/50 px-3.5 py-2.5 text-xs shadow-2xs min-h-[50px]">
-                      <MapPin size={14} className="text-[#0284C7] shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-2.5 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2.5 text-xs shadow-2xs min-h-[50px]">
+                      <MapPin size={14} className="text-brand-primary shrink-0 mt-0.5" />
                       {customer.address ? (
                         <span className="font-bold text-gray-700 leading-relaxed">{customer.address}</span>
                       ) : (
@@ -510,13 +510,13 @@ export default function CustomerDetailPage({ params }: PageProps) {
             </div>
 
             {/* Classification & Credit */}
-            <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
-              <div className="flex items-center gap-2 border-b border-sky-100/80 pb-3">
-                <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-sky-100 text-[#0284C7]">
+            <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-brand-50 text-brand-primary">
                   <Award size={15} />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-[#0369A1]">Classification & Credit Terms</h3>
+                  <h3 className="text-xs font-bold text-brand-dark">Classification & Credit Terms</h3>
                   <p className="text-[11px] text-gray-400 font-medium">CRM tiering, account status, credit limit & grace period</p>
                 </div>
               </div>
@@ -540,7 +540,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                         <option value="AT_RISK">At Risk</option>
                       </select>
                     ) : (
-                      <div className="flex items-center gap-2 rounded-sm border border-sky-200/80 bg-sky-50/50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
+                      <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
                         <span className={`inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-xs font-bold border ${seg.bg}`}>
                           <Award size={13} />
                           {seg.label}
@@ -561,7 +561,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                         <option value="INACTIVE">INACTIVE</option>
                       </select>
                     ) : (
-                      <div className="flex items-center gap-2 rounded-sm border border-sky-200/80 bg-sky-50/50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
+                      <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
                         <span className={`inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-xs font-bold border ${
                           customer.status === "ACTIVE"
                             ? "bg-emerald-50 text-emerald-700 border-emerald-300"
@@ -586,8 +586,8 @@ export default function CustomerDetailPage({ params }: PageProps) {
                         className={inputClass}
                       />
                     ) : (
-                      <div className="flex items-center gap-2 rounded-sm border border-sky-200/80 bg-sky-50/50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
-                        <CreditCard size={14} className="text-[#0284C7] shrink-0" />
+                      <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
+                        <CreditCard size={14} className="text-brand-primary shrink-0" />
                         <span className="font-black text-gray-700 tabular-nums">৳{Number(customer.creditLimit || 0).toLocaleString()}</span>
                       </div>
                     )}
@@ -604,8 +604,8 @@ export default function CustomerDetailPage({ params }: PageProps) {
                         placeholder="e.g. 30"
                       />
                     ) : (
-                      <div className="flex items-center gap-2 rounded-sm border border-sky-200/80 bg-sky-50/50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
-                        <Clock size={14} className="text-[#0284C7] shrink-0" />
+                      <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
+                        <Clock size={14} className="text-brand-primary shrink-0" />
                         {customer.creditPeriodDays ? (
                           <span className="font-bold text-gray-700 tabular-nums">{customer.creditPeriodDays} Days</span>
                         ) : (
@@ -627,8 +627,8 @@ export default function CustomerDetailPage({ params }: PageProps) {
                       placeholder="Special instructions, preferences, customer history..."
                     />
                   ) : (
-                    <div className="flex items-start gap-2.5 rounded-sm border border-sky-200/80 bg-sky-50/50 p-3.5 text-xs shadow-2xs min-h-[70px]">
-                      <FileText size={15} className="text-[#0284C7] shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-2.5 rounded-sm border border-brand-border bg-slate-50 p-3.5 text-xs shadow-2xs min-h-[70px]">
+                      <FileText size={15} className="text-brand-primary shrink-0 mt-0.5" />
                       {customer.notes ? (
                         <p className="font-semibold text-gray-700 leading-relaxed whitespace-pre-wrap">{customer.notes}</p>
                       ) : (
@@ -644,32 +644,32 @@ export default function CustomerDetailPage({ params }: PageProps) {
 
         {/* Tab 2: Purchase History */}
         {activeTab === "purchases" && (
-          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
-            <div className="flex items-center justify-between border-b border-sky-100/80 pb-3">
+          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-sky-100 text-[#0284C7]">
+                <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-brand-50 text-brand-primary">
                   <ShoppingBag size={15} />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-[#0369A1]">Recent Invoices & Orders</h3>
+                  <h3 className="text-xs font-bold text-brand-dark">Recent Invoices & Orders</h3>
                   <p className="text-[11px] text-gray-400 font-medium">Detailed log of transactions and purchases</p>
                 </div>
               </div>
-              <span className="text-xs font-bold text-gray-500 bg-sky-50 px-2.5 py-1 rounded-sm border border-sky-200/80">
+              <span className="text-xs font-bold text-gray-500 bg-brand-50 px-2.5 py-1 rounded-sm border border-brand-border">
                 {customer.recentSales?.length || 0} Records
               </span>
             </div>
 
             {customer.recentSales && customer.recentSales.length > 0 ? (
-              <div className="divide-y divide-sky-100/80">
+              <div className="divide-y divide-slate-100">
                 {customer.recentSales.map((sale: any) => (
-                  <div key={sale.id} className="py-3 flex items-center justify-between text-xs hover:bg-sky-50/40 px-2 rounded-sm transition">
+                  <div key={sale.id} className="py-3 flex items-center justify-between text-xs hover:bg-brand-50/40 px-2 rounded-sm transition">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-sky-50 text-[#0284C7] border border-sky-200/80 shadow-2xs">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border shadow-2xs">
                         <ShoppingBag size={15} />
                       </div>
                       <div>
-                        <p className="font-bold text-[#0369A1]">{sale.invoiceNo}</p>
+                        <p className="font-bold text-brand-dark">{sale.invoiceNo}</p>
                         <p className="text-[11px] text-gray-400 font-medium">
                           {sale.createdAt ? new Date(sale.createdAt).toLocaleDateString() : "—"}
                         </p>
@@ -684,7 +684,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                       </div>
                       <Link
                         href={`/invoices`}
-                        className="rounded-sm border border-sky-200 bg-white p-1.5 text-gray-500 hover:bg-sky-50 hover:text-[#0284C7] transition shadow-2xs"
+                        className="rounded-sm border border-brand-border bg-white p-1.5 text-gray-500 hover:bg-brand-50/50 hover:text-brand-primary transition shadow-2xs"
                         title="View Invoices"
                       >
                         <ExternalLink size={13} />
@@ -695,7 +695,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
               </div>
             ) : (
               <div className="py-12 text-center">
-                <ShoppingBag size={32} className="mx-auto text-sky-200 mb-2" />
+                <ShoppingBag size={32} className="mx-auto text-brand-primary/40 mb-2" />
                 <p className="text-xs font-semibold text-gray-500">No orders recorded for this customer yet.</p>
               </div>
             )}
@@ -704,13 +704,13 @@ export default function CustomerDetailPage({ params }: PageProps) {
 
         {/* Tab 3: Notes & CRM Activity */}
         {activeTab === "notes" && (
-          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
-            <div className="flex items-center gap-2 border-b border-sky-100/80 pb-3">
-              <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-sky-100 text-[#0284C7]">
+          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-brand-50 text-brand-primary">
                 <FileText size={15} />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-[#0369A1]">Activity Notes & Logs</h3>
+                <h3 className="text-xs font-bold text-brand-dark">Activity Notes & Logs</h3>
                 <p className="text-[11px] text-gray-400 font-medium">Log follow-ups, calls, payment commitments, or reminders</p>
               </div>
             </div>
@@ -721,7 +721,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                 placeholder="Log customer contact or reminder..."
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
-                className="w-full rounded-sm border border-sky-200/90 p-3 text-xs font-medium text-gray-700 placeholder-slate-400 focus:border-[#0284C7] focus:outline-none focus:ring-1 focus:ring-[#0284C7]/20 shadow-2xs"
+                className="w-full rounded-sm border border-brand-border p-3 text-xs font-medium text-gray-700 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border shadow-2xs"
               />
               <div className="flex justify-end">
                 <CustomButton
@@ -739,10 +739,10 @@ export default function CustomerDetailPage({ params }: PageProps) {
             <div className="space-y-2.5 pt-2">
               {customer.customerNotes && customer.customerNotes.length > 0 ? (
                 customer.customerNotes.map((note: any) => (
-                  <div key={note.id} className="rounded-sm border border-sky-200/80 bg-sky-50/40 p-3.5 text-xs space-y-1.5 shadow-2xs">
+                  <div key={note.id} className="rounded-sm border border-brand-border bg-slate-50 p-3.5 text-xs space-y-1.5 shadow-2xs">
                     <p className="text-gray-700 font-bold leading-relaxed">{note.note}</p>
                     <p className="text-[11px] text-gray-400 font-medium flex items-center gap-1 pt-0.5">
-                      <Clock size={11} className="text-[#0284C7]" /> {note.createdAt ? new Date(note.createdAt).toLocaleString() : "Just now"}
+                      <Clock size={11} className="text-brand-primary" /> {note.createdAt ? new Date(note.createdAt).toLocaleString() : "Just now"}
                     </p>
                   </div>
                 ))
@@ -757,18 +757,18 @@ export default function CustomerDetailPage({ params }: PageProps) {
 
         {/* Tab 4: Complaints */}
         {activeTab === "complaints" && (
-          <div className="rounded-sm border border-sky-100/90 bg-white p-5 shadow-2xs space-y-4">
-            <div className="flex items-center gap-2 border-b border-sky-100/80 pb-3">
+          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
               <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-rose-100 text-rose-600">
                 <AlertTriangle size={15} />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-[#0369A1]">Customer Complaints & Feedback</h3>
+                <h3 className="text-xs font-bold text-brand-dark">Customer Complaints & Feedback</h3>
                 <p className="text-[11px] text-gray-400 font-medium">Record issues, returns, delivery delays, or billing disputes</p>
               </div>
             </div>
             
-            <form onSubmit={addComplaint} className="rounded-sm border border-sky-100 bg-sky-50/20 p-4 space-y-3">
+            <form onSubmit={addComplaint} className="rounded-sm border border-slate-200 bg-slate-50 p-4 space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass}>Subject *</label>
@@ -821,7 +821,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
             <div className="space-y-2.5 pt-2">
               {customer.complaints && customer.complaints.length > 0 ? (
                 customer.complaints.map((c: any) => (
-                  <div key={c.id} className="rounded-sm border border-sky-100 bg-white p-3.5 space-y-2 text-xs shadow-2xs">
+                  <div key={c.id} className="rounded-sm border border-slate-200 bg-white p-3.5 space-y-2 text-xs shadow-2xs">
                     <div className="flex items-center justify-between">
                       <h4 className="font-bold text-gray-700">{c.subject}</h4>
                       <span className={`rounded-sm px-2 py-0.5 text-[10px] font-bold border ${
@@ -831,7 +831,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                           ? "bg-orange-100 text-orange-700 border-orange-300"
                           : c.priority === "MEDIUM"
                           ? "bg-amber-100 text-amber-700 border-amber-300"
-                          : "bg-sky-100 text-[#0284C7] border-sky-300"
+                          : "bg-brand-50 text-brand-primary border-brand-border"
                       }`}>
                         {c.priority}
                       </span>

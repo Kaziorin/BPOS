@@ -100,22 +100,45 @@ export function CustomTable<T>({
       if (typeof valA === "string") valA = valA.toLowerCase();
       if (typeof valB === "string") valB = valB.toLowerCase();
 
-      if (valA < valB) return sortDirection === "asc" ? -1 : 1;
-      if (valA > valB) return sortDirection === "asc" ? 1 : -1;
-      return 0;
+      if (valA === valB) return 0;
+      if (valA == null) return 1;
+      if (valB == null) return -1;
+
+      const result = valA < valB ? -1 : 1;
+      return sortDirection === "asc" ? result : -result;
     });
-  }, [rawRows, sortKey, sortDirection, columns]);
+  }, [rawRows, columns, sortKey, sortDirection]);
 
-  // Pagination bounds
-  const totalItems = isServerPaginated ? serverTotalItems : sortedRows.length;
+  // Total items for pagination
+  const totalItems = isServerPaginated ? (serverTotalItems ?? 0) : sortedRows.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / activePageSize));
-  const validCurrentPage = Math.min(activePage, totalPages);
+  const validCurrentPage = Math.min(Math.max(1, activePage), totalPages);
 
+  // Paginated Rows (Local mode only; server mode uses rows directly)
   const paginatedRows = useMemo(() => {
-    if (isServerPaginated || !showPagination) return sortedRows;
+    if (isServerPaginated) return sortedRows;
     const start = (validCurrentPage - 1) * activePageSize;
     return sortedRows.slice(start, start + activePageSize);
-  }, [sortedRows, validCurrentPage, activePageSize, showPagination, isServerPaginated]);
+  }, [isServerPaginated, sortedRows, validCurrentPage, activePageSize]);
+
+  // Page handlers
+  const handlePageSelect = (page: number) => {
+    const p = Math.min(Math.max(1, page), totalPages);
+    if (isServerPaginated) {
+      onPageChange?.(p);
+    } else {
+      setLocalPage(p);
+    }
+  };
+
+  const handleSizeChange = (newSize: number) => {
+    if (isServerPaginated) {
+      onPageSizeChange?.(newSize);
+    } else {
+      setLocalPageSize(newSize);
+      setLocalPage(1);
+    }
+  };
 
   const handleHeaderClick = (col: CustomTableColumn<T>) => {
     if (!col.sortable) return;
@@ -132,31 +155,13 @@ export function CustomTable<T>({
     }
   };
 
-  const handlePageSelect = (p: number) => {
-    if (p < 1 || p > totalPages) return;
-    if (isServerPaginated && onPageChange) {
-      onPageChange(p);
-    } else {
-      setLocalPage(p);
-    }
-  };
-
-  const handleSizeChange = (newSize: number) => {
-    if (isServerPaginated && onPageSizeChange) {
-      onPageSizeChange(newSize);
-    } else {
-      setLocalPageSize(newSize);
-      setLocalPage(1);
-    }
-  };
-
   const hasHeader = Boolean(title || toolbar || icon);
 
   if (loading && !hasHeader) {
     return (
       <div className="flex h-36 items-center justify-center p-4 text-slate-400">
         <div className="flex items-center gap-2">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-sky-200 border-t-[#0284C7]" />
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-border border-t-brand-primary" />
           <span className="text-xs font-semibold text-slate-500">Loading records...</span>
         </div>
       </div>
@@ -188,10 +193,10 @@ export function CustomTable<T>({
   }
 
   const headerNode = hasHeader ? (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-sky-100/90 bg-gradient-to-r from-sky-50/80 via-white to-sky-50/50 px-4 py-3 shrink-0">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-light bg-brand-50/60 px-4 py-3 shrink-0">
       <div className="flex items-center gap-2.5">
         {icon && (
-          <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-sky-100 text-[#0284C7] border border-sky-200/80 shrink-0">
+          <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border shrink-0">
             {isValidElement(icon)
               ? icon
               : typeof icon === "function" ||
@@ -205,14 +210,14 @@ export function CustomTable<T>({
         <div>
           <div className="flex items-center gap-2">
             {typeof title === "string" ? (
-              <h3 className="text-xs sm:text-sm font-bold text-[#0369A1]">{title}</h3>
+              <h3 className="text-xs sm:text-sm font-bold text-brand-dark">{title}</h3>
             ) : (
               title
             )}
             {badge}
           </div>
           {subtitle && (
-            <p className="text-[11px] text-gray-500 font-medium mt-0.5">{subtitle}</p>
+            <p className="text-[11px] text-slate-500 font-medium mt-0.5">{subtitle}</p>
           )}
         </div>
       </div>
@@ -223,8 +228,8 @@ export function CustomTable<T>({
   const paginationNode = showPagination && totalItems > 0 ? (
     <div
       className={cn(
-        "flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600 font-medium",
-        "border-t border-sky-100/90 bg-sky-50/40 px-5 py-3.5 shrink-0"
+        "flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 font-medium",
+        "border-t border-brand-border bg-brand-50/40 px-5 py-3.5 shrink-0"
       )}
     >
       <div className="flex items-center gap-2">
@@ -232,7 +237,7 @@ export function CustomTable<T>({
         <select
           value={activePageSize}
           onChange={(e) => handleSizeChange(Number(e.target.value))}
-          className="rounded-sm border border-sky-200/90 bg-white px-2 py-1 text-xs font-semibold text-gray-600 focus:border-[#0284C7] focus:ring-1 focus:ring-[#0284C7]/20 focus:outline-none shadow-2xs cursor-pointer"
+          className="rounded-sm border border-brand-border bg-white px-2 py-1 text-xs font-semibold text-slate-600 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 focus:outline-none shadow-2xs cursor-pointer"
         >
           {[5, 10, 25, 50].map((s) => (
             <option key={s} value={s}>
@@ -240,10 +245,10 @@ export function CustomTable<T>({
             </option>
           ))}
         </select>
-        <span className="text-gray-600 font-medium ml-1">
-          Showing <strong className="font-bold text-[#0284C7]">{startEntry}</strong>–
-          <strong className="font-bold text-[#0284C7]">{endEntry}</strong> of{" "}
-          <strong className="font-bold text-[#0284C7]">{totalItems}</strong>
+        <span className="text-slate-600 font-medium ml-1">
+          Showing <strong className="font-bold text-brand-primary">{startEntry}</strong>–
+          <strong className="font-bold text-brand-primary">{endEntry}</strong> of{" "}
+          <strong className="font-bold text-brand-primary">{totalItems}</strong>
         </span>
       </div>
 
@@ -253,7 +258,7 @@ export function CustomTable<T>({
           type="button"
           disabled={validCurrentPage <= 1}
           onClick={() => handlePageSelect(validCurrentPage - 1)}
-          className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-sky-200/80 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] hover:border-[#0284C7] disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold text-xs shadow-2xs gap-1 cursor-pointer"
+          className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-brand-border bg-white text-slate-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-primary disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold text-xs shadow-2xs gap-1 cursor-pointer"
         >
           <ChevronLeft size={13} /> Prev
         </button>
@@ -266,8 +271,8 @@ export function CustomTable<T>({
             className={cn(
               "flex h-7 w-7 items-center justify-center rounded-sm text-xs font-semibold transition shadow-2xs cursor-pointer",
               p === validCurrentPage
-                ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white border-transparent shadow-2xs font-bold"
-                : "border border-sky-200/80 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] hover:border-[#0284C7]"
+                ? "bg-brand-gradient text-white border-transparent shadow-2xs font-bold"
+                : "border border-brand-border bg-white text-slate-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-primary"
             )}
           >
             {p}
@@ -278,7 +283,7 @@ export function CustomTable<T>({
           type="button"
           disabled={validCurrentPage >= totalPages}
           onClick={() => handlePageSelect(validCurrentPage + 1)}
-          className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-sky-200/80 bg-white text-gray-600 hover:bg-sky-50 hover:text-[#0284C7] hover:border-[#0284C7] disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold text-xs shadow-2xs gap-1 cursor-pointer"
+          className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-brand-border bg-white text-slate-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-primary disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold text-xs shadow-2xs gap-1 cursor-pointer"
         >
           Next <ChevronRight size={13} />
         </button>
@@ -289,7 +294,7 @@ export function CustomTable<T>({
   const tableNode = (
     <table className="w-full text-sm border-collapse">
       <thead>
-        <tr className="border-b border-sky-100/90 bg-gradient-to-r from-sky-50/90 via-white to-sky-50/50 text-[#0369A1] font-bold capitalize tracking-wide select-none">
+        <tr className="border-b border-brand-light bg-brand-50/70 text-brand-dark font-bold capitalize tracking-wide select-none">
           {columns.map((col, idx) => {
             const isFirst = idx === 0;
             const alignMode = col.align || (isFirst ? "left" : "center");
@@ -316,9 +321,9 @@ export function CustomTable<T>({
                 onClick={() => handleHeaderClick(col)}
                 style={col.width ? { width: col.width } : undefined}
                 className={cn(
-                  "px-4 py-3 text-[13px] font-bold text-[#0369A1] transition whitespace-nowrap",
+                  "px-4 py-3 text-[13px] font-bold text-brand-dark transition whitespace-nowrap",
                   alignCss,
-                  col.sortable && "cursor-pointer hover:bg-sky-50/70 hover:text-[#0284C7]",
+                  col.sortable && "cursor-pointer hover:bg-brand-50 hover:text-brand-primary",
                   col.className
                 )}
               >
@@ -328,9 +333,9 @@ export function CustomTable<T>({
                     <span className="text-slate-400 shrink-0">
                       {isSorted ? (
                         sortDirection === "asc" ? (
-                          <ArrowUp size={14} className="text-[#0284C7] font-bold" />
+                          <ArrowUp size={14} className="text-brand-primary font-bold" />
                         ) : (
-                          <ArrowDown size={14} className="text-[#0284C7] font-bold" />
+                          <ArrowDown size={14} className="text-brand-primary font-bold" />
                         )
                       ) : (
                         <ArrowUpDown size={13} className="opacity-40 hover:opacity-100" />
@@ -349,7 +354,7 @@ export function CustomTable<T>({
             key={getRowKey(row, idx)}
             onClick={() => onRowClick?.(row)}
             className={cn(
-              "hover:bg-sky-50/40 transition",
+              "hover:bg-brand-50/30 transition",
               onRowClick && "cursor-pointer"
             )}
           >
@@ -375,7 +380,7 @@ export function CustomTable<T>({
                   key={col.key}
                   style={col.width ? { width: col.width } : undefined}
                   className={cn(
-                    "px-4 py-3 font-medium text-gray-600 text-sm whitespace-nowrap",
+                    "px-4 py-3 font-medium text-slate-700 text-sm whitespace-nowrap",
                     alignCss,
                     col.className
                   )}
@@ -394,12 +399,12 @@ export function CustomTable<T>({
 
   if (hasHeader) {
     return (
-      <div className="w-full rounded-sm border border-sky-100/90 bg-white shadow-2xs overflow-hidden flex flex-col">
+      <div className="w-full rounded-sm border border-brand-border bg-white shadow-2xs overflow-hidden flex flex-col">
         {headerNode}
         {loading ? (
           <div className="flex h-36 items-center justify-center p-4 text-slate-400">
             <div className="flex items-center gap-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-sky-200 border-t-[#0284C7]" />
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-border border-t-brand-primary" />
               <span className="text-xs font-semibold text-slate-500">Loading records...</span>
             </div>
           </div>

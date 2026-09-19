@@ -53,7 +53,7 @@ export default function LedgerPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-sky-50 text-sky-700"><Book size={19} /></div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><Book size={19} /></div>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-gray-900">General Ledger</h1>
             <p className="text-sm text-gray-500">Posted entries with running balances</p>
@@ -66,7 +66,7 @@ export default function LedgerPage() {
 
       {error && <div className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
-      <div className="overflow-hidden rounded-sm border border-sky-100/90 bg-white shadow-2xs">
+      <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-2xs">
         {isPerAccount ? (
           <CustomTable
             columns={[

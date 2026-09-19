@@ -66,7 +66,7 @@ const STATUS_META: Record<string, { label: string; badge: string; dot: string }>
   PENDING: { label: "Pending", badge: "bg-slate-500/20 text-slate-300 border-slate-500/30", dot: "bg-slate-400" },
   PACKED: { label: "Packed", badge: "bg-amber-500/20 text-amber-300 border-amber-500/30", dot: "bg-amber-400" },
   ASSIGNED: { label: "Rider Assigned", badge: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30", dot: "bg-indigo-400" },
-  OUT_FOR_DELIVERY: { label: "Out for Delivery", badge: "bg-sky-500/20 text-sky-300 border-sky-500/30", dot: "bg-sky-400" },
+  OUT_FOR_DELIVERY: { label: "Out for Delivery", badge: "bg-brand-500/20 text-sky-300 border-sky-500/30", dot: "bg-sky-400" },
   DELIVERED: { label: "Delivered", badge: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", dot: "bg-emerald-400" },
   FAILED: { label: "Failed", badge: "bg-rose-500/20 text-rose-300 border-rose-500/30", dot: "bg-rose-400" },
   RESCHEDULED: { label: "Rescheduled", badge: "bg-orange-500/20 text-orange-300 border-orange-500/30", dot: "bg-orange-400" },
@@ -452,7 +452,7 @@ export default function DeliveryPage() {
                               <button onClick={() => openAssign(o)} className="rounded-lg border border-indigo-200 p-1.5 text-indigo-600 hover:bg-indigo-50"><Users size={14} /></button>
                             )}
                             {(o.status === "ASSIGNED") && (
-                              <button onClick={() => transition(o, "OUT_FOR_DELIVERY")} className="rounded-lg border border-sky-200 p-1.5 text-sky-600 hover:bg-sky-50"><Truck size={14} /></button>
+                              <button onClick={() => transition(o, "OUT_FOR_DELIVERY")} className="rounded-lg border border-brand-border p-1.5 text-sky-600 hover:bg-brand-50/50"><Truck size={14} /></button>
                             )}
                             {(o.status === "OUT_FOR_DELIVERY") && (
                               <button onClick={() => openDeliver(o)} className="rounded-lg border border-emerald-200 p-1.5 text-emerald-600 hover:bg-emerald-50"><CheckCircle2 size={14} /></button>

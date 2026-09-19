@@ -296,7 +296,7 @@ export default function QuotationsPage() {
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-primary-700 transition"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:opacity-90 transition"
           >
             <Plus size={15} />
             New Quotation
@@ -414,7 +414,7 @@ export default function QuotationsPage() {
               }}
               className={`flex items-center gap-1.5 shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                 isActive
-                  ? "bg-gradient-to-r from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-2xs shadow-xs font-semibold"
+                  ? "bg-brand-gradient text-white shadow-xs font-semibold"
                   : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >
@@ -525,7 +525,7 @@ export default function QuotationsPage() {
           <div className="mt-4 flex items-center justify-center gap-2">
             <button
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-primary-700"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:opacity-90"
             >
               <Plus size={14} /> New Quotation
             </button>
@@ -952,7 +952,7 @@ export default function QuotationsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 transition"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:opacity-90 transition"
                 >
                   Create Quotation
                 </button>
@@ -1065,7 +1065,7 @@ export default function QuotationsPage() {
                 ) : selectedQuoteForDrawer.status === "DRAFT" ? (
                   <button
                     onClick={() => doAction(selectedQuoteForDrawer.id, "send")}
-                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary-600 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 transition"
+                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary-600 py-2 text-xs font-semibold text-white shadow-sm hover:opacity-90 transition"
                   >
                     <Send size={13} /> Send Quotation to Client
                   </button>

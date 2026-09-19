@@ -278,6 +278,22 @@
   --color-primary-700: var(--theme-primary-700);
   --color-primary-800: var(--theme-primary-800);
   --color-primary-900: var(--theme-primary-900);
+  --color-primary: var(--theme-primary-600);
+  --color-primary-hover: var(--theme-primary-700);
+
+  --color-brand-50: var(--theme-primary-50);
+  --color-brand-100: var(--theme-primary-100);
+  --color-brand-200: var(--theme-primary-200);
+  --color-brand-300: var(--theme-primary-300);
+  --color-brand-400: var(--theme-primary-400);
+  --color-brand-500: var(--theme-primary-500);
+  --color-brand-600: var(--theme-primary-600);
+  --color-brand-700: var(--theme-primary-700);
+  --color-brand-800: var(--theme-primary-800);
+  --color-brand-900: var(--theme-primary-900);
+  --color-brand-primary: var(--theme-primary-600);
+  --color-brand-secondary: var(--theme-secondary);
+  --color-brand-accent: var(--theme-accent);
 
   --color-ink-50: #eef6fb;
   --color-ink-100: #d9ebf5;
@@ -303,6 +319,58 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+}
+
+/* ========================================================================= */
+/* DYNAMIC GLOBAL BRAND UTILITY TOKENS (Single Source of Truth)              */
+/* ========================================================================= */
+.bg-brand-primary {
+  background-color: var(--theme-primary-600);
+}
+.bg-brand-primary-hover:hover {
+  background-color: var(--theme-primary-700);
+}
+.bg-brand-gradient {
+  background: var(--theme-gradient, linear-gradient(115deg, var(--theme-primary-600) 0%, var(--theme-primary-500) 50%, var(--theme-accent) 100%));
+}
+.bg-brand-50 {
+  background-color: var(--theme-primary-50);
+}
+.bg-brand-100 {
+  background-color: var(--theme-primary-100);
+}
+.text-brand-primary {
+  color: var(--theme-primary-600);
+}
+.text-brand-dark {
+  color: var(--theme-primary-700);
+}
+.text-brand-accent {
+  color: var(--theme-accent);
+}
+.border-brand-border {
+  border-color: var(--theme-primary-200);
+}
+.border-brand-light {
+  border-color: var(--theme-primary-100);
+}
+.border-brand-primary {
+  border-color: var(--theme-primary-600);
+}
+.hover\:bg-brand-50:hover {
+  background-color: var(--theme-primary-50);
+}
+.hover\:bg-brand-100:hover {
+  background-color: var(--theme-primary-100);
+}
+.hover\:border-brand-primary:hover {
+  border-color: var(--theme-primary-600);
+}
+.hover\:text-brand-dark:hover {
+  color: var(--theme-primary-700);
+}
+.hover\:text-brand-primary:hover {
+  color: var(--theme-primary-600);
 }
 
 button:not(:disabled),
