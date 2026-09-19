@@ -330,12 +330,23 @@
   --color-foreground: var(--foreground);
   --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  /* Default border color — prevents bare 'border', 'border-t', etc. from rendering as black */
+  --default-border-color: #e2e8f0;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+}
+
+/* Globally override the Tailwind v4 default border color so any bare
+   border/border-t/border-b/border-l/border-r never falls back to currentColor (black).
+   slate-200 (#e2e8f0) is the standard subtle divider across the entire app. */
+@layer base {
+  *, ::before, ::after {
+    border-color: #e2e8f0;
+  }
 }
 
 /* ========================================================================= */

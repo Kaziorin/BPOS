@@ -179,7 +179,7 @@ export default function LandedCostsPage() {
           <div className="space-y-3">
             <p className="text-sm text-gray-600">Total Landed Cost: <span className="font-bold text-gray-600">{result.totalLandedCost.toFixed(2)}</span></p>
             <table className="w-full text-sm">
-              <thead><tr className="text-xs text-gray-400 border-b"><th className="py-2 text-left">Product</th><th className="py-2 text-right">Allocated</th><th className="py-2 text-right">Adj. Cost</th></tr></thead>
+              <thead><tr className="text-xs text-gray-400 border-b border-slate-200"><th className="py-2 text-left">Product</th><th className="py-2 text-right">Allocated</th><th className="py-2 text-right">Adj. Cost</th></tr></thead>
               <tbody>
                 {result.items.map((i) => (
                   <tr key={i.productId} className="border-b border-gray-50">

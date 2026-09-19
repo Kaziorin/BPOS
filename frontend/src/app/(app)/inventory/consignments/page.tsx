@@ -188,7 +188,7 @@ export default function ConsignmentsPage() {
             </div>
 
             <table className="w-full text-sm">
-              <thead><tr className="text-xs text-gray-400 border-b"><th className="py-2 text-left">Product</th><th className="py-2 text-right">Rcvd</th><th className="py-2 text-right">Sold</th><th className="py-2 text-right">Returned</th><th className="py-2 text-right">Remaining</th></tr></thead>
+              <thead><tr className="text-xs text-gray-400 border-b border-slate-200"><th className="py-2 text-left">Product</th><th className="py-2 text-right">Rcvd</th><th className="py-2 text-right">Sold</th><th className="py-2 text-right">Returned</th><th className="py-2 text-right">Remaining</th></tr></thead>
               <tbody>
                 {selected.items.map((item) => {
                   const remaining = Number(item.qtyReceived) - Number(item.qtySold) - Number(item.qtyReturned);

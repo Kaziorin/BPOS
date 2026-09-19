@@ -1323,7 +1323,7 @@ function LeaveRequestModal({
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-3 border-t">
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
             <button type="button" onClick={onClose} className="rounded-sm px-4 py-2 text-sm text-slate-600 hover:bg-slate-100">Cancel</button>
             <button type="submit" disabled={saving} className="rounded-sm bg-primary-600 px-5 py-2 text-sm font-bold text-white hover:opacity-90 disabled:opacity-50">
               {saving ? "Submitting..." : "Submit Application"}
@@ -1482,7 +1482,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
       {selectedPayroll && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setSelectedPayroll(null)}>
           <div className="w-full max-w-3xl rounded-sm bg-white p-7 shadow-2xl border border-slate-100 my-8" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b pb-4 mb-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
               <div>
                 <h3 className="text-xl font-bold text-gray-600">{selectedPayroll.payrollNo} Pay Slips</h3>
                 <p className="text-xs text-slate-500">Period: {selectedPayroll.month}/{selectedPayroll.year}</p>
@@ -1495,7 +1495,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
             <div className="overflow-hidden rounded-sm border border-slate-200">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b bg-slate-50 text-slate-500 font-bold">
+                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-500 font-bold">
                     <th className="p-3 text-left">Employee</th>
                     <th className="p-3 text-right">Base Salary</th>
                     <th className="p-3 text-right">Overtime</th>
@@ -1668,7 +1668,7 @@ function CreateShiftModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
               className="w-full rounded-sm border p-2 text-sm"
             />
           </div>
-          <div className="flex justify-end gap-3 pt-3 border-t">
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
             <button type="button" onClick={onClose} className="rounded-sm px-4 py-2 text-sm">Cancel</button>
             <button type="submit" disabled={saving} className="rounded-sm bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Create Shift</button>
           </div>
@@ -1823,7 +1823,7 @@ function CreateDeptModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
               className="w-full rounded-sm border p-2 text-sm"
             />
           </div>
-          <div className="flex justify-end gap-3 pt-3 border-t">
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
             <button type="button" onClick={onClose} className="rounded-sm px-4 py-2 text-sm">Cancel</button>
             <button type="submit" disabled={saving} className="rounded-sm bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Create Department</button>
           </div>
@@ -1972,7 +1972,7 @@ function CreateTargetModal({ employees, onClose, onSaved }: { employees: Employe
               className="w-full rounded-sm border p-2.5 text-sm font-semibold"
             />
           </div>
-          <div className="flex justify-end gap-3 pt-3 border-t">
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
             <button type="button" onClick={onClose} className="rounded-sm px-4 py-2 text-sm">Cancel</button>
             <button type="submit" className="rounded-sm bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Set Target</button>
           </div>
@@ -2155,7 +2155,7 @@ function CreateReviewModal({ employees, onClose, onSaved }: { employees: Employe
               className="w-full rounded-sm border p-2 text-sm"
             />
           </div>
-          <div className="flex justify-end gap-3 pt-3 border-t">
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
             <button type="button" onClick={onClose} className="rounded-sm px-4 py-2 text-sm">Cancel</button>
             <button type="submit" className="rounded-sm bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Save Review</button>
           </div>

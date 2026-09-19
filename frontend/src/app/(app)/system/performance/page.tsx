@@ -205,7 +205,7 @@ export default function SystemPerformancePage() {
                     </tr></thead>
                     <tbody>
                       {metrics.sync.deviceRows.map((d: any, i: number) => (
-                        <tr key={i} className="border-t">
+                        <tr key={i} className="border-t border-slate-100">
                           <td className="px-3 py-2 font-mono text-xs">{d.deviceId}</td>
                           <td className="px-3 py-2 text-xs"><span className={d.stale ? "text-red-600 font-medium" : "text-green-600"}>{d.stale ? "STALE" : d.status}</span>{d.isLocked ? " 🔒" : ""}</td>
                           <td className="px-3 py-2 text-xs">{d.lastSyncAt ?? "never"}</td>
@@ -262,7 +262,7 @@ export default function SystemPerformancePage() {
               </tr></thead>
               <tbody>
                 {jobs.map((j: any) => (
-                  <tr key={j.id} className="border-t hover:bg-gray-50 align-top">
+                  <tr key={j.id} className="border-t border-slate-100 hover:bg-gray-50 align-top">
                     <td className="px-3 py-2 font-mono text-xs">{j.type}</td>
                     <td className="px-3 py-2"><StatusChip s={j.status} /></td>
                     <td className="px-3 py-2 text-xs">{j.attempts}/{j.maxAttempts}</td>
@@ -358,7 +358,7 @@ export default function SystemPerformancePage() {
               </tr></thead>
               <tbody>
                 {(perf.latency?.slowest ?? []).map((r: any, i: number) => (
-                  <tr key={i} className="border-t">
+                  <tr key={i} className="border-t border-slate-100">
                     <td className="px-3 py-2 font-mono text-xs">{r.route}</td>
                     <td className="px-3 py-2 text-xs">{r.count}</td>
                     <td className="px-3 py-2 text-xs">{r.avgMs} ms</td>
@@ -395,7 +395,7 @@ export default function SystemPerformancePage() {
               </tr></thead>
               <tbody>
                 {backups.map((b: any) => (
-                  <tr key={b.id} className="border-t hover:bg-gray-50 align-top">
+                  <tr key={b.id} className="border-t border-slate-100 hover:bg-gray-50 align-top">
                     <td className="px-3 py-2 font-mono text-xs break-all">{b.fileName}</td>
                     <td className="px-3 py-2"><StatusChip s={b.status} /></td>
                     <td className="px-3 py-2 text-xs">{(b.sizeBytes / 1024).toFixed(0)} KB</td>
