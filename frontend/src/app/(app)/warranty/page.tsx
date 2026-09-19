@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { Shield, Plus, CheckCircle2, XCircle, Clock, Calendar, AlertTriangle } from "lucide-react";
 import { api } from "@/lib/api";
 import { CustomTable, CustomBadge } from "@/components/custom";
+import { CustomButton } from "@/components/custom/CustomButton";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { money, dateTime } from "@/lib/format";
 
 interface WarrantyClaim {
@@ -40,18 +42,19 @@ export default function WarrantyPage() {
   useEffect(() => { load(); }, [load]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between rounded-sm bg-gradient-to-br from-emerald-500 via-emerald-600 to-brand-primary p-6 text-white shadow-md">
-        <div>
-          <p className="flex items-center gap-2 text-sm text-emerald-100"><Shield size={15} /> Warranty Management</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight">Warranty Claims</h1>
-          <p className="mt-1 text-sm text-emerald-200">§10.22 — Claim → Inspection → Approved → Repair/Replace → Complete</p>
-        </div>
-        <button onClick={() => setShowForm(true)}
-          className="hidden items-center gap-2 rounded-sm bg-white/10 px-4 py-2.5 text-sm font-medium ring-1 ring-white/20 transition hover:bg-white/20 sm:inline-flex">
-          <Plus size={15} /> New Claim
-        </button>
-      </div>
+    <div className="space-y-6 w-full max-w-full">
+      <CustomBreadcrumb
+        title="Warranty Claims"
+        subtitle="Claim → Inspection → Approved → Repair/Replace → Complete"
+        icon={<Shield size={20} />}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Warranty" },
+        ]}
+        actions={
+          <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowForm(true)}>New Claim</CustomButton>
+        }
+      />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Total Claims" value={claims.length} icon={Shield} />

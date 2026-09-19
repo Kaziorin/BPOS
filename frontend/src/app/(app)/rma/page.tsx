@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { Wrench, Plus, CheckCircle2, XCircle, Clock, Eye, ArrowRight } from "lucide-react";
 import { api } from "@/lib/api";
 import { CustomTable, CustomBadge } from "@/components/custom";
+import { CustomButton } from "@/components/custom/CustomButton";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { money, dateTime } from "@/lib/format";
 
 interface RmaItem { id: string; productName: string; qty: number; unitPrice: number; itemCondition: string; defectDescription: string }
@@ -41,18 +43,19 @@ export default function RmaPage() {
   useEffect(() => { load(); }, [load]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between rounded-sm bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 p-6 text-white shadow-md">
-        <div>
-          <p className="flex items-center gap-2 text-sm text-blue-100"><Wrench size={15} /> RMA Management</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight">Return Merchandise Authorization</h1>
-          <p className="mt-1 text-sm text-blue-200">§10.22 — Inspection, defect classification, repair/refund/replacement workflow</p>
-        </div>
-        <button onClick={() => setShowForm(true)}
-          className="hidden items-center gap-2 rounded-sm bg-white/10 px-4 py-2.5 text-sm font-medium ring-1 ring-white/20 transition hover:bg-white/20 sm:inline-flex">
-          <Plus size={15} /> New RMA
-        </button>
-      </div>
+    <div className="space-y-6 w-full max-w-full">
+      <CustomBreadcrumb
+        title="Return Merchandise Authorization"
+        subtitle="Inspection, defect classification, repair/refund/replacement workflow"
+        icon={<Wrench size={20} />}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "RMA" },
+        ]}
+        actions={
+          <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowForm(true)}>New RMA</CustomButton>
+        }
+      />
 
       <div className="overflow-hidden rounded-sm border border-gray-100 bg-white shadow-sm">
         <CustomTable

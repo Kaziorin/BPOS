@@ -169,3 +169,5 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
 );
 
 CustomButton.displayName = "CustomButton";
+
+export default CustomButton;

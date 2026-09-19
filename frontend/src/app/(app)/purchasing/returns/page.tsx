@@ -10,6 +10,7 @@ import {
   ArrowRight, CheckSquare, Square
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomButton, CustomBreadcrumb } from "@/components/custom";
 
 interface ReturnItem {
   id: string;
@@ -434,38 +435,42 @@ export default function PurchaseReturnsPage() {
   const selectedPo = purchaseOrders.find((p) => p.id === selectedPoId);
 
   return (
-    <div className="w-full space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
-            <Link href="/purchasing" className="hover:text-sky-600 transition">Purchasing Hub</Link>
-            <ChevronRight size={13} className="text-gray-400" />
-            <span className="text-gray-600 font-bold">Purchase Returns & Debit Notes</span>
+    <div className="w-full max-w-full space-y-4">
+      {/* Header via CustomBreadcrumb */}
+      <CustomBreadcrumb
+        title="Purchase Returns & Debit Notes"
+        subtitle="Return damaged/excess goods to vendor against POs or standalone → reverses inventory & reduces AP payable (§10.17)"
+        icon={<Undo2 size={18} />}
+        breadcrumbs={[
+          { label: "Purchasing", href: "/purchasing" },
+          { label: "Returns & Debit Notes" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={load}
+              disabled={loading}
+              title="Refresh Data"
+              leftIcon={<RefreshCw size={14} className={loading ? "animate-spin text-rose-600" : ""} />}
+            >
+              Refresh
+            </CustomButton>
+            <CustomButton
+              type="button"
+              variant="primary"
+              themeColor="rose"
+              size="sm"
+              onClick={openReturnModal}
+              leftIcon={<Plus size={16} />}
+            >
+              New Purchase Return
+            </CustomButton>
           </div>
-          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-600 sm:text-3xl">Purchase Returns & Debit Notes</h1>
-          <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
-            Return damaged/excess goods to vendor against Purchase Orders or standalone → reverses inventory & reduces AP payable
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={load}
-            disabled={loading}
-            className="rounded-sm border border-slate-200 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600 disabled:opacity-50"
-            title="Refresh Data"
-          >
-            <RefreshCw size={17} className={loading ? "animate-spin text-rose-600" : ""} />
-          </button>
-          <button
-            onClick={openReturnModal}
-            className="flex items-center gap-2 rounded-sm bg-rose-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-rose-600/25 transition hover:bg-rose-700 active:scale-[0.98]"
-          >
-            <Plus size={18} /> New Purchase Return
-          </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Sub-Navigation Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto rounded-sm border border-slate-200 bg-white p-1.5 shadow-2xs">
@@ -1410,12 +1415,13 @@ export default function PurchaseReturnsPage() {
 
             {/* Footer */}
             <div className="flex items-center justify-end border-t border-slate-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-sm no-print">
-              <button
+              <CustomButton
+                variant="outline"
+                size="sm"
                 onClick={() => setViewReturn(null)}
-                className="rounded-sm bg-gray-900 px-6 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-gray-800 transition"
               >
                 Close Slip
-              </button>
+              </CustomButton>
             </div>
           </div>
         </div>

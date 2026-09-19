@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
 import Link from "next/link";
+import CustomBreadcrumb from "@/components/custom/CustomBreadcrumb";
+import CustomButton from "@/components/custom/CustomButton";
 import {
   ShoppingCart,
   Pill,
@@ -107,62 +109,26 @@ export default function PharmacyHubPage() {
   });
 
   return (
-    <div className="relative w-full min-h-screen overflow-hidden p-6 space-y-8" style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}>
-
-      {/* ══ POS-Style Background Waves (Pharmacy Cyan/Teal Theme) ══ */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-        <svg className="absolute top-0 left-0 w-full h-[300px] opacity-[0.15]" viewBox="0 0 1200 300" fill="none" preserveAspectRatio="none">
-          <path d="M 0 0 L 1200 0 L 1200 150 C 900 280, 400 100, 0 200 Z" fill="url(#hub-cyan-wave)" />
-          <defs>
-            <linearGradient id="hub-cyan-wave" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(6, 182, 212, 1)" />
-              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-
-      {/* Header Banner: Glassmorphic & Curved */}
-      <div className="relative group overflow-hidden rounded-sm border border-brand-primary/30 bg-gradient-to-r from-emerald-800 via-teal-700 to-teal-800 p-6 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className={`absolute -left-20 -top-20 w-64 h-64 blur-3xl opacity-20 rounded-full bg-cyan-400 group-hover:scale-125 transition-transform duration-700`} />
-
-        <div className="relative flex items-center gap-6 z-10">
-          <div className="w-14 h-14 rounded-sm bg-white/15 border border-brand-border/30 text-white flex items-center justify-center text-white shadow-2xs transform rotate-3 group-hover:rotate-6 transition-transform duration-500">
-            <HeartPulse size={40} strokeWidth={2.2} />
+    <div className="w-full max-w-full p-6 space-y-8">
+      <CustomBreadcrumb
+        title="Pharmacy Hub"
+        subtitle="Clinical-grade dispense monitoring. Manage prescription batches, track medicine expiry dates, and oversee pharmacy lane throughput with real-time stock sync."
+        icon={<HeartPulse className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Pharmacy" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <Link href="/pharmacy/patient-display" target="_blank">
+              <CustomButton variant="outline" size="sm" leftIcon={<Monitor size={16} />}>Patient Display</CustomButton>
+            </Link>
+            <Link href="/pharmacy/pos">
+              <CustomButton leftIcon={<Zap size={16} />} size="sm">Open Rx Register</CustomButton>
+            </Link>
           </div>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-extrabold text-white tracking-tight">Pharmacy Hub</h1>
-              <span className="px-3 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] bg-cyan-100 text-cyan-700 border border-cyan-200 rounded-full shadow-2xs">
-                Rx Control
-              </span>
-            </div>
-            <p className="text-white/90 text-xs sm:text-sm max-w-xl mt-1 leading-relaxed">
-              Clinical-grade dispense monitoring. Manage prescription batches, track medicine expiry dates, and oversee pharmacy lane throughput with real-time stock sync.
-            </p>
-          </div>
-        </div>
-
-        <div className="relative flex flex-col sm:flex-row items-center gap-3 z-10">
-          <Link
-            href="/pharmacy/pos"
-            className="group/btn flex items-center gap-3 px-5 py-2.5 rounded-sm text-xs font-bold bg-white text-brand-dark shadow-2xs hover:bg-brand-50 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
-          >
-            <Zap size={18} className="text-cyan-400 group-hover/btn:animate-pulse" />
-            Open Rx Register
-            <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
-          </Link>
-
-          <Link
-            href="/pharmacy/patient-display"
-            target="_blank"
-            className="group/cd flex items-center gap-3 px-6 py-3.5 rounded-sm text-sm font-black bg-white text-gray-600 border border-slate-200 shadow-2xs shadow-slate-200/20 hover:bg-slate-50 hover:border-cyan-300 hover:text-cyan-700 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
-          >
-            <Monitor size={18} className="text-slate-400 group-hover/cd:text-cyan-500" />
-            Patient Display
-          </Link>
-        </div>
-      </div>
+        }
+      />
 
       {/* KPI Stats: Tactile Premium Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -182,7 +148,7 @@ export default function PharmacyHubPage() {
                 Live
               </div>
             </div>
-            <p className="text-2xl font-extrabold text-white tracking-tighter">{stat.val}</p>
+            <p className="text-2xl font-extrabold text-gray-600 tracking-tighter">{stat.val}</p>
             <div className="flex flex-col mt-1">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{stat.label}</span>
               <span className="text-[10px] text-slate-400 font-medium">{stat.sub}</span>
@@ -296,12 +262,9 @@ export default function PharmacyHubPage() {
                             {fmt(totalAmt)}
                           </td>
                           <td className="py-5 px-6 text-center">
-                            <button
-                              onClick={() => setSelectedSale(s)}
-                              className="rounded-sm bg-slate-900 text-white hover:bg-cyan-600 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all shadow-2xs active:scale-95"
-                            >
+                            <CustomButton size="sm" onClick={() => setSelectedSale(s)}>
                               Receipt
-                            </button>
+                            </CustomButton>
                           </td>
                         </tr>
                       );
@@ -369,12 +332,8 @@ export default function PharmacyHubPage() {
           </div>
 
           <div className="p-6 bg-slate-50/50">
-            <Link
-              href="/pharmacy/pos"
-              className="group w-full flex items-center justify-center gap-2 rounded-sm bg-slate-900 p-4 text-xs font-black text-white hover:bg-cyan-600 transition-all shadow-2xs shadow-slate-900/10 active:scale-95"
-            >
-              Dispatch Register
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            <Link href="/pharmacy/pos" className="w-full block">
+              <CustomButton variant="primary" className="w-full" rightIcon={<ArrowRight size={16} />}>Dispatch Register</CustomButton>
             </Link>
           </div>
         </div>

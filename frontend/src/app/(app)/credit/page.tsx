@@ -41,6 +41,8 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
 
 interface CustomerCredit {
   id: string;
@@ -346,55 +348,33 @@ export default function CreditPage() {
       {toastMessage && (
         <div
           className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-sm px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
-            toastMessage.type === "success" ? "bg-slate-900 ring-1 ring-slate-800" : "bg-rose-600"
+            toastMessage.type === "success" ? "bg-emerald-600" : "bg-rose-600"
           }`}
         >
-          {toastMessage.type === "success" ? <CheckCircle2 size={18} className="text-emerald-400" /> : <AlertTriangle size={18} />}
+          {toastMessage.type === "success" ? <CheckCircle2 size={18} className="text-white" /> : <AlertTriangle size={18} />}
           <span>{toastMessage.text}</span>
         </div>
       )}
 
-      {/* Top Banner / Header */}
-      <div className="border-b border-slate-200 bg-white px-4 sm:px-8 py-5 shadow-2xs w-full">
-        <div className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-2xs shadow-primary-500/25">
-                <ShieldCheck size={22} className="stroke-[2.2]" />
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-600">Credit Management & Risk Controls</h1>
-                  <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-emerald-700 ring-1 ring-emerald-200">
-                    B2B & Commercial
-                  </span>
-                </div>
-                <p className="text-xs font-medium text-slate-500">
-                  Approved credit limits · Grace periods · Over-limit controls & credit hold governance
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href="/invoices"
-              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-600 shadow-2xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
-            >
-              <FileText size={14} className="text-sky-600" />
-              Invoices
+      <CustomBreadcrumb
+        title="Credit Management & Risk Controls"
+        subtitle="Approved credit limits · Grace periods · Over-limit controls & credit hold governance"
+        icon={<ShieldCheck size={20} />}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Credit" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <Link href="/invoices">
+              <CustomButton variant="outline" leftIcon={<FileText size={14} />}>Invoices</CustomButton>
             </Link>
-
-            <Link
-              href="/payments"
-              className="flex items-center gap-1.5 rounded-sm border border-brand-border bg-brand-50/70 px-3.5 py-2 text-xs font-semibold text-sky-700 shadow-2xs transition hover:bg-brand-50/80 active:scale-95"
-            >
-              <Wallet size={14} />
-              Payments Hub
+            <Link href="/payments">
+              <CustomButton leftIcon={<Wallet size={14} />}>Payments Hub</CustomButton>
             </Link>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       <div className="w-full px-4 sm:px-8 pt-5">
         {/* Executive KPI Stats Cards */}

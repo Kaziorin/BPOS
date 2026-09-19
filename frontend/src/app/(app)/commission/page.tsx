@@ -7,6 +7,8 @@ import {
   TrendingUp, Users, Settings, ChevronRight, BadgeCheck, Undo2, AlertTriangle,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
 
 interface Commission {
   id: string;
@@ -105,24 +107,26 @@ export default function CommissionPage() {
   const fmt = (n: number) => `৳${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 
   return (
-    <div className="w-full px-4 sm:px-8 space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-600">Commission Engine</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Agent commissions — auto-calculated on every sale, reversed on return (§10.15)
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/commission/agents" className="flex items-center gap-2 rounded-sm border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:bg-gray-50">
-            <Users size={16} className="text-primary-600" /> Agents
-          </Link>
-          <Link href="/commission/rules" className="flex items-center gap-2 rounded-sm bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:opacity-90">
-            <Settings size={16} /> Rules
-          </Link>
-        </div>
-      </div>
+    <div className="w-full max-w-full space-y-6">
+      <CustomBreadcrumb
+        title="Commission Engine"
+        subtitle="Agent commissions — auto-calculated on every sale, reversed on return"
+        icon={<Percent size={20} />}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Commission" },
+        ]}
+        actions={
+          <div className="flex gap-2">
+            <Link href="/commission/agents">
+              <CustomButton variant="outline" leftIcon={<Users size={16} />}>Agents</CustomButton>
+            </Link>
+            <Link href="/commission/rules">
+              <CustomButton leftIcon={<Settings size={16} />}>Rules</CustomButton>
+            </Link>
+          </div>
+        }
+      />
 
       {/* Toast */}
       {toast && (

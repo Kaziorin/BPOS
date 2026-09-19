@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
+import { Activity, RefreshCw } from "lucide-react";
+import { CustomBreadcrumb, CustomButton } from "@/components/custom";
 
 const TABS = ["Observability", "Background Jobs", "Cache", "Performance", "Backup & DR"];
 
@@ -124,22 +126,37 @@ export default function SystemPerformancePage() {
   const lat = metrics?.api ?? {};
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-1">⚡ System — Observability, Performance & Backup</h1>
-      <p className="text-sm text-gray-500 mb-5">Live health dashboard + background jobs + backups (Prompts 39–40 · spec §25–26)</p>
+    <div className="w-full max-w-full p-6 space-y-6">
+      <CustomBreadcrumb
+        title="System Observability & Performance"
+        subtitle="Live health dashboard, background worker queue, cache analytics, and automated database backups."
+        icon={<Activity className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "System", href: "/system" },
+          { label: "Performance & Observability" },
+        ]}
+        actions={
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-1.5 text-xs text-gray-500 font-medium cursor-pointer">
+              <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} className="rounded-sm" /> auto-refresh 7s
+            </label>
+            <CustomButton size="sm" variant="outline" leftIcon={<RefreshCw size={14} className={loading ? "animate-spin" : ""} />} onClick={() => load()}>
+              Refresh
+            </CustomButton>
+          </div>
+        }
+      />
 
-      <div className="flex flex-wrap items-center gap-3 mb-5 border-b pb-2">
+      <div className="flex flex-wrap items-center gap-3 border-b border-brand-border pb-2">
         <div className="flex gap-2">
           {TABS.map((t, i) => (
             <button key={i} onClick={() => setTab(i)}
-              className={`px-4 py-2 rounded-t-sm text-sm font-medium ${tab === i ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+              className={`px-4 py-2 rounded-t-sm text-sm font-medium transition-colors ${tab === i ? "bg-brand-primary text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
               {t}
             </button>
           ))}
         </div>
-        <label className="ml-auto flex items-center gap-1 text-xs text-gray-500">
-          <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} /> auto-refresh 7s
-        </label>
       </div>
 
       {notice && <div className="mb-4 text-xs bg-blue-50 text-blue-700 rounded-sm px-3 py-2">{notice}</div>}

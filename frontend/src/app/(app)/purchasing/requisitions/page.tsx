@@ -10,6 +10,7 @@ import {
   Boxes, Layers, Info, Sparkles, Minus, PackageCheck, Undo2
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomButton, CustomBreadcrumb } from "@/components/custom";
 
 interface ReqItem {
   id?: string;
@@ -407,40 +408,41 @@ export default function RequisitionsPage() {
   const grandEstTotal = lines.reduce((acc, l) => acc + (Number(l.qty) || 0) * (Number(l.estUnitPrice) || 0), 0);
 
   return (
-    <div className="w-full space-y-6">
-      {/* ========================================================================= */}
-      {/* 1. TOP NAV BREADCRUMB & PURCHASING SUITE TABS                            */}
-      {/* ========================================================================= */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
-            <Link href="/purchasing" className="hover:text-brand-primary transition">Purchasing Hub</Link>
-            <ChevronRight size={13} className="text-gray-400" />
-            <span className="text-gray-600 font-bold">Purchase Requisitions</span>
+    <div className="w-full max-w-full space-y-4">
+      {/* Top Header via CustomBreadcrumb */}
+      <CustomBreadcrumb
+        title="Purchase Requisitions (PR)"
+        subtitle="Internal department procurement requests → multi-tier approval → 1-click PO conversion (§10.17)"
+        icon={<ClipboardList size={18} />}
+        breadcrumbs={[
+          { label: "Purchasing", href: "/purchasing" },
+          { label: "Purchase Requisitions" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={load}
+              disabled={loading}
+              title="Refresh Data"
+              leftIcon={<RefreshCw size={14} className={loading ? "animate-spin text-brand-primary" : ""} />}
+            >
+              Refresh
+            </CustomButton>
+            <CustomButton
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={openCreateModal}
+              leftIcon={<Plus size={16} />}
+            >
+              New Requisition
+            </CustomButton>
           </div>
-          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-600 sm:text-3xl">Purchase Requisitions</h1>
-          <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
-            Internal department procurement requests → multi-tier approval → 1-click PO conversion
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={load}
-            disabled={loading}
-            className="rounded-sm border border-slate-200 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600 disabled:opacity-50"
-            title="Refresh Data"
-          >
-            <RefreshCw size={17} className={loading ? "animate-spin text-brand-primary" : ""} />
-          </button>
-          <button
-            onClick={openCreateModal}
-            className="flex items-center gap-2 rounded-sm bg-brand-gradient px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-sm transition hover:opacity-90 active:scale-[0.98]"
-          >
-            <Plus size={18} /> New Requisition
-          </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Sub-Navigation Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto rounded-sm border border-slate-200 bg-white p-1.5 shadow-2xs">
@@ -1566,12 +1568,13 @@ export default function RequisitionsPage() {
                 )}
               </div>
 
-              <button
+              <CustomButton
+                variant="outline"
+                size="sm"
                 onClick={() => setViewReq(null)}
-                className="rounded-sm bg-gray-900 px-6 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-gray-800 transition"
               >
                 Close Slip
-              </button>
+              </CustomButton>
             </div>
           </div>
         </div>

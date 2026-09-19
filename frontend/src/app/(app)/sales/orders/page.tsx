@@ -40,6 +40,8 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { SaleReceiptViewModal, type ReceiptViewData } from "@/components/pos/SaleReceiptViewModal";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
 
 interface OrderItem {
   id?: string;
@@ -256,46 +258,29 @@ export default function SalesOrdersPage() {
   }
 
   return (
-    <div className="space-y-5 w-full px-4 sm:px-8 pb-12">
+    <div className="space-y-5 w-full max-w-full pb-12">
       
-      {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200/70 pb-4">
-        <div>
-          <h1 className="text-xl font-bold text-gray-600 tracking-tight flex items-center gap-2">
-            <PackageCheck size={22} className="text-primary-600" />
-            Restaurant Sales Orders
-          </h1>
-          <p className="text-xs text-gray-500 mt-0.5">
-            View and manage all restaurant dine-in, takeaway and delivery orders.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          <Link
-            href="/sales/quotations"
-            className="inline-flex items-center gap-1.5 rounded-sm border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-600 shadow-xs hover:bg-gray-50 transition"
-          >
-            <FileText size={14} className="text-gray-500" />
-            Quotations
-          </Link>
-
-          <button
-            onClick={exportCSV}
-            className="inline-flex items-center gap-1.5 rounded-sm border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-600 shadow-xs hover:bg-gray-50 transition"
-          >
-            <Download size={14} className="text-gray-500" />
-            Export CSV
-          </button>
-
-          <Link
-            href="/retail-pos"
-            className="inline-flex items-center gap-1.5 rounded-sm bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:opacity-90 transition"
-          >
-            <Store size={14} />
-            New POS Order
-          </Link>
-        </div>
-      </div>
+      <CustomBreadcrumb
+        title="Sales Orders"
+        subtitle="View and manage all restaurant dine-in, takeaway and delivery orders."
+        icon={<PackageCheck size={20} />}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Sales", href: "/sales" },
+          { label: "Orders" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link href="/sales/quotations">
+              <CustomButton variant="outline" leftIcon={<FileText size={14} />}>Quotations</CustomButton>
+            </Link>
+            <CustomButton variant="outline" leftIcon={<Download size={14} />} onClick={exportCSV}>Export CSV</CustomButton>
+            <Link href="/retail-pos">
+              <CustomButton leftIcon={<Store size={14} />}>New POS Order</CustomButton>
+            </Link>
+          </div>
+        }
+      />
 
       {/* ── KPI Analytics Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">

@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomTable, type CustomTableColumn } from "@/components/custom/CustomTable";
 import { CustomBadge } from "@/components/custom/CustomBadge";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 
 interface Batch {
   id: string;
@@ -105,13 +106,16 @@ export default function BatchesPage() {
   ];
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-600">Batch & Expiry Tracking</h1>
-          <p className="mt-1 text-sm text-gray-500">FEFO — First Expired, First Out. Batches sorted by earliest expiry.</p>
-        </div>
-      </div>
+    <div className="w-full max-w-full space-y-4">
+      <CustomBreadcrumb
+        title="Batch & Expiry Tracking"
+        subtitle="FEFO — First Expired, First Out. Batches sorted by earliest expiry (§10.20)"
+        icon={<FlaskConical size={18} />}
+        breadcrumbs={[
+          { label: "Inventory", href: "/inventory/stock" },
+          { label: "Batch Tracking" },
+        ]}
+      />
 
       <div className="flex gap-3 items-center">
         <CustomInput

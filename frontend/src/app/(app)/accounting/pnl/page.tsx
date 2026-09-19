@@ -4,11 +4,14 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { BarChart3, TrendingUp, TrendingDown, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomTable } from "@/components/custom";
+import { CustomTable, CustomBreadcrumb } from "@/components/custom";
 import { money } from "@/lib/format";
 
 interface PnlRow { code: string; name: string; amount: number }
-interface PnlData { revenue: PnlRow[]; expenses: PnlRow[]; totalRevenue: number; totalExpenses: number; netProfit: number }
+interface PnlData {
+  revenue: PnlRow[]; expenses: PnlRow[];
+  totalRevenue: number; totalExpenses: number; netProfit: number;
+}
 
 export default function PnlPage() {
   const [data, setData] = useState<PnlData | null>(null);
@@ -19,7 +22,7 @@ export default function PnlPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get<{ data: PnlData }>("/accounting/profit-loss");
+      const res = await api.get<{ data: PnlData }>("/accounting/pnl");
       setData(res.data);
     } catch (err: any) {
       setError(err.message || "Failed to load profit & loss");
@@ -33,14 +36,16 @@ export default function PnlPage() {
   const net = data?.netProfit ?? 0;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><BarChart3 size={19} /></div>
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-gray-600">Profit &amp; Loss</h1>
-          <p className="text-sm text-gray-500">Revenue minus expenses for the period</p>
-        </div>
-      </div>
+    <div className="w-full max-w-full space-y-4">
+      <CustomBreadcrumb
+        title="Profit & Loss"
+        subtitle="Revenue minus expenses for the period (§10.20)"
+        icon={<BarChart3 size={18} />}
+        breadcrumbs={[
+          { label: "Accounting", href: "/accounting/accounts" },
+          { label: "Profit & Loss" },
+        ]}
+      />
 
       {error && <div className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 

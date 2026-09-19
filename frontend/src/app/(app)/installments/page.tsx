@@ -44,6 +44,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb, CustomButton } from "@/components/custom";
 
 interface Schedule {
   id: string;
@@ -507,7 +508,7 @@ export default function InstallmentsPage() {
       {toastMessage && (
         <div
           className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-sm px-4 py-3 text-sm font-semibold text-white shadow-2xl transition-all animate-in fade-in slide-in-from-bottom-5 ${
-            toastMessage.type === "success" ? "bg-slate-900 ring-1 ring-slate-800" : "bg-rose-600"
+            toastMessage.type === "success" ? "bg-emerald-600 ring-1 ring-emerald-700" : "bg-rose-600"
           }`}
         >
           {toastMessage.type === "success" ? <CheckCircle2 size={18} className="text-emerald-400" /> : <AlertTriangle size={18} />}
@@ -515,87 +516,46 @@ export default function InstallmentsPage() {
         </div>
       )}
 
-      {/* ── TOP BANNER / HEADER (THEME COMPLIANT) ── */}
-      <div className="border-b border-slate-200 bg-white px-4 sm:px-8 py-5 shadow-xs">
-        <div className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-gradient-to-tr from-primary-600 via-primary-500 to-indigo-600 text-white shadow-md shadow-primary-500/25">
-                <CreditCard size={22} className="stroke-[2.2]" />
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-600">
-                    Installment Management & BNPL Engine
-                  </h1>
-                  <span className="rounded-full bg-primary-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-primary-700 ring-1 ring-primary-200">
-                    Hire Purchase & EMI
-                  </span>
-                </div>
-                <p className="text-xs font-medium text-slate-500">
-                  Customer installment contracts · EMI schedule management · Automated collections · Early settlement & restructuring
-                </p>
-              </div>
+      <div className="w-full max-w-full p-6 space-y-6">
+        <CustomBreadcrumb
+          title="Installment Management & BNPL Engine"
+          subtitle="Customer installment contracts · EMI schedule management · Automated collections · Early settlement & restructuring"
+          icon={<CreditCard className="text-brand-primary" size={24} />}
+          breadcrumbs={[
+            { label: "Home", href: "/dashboard" },
+            { label: "Credit", href: "/credit" },
+            { label: "Installments" },
+          ]}
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              <CustomButton size="sm" leftIcon={<Plus size={15} />} onClick={() => setShowCreateModal(true)}>
+                Create Installment Plan
+              </CustomButton>
+              <Link href="/credit">
+                <CustomButton size="sm" variant="outline" leftIcon={<ShieldCheck size={14} className="text-emerald-600" />}>
+                  Credit Limits
+                </CustomButton>
+              </Link>
+              <Link href="/credit/aging">
+                <CustomButton size="sm" variant="outline" leftIcon={<Calendar size={14} className="text-brand-primary" />}>
+                  AR Aging
+                </CustomButton>
+              </Link>
+              <Link href="/payments">
+                <CustomButton size="sm" variant="outline" leftIcon={<Wallet size={14} />}>
+                  Payments Hub
+                </CustomButton>
+              </Link>
+              <CustomButton size="sm" variant="outline" onClick={() => { loadPlans(); loadStats(); }} title="Refresh Data">
+                <RefreshCw size={14} className={loading ? "animate-spin text-brand-primary" : "text-slate-500"} />
+              </CustomButton>
+              <CustomButton size="sm" variant="outline" onClick={handleExportCSV} leftIcon={<Download size={14} className="text-slate-500" />}>
+                Export
+              </CustomButton>
             </div>
-          </div>
+          }
+        />
 
-          {/* Navigation & Action Links */}
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-1.5 rounded-sm bg-primary-600 px-4 py-2 text-xs font-semibold text-white shadow-xs shadow-primary-500/25 transition hover:opacity-90 active:scale-95"
-            >
-              <Plus size={15} />
-              Create Installment Plan
-            </button>
-
-            <Link
-              href="/credit"
-              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-600 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
-            >
-              <ShieldCheck size={14} className="text-emerald-600" />
-              Credit Limits
-            </Link>
-
-            <Link
-              href="/credit/aging"
-              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-600 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
-            >
-              <Calendar size={14} className="text-primary-600" />
-              AR Aging
-            </Link>
-
-            <Link
-              href="/payments"
-              className="flex items-center gap-1.5 rounded-sm border border-primary-200 bg-primary-50/70 px-3.5 py-2 text-xs font-semibold text-primary-700 shadow-xs transition hover:bg-primary-100/80 active:scale-95"
-            >
-              <Wallet size={14} />
-              Payments Hub
-            </Link>
-
-            <button
-              onClick={() => {
-                loadPlans();
-                loadStats();
-              }}
-              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 shadow-xs transition hover:bg-slate-50 active:scale-95"
-              title="Refresh Data"
-            >
-              <RefreshCw size={14} className={loading ? "animate-spin text-primary-600" : "text-slate-500"} />
-            </button>
-
-            <button
-              onClick={handleExportCSV}
-              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-600 shadow-xs transition hover:bg-slate-50 active:scale-95"
-            >
-              <Download size={14} className="text-slate-500" />
-              Export
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="w-full px-4 sm:px-8 pt-5 space-y-5">
         {/* ── EXECUTIVE KPI SCORECARDS (THEMED TOKENS) ── */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {/* 1. Total Financed Portfolio */}

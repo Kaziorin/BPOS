@@ -4,14 +4,14 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Scale, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomTable } from "@/components/custom";
+import { CustomTable, CustomBreadcrumb } from "@/components/custom";
 import { money } from "@/lib/format";
 
-interface TBRow { id: string; code: string; name: string; accountType: string; debit: number | string; credit: number | string }
-interface TBData { accounts: TBRow[]; totalDebit: number; totalCredit: number; balanced: boolean }
+interface TbRow { id?: string; code: string; name: string; accountType: string; debit: number | string; credit: number | string }
+interface TbData { accounts: TbRow[]; totalDebit: number; totalCredit: number; balanced: boolean }
 
 export default function TrialBalancePage() {
-  const [data, setData] = useState<TBData | null>(null);
+  const [data, setData] = useState<TbData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +19,7 @@ export default function TrialBalancePage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get<{ data: TBData }>("/accounting/trial-balance");
+      const res = await api.get<{ data: TbData }>("/accounting/trial-balance");
       setData(res.data);
     } catch (err: any) {
       setError(err.message || "Failed to load trial balance");
@@ -31,22 +31,24 @@ export default function TrialBalancePage() {
   useEffect(() => { load(); }, [load]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><Scale size={19} /></div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-600">Trial Balance</h1>
-            <p className="text-sm text-gray-500">Debit vs credit footing for every account (§10.20)</p>
-          </div>
-        </div>
-        {data && (
-          <div className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium ${data.balanced ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
-            {data.balanced ? <CheckCircle2 size={15} /> : <XCircle size={15} />}
-            {data.balanced ? "Balanced" : "Unbalanced"}
-          </div>
-        )}
-      </div>
+    <div className="w-full max-w-full space-y-4">
+      <CustomBreadcrumb
+        title="Trial Balance"
+        subtitle="Debit vs credit footing for every account (§10.20)"
+        icon={<Scale size={18} />}
+        breadcrumbs={[
+          { label: "Accounting", href: "/accounting/accounts" },
+          { label: "Trial Balance" },
+        ]}
+        actions={
+          data && (
+            <div className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold ${data.balanced ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+              {data.balanced ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+              {data.balanced ? "Balanced" : "Unbalanced"}
+            </div>
+          )
+        }
+      />
 
       {error && <div className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
@@ -77,7 +79,7 @@ export default function TrialBalancePage() {
             { key: "credit", header: "Credit", align: "right", render: (r) => <span className="font-semibold tabular-nums text-gray-600">{Number(r.credit) > 0 ? money(Number(r.credit)) : "—"}</span> },
           ]}
           data={data?.accounts ?? []}
-          rowKey={(r) => r.id}
+          rowKey={(r) => r.id || r.code}
           loading={loading}
           emptyIcon={Scale}
           emptyMessage="No accounts have activity yet — post a journal first."

@@ -58,10 +58,10 @@ const STATUS_COLORS: Record<string, string> = {
 export default function HardwarePage() {
   const [tab, setTab] = useState('devices');
   const tabs = [
-    { id: 'devices', label: 'Devices', icon: Printer },
-    { id: 'jobs', label: 'Print & Action Jobs', icon: FileText },
-    { id: 'scanner', label: 'Barcode Scanner', icon: ScanBarcode },
-    { id: 'realtime', label: 'Real-Time SSE', icon: Radio },
+    { id: 'devices', label: 'Devices', icon: <Printer size={16} /> },
+    { id: 'jobs', label: 'Print & Action Jobs', icon: <FileText size={16} /> },
+    { id: 'scanner', label: 'Barcode Scanner', icon: <ScanBarcode size={16} /> },
+    { id: 'realtime', label: 'Real-Time SSE', icon: <Radio size={16} /> },
   ];
 
   return (

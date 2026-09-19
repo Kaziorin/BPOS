@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Loader2, ArrowLeft, Users, Wallet, TrendingUp, CheckCircle, Clock, DollarSign } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb } from "@/components/custom";
 
 interface AgentStats {
   totalEarned: number;
@@ -62,16 +63,17 @@ export default function CommissionAgentsPage() {
   const fmt = (n: number) => `৳${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 
   return (
-    <div className="w-full px-4 sm:px-8 space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/commission" className="rounded-sm p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
-          <ArrowLeft size={18} />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-600">Commission Agents</h1>
-          <p className="mt-0.5 text-sm text-gray-500">Sales agents, reps, referral partners & distributors with their earnings</p>
-        </div>
-      </div>
+    <div className="w-full max-w-full p-6 space-y-6">
+      <CustomBreadcrumb
+        title="Commission Agents"
+        subtitle="Sales agents, reps, referral partners & distributors with their earnings"
+        icon={<Users className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Commission", href: "/commission" },
+          { label: "Agents" },
+        ]}
+      />
 
       {toast && (
         <div className={`flex items-center gap-2 rounded-sm border p-3 text-sm ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800"}`}>

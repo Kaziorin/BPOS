@@ -10,6 +10,7 @@ import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomSelect } from "@/components/custom/CustomSelect";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomModal } from "@/components/custom/CustomModal";
+import CustomBreadcrumb from "@/components/custom/CustomBreadcrumb";
 
 interface RepairTicket {
   id: string;
@@ -266,11 +267,26 @@ export default function RepairPage() {
   const pipeline = ["RECEIVED", "INSPECTION", "ESTIMATE", "APPROVED", "REPAIRING", "QUALITY_CHECK", "READY", "DELIVERED"];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-600">Repair & Service Center</h1>
-        <p className="mt-1 text-sm text-gray-500">Ticket lifecycle with spare parts, labour & warranty linkage (§11.8)</p>
-      </div>
+    <div className="w-full max-w-full p-6 space-y-6">
+      <CustomBreadcrumb
+        title="Repair & Service Center"
+        subtitle="Ticket lifecycle with spare parts, labour & warranty linkage (§11.8)"
+        icon={<Wrench className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Repair" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton variant="outline" size="sm" leftIcon={<RefreshCw size={14} className={loading ? "animate-spin" : ""} />} onClick={loadTickets}>
+              Refresh
+            </CustomButton>
+            <CustomButton size="sm" leftIcon={<Plus size={15} />} onClick={openCreate}>
+              New Ticket
+            </CustomButton>
+          </div>
+        }
+      />
 
       {message && <div className="rounded-sm border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">{message}</div>}
 
@@ -283,8 +299,6 @@ export default function RepairPage() {
         <CustomSelect value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
           options={[{ label: "All statuses", value: "" }, ...pipeline.map((s) => ({ label: s, value: s })), { label: "Cancelled", value: "CANCELLED" }]}
           containerClassName="w-44" />
-        <CustomButton variant="outline" leftIcon={<RefreshCw size={15} />} onClick={loadTickets}>Refresh</CustomButton>
-        <CustomButton leftIcon={<Plus size={15} />} onClick={openCreate}>New Ticket</CustomButton>
       </div>
 
       {/* Pipeline columns */}

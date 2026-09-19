@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { BookOpen, Plus, Loader2 } from "lucide-react";
+import { BookOpen, Plus } from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomTable, CustomBadge, CustomButton } from "@/components/custom";
+import { CustomTable, CustomBadge, CustomButton, CustomBreadcrumb } from "@/components/custom";
 import { money } from "@/lib/format";
 
 interface Account {
@@ -38,19 +38,23 @@ export default function AccountsPage() {
   useEffect(() => { load(); }, [load]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><BookOpen size={19} /></div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-600">Chart of Accounts</h1>
-            <p className="text-sm text-gray-500">{accounts.length} accounts · auto-seeded COA (§10.20)</p>
-          </div>
-        </div>
-        <Link href="/accounting/accounts/create">
-          <CustomButton leftIcon={<Plus size={15} />}>Add Account</CustomButton>
-        </Link>
-      </div>
+    <div className="w-full max-w-full space-y-4">
+      <CustomBreadcrumb
+        title="Chart of Accounts"
+        subtitle={`${accounts.length} accounts · auto-seeded COA (§10.20)`}
+        icon={<BookOpen size={18} />}
+        breadcrumbs={[
+          { label: "Accounting", href: "/accounting/accounts" },
+          { label: "Chart of Accounts" },
+        ]}
+        actions={
+          <Link href="/accounting/accounts/create">
+            <CustomButton variant="primary" size="sm" leftIcon={<Plus size={15} />}>
+              Add Account
+            </CustomButton>
+          </Link>
+        }
+      />
 
       {error && <div className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 

@@ -7,6 +7,7 @@ import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomSelect } from "@/components/custom/CustomSelect";
 import { CustomTable, type CustomTableColumn } from "@/components/custom/CustomTable";
 import { CustomBadge } from "@/components/custom/CustomBadge";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 
 interface Serial {
   id: string;
@@ -103,13 +104,17 @@ export default function SerialsPage() {
   ];
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-600">Serial Numbers</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Full lifecycle — In Stock → Sold → Returned / Defective
-        </p>
-      </div>
+    <div className="space-y-5 w-full max-w-full">
+      <CustomBreadcrumb
+        title="Serial Numbers"
+        subtitle="Full lifecycle — In Stock → Sold → Returned / Defective"
+        icon={<Hash size={20} />}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Inventory", href: "/inventory" },
+          { label: "Serial Numbers" },
+        ]}
+      />
 
       <div className="flex gap-3">
         <CustomInput

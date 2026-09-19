@@ -9,6 +9,7 @@ import { CustomSelect } from "@/components/custom/CustomSelect";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomTable, type CustomTableColumn } from "@/components/custom/CustomTable";
 import { CustomBadge } from "@/components/custom/CustomBadge";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 
 interface Warehouse { id: string; name: string; code: string; }
 interface Transfer {
@@ -116,14 +117,20 @@ export default function TransfersPage() {
   ];
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-600">Stock Transfers</h1>
-          <p className="mt-1 text-sm text-gray-500">Request → Approve → Ship → Receive</p>
-        </div>
-        <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowCreate(true)}>New Transfer</CustomButton>
-      </div>
+    <div className="space-y-5 w-full max-w-full">
+      <CustomBreadcrumb
+        title="Stock Transfers"
+        subtitle="Request → Approve → Ship → Receive"
+        icon={<ArrowRightLeft size={20} />}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Inventory", href: "/inventory" },
+          { label: "Transfers" },
+        ]}
+        actions={
+          <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowCreate(true)}>New Transfer</CustomButton>
+        }
+      />
 
       <div className="rounded-sm border border-gray-200 bg-white">
         <CustomTable columns={columns} data={transfers} rowKey={(r) => r.id} loading={loading} emptyIcon={ArrowRightLeft} emptyMessage="No transfers yet" />

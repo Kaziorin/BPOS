@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { BookMarked, Plus, RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomTable, CustomBadge, CustomButton } from "@/components/custom";
+import { CustomTable, CustomBadge, CustomButton, CustomBreadcrumb } from "@/components/custom";
 import { money, dateTime } from "@/lib/format";
 
 interface LedgerLine { debit: string | number; credit: string | number; memo: string; accountCode: string; accountName: string; accountType: string }
@@ -21,15 +21,15 @@ export default function JournalsPage() {
   const [journals, setJournals] = useState<Journal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get<{ data: Journal[] }>("/accounting/journals?limit=100");
+      const res = await api.get<{ data: Journal[] }>("/accounting/journals");
       setJournals(res.data);
     } catch (err: any) {
       setError(err.message || "Failed to load journals");
@@ -55,19 +55,23 @@ export default function JournalsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><BookMarked size={19} /></div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-600">Journals</h1>
-            <p className="text-sm text-gray-500">{journals.length} posted journals · append-only, reversible (§10.20)</p>
-          </div>
-        </div>
-        <Link href="/accounting/journals/create">
-          <CustomButton leftIcon={<Plus size={15} />}>Create Journal</CustomButton>
-        </Link>
-      </div>
+    <div className="w-full max-w-full space-y-4">
+      <CustomBreadcrumb
+        title="Journals"
+        subtitle={`${journals.length} posted journals · append-only, reversible (§10.20)`}
+        icon={<BookMarked size={18} />}
+        breadcrumbs={[
+          { label: "Accounting", href: "/accounting/accounts" },
+          { label: "Journals" },
+        ]}
+        actions={
+          <Link href="/accounting/journals/create">
+            <CustomButton variant="primary" size="sm" leftIcon={<Plus size={15} />}>
+              Create Journal
+            </CustomButton>
+          </Link>
+        }
+      />
 
       {toast && (
         <div className={`rounded-sm border px-4 py-3 text-sm ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700"}`}>

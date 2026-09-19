@@ -9,6 +9,7 @@ import {
   ListFilter, RefreshCw, ChevronRight, TrendingUp, Clock, Sparkles, Check, Send
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomButton, CustomBreadcrumb } from "@/components/custom";
 
 interface PoItem {
   id: string;
@@ -420,38 +421,41 @@ export default function PurchaseOrdersPage() {
   const grandTotal = subtotalAmount - rebateAmount;
 
   return (
-    <div className="w-full space-y-6">
-      {/* Top Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
-            <Link href="/purchasing" className="hover:text-sky-600 transition">Purchasing Hub</Link>
-            <ChevronRight size={13} className="text-gray-400" />
-            <span className="text-gray-600 font-bold">Purchase Orders</span>
+    <div className="w-full max-w-full space-y-4">
+      {/* Top Header via CustomBreadcrumb */}
+      <CustomBreadcrumb
+        title="Purchase Orders (PO)"
+        subtitle="Official supplier orders → approval → receive goods (GRN) → AP invoices & payments (§10.17)"
+        icon={<ShoppingCart size={18} />}
+        breadcrumbs={[
+          { label: "Purchasing", href: "/purchasing" },
+          { label: "Purchase Orders" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={load}
+              disabled={loading}
+              title="Refresh Data"
+              leftIcon={<RefreshCw size={14} className={loading ? "animate-spin text-sky-600" : ""} />}
+            >
+              Refresh
+            </CustomButton>
+            <CustomButton
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={openCreateModal}
+              leftIcon={<Plus size={16} />}
+            >
+              New Purchase Order
+            </CustomButton>
           </div>
-          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-600 sm:text-3xl">Purchase Orders (PO)</h1>
-          <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
-            Official supplier orders → approval → receive goods (GRN) → AP invoices & payments (§10.17)
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={load}
-            disabled={loading}
-            className="rounded-sm border border-slate-200 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600 disabled:opacity-50"
-            title="Refresh Data"
-          >
-            <RefreshCw size={17} className={loading ? "animate-spin text-sky-600" : ""} />
-          </button>
-          <button
-            onClick={openCreateModal}
-            className="flex items-center gap-2 rounded-sm bg-brand-gradient px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-sm transition hover:opacity-90 active:scale-[0.98]"
-          >
-            <Plus size={18} /> New Purchase Order
-          </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Sub-Navigation Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto rounded-sm border border-slate-200 bg-white p-1.5 shadow-2xs">
@@ -1586,12 +1590,13 @@ export default function PurchaseOrdersPage() {
                 )}
               </div>
 
-              <button
+              <CustomButton
+                variant="outline"
+                size="sm"
                 onClick={() => setViewPo(null)}
-                className="rounded-sm bg-gray-900 px-6 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-gray-800 transition"
               >
                 Close Slip
-              </button>
+              </CustomButton>
             </div>
           </div>
         </div>

@@ -2,8 +2,9 @@
 
 import { use } from "react";
 import { notFound } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Layers } from "lucide-react";
 import { useDynamicNav } from "@/lib/dynamic-nav";
+import CustomBreadcrumb from "@/components/custom/CustomBreadcrumb";
 
 interface ModuleItem {
   id: string;
@@ -14,12 +15,18 @@ interface ModuleItem {
 }
 
 function DefaultModulePage({ moduleCode, items }: { moduleCode: string; items: ModuleItem[] }) {
+  const formattedTitle = moduleCode.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-600 capitalize">{moduleCode.replace(/-/g, " ")}</h1>
-        <p className="mt-1 text-sm text-gray-500">Manage {moduleCode.replace(/-/g, " ")} settings and data</p>
-      </div>
+    <div className="w-full max-w-full p-6 space-y-6">
+      <CustomBreadcrumb
+        title={formattedTitle}
+        subtitle={`Manage ${formattedTitle.toLowerCase()} settings and sub-modules`}
+        icon={<Layers className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: formattedTitle },
+        ]}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (

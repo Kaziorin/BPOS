@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Building2 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb, CustomButton, CustomCard } from "@/components/custom";
 
 export default function CreateSupplierPage() {
   const router = useRouter();
@@ -56,16 +57,17 @@ export default function CreateSupplierPage() {
   const labelClass = "block text-sm font-medium text-gray-600";
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-center gap-3">
-        <button onClick={() => router.push("/suppliers")} className="rounded-sm p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
-          <ArrowLeft size={18} />
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-600">Add Supplier</h1>
-          <p className="text-sm text-gray-500">Create a new supplier record</p>
-        </div>
-      </div>
+    <div className="w-full max-w-full p-6 space-y-6">
+      <CustomBreadcrumb
+        title="Add Supplier"
+        subtitle="Create a new supplier record and configure payment terms"
+        icon={<Building2 className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Suppliers", href: "/suppliers" },
+          { label: "Create Supplier" },
+        ]}
+      />
 
       {error && (
         <div className="rounded-sm border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
@@ -144,13 +146,12 @@ export default function CreateSupplierPage() {
         </div>
 
         <div className="flex justify-end gap-3">
-          <button type="button" onClick={() => router.push("/suppliers")} className="rounded-sm border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">
+          <CustomButton type="button" variant="outline" onClick={() => router.push("/suppliers")}>
             Cancel
-          </button>
-          <button type="submit" disabled={saving} className="flex items-center gap-2 rounded-sm bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50">
-            {saving && <Loader2 size={16} className="animate-spin" />}
+          </CustomButton>
+          <CustomButton type="submit" disabled={saving} loading={saving}>
             {saving ? "Creating..." : "Create Supplier"}
-          </button>
+          </CustomButton>
         </div>
       </form>
     </div>

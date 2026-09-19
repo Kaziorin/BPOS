@@ -74,6 +74,8 @@ interface SaleSummary {
   deviceModel?: string;
   challanNo?: string;
   notes?: string;
+  branch?: { id?: string; name?: string } | null;
+  branchName?: string;
 }
 
 const VERTICAL_TABS = [
@@ -305,7 +307,7 @@ export default function SalesPage() {
       {/* ── Breadcrumb with Global Responsive Header ── */}
       <CustomBreadcrumb
         title="Sales Transactions & Invoicing"
-        icon={<ShoppingBag size={20} />}
+        icon={<ShoppingCart size={20} />}
         breadcrumbs={[
           { label: "Sales & Invoicing", href: "/sales" },
           { label: "Transactions" },

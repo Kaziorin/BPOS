@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Loader2, ArrowLeft, Plus, Settings, Trash2, Power, Layers, Calculator, X, Check } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb, CustomButton } from "@/components/custom";
 
 interface Rule {
   id: string;
@@ -177,22 +178,22 @@ export default function CommissionRulesPage() {
   const labelCls = "block text-xs font-semibold uppercase tracking-wide text-gray-500";
 
   return (
-    <div className="w-full px-4 sm:px-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/commission" className="rounded-sm p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
-            <ArrowLeft size={18} />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-600">Commission Rules</h1>
-            <p className="mt-0.5 text-sm text-gray-500">Configure how commissions calculate per agent type (§10.15)</p>
-          </div>
-        </div>
-        <button onClick={() => { resetForm(); setShowModal(true); }}
-          className="flex items-center gap-2 rounded-sm bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:opacity-90">
-          <Plus size={16} /> New Rule
-        </button>
-      </div>
+    <div className="w-full max-w-full p-6 space-y-6">
+      <CustomBreadcrumb
+        title="Commission Rules"
+        subtitle="Configure how commissions calculate per agent type (§10.15)"
+        icon={<Settings className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Commission", href: "/commission" },
+          { label: "Rules" },
+        ]}
+        actions={
+          <CustomButton size="sm" leftIcon={<Plus size={16} />} onClick={() => { resetForm(); setShowModal(true); }}>
+            New Rule
+          </CustomButton>
+        }
+      />
 
       {error && (
         <div className="rounded-sm border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">

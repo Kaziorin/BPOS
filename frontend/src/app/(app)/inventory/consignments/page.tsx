@@ -8,6 +8,7 @@ import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomTable, type CustomTableColumn } from "@/components/custom/CustomTable";
 import { CustomBadge } from "@/components/custom/CustomBadge";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 
 interface Consignment {
   id: string;
@@ -119,14 +120,20 @@ export default function ConsignmentsPage() {
   const totalPages = Math.ceil(total / 20);
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-600">Consignment Inventory</h1>
-          <p className="mt-1 text-sm text-gray-500">Supplier-owned stock — track sales, returns, and settlement</p>
-        </div>
-        <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowCreate(true)}>Receive Consignment</CustomButton>
-      </div>
+    <div className="space-y-5 w-full max-w-full">
+      <CustomBreadcrumb
+        title="Consignment Inventory"
+        subtitle="Supplier-owned stock — track sales, returns, and settlement"
+        icon={<Handshake size={20} />}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Inventory", href: "/inventory" },
+          { label: "Consignments" },
+        ]}
+        actions={
+          <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowCreate(true)}>Receive Consignment</CustomButton>
+        }
+      />
 
       <div className="rounded-sm border border-gray-200 bg-white">
         <CustomTable columns={columns} data={consignments} rowKey={(r) => r.id} loading={loading} emptyIcon={Handshake} emptyMessage="No consignments yet" />

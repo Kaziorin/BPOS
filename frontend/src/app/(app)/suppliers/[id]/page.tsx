@@ -2,8 +2,9 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowLeft, Edit, Save } from "lucide-react";
+import { Loader2, ArrowLeft, Edit, Save, Building2 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb, CustomButton } from "@/components/custom";
 
 export default function SupplierDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -55,34 +56,33 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
   ];
 
   return (
-    <div className="w-full px-4 sm:px-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.push("/suppliers")} className="rounded-sm p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
-            <ArrowLeft size={18} />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-600">{supplier.name}</h1>
-            <p className="text-sm text-gray-500">{supplier.company || "No company"} · {supplier.city || "No city"}</p>
+    <div className="w-full max-w-full p-6 space-y-6">
+      <CustomBreadcrumb
+        title={supplier.name}
+        subtitle={`${supplier.company || "No company"} · ${supplier.city || "No city"}`}
+        icon={<Building2 className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Suppliers", href: "/suppliers" },
+          { label: supplier.name },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${supplier.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+              {supplier.status}
+            </span>
+            {editing ? (
+              <CustomButton onClick={handleSave} disabled={saving} loading={saving} leftIcon={<Save size={16} />}>
+                Save
+              </CustomButton>
+            ) : (
+              <CustomButton variant="outline" onClick={() => { setForm(supplier); setEditing(true); }} leftIcon={<Edit size={16} />}>
+                Edit
+              </CustomButton>
+            )}
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${supplier.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-            {supplier.status}
-          </span>
-          {editing ? (
-            <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 rounded-sm bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50">
-              {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-              Save
-            </button>
-          ) : (
-            <button onClick={() => { setForm(supplier); setEditing(true); }} className="flex items-center gap-2 rounded-sm border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">
-              <Edit size={16} />
-              Edit
-            </button>
-          )}
-        </div>
-      </div>
+        }
+      />
 
       {/* Stats bar */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

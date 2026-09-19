@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { RotateCcw, Plus, CheckCircle2, XCircle, Clock, Package } from "lucide-react";
 import { api } from "@/lib/api";
 import { CustomTable, CustomBadge } from "@/components/custom";
+import { CustomButton } from "@/components/custom/CustomButton";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { money, dateTime } from "@/lib/format";
 
 interface ReturnItem { id: string; productName: string; qty: number; unitPrice: number; lineTotal: number; itemCondition: string }
@@ -36,18 +38,19 @@ export default function ReturnsPage() {
   useEffect(() => { load(); }, [load]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between rounded-sm bg-gradient-to-br from-red-500 via-red-600 to-rose-600 p-6 text-white shadow-md">
-        <div>
-          <p className="flex items-center gap-2 text-sm text-red-100"><RotateCcw size={15} /> Returns & Refunds</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight">Return Management</h1>
-          <p className="mt-1 text-sm text-red-200">§10.22 — Full return flow with stock, accounting, commission, loyalty reversal</p>
-        </div>
-        <button onClick={() => setShowForm(true)}
-          className="hidden items-center gap-2 rounded-sm bg-white/10 px-4 py-2.5 text-sm font-medium ring-1 ring-white/20 transition hover:bg-white/20 sm:inline-flex">
-          <Plus size={15} /> New Return
-        </button>
-      </div>
+    <div className="space-y-6 w-full max-w-full">
+      <CustomBreadcrumb
+        title="Return Management"
+        subtitle="Full return flow with stock, accounting, commission, loyalty reversal"
+        icon={<RotateCcw size={20} />}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Returns" },
+        ]}
+        actions={
+          <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowForm(true)}>New Return</CustomButton>
+        }
+      />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Total Returns" value={returns.length} icon={RotateCcw} />

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Zap, ArrowRight } from "lucide-react";
+import CustomBreadcrumb from "@/components/custom/CustomBreadcrumb";
 
 const TEMPLATES = [
   {
@@ -36,13 +37,17 @@ const TEMPLATES = [
 
 export default function BusinessRuleTemplatesPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-600">
-          <Zap size={22} className="text-primary-600" /> Rule templates
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">Battle-tested IF/THEN recipes — start from a template, then tune the thresholds</p>
-      </div>
+    <div className="w-full max-w-full p-6 space-y-6">
+      <CustomBreadcrumb
+        title="Rule Templates"
+        subtitle="Battle-tested IF/THEN recipes — start from a template, then tune the thresholds"
+        icon={<Zap className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Business Rules", href: "/business-rules" },
+          { label: "Templates" },
+        ]}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2">
         {TEMPLATES.map((t) => (

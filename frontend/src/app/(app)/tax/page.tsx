@@ -1662,14 +1662,15 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
           </div>
 
           <div className="pt-2">
-            <button
+            <CustomButton
+              variant="primary"
               onClick={testBackendApi}
               disabled={computing}
-              className="w-full rounded-sm bg-slate-900 py-3 text-sm font-bold text-white shadow-2xs transition hover:bg-slate-800 active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full"
+              leftIcon={<RefreshCw size={16} className={computing ? "animate-spin" : ""} />}
             >
-              <RefreshCw size={16} className={computing ? "animate-spin" : ""} />
               {computing ? "Calling Backend API..." : "Verify with Backend Engine (/tax/calculate)"}
-            </button>
+            </CustomButton>
           </div>
         </div>
       </div>

@@ -116,3 +116,5 @@ export function CustomBreadcrumb({
     </div>
   );
 }
+
+export default CustomBreadcrumb;

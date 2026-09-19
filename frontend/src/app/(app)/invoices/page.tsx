@@ -241,7 +241,7 @@ export default function InvoicesPage() {
   const [allocAmount, setAllocAmount] = useState<number>(0);
   const [allocMethod, setAllocMethod] = useState("CASH");
   const [allocRef, setAllocRef] = useState("");
-  const [allocRows, setAllocRows] = useState<Array<{ invoiceId: string; invoiceNo: string; total: number; paidTotal: number; due: number; allocated: number }>>([]);
+  const [allocRows, setAllocRows] = useState<Array<{ invoiceId: string; invoiceNo: string; date?: string; total: number; paidTotal: number; due: number; allocated: number }>>([]);
   const [allocSubmitting, setAllocSubmitting] = useState(false);
 
   const showToast = (text: string, type: "success" | "error" = "success") => {
@@ -519,6 +519,7 @@ export default function InvoicesPage() {
         unpaids.map((inv) => ({
           invoiceId: inv.id,
           invoiceNo: inv.invoiceNo,
+          date: inv.issueDate ? new Date(inv.issueDate).toLocaleDateString() : "-",
           total: Number(inv.total),
           paidTotal: Number(inv.paidTotal),
           due: Math.max(0, Number(inv.total) - Number(inv.paidTotal)),
@@ -2503,7 +2504,7 @@ export default function InvoicesPage() {
                     type="button"
                     variant="outline"
                     size="xs"
-                    onClick={handleAutoDistribute}
+                    onClick={handleAutoDistributeAlloc}
                     disabled={!allocAmount || allocRows.length === 0}
                   >
                     Auto-Allocate (Oldest First)

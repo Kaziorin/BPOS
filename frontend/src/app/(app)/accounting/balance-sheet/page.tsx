@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { FileText, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomTable } from "@/components/custom";
+import { CustomTable, CustomBreadcrumb } from "@/components/custom";
 import { money } from "@/lib/format";
 
 interface BsRow { id: string; code: string; name: string; balance: number }
@@ -56,22 +56,24 @@ export default function BalanceSheetPage() {
   const eqRows: BsRow[] = [...(data?.equity ?? []), ...(data?.retainedEarnings ? [{ id: "np", code: "NP", name: data.retainedEarnings.name, balance: data.retainedEarnings.balance }] : [])];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><FileText size={19} /></div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-600">Balance Sheet</h1>
-            <p className="text-sm text-gray-500">Assets = Liabilities + Equity</p>
-          </div>
-        </div>
-        {data && (
-          <div className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium ${data.balanced ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
-            {data.balanced ? <CheckCircle2 size={15} /> : <XCircle size={15} />}
-            {data.balanced ? "Balanced" : "Out of balance"}
-          </div>
-        )}
-      </div>
+    <div className="w-full max-w-full space-y-4">
+      <CustomBreadcrumb
+        title="Balance Sheet"
+        subtitle="Assets = Liabilities + Equity (§10.20)"
+        icon={<FileText size={18} />}
+        breadcrumbs={[
+          { label: "Accounting", href: "/accounting/accounts" },
+          { label: "Balance Sheet" },
+        ]}
+        actions={
+          data && (
+            <div className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold ${data.balanced ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+              {data.balanced ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+              {data.balanced ? "Balanced" : "Out of balance"}
+            </div>
+          )
+        }
+      />
 
       {error && <div className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 

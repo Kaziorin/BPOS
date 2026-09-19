@@ -11,6 +11,8 @@ import {
   ChevronLeft, ChevronRight
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
+import { CustomButton } from "@/components/custom/CustomButton";
 
 interface QuotationItem {
   id?: string;
@@ -271,38 +273,24 @@ export default function QuotationsPage() {
   }
 
   return (
-    <div className="space-y-5 w-full px-4 sm:px-8 pb-12">
+    <div className="space-y-5 w-full max-w-full pb-12">
       
-      {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200/70 pb-4">
-        <div>
-          <h1 className="text-xl font-bold text-gray-600 tracking-tight flex items-center gap-2">
-            <FileSpreadsheet size={22} className="text-primary-600" />
-            Quotations & Estimates
-          </h1>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Manage B2B proforma invoices, price estimates, client approvals & convert to sales orders in 1-click.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={exportCSV}
-            className="inline-flex items-center gap-1.5 rounded-sm border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-600 shadow-xs hover:bg-gray-50 transition"
-          >
-            <Download size={14} className="text-gray-500" />
-            Export CSV
-          </button>
-
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-sm bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:opacity-90 transition"
-          >
-            <Plus size={15} />
-            New Quotation
-          </button>
-        </div>
-      </div>
+      <CustomBreadcrumb
+        title="Quotations & Estimates"
+        subtitle="Manage B2B proforma invoices, price estimates, client approvals & convert to sales orders."
+        icon={<FileSpreadsheet size={20} />}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Sales", href: "/sales" },
+          { label: "Quotations" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton variant="outline" leftIcon={<Download size={14} />} onClick={exportCSV}>Export CSV</CustomButton>
+            <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowCreateModal(true)}>New Quotation</CustomButton>
+          </div>
+        }
+      />
 
       {/* ── KPI Analytics Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">

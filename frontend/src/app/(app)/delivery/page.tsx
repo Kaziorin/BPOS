@@ -10,6 +10,7 @@ import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomSelect } from "@/components/custom/CustomSelect";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomModal } from "@/components/custom/CustomModal";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 
 type Tab = "orders" | "riders" | "vehicles" | "zones";
 
@@ -311,23 +312,25 @@ export default function DeliveryPage() {
   const steps = FLOW_STEPS.map((s) => ({ status: s, ...STATUS_META[s] }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full">
       {message && (
-        <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+        <div className="rounded-sm border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           {message}
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-600">
-            <Bike size={22} className="text-primary-600" /> Delivery & Logistics
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">Dispatch, track and settle deliveries across every sales channel</p>
-        </div>
-        <CustomButton onClick={openCreate}><Plus size={15} /> New Delivery</CustomButton>
-      </div>
+      <CustomBreadcrumb
+        title="Delivery & Logistics"
+        subtitle="Dispatch, track and settle deliveries across every sales channel"
+        icon={<Bike size={20} />}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Delivery" },
+        ]}
+        actions={
+          <CustomButton leftIcon={<Plus size={15} />} onClick={openCreate}>New Delivery</CustomButton>
+        }
+      />
 
       {/* KPI cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -375,9 +378,9 @@ export default function DeliveryPage() {
       {tab === "orders" && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
-            <button onClick={() => setStatusFilter("")} className={`rounded-sm px-3 py-1.5 text-xs font-medium ${!statusFilter ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>All</button>
+            <button onClick={() => setStatusFilter("")} className={`rounded-sm px-3 py-1.5 text-xs font-medium ${!statusFilter ? "bg-brand-primary text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>All</button>
             {Object.entries(STATUS_META).map(([k, m]) => (
-              <button key={k} onClick={() => setStatusFilter(k === statusFilter ? "" : k)} className={`rounded-sm px-3 py-1.5 text-xs font-medium ${statusFilter === k ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+              <button key={k} onClick={() => setStatusFilter(k === statusFilter ? "" : k)} className={`rounded-sm px-3 py-1.5 text-xs font-medium ${statusFilter === k ? "bg-brand-primary text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
                 {m.label}
               </button>
             ))}

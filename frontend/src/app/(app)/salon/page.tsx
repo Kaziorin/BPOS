@@ -10,6 +10,7 @@ import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomSelect } from "@/components/custom/CustomSelect";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomModal } from "@/components/custom/CustomModal";
+import CustomBreadcrumb from "@/components/custom/CustomBreadcrumb";
 
 type Tab = "services" | "packages" | "bookings" | "staff";
 
@@ -294,11 +295,26 @@ export default function SalonPage() {
   const selectedServiceForBook = services.find((s) => s.id === bookForm.serviceId);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-600">Salon & Spa</h1>
-        <p className="mt-1 text-sm text-gray-500">Services, packages, bookings & staff commission (§11.7)</p>
-      </div>
+    <div className="w-full max-w-full p-6 space-y-6">
+      <CustomBreadcrumb
+        title="Salon & Spa Management"
+        subtitle="Services, packages, bookings & staff commission (§11.7)"
+        icon={<Scissors className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Salon & Spa" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton size="sm" variant="outline" leftIcon={<RefreshCw size={14} className={servicesLoading || pkgLoading || apptLoading ? "animate-spin" : ""} />} onClick={() => { loadServices(); loadPackages(); loadBookings(); }}>
+              Refresh
+            </CustomButton>
+            <CustomButton size="sm" leftIcon={<Plus size={15} />} onClick={openBookModal}>
+              Book Appointment
+            </CustomButton>
+          </div>
+        }
+      />
 
       {message && <div className="rounded-sm border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">{message}</div>}
 

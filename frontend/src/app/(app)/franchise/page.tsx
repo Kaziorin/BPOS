@@ -10,6 +10,7 @@ import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomSelect } from "@/components/custom/CustomSelect";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomModal } from "@/components/custom/CustomModal";
+import CustomBreadcrumb from "@/components/custom/CustomBreadcrumb";
 
 interface Franchisee {
   id: string;
@@ -236,11 +237,26 @@ export default function FranchisePage() {
   const paidTotal = settlements.filter((s) => s.status === "PAID").reduce((a, s) => a + Number(s.totalAmount), 0);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-600">Franchise Management</h1>
-        <p className="mt-1 text-sm text-gray-500">Franchisees, royalty & settlement engine across franchise branches (§10.30)</p>
-      </div>
+    <div className="w-full max-w-full p-6 space-y-6">
+      <CustomBreadcrumb
+        title="Franchise Management"
+        subtitle="Franchisees, royalty & settlement engine across franchise branches (§10.30)"
+        icon={<Handshake className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Franchise" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton size="sm" variant="outline" leftIcon={<RefreshCw size={14} className={frLoading || stLoading ? "animate-spin" : ""} />} onClick={() => { loadFranchisees(); loadSettlements(); }}>
+              Refresh
+            </CustomButton>
+            <CustomButton size="sm" leftIcon={<Plus size={15} />} onClick={() => setShowFr(true)}>
+              Add Franchisee
+            </CustomButton>
+          </div>
+        }
+      />
 
       {message && <div className="rounded-sm border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">{message}</div>}
 

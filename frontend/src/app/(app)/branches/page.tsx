@@ -7,6 +7,7 @@ import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomModal } from "@/components/custom/CustomModal";
 import { StatusBadge } from "@/components/custom/CustomBadge";
+import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 
 interface Branch {
   id: string;
@@ -146,18 +147,22 @@ export default function BranchesPage() {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-600">Branches & Outlets</h1>
-          <p className="mt-1 text-sm text-gray-500">Manage all operational branches, outlets and their linked facilities</p>
-        </div>
-        <CustomButton onClick={handleOpenCreate}>
-          <Plus size={16} className="mr-2" />
-          Add Branch
-        </CustomButton>
-      </div>
+    <div className="space-y-6 w-full max-w-full">
+      <CustomBreadcrumb
+        title="Branches & Outlets"
+        subtitle="Manage all operational branches, outlets and their linked facilities"
+        icon={<Building2 size={20} />}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Branches" },
+        ]}
+        actions={
+          <CustomButton onClick={handleOpenCreate}>
+            <Plus size={16} className="mr-2" />
+            Add Branch
+          </CustomButton>
+        }
+      />
 
       {/* Search & Filter Bar */}
       <div className="flex items-center gap-3 bg-white p-3 rounded-sm border border-gray-200">

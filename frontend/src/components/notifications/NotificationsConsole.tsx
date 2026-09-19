@@ -10,6 +10,7 @@ import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomSelect } from "@/components/custom/CustomSelect";
+import CustomBreadcrumb from "@/components/custom/CustomBreadcrumb";
 
 const fmt = (v?: string | null) => (v ? new Date(v).toLocaleString("en-GB") : "—");
 const CHIP: Record<string, string> = {
@@ -179,21 +180,30 @@ export default function NotificationsConsole({
   }, [logs]);
 
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-full p-6 space-y-6">
       {message && <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700">{message}</div>}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-600">
-            <Bell size={22} className="text-primary-600" /> Notification Engine
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">In-app, email, SMS, WhatsApp &amp; push — one engine, consent checked centrally per customer/channel</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <CustomButton variant="outline" onClick={runChecks}><SlidersHorizontal size={14} /> Run scheduled checks</CustomButton>
-          {tab === "templates" && <CustomButton onClick={() => setShowTpl(true)}><Plus size={15} /> New template</CustomButton>}
-        </div>
-      </div>
+      <CustomBreadcrumb
+        title="Notification Engine"
+        subtitle="In-app, email, SMS, WhatsApp & push — one engine, consent checked centrally per customer/channel"
+        icon={<Bell className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Notifications" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton variant="outline" size="sm" onClick={runChecks} leftIcon={<SlidersHorizontal size={14} />}>
+              Run scheduled checks
+            </CustomButton>
+            {tab === "templates" && (
+              <CustomButton size="sm" onClick={() => setShowTpl(true)} leftIcon={<Plus size={15} />}>
+                New template
+              </CustomButton>
+            )}
+          </div>
+        }
+      />
 
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -425,7 +435,7 @@ export default function NotificationsConsole({
                 <p className="text-xs text-gray-400">{ch.name}</p>
                 <div className="mt-4">
                   <button onClick={() => toggleChannel(ch.code, on)}
-                    className={`w-full rounded-sm px-3 py-1.5 text-xs font-semibold transition ${on ? "bg-gray-900 text-white hover:bg-gray-700" : "bg-emerald-500 text-white hover:bg-emerald-600"}`}>
+                    className={`w-full rounded-sm px-3 py-1.5 text-xs font-semibold transition ${on ? "bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100" : "bg-emerald-600 text-white hover:bg-emerald-700"}`}>
                     {on ? "Disable channel" : "Enable channel"}
                   </button>
                 </div>

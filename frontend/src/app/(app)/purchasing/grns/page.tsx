@@ -9,6 +9,7 @@ import {
   ChevronRight, TrendingUp, Boxes, Clock, Check
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { CustomButton, CustomBreadcrumb } from "@/components/custom";
 
 interface GrnItem {
   id: string;
@@ -289,38 +290,42 @@ export default function GrnsPage() {
   const totalCostValue = directLines.reduce((acc, l) => acc + (Number(l.qty) || 0) * (Number(l.costPrice) || 0), 0);
 
   return (
-    <div className="w-full space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
-            <Link href="/purchasing" className="hover:text-brand-primary transition">Purchasing Hub</Link>
-            <ChevronRight size={13} className="text-gray-400" />
-            <span className="text-gray-600 font-bold">Goods Received Notes (GRN)</span>
+    <div className="w-full max-w-full space-y-4">
+      {/* Header via CustomBreadcrumb */}
+      <CustomBreadcrumb
+        title="Goods Received (GRN)"
+        subtitle="Physical stock receiving verification · updates inventory & creates supplier AP invoice (§10.17)"
+        icon={<PackageCheck size={18} />}
+        breadcrumbs={[
+          { label: "Purchasing", href: "/purchasing" },
+          { label: "Goods Received (GRN)" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={load}
+              disabled={loading}
+              title="Refresh Data"
+              leftIcon={<RefreshCw size={14} className={loading ? "animate-spin text-violet-600" : ""} />}
+            >
+              Refresh
+            </CustomButton>
+            <CustomButton
+              type="button"
+              variant="primary"
+              themeColor="indigo"
+              size="sm"
+              onClick={openDirectModal}
+              leftIcon={<Plus size={16} />}
+            >
+              New Direct GRN
+            </CustomButton>
           </div>
-          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-600 sm:text-3xl">Goods Received (GRN)</h1>
-          <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
-            Physical stock receiving verification · updates inventory & creates supplier AP invoice (§10.17)
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={load}
-            disabled={loading}
-            className="rounded-sm border border-slate-200 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600 disabled:opacity-50"
-            title="Refresh Data"
-          >
-            <RefreshCw size={17} className={loading ? "animate-spin text-violet-600" : ""} />
-          </button>
-          <button
-            onClick={openDirectModal}
-            className="flex items-center gap-2 rounded-sm bg-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-600/25 transition hover:bg-violet-700 active:scale-[0.98]"
-          >
-            <Plus size={18} /> New Direct GRN
-          </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Sub-Navigation Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto rounded-sm border border-slate-200 bg-white p-1.5 shadow-2xs">
@@ -1030,12 +1035,13 @@ export default function GrnsPage() {
 
             {/* Footer */}
             <div className="flex items-center justify-end border-t border-slate-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-sm no-print">
-              <button
+              <CustomButton
+                variant="outline"
+                size="sm"
                 onClick={() => setViewGrn(null)}
-                className="rounded-sm bg-gray-900 px-6 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-gray-800 transition"
               >
                 Close Slip
-              </button>
+              </CustomButton>
             </div>
           </div>
         </div>

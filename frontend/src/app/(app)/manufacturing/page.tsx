@@ -10,6 +10,7 @@ import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomSelect } from "@/components/custom/CustomSelect";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomModal } from "@/components/custom/CustomModal";
+import CustomBreadcrumb from "@/components/custom/CustomBreadcrumb";
 
 type Tab = "orders" | "bom" | "costing";
 
@@ -248,11 +249,26 @@ export default function ManufacturingPage() {
   for (const r of bomRows) { (bomByProduct[r.recipeProductId] = bomByProduct[r.recipeProductId] || []).push(r); }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-600">Manufacturing / Bakery</h1>
-        <p className="mt-1 text-sm text-gray-500">BOM → Production Order → Consumption → Finished Stock (§11.6)</p>
-      </div>
+    <div className="w-full max-w-full p-6 space-y-6">
+      <CustomBreadcrumb
+        title="Manufacturing & Bakery"
+        subtitle="BOM recipes, production batch orders, material consumption & finished stock tracking (§11.6)"
+        icon={<Factory className="text-brand-primary" size={24} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Manufacturing" },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <CustomButton size="sm" variant="outline" leftIcon={<RefreshCw size={14} className={ordersLoading || bomLoading ? "animate-spin" : ""} />} onClick={() => { loadOrders(); loadBom(); }}>
+              Refresh
+            </CustomButton>
+            <CustomButton size="sm" leftIcon={<Plus size={15} />} onClick={openNewOrder}>
+              New Order
+            </CustomButton>
+          </div>
+        }
+      />
 
       {message && <div className="rounded-sm border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">{message}</div>}
 

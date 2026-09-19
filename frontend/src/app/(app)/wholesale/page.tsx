@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
 import Link from "next/link";
+import CustomBreadcrumb from "@/components/custom/CustomBreadcrumb";
+import CustomButton from "@/components/custom/CustomButton";
 import {
   ShoppingCart,
   Truck,
@@ -98,54 +100,22 @@ export default function WholesaleHubPage() {
   });
 
   return (
-    <div className="relative w-full min-h-screen overflow-hidden p-6 space-y-8" style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}>
+    <div className="w-full max-w-full p-6 space-y-8">
 
-      {/* ══ Background Waves (Wholesale Blue Theme) ══ */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-        <svg className="absolute top-0 left-0 w-full h-[300px] opacity-[0.12]" viewBox="0 0 1200 300" fill="none" preserveAspectRatio="none">
-          <path d="M 0 0 L 1200 0 L 1200 150 C 900 280, 400 100, 0 200 Z" fill="url(#wholesale-blue-wave)" />
-          <defs>
-            <linearGradient id="wholesale-blue-wave" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(37, 99, 235, 1)" />
-              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-
-      {/* Header Banner */}
-      <div className="relative group overflow-hidden rounded-sm border border-blue-500/30 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 p-6 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className={`absolute -left-20 -top-20 w-64 h-64 blur-3xl opacity-20 rounded-full bg-blue-400 group-hover:scale-125 transition-transform duration-700`} />
-
-        <div className="relative flex items-center gap-6 z-10">
-          <div className="w-14 h-14 rounded-sm bg-white/15 border border-blue-200/30 text-white flex items-center justify-center text-white shadow-2xs transform -rotate-2 group-hover:rotate-0 transition-transform duration-500">
-            <Truck size={40} strokeWidth={2.2} />
-          </div>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-extrabold text-white tracking-tight">Wholesale & Distribution</h1>
-              <span className="px-3 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] bg-blue-100 text-blue-700 border border-blue-200 rounded-full shadow-2xs">
-                B2B Portal
-              </span>
-            </div>
-            <p className="text-white/90 text-xs sm:text-sm max-w-xl mt-1 leading-relaxed">
-              Wholesale fulfillment and bulk order monitoring. Manage commercial challans, track bulk stock movements, and oversee distribution logistics with real-time sync.
-            </p>
-          </div>
-        </div>
-
-        <div className="relative flex flex-col sm:flex-row items-center gap-3 z-10">
-          <Link
-            href="/wholesale/pos"
-            className="group/btn flex items-center gap-3 px-5 py-2.5 rounded-sm text-xs font-bold bg-white text-blue-800 shadow-2xs hover:bg-blue-50 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
-          >
-            <Zap size={18} className="text-blue-300 group-hover/btn:animate-pulse" />
-            Open Wholesale Register
-            <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
+      <CustomBreadcrumb
+        title="Wholesale & Distribution"
+        subtitle="B2B fulfillment, bulk orders, and distribution logistics"
+        icon={<Truck size={22} />}
+        breadcrumbs={[
+          { label: "Home", href: "/dashboard" },
+          { label: "Wholesale" },
+        ]}
+        actions={
+          <Link href="/wholesale/pos">
+            <CustomButton leftIcon={<Zap size={16} />} size="sm">Open Register</CustomButton>
           </Link>
-
-        </div>
-      </div>
+        }
+      />
 
       {/* KPI Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -165,7 +135,7 @@ export default function WholesaleHubPage() {
                 Live
               </div>
             </div>
-            <p className="text-2xl font-extrabold text-white tracking-tighter">{stat.val}</p>
+            <p className="text-2xl font-extrabold text-gray-600 tracking-tighter">{stat.val}</p>
             <div className="flex flex-col mt-1">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{stat.label}</span>
               <span className="text-[10px] text-slate-400 font-medium">{stat.sub}</span>
@@ -261,12 +231,7 @@ export default function WholesaleHubPage() {
                             {fmt(s.total)}
                           </td>
                           <td className="py-5 px-6 text-center">
-                            <button
-                              onClick={() => setSelectedSale(s)}
-                              className="rounded-sm bg-slate-900 text-white hover:bg-blue-600 px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all shadow-2xs active:scale-95"
-                            >
-                              Challan
-                            </button>
+                            <CustomButton size="sm" onClick={() => setSelectedSale(s)}>Challan</CustomButton>
                           </td>
                         </tr>
                       );
@@ -313,9 +278,8 @@ export default function WholesaleHubPage() {
           </div>
 
           <div className="p-6 bg-slate-50/50">
-            <Link href="/inventory/stock" className="group w-full flex items-center justify-center gap-2 rounded-sm bg-slate-900 p-4 text-xs font-black text-white hover:bg-blue-600 transition-all active:scale-95">
-              Stock Ledger
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            <Link href="/inventory/stock" className="w-full block">
+              <CustomButton variant="primary" className="w-full" rightIcon={<ArrowRight size={16} />}>Stock Ledger</CustomButton>
             </Link>
           </div>
         </div>
