@@ -260,7 +260,7 @@ export default function HRMPage() {
       {/* Toast Notification */}
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl px-5 py-3.5 shadow-xl transition-all duration-300 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-sm px-5 py-3.5 shadow-xl transition-all duration-300 ${
             toast.type === "success"
               ? "bg-slate-900 text-white border border-slate-700"
               : "bg-red-600 text-white border border-red-700"
@@ -285,7 +285,7 @@ export default function HRMPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => loadSummary()}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
+              className="flex h-7 w-7 items-center justify-center rounded-sm border border-slate-200 bg-slate-50 text-gray-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-border transition shadow-2xs"
               title="Refresh HRM Data"
             >
               <RefreshCw size={13} />
@@ -323,7 +323,7 @@ export default function HRMPage() {
       </div>
 
       {/* Segmented Navigation Tabs */}
-      <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-md border border-slate-200 shadow-2xs overflow-x-auto">
+      <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-sm border border-slate-200 shadow-2xs overflow-x-auto">
         {[
           { id: "employees", label: "Employees", icon: Users },
           { id: "attendance", label: "Attendance & Punch", icon: Clock },
@@ -341,13 +341,13 @@ export default function HRMPage() {
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id as any)}
-              className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
+              className={`flex items-center gap-2 rounded-sm px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
                 isActive
-                  ? "bg-teal-50 text-teal-700 border border-teal-200 font-bold"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
+                  ? "bg-brand-50 text-brand-dark border border-brand-border font-bold"
+                  : "text-slate-600 hover:text-gray-600 hover:bg-slate-50 border border-transparent"
               }`}
             >
-              <Icon size={14} className={isActive ? "text-teal-600" : "text-slate-400"} />
+              <Icon size={14} className={isActive ? "text-brand-primary" : "text-slate-400"} />
               <span>{t.label}</span>
             </button>
           );
@@ -449,7 +449,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
             placeholder="Search by name, ID, phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="w-full rounded-sm border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
           />
         </div>
 
@@ -457,7 +457,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:border-primary-500 focus:outline-none"
           >
             <option value="ALL">All Statuses</option>
             <option value="ACTIVE">Active</option>
@@ -468,7 +468,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
+            className="rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:border-primary-500 focus:outline-none"
           >
             <option value="ALL">All Departments</option>
             {departments.map((d) => (
@@ -478,7 +478,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
 
           <button
             onClick={() => { setEditingEmp(null); setShowAddModal(true); }}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90 active:scale-95 transition"
+            className="inline-flex items-center gap-1.5 rounded-sm bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90 active:scale-95 transition"
           >
             <UserPlus size={14} /> Add Employee
           </button>
@@ -498,7 +498,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
                     {emp.firstName.charAt(0)}{emp.lastName ? emp.lastName.charAt(0) : ""}
                   </div>
                   <div>
-                    <p className="font-bold text-slate-900 text-sm">{emp.firstName} {emp.lastName || ""}</p>
+                    <p className="font-bold text-gray-600 text-sm">{emp.firstName} {emp.lastName || ""}</p>
                     <p className="font-mono text-xs text-slate-400">{emp.employeeNo}</p>
                   </div>
                 </div>
@@ -519,7 +519,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
               header: "Department & Role",
               render: (emp: Employee) => (
                 <div>
-                  <span className="font-semibold text-slate-800 text-xs block">{emp.department?.name || "General"}</span>
+                  <span className="font-semibold text-gray-600 text-xs block">{emp.department?.name || "General"}</span>
                   <span className="text-[11px] text-slate-500">{emp.designation?.name || "Staff"}</span>
                 </div>
               ),
@@ -529,7 +529,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
               header: "Base Salary",
               align: "right",
               render: (emp: Employee) => (
-                <span className="font-bold text-sm text-slate-900 tabular-nums">
+                <span className="font-bold text-sm text-gray-600 tabular-nums">
                   {money(emp.basicSalary)}
                 </span>
               ),
@@ -538,7 +538,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
               key: "type",
               header: "Employment Type",
               render: (emp: Employee) => (
-                <span className="text-xs text-slate-600 capitalize bg-slate-100 px-2 py-0.5 rounded-md font-medium">
+                <span className="text-xs text-slate-600 capitalize bg-slate-100 px-2 py-0.5 rounded-sm font-medium">
                   {(emp.employmentType || "FULL_TIME").replace(/_/g, " ").toLowerCase()}
                 </span>
               ),
@@ -557,7 +557,7 @@ function EmployeesTab({ onNotify }: { onNotify: (msg: string, type?: "success" |
                   {emp.status !== "TERMINATED" && (
                     <button
                       onClick={() => setDeleteConfirm({ id: emp.id, name: `${emp.firstName} ${emp.lastName || ""}` })}
-                      className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                      className="rounded-sm p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition"
                       title="Terminate Employee"
                     >
                       <Trash2 size={14} />
@@ -672,7 +672,7 @@ function EmployeeFormModal({
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div>
-            <h3 className="text-xl font-bold text-slate-900">
+            <h3 className="text-xl font-bold text-gray-600">
               {employee ? "Edit Employee" : "Add New Employee"}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -683,7 +683,7 @@ function EmployeeFormModal({
         </div>
 
         {error && (
-          <div className="mt-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700 flex items-center gap-2">
+          <div className="mt-4 rounded-sm bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700 flex items-center gap-2">
             <AlertCircle size={15} className="shrink-0 text-rose-500" />
             <span>{error}</span>
           </div>
@@ -692,7 +692,7 @@ function EmployeeFormModal({
         <form onSubmit={submit} className="mt-5 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 First Name *
               </label>
               <input
@@ -700,19 +700,19 @@ function EmployeeFormModal({
                 required
                 value={form.firstName}
                 onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-primary-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-primary-500 focus:outline-none"
                 placeholder="Rahim"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Last Name
               </label>
               <input
                 type="text"
                 value={form.lastName}
                 onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-primary-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-primary-500 focus:outline-none"
                 placeholder="Uddin"
               />
             </div>
@@ -720,7 +720,7 @@ function EmployeeFormModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Phone Number *
               </label>
               <input
@@ -728,19 +728,19 @@ function EmployeeFormModal({
                 required
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-primary-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-primary-500 focus:outline-none"
                 placeholder="01712345678"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Email Address
               </label>
               <input
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-primary-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-primary-500 focus:outline-none"
                 placeholder="employee@company.com"
               />
             </div>
@@ -748,13 +748,13 @@ function EmployeeFormModal({
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Gender
               </label>
               <select
                 value={form.gender}
                 onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
               >
                 <option value="MALE">Male</option>
                 <option value="FEMALE">Female</option>
@@ -762,24 +762,24 @@ function EmployeeFormModal({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Joining Date
               </label>
               <input
                 type="date"
                 value={form.joinDate}
                 onChange={(e) => setForm({ ...form, joinDate: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Contract Type
               </label>
               <select
                 value={form.employmentType}
                 onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none font-medium"
+                className="w-full rounded-sm border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none font-medium"
               >
                 <option value="FULL_TIME">Full Time</option>
                 <option value="PART_TIME">Part Time</option>
@@ -791,13 +791,13 @@ function EmployeeFormModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Department
               </label>
               <select
                 value={form.departmentId}
                 onChange={(e) => setForm({ ...form, departmentId: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-primary-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-primary-500 focus:outline-none"
               >
                 <option value="">— Select Department —</option>
                 {departments.map((d) => (
@@ -806,13 +806,13 @@ function EmployeeFormModal({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Designation / Position
               </label>
               <select
                 value={form.designationId}
                 onChange={(e) => setForm({ ...form, designationId: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:border-primary-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm focus:border-primary-500 focus:outline-none"
               >
                 <option value="">— Select Designation —</option>
                 {designations.map((d) => (
@@ -823,7 +823,7 @@ function EmployeeFormModal({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
               Monthly Base Salary (৳)
             </label>
             <input
@@ -832,7 +832,7 @@ function EmployeeFormModal({
               min="0"
               value={form.basicSalary}
               onChange={(e) => setForm({ ...form, basicSalary: e.target.value })}
-              className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-semibold focus:border-primary-500 focus:outline-none tabular-nums"
+              className="w-full rounded-sm border border-slate-300 px-3.5 py-2 text-sm font-semibold focus:border-primary-500 focus:outline-none tabular-nums"
               placeholder="25000"
             />
           </div>
@@ -841,14 +841,14 @@ function EmployeeFormModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100"
+              className="rounded-sm px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-xs shadow-primary-500/25 hover:opacity-90 active:scale-95 disabled:opacity-50 transition"
+              className="inline-flex items-center gap-2 rounded-sm bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-xs shadow-primary-500/25 hover:opacity-90 active:scale-95 disabled:opacity-50 transition"
             >
               {saving ? "Saving..." : "Create Employee"}
             </button>
@@ -918,7 +918,7 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
             <Clock size={18} className="text-primary-600" />
-            <h3 className="font-bold text-slate-900 text-sm">
+            <h3 className="font-bold text-gray-600 text-sm">
               Today&apos;s Live Punch Clock ({new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })})
             </h3>
           </div>
@@ -936,7 +936,7 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
                 className="rounded-sm border border-slate-100 bg-slate-50/70 p-3.5 flex flex-col justify-between"
               >
                 <div>
-                  <p className="font-bold text-slate-900 text-xs truncate">{emp.firstName} {emp.lastName || ""}</p>
+                  <p className="font-bold text-gray-600 text-xs truncate">{emp.firstName} {emp.lastName || ""}</p>
                   <p className="text-[11px] text-slate-400 font-mono">{emp.employeeNo}</p>
                 </div>
 
@@ -944,19 +944,19 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
                   {!att?.clockIn ? (
                     <button
                       onClick={() => handleClockIn(emp.id)}
-                      className="flex-1 rounded-xl bg-emerald-600 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition"
+                      className="flex-1 rounded-sm bg-emerald-600 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition"
                     >
                       Clock IN
                     </button>
                   ) : isClockedIn ? (
                     <button
                       onClick={() => handleClockOut(emp.id)}
-                      className="flex-1 rounded-xl bg-primary-600 py-1.5 text-xs font-bold text-white shadow-xs hover:opacity-90 transition"
+                      className="flex-1 rounded-sm bg-primary-600 py-1.5 text-xs font-bold text-white shadow-xs hover:opacity-90 transition"
                     >
                       Clock OUT
                     </button>
                   ) : (
-                    <span className="flex-1 text-center py-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 rounded-lg border border-emerald-200">
+                    <span className="flex-1 text-center py-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 rounded-sm border border-emerald-200">
                       Completed ({att?.totalHours}h)
                     </span>
                   )}
@@ -970,18 +970,18 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
       {/* Filter & History Table */}
       <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm">
         <div className="p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
-          <h4 className="font-bold text-slate-900 text-sm">Attendance Logs</h4>
+          <h4 className="font-bold text-gray-600 text-sm">Attendance Logs</h4>
           <div className="flex items-center gap-2">
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
+              className="rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 focus:border-primary-500 focus:outline-none"
             />
             <select
               value={selectedEmp}
               onChange={(e) => setSelectedEmp(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-primary-500 focus:outline-none"
+              className="rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 focus:border-primary-500 focus:outline-none"
             >
               <option value="">All Employees</option>
               {employees.map((e) => (
@@ -998,7 +998,7 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
               header: "Employee",
               render: (r: Attendance) => (
                 <div>
-                  <p className="font-bold text-slate-800 text-xs">{r.employeeName}</p>
+                  <p className="font-bold text-gray-600 text-xs">{r.employeeName}</p>
                   <p className="font-mono text-[11px] text-slate-400">{r.employeeNo}</p>
                 </div>
               ),
@@ -1031,7 +1031,7 @@ function AttendanceTab({ onNotify }: { onNotify: (msg: string, type?: "success" 
               header: "Duration",
               align: "right",
               render: (r: Attendance) => (
-                <span className="font-bold text-slate-800 text-xs tabular-nums">
+                <span className="font-bold text-gray-600 text-xs tabular-nums">
                   {r.totalHours ? `${r.totalHours} hrs` : "—"}
                 </span>
               ),
@@ -1111,13 +1111,13 @@ function LeaveTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "er
       {/* Action Header */}
       <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div>
-          <h3 className="font-bold text-slate-900 text-sm">Staff Leave Requests</h3>
+          <h3 className="font-bold text-gray-600 text-sm">Staff Leave Requests</h3>
           <p className="text-xs text-slate-500">Review pending leave applications and approve time off.</p>
         </div>
 
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-sm bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
         >
           <Plus size={14} /> New Leave Request
         </button>
@@ -1132,7 +1132,7 @@ function LeaveTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "er
               header: "Employee",
               render: (r: LeaveRequest) => (
                 <div>
-                  <p className="font-bold text-slate-800 text-xs">{r.employeeName}</p>
+                  <p className="font-bold text-gray-600 text-xs">{r.employeeName}</p>
                   <p className="font-mono text-[11px] text-slate-400">{r.employeeNo}</p>
                 </div>
               ),
@@ -1141,7 +1141,7 @@ function LeaveTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "er
               key: "type",
               header: "Leave Type",
               render: (r: LeaveRequest) => (
-                <span className="font-semibold text-primary-700 bg-primary-50 px-2 py-0.5 rounded text-xs border border-primary-200/60">
+                <span className="font-semibold text-primary-700 bg-primary-50 px-2 py-0.5 rounded-sm text-xs border border-primary-200/60">
                   {r.leaveTypeName}
                 </span>
               ),
@@ -1152,7 +1152,7 @@ function LeaveTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "er
               render: (r: LeaveRequest) => (
                 <div className="text-xs text-slate-600">
                   <span>{r.startDate}</span> <span className="text-slate-400">→</span> <span>{r.endDate}</span>
-                  <span className="ml-1.5 font-bold text-slate-900">({r.totalDays} days)</span>
+                  <span className="ml-1.5 font-bold text-gray-600">({r.totalDays} days)</span>
                 </div>
               ),
             },
@@ -1177,13 +1177,13 @@ function LeaveTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "er
                   <div className="flex items-center justify-end gap-1.5">
                     <button
                       onClick={() => handleApprove(r.id)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-emerald-700 shadow-xs"
+                      className="inline-flex items-center gap-1 rounded-sm bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-emerald-700 shadow-xs"
                     >
                       <Check size={12} /> Approve
                     </button>
                     <button
                       onClick={() => handleReject(r.id)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-rose-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-rose-700 shadow-xs"
+                      className="inline-flex items-center gap-1 rounded-sm bg-rose-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-rose-700 shadow-xs"
                     >
                       <XCircle size={12} /> Reject
                     </button>
@@ -1259,18 +1259,18 @@ function LeaveRequestModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={onClose}>
       <div className="w-full max-w-md rounded-sm bg-white p-7 shadow-2xl border border-slate-100" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-xl font-bold text-slate-900 mb-1">Apply for Leave</h3>
+        <h3 className="text-xl font-bold text-gray-600 mb-1">Apply for Leave</h3>
         <p className="text-xs text-slate-500 mb-4">Submit staff time-off for administrative review.</p>
 
-        {error && <div className="mb-4 rounded-xl bg-rose-50 p-3 text-xs text-rose-700">{error}</div>}
+        {error && <div className="mb-4 rounded-sm bg-rose-50 p-3 text-xs text-rose-700">{error}</div>}
 
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Employee *</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Employee *</label>
             <select
               value={form.employeeId}
               onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
-              className="w-full rounded-xl border border-slate-300 p-2.5 text-sm font-semibold"
+              className="w-full rounded-sm border border-slate-300 p-2.5 text-sm font-semibold"
             >
               {employees.map((e) => (
                 <option key={e.id} value={e.id}>{e.firstName} {e.lastName} ({e.employeeNo})</option>
@@ -1279,11 +1279,11 @@ function LeaveRequestModal({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Leave Type *</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Leave Type *</label>
             <select
               value={form.leaveTypeId}
               onChange={(e) => setForm({ ...form, leaveTypeId: e.target.value })}
-              className="w-full rounded-xl border border-slate-300 p-2.5 text-sm"
+              className="w-full rounded-sm border border-slate-300 p-2.5 text-sm"
             >
               {leaveTypes.map((lt) => (
                 <option key={lt.id} value={lt.id}>{lt.name} ({lt.daysPerYear || 14} days/yr)</option>
@@ -1293,39 +1293,39 @@ function LeaveRequestModal({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Start Date</label>
+              <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Start Date</label>
               <input
                 type="date"
                 value={form.startDate}
                 onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 p-2 text-sm"
+                className="w-full rounded-sm border border-slate-300 p-2 text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">End Date</label>
+              <label className="block text-xs font-bold text-gray-600 uppercase mb-1">End Date</label>
               <input
                 type="date"
                 value={form.endDate}
                 onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                className="w-full rounded-xl border border-slate-300 p-2 text-sm"
+                className="w-full rounded-sm border border-slate-300 p-2 text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Reason</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Reason</label>
             <textarea
               rows={2}
               value={form.reason}
               onChange={(e) => setForm({ ...form, reason: e.target.value })}
-              className="w-full rounded-xl border border-slate-300 p-2 text-sm"
+              className="w-full rounded-sm border border-slate-300 p-2 text-sm"
               placeholder="e.g. Family medical emergency"
             />
           </div>
 
           <div className="flex justify-end gap-3 pt-3 border-t">
-            <button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-sm text-slate-600 hover:bg-slate-100">Cancel</button>
-            <button type="submit" disabled={saving} className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white hover:opacity-90 disabled:opacity-50">
+            <button type="button" onClick={onClose} className="rounded-sm px-4 py-2 text-sm text-slate-600 hover:bg-slate-100">Cancel</button>
+            <button type="submit" disabled={saving} className="rounded-sm bg-primary-600 px-5 py-2 text-sm font-bold text-white hover:opacity-90 disabled:opacity-50">
               {saving ? "Submitting..." : "Submit Application"}
             </button>
           </div>
@@ -1408,13 +1408,13 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
     <div className="space-y-4">
       <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div>
-          <h3 className="font-bold text-slate-900 text-sm">Monthly Payroll Ledger</h3>
+          <h3 className="font-bold text-gray-600 text-sm">Monthly Payroll Ledger</h3>
           <p className="text-xs text-slate-500">Calculate salary footings, deductions, and post double-entry payroll journals.</p>
         </div>
 
         <button
           onClick={handleGenerate}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90 active:scale-95 transition"
+          className="inline-flex items-center gap-1.5 rounded-sm bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90 active:scale-95 transition"
         >
           <Wallet size={14} /> Run Payroll for This Month
         </button>
@@ -1425,7 +1425,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
           <div key={p.id} className="rounded-sm border border-slate-200 bg-white p-6 shadow-sm space-y-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-bold text-slate-900 text-base">{p.payrollNo}</p>
+                <p className="font-bold text-gray-600 text-base">{p.payrollNo}</p>
                 <p className="text-xs text-slate-400 font-semibold">Month {p.month} / {p.year}</p>
               </div>
               <StatusBadge status={p.status} />
@@ -1434,7 +1434,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
             <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-4 rounded-sm border border-slate-100">
               <div>
                 <span className="text-slate-500 block">Staff Count:</span>
-                <span className="font-bold text-slate-800 text-sm">{p.totalEmployees} employees</span>
+                <span className="font-bold text-gray-600 text-sm">{p.totalEmployees} employees</span>
               </div>
               <div>
                 <span className="text-slate-500 block">Total Net Pay:</span>
@@ -1442,7 +1442,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
               </div>
               <div className="pt-2 border-t border-slate-200">
                 <span className="text-slate-500 block">Basic Salaries:</span>
-                <span className="font-semibold text-slate-700">{money(p.totalBasic)}</span>
+                <span className="font-semibold text-gray-600">{money(p.totalBasic)}</span>
               </div>
               <div className="pt-2 border-t border-slate-200">
                 <span className="text-slate-500 block">Total Deductions:</span>
@@ -1453,14 +1453,14 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
             <div className="flex items-center gap-2 pt-1">
               <button
                 onClick={() => viewDetails(p)}
-                className="flex-1 rounded-xl bg-slate-100 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 transition"
+                className="flex-1 rounded-sm bg-slate-100 py-2 text-xs font-bold text-gray-600 hover:bg-slate-200 transition"
               >
                 <Eye size={13} className="inline mr-1" /> View Pay Slips
               </button>
               {p.status === "DRAFT" && (
                 <button
                   onClick={() => handleApprove(p.id)}
-                  className="flex-1 rounded-xl bg-emerald-600 py-2 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition"
+                  className="flex-1 rounded-sm bg-emerald-600 py-2 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition"
                 >
                   Approve Payroll
                 </button>
@@ -1468,7 +1468,7 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
               {p.status === "APPROVED" && (
                 <button
                   onClick={() => handlePay(p.id)}
-                  className="flex-1 rounded-xl bg-primary-600 py-2 text-xs font-bold text-white shadow-xs hover:opacity-90 transition"
+                  className="flex-1 rounded-sm bg-primary-600 py-2 text-xs font-bold text-white shadow-xs hover:opacity-90 transition"
                 >
                   Mark Paid & Post Journal
                 </button>
@@ -1484,10 +1484,10 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
           <div className="w-full max-w-3xl rounded-sm bg-white p-7 shadow-2xl border border-slate-100 my-8" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b pb-4 mb-4">
               <div>
-                <h3 className="text-xl font-bold text-slate-900">{selectedPayroll.payrollNo} Pay Slips</h3>
+                <h3 className="text-xl font-bold text-gray-600">{selectedPayroll.payrollNo} Pay Slips</h3>
                 <p className="text-xs text-slate-500">Period: {selectedPayroll.month}/{selectedPayroll.year}</p>
               </div>
-              <button onClick={() => setSelectedPayroll(null)} className="rounded-xl p-2 text-slate-400 hover:bg-slate-100">
+              <button onClick={() => setSelectedPayroll(null)} className="rounded-sm p-2 text-slate-400 hover:bg-slate-100">
                 <XCircle size={20} />
               </button>
             </div>
@@ -1508,13 +1508,13 @@ function PayrollTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "
                   {payrollItems.map((item: any) => (
                     <tr key={item.id} className="hover:bg-slate-50/50">
                       <td className="p-3">
-                        <p className="font-bold text-slate-900">{item.employeeName}</p>
+                        <p className="font-bold text-gray-600">{item.employeeName}</p>
                         <p className="font-mono text-[11px] text-slate-400">{item.employeeNo}</p>
                       </td>
-                      <td className="p-3 text-right font-medium text-slate-700">{money(item.basicSalary)}</td>
+                      <td className="p-3 text-right font-medium text-gray-600">{money(item.basicSalary)}</td>
                       <td className="p-3 text-right text-emerald-700">+{money(item.overtimePay || 0)}</td>
                       <td className="p-3 text-right text-rose-600">-{money(item.leaveDeduction || 0)}</td>
-                      <td className="p-3 text-right font-bold text-slate-900 text-sm">{money(item.netPay)}</td>
+                      <td className="p-3 text-right font-bold text-gray-600 text-sm">{money(item.netPay)}</td>
                       <td className="p-3 text-center"><StatusBadge status={item.status || "DRAFT"} /></td>
                     </tr>
                   ))}
@@ -1557,13 +1557,13 @@ function ShiftsTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "e
     <div className="space-y-4">
       <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div>
-          <h3 className="font-bold text-slate-900 text-sm">Shift Templates & Schedules</h3>
+          <h3 className="font-bold text-gray-600 text-sm">Shift Templates & Schedules</h3>
           <p className="text-xs text-slate-500">Configure operating store shift windows and meal breaks.</p>
         </div>
 
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-sm bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
         >
           <Plus size={14} /> Create Shift
         </button>
@@ -1576,12 +1576,12 @@ function ShiftsTab({ onNotify }: { onNotify: (msg: string, type?: "success" | "e
               <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary-50 text-primary-700 border border-primary-100">
                 <Briefcase size={20} />
               </div>
-              <h4 className="font-bold text-slate-900 text-sm">{s.name}</h4>
+              <h4 className="font-bold text-gray-600 text-sm">{s.name}</h4>
             </div>
-            <div className="text-xs space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-100 text-slate-600">
-              <p className="flex justify-between"><span>Start Time:</span> <span className="font-bold text-slate-800">{s.startTime}</span></p>
-              <p className="flex justify-between"><span>End Time:</span> <span className="font-bold text-slate-800">{s.endTime}</span></p>
-              <p className="flex justify-between"><span>Break Window:</span> <span className="font-semibold text-slate-700">{s.breakMinutes} mins</span></p>
+            <div className="text-xs space-y-1 bg-slate-50 p-3 rounded-sm border border-slate-100 text-slate-600">
+              <p className="flex justify-between"><span>Start Time:</span> <span className="font-bold text-gray-600">{s.startTime}</span></p>
+              <p className="flex justify-between"><span>End Time:</span> <span className="font-bold text-gray-600">{s.endTime}</span></p>
+              <p className="flex justify-between"><span>Break Window:</span> <span className="font-semibold text-gray-600">{s.breakMinutes} mins</span></p>
             </div>
           </div>
         ))}
@@ -1626,51 +1626,51 @@ function CreateShiftModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={onClose}>
       <div className="w-full max-w-md rounded-sm bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-xl font-bold text-slate-900 mb-4">Create Operating Shift</h3>
+        <h3 className="text-xl font-bold text-gray-600 mb-4">Create Operating Shift</h3>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Shift Name *</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Shift Name *</label>
             <input
               type="text"
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-xl border p-2.5 text-sm"
+              className="w-full rounded-sm border p-2.5 text-sm"
               placeholder="e.g. Morning Shift"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Start Time</label>
+              <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Start Time</label>
               <input
                 type="time"
                 value={form.startTime}
                 onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-                className="w-full rounded-xl border p-2 text-sm"
+                className="w-full rounded-sm border p-2 text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">End Time</label>
+              <label className="block text-xs font-bold text-gray-600 uppercase mb-1">End Time</label>
               <input
                 type="time"
                 value={form.endTime}
                 onChange={(e) => setForm({ ...form, endTime: e.target.value })}
-                className="w-full rounded-xl border p-2 text-sm"
+                className="w-full rounded-sm border p-2 text-sm"
               />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Break Duration (mins)</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Break Duration (mins)</label>
             <input
               type="number"
               value={form.breakMinutes}
               onChange={(e) => setForm({ ...form, breakMinutes: e.target.value })}
-              className="w-full rounded-xl border p-2 text-sm"
+              className="w-full rounded-sm border p-2 text-sm"
             />
           </div>
           <div className="flex justify-end gap-3 pt-3 border-t">
-            <button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-sm">Cancel</button>
-            <button type="submit" disabled={saving} className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Create Shift</button>
+            <button type="button" onClick={onClose} className="rounded-sm px-4 py-2 text-sm">Cancel</button>
+            <button type="submit" disabled={saving} className="rounded-sm bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Create Shift</button>
           </div>
         </form>
       </div>
@@ -1712,13 +1712,13 @@ function DepartmentsTab({ onNotify }: { onNotify: (msg: string, type?: "success"
     <div className="space-y-6">
       <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div>
-          <h3 className="font-bold text-slate-900 text-sm">Organization Structure</h3>
+          <h3 className="font-bold text-gray-600 text-sm">Organization Structure</h3>
           <p className="text-xs text-slate-500">Manage business units, departments, and position designations.</p>
         </div>
 
         <button
           onClick={() => setShowDeptModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-sm bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
         >
           <Plus size={14} /> Add Department
         </button>
@@ -1729,7 +1729,7 @@ function DepartmentsTab({ onNotify }: { onNotify: (msg: string, type?: "success"
           <div key={d.id} className="rounded-sm border border-slate-200 bg-white p-5 shadow-sm space-y-2">
             <div className="flex items-start justify-between">
               <div>
-                <h4 className="font-bold text-slate-900 text-sm">{d.name}</h4>
+                <h4 className="font-bold text-gray-600 text-sm">{d.name}</h4>
                 <p className="font-mono text-xs text-primary-700 font-semibold">{d.code}</p>
               </div>
             </div>
@@ -1741,13 +1741,13 @@ function DepartmentsTab({ onNotify }: { onNotify: (msg: string, type?: "success"
       {/* Designations Table */}
       <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm">
         <div className="p-4 border-b border-slate-100">
-          <h4 className="font-bold text-slate-900 text-sm">Position Designations & Pay Grades</h4>
+          <h4 className="font-bold text-gray-600 text-sm">Position Designations & Pay Grades</h4>
         </div>
         <CustomTable
           columns={[
-            { key: "name", header: "Designation Title", render: (d: Designation) => <span className="font-bold text-slate-800 text-xs">{d.name}</span> },
+            { key: "name", header: "Designation Title", render: (d: Designation) => <span className="font-bold text-gray-600 text-xs">{d.name}</span> },
             { key: "level", header: "Hierarchy Level", render: (d: Designation) => <span className="font-semibold text-slate-600 text-xs">Level {d.level}</span> },
-            { key: "salaryBand", header: "Salary Band", render: (d: Designation) => <span className="text-xs font-semibold text-slate-700">{money(d.minSalary || 0)} - {money(d.maxSalary || 0)}</span> },
+            { key: "salaryBand", header: "Salary Band", render: (d: Designation) => <span className="text-xs font-semibold text-gray-600">{money(d.minSalary || 0)} - {money(d.maxSalary || 0)}</span> },
           ]}
           data={designations}
           rowKey={(d: Designation) => d.id}
@@ -1791,41 +1791,41 @@ function CreateDeptModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={onClose}>
       <div className="w-full max-w-md rounded-sm bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-xl font-bold text-slate-900 mb-4">Add Department</h3>
+        <h3 className="text-xl font-bold text-gray-600 mb-4">Add Department</h3>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Department Name *</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Department Name *</label>
             <input
               type="text"
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-xl border p-2.5 text-sm"
+              className="w-full rounded-sm border p-2.5 text-sm"
               placeholder="e.g. Sales & Marketing"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Department Code</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Department Code</label>
             <input
               type="text"
               value={form.code}
               onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
-              className="w-full rounded-xl border p-2.5 text-sm font-mono uppercase"
+              className="w-full rounded-sm border p-2.5 text-sm font-mono uppercase"
               placeholder="SALES"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Description</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Description</label>
             <textarea
               rows={2}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full rounded-xl border p-2 text-sm"
+              className="w-full rounded-sm border p-2 text-sm"
             />
           </div>
           <div className="flex justify-end gap-3 pt-3 border-t">
-            <button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-sm">Cancel</button>
-            <button type="submit" disabled={saving} className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Create Department</button>
+            <button type="button" onClick={onClose} className="rounded-sm px-4 py-2 text-sm">Cancel</button>
+            <button type="submit" disabled={saving} className="rounded-sm bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Create Department</button>
           </div>
         </form>
       </div>
@@ -1867,13 +1867,13 @@ function SalesTargetsTab({ onNotify }: { onNotify: (msg: string, type?: "success
     <div className="space-y-4">
       <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div>
-          <h3 className="font-bold text-slate-900 text-sm">Staff Sales Targets & Quotas</h3>
+          <h3 className="font-bold text-gray-600 text-sm">Staff Sales Targets & Quotas</h3>
           <p className="text-xs text-slate-500">Live achievement tracking against confirmed POS sales invoices.</p>
         </div>
 
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-sm bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
         >
           <Plus size={14} /> Set Target
         </button>
@@ -1884,7 +1884,7 @@ function SalesTargetsTab({ onNotify }: { onNotify: (msg: string, type?: "success
           <div key={t.id} className="rounded-sm border border-slate-200 bg-white p-5 shadow-sm space-y-3">
             <div className="flex items-start justify-between">
               <div>
-                <h4 className="font-bold text-slate-900 text-sm">{t.scopeName}</h4>
+                <h4 className="font-bold text-gray-600 text-sm">{t.scopeName}</h4>
                 <p className="text-xs text-slate-400 font-semibold">{t.periodType} ({t.periodStart} → {t.periodEnd})</p>
               </div>
               <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${t.pct >= 100 ? "bg-emerald-100 text-emerald-800" : "bg-primary-50 text-primary-700 border border-primary-200/60"}`}>
@@ -1948,14 +1948,14 @@ function CreateTargetModal({ employees, onClose, onSaved }: { employees: Employe
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={onClose}>
       <div className="w-full max-w-md rounded-sm bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-xl font-bold text-slate-900 mb-4">Set Sales Target</h3>
+        <h3 className="text-xl font-bold text-gray-600 mb-4">Set Sales Target</h3>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Staff Member *</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Staff Member *</label>
             <select
               value={form.scopeId}
               onChange={(e) => setForm({ ...form, scopeId: e.target.value })}
-              className="w-full rounded-xl border p-2.5 text-sm"
+              className="w-full rounded-sm border p-2.5 text-sm"
             >
               {employees.map((e) => (
                 <option key={e.id} value={e.id}>{e.firstName} {e.lastName}</option>
@@ -1963,18 +1963,18 @@ function CreateTargetModal({ employees, onClose, onSaved }: { employees: Employe
             </select>
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Target Amount (৳) *</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Target Amount (৳) *</label>
             <input
               type="number"
               required
               value={form.targetAmount}
               onChange={(e) => setForm({ ...form, targetAmount: e.target.value })}
-              className="w-full rounded-xl border p-2.5 text-sm font-semibold"
+              className="w-full rounded-sm border p-2.5 text-sm font-semibold"
             />
           </div>
           <div className="flex justify-end gap-3 pt-3 border-t">
-            <button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-sm">Cancel</button>
-            <button type="submit" className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Set Target</button>
+            <button type="button" onClick={onClose} className="rounded-sm px-4 py-2 text-sm">Cancel</button>
+            <button type="submit" className="rounded-sm bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Set Target</button>
           </div>
         </form>
       </div>
@@ -2016,13 +2016,13 @@ function PerformanceTab({ onNotify }: { onNotify: (msg: string, type?: "success"
     <div className="space-y-4">
       <div className="flex items-center justify-between bg-white p-4 rounded-sm border border-slate-200 shadow-sm">
         <div>
-          <h3 className="font-bold text-slate-900 text-sm">Staff Performance Appraisals</h3>
+          <h3 className="font-bold text-gray-600 text-sm">Staff Performance Appraisals</h3>
           <p className="text-xs text-slate-500">KPI evaluations, star ratings, and performance notes.</p>
         </div>
 
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-sm bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90"
         >
           <Plus size={14} /> New Review
         </button>
@@ -2036,7 +2036,7 @@ function PerformanceTab({ onNotify }: { onNotify: (msg: string, type?: "success"
               header: "Employee",
               render: (r: PerformanceReview) => (
                 <div>
-                  <p className="font-bold text-slate-900 text-xs">{r.employeeName}</p>
+                  <p className="font-bold text-gray-600 text-xs">{r.employeeName}</p>
                   <p className="font-mono text-[11px] text-slate-400">{r.employeeNo}</p>
                 </div>
               ),
@@ -2118,14 +2118,14 @@ function CreateReviewModal({ employees, onClose, onSaved }: { employees: Employe
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={onClose}>
       <div className="w-full max-w-md rounded-sm bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-xl font-bold text-slate-900 mb-4">Record Performance Appraisal</h3>
+        <h3 className="text-xl font-bold text-gray-600 mb-4">Record Performance Appraisal</h3>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Employee *</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Employee *</label>
             <select
               value={form.employeeId}
               onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
-              className="w-full rounded-xl border p-2.5 text-sm"
+              className="w-full rounded-sm border p-2.5 text-sm"
             >
               {employees.map((e) => (
                 <option key={e.id} value={e.id}>{e.firstName} {e.lastName}</option>
@@ -2133,11 +2133,11 @@ function CreateReviewModal({ employees, onClose, onSaved }: { employees: Employe
             </select>
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Rating (1 to 5 Stars)</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Rating (1 to 5 Stars)</label>
             <select
               value={form.rating}
               onChange={(e) => setForm({ ...form, rating: e.target.value })}
-              className="w-full rounded-xl border p-2.5 text-sm font-bold text-amber-600"
+              className="w-full rounded-sm border p-2.5 text-sm font-bold text-amber-600"
             >
               <option value="5">★★★★★ 5 - Exceptional</option>
               <option value="4">★★★★☆ 4 - Exceeds Expectations</option>
@@ -2147,17 +2147,17 @@ function CreateReviewModal({ employees, onClose, onSaved }: { employees: Employe
             </select>
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Key Strengths</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Key Strengths</label>
             <textarea
               rows={2}
               value={form.strengths}
               onChange={(e) => setForm({ ...form, strengths: e.target.value })}
-              className="w-full rounded-xl border p-2 text-sm"
+              className="w-full rounded-sm border p-2 text-sm"
             />
           </div>
           <div className="flex justify-end gap-3 pt-3 border-t">
-            <button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-sm">Cancel</button>
-            <button type="submit" className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Save Review</button>
+            <button type="button" onClick={onClose} className="rounded-sm px-4 py-2 text-sm">Cancel</button>
+            <button type="submit" className="rounded-sm bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90">Save Review</button>
           </div>
         </form>
       </div>
@@ -2228,7 +2228,7 @@ function EmployeeCommissionsTab({ onNotify }: { onNotify: (msg: string, type?: "
           <select
             value={selected}
             onChange={(e) => setSelected(e.target.value)}
-            className="rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-semibold text-slate-800"
+            className="rounded-sm border border-slate-300 px-3.5 py-2 text-sm font-semibold text-gray-600"
           >
             {employees.map((e) => (
               <option key={e.id} value={e.id}>{e.firstName} {e.lastName} ({e.employeeNo})</option>
@@ -2239,7 +2239,7 @@ function EmployeeCommissionsTab({ onNotify }: { onNotify: (msg: string, type?: "
         <button
           onClick={runCalc}
           disabled={!selected || loading}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90 disabled:opacity-50 transition"
+          className="inline-flex items-center gap-1.5 rounded-sm bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-xs shadow-primary-500/25 hover:opacity-90 disabled:opacity-50 transition"
         >
           <TrendingUp size={14} /> Re-Calculate Commissions
         </button>
@@ -2256,9 +2256,9 @@ function EmployeeCommissionsTab({ onNotify }: { onNotify: (msg: string, type?: "
       <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm">
         <CustomTable
           columns={[
-            { key: "sale", header: "Invoice #", render: (c: CommissionRow) => <span className="font-bold text-slate-800 text-xs">{c.saleNo || "POS-SALE"}</span> },
+            { key: "sale", header: "Invoice #", render: (c: CommissionRow) => <span className="font-bold text-gray-600 text-xs">{c.saleNo || "POS-SALE"}</span> },
             { key: "date", header: "Sale Date", render: (c: CommissionRow) => <span className="text-xs text-slate-600">{c.saleDate ? String(c.saleDate).slice(0, 10) : "—"}</span> },
-            { key: "basis", header: "Basis Sale Amount", align: "right", render: (c: CommissionRow) => <span className="text-xs font-semibold text-slate-700">{money(c.basisAmount)}</span> },
+            { key: "basis", header: "Basis Sale Amount", align: "right", render: (c: CommissionRow) => <span className="text-xs font-semibold text-gray-600">{money(c.basisAmount)}</span> },
             { key: "amount", header: "Commission Earned", align: "right", render: (c: CommissionRow) => <span className="font-bold text-emerald-700 text-sm">{money(c.amount)}</span> },
             { key: "status", header: "Status", render: (c: CommissionRow) => <StatusBadge status={c.status} /> },
           ]}

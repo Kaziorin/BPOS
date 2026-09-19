@@ -147,13 +147,13 @@ function LiveClockCapsule() {
   const ap = t.getHours() >= 12 ? "pm" : "am";
   const day = t.toLocaleDateString("en-BD", { weekday: "short", day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
   return (
-    <div className="flex items-center gap-2.5 px-4 py-1.5 rounded-xl border bg-teal-50/70 border-teal-200 text-gray-800">
-      <div className="flex h-7 w-7 items-center justify-center rounded-lg text-sm bg-teal-100 text-teal-600">
+    <div className="flex items-center gap-2.5 px-4 py-1.5 rounded-sm border bg-brand-50/70 border-brand-border text-gray-600">
+      <div className="flex h-7 w-7 items-center justify-center rounded-sm text-sm bg-brand-50 text-brand-primary">
         <Scale size={15} />
       </div>
       <div className="text-left leading-tight">
-        <div className="text-[13px] font-black tracking-tight text-gray-800">
-          {hh}:{mm}:{ss} <span className="text-xs font-bold text-teal-600">{ap}</span>
+        <div className="text-[13px] font-black tracking-tight text-gray-600">
+          {hh}:{mm}:{ss} <span className="text-xs font-bold text-brand-primary">{ap}</span>
         </div>
         <div className="text-[9px] text-gray-500 font-bold uppercase tracking-wider">{day}</div>
       </div>
@@ -315,18 +315,18 @@ export default function PatientDisplayPage() {
           {/* ══ 1. HEADER ══ */}
           <header className="rounded-sm border border-slate-200 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl border bg-teal-50 border-teal-200 text-teal-600 shrink-0">
+              <div className="flex h-11 w-11 items-center justify-center rounded-sm border bg-brand-50 border-brand-border text-brand-primary shrink-0">
                 <Pill size={22} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-gray-900 text-lg leading-tight tracking-tight">{merchantName}</span>
-                  <span className="px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-wider text-white bg-teal-600">{laneNo}</span>
+                  <span className="font-extrabold text-gray-600 text-lg leading-tight tracking-tight">{merchantName}</span>
+                  <span className="px-2 py-0.5 rounded-sm text-[11px] font-black uppercase tracking-wider text-white bg-brand-primary">{laneNo}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">PATIENT DISPLAY TERMINAL</span>
                   <span className="text-gray-300">•</span>
-                  <span className={cn("flex items-center gap-1 text-[11px] font-bold", online ? "text-teal-600" : "text-rose-500")}>
+                  <span className={cn("flex items-center gap-1 text-[11px] font-bold", online ? "text-brand-primary" : "text-rose-500")}>
                     {online ? <Wifi size={12} /> : <WifiOff size={12} />}
                     {online ? (isLive ? "POS Live Synced" : "POS Standby Ready") : "POS Offline"}
                   </span>
@@ -339,14 +339,14 @@ export default function PatientDisplayPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 bg-teal-50 text-teal-700 text-xs font-bold">
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-brand-border bg-brand-50 text-brand-dark text-xs font-bold">
                 <ShieldCheck size={13} />
                 <span>FEFO Verified</span>
               </div>
               <button
                 id="pdisp-sound"
                 onClick={() => setSoundOn((v) => !v)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-gray-600 hover:text-teal-700 transition shadow-2xs cursor-pointer"
+                className="flex h-10 w-10 items-center justify-center rounded-sm border border-slate-200 bg-white text-gray-600 hover:text-brand-dark transition shadow-2xs cursor-pointer"
                 title={soundOn ? "Mute" : "Enable sound"}
               >
                 {soundOn ? <Volume2 size={17} /> : <VolumeX size={17} />}
@@ -354,7 +354,7 @@ export default function PatientDisplayPage() {
               <button
                 id="pdisp-fullscreen"
                 onClick={toggleFs}
-                className="flex h-10 w-10 items-center justify-center rounded-xl text-white transition shadow-2xs cursor-pointer bg-teal-600 hover:bg-teal-700"
+                className="flex h-10 w-10 items-center justify-center rounded-sm text-white transition shadow-2xs cursor-pointer bg-brand-primary hover:bg-brand-dark"
                 title="Toggle fullscreen"
               >
                 {fullscreen ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
@@ -365,24 +365,24 @@ export default function PatientDisplayPage() {
           {/* ══ 2. WELCOME BANNER ══ */}
           <div className="rounded-sm border border-slate-200 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3.5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full font-black text-lg shadow-2xs shrink-0 bg-teal-100 text-teal-800">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full font-black text-lg shadow-2xs shrink-0 bg-brand-50 text-brand-dark">
                 {customerName.charAt(0).toUpperCase()}
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-gray-900 text-base">Welcome, {customerName}!</span>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-200">{customerTier}</span>
+                  <span className="font-extrabold text-gray-600 text-base">Welcome, {customerName}!</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-50 text-brand-dark border border-brand-border">{customerTier}</span>
                 </div>
                 <div className="text-xs text-gray-400 font-medium mt-0.5">Loyalty Points: {customerPoints} Pts</div>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-100 text-teal-700 text-xs font-bold">
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-brand-50 border border-brand-border text-brand-dark text-xs font-bold">
                 <Stethoscope size={13} />
                 <span>Cold Chain & FEFO Guaranteed</span>
               </div>
               {isLive && (
-                <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-teal-50 text-teal-700 border border-teal-200">
+                <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-brand-50 text-brand-dark border border-brand-border">
                   🟢 Live Prescription Active
                 </span>
               )}
@@ -396,16 +396,16 @@ export default function PatientDisplayPage() {
             <div className="col-span-12 lg:col-span-7 rounded-sm border border-slate-200 bg-white shadow-xs p-5 flex flex-col min-h-0 overflow-hidden">
               <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 shrink-0">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border bg-teal-50 border-teal-200 text-teal-600 shrink-0">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-sm border bg-brand-50 border-brand-border text-brand-primary shrink-0">
                     <ShoppingBag size={18} />
                   </div>
                   <div>
-                    <h2 className="font-extrabold text-gray-900 text-base leading-none">Prescription Items</h2>
+                    <h2 className="font-extrabold text-gray-600 text-base leading-none">Prescription Items</h2>
                     <p className="text-xs text-gray-400 font-medium mt-1">Live dispense itemization</p>
                   </div>
                 </div>
                 {isLive && (
-                  <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-gray-700 border border-slate-200">
+                  <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-gray-600 border border-slate-200">
                     {displayLines.reduce((s, l) => s + l.qty, 0)} Items
                   </span>
                 )}
@@ -415,14 +415,14 @@ export default function PatientDisplayPage() {
                 {!isLive ? (
                   /* ── Standby / Empty State ── */
                   <div className="flex flex-col items-center justify-center h-full gap-4 text-center py-12">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-sm bg-teal-50 border border-teal-100 text-4xl">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-sm bg-brand-50 border border-brand-border text-4xl">
                       💊
                     </div>
                     <div>
-                      <p className="font-bold text-slate-700 text-base">Awaiting Prescription</p>
+                      <p className="font-bold text-gray-600 text-base">Awaiting Prescription</p>
                       <p className="text-slate-400 text-sm mt-1">Items will appear here once a sale is started at the POS counter.</p>
                     </div>
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold animate-pulse">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 border border-brand-border text-brand-dark text-xs font-semibold animate-pulse">
                       <PackageOpen size={14} />
                       System Ready — Standby Mode
                     </div>
@@ -433,33 +433,33 @@ export default function PatientDisplayPage() {
                       const lineTotal = (line.unitPrice - (line.discountAmount ?? 0)) * line.qty;
                       const emoji = CAT_EMOJI[line.category || ""] || "💊";
                       return (
-                        <div key={idx} className="flex items-center justify-between p-3.5 rounded-sm border border-slate-100 bg-white shadow-2xs hover:border-teal-200 transition">
+                        <div key={idx} className="flex items-center justify-between p-3.5 rounded-sm border border-slate-100 bg-white shadow-2xs hover:border-brand-border transition">
                           <div className="flex items-center gap-3.5 min-w-0 flex-1 pr-4">
                             {line.image ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
                                 src={line.image}
                                 alt={line.name}
-                                className="h-14 w-14 shrink-0 rounded-xl object-cover border border-slate-200"
+                                className="h-14 w-14 shrink-0 rounded-sm object-cover border border-slate-200"
                               />
                             ) : (
-                              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-teal-100 bg-teal-50 text-2xl">
+                              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-sm border border-brand-border bg-brand-50 text-2xl">
                                 {emoji}
                               </div>
                             )}
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
-                                <span className="px-2 py-0.5 rounded-md bg-teal-700 text-white font-black text-xs shrink-0">{line.qty}x</span>
-                                <h3 className="font-bold text-gray-900 text-sm leading-tight truncate">{line.name}</h3>
+                                <span className="px-2 py-0.5 rounded-sm bg-brand-dark text-white font-black text-xs shrink-0">{line.qty}x</span>
+                                <h3 className="font-bold text-gray-600 text-sm leading-tight truncate">{line.name}</h3>
                               </div>
                               <p className="text-xs text-gray-400 font-medium mt-1">
                                 {fmt(line.unitPrice)} / unit
-                                {line.category && <span className="ml-2 text-teal-600 font-semibold">• {line.category}</span>}
+                                {line.category && <span className="ml-2 text-brand-primary font-semibold">• {line.category}</span>}
                               </p>
                             </div>
                           </div>
                           <div className="flex flex-col items-end shrink-0">
-                            <span className="font-black text-base text-gray-900 tracking-tight">{fmt(lineTotal)}</span>
+                            <span className="font-black text-base text-gray-600 tracking-tight">{fmt(lineTotal)}</span>
                             <span className="text-[9px] font-black text-gray-400 tracking-widest uppercase mt-0.5">TOTAL</span>
                           </div>
                         </div>
@@ -475,7 +475,7 @@ export default function PatientDisplayPage() {
               <div>
                 {/* Header */}
                 <div className="flex items-center gap-2 pb-3.5 border-b border-slate-100">
-                  <CreditCard size={16} className="text-teal-600" />
+                  <CreditCard size={16} className="text-brand-primary" />
                   <span className="text-xs font-black text-gray-500 uppercase tracking-wider">PRESCRIPTION BILL SUMMARY</span>
                 </div>
 
@@ -483,18 +483,18 @@ export default function PatientDisplayPage() {
                 <div className="py-3.5 space-y-2.5">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500 font-medium">Subtotal</span>
-                    <span className="font-bold text-gray-800">{fmt(subtotal)}</span>
+                    <span className="font-bold text-gray-600">{fmt(subtotal)}</span>
                   </div>
                   {tax > 0 && (
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-gray-500 font-medium">VAT / Tax</span>
-                      <span className="font-bold text-gray-800">{fmt(tax)}</span>
+                      <span className="font-bold text-gray-600">{fmt(tax)}</span>
                     </div>
                   )}
                   {discount > 0 && (
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-teal-600 font-semibold">🎁 Discount</span>
-                      <span className="font-bold text-teal-600">-{fmt(discount)}</span>
+                      <span className="text-brand-primary font-semibold">🎁 Discount</span>
+                      <span className="font-bold text-brand-primary">-{fmt(discount)}</span>
                     </div>
                   )}
                 </div>
@@ -512,7 +512,7 @@ export default function PatientDisplayPage() {
                 <div className="mt-4">
                   <div className="flex items-center justify-between mb-2.5">
                     <span className="text-xs font-black text-gray-500 uppercase tracking-wider">PAYMENT GATEWAY</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-teal-50 text-teal-700">POS Checkout</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-sm bg-brand-50 text-brand-dark">POS Checkout</span>
                   </div>
 
                   {/* Payment Tabs */}
@@ -525,9 +525,9 @@ export default function PatientDisplayPage() {
                           id={`pdisp-tab-${m.key}`}
                           onClick={() => setSelectedPayment(m.key)}
                           className={cn(
-                            "py-2 rounded-xl text-xs font-bold transition-all text-center cursor-pointer border",
+                            "py-2 rounded-sm text-xs font-bold transition-all text-center cursor-pointer border",
                             isActive
-                              ? "bg-teal-600 text-white border-transparent shadow-xs"
+                              ? "bg-brand-primary text-white border-transparent shadow-xs"
                               : "bg-slate-50 text-gray-600 border-slate-200 hover:bg-slate-100"
                           )}
                         >
@@ -547,14 +547,14 @@ export default function PatientDisplayPage() {
                             key={id}
                             onClick={() => setSelectedWallet(id)}
                             className={cn(
-                              "flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer",
+                              "flex items-center gap-2 px-3 py-1.5 rounded-sm border text-xs font-bold transition cursor-pointer",
                               selectedWallet === id
-                                ? "border-teal-500 bg-white shadow-sm"
+                                ? "border-brand-primary bg-white shadow-sm"
                                 : "border-slate-200 bg-white/60 text-gray-500 hover:bg-white"
                             )}
                           >
                             <Logo size={22} />
-                            <span className={selectedWallet === id ? "text-gray-800" : "text-gray-400"}>{label}</span>
+                            <span className={selectedWallet === id ? "text-gray-600" : "text-gray-400"}>{label}</span>
                           </button>
                         ))}
                       </div>
@@ -566,7 +566,7 @@ export default function PatientDisplayPage() {
                       />
                       <p className="text-xs text-gray-400 font-medium">
                         Scan to pay via{" "}
-                        <span className="font-bold text-gray-700">
+                        <span className="font-bold text-gray-600">
                           {QR_WALLETS.find((w) => w.id === selectedWallet)?.label}
                         </span>
                       </p>
@@ -586,10 +586,10 @@ export default function PatientDisplayPage() {
               {/* Footer */}
               <div className="flex flex-col items-center justify-center gap-1.5 pt-3 border-t border-slate-100 mt-3">
                 <div className="flex items-center gap-1.5 text-gray-400 text-xs font-medium">
-                  <SmilePlus size={14} className="text-teal-500" />
+                  <SmilePlus size={14} className="text-brand-primary" />
                   <span>Thank you for trusting us with your health!</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-teal-600 text-[10px] font-bold">
+                <div className="flex items-center gap-1.5 text-brand-primary text-[10px] font-bold">
                   <ShieldCheck size={11} />
                   <span>Mushak-6.3 Compliant • FEFO Batch Monitored</span>
                 </div>

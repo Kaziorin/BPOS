@@ -238,11 +238,11 @@ export default function FranchisePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Franchise Management</h1>
+        <h1 className="text-2xl font-bold text-gray-600">Franchise Management</h1>
         <p className="mt-1 text-sm text-gray-500">Franchisees, royalty & settlement engine across franchise branches (§10.30)</p>
       </div>
 
-      {message && <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">{message}</div>}
+      {message && <div className="rounded-sm border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">{message}</div>}
 
       {/* Stats */}
       <div className="grid gap-3 sm:grid-cols-4">
@@ -252,10 +252,10 @@ export default function FranchisePage() {
         <Stat label="Avg royalty rate" value={franchisees.length ? `${Math.round(franchisees.reduce((s, f) => s + Number(f.royaltyRatePct), 0) / franchisees.length * 10) / 10}%` : "—"} icon={<Percent size={16} />} color="bg-amber-50 text-amber-600" />
       </div>
 
-      <div className="flex gap-1 rounded-xl bg-gray-100 p-1">
+      <div className="flex gap-1 rounded-sm bg-gray-100 p-1">
         {([["franchisees", "Franchisees", Store], ["settlements", "Settlements", Calculator]] as const).map(([key, label, Icon]) => (
           <button key={key} onClick={() => setTab(key)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${tab === key ? "bg-white text-primary-700 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+            className={`flex flex-1 items-center justify-center gap-2 rounded-sm px-3 py-2 text-sm font-medium transition ${tab === key ? "bg-white text-primary-700 shadow-sm" : "text-gray-500 hover:text-gray-600"}`}>
             <Icon size={15} />{label}
           </button>
         ))}
@@ -271,30 +271,30 @@ export default function FranchisePage() {
             {frLoading ? (
               <div className="col-span-full py-12 text-center"><Loader2 size={22} className="mx-auto animate-spin text-gray-300" /></div>
             ) : franchisees.length === 0 ? (
-              <div className="col-span-full rounded-xl border-2 border-dashed border-gray-200 p-12 text-center text-gray-400">No franchisees yet — add your first franchise partner</div>
+              <div className="col-span-full rounded-sm border-2 border-dashed border-gray-200 p-12 text-center text-gray-400">No franchisees yet — add your first franchise partner</div>
             ) : franchisees.map((f) => (
-              <div key={f.id} className="rounded-xl border border-gray-100 p-4">
+              <div key={f.id} className="rounded-sm border border-gray-100 p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600"><Store size={18} /></div>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-blue-50 text-blue-600"><Store size={18} /></div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-800">{f.name}</p>
+                      <p className="text-sm font-semibold text-gray-600">{f.name}</p>
                       <p className="text-[10px] text-gray-400">{f.franchiseNo}{f.territory ? ` · ${f.territory}` : ""}</p>
                     </div>
                   </div>
                   <span className={`rounded-full border px-2 py-0.5 text-xs ${STATUS_BADGES[f.status] ?? ""}`}>{f.status}</span>
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-lg bg-gray-50 py-1.5">
+                  <div className="rounded-sm bg-gray-50 py-1.5">
                     <p className="text-xs font-bold text-primary-600 tabular-nums">{f.royaltyRatePct}%</p>
                     <p className="text-[9px] text-gray-400">ROYALTY</p>
                   </div>
-                  <div className="rounded-lg bg-gray-50 py-1.5">
-                    <p className="text-xs font-bold text-gray-700 tabular-nums">{f.commissionRatePct}%</p>
+                  <div className="rounded-sm bg-gray-50 py-1.5">
+                    <p className="text-xs font-bold text-gray-600 tabular-nums">{f.commissionRatePct}%</p>
                     <p className="text-[9px] text-gray-400">COMMISSION</p>
                   </div>
-                  <div className="rounded-lg bg-gray-50 py-1.5">
-                    <p className="text-xs font-bold text-gray-700 tabular-nums">{f.branches.length}</p>
+                  <div className="rounded-sm bg-gray-50 py-1.5">
+                    <p className="text-xs font-bold text-gray-600 tabular-nums">{f.branches.length}</p>
                     <p className="text-[9px] text-gray-400">BRANCHES</p>
                   </div>
                 </div>
@@ -323,7 +323,7 @@ export default function FranchisePage() {
             <p className="text-sm text-gray-500">Royalty & fee settlements computed from each franchise branch's confirmed sales</p>
             <CustomButton leftIcon={<Calculator size={15} />} onClick={openCalc}>Calculate Settlement</CustomButton>
           </div>
-          <div className="overflow-hidden rounded-xl border border-gray-100">
+          <div className="overflow-hidden rounded-sm border border-gray-100">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-gray-100 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
                 <tr>
@@ -340,7 +340,7 @@ export default function FranchisePage() {
                 ) : settlements.map((s) => (
                   <tr key={s.id} className="hover:bg-gray-50/50">
                     <td className="px-4 py-3 font-mono text-xs">{s.settlementNo}</td>
-                    <td className="px-4 py-3 font-medium text-gray-800">{s.franchiseName}</td>
+                    <td className="px-4 py-3 font-medium text-gray-600">{s.franchiseName}</td>
                     <td className="px-4 py-3 text-xs text-gray-500">{s.periodStart} → {s.periodEnd}</td>
                     <td className="px-4 py-3 tabular-nums">{currency(Number(s.netSales))}</td>
                     <td className="px-4 py-3 tabular-nums text-blue-600">{currency(Number(s.royaltyAmount))}</td>
@@ -348,10 +348,10 @@ export default function FranchisePage() {
                     <td className="px-4 py-3"><span className={`rounded-full border px-2 py-0.5 text-xs ${STATUS_BADGES[s.status] ?? ""}`}>{s.status}</span></td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1">
-                        <button title="Detail" onClick={() => openSettlementDetail(s)} className="rounded p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600"><Eye size={14} /></button>
-                        {s.status === "DRAFT" && <button title="Approve" onClick={() => setSettlementStatus(s, "APPROVED")} className="rounded p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600"><BadgeCheck size={14} /></button>}
-                        {s.status === "APPROVED" && <button title="Mark paid" onClick={() => setSettlementStatus(s, "PAID")} className="rounded p-1.5 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600"><CheckCircle2 size={14} /></button>}
-                        {s.status === "DRAFT" && <button title="Cancel" onClick={() => setSettlementStatus(s, "CANCELLED")} className="rounded p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600"><Trash2 size={14} /></button>}
+                        <button title="Detail" onClick={() => openSettlementDetail(s)} className="rounded-sm p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600"><Eye size={14} /></button>
+                        {s.status === "DRAFT" && <button title="Approve" onClick={() => setSettlementStatus(s, "APPROVED")} className="rounded-sm p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600"><BadgeCheck size={14} /></button>}
+                        {s.status === "APPROVED" && <button title="Mark paid" onClick={() => setSettlementStatus(s, "PAID")} className="rounded-sm p-1.5 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600"><CheckCircle2 size={14} /></button>}
+                        {s.status === "DRAFT" && <button title="Cancel" onClick={() => setSettlementStatus(s, "CANCELLED")} className="rounded-sm p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600"><Trash2 size={14} /></button>}
                       </div>
                     </td>
                   </tr>
@@ -395,9 +395,9 @@ export default function FranchisePage() {
               const already = linkTarget.branches.some((x) => x.branchId === b.id);
               const wid = branchSel[b.id] ?? "";
               return (
-                <div key={b.id} className={`rounded-lg border p-3 ${already ? "border-gray-100 bg-gray-50 opacity-60" : "border-gray-100"}`}>
+                <div key={b.id} className={`rounded-sm border p-3 ${already ? "border-gray-100 bg-gray-50 opacity-60" : "border-gray-100"}`}>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-800">{b.name}</p>
+                    <p className="text-sm font-medium text-gray-600">{b.name}</p>
                     {already && <span className="text-xs text-gray-400">linked</span>}
                   </div>
                   {!already && (
@@ -430,15 +430,15 @@ export default function FranchisePage() {
             <CustomInput label="Commission rate % (default from franchise)" type="number" min={0} max={100} value={calcForm.commissionRatePct} onChange={(e) => setCalcForm({ ...calcForm, commissionRatePct: e.target.value })} />
           </div>
           <label className="flex items-center gap-2 text-sm text-gray-600">
-            <input type="checkbox" checked={calcForm.includeOpeningFee} onChange={(e) => setCalcForm({ ...calcForm, includeOpeningFee: e.target.checked })} className="rounded border-gray-300" />
+            <input type="checkbox" checked={calcForm.includeOpeningFee} onChange={(e) => setCalcForm({ ...calcForm, includeOpeningFee: e.target.checked })} className="rounded-sm border-gray-300" />
             Include opening fee in the first settlement
           </label>
           <CustomButton onClick={calculate} loading={saving} disabled={!calcForm.franchiseId || !calcForm.periodStart || !calcForm.periodEnd}>Calculate preview</CustomButton>
 
           {preview && (
-            <div className="rounded-xl border border-primary-100 bg-primary-50/50 p-4">
+            <div className="rounded-sm border border-primary-100 bg-primary-50/50 p-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-gray-800">{preview.franchiseName}</p>
+                <p className="text-sm font-semibold text-gray-600">{preview.franchiseName}</p>
                 <p className="text-xs text-gray-400">{preview.branchCount} branch(es) · {preview.periodStart} → {preview.periodEnd}</p>
               </div>
               <div className="mt-3 space-y-1.5 text-sm">
@@ -482,12 +482,12 @@ export default function FranchisePage() {
               <Stat label="Total sales (all branches)" value={currency(Number(report.totalSales))} icon={<Store size={16} />} color="bg-blue-50 text-blue-600" />
               <Stat label="Royalty settled" value={currency(Number(report.settledRoyalty))} icon={<Wallet size={16} />} color="bg-emerald-50 text-emerald-600" />
             </div>
-            <div className="rounded-lg border border-gray-100 p-3">
+            <div className="rounded-sm border border-gray-100 p-3">
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Branches</p>
               {report.branches.length === 0 && <p className="text-xs text-gray-400">No branches linked</p>}
-              {report.branches.map((b: any) => <p key={b.branchId} className="flex items-center gap-1.5 text-sm text-gray-700"><MapPin size={12} className="text-gray-300" /> {b.branchName}</p>)}
+              {report.branches.map((b: any) => <p key={b.branchId} className="flex items-center gap-1.5 text-sm text-gray-600"><MapPin size={12} className="text-gray-300" /> {b.branchName}</p>)}
             </div>
-            <div className="rounded-lg bg-gray-50 p-3 text-sm">
+            <div className="rounded-sm bg-gray-50 p-3 text-sm">
               <p className="flex justify-between"><span className="text-gray-500">Royalty rate</span><span className="font-semibold">{report.royaltyRatePct}%</span></p>
               <p className="mt-1 flex justify-between"><span className="text-gray-500">Opening fee</span><span className="tabular-nums">{currency(Number(report.openingFee))}</span></p>
             </div>
@@ -505,7 +505,7 @@ export default function FranchisePage() {
               <div><p className="text-xs text-gray-400">Status</p><p className="font-medium">{detailSettlement.status}</p></div>
               <div><p className="text-xs text-gray-400">Royalty rate</p><p className="font-medium">{detailSettlement.royaltyRatePct}%</p></div>
             </div>
-            <div className="space-y-1.5 rounded-lg bg-gray-50 p-3 text-sm">
+            <div className="space-y-1.5 rounded-sm bg-gray-50 p-3 text-sm">
               <Row k="Gross sales" v={currency(Number(detailSettlement.grossSales))} />
               <Row k="Returns" v={`− ${currency(Number(detailSettlement.returnsTotal))}`} tone="text-rose-600" />
               <Row k="Net sales" v={currency(Number(detailSettlement.netSales))} strong />
@@ -525,19 +525,19 @@ export default function FranchisePage() {
 function Row({ k, v, strong, tone }: { k: string; v: string; strong?: boolean; tone?: string }) {
   return (
     <p className={`flex justify-between ${strong ? "font-bold" : ""}`}>
-      <span className={strong ? "text-gray-800" : "text-gray-500"}>{k}</span>
-      <span className={`tabular-nums ${tone ?? (strong ? "text-gray-900" : "text-gray-600")}`}>{v}</span>
+      <span className={strong ? "text-gray-600" : "text-gray-500"}>{k}</span>
+      <span className={`tabular-nums ${tone ?? (strong ? "text-gray-600" : "text-gray-600")}`}>{v}</span>
     </p>
   );
 }
 
 function Stat({ label, value, icon, color }: { label: string; value: string; icon: React.ReactNode; color: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-gray-100 p-4">
-      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>{icon}</div>
+    <div className="flex items-center gap-3 rounded-sm border border-gray-100 p-4">
+      <div className={`flex h-10 w-10 items-center justify-center rounded-sm ${color}`}>{icon}</div>
       <div>
         <p className="text-xs text-gray-400">{label}</p>
-        <p className="text-lg font-bold text-gray-900 tabular-nums">{value}</p>
+        <p className="text-lg font-bold text-gray-600 tabular-nums">{value}</p>
       </div>
     </div>
   );

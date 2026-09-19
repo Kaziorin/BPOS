@@ -56,7 +56,7 @@ export function CustomCard({
         "w-full rounded-sm border transition-all duration-200 shadow-2xs overflow-hidden flex flex-col justify-between",
         darkMode
           ? "border-slate-800 bg-slate-900 text-slate-100"
-          : "border-brand-border bg-white text-slate-900",
+          : "border-brand-border bg-white text-gray-600",
         className
       )}
     >

@@ -1023,7 +1023,7 @@ export default function PharmacyPOSPage() {
       >
         {pickerFor && (
           <div className="space-y-3">
-            <p className="rounded-lg bg-teal-50 dark:bg-teal-950/40 border border-teal-100 dark:border-teal-900/60 px-3 py-2 text-xs text-teal-800 dark:text-teal-300 font-semibold">
+            <p className="rounded-sm bg-brand-50 dark:bg-teal-950/40 border border-brand-border dark:border-teal-900/60 px-3 py-2 text-xs text-brand-dark dark:text-brand-primary/60 font-semibold">
               FEFO — soonest-expiring batch is pre-selected.
             </p>
             {(byProduct.get(pickerFor.id) ?? [])
@@ -1041,18 +1041,18 @@ export default function PharmacyPOSPage() {
                     disabled={expired}
                     onClick={() => setPickerBatch(b)}
                     className={cn(
-                      "w-full !justify-between items-center rounded-xl px-3.5 py-3 text-left transition disabled:opacity-40 h-auto",
-                      selected ? "ring-1 ring-teal-200 dark:ring-teal-700" : "border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800/80"
+                      "w-full !justify-between items-center rounded-sm px-3.5 py-3 text-left transition disabled:opacity-40 h-auto",
+                      selected ? "ring-1 ring-teal-200 dark:ring-teal-700" : "border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 text-gray-600 dark:text-slate-200 bg-white dark:bg-slate-800/80"
                     )}
                   >
                     <div className="min-w-0 text-left">
-                      <p className={cn("flex items-center gap-2 text-sm font-bold", selected ? "text-white" : "text-slate-800 dark:text-slate-100")}>
+                      <p className={cn("flex items-center gap-2 text-sm font-bold", selected ? "text-white" : "text-gray-600 dark:text-slate-100")}>
                         <span className="font-mono">{b.batchNo}</span>
                         {i === 0 && !expired && (
                           <CustomBadge tone="green">FEFO</CustomBadge>
                         )}
                       </p>
-                      <p className={cn("mt-0.5 text-xs tabular-nums", selected ? "text-teal-100" : "text-slate-400 dark:text-slate-400")}>{b.qty} units</p>
+                      <p className={cn("mt-0.5 text-xs tabular-nums", selected ? "text-white/90" : "text-slate-400 dark:text-slate-400")}>{b.qty} units</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       {badge && <CustomBadge tone={expired ? "red" : d !== null && d <= 30 ? "amber" : "green"}>{badge.label}</CustomBadge>}

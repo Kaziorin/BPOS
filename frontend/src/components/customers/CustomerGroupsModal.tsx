@@ -128,7 +128,7 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
                     placeholder="e.g. VIP Club, Wholesale Tier 1, Loyal Retail"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full rounded-sm border border-brand-border bg-white px-3 py-2 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 shadow-2xs"
+                    className="w-full rounded-sm border border-brand-border bg-white px-3 py-2 text-xs font-semibold text-gray-600 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 shadow-2xs"
                   />
                 </div>
 
@@ -145,7 +145,7 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
                       placeholder="0"
                       value={discountPercent}
                       onChange={(e) => setDiscountPercent(e.target.value)}
-                      className="w-full rounded-sm border border-brand-border bg-white pl-3 pr-7 py-2 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 shadow-2xs"
+                      className="w-full rounded-sm border border-brand-border bg-white pl-3 pr-7 py-2 text-xs font-semibold text-gray-600 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 shadow-2xs"
                     />
                     <Percent size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
                   </div>
@@ -160,7 +160,7 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
                     placeholder="e.g. Minimum monthly spend Tk 50,000, 10% instant discount on checkout"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full rounded-sm border border-brand-border bg-white px-3 py-2 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 shadow-2xs"
+                    className="w-full rounded-sm border border-brand-border bg-white px-3 py-2 text-xs font-semibold text-gray-600 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 shadow-2xs"
                   />
                 </div>
               </div>
@@ -209,7 +209,7 @@ export function CustomerGroupsModal({ isOpen, onClose, onSuccess }: CustomerGrou
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-gray-700 text-xs sm:text-sm">{g.name}</span>
+                          <span className="font-bold text-gray-600 text-xs sm:text-sm">{g.name}</span>
                           {g.discountPercent > 0 ? (
                             <span className="inline-flex items-center gap-1 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-300 px-2 py-0.5 text-[10.5px] font-bold">
                               <Percent size={11} /> {g.discountPercent}% Discount

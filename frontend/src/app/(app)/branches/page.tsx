@@ -150,7 +150,7 @@ export default function BranchesPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Branches & Outlets</h1>
+          <h1 className="text-2xl font-bold text-gray-600">Branches & Outlets</h1>
           <p className="mt-1 text-sm text-gray-500">Manage all operational branches, outlets and their linked facilities</p>
         </div>
         <CustomButton onClick={handleOpenCreate}>
@@ -160,7 +160,7 @@ export default function BranchesPage() {
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-gray-200">
+      <div className="flex items-center gap-3 bg-white p-3 rounded-sm border border-gray-200">
         <div className="relative flex-1">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -168,16 +168,16 @@ export default function BranchesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search branches by name, code, or location..."
-            className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-brand-border focus:border-transparent"
           />
         </div>
       </div>
 
       {/* Table Section */}
-      <div className="rounded-xl border border-gray-200 bg-white shadow-xs overflow-hidden">
+      <div className="rounded-sm border border-gray-200 bg-white shadow-xs overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-teal-600" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-brand-primary" />
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -198,16 +198,16 @@ export default function BranchesPage() {
                 {filteredBranches.map((branch) => (
                   <tr key={branch.id} className="hover:bg-gray-50/80 transition-colors">
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-mono font-semibold bg-gray-100 text-gray-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-mono font-semibold bg-gray-100 text-gray-600">
                         {branch.code}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-teal-50 text-teal-600 rounded-lg">
+                        <div className="p-1.5 bg-brand-50 text-brand-primary rounded-sm">
                           <Building2 size={16} />
                         </div>
-                        <span className="text-sm font-semibold text-gray-900">{branch.name}</span>
+                        <span className="text-sm font-semibold text-gray-600">{branch.name}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
@@ -216,7 +216,7 @@ export default function BranchesPage() {
                     <td className="px-6 py-4 text-sm text-gray-600">
                       <div className="space-y-0.5">
                         {branch.phone && (
-                          <div className="flex items-center gap-1.5 text-xs text-gray-700">
+                          <div className="flex items-center gap-1.5 text-xs text-gray-600">
                             <Phone size={12} className="text-gray-400" />
                             {branch.phone}
                           </div>
@@ -242,13 +242,13 @@ export default function BranchesPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       <div className="flex items-center gap-3 text-xs">
-                        <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded font-medium" title="Warehouses">
+                        <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-sm font-medium" title="Warehouses">
                           {branch._count?.warehouses ?? 0} WH
                         </span>
-                        <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded font-medium" title="Users">
+                        <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-sm font-medium" title="Users">
                           {branch._count?.userAccounts ?? 0} Users
                         </span>
-                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded font-medium" title="Terminals">
+                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-sm font-medium" title="Terminals">
                           {branch._count?.devices ?? 0} POS
                         </span>
                       </div>
@@ -260,7 +260,7 @@ export default function BranchesPage() {
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => handleOpenEdit(branch)}
-                          className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-500 hover:text-brand-primary hover:bg-brand-50 rounded-sm transition-colors"
                           title="Edit Branch"
                         >
                           <Edit size={16} />
@@ -268,7 +268,7 @@ export default function BranchesPage() {
                         <button
                           onClick={() => handleDelete(branch)}
                           disabled={deletingId === branch.id}
-                          className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                          className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-sm transition-colors disabled:opacity-50"
                           title="Delete / Deactivate Branch"
                         >
                           <Trash2 size={16} />
@@ -282,7 +282,7 @@ export default function BranchesPage() {
                   <tr>
                     <td colSpan={8} className="px-6 py-16 text-center text-sm text-gray-500">
                       <Building2 size={36} className="mx-auto text-gray-300 mb-2" />
-                      <p className="font-medium text-gray-700">No branches found</p>
+                      <p className="font-medium text-gray-600">No branches found</p>
                       <p className="text-xs text-gray-400 mt-1">
                         {search ? "No branches matching your search." : "Get started by adding your first branch or outlet."}
                       </p>
@@ -309,7 +309,7 @@ export default function BranchesPage() {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           {formError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-sm text-red-700">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-sm flex items-center gap-2 text-sm text-red-700">
               <AlertCircle size={16} className="shrink-0" />
               <span>{formError}</span>
             </div>
@@ -317,7 +317,7 @@ export default function BranchesPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
                 Branch Name <span className="text-red-500">*</span>
               </label>
               <CustomInput
@@ -330,7 +330,7 @@ export default function BranchesPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
                 Branch Code <span className="text-gray-400 font-normal">(e.g. BR-GULSHAN)</span>
               </label>
               <CustomInput
@@ -344,7 +344,7 @@ export default function BranchesPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
                 Phone Number
               </label>
               <CustomInput
@@ -356,7 +356,7 @@ export default function BranchesPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
                 Email Address
               </label>
               <CustomInput
@@ -369,7 +369,7 @@ export default function BranchesPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
               Physical Address
             </label>
             <CustomInput
@@ -381,13 +381,13 @@ export default function BranchesPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
               Status
             </label>
             <select
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value as "ACTIVE" | "INACTIVE" })}
-              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white"
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-brand-border focus:border-transparent bg-white"
             >
               <option value="ACTIVE">ACTIVE</option>
               <option value="INACTIVE">INACTIVE</option>
@@ -398,7 +398,7 @@ export default function BranchesPage() {
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-sm transition-colors"
             >
               Cancel
             </button>

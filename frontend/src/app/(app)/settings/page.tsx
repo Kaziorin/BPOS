@@ -113,7 +113,7 @@ const SETTINGS_TABS: SettingsTabDef[] = [
     category: "core",
     icon: Monitor,
     badge: "Counter",
-    badgeColor: "bg-teal-50 text-teal-700 border-teal-200",
+    badgeColor: "bg-brand-50 text-brand-dark border-brand-border",
     description: "Receipt paper width, audio scanner chime, and cashier policies",
   },
   {
@@ -198,7 +198,7 @@ const SETTINGS_TABS: SettingsTabDef[] = [
     category: "security",
     icon: Users,
     badge: "Policy",
-    badgeColor: "bg-slate-100 text-slate-700 border-slate-200",
+    badgeColor: "bg-slate-100 text-gray-600 border-slate-200",
     description: "Session idle timeouts, PIN rules, and 2FA password complexity",
   },
   {
@@ -393,7 +393,7 @@ function SettingsContent() {
         actions={
           <div className="flex items-center gap-2">
             {saveToast && (
-              <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-300 shadow-sm animate-in fade-in">
+              <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-sm bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-300 shadow-sm animate-in fade-in">
                 <CheckCircle2 size={15} className="text-emerald-600" /> {saveToast}
               </div>
             )}
@@ -575,7 +575,7 @@ function SettingsContent() {
           </div>
 
           {/* Offline Resiliency Help Card */}
-          <div className="p-4 rounded-sm bg-brand-50/50 border border-slate-200 text-slate-700 space-y-2 text-xs shadow-2xs">
+          <div className="p-4 rounded-sm bg-brand-50/50 border border-slate-200 text-gray-600 space-y-2 text-xs shadow-2xs">
             <div className="flex items-center gap-2 font-black text-brand-dark">
               <HardDrive size={15} className="text-brand-primary" />
               <span>Offline Architecture (§13)</span>
@@ -615,7 +615,7 @@ function SettingsContent() {
 
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-semibold text-slate-400">
-                Tab: <strong className="text-slate-700 font-mono">?tab={activeTab}</strong>
+                Tab: <strong className="text-gray-600 font-mono">?tab={activeTab}</strong>
               </span>
             </div>
           </div>
@@ -855,11 +855,11 @@ function CompanySettingsTab({
       {/* Visual Identity Preview Card */}
       <div className="p-4 rounded-sm bg-slate-50/80 border border-slate-200 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-sm bg-gradient-to-tr from-primary-600 to-teal-500 text-white flex items-center justify-center font-black text-xl shadow-md">
+          <div className="w-12 h-12 rounded-sm bg-gradient-to-tr from-primary-600 to-brand-500 text-white flex items-center justify-center font-black text-xl shadow-md">
             {name.charAt(0)}
           </div>
           <div>
-            <h3 className="font-bold text-slate-900 text-sm">{name || "Store Name"}</h3>
+            <h3 className="font-bold text-gray-600 text-sm">{name || "Store Name"}</h3>
             <p className="text-slate-500 text-[11px]">{legalName || "Legal Entity"} · {address.split(",")[0]}</p>
           </div>
         </div>
@@ -892,13 +892,13 @@ function CompanySettingsTab({
         />
 
         <div className="md:col-span-2">
-          <label className="block font-bold text-slate-700 mb-1">
+          <label className="block font-bold text-gray-600 mb-1">
             Registered Head Office Address <span className="text-rose-500">*</span>
           </label>
           <textarea
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60"
+            className="w-full rounded-sm border border-slate-200 px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60"
             rows={2}
             required
           />
@@ -957,7 +957,7 @@ function CompanySettingsTab({
 
       {/* Business Vertical Selection Grid */}
       <div className="space-y-2 pt-2">
-        <label className="block font-bold text-slate-800">
+        <label className="block font-bold text-gray-600">
           Industry Business Vertical & Theme Architecture
         </label>
         <p className="text-[11px] text-slate-500">
@@ -982,7 +982,7 @@ function CompanySettingsTab({
               >
                 <span
                   className={cn(
-                    "w-8 h-8 rounded-xl flex items-center justify-center shrink-0",
+                    "w-8 h-8 rounded-sm flex items-center justify-center shrink-0",
                     isSel ? "bg-brand-gradient text-white shadow-2xs shadow-xs" : "bg-slate-100 text-slate-500"
                   )}
                 >
@@ -990,7 +990,7 @@ function CompanySettingsTab({
                 </span>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-bold text-slate-900 text-xs">{v.label}</span>
+                    <span className="font-bold text-gray-600 text-xs">{v.label}</span>
                     {isSel && <CheckCircle2 size={12} className="text-primary-600 shrink-0" />}
                   </div>
                   <p className="text-[10px] text-slate-400 leading-tight mt-0.5">{v.desc}</p>
@@ -1009,10 +1009,10 @@ function CompanySettingsTab({
               checked={restaurantPosShiftVisible}
               onChange={(e) => setRestaurantPosShiftVisible(e.target.checked)}
               disabled={restaurantSettingLoading}
-              className="mt-0.5 w-4 h-4 rounded text-amber-600 focus:ring-0"
+              className="mt-0.5 w-4 h-4 rounded-sm text-amber-600 focus:ring-0"
             />
             <div>
-              <span className="font-bold text-slate-900 block">
+              <span className="font-bold text-gray-600 block">
                 Show Restaurant POS Shift Control
               </span>
               <p className="text-slate-500 text-[11px] mt-0.5">
@@ -1115,7 +1115,7 @@ function BranchSettingsTab({
       {/* Outlet Cards Summary */}
       <div className="space-y-2 pt-2">
         <div className="flex items-center justify-between">
-          <p className="font-bold text-slate-800 text-[11px] uppercase tracking-wider">
+          <p className="font-bold text-gray-600 text-[11px] uppercase tracking-wider">
             Connected Outlets & Locations
           </p>
           <span className="text-[11px] text-slate-400 font-mono">
@@ -1133,8 +1133,8 @@ function BranchSettingsTab({
           ).map((b, i) => (
             <div key={i} className="p-4 rounded-sm border border-slate-200 bg-slate-50/50 space-y-1.5">
               <div className="flex justify-between items-center">
-                <h4 className="font-bold text-slate-900">{b.name}</h4>
-                <span className="text-[10px] font-mono font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md">
+                <h4 className="font-bold text-gray-600">{b.name}</h4>
+                <span className="text-[10px] font-mono font-bold bg-slate-200 text-gray-600 px-2 py-0.5 rounded-sm">
                   {b.code || "OUTLET"}
                 </span>
               </div>
@@ -1223,7 +1223,7 @@ function POSSettingsTab({
 
       {/* Feature Toggles */}
       <div className="space-y-3">
-        <p className="font-bold text-slate-800 text-[11px] uppercase tracking-wider">
+        <p className="font-bold text-gray-600 text-[11px] uppercase tracking-wider">
           Cashier Lane Policies & Hardware Rules
         </p>
 
@@ -1233,10 +1233,10 @@ function POSSettingsTab({
               type="checkbox"
               checked={autoPrint}
               onChange={(e) => setAutoPrint(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded text-primary-600 focus:ring-0"
+              className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
             />
             <div>
-              <span className="font-bold text-slate-900 block">Auto-Print Thermal Receipt</span>
+              <span className="font-bold text-gray-600 block">Auto-Print Thermal Receipt</span>
               <p className="text-slate-400 text-[11px] mt-0.5">
                 Automatically dispatches ESC/POS print job immediately on payment tender completion
               </p>
@@ -1248,18 +1248,18 @@ function POSSettingsTab({
               type="checkbox"
               checked={soundEffects}
               onChange={(e) => setSoundEffects(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded text-primary-600 focus:ring-0"
+              className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
             />
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-900">Scanner Audio Beep</span>
+                <span className="font-bold text-gray-600">Scanner Audio Beep</span>
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     testBeep();
                   }}
-                  className="px-2 py-0.5 rounded-md bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold flex items-center gap-1"
+                  className="px-2 py-0.5 rounded-sm bg-slate-200 hover:bg-slate-300 text-gray-600 text-[10px] font-bold flex items-center gap-1"
                 >
                   <Volume2 size={11} /> Test Sound
                 </button>
@@ -1275,10 +1275,10 @@ function POSSettingsTab({
               type="checkbox"
               checked={allowPriceOverride}
               onChange={(e) => setAllowPriceOverride(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded text-primary-600 focus:ring-0"
+              className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
             />
             <div>
-              <span className="font-bold text-slate-900 block">Cashier Price Override</span>
+              <span className="font-bold text-gray-600 block">Cashier Price Override</span>
               <p className="text-slate-400 text-[11px] mt-0.5">
                 Permits line item price adjustments without supervisor override PIN
               </p>
@@ -1290,10 +1290,10 @@ function POSSettingsTab({
               type="checkbox"
               checked={requireCustomer}
               onChange={(e) => setRequireCustomer(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded text-primary-600 focus:ring-0"
+              className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
             />
             <div>
-              <span className="font-bold text-slate-900 block">Require Customer Selection</span>
+              <span className="font-bold text-gray-600 block">Require Customer Selection</span>
               <p className="text-slate-400 text-[11px] mt-0.5">
                 Disallows anonymous Walk-in checkouts to maintain CRM loyalty profiles
               </p>
@@ -1305,10 +1305,10 @@ function POSSettingsTab({
               type="checkbox"
               checked={quickCashTender}
               onChange={(e) => setQuickCashTender(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded text-primary-600 focus:ring-0"
+              className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
             />
             <div>
-              <span className="font-bold text-slate-900 block">Quick Taka Bill Buttons (৳50, ৳100, ৳500, ৳1000)</span>
+              <span className="font-bold text-gray-600 block">Quick Taka Bill Buttons (৳50, ৳100, ৳500, ৳1000)</span>
               <p className="text-slate-400 text-[11px] mt-0.5">
                 Renders fast currency denomination presets in POS payment drawer for rapid change computation
               </p>
@@ -1379,7 +1379,7 @@ function OfflineSyncTab({
 
         <div className="p-4 rounded-sm bg-slate-50 border border-slate-200 space-y-1">
           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pending Push Queue</span>
-          <p className="text-2xl font-black text-slate-900">{pendingCount}</p>
+          <p className="text-2xl font-black text-gray-600">{pendingCount}</p>
           <span className="text-[11px] text-slate-400">Transactions waiting in local storage</span>
         </div>
 
@@ -1516,10 +1516,10 @@ function TaxSettingsTab({
             type="checkbox"
             checked={mushakCompliance}
             onChange={(e) => setMushakCompliance(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded text-primary-600 focus:ring-0"
+            className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
           />
           <div>
-            <span className="font-bold text-slate-900 block">
+            <span className="font-bold text-gray-600 block">
               Enable Mushak-6.3 Statutory Tax Invoice Format
             </span>
             <p className="text-slate-400 text-[11px] mt-0.5">
@@ -1531,7 +1531,7 @@ function TaxSettingsTab({
 
       {/* Live Tax Computation Simulator */}
       <div className="p-4 rounded-sm border border-slate-200 bg-slate-50/50 space-y-3">
-        <span className="font-bold text-slate-800 uppercase tracking-wider text-[10px] block">
+        <span className="font-bold text-gray-600 uppercase tracking-wider text-[10px] block">
           Live Tax Computation Simulator
         </span>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
@@ -1541,18 +1541,18 @@ function TaxSettingsTab({
               type="number"
               value={samplePrice}
               onChange={(e) => setSamplePrice(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 px-3 py-1.5 font-bold font-mono bg-white"
+              className="w-full rounded-sm border border-slate-200 px-3 py-1.5 font-bold font-mono bg-white"
             />
           </div>
-          <div className="p-2.5 rounded-xl bg-white border border-slate-200">
+          <div className="p-2.5 rounded-sm bg-white border border-slate-200">
             <span className="text-[10px] text-slate-400 block">Taxable Base</span>
-            <span className="font-mono font-bold text-slate-800">৳{calcBase.toFixed(2)}</span>
+            <span className="font-mono font-bold text-gray-600">৳{calcBase.toFixed(2)}</span>
           </div>
-          <div className="p-2.5 rounded-xl bg-white border border-slate-200">
+          <div className="p-2.5 rounded-sm bg-white border border-slate-200">
             <span className="text-[10px] text-slate-400 block">VAT ({defaultVatRate}%)</span>
             <span className="font-mono font-bold text-amber-700">+৳{calcVat.toFixed(2)}</span>
           </div>
-          <div className="p-2.5 rounded-xl bg-primary-50 border border-primary-200">
+          <div className="p-2.5 rounded-sm bg-primary-50 border border-primary-200">
             <span className="text-[10px] text-primary-600 block">Final Tender Bill</span>
             <span className="font-mono font-bold text-primary-900">৳{calcTotal.toFixed(2)}</span>
           </div>
@@ -1615,11 +1615,11 @@ function InvoiceSettingsTab({
           />
 
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Receipt Footer Note & Return Policy</label>
+            <label className="block font-bold text-gray-600 mb-1">Receipt Footer Note & Return Policy</label>
             <textarea
               value={footerMsg}
               onChange={(e) => setFooterMsg(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60 text-xs"
+              className="w-full rounded-sm border border-slate-200 px-3.5 py-2.5 font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60 text-xs"
               rows={3}
             />
           </div>
@@ -1630,10 +1630,10 @@ function InvoiceSettingsTab({
                 type="checkbox"
                 checked={showBarcode}
                 onChange={(e) => setShowBarcode(e.target.checked)}
-                className="w-4 h-4 rounded text-primary-600 focus:ring-0"
+                className="w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
               />
               <div>
-                <span className="font-bold text-slate-900 block">Render Barcode on Thermal Receipt</span>
+                <span className="font-bold text-gray-600 block">Render Barcode on Thermal Receipt</span>
                 <p className="text-slate-400 text-[11px]">Enables 1-second optical scanner lookup at customer returns desk</p>
               </div>
             </label>
@@ -1643,10 +1643,10 @@ function InvoiceSettingsTab({
                 type="checkbox"
                 checked={showQR}
                 onChange={(e) => setShowQR(e.target.checked)}
-                className="w-4 h-4 rounded text-primary-600 focus:ring-0"
+                className="w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
               />
               <div>
-                <span className="font-bold text-slate-900 block">Render Digital Verification QR Code</span>
+                <span className="font-bold text-gray-600 block">Render Digital Verification QR Code</span>
                 <p className="text-slate-400 text-[11px]">Allows customers to view digital e-receipt on mobile smartphone</p>
               </div>
             </label>
@@ -1662,18 +1662,18 @@ function InvoiceSettingsTab({
         {/* Right Live Thermal Receipt Preview (5 cols) */}
         <div className="lg:col-span-5 space-y-2">
           <div className="flex items-center justify-between px-1">
-            <span className="font-bold text-slate-800 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+            <span className="font-bold text-gray-600 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
               <Printer size={13} className="text-slate-500" />
               80mm Thermal WYSIWYG Slip
             </span>
-            <span className="text-[10px] font-mono text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md">
+            <span className="text-[10px] font-mono text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-sm">
               Live Preview
             </span>
           </div>
 
-          <div className="p-6 rounded-sm bg-amber-50/30 border border-dashed border-slate-300 font-mono text-[11px] text-slate-800 shadow-sm space-y-3 max-w-xs mx-auto bg-white">
+          <div className="p-6 rounded-sm bg-amber-50/30 border border-dashed border-slate-300 font-mono text-[11px] text-gray-600 shadow-sm space-y-3 max-w-xs mx-auto bg-white">
             <div className="text-center space-y-0.5 border-b border-dashed border-slate-300 pb-2">
-              <p className="font-black text-xs text-slate-900 uppercase">{headerTitle || "BLUE OCEAN POS"}</p>
+              <p className="font-black text-xs text-gray-600 uppercase">{headerTitle || "BLUE OCEAN POS"}</p>
               <p className="text-[10px] text-slate-500">Gulshan-1, Dhaka-1212</p>
               <p className="text-[10px] text-slate-500">BIN: 002938194-0101 · Mushak 6.3</p>
               <p className="text-[10px] text-slate-400">Tel: +880 1711-000000</p>
@@ -1717,7 +1717,7 @@ function InvoiceSettingsTab({
                 <span>VAT (5%):</span>
                 <span>৳31.00</span>
               </div>
-              <div className="flex justify-between font-black text-xs pt-1 text-slate-900 border-t border-dotted border-slate-200">
+              <div className="flex justify-between font-black text-xs pt-1 text-gray-600 border-t border-dotted border-slate-200">
                 <span>GRAND TOTAL:</span>
                 <span>৳651.00</span>
               </div>
@@ -1733,7 +1733,7 @@ function InvoiceSettingsTab({
 
             {showBarcode && (
               <div className="text-center pt-1">
-                <div className="h-8 bg-slate-900/10 rounded flex items-center justify-center font-mono tracking-widest text-[9px] text-slate-600">
+                <div className="h-8 bg-slate-900/10 rounded-sm flex items-center justify-center font-mono tracking-widest text-[9px] text-slate-600">
                   ||| | | |||| | ||| || ||| |
                 </div>
                 <span className="text-[9px] text-slate-400 font-mono mt-0.5 block">INV-202609-0042</span>
@@ -1764,7 +1764,7 @@ function PaymentSettingsTab({ onSave }: { onSave: () => void }) {
   return (
     <div className="space-y-6 text-xs">
       <div className="space-y-2">
-        <p className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">
+        <p className="font-bold text-gray-600 uppercase tracking-wider text-[10px]">
           Active Checkout Tenders & MFS Integrations
         </p>
 
@@ -1790,8 +1790,8 @@ function PaymentSettingsTab({ onSave }: { onSave: () => void }) {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900">{item.label}</span>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded font-bold bg-slate-100 text-slate-600">
+                    <span className="font-bold text-gray-600">{item.label}</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-sm font-bold bg-slate-100 text-slate-600">
                       {item.badge}
                     </span>
                   </div>
@@ -1858,10 +1858,10 @@ function InventorySettingsTab({ onSave }: { onSave: () => void }) {
             type="checkbox"
             checked={allowNegative}
             onChange={(e) => setAllowNegative(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded text-primary-600 focus:ring-0"
+            className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
           />
           <div>
-            <span className="font-bold text-slate-900 block">Allow Negative Stock Checkout</span>
+            <span className="font-bold text-gray-600 block">Allow Negative Stock Checkout</span>
             <p className="text-slate-400 text-[11px] mt-0.5">
               Allows cashier to complete sale when physical item is on shelf but GRN entry is pending (reconciles on next PO)
             </p>
@@ -1925,7 +1925,7 @@ function CurrencySettingsTab({
 
       {/* Exchange Rate Overview Cards */}
       <div className="space-y-2">
-        <p className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">
+        <p className="font-bold text-gray-600 uppercase tracking-wider text-[10px]">
           Configured Currencies & Conversion Matrix
         </p>
 
@@ -1938,11 +1938,11 @@ function CurrencySettingsTab({
           ].map((c) => (
             <div key={c.code} className="p-3.5 rounded-sm border border-slate-200 bg-slate-50/50 space-y-1">
               <div className="flex justify-between items-center">
-                <span className="font-black text-sm text-slate-900">{c.symbol} {c.code}</span>
-                {c.isBase && <span className="text-[9px] font-bold bg-primary-100 text-primary-800 px-1.5 py-0.5 rounded">BASE</span>}
+                <span className="font-black text-sm text-gray-600">{c.symbol} {c.code}</span>
+                {c.isBase && <span className="text-[9px] font-bold bg-primary-100 text-primary-800 px-1.5 py-0.5 rounded-sm">BASE</span>}
               </div>
               <p className="text-[10px] text-slate-400">{c.name}</p>
-              <p className="text-xs font-mono font-bold text-slate-700">1 {c.code} = ৳{c.rate}</p>
+              <p className="text-xs font-mono font-bold text-gray-600">1 {c.code} = ৳{c.rate}</p>
             </div>
           ))}
         </div>
@@ -1974,10 +1974,10 @@ function NotificationSettingsTab({ onSave }: { onSave: () => void }) {
             type="checkbox"
             checked={lowStock}
             onChange={(e) => setLowStock(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded text-primary-600 focus:ring-0"
+            className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
           />
           <div>
-            <span className="font-bold text-slate-900 block">Low Stock Reorder Triggers</span>
+            <span className="font-bold text-gray-600 block">Low Stock Reorder Triggers</span>
             <p className="text-slate-400 text-[11px] mt-0.5">
               Notifies store manager email & mobile when product stock breaches safety reorder threshold
             </p>
@@ -1989,10 +1989,10 @@ function NotificationSettingsTab({ onSave }: { onSave: () => void }) {
             type="checkbox"
             checked={shiftClose}
             onChange={(e) => setShiftClose(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded text-primary-600 focus:ring-0"
+            className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
           />
           <div>
-            <span className="font-bold text-slate-900 block">Daily Register Shift Close Summary</span>
+            <span className="font-bold text-gray-600 block">Daily Register Shift Close Summary</span>
             <p className="text-slate-400 text-[11px] mt-0.5">
               Sends automated email breakdown with cash drawer reconciliation and discrepancy audits
             </p>
@@ -2004,10 +2004,10 @@ function NotificationSettingsTab({ onSave }: { onSave: () => void }) {
             type="checkbox"
             checked={smsAlerts}
             onChange={(e) => setSmsAlerts(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded text-primary-600 focus:ring-0"
+            className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
           />
           <div>
-            <span className="font-bold text-slate-900 block">Customer SMS Digital Receipt Link</span>
+            <span className="font-bold text-gray-600 block">Customer SMS Digital Receipt Link</span>
             <p className="text-slate-400 text-[11px] mt-0.5">
               Dispatches thank-you SMS containing invoice link directly to buyer phone number
             </p>
@@ -2036,7 +2036,7 @@ function UserSettingsTab({ onSave }: { onSave: () => void }) {
     <div className="space-y-6 text-xs">
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-sm bg-slate-100/70 border border-slate-200">
         <div>
-          <h4 className="font-bold text-slate-900 text-sm">Security & Access Policies</h4>
+          <h4 className="font-bold text-gray-600 text-sm">Security & Access Policies</h4>
           <p className="text-slate-500 text-[11px]">
             Session idle timers, Cashier quick PIN login, and password complexity enforcement
           </p>
@@ -2087,7 +2087,7 @@ function RoleSettingsTab({ onSave }: { onSave: () => void }) {
     <div className="space-y-6 text-xs">
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-sm bg-slate-50 border border-slate-200">
         <div>
-          <h4 className="font-bold text-slate-900 text-sm">Role-Based Access Control (RBAC)</h4>
+          <h4 className="font-bold text-gray-600 text-sm">Role-Based Access Control (RBAC)</h4>
           <p className="text-slate-500 text-[11px]">
             Fine-grained permissions for discount limits, price overrides, refunds, and financial reporting
           </p>
@@ -2107,8 +2107,8 @@ function RoleSettingsTab({ onSave }: { onSave: () => void }) {
         ].map((r) => (
           <div key={r.role} className="p-4 rounded-sm border border-slate-200 bg-slate-50/50 space-y-1.5">
             <div className="flex justify-between items-center">
-              <span className="font-mono font-bold text-slate-900 text-xs">{r.role}</span>
-              <span className="text-[9px] font-bold bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">{r.badge}</span>
+              <span className="font-mono font-bold text-gray-600 text-xs">{r.role}</span>
+              <span className="text-[9px] font-bold bg-slate-200 text-gray-600 px-1.5 py-0.5 rounded-sm">{r.badge}</span>
             </div>
             <p className="text-slate-500 text-[11px] leading-relaxed">{r.perms}</p>
           </div>
@@ -2151,7 +2151,7 @@ function IntegrationSettingsTab({ onSave }: { onSave: () => void }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="p-4 rounded-sm border border-slate-200 bg-slate-50/50 space-y-2">
           <div className="flex justify-between items-center">
-            <h4 className="font-bold text-slate-900">Shopify & WooCommerce Bridge</h4>
+            <h4 className="font-bold text-gray-600">Shopify & WooCommerce Bridge</h4>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
               Active Adapter
             </span>
@@ -2161,7 +2161,7 @@ function IntegrationSettingsTab({ onSave }: { onSave: () => void }) {
 
         <div className="p-4 rounded-sm border border-slate-200 bg-slate-50/50 space-y-2">
           <div className="flex justify-between items-center">
-            <h4 className="font-bold text-slate-900">Steadfast / Pathao Courier API</h4>
+            <h4 className="font-bold text-gray-600">Steadfast / Pathao Courier API</h4>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
               Connected
             </span>
@@ -2178,15 +2178,15 @@ function IntegrationSettingsTab({ onSave }: { onSave: () => void }) {
           placeholder="https://your-domain.com/webhooks/pos"
         />
 
-        <div className="flex items-center justify-between p-3 rounded-xl bg-slate-100 border border-slate-200">
+        <div className="flex items-center justify-between p-3 rounded-sm bg-slate-100 border border-slate-200">
           <div>
             <span className="text-[10px] font-bold text-slate-500 uppercase">Signing Secret (HMAC SHA-256)</span>
-            <p className="font-mono font-bold text-slate-900 text-xs">whsec_live_9a8f7b6c5d4e3f2a1b0c</p>
+            <p className="font-mono font-bold text-gray-600 text-xs">whsec_live_9a8f7b6c5d4e3f2a1b0c</p>
           </div>
           <button
             type="button"
             onClick={copySecret}
-            className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 flex items-center gap-1 text-[11px]"
+            className="px-3 py-1.5 rounded-sm bg-white border border-slate-300 text-gray-600 font-bold hover:bg-slate-50 flex items-center gap-1 text-[11px]"
           >
             {copied ? <Check size={12} className="text-emerald-600" /> : <Copy size={12} />}
             {copied ? "Copied" : "Copy"}
@@ -2229,10 +2229,10 @@ function AISettingsTab({ onSave }: { onSave: () => void }) {
             type="checkbox"
             checked={demandForecasting}
             onChange={(e) => setDemandForecasting(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded text-violet-600 focus:ring-0"
+            className="mt-0.5 w-4 h-4 rounded-sm text-violet-600 focus:ring-0"
           />
           <div>
-            <span className="font-bold text-slate-900 block">AI Demand & Seasonality Forecasting</span>
+            <span className="font-bold text-gray-600 block">AI Demand & Seasonality Forecasting</span>
             <p className="text-slate-500 text-[11px] mt-0.5">
               Analyzes historical POS sales velocity to predict inventory requirements for upcoming peak periods
             </p>
@@ -2244,10 +2244,10 @@ function AISettingsTab({ onSave }: { onSave: () => void }) {
             type="checkbox"
             checked={smartReordering}
             onChange={(e) => setSmartReordering(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded text-violet-600 focus:ring-0"
+            className="mt-0.5 w-4 h-4 rounded-sm text-violet-600 focus:ring-0"
           />
           <div>
-            <span className="font-bold text-slate-900 block">Smart Purchase Requisition (PR) Drafts</span>
+            <span className="font-bold text-gray-600 block">Smart Purchase Requisition (PR) Drafts</span>
             <p className="text-slate-500 text-[11px] mt-0.5">
               Automatically creates supplier purchase order drafts when safety stock thresholds are breached
             </p>
@@ -2282,7 +2282,7 @@ function SubscriptionSettingsTab({ tenantData }: { tenantData: any }) {
               Tenant Identifier: <span className="font-mono text-white font-bold">{tenant.slug || "main-tenant"}</span>
             </p>
           </div>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-slate-950 shadow-sm">
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-gray-600 shadow-sm">
             Active & Licensed
           </span>
         </div>
@@ -2333,7 +2333,7 @@ function ThemeSettingsTab({ onSave }: { onSave: () => void }) {
     <form id="active-settings-form" onSubmit={handleSave} className="space-y-6 animate-in fade-in duration-300">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
-          <h3 className="text-base font-bold text-slate-900">Global Color Theme & Palette</h3>
+          <h3 className="text-base font-bold text-gray-600">Global Color Theme & Palette</h3>
           <p className="text-xs text-slate-500">
             Select a primary modern theme. The selected theme will dynamically apply to all tenant, business, and POS screens.
           </p>
@@ -2367,7 +2367,7 @@ function ThemeSettingsTab({ onSave }: { onSave: () => void }) {
                       className="w-4 h-4 rounded-full border border-black/10 shadow-2xs"
                       style={{ backgroundColor: t.primaryHex }}
                     />
-                    <h4 className="text-sm font-bold text-slate-900">{t.name}</h4>
+                    <h4 className="text-sm font-bold text-gray-600">{t.name}</h4>
                   </div>
                   {isSelected && (
                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-gradient text-white shadow-2xs">
@@ -2379,19 +2379,19 @@ function ThemeSettingsTab({ onSave }: { onSave: () => void }) {
                 <p className="text-[11px] font-semibold text-slate-400 mb-3">{t.subtitle}</p>
 
                 {/* Color Palette Swatches */}
-                <div className="flex items-center gap-1.5 mb-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="flex items-center gap-1.5 mb-3 p-2 rounded-sm bg-slate-50 border border-slate-100">
                   <div
-                    className="h-6 flex-1 rounded-md shadow-2xs border border-black/5"
+                    className="h-6 flex-1 rounded-sm shadow-2xs border border-black/5"
                     style={{ backgroundColor: t.primaryHex }}
                     title="Primary"
                   />
                   <div
-                    className="h-6 flex-1 rounded-md shadow-2xs border border-black/5"
+                    className="h-6 flex-1 rounded-sm shadow-2xs border border-black/5"
                     style={{ backgroundColor: t.secondaryHex }}
                     title="Secondary"
                   />
                   <div
-                    className="h-6 flex-1 rounded-md shadow-2xs border border-black/5"
+                    className="h-6 flex-1 rounded-sm shadow-2xs border border-black/5"
                     style={{ backgroundColor: t.accentHex }}
                     title="Accent"
                   />
@@ -2407,10 +2407,10 @@ function ThemeSettingsTab({ onSave }: { onSave: () => void }) {
                 </span>
                 <span
                   className={cn(
-                    "text-xs font-bold px-3 py-1 rounded-lg transition",
+                    "text-xs font-bold px-3 py-1 rounded-sm transition",
                     isSelected
                       ? "bg-brand-gradient text-white shadow-2xs"
-                      : "bg-slate-100 text-slate-700 group-hover:bg-slate-200"
+                      : "bg-slate-100 text-gray-600 group-hover:bg-slate-200"
                   )}
                 >
                   {isSelected ? "Selected" : "Apply"}

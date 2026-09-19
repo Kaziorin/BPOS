@@ -370,7 +370,7 @@ export default function IntegrationsPage() {
       {/* ── Toast Alert Banner ── */}
       {toastMsg && (
         <div
-          className={`flex items-center justify-between p-4 rounded-xl border shadow-lg animate-in slide-in-from-top duration-300 ${
+          className={`flex items-center justify-between p-4 rounded-sm border shadow-lg animate-in slide-in-from-top duration-300 ${
             toastMsg.type === "success"
               ? "bg-primary-50 border-primary-200 text-primary-900"
               : "bg-rose-50 border-rose-200 text-rose-900"
@@ -380,7 +380,7 @@ export default function IntegrationsPage() {
             {toastMsg.type === "success" ? <CheckCircle2 size={18} className="text-primary-600" /> : <AlertTriangle size={18} className="text-rose-600" />}
             <span className="text-sm font-semibold">{toastMsg.text}</span>
           </div>
-          <button onClick={() => setToastMsg(null)} className="p-1 rounded hover:bg-black/5 cursor-pointer">
+          <button onClick={() => setToastMsg(null)} className="p-1 rounded-sm hover:bg-black/5 cursor-pointer">
             <X size={16} />
           </button>
         </div>
@@ -405,7 +405,7 @@ export default function IntegrationsPage() {
             For security reasons, this secret key will <strong>never be shown again</strong>. Please copy and store it securely in your environment variables.
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 rounded-xl bg-white p-3 border border-primary-200 font-mono text-xs font-bold text-slate-900 select-all break-all">
+            <code className="flex-1 rounded-sm bg-white p-3 border border-primary-200 font-mono text-xs font-bold text-gray-600 select-all break-all">
               {newlyCreatedSecretKey}
             </code>
             <CustomButton
@@ -428,12 +428,12 @@ export default function IntegrationsPage() {
         <div className="relative overflow-hidden rounded-sm border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Active Connectors</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-primary-100 text-primary-600">
               <Plug size={18} />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-slate-900">{enabledMap.size}</span>
+            <span className="text-2xl font-black text-gray-600">{enabledMap.size}</span>
             <span className="text-xs text-slate-500">of {catalog.length} available</span>
           </div>
           <div className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-primary-600">
@@ -445,12 +445,12 @@ export default function IntegrationsPage() {
         <div className="relative overflow-hidden rounded-sm border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Webhooks Subscriptions</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-primary-100 text-primary-600">
               <Webhook size={18} />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-slate-900">{webhooks.length}</span>
+            <span className="text-2xl font-black text-gray-600">{webhooks.length}</span>
             <span className="text-xs text-slate-500">endpoints registered</span>
           </div>
           <div className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-primary-600">
@@ -462,12 +462,12 @@ export default function IntegrationsPage() {
         <div className="relative overflow-hidden rounded-sm border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">API Tokens</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-primary-100 text-primary-600">
               <Key size={18} />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-slate-900">
+            <span className="text-2xl font-black text-gray-600">
               {apiKeys.filter((k) => k.isActive && !k.revokedAt).length}
             </span>
             <span className="text-xs text-slate-500">active keys</span>
@@ -481,12 +481,12 @@ export default function IntegrationsPage() {
         <div className="relative overflow-hidden rounded-sm border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Delivery Reliability</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-primary-100 text-primary-600">
               <Activity size={18} />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-slate-900">
+            <span className="text-2xl font-black text-gray-600">
               {webhookStats?.successRate ?? (webhookLogs.length > 0 ? "100" : "100")}%
             </span>
             <span className="text-xs text-slate-500">success rate</span>
@@ -513,7 +513,7 @@ export default function IntegrationsPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
                   active
                     ? "bg-brand-gradient text-white shadow-2xs shadow-md shadow-sm"
                     : "text-slate-600 hover:bg-slate-100"
@@ -526,7 +526,7 @@ export default function IntegrationsPage() {
                     className={`ml-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                       active
                         ? "bg-white/20 text-white"
-                        : "bg-slate-200 text-slate-700"
+                        : "bg-slate-200 text-gray-600"
                     }`}
                   >
                     {tab.badge}
@@ -575,7 +575,7 @@ export default function IntegrationsPage() {
                   <button
                     key={catKey}
                     onClick={() => setCatFilter(catKey)}
-                    className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+                    className={`flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                       active
                         ? "bg-brand-gradient text-white shadow-2xs shadow-sm"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -595,7 +595,7 @@ export default function IntegrationsPage() {
                 placeholder="Search connectors..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-gray-600 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
           </div>
@@ -628,9 +628,9 @@ export default function IntegrationsPage() {
                           <Plug size={20} />
                         </div>
                         <div>
-                          <h3 className="font-black text-sm text-slate-900">{item.name}</h3>
+                          <h3 className="font-black text-sm text-gray-600">{item.name}</h3>
                           <span
-                            className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-wider border bg-primary-50 text-primary-700 border-primary-200"
+                            className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[9px] font-black uppercase tracking-wider border bg-primary-50 text-primary-700 border-primary-200"
                           >
                             {item.category}
                           </span>
@@ -678,7 +678,7 @@ export default function IntegrationsPage() {
                       {isEnabled && (
                         <button
                           onClick={() => openConfigModal(item)}
-                          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-50 shadow-xs cursor-pointer"
+                          className="rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-gray-600 hover:bg-slate-50 shadow-xs cursor-pointer"
                         >
                           Configure
                         </button>
@@ -712,7 +712,7 @@ export default function IntegrationsPage() {
           <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-sm space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
               <div>
-                <h3 className="text-sm font-black text-slate-900">Active Webhook Subscriptions</h3>
+                <h3 className="text-sm font-black text-gray-600">Active Webhook Subscriptions</h3>
                 <p className="text-xs text-slate-500">
                   HTTP POST event callbacks signed with <code className="font-mono text-primary-600 font-bold">X-Webhook-Signature</code>
                 </p>
@@ -746,7 +746,7 @@ export default function IntegrationsPage() {
                         <tr key={sub.id} className="hover:bg-slate-50/70 transition">
                           <td className="px-4 py-3.5">
                             <div>
-                              <span className="font-mono font-bold text-slate-900 block max-w-sm truncate">{sub.url}</span>
+                              <span className="font-mono font-bold text-gray-600 block max-w-sm truncate">{sub.url}</span>
                               <span className="text-[10px] text-slate-400">{sub.description || "No description"}</span>
                             </div>
                           </td>
@@ -755,7 +755,7 @@ export default function IntegrationsPage() {
                               {(Array.isArray(sub.events) ? sub.events : []).map((ev) => (
                                 <span
                                   key={ev}
-                                  className="rounded bg-primary-50 text-primary-700 px-1.5 py-0.5 font-mono text-[10px] font-semibold"
+                                  className="rounded-sm bg-primary-50 text-primary-700 px-1.5 py-0.5 font-mono text-[10px] font-semibold"
                                 >
                                   {ev}
                                 </span>
@@ -767,7 +767,7 @@ export default function IntegrationsPage() {
                               <span>{isRevealed ? sub.secret || "Default HMAC" : "••••••••••••••••"}</span>
                               <button
                                 onClick={() => setRevealedSecrets((prev) => ({ ...prev, [sub.id]: !prev[sub.id] }))}
-                                className="p-1 rounded text-slate-400 hover:text-slate-600 cursor-pointer"
+                                className="p-1 rounded-sm text-slate-400 hover:text-slate-600 cursor-pointer"
                               >
                                 {isRevealed ? <EyeOff size={13} /> : <Eye size={13} />}
                               </button>
@@ -798,7 +798,7 @@ export default function IntegrationsPage() {
                               </CustomButton>
                               <button
                                 onClick={() => deleteWebhook(sub.id)}
-                                className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
+                                className="p-1.5 rounded-sm text-rose-400 hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
                                 title="Delete Webhook"
                               >
                                 <Trash2 size={13} />
@@ -818,11 +818,11 @@ export default function IntegrationsPage() {
           <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
+                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary-100 text-primary-600">
                   <Activity size={16} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-900">Recent Event Deliveries & Telemetry</h3>
+                  <h3 className="text-sm font-black text-gray-600">Recent Event Deliveries & Telemetry</h3>
                   <span className="text-[11px] text-slate-500">Real-time audit log of outbound webhook dispatches</span>
                 </div>
               </div>
@@ -857,12 +857,12 @@ export default function IntegrationsPage() {
                   ) : (
                     webhookLogs.map((log) => (
                       <tr key={log.id} className="hover:bg-slate-50/70 transition">
-                        <td className="px-4 py-2.5 font-mono font-bold text-slate-800">
+                        <td className="px-4 py-2.5 font-mono font-bold text-gray-600">
                           {log.eventType}
                         </td>
                         <td className="px-4 py-2.5">
                           <span
-                            className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold ${
+                            className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold ${
                               log.status === "SUCCESS"
                                 ? "bg-emerald-100 text-emerald-700"
                                 : log.status === "FAILED"
@@ -911,7 +911,7 @@ export default function IntegrationsPage() {
         <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-sm space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div>
-              <h3 className="text-sm font-black text-slate-900">Authorized REST API Access Keys</h3>
+              <h3 className="text-sm font-black text-gray-600">Authorized REST API Access Keys</h3>
               <p className="text-xs text-slate-500">
                 Grant external programs, ERP systems, or mobile POS terminals programmatic access to your store.
               </p>
@@ -946,11 +946,11 @@ export default function IntegrationsPage() {
                       <tr key={keyItem.id} className="hover:bg-slate-50/70 transition">
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-2.5">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary-100 text-primary-600">
                               <Key size={14} />
                             </div>
                             <div>
-                              <span className="font-bold text-slate-900 block">{keyItem.name}</span>
+                              <span className="font-bold text-gray-600 block">{keyItem.name}</span>
                               {keyItem.expiresAt && (
                                 <span className="text-[10px] text-slate-400">
                                   Expires {new Date(keyItem.expiresAt).toLocaleDateString()}
@@ -959,7 +959,7 @@ export default function IntegrationsPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3.5 font-mono font-bold text-slate-700">
+                        <td className="px-4 py-3.5 font-mono font-bold text-gray-600">
                           {keyItem.keyPrefix}••••••••
                         </td>
                         <td className="px-4 py-3.5">
@@ -967,7 +967,7 @@ export default function IntegrationsPage() {
                             {(Array.isArray(keyItem.scopes) ? keyItem.scopes : []).map((s) => (
                               <span
                                 key={s}
-                                className="rounded bg-primary-50 text-primary-700 px-1.5 py-0.5 text-[9px] font-bold"
+                                className="rounded-sm bg-primary-50 text-primary-700 px-1.5 py-0.5 text-[9px] font-bold"
                               >
                                 {s}
                               </span>
@@ -995,7 +995,7 @@ export default function IntegrationsPage() {
                           {!isRevoked && (
                             <button
                               onClick={() => revokeApiKey(keyItem.id)}
-                              className="rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-bold text-rose-700 hover:bg-rose-100 cursor-pointer"
+                              className="rounded-sm border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-bold text-rose-700 hover:bg-rose-100 cursor-pointer"
                             >
                               Revoke
                             </button>
@@ -1021,12 +1021,12 @@ export default function IntegrationsPage() {
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <Code size={16} className="text-primary-600" />
-                <h4 className="text-sm font-bold text-slate-900">REST API Request Example</h4>
+                <h4 className="text-sm font-bold text-gray-600">REST API Request Example</h4>
               </div>
-              <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-mono text-slate-600 font-bold">cURL</span>
+              <span className="rounded-sm bg-slate-100 px-2 py-0.5 text-[10px] font-mono text-slate-600 font-bold">cURL</span>
             </div>
 
-            <pre className="p-4 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs text-slate-800 overflow-x-auto leading-relaxed">
+            <pre className="p-4 rounded-sm bg-slate-50 border border-slate-200 font-mono text-xs text-gray-600 overflow-x-auto leading-relaxed">
 {`curl -X POST https://api.blueoceanspos.com/api/v1/sales \\
   -H "Authorization: Bearer omni_live_YOUR_KEY_HERE" \\
   -H "X-Tenant-Id: demo-shop" \\
@@ -1050,12 +1050,12 @@ export default function IntegrationsPage() {
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <Lock size={16} className="text-primary-600" />
-                <h4 className="text-sm font-bold text-slate-900">HMAC-SHA256 Webhook Verification</h4>
+                <h4 className="text-sm font-bold text-gray-600">HMAC-SHA256 Webhook Verification</h4>
               </div>
-              <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-mono text-slate-600 font-bold">Node.js</span>
+              <span className="rounded-sm bg-slate-100 px-2 py-0.5 text-[10px] font-mono text-slate-600 font-bold">Node.js</span>
             </div>
 
-            <pre className="p-4 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs text-slate-800 overflow-x-auto leading-relaxed">
+            <pre className="p-4 rounded-sm bg-slate-50 border border-slate-200 font-mono text-xs text-gray-600 overflow-x-auto leading-relaxed">
 {`const crypto = require("crypto");
 
 function verifyWebhook(rawPayload, signature, secret) {
@@ -1085,48 +1085,48 @@ function verifyWebhook(rawPayload, signature, secret) {
           <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
+                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary-100 text-primary-600">
                   <Webhook size={16} />
                 </div>
-                <h3 className="text-base font-black text-slate-900">Register Webhook Endpoint</h3>
+                <h3 className="text-base font-black text-gray-600">Register Webhook Endpoint</h3>
               </div>
-              <button onClick={() => setShowWebhookModal(false)} className="rounded-lg p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
+              <button onClick={() => setShowWebhookModal(false)} className="rounded-sm p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
                 <X size={16} />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Target Endpoint URL *</label>
+                <label className="block font-bold text-gray-600 mb-1">Target Endpoint URL *</label>
                 <input
                   type="url"
                   placeholder="https://api.yourdomain.com/webhooks/blueoceans"
                   value={whUrl}
                   onChange={(e) => setWhUrl(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-mono font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Description (Optional)</label>
+                <label className="block font-bold text-gray-600 mb-1">Description (Optional)</label>
                 <input
                   type="text"
                   placeholder="e.g. Production ERP Syncer"
                   value={whDesc}
                   onChange={(e) => setWhDesc(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1.5">Select Subscribed Events *</label>
+                <label className="block font-bold text-gray-600 mb-1.5">Select Subscribed Events *</label>
                 <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
                   {WEBHOOK_EVENTS_LIST.map((ev) => {
                     const checked = whEvents.includes(ev.code);
                     return (
                       <label
                         key={ev.code}
-                        className={`flex items-center gap-2 p-2 rounded-xl border transition cursor-pointer select-none ${
+                        className={`flex items-center gap-2 p-2 rounded-sm border transition cursor-pointer select-none ${
                           checked
                             ? "border-primary-400 bg-primary-50/40"
                             : "border-slate-100 bg-slate-50/40"
@@ -1140,10 +1140,10 @@ function verifyWebhook(rawPayload, signature, secret) {
                               prev.includes(ev.code) ? prev.filter((x) => x !== ev.code) : [...prev, ev.code]
                             );
                           }}
-                          className="h-3.5 w-3.5 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                          className="h-3.5 w-3.5 rounded-sm border-slate-300 text-primary-600 focus:ring-primary-500"
                         />
                         <div className="min-w-0">
-                          <span className="font-bold text-slate-800 block text-[11px]">{ev.label}</span>
+                          <span className="font-bold text-gray-600 block text-[11px]">{ev.label}</span>
                           <span className="font-mono text-[9px] text-slate-400">{ev.code}</span>
                         </div>
                       </label>
@@ -1183,34 +1183,34 @@ function verifyWebhook(rawPayload, signature, secret) {
           <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
+                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary-100 text-primary-600">
                   <Key size={16} />
                 </div>
-                <h3 className="text-base font-black text-slate-900">Provision New API Key</h3>
+                <h3 className="text-base font-black text-gray-600">Provision New API Key</h3>
               </div>
-              <button onClick={() => setShowKeyModal(false)} className="rounded-lg p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
+              <button onClick={() => setShowKeyModal(false)} className="rounded-sm p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
                 <X size={16} />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Key Name / Client Identifier *</label>
+                <label className="block font-bold text-gray-600 mb-1">Key Name / Client Identifier *</label>
                 <input
                   type="text"
                   placeholder="e.g. Mobile Android POS Node #04"
                   value={keyName}
                   onChange={(e) => setKeyName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Key Expiration Period</label>
+                <label className="block font-bold text-gray-600 mb-1">Key Expiration Period</label>
                 <select
                   value={keyExpiryDays}
                   onChange={(e) => setKeyExpiryDays(Number(e.target.value))}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value={30}>30 Days</option>
                   <option value={90}>90 Days (Quarterly)</option>
@@ -1220,14 +1220,14 @@ function verifyWebhook(rawPayload, signature, secret) {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1.5">Granted Scopes *</label>
+                <label className="block font-bold text-gray-600 mb-1.5">Granted Scopes *</label>
                 <div className="grid grid-cols-2 gap-2 max-h-44 overflow-y-auto pr-1">
                   {ALL_API_SCOPES.map((scope) => {
                     const checked = keyScopes.includes(scope.code);
                     return (
                       <label
                         key={scope.code}
-                        className={`flex items-center gap-2 p-2 rounded-xl border transition cursor-pointer select-none ${
+                        className={`flex items-center gap-2 p-2 rounded-sm border transition cursor-pointer select-none ${
                           checked
                             ? "border-primary-400 bg-primary-50/40"
                             : "border-slate-100 bg-slate-50/30"
@@ -1241,10 +1241,10 @@ function verifyWebhook(rawPayload, signature, secret) {
                               prev.includes(scope.code) ? prev.filter((x) => x !== scope.code) : [...prev, scope.code]
                             );
                           }}
-                          className="h-3.5 w-3.5 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                          className="h-3.5 w-3.5 rounded-sm border-slate-300 text-primary-600 focus:ring-primary-500"
                         />
                         <div className="min-w-0">
-                          <span className="font-bold text-slate-800 block text-[11px]">{scope.label}</span>
+                          <span className="font-bold text-gray-600 block text-[11px]">{scope.label}</span>
                           <span className="font-mono text-[9px] text-slate-400">{scope.code}</span>
                         </div>
                       </label>
@@ -1284,48 +1284,48 @@ function verifyWebhook(rawPayload, signature, secret) {
           <div className="w-full max-w-md rounded-sm bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
+                <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary-100 text-primary-600">
                   <Sliders size={16} />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900">Configure {configTarget.name}</h3>
+                  <h3 className="text-base font-black text-gray-600">Configure {configTarget.name}</h3>
                   <span className="text-[10px] font-mono text-slate-400">{configTarget.code}</span>
                 </div>
               </div>
-              <button onClick={() => setConfigTarget(null)} className="rounded-lg p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
+              <button onClick={() => setConfigTarget(null)} className="rounded-sm p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
                 <X size={16} />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">API Public Key / Client ID</label>
+                <label className="block font-bold text-gray-600 mb-1">API Public Key / Client ID</label>
                 <input
                   type="text"
                   placeholder="e.g. pk_live_..."
                   value={configForm.apiKey || ""}
                   onChange={(e) => setConfigForm((prev) => ({ ...prev, apiKey: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-mono font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">API Secret Key / Token</label>
+                <label className="block font-bold text-gray-600 mb-1">API Secret Key / Token</label>
                 <input
                   type="password"
                   placeholder="e.g. sk_live_..."
                   value={configForm.secretKey || ""}
                   onChange={(e) => setConfigForm((prev) => ({ ...prev, secretKey: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-mono font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Environment Mode</label>
+                <label className="block font-bold text-gray-600 mb-1">Environment Mode</label>
                 <select
                   value={configForm.environment || "sandbox"}
                   onChange={(e) => setConfigForm((prev) => ({ ...prev, environment: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="sandbox">Sandbox / Test Mode</option>
                   <option value="production">Production Live Mode</option>

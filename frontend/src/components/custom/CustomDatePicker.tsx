@@ -75,7 +75,7 @@ export function CustomDatePicker({
   };
 
   const primaryIconColor =
-    themeColor === "teal" ? "text-teal-600" : themeColor === "blue" ? "text-blue-600" : "text-brand-primary";
+    themeColor === "teal" ? "text-brand-primary" : themeColor === "blue" ? "text-blue-600" : "text-brand-primary";
 
   const defaultIcon =
     type === "time" ? (
@@ -126,10 +126,10 @@ export function CustomDatePicker({
           onClick={handleContainerClick}
           onChange={(e) => onChange?.(e.target.value)}
           className={cn(
-            "h-[38px] w-full rounded-sm border border-brand-border bg-white text-xs sm:text-[13px] font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer",
+            "h-[38px] w-full rounded-sm border border-brand-border bg-white text-xs sm:text-[13px] font-semibold text-gray-600 shadow-2xs transition-colors cursor-pointer",
             "focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/20",
             "[&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-inner-spin-button]:hidden",
-            "[&::-webkit-datetime-edit]:text-xs [&::-webkit-datetime-edit]:sm:text-[13px] [&::-webkit-datetime-edit]:font-semibold [&::-webkit-datetime-edit]:text-slate-700",
+            "[&::-webkit-datetime-edit]:text-xs [&::-webkit-datetime-edit]:sm:text-[13px] [&::-webkit-datetime-edit]:font-semibold [&::-webkit-datetime-edit]:text-gray-600",
             "[&::-webkit-datetime-edit-fields-wrapper]:p-0",
             compact ? (clearable && value ? "pl-7.5 pr-6" : "pl-7.5 pr-2") : (clearable && value ? "pl-9 pr-8" : "pl-9 pr-3"),
             error && "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20",
@@ -143,7 +143,7 @@ export function CustomDatePicker({
             type="button"
             onClick={handleClear}
             className={cn(
-              "absolute z-10 top-1/2 -translate-y-1/2 p-0.5 rounded-sm text-gray-400 hover:text-gray-700 transition-colors cursor-pointer",
+              "absolute z-10 top-1/2 -translate-y-1/2 p-0.5 rounded-sm text-gray-400 hover:text-gray-600 transition-colors cursor-pointer",
               compact ? "right-1.5" : "right-2.5"
             )}
             title="Clear date"

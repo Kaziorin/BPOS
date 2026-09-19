@@ -179,22 +179,22 @@ function LiveClockCapsule({ theme = "emerald" }: { theme?: "emerald" | "orange" 
   return (
     <div
       className={cn(
-        "flex items-center gap-2.5 px-4 py-1.5 rounded-xl border transition-colors",
+        "flex items-center gap-2.5 px-4 py-1.5 rounded-sm border transition-colors",
         isOrange
-          ? "bg-orange-50/70 border-orange-200 text-gray-800"
-          : "bg-[#ecfdf5] border-[#bbf7d0] text-gray-800"
+          ? "bg-orange-50/70 border-orange-200 text-gray-600"
+          : "bg-[#ecfdf5] border-[#bbf7d0] text-gray-600"
       )}
     >
       <div
         className={cn(
-          "flex h-7 w-7 items-center justify-center rounded-lg text-sm",
+          "flex h-7 w-7 items-center justify-center rounded-sm text-sm",
           isOrange ? "bg-orange-100 text-orange-600" : "bg-[#d1fae5] text-[#059669]"
         )}
       >
         <Scale size={15} />
       </div>
       <div className="text-left leading-tight">
-        <div className="text-[13px] font-black tracking-tight text-gray-800">
+        <div className="text-[13px] font-black tracking-tight text-gray-600">
           {hh}:{mm}:{ss} <span className={cn("text-xs font-bold", isOrange ? "text-orange-600" : "text-[#059669]")}>{ap}</span>
         </div>
         <div className="text-[9px] text-gray-500 font-bold uppercase tracking-wider">{day}</div>
@@ -335,13 +335,13 @@ export default function CustomerDisplayPage() {
         }}
       >
         <div className="flex flex-col gap-3 flex-1 min-h-0 max-w-[1700px] w-full mx-auto">
-          {/* ══ 1. TOP HEADER (White rounded floating card from image) ══ */}
+          {/* ══ 1. TOP HEADER (White rounded-sm floating card from image) ══ */}
           <header className="rounded-sm border border-slate-200 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
             {/* Left: Brand Icon + Title + Lane + Subtitle */}
             <div className="flex items-center gap-3">
               <div
                 className={cn(
-                  "flex h-11 w-11 items-center justify-center rounded-xl border shrink-0 transition-colors",
+                  "flex h-11 w-11 items-center justify-center rounded-sm border shrink-0 transition-colors",
                   isOrange
                     ? "bg-orange-50 border-orange-200 text-orange-600"
                     : "bg-[#ecfdf5] border-[#a7f3d0] text-[#059669]"
@@ -352,12 +352,12 @@ export default function CustomerDisplayPage() {
 
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-gray-900 text-lg leading-tight tracking-tight">
+                  <span className="font-extrabold text-gray-600 text-lg leading-tight tracking-tight">
                     {merchantName}
                   </span>
                   <span
                     className={cn(
-                      "px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-wider text-white",
+                      "px-2 py-0.5 rounded-sm text-[11px] font-black uppercase tracking-wider text-white",
                       isOrange ? "bg-orange-600" : "bg-[#047857]"
                     )}
                   >
@@ -396,7 +396,7 @@ export default function CustomerDisplayPage() {
               {/* Theme toggle */}
               <button
                 onClick={() => setColorTheme((c) => (c === "emerald" ? "orange" : "emerald"))}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-gray-700 hover:bg-white text-xs font-bold transition shadow-2xs cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-slate-200 bg-slate-50 text-gray-600 hover:bg-white text-xs font-bold transition shadow-2xs cursor-pointer"
                 title="Toggle Theme"
               >
                 <Sparkles size={13} className={isOrange ? "text-orange-500" : "text-emerald-600"} />
@@ -406,7 +406,7 @@ export default function CustomerDisplayPage() {
               <button
                 id="cdisp-sound"
                 onClick={() => setSoundOn((v) => !v)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-gray-600 hover:text-emerald-700 transition shadow-2xs cursor-pointer"
+                className="flex h-10 w-10 items-center justify-center rounded-sm border border-slate-200 bg-white text-gray-600 hover:text-emerald-700 transition shadow-2xs cursor-pointer"
                 title={soundOn ? "Mute" : "Enable sound"}
               >
                 {soundOn ? <Volume2 size={17} /> : <VolumeX size={17} />}
@@ -416,7 +416,7 @@ export default function CustomerDisplayPage() {
                 id="cdisp-fullscreen"
                 onClick={toggleFs}
                 className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-xl text-white transition shadow-2xs cursor-pointer",
+                  "flex h-10 w-10 items-center justify-center rounded-sm text-white transition shadow-2xs cursor-pointer",
                   isOrange
                     ? "bg-orange-600 hover:bg-orange-700"
                     : "bg-[#047857] hover:bg-[#065f46]"
@@ -428,7 +428,7 @@ export default function CustomerDisplayPage() {
             </div>
           </header>
 
-          {/* ══ 2. WELCOME BANNER (White rounded card from image) ══ */}
+          {/* ══ 2. WELCOME BANNER (White rounded-sm card from image) ══ */}
           <div className="rounded-sm border border-slate-200 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3.5">
               <div
@@ -442,7 +442,7 @@ export default function CustomerDisplayPage() {
 
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-gray-900 text-base">
+                  <span className="font-extrabold text-gray-600 text-base">
                     Welcome back, {customerName}!
                   </span>
                   <span
@@ -485,7 +485,7 @@ export default function CustomerDisplayPage() {
                 <div className="flex items-center gap-2.5">
                   <div
                     className={cn(
-                      "flex h-9 w-9 items-center justify-center rounded-xl border shrink-0",
+                      "flex h-9 w-9 items-center justify-center rounded-sm border shrink-0",
                       isOrange
                         ? "bg-orange-50 border-orange-200 text-orange-600"
                         : "bg-[#ecfdf5] border-[#a7f3d0] text-[#059669]"
@@ -494,13 +494,13 @@ export default function CustomerDisplayPage() {
                     <ShoppingBag size={18} />
                   </div>
                   <div>
-                    <h2 className="font-extrabold text-gray-900 text-base leading-none">
+                    <h2 className="font-extrabold text-gray-600 text-base leading-none">
                       Basket Items
                     </h2>
                     <p className="text-xs text-gray-400 font-medium mt-1">Live scan itemization</p>
                   </div>
                 </div>
-                <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-gray-700 border border-slate-200">
+                <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-gray-600 border border-slate-200">
                   {displayLines.reduce((s, l) => s + l.qty, 0)} Items
                 </span>
               </div>
@@ -521,12 +521,12 @@ export default function CustomerDisplayPage() {
                           <img
                             src={line.image}
                             alt={line.name}
-                            className="h-14 w-14 rounded-xl object-cover border border-slate-200 shrink-0"
+                            className="h-14 w-14 rounded-sm object-cover border border-slate-200 shrink-0"
                           />
                         ) : (
                           <div
                             className={cn(
-                              "flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border text-2xl",
+                              "flex h-14 w-14 shrink-0 items-center justify-center rounded-sm border text-2xl",
                               isOrange
                                 ? "bg-orange-50 border-orange-200"
                                 : "bg-[#fef9c3] border-[#fef08a]"
@@ -538,10 +538,10 @@ export default function CustomerDisplayPage() {
 
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded-md bg-slate-900 text-white font-black text-xs shrink-0">
+                            <span className="px-2 py-0.5 rounded-sm bg-slate-900 text-white font-black text-xs shrink-0">
                               {line.qty}x
                             </span>
-                            <h3 className="font-bold text-gray-900 text-sm leading-tight truncate">
+                            <h3 className="font-bold text-gray-600 text-sm leading-tight truncate">
                               {line.name}
                             </h3>
                           </div>
@@ -553,7 +553,7 @@ export default function CustomerDisplayPage() {
 
                       {/* Right: Line Total + TOTAL caption */}
                       <div className="flex flex-col items-end shrink-0">
-                        <span className="font-black text-base text-gray-900 tracking-tight">
+                        <span className="font-black text-base text-gray-600 tracking-tight">
                           {fmt(lineTotal)}
                         </span>
                         <span className="text-[9px] font-black text-gray-400 tracking-widest uppercase mt-0.5">
@@ -584,18 +584,18 @@ export default function CustomerDisplayPage() {
                 <div className="py-3.5 space-y-2.5">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500 font-medium">Subtotal</span>
-                    <span className="font-bold text-gray-800">{fmt(subtotal)}</span>
+                    <span className="font-bold text-gray-600">{fmt(subtotal)}</span>
                   </div>
 
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500 font-medium">VAT / Tax</span>
-                    <span className="font-bold text-gray-800">{fmt(tax)}</span>
+                    <span className="font-bold text-gray-600">{fmt(tax)}</span>
                   </div>
 
                   {serviceCharge > 0 && (
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-gray-500 font-medium">Service Charge</span>
-                      <span className="font-bold text-gray-800">{fmt(serviceCharge)}</span>
+                      <span className="font-bold text-gray-600">{fmt(serviceCharge)}</span>
                     </div>
                   )}
 
@@ -641,7 +641,7 @@ export default function CustomerDisplayPage() {
                     </span>
                     <span
                       className={cn(
-                        "text-[10px] font-bold px-2 py-0.5 rounded-md",
+                        "text-[10px] font-bold px-2 py-0.5 rounded-sm",
                         isOrange
                           ? "bg-orange-50 text-orange-700"
                           : "bg-[#ecfdf5] text-[#059669]"
@@ -669,7 +669,7 @@ export default function CustomerDisplayPage() {
                           id={`cdisp-tab-${m.key}`}
                           onClick={() => setSelectedPayment(m.key)}
                           className={cn(
-                            "py-2 rounded-xl text-xs font-bold transition-all text-center cursor-pointer border",
+                            "py-2 rounded-sm text-xs font-bold transition-all text-center cursor-pointer border",
                             isActive
                               ? isOrange
                                 ? "bg-orange-600 text-white border-transparent shadow-xs"

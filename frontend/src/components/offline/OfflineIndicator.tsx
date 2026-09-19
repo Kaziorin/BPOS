@@ -93,7 +93,7 @@ export default function OfflineIndicator() {
           <button
             onClick={handleSync}
             disabled={info.syncing}
-            className="flex items-center gap-1 rounded-lg bg-white/20 px-3 py-1 text-xs font-semibold transition hover:bg-white/30 disabled:opacity-50"
+            className="flex items-center gap-1 rounded-sm bg-white/20 px-3 py-1 text-xs font-semibold transition hover:bg-white/30 disabled:opacity-50"
           >
             <RefreshCw size={12} className={info.syncing ? "animate-spin" : ""} />
             Sync Now

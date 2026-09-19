@@ -50,7 +50,7 @@ export default function HoldsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Held Sales</h1>
+          <h1 className="text-2xl font-bold text-gray-600">Held Sales</h1>
           <p className="mt-1 text-sm text-gray-500">Parked carts — resume from any terminal</p>
         </div>
         <CustomButton onClick={() => router.push("/retail-pos")}>
@@ -75,11 +75,11 @@ export default function HoldsPage() {
         {holds.map((h) => (
           <div
             key={h.id}
-            className="rounded-xl border border-gray-200 bg-white p-4 space-y-3"
+            className="rounded-sm border border-gray-200 bg-white p-4 space-y-3"
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-mono text-sm font-semibold text-gray-900">{h.holdNo}</p>
+                <p className="font-mono text-sm font-semibold text-gray-600">{h.holdNo}</p>
                 <p className="text-xs text-gray-400">
                   {new Date(h.createdAt).toLocaleString()}
                 </p>
@@ -117,7 +117,7 @@ export default function HoldsPage() {
               </CustomButton>
               <button
                 onClick={() => deleteHold(h.id)}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-red-200 hover:bg-red-50 hover:text-red-500"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-gray-200 text-gray-400 hover:border-red-200 hover:bg-red-50 hover:text-red-500"
               >
                 <Trash2 size={14} />
               </button>

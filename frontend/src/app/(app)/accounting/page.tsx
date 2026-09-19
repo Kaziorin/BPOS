@@ -93,7 +93,7 @@ export default function AccountingPage() {
             <Link key={m.href} href={m.href} className="group flex items-center gap-4 rounded-sm border border-slate-200 bg-white p-4 shadow-2xs transition hover:border-brand-border hover:shadow-xs">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><m.icon size={20} /></div>
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-gray-900">{m.label}</p>
+                <p className="font-semibold text-gray-600">{m.label}</p>
                 <p className="truncate text-sm text-gray-500">{m.desc}</p>
               </div>
               <ChevronRight size={17} className="text-gray-300 transition group-hover:translate-x-0.5 group-hover:text-sky-500" />
@@ -113,10 +113,10 @@ export default function AccountingPage() {
               journals.map((j) => (
                 <div key={j.id} className="flex items-center justify-between px-5 py-3">
                   <div>
-                    <p className="text-sm font-medium text-gray-800">{j.journalNo}</p>
+                    <p className="text-sm font-medium text-gray-600">{j.journalNo}</p>
                     <p className="text-[11px] uppercase tracking-wide text-gray-400">{j.status}</p>
                   </div>
-                  <p className="text-sm font-semibold tabular-nums text-gray-900">{money(j.totalDebit)}</p>
+                  <p className="text-sm font-semibold tabular-nums text-gray-600">{money(j.totalDebit)}</p>
                 </div>
               ))
             )}

@@ -35,12 +35,12 @@ export function PharmacyPOSFooter({
   return (
     <footer className={cn(
       "flex w-full flex-none items-center justify-between px-4 py-1 text-[11px] select-none h-10 transition overflow-x-auto no-scrollbar",
-      darkMode ? "bg-slate-900 text-slate-100" : "bg-white text-slate-800"
+      darkMode ? "bg-slate-900 text-slate-100" : "bg-white text-gray-600"
     )}>
       {/* Left: Time & Date */}
       <div className="flex items-center gap-3 shrink-0">
         <div className="leading-tight">
-          <p className="text-[13px] font-black tabular-nums text-[#00796b] dark:text-teal-400">{timeStr}</p>
+          <p className="text-[13px] font-black tabular-nums text-[#00796b] dark:text-brand-primary">{timeStr}</p>
           <p className="text-[10px] font-semibold text-slate-400">{dateStr}</p>
         </div>
 
@@ -48,12 +48,12 @@ export function PharmacyPOSFooter({
 
         {/* Cashier */}
         <div className="hidden sm:flex items-center gap-1.5">
-          <div className={cn("flex h-6 w-6 items-center justify-center rounded-full", darkMode ? "bg-teal-950/60 text-teal-400" : "bg-teal-100 text-teal-700")}>
+          <div className={cn("flex h-6 w-6 items-center justify-center rounded-full", darkMode ? "bg-teal-950/60 text-brand-primary" : "bg-brand-50 text-brand-dark")}>
             <User size={13} />
           </div>
           <div className="leading-tight">
             <p className="text-[9px] font-semibold text-slate-400">Cashier</p>
-            <p className={cn("text-[11px] font-extrabold", darkMode ? "text-slate-100" : "text-slate-800")}>{cashierName}</p>
+            <p className={cn("text-[11px] font-extrabold", darkMode ? "text-slate-100" : "text-gray-600")}>{cashierName}</p>
           </div>
         </div>
 
@@ -66,7 +66,7 @@ export function PharmacyPOSFooter({
           </div>
           <div className="leading-tight">
             <p className="text-[9px] font-semibold text-slate-400">Terminal</p>
-            <p className={cn("text-[11px] font-extrabold", darkMode ? "text-slate-100" : "text-slate-800")}>{terminalName}</p>
+            <p className={cn("text-[11px] font-extrabold", darkMode ? "text-slate-100" : "text-gray-600")}>{terminalName}</p>
           </div>
         </div>
 
@@ -101,7 +101,7 @@ export function PharmacyPOSFooter({
           </div>
           <div className="leading-tight">
             <p className="text-[9px] font-semibold text-slate-400">Last Backup</p>
-            <p className={cn("text-[11px] font-extrabold", darkMode ? "text-slate-100" : "text-slate-800")}>{lastBackupTime}</p>
+            <p className={cn("text-[11px] font-extrabold", darkMode ? "text-slate-100" : "text-gray-600")}>{lastBackupTime}</p>
           </div>
         </div>
       </div>
@@ -110,13 +110,13 @@ export function PharmacyPOSFooter({
       <div className="flex items-center gap-2 shrink-0">
         {/* Keyboard Shortcuts */}
         <div className={cn("hidden xl:flex items-center gap-1.5 text-[10px] font-bold mr-2", darkMode ? "text-slate-400" : "text-slate-500")}>
-          <span className={cn("font-extrabold", darkMode ? "text-slate-200" : "text-slate-700")}>F1</span>: Pay
-          <span className={darkMode ? "text-slate-700" : "text-slate-300"}>|</span>
-          <span className={cn("font-extrabold", darkMode ? "text-slate-200" : "text-slate-700")}>F2</span>: Add Item
-          <span className={darkMode ? "text-slate-700" : "text-slate-300"}>|</span>
-          <span className={cn("font-extrabold", darkMode ? "text-slate-200" : "text-slate-700")}>F3</span>: Search
-          <span className={darkMode ? "text-slate-700" : "text-slate-300"}>|</span>
-          <span className={cn("font-extrabold", darkMode ? "text-slate-200" : "text-slate-700")}>F6</span>: Hold Bill
+          <span className={cn("font-extrabold", darkMode ? "text-slate-200" : "text-gray-600")}>F1</span>: Pay
+          <span className={darkMode ? "text-gray-600" : "text-slate-300"}>|</span>
+          <span className={cn("font-extrabold", darkMode ? "text-slate-200" : "text-gray-600")}>F2</span>: Add Item
+          <span className={darkMode ? "text-gray-600" : "text-slate-300"}>|</span>
+          <span className={cn("font-extrabold", darkMode ? "text-slate-200" : "text-gray-600")}>F3</span>: Search
+          <span className={darkMode ? "text-gray-600" : "text-slate-300"}>|</span>
+          <span className={cn("font-extrabold", darkMode ? "text-slate-200" : "text-gray-600")}>F6</span>: Hold Bill
         </div>
 
         {heldBillsCount > 0 && (

@@ -101,7 +101,7 @@ export function WholesalePOSRightPanel({
               onClick={onClearCart}
               title="Clear entire cart"
               className={cn(
-                "rounded-xl px-2.5 py-1.5 text-[11.5px] font-extrabold h-auto shadow-2xs gap-1.5",
+                "rounded-sm px-2.5 py-1.5 text-[11.5px] font-extrabold h-auto shadow-2xs gap-1.5",
                 darkMode
                   ? "border-rose-500/30 bg-rose-500/15 text-rose-300 hover:bg-rose-500/25"
                   : "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700",
@@ -119,7 +119,7 @@ export function WholesalePOSRightPanel({
             onClick={onScanItem}
             leftIcon={<ScanLine size={13} />}
             className={cn(
-              "!rounded-xl !font-bold cursor-pointer transition-all",
+              "!rounded-sm !font-bold cursor-pointer transition-all",
               darkMode
                 ? "!bg-blue-500/15 !text-blue-300 hover:!bg-blue-500/25"
                 : "!bg-blue-600 !text-white hover:!bg-blue-700 shadow-xs",
@@ -165,7 +165,7 @@ export function WholesalePOSRightPanel({
             <div
               key={`${item.productId}-${idx}`}
               className={cn(
-                "group relative flex gap-2.5 rounded-xl border p-2.5 transition-all shadow-xs",
+                "group relative flex gap-2.5 rounded-sm border p-2.5 transition-all shadow-xs",
                 darkMode
                   ? "border-slate-700 bg-slate-900/60"
                   : "hover:shadow-sm",
@@ -174,7 +174,7 @@ export function WholesalePOSRightPanel({
             >
               <div
                 className={cn(
-                  "flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border",
+                  "flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-sm border",
                   darkMode ? "border-slate-700 bg-slate-950" : "",
                 )}
                 style={darkMode ? undefined : { background: iceCard, border: `1px solid ${iceBorder}` }}
@@ -196,7 +196,7 @@ export function WholesalePOSRightPanel({
                     <p
                       className={cn(
                         "line-clamp-1 text-[12px] font-bold leading-snug",
-                        darkMode ? "text-slate-100" : "text-slate-900",
+                        darkMode ? "text-slate-100" : "text-gray-600",
                       )}
                     >
                       {item.name}
@@ -212,7 +212,7 @@ export function WholesalePOSRightPanel({
                     variant="ghost"
                     size="xs"
                     onClick={() => onRemove(idx)}
-                    className="h-6 w-6 !p-0 text-slate-400 hover:text-rose-600 rounded flex items-center justify-center"
+                    className="h-6 w-6 !p-0 text-slate-400 hover:text-rose-600 rounded-sm flex items-center justify-center"
                     title="Remove item"
                   >
                     <X size={15} />
@@ -222,7 +222,7 @@ export function WholesalePOSRightPanel({
                 <div className="mt-2 flex items-center justify-between gap-2">
                   <div
                     className={cn(
-                      "flex items-center rounded-lg border shadow-2xs overflow-hidden",
+                      "flex items-center rounded-sm border shadow-2xs overflow-hidden",
                       darkMode ? "border-slate-700 bg-slate-950" : "",
                     )}
                     style={darkMode ? undefined : { border: `1px solid ${iceBorder}`, background: iceCard }}
@@ -306,7 +306,7 @@ export function WholesalePOSRightPanel({
             onClick={onHold}
             disabled={cart.length === 0}
             className={cn(
-              "!h-11 !rounded-xl !border-2 !px-4 !text-[13px] !font-extrabold cursor-pointer transition-all",
+              "!h-11 !rounded-sm !border-2 !px-4 !text-[13px] !font-extrabold cursor-pointer transition-all",
               darkMode
                 ? "!bg-slate-900 !border-slate-700 !text-slate-300 hover:!bg-slate-800"
                 : "hover:!shadow-md",
@@ -326,7 +326,7 @@ export function WholesalePOSRightPanel({
             themeColor="blue"
             disabled={cart.length === 0 || submitting}
             onClick={onProceed}
-            className="!h-11 !rounded-xl !px-4 !text-[13px] !font-black uppercase tracking-wide shadow-md shadow-blue-600/20 cursor-pointer"
+            className="!h-11 !rounded-sm !px-4 !text-[13px] !font-black uppercase tracking-wide shadow-md shadow-blue-600/20 cursor-pointer"
           >
             {submitting ? "Wait…" : "Proceed"}
           </CustomButton>

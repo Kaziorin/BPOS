@@ -220,13 +220,13 @@ export default function ExpensesPage() {
                 setEditExpense(null);
                 setShowCreateModal(true);
               }}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               Record Expense
             </CustomButton>
             <button
               onClick={() => loadData()}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
+              className="flex h-7 w-7 items-center justify-center rounded-sm border border-slate-200 bg-slate-50 text-gray-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-border transition shadow-2xs"
               title="Refresh Expenses"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
@@ -236,39 +236,39 @@ export default function ExpensesPage() {
       />
 
       {/* Quick Navigation Sub-Modules Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2 rounded-md border border-slate-200 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2 rounded-sm border border-slate-200 shadow-2xs">
         <div className="flex items-center gap-1.5 overflow-x-auto">
           <Link
             href="/expenses"
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold bg-teal-50 text-teal-700 border border-teal-200"
+            className="flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-bold bg-brand-50 text-brand-dark border border-brand-border"
           >
-            <Receipt size={14} className="text-teal-600" />
+            <Receipt size={14} className="text-brand-primary" />
             <span>All Expenses ({expenses.length})</span>
           </Link>
           <Link
             href="/expenses/categories"
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition border border-transparent"
+            className="flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-gray-600 hover:bg-slate-50 transition border border-transparent"
           >
             <Tags size={14} className="text-slate-400" />
             <span>Categories ({categories.length})</span>
           </Link>
           <Link
             href="/expenses/recurring"
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition border border-transparent"
+            className="flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-gray-600 hover:bg-slate-50 transition border border-transparent"
           >
             <Repeat size={14} className="text-slate-400" />
             <span>Recurring Schedules</span>
           </Link>
           <Link
             href="/expenses/petty-cash"
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition border border-transparent"
+            className="flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-gray-600 hover:bg-slate-50 transition border border-transparent"
           >
             <Wallet size={14} className="text-slate-400" />
             <span>Petty Cash Ledger</span>
           </Link>
           <Link
             href="/expenses/report"
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition border border-transparent"
+            className="flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-gray-600 hover:bg-slate-50 transition border border-transparent"
           >
             <BarChart3 size={14} className="text-slate-400" />
             <span>Analytics & Reports</span>
@@ -306,17 +306,17 @@ export default function ExpensesPage() {
 
       {/* Category Spending Breakdown Progress Bar (if available) */}
       {report && report.byCategory.length > 0 && (
-        <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+        <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-3">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <div className="flex items-center gap-2">
-              <BarChart3 size={16} className="text-teal-600" />
-              <h2 className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+              <BarChart3 size={16} className="text-brand-primary" />
+              <h2 className="text-xs font-bold text-gray-600 uppercase tracking-wider">
                 Category Spending Breakdown (Last 30 Days)
               </h2>
             </div>
             <Link
               href="/expenses/report"
-              className="text-xs font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-0.5"
+              className="text-xs font-semibold text-brand-primary hover:text-brand-dark flex items-center gap-0.5"
             >
               Full Report <ChevronRight size={13} />
             </Link>
@@ -329,13 +329,13 @@ export default function ExpensesPage() {
               .map((c) => {
                 const pct = report.total > 0 ? Math.round((c.total / report.total) * 100) : 0;
                 return (
-                  <div key={c.categoryName} className="p-2.5 rounded-md bg-slate-50 border border-slate-100 space-y-1.5">
+                  <div key={c.categoryName} className="p-2.5 rounded-sm bg-slate-50 border border-slate-100 space-y-1.5">
                     <div className="flex justify-between items-center text-xs">
-                      <span className="font-semibold text-slate-700 truncate max-w-[140px]">
+                      <span className="font-semibold text-gray-600 truncate max-w-[140px]">
                         {c.categoryName} <span className="text-slate-400 font-normal">({c.count})</span>
                       </span>
-                      <span className="font-bold text-slate-900 tabular-nums">
-                        {money(c.total)} <span className="text-[10px] text-teal-600 font-semibold">({pct}%)</span>
+                      <span className="font-bold text-gray-600 tabular-nums">
+                        {money(c.total)} <span className="text-[10px] text-brand-primary font-semibold">({pct}%)</span>
                       </span>
                     </div>
                     <div className="h-1.5 w-full overflow-hidden rounded-sm bg-brand-50">
@@ -362,7 +362,7 @@ export default function ExpensesPage() {
               placeholder="Search by title, description, or category..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             />
           </div>
 
@@ -371,7 +371,7 @@ export default function ExpensesPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             >
               <option value="ALL">All Statuses</option>
               <option value="PENDING">Pending Approval</option>
@@ -384,7 +384,7 @@ export default function ExpensesPage() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             >
               <option value="ALL">All Categories</option>
               {categories.map((c) => (
@@ -396,7 +396,7 @@ export default function ExpensesPage() {
             <select
               value={methodFilter}
               onChange={(e) => setMethodFilter(e.target.value)}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             >
               <option value="ALL">All Payment Methods</option>
               {PAYMENT_METHODS.map((m) => (
@@ -414,12 +414,12 @@ export default function ExpensesPage() {
               header: "Expense Details",
               render: (e: Expense) => (
                 <div>
-                  <p className="font-bold text-slate-800 text-xs">{e.title}</p>
+                  <p className="font-bold text-gray-600 text-xs">{e.title}</p>
                   {e.description && (
                     <p className="text-[11px] text-slate-400 line-clamp-1">{e.description}</p>
                   )}
                   {e.recurring && (
-                    <p className="flex items-center gap-1 text-[10px] text-teal-700 mt-0.5 font-medium">
+                    <p className="flex items-center gap-1 text-[10px] text-brand-dark mt-0.5 font-medium">
                       <Repeat size={10} /> Auto: {e.recurring.name}
                     </p>
                   )}
@@ -431,7 +431,7 @@ export default function ExpensesPage() {
               header: "Category",
               align: "center",
               render: (e: Expense) => (
-                <span className="inline-flex rounded-md bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-teal-700 border border-teal-200">
+                <span className="inline-flex rounded-sm bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-dark border border-brand-border">
                   {e.category?.name || "Uncategorized"}
                 </span>
               ),
@@ -453,7 +453,7 @@ export default function ExpensesPage() {
               render: (e: Expense) => {
                 const methodObj = PAYMENT_METHODS.find((m) => m.value === e.paymentMethod);
                 return (
-                  <span className="inline-flex items-center gap-1 text-xs text-slate-700 font-medium">
+                  <span className="inline-flex items-center gap-1 text-xs text-gray-600 font-medium">
                     <span>{methodObj?.icon || "💳"}</span>
                     <span>{methodObj?.label.split(" ")[0] || e.paymentMethod}</span>
                   </span>
@@ -465,7 +465,7 @@ export default function ExpensesPage() {
               header: "Amount",
               align: "right",
               render: (e: Expense) => (
-                <span className="font-bold text-slate-900 text-xs tabular-nums">
+                <span className="font-bold text-gray-600 text-xs tabular-nums">
                   {money(Number(e.amount) || 0)}
                 </span>
               ),
@@ -501,7 +501,7 @@ export default function ExpensesPage() {
                           amount: Number(e.amount),
                         })
                       }
-                      className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition"
+                      className="px-2 py-0.5 rounded-sm text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition"
                       title="Approve Expense"
                     >
                       Approve
@@ -517,7 +517,7 @@ export default function ExpensesPage() {
                           amount: Number(e.amount),
                         })
                       }
-                      className="px-2 py-0.5 rounded text-[11px] font-bold bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition"
+                      className="px-2 py-0.5 rounded-sm text-[11px] font-bold bg-brand-50 text-brand-dark border border-brand-border hover:bg-brand-50 transition"
                       title="Mark as Paid"
                     >
                       Mark Paid
@@ -529,7 +529,7 @@ export default function ExpensesPage() {
                         setEditExpense(e);
                         setShowCreateModal(true);
                       }}
-                      className="p-1.5 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition"
+                      className="p-1.5 text-slate-500 hover:text-brand-primary hover:bg-brand-50 rounded-sm transition"
                       title="Edit Expense"
                     >
                       <Edit3 size={13} />
@@ -545,7 +545,7 @@ export default function ExpensesPage() {
                           amount: Number(e.amount),
                         })
                       }
-                      className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-md transition"
+                      className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-sm transition"
                       title="Delete Expense"
                     >
                       <Trash2 size={13} />
@@ -708,7 +708,7 @@ function ExpenseFormModal({
 
           <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Expense Title *
               </label>
               <input
@@ -716,14 +716,14 @@ function ExpenseFormModal({
                 required
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-medium text-slate-800 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition"
+                className="w-full rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-medium text-gray-600 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition"
                 placeholder="e.g. Office Electricity Bill - September"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   Amount (৳) *
                 </label>
                 <input
@@ -733,33 +733,33 @@ function ExpenseFormModal({
                   required
                   value={form.amount}
                   onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                  className="w-full rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-bold text-slate-800 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition tabular-nums"
+                  className="w-full rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-bold text-gray-600 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition tabular-nums"
                   placeholder="2500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   Expense Date
                 </label>
                 <input
                   type="date"
                   value={form.expenseDate}
                   onChange={(e) => setForm({ ...form, expenseDate: e.target.value })}
-                  className="w-full rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition"
+                  className="w-full rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   Category
                 </label>
                 <select
                   value={form.categoryId}
                   onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-                  className="w-full rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-brand-primary focus:outline-none transition"
+                  className="w-full rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:border-brand-primary focus:outline-none transition"
                 >
                   <option value="">Uncategorized</option>
                   {categories.map((c) => (
@@ -769,13 +769,13 @@ function ExpenseFormModal({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   Payment Method
                 </label>
                 <select
                   value={form.paymentMethod}
                   onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}
-                  className="w-full rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-brand-primary focus:outline-none transition"
+                  className="w-full rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:border-brand-primary focus:outline-none transition"
                 >
                   {PAYMENT_METHODS.map((m) => (
                     <option key={m.value} value={m.value}>{m.icon} {m.label}</option>
@@ -786,13 +786,13 @@ function ExpenseFormModal({
 
             {branches.length > 0 && (
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   Branch / Outlet
                 </label>
                 <select
                   value={form.branchId}
                   onChange={(e) => setForm({ ...form, branchId: e.target.value })}
-                  className="w-full rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:border-brand-primary focus:outline-none transition"
+                  className="w-full rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:border-brand-primary focus:outline-none transition"
                 >
                   <option value="">All / Headquarters</option>
                   {branches.map((b) => (
@@ -803,14 +803,14 @@ function ExpenseFormModal({
             )}
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Description / Notes
               </label>
               <textarea
                 rows={2}
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-medium text-slate-800 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition"
+                className="w-full rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-medium text-gray-600 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition"
                 placeholder="e.g. Paid cash from register during morning shift"
               />
             </div>

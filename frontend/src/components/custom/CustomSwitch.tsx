@@ -124,7 +124,7 @@ export const CustomSwitch = forwardRef<HTMLButtonElement, CustomSwitchProps>(
         {(label || description) && (
           <div className="flex flex-col">
             {label && (
-              <span className="text-sm font-bold text-slate-800 group-hover:text-slate-900 transition">
+              <span className="text-sm font-bold text-gray-600 group-hover:text-gray-600 transition">
                 {label}
               </span>
             )}

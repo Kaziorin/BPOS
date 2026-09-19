@@ -57,7 +57,7 @@ interface WarehouseOption {
 }
 
 const STATUS: Record<string, { label: string; cls: string; dot: string }> = {
-  DRAFT: { label: "Draft", cls: "bg-slate-100 text-slate-700 border-slate-200", dot: "bg-slate-400" },
+  DRAFT: { label: "Draft", cls: "bg-slate-100 text-gray-600 border-slate-200", dot: "bg-slate-400" },
   SUBMITTED: { label: "Submitted", cls: "bg-blue-50 text-blue-700 border-blue-200", dot: "bg-blue-500" },
   APPROVED: { label: "Approved", cls: "bg-indigo-50 text-indigo-700 border-indigo-200", dot: "bg-indigo-500" },
   PARTIALLY_RECEIVED: { label: "Partial", cls: "bg-amber-50 text-amber-700 border-amber-200", dot: "bg-amber-500" },
@@ -391,7 +391,7 @@ export default function PurchaseOrdersPage() {
   }
 
   const fmt = (n: number) => `৳${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const inputCls = "mt-1 block w-full rounded-sm border border-slate-200 px-3.5 py-2.5 text-sm bg-white text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition";
+  const inputCls = "mt-1 block w-full rounded-sm border border-slate-200 px-3.5 py-2.5 text-sm bg-white text-gray-600 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition";
 
   // KPIs
   const totalCount = pos.length;
@@ -427,9 +427,9 @@ export default function PurchaseOrdersPage() {
           <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
             <Link href="/purchasing" className="hover:text-sky-600 transition">Purchasing Hub</Link>
             <ChevronRight size={13} className="text-gray-400" />
-            <span className="text-gray-900 font-bold">Purchase Orders</span>
+            <span className="text-gray-600 font-bold">Purchase Orders</span>
           </div>
-          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">Purchase Orders (PO)</h1>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-600 sm:text-3xl">Purchase Orders (PO)</h1>
           <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
             Official supplier orders → approval → receive goods (GRN) → AP invoices & payments (§10.17)
           </p>
@@ -439,7 +439,7 @@ export default function PurchaseOrdersPage() {
           <button
             onClick={load}
             disabled={loading}
-            className="rounded-sm border border-slate-200 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50"
+            className="rounded-sm border border-slate-200 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600 disabled:opacity-50"
             title="Refresh Data"
           >
             <RefreshCw size={17} className={loading ? "animate-spin text-sky-600" : ""} />
@@ -468,7 +468,7 @@ export default function PurchaseOrdersPage() {
             className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition whitespace-nowrap ${
               tab.active
                 ? "bg-brand-gradient text-white shadow-2xs"
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-600"
             }`}
           >
             <tab.icon size={15} />
@@ -499,10 +499,10 @@ export default function PurchaseOrdersPage() {
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-gray-900">{totalCount}</span>
+            <span className="text-2xl font-black text-gray-600">{totalCount}</span>
             <span className="text-xs font-semibold text-gray-500">POs</span>
           </div>
-          <p className="mt-1 text-xs text-gray-400 font-medium">Total Spend: <strong className="text-gray-700">{fmt(totalSpend)}</strong></p>
+          <p className="mt-1 text-xs text-gray-400 font-medium">Total Spend: <strong className="text-gray-600">{fmt(totalSpend)}</strong></p>
         </div>
 
         <div className="rounded-sm border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs">
@@ -596,7 +596,7 @@ export default function PurchaseOrdersPage() {
                 key={st.id}
                 onClick={() => setStatusFilter(st.id)}
                 className={`rounded-sm px-2.5 py-1.5 text-xs font-bold transition ${
-                  statusFilter === st.id ? "bg-white text-gray-900 shadow-2xs" : "text-gray-600 hover:text-gray-900"
+                  statusFilter === st.id ? "bg-white text-gray-600 shadow-2xs" : "text-gray-600 hover:text-gray-600"
                 }`}
               >
                 {st.label}
@@ -607,14 +607,14 @@ export default function PurchaseOrdersPage() {
           <div className="flex items-center rounded-sm border border-slate-200 bg-gray-50/70 p-1">
             <button
               onClick={() => setViewMode("table")}
-              className={`rounded-sm p-1.5 transition ${viewMode === "table" ? "bg-white text-sky-600 shadow-2xs" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1.5 transition ${viewMode === "table" ? "bg-white text-sky-600 shadow-2xs" : "text-gray-400 hover:text-gray-600"}`}
               title="Table View"
             >
               <ListFilter size={16} />
             </button>
             <button
               onClick={() => setViewMode("cards")}
-              className={`rounded-sm p-1.5 transition ${viewMode === "cards" ? "bg-white text-sky-600 shadow-2xs" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1.5 transition ${viewMode === "cards" ? "bg-white text-sky-600 shadow-2xs" : "text-gray-400 hover:text-gray-600"}`}
               title="Grid Card View"
             >
               <LayoutGrid size={16} />
@@ -631,7 +631,7 @@ export default function PurchaseOrdersPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-sm bg-indigo-50 text-indigo-600">
             <ShoppingCart size={32} />
           </div>
-          <h3 className="mt-4 text-lg font-bold text-gray-900">No Purchase Orders Found</h3>
+          <h3 className="mt-4 text-lg font-bold text-gray-600">No Purchase Orders Found</h3>
           <p className="mx-auto mt-1 max-w-md text-sm text-gray-500">
             Create an official purchase order for suppliers to begin receiving stock into your inventory.
           </p>
@@ -677,9 +677,9 @@ export default function PurchaseOrdersPage() {
                       <td className="py-3.5 px-4 text-center font-bold text-gray-400">{index + 1}</td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-black text-gray-900 group-hover:text-sky-600 transition">{po.poNo}</span>
+                          <span className="font-mono font-black text-gray-600 group-hover:text-sky-600 transition">{po.poNo}</span>
                           {po.rebatePercent && Number(po.rebatePercent) > 0 && (
-                            <span className="rounded-md bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 text-[10px] font-bold text-emerald-700">
+                            <span className="rounded-sm bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 text-[10px] font-bold text-emerald-700">
                               {Number(po.rebatePercent)}% Rebate
                             </span>
                           )}
@@ -691,12 +691,12 @@ export default function PurchaseOrdersPage() {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <p className="font-bold text-gray-900">{po.supplier?.name || "Supplier"}</p>
+                        <p className="font-bold text-gray-600">{po.supplier?.name || "Supplier"}</p>
                         {po.supplier?.phone && <p className="text-[11px] text-gray-400">{po.supplier.phone}</p>}
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <span className="inline-flex items-center gap-1 rounded-sm bg-gray-100 border border-slate-200 px-2 py-1 text-[11px] font-semibold text-gray-700">
+                        <span className="inline-flex items-center gap-1 rounded-sm bg-gray-100 border border-slate-200 px-2 py-1 text-[11px] font-semibold text-gray-600">
                           📍 {wh ? wh.name : "Warehouse"}
                         </span>
                       </td>
@@ -727,7 +727,7 @@ export default function PurchaseOrdersPage() {
                       </td>
 
                       <td className="py-3.5 px-4 text-right">
-                        <p className="font-black text-gray-900 tabular-nums text-sm">{fmt(Number(po.total))}</p>
+                        <p className="font-black text-gray-600 tabular-nums text-sm">{fmt(Number(po.total))}</p>
                         {purchaseInvoices.length > 0 && (
                           <span className={`text-[10px] font-bold ${hasUnpaidInvoice ? "text-amber-600" : "text-emerald-600"}`}>
                             {hasUnpaidInvoice ? "AP Pending" : "Paid"}
@@ -746,7 +746,7 @@ export default function PurchaseOrdersPage() {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => setViewPo(po)}
-                            className="rounded-sm border border-slate-200 bg-white p-1.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900"
+                            className="rounded-sm border border-slate-200 bg-white p-1.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600"
                             title="View Full PO Slip"
                           >
                             <Eye size={14} />
@@ -814,15 +814,15 @@ export default function PurchaseOrdersPage() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-base font-black text-gray-900">{po.poNo}</span>
+                        <span className="font-mono text-base font-black text-gray-600">{po.poNo}</span>
                         <span className={`rounded-full border px-2.5 py-0.5 text-xs font-bold ${meta.cls}`}>{meta.label}</span>
                       </div>
                       <p className="mt-0.5 text-xs text-gray-400">
-                        {new Date(po.orderDate).toLocaleDateString()} · <strong className="text-gray-700">{po.supplier?.name}</strong>
+                        {new Date(po.orderDate).toLocaleDateString()} · <strong className="text-gray-600">{po.supplier?.name}</strong>
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-black tabular-nums text-gray-900">{fmt(Number(po.total))}</p>
+                      <p className="text-lg font-black tabular-nums text-gray-600">{fmt(Number(po.total))}</p>
                       {po.rebatePercent && Number(po.rebatePercent) > 0 && (
                         <span className="text-[10px] font-bold text-emerald-600">{Number(po.rebatePercent)}% Rebate</span>
                       )}
@@ -853,7 +853,7 @@ export default function PurchaseOrdersPage() {
                   {/* Items List snippet */}
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {items.slice(0, 3).map((item, idx) => (
-                      <span key={idx} className="rounded-sm bg-gray-50 border border-slate-200 px-2 py-1 text-[11px] font-medium text-gray-700">
+                      <span key={idx} className="rounded-sm bg-gray-50 border border-slate-200 px-2 py-1 text-[11px] font-medium text-gray-600">
                         {item.productName || item.product?.name || "Item"} ({item.qty})
                       </span>
                     ))}
@@ -915,7 +915,7 @@ export default function PurchaseOrdersPage() {
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-100 bg-gray-50/80 px-7 py-5">
               <div>
-                <h2 className="text-xl font-black tracking-tight text-gray-900">New Purchase Order</h2>
+                <h2 className="text-xl font-black tracking-tight text-gray-600">New Purchase Order</h2>
                 <p className="text-xs font-medium text-gray-500">Create an official PO for suppliers with rebate & delivery details</p>
               </div>
               <button onClick={() => setShowPoModal(false)} className="rounded-sm border border-slate-200 bg-white p-2 text-gray-400 hover:bg-gray-100">
@@ -997,7 +997,7 @@ export default function PurchaseOrdersPage() {
                       onChange={(e) => setScanInput(e.target.value)}
                       onKeyDown={handleScanAdd}
                       placeholder="Scan Barcode or Type SKU / Name & press Enter to auto-add item…"
-                      className="w-full rounded-sm border border-primary-200 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                      className="w-full rounded-sm border border-primary-200 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-gray-600 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                     />
                   </div>
                   <div className="flex items-center gap-2">
@@ -1008,7 +1008,7 @@ export default function PurchaseOrdersPage() {
                           e.target.value = "";
                         }
                       }}
-                      className="rounded-sm border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-gray-700 shadow-2xs focus:border-primary-500 focus:outline-none"
+                      className="rounded-sm border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-gray-600 shadow-2xs focus:border-primary-500 focus:outline-none"
                     >
                       <option value="">+ Quick Pick Item…</option>
                       {products.map((p) => (
@@ -1024,7 +1024,7 @@ export default function PurchaseOrdersPage() {
               {/* Tabular PO Line Items */}
               <div className="rounded-sm border border-slate-200 bg-white overflow-hidden shadow-2xs">
                 <div className="bg-gray-50/80 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700">Purchase Order Line Items ({poLines.length})</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">Purchase Order Line Items ({poLines.length})</h4>
                   <button
                     type="button"
                     onClick={() => setPoLines([...poLines, { productId: products[0]?.id || "", qty: "1", unitPrice: String(products[0]?.costPrice || 0) }])}
@@ -1055,7 +1055,7 @@ export default function PurchaseOrdersPage() {
                               <select
                                 value={line.productId}
                                 onChange={(e) => updatePoLine(idx, "productId", e.target.value)}
-                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-900 focus:border-primary-500 focus:outline-none"
+                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:border-primary-500 focus:outline-none"
                                 required
                               >
                                 <option value="">Select Product…</option>
@@ -1072,7 +1072,7 @@ export default function PurchaseOrdersPage() {
                                 min="1"
                                 value={line.qty}
                                 onChange={(e) => updatePoLine(idx, "qty", e.target.value)}
-                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-center text-xs font-black text-gray-900 focus:border-primary-500 focus:outline-none"
+                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-center text-xs font-black text-gray-600 focus:border-primary-500 focus:outline-none"
                                 required
                               />
                             </td>
@@ -1083,11 +1083,11 @@ export default function PurchaseOrdersPage() {
                                 step="0.01"
                                 value={line.unitPrice}
                                 onChange={(e) => updatePoLine(idx, "unitPrice", e.target.value)}
-                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-right text-xs font-semibold text-gray-900 focus:border-primary-500 focus:outline-none"
+                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-right text-xs font-semibold text-gray-600 focus:border-primary-500 focus:outline-none"
                                 required
                               />
                             </td>
-                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-900 text-sm">
+                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-600 text-sm">
                               {fmt(lineTotal)}
                             </td>
                             <td className="py-3 px-4 text-center">
@@ -1112,11 +1112,11 @@ export default function PurchaseOrdersPage() {
                 <div className="flex items-center gap-6">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Total Lines</span>
-                    <p className="text-lg font-black text-gray-900">{totalLinesCount}</p>
+                    <p className="text-lg font-black text-gray-600">{totalLinesCount}</p>
                   </div>
                   <div className="border-l border-slate-200 pl-6">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Total Units</span>
-                    <p className="text-lg font-black text-gray-900">{totalUnitsCount}</p>
+                    <p className="text-lg font-black text-gray-600">{totalUnitsCount}</p>
                   </div>
                   {rebatePercentNum > 0 && (
                     <div className="border-l border-slate-200 pl-6">
@@ -1134,7 +1134,7 @@ export default function PurchaseOrdersPage() {
                   <button
                     type="button"
                     onClick={() => setShowPoModal(false)}
-                    className="rounded-sm border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50"
+                    className="rounded-sm border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50"
                   >
                     Cancel
                   </button>
@@ -1166,7 +1166,7 @@ export default function PurchaseOrdersPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-violet-600 px-2.5 py-0.5 text-xs font-bold text-white">Stock Receiving</span>
-                  <h2 className="text-xl font-black tracking-tight text-gray-900">Goods Receipt (GRN) for {receivePo.poNo}</h2>
+                  <h2 className="text-xl font-black tracking-tight text-gray-600">Goods Receipt (GRN) for {receivePo.poNo}</h2>
                 </div>
                 <p className="text-xs font-medium text-gray-500">
                   Supplier: <strong>{receivePo.supplier?.name}</strong> · Total Value: <strong>{fmt(Number(receivePo.total))}</strong>
@@ -1232,10 +1232,10 @@ export default function PurchaseOrdersPage() {
                       return (
                         <tr key={i} className="hover:bg-gray-50/60 transition">
                           <td className="py-3 px-4">
-                            <p className="font-bold text-gray-900">{poItem?.productName || poItem?.product?.name || "Product"}</p>
+                            <p className="font-bold text-gray-600">{poItem?.productName || poItem?.product?.name || "Product"}</p>
                             <p className="text-[11px] font-mono text-gray-400">{poItem?.product?.sku || ""}</p>
                           </td>
-                          <td className="py-3 px-4 text-center font-bold text-gray-700">{Number(poItem?.qty || 0)}</td>
+                          <td className="py-3 px-4 text-center font-bold text-gray-600">{Number(poItem?.qty || 0)}</td>
                           <td className="py-3 px-4 text-center font-bold text-emerald-700">{Number(poItem?.qtyReceived || 0)}</td>
                           <td className="py-3 px-4 text-center">
                             <input
@@ -1278,7 +1278,7 @@ export default function PurchaseOrdersPage() {
                   ✓ Automatically updates warehouse inventory · ✓ Auto-creates supplier payable invoice
                 </span>
                 <div className="flex gap-3">
-                  <button type="button" onClick={() => setReceivePo(null)} className="rounded-sm border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50">Cancel</button>
+                  <button type="button" onClick={() => setReceivePo(null)} className="rounded-sm border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50">Cancel</button>
                   <button type="submit" disabled={grnSaving} className="flex items-center gap-2 rounded-sm bg-violet-600 px-6 py-2.5 text-sm font-black text-white shadow-2xs shadow-violet-600/20 hover:bg-violet-700">
                     {grnSaving && <Loader2 size={16} className="animate-spin" />} <PackageCheck size={16} /> Confirm Receipt & Post
                   </button>
@@ -1297,7 +1297,7 @@ export default function PurchaseOrdersPage() {
           <div className="w-full max-w-lg rounded-sm bg-white p-7 shadow-2xs border border-slate-100" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
-                <h2 className="text-xl font-black text-gray-900">Record Supplier Payment</h2>
+                <h2 className="text-xl font-black text-gray-600">Record Supplier Payment</h2>
                 <p className="text-xs font-medium text-gray-500">Pay supplier {payPo.supplier.name} for PO {payPo.poNo}</p>
               </div>
               <button onClick={() => setPayPo(null)} className="rounded-sm border border-slate-200 p-2 text-gray-400 hover:bg-gray-100"><X size={18} /></button>
@@ -1368,7 +1368,7 @@ export default function PurchaseOrdersPage() {
               </div>
 
               <div className="flex justify-end gap-3 border-t border-slate-100 pt-5">
-                <button type="button" onClick={() => setPayPo(null)} className="rounded-sm border border-slate-200 px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50">Cancel</button>
+                <button type="button" onClick={() => setPayPo(null)} className="rounded-sm border border-slate-200 px-5 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50">Cancel</button>
                 <button type="submit" disabled={paySaving} className="flex items-center gap-2 rounded-sm bg-amber-600 px-5 py-2.5 text-sm font-black text-white shadow-2xs shadow-amber-600/20 hover:bg-amber-700 disabled:opacity-50">
                   {paySaving && <Loader2 size={16} className="animate-spin" />} <CreditCard size={16} /> Confirm Payment
                 </button>
@@ -1392,7 +1392,7 @@ export default function PurchaseOrdersPage() {
                   <span className={`rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wider ${STATUS[viewPo.status]?.cls}`}>
                     {STATUS[viewPo.status]?.label || viewPo.status}
                   </span>
-                  <span className="font-mono text-xl sm:text-2xl font-black text-gray-900">{viewPo.poNo}</span>
+                  <span className="font-mono text-xl sm:text-2xl font-black text-gray-600">{viewPo.poNo}</span>
                   {viewPo.rebatePercent && Number(viewPo.rebatePercent) > 0 && (
                     <span className="rounded-sm bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
                       {Number(viewPo.rebatePercent)}% Rebate
@@ -1408,7 +1408,7 @@ export default function PurchaseOrdersPage() {
               <div className="flex items-center gap-2 no-print">
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900"
+                  className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600"
                 >
                   <Printer size={15} /> Print Slip
                 </button>
@@ -1453,36 +1453,36 @@ export default function PurchaseOrdersPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Supplier & Vendor Details</p>
-                  <div className="mt-2.5 space-y-2 text-xs text-gray-700">
+                  <div className="mt-2.5 space-y-2 text-xs text-gray-600">
                     <div className="flex justify-between py-1 border-b border-slate-100">
                       <span className="text-gray-500">Supplier Name:</span>
-                      <strong className="text-gray-900">{viewPo.supplier?.name || "Supplier"}</strong>
+                      <strong className="text-gray-600">{viewPo.supplier?.name || "Supplier"}</strong>
                     </div>
                     {viewPo.supplier?.phone && (
                       <div className="flex justify-between py-1 border-b border-slate-100">
                         <span className="text-gray-500">Phone:</span>
-                        <strong className="text-gray-900">{viewPo.supplier.phone}</strong>
+                        <strong className="text-gray-600">{viewPo.supplier.phone}</strong>
                       </div>
                     )}
                     <div className="flex justify-between py-1">
                       <span className="text-gray-500">Destination:</span>
-                      <strong className="text-gray-900">{warehouses.find(w => w.id === viewPo.warehouseId)?.name || "Main Warehouse"}</strong>
+                      <strong className="text-gray-600">{warehouses.find(w => w.id === viewPo.warehouseId)?.name || "Main Warehouse"}</strong>
                     </div>
                   </div>
                 </div>
 
                 <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Receiving & Invoice Status</p>
-                  <div className="mt-2.5 space-y-2 text-xs text-gray-700">
+                  <div className="mt-2.5 space-y-2 text-xs text-gray-600">
                     <div className="flex justify-between py-1 border-b border-slate-100">
                       <span className="text-gray-500">Goods Receipt (GRN):</span>
-                      <strong className="text-gray-900">
+                      <strong className="text-gray-600">
                         {(viewPo.goodsReceipts || []).length > 0 ? (viewPo.goodsReceipts || []).map((g) => g.grnNo).join(", ") : "Not Yet Received"}
                       </strong>
                     </div>
                     <div className="flex justify-between py-1">
                       <span className="text-gray-500">Linked Invoices:</span>
-                      <strong className="text-gray-900">
+                      <strong className="text-gray-600">
                         {(viewPo.purchaseInvoices || []).length > 0
                           ? (viewPo.purchaseInvoices || []).map((i) => `${i.piNo} (${i.status})`).join(", ")
                           : "Pending GRN"}
@@ -1495,7 +1495,7 @@ export default function PurchaseOrdersPage() {
               {/* Purchased Items Table */}
               <div className="rounded-sm border border-slate-200 bg-white overflow-hidden shadow-2xs">
                 <div className="bg-gray-50/80 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700">Ordered Product Items ({(viewPo.items || []).length})</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">Ordered Product Items ({(viewPo.items || []).length})</h4>
                   <span className="text-xs font-semibold text-gray-500">
                     Total Units: {(viewPo.items || []).reduce((s, i) => s + Number(i.qty), 0)}
                   </span>
@@ -1519,23 +1519,23 @@ export default function PurchaseOrdersPage() {
                           <tr key={idx} className="hover:bg-gray-50/60 transition">
                             <td className="py-3 px-4 text-center font-bold text-gray-400">{idx + 1}</td>
                             <td className="py-3 px-4">
-                              <p className="font-bold text-gray-900">{it.productName || it.product?.name || "Product Item"}</p>
+                              <p className="font-bold text-gray-600">{it.productName || it.product?.name || "Product Item"}</p>
                               <p className="text-[11px] font-mono text-gray-400">{it.product?.sku || "—"}</p>
                             </td>
-                            <td className="py-3 px-4 text-center font-bold text-gray-800">
+                            <td className="py-3 px-4 text-center font-bold text-gray-600">
                               {Number(it.qty)} Units
                             </td>
                             <td className="py-3 px-4 text-center">
                               <span className={`inline-block rounded-sm px-2 py-0.5 font-bold ${
-                                Number(it.qtyReceived || 0) === Number(it.qty) ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-gray-100 text-gray-700"
+                                Number(it.qtyReceived || 0) === Number(it.qty) ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-gray-100 text-gray-600"
                               }`}>
                                 {Number(it.qtyReceived || 0)} Units
                               </span>
                             </td>
-                            <td className="py-3 px-4 text-right font-medium text-gray-700">
+                            <td className="py-3 px-4 text-right font-medium text-gray-600">
                               {fmt(Number(it.unitPrice))}
                             </td>
-                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-900">
+                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-600">
                               {fmt(lineTot)}
                             </td>
                           </tr>
@@ -1544,7 +1544,7 @@ export default function PurchaseOrdersPage() {
                     </tbody>
                     <tfoot className="bg-gray-50/80 border-t-2 border-slate-200">
                       <tr>
-                        <td colSpan={5} className="py-3.5 px-4 text-right font-bold text-gray-700 uppercase tracking-wider">
+                        <td colSpan={5} className="py-3.5 px-4 text-right font-bold text-gray-600 uppercase tracking-wider">
                           Purchase Order Total
                         </td>
                         <td className="py-3.5 px-4 text-right font-black text-base text-sky-700 tabular-nums">
@@ -1558,7 +1558,7 @@ export default function PurchaseOrdersPage() {
             </div>
 
             {/* Footer Actions */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-3xl no-print">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-sm no-print">
               <div className="flex items-center gap-2">
                 {viewPo.status === "SUBMITTED" && (
                   <button

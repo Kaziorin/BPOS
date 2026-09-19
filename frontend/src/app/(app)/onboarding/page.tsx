@@ -227,10 +227,10 @@ export default function OnboardingPage() {
       <div className="mx-auto max-w-4xl">
         {/* Header */}
         <div className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-700 text-xs font-bold uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-border text-brand-dark text-xs font-bold uppercase tracking-wider mb-2">
             ✨ Client Provisioning Wizard
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-900">Single Tenant Onboarding</h1>
+          <h1 className="text-3xl font-extrabold text-gray-600">Single Tenant Onboarding</h1>
           <p className="mt-1 text-sm text-slate-600">
             Provision a brand new isolated business client with its own dedicated store, branch, warehouse, and owner credentials.
           </p>
@@ -296,14 +296,14 @@ export default function OnboardingPage() {
 
         {/* Error / Success Alerts */}
         {errorMessage && (
-          <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 animate-fadeIn">
+          <div className="mb-6 flex items-center gap-3 rounded-sm border border-red-200 bg-red-50 p-4 text-sm text-red-700 animate-fadeIn">
             <AlertCircle size={18} className="shrink-0 text-red-600" />
             <span>{errorMessage}</span>
           </div>
         )}
 
         {successMessage && (
-          <div className="mb-6 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 animate-fadeIn">
+          <div className="mb-6 flex items-center gap-3 rounded-sm border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 animate-fadeIn">
             <CheckCircle size={18} className="shrink-0 text-emerald-600" />
             <span>{successMessage}</span>
           </div>
@@ -398,7 +398,7 @@ export default function OnboardingPage() {
               <CustomButton
                 onClick={handleNext}
                 disabled={loading || (currentStep === "business-type" && !selectedBusinessType)}
-                className="px-6 py-2.5 font-semibold shadow-xs bg-teal-600 hover:bg-teal-700 text-white"
+                className="px-6 py-2.5 font-semibold shadow-xs bg-brand-primary hover:bg-brand-dark text-white"
               >
                 {currentStepIndex === STEPS.length - 2 ? "Review & Finalize" : "Save & Continue"}
                 <ArrowRight size={16} className="ml-2" />
@@ -424,7 +424,7 @@ function BusinessTypeStep({
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-xl font-bold text-slate-900">What type of business are you operating?</h2>
+        <h2 className="text-xl font-bold text-gray-600">What type of business are you operating?</h2>
         <p className="text-sm text-slate-500 mt-1">
           Selecting your business type configures intelligent defaults, modules, and workflows specifically tailored for your vertical.
         </p>
@@ -439,14 +439,14 @@ function BusinessTypeStep({
               key={type.id}
               type="button"
               onClick={() => onSelect(type.id)}
-              className={`p-4 rounded-xl border-2 text-left transition-all duration-150 flex items-start gap-3.5 ${
+              className={`p-4 rounded-sm border-2 text-left transition-all duration-150 flex items-start gap-3.5 ${
                 isSelected
                   ? "border-brand-primary bg-primary-50/50 shadow-xs ring-2 ring-brand-border"
                   : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
               }`}
             >
               <div
-                className={`p-2.5 rounded-lg shrink-0 ${
+                className={`p-2.5 rounded-sm shrink-0 ${
                   isSelected ? "bg-brand-gradient text-white shadow-2xs" : "bg-slate-100 text-slate-600"
                 }`}
               >
@@ -454,7 +454,7 @@ function BusinessTypeStep({
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-slate-900 text-sm">{type.name}</span>
+                  <span className="font-semibold text-gray-600 text-sm">{type.name}</span>
                   {isSelected && <Check size={16} className="text-primary-600" />}
                 </div>
                 <p className="text-xs text-slate-500 mt-1 leading-relaxed">{type.description}</p>
@@ -480,7 +480,7 @@ function CompanySetupStep({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Setup your organization</h2>
+        <h2 className="text-xl font-bold text-gray-600">Setup your organization</h2>
         <p className="text-sm text-slate-500 mt-1">
           Enter official legal and contact details for invoice headings, reports, and receipts.
         </p>
@@ -515,9 +515,9 @@ function CompanySetupStep({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1.5">Registered Address</label>
+        <label className="block text-sm font-medium text-gray-600 mb-1.5">Registered Address</label>
         <textarea
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-brand-border placeholder:text-slate-400"
+          className="w-full rounded-sm border border-slate-300 bg-white px-3 py-2 text-sm text-gray-600 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-brand-border placeholder:text-slate-400"
           rows={2}
           placeholder="e.g., House 12, Road 4, Dhanmondi, Dhaka-1205"
           value={form.address}
@@ -549,7 +549,7 @@ function BranchSetupStep({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Setup your primary branch / outlet</h2>
+        <h2 className="text-xl font-bold text-gray-600">Setup your primary branch / outlet</h2>
         <p className="text-sm text-slate-500 mt-1">
           Every transaction and register session is anchored to an active branch location.
         </p>
@@ -584,9 +584,9 @@ function BranchSetupStep({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1.5">Branch Location Address</label>
+        <label className="block text-sm font-medium text-gray-600 mb-1.5">Branch Location Address</label>
         <textarea
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-brand-border placeholder:text-slate-400"
+          className="w-full rounded-sm border border-slate-300 bg-white px-3 py-2 text-sm text-gray-600 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-brand-border placeholder:text-slate-400"
           rows={2}
           placeholder="e.g., Plot 24, Satmasjid Road, Dhanmondi, Dhaka"
           value={form.address}
@@ -610,7 +610,7 @@ function WarehouseSetupStep({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Setup your primary warehouse / stock room</h2>
+        <h2 className="text-xl font-bold text-gray-600">Setup your primary warehouse / stock room</h2>
         <p className="text-sm text-slate-500 mt-1">
           Stock levels, purchase receiving (GRN), and inventory audits are stored in this warehouse.
         </p>
@@ -632,9 +632,9 @@ function WarehouseSetupStep({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1.5">Warehouse Type</label>
+        <label className="block text-sm font-medium text-gray-600 mb-1.5">Warehouse Type</label>
         <select
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-brand-border"
+          className="w-full rounded-sm border border-slate-300 bg-white px-3 py-2 text-sm text-gray-600 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-brand-border"
           value={form.type}
           onChange={(e) => onChange("type", e.target.value)}
         >
@@ -661,27 +661,27 @@ function TaxSetupStep({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Configure tax and VAT policies</h2>
+        <h2 className="text-xl font-bold text-gray-600">Configure tax and VAT policies</h2>
         <p className="text-sm text-slate-500 mt-1">
           Set default tax rate and VAT calculation rules for POS checkouts and invoice generation.
         </p>
       </div>
 
-      <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4">
+      <div className="rounded-sm border border-amber-200 bg-amber-50/70 p-4">
         <p className="text-xs leading-relaxed text-amber-900">
           <strong>Tax Engine Notice:</strong> Blue Ocean POS supports configurable tax tiers, NBR Mushak-6.3 compliance, and zero-rated items. You can customize additional tax rules anytime from the Tax module.
         </p>
       </div>
 
-      <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50/60">
+      <div className="flex items-center gap-3 p-3 rounded-sm border border-slate-200 bg-slate-50/60">
         <input
           type="checkbox"
           id="taxEnabled"
           checked={form.taxEnabled}
           onChange={(e) => onChange("taxEnabled", e.target.checked)}
-          className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+          className="h-4 w-4 rounded-sm border-slate-300 text-primary-600 focus:ring-primary-500"
         />
-        <label htmlFor="taxEnabled" className="text-sm font-medium text-slate-800 cursor-pointer">
+        <label htmlFor="taxEnabled" className="text-sm font-medium text-gray-600 cursor-pointer">
           Enable automatic VAT calculation on POS transactions
         </label>
       </div>
@@ -742,7 +742,7 @@ function PaymentSetupStep({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Configure payment tender options</h2>
+        <h2 className="text-xl font-bold text-gray-600">Configure payment tender options</h2>
         <p className="text-sm text-slate-500 mt-1">
           Choose which payment channels your cashiers can accept at the checkout counter.
         </p>
@@ -755,7 +755,7 @@ function PaymentSetupStep({
             <div
               key={m.id}
               onClick={() => toggleMethod(m.id)}
-              className={`flex items-center justify-between p-3.5 rounded-xl border transition cursor-pointer ${
+              className={`flex items-center justify-between p-3.5 rounded-sm border transition cursor-pointer ${
                 isEnabled
                   ? "border-primary-400 bg-primary-50/40"
                   : "border-slate-200 bg-white opacity-70"
@@ -766,9 +766,9 @@ function PaymentSetupStep({
                   type="checkbox"
                   checked={isEnabled}
                   onChange={() => toggleMethod(m.id)}
-                  className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                  className="h-4 w-4 rounded-sm border-slate-300 text-primary-600 focus:ring-primary-500"
                 />
-                <span className="text-sm font-medium text-slate-800">{m.label}</span>
+                <span className="text-sm font-medium text-gray-600">{m.label}</span>
               </div>
               {isEnabled && <Check size={16} className="text-primary-600" />}
             </div>
@@ -777,9 +777,9 @@ function PaymentSetupStep({
       </div>
 
       <div className="pt-2">
-        <label className="block text-sm font-medium text-slate-700 mb-1.5">Default Payment Method</label>
+        <label className="block text-sm font-medium text-gray-600 mb-1.5">Default Payment Method</label>
         <select
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-brand-border"
+          className="w-full rounded-sm border border-slate-300 bg-white px-3 py-2 text-sm text-gray-600 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-brand-border"
           value={form.defaultMethod}
           onChange={(e) => onChange("defaultMethod", e.target.value)}
         >
@@ -810,7 +810,7 @@ function OwnerSetupStep({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Client Owner & Administrator Credentials</h2>
+        <h2 className="text-xl font-bold text-gray-600">Client Owner & Administrator Credentials</h2>
         <p className="text-sm text-slate-500 mt-1">
           Create the primary Owner account for this business client. They will have full administrative access to their dedicated tenant store.
         </p>
@@ -846,7 +846,7 @@ function OwnerSetupStep({
         />
       </div>
 
-      <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 text-xs text-blue-900 leading-relaxed">
+      <div className="rounded-sm border border-blue-200 bg-blue-50/60 p-4 text-xs text-blue-900 leading-relaxed">
         <strong>Single Tenant Isolation:</strong> This owner account will be strictly linked only to this new tenant. No data (products, sales, customers) will be shared with other stores.
       </div>
     </div>
@@ -906,7 +906,7 @@ Login URL: ${window.location.origin}/login
         <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 ring-8 ring-emerald-50">
           <CheckCircle size={44} />
         </div>
-        <h2 className="text-2xl font-bold text-slate-900">Tenant Store Ready!</h2>
+        <h2 className="text-2xl font-bold text-gray-600">Tenant Store Ready!</h2>
         <p className="mt-1 text-sm text-slate-600 max-w-lg mx-auto">
           A dedicated, isolated single-tenant business has been created with clean inventory & zero seed bleed.
         </p>
@@ -916,9 +916,9 @@ Login URL: ${window.location.origin}/login
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Business Client</span>
-              <h3 className="text-lg font-bold text-slate-900">{provisionResult.tenant?.name}</h3>
+              <h3 className="text-lg font-bold text-gray-600">{provisionResult.tenant?.name}</h3>
             </div>
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 uppercase">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 text-brand-dark uppercase">
               {provisionResult.tenant?.businessType}
             </span>
           </div>
@@ -926,19 +926,19 @@ Login URL: ${window.location.origin}/login
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
               <span className="text-slate-500 font-medium">Tenant Slug:</span>
-              <p className="font-mono text-slate-800 font-semibold">{provisionResult.tenant?.slug}</p>
+              <p className="font-mono text-gray-600 font-semibold">{provisionResult.tenant?.slug}</p>
             </div>
             <div>
               <span className="text-slate-500 font-medium">Tenant ID:</span>
-              <p className="font-mono text-slate-700 truncate">{provisionResult.tenant?.id}</p>
+              <p className="font-mono text-gray-600 truncate">{provisionResult.tenant?.id}</p>
             </div>
             <div>
               <span className="text-slate-500 font-medium">Owner Name:</span>
-              <p className="text-slate-800 font-semibold">{provisionResult.owner?.name}</p>
+              <p className="text-gray-600 font-semibold">{provisionResult.owner?.name}</p>
             </div>
             <div>
               <span className="text-slate-500 font-medium">Login Email:</span>
-              <p className="font-mono text-teal-700 font-semibold">{provisionResult.owner?.email}</p>
+              <p className="font-mono text-brand-dark font-semibold">{provisionResult.owner?.email}</p>
             </div>
           </div>
 
@@ -955,7 +955,7 @@ Login URL: ${window.location.origin}/login
             <CustomButton
               size="sm"
               onClick={() => onSwitch(provisionResult.token, provisionResult.tenant, provisionResult.owner)}
-              className="bg-teal-600 hover:bg-teal-700 text-white text-xs py-1.5"
+              className="bg-brand-primary hover:bg-brand-dark text-white text-xs py-1.5"
             >
               ⚡ Log In as Store Owner
             </CustomButton>
@@ -966,7 +966,7 @@ Login URL: ${window.location.origin}/login
           <CustomButton
             variant="outline"
             onClick={onReset}
-            className="text-sm font-semibold text-slate-700"
+            className="text-sm font-semibold text-gray-600"
           >
             ➕ Onboard Another Business Client
           </CustomButton>
@@ -979,7 +979,7 @@ Login URL: ${window.location.origin}/login
   return (
     <div className="py-2 space-y-6 animate-fadeIn">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Review &amp; Provision Client Store</h2>
+        <h2 className="text-xl font-bold text-gray-600">Review &amp; Provision Client Store</h2>
         <p className="text-sm text-slate-500 mt-1">
           Verify configuration before provisioning the dedicated database tenant and owner account.
         </p>
@@ -987,37 +987,37 @@ Login URL: ${window.location.origin}/login
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Business & Company Info */}
-        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+        <div className="p-4 rounded-sm border border-slate-200 bg-slate-50 space-y-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Business &amp; Vertical</span>
-          <div className="text-sm font-semibold text-slate-900">{company.name || "Untitled Business"}</div>
-          <div className="text-xs text-slate-600">Type: <span className="font-semibold text-teal-700">{businessType}</span></div>
+          <div className="text-sm font-semibold text-gray-600">{company.name || "Untitled Business"}</div>
+          <div className="text-xs text-slate-600">Type: <span className="font-semibold text-brand-dark">{businessType}</span></div>
           {company.legalName && <div className="text-xs text-slate-600">Legal: {company.legalName}</div>}
           <div className="text-xs text-slate-600">Contact: {company.phone || "—"} | {company.email || "—"}</div>
         </div>
 
         {/* Branch & Warehouse */}
-        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+        <div className="p-4 rounded-sm border border-slate-200 bg-slate-50 space-y-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Branch &amp; Stock Ledger</span>
-          <div className="text-sm font-semibold text-slate-900">Branch: {branch.name} ({branch.code})</div>
+          <div className="text-sm font-semibold text-gray-600">Branch: {branch.name} ({branch.code})</div>
           <div className="text-xs text-slate-600">Warehouse: <span className="font-semibold">{warehouse.name} ({warehouse.code})</span></div>
           <div className="text-xs text-slate-600">Tax / VAT: {tax.taxEnabled ? `${tax.vatRate}% Standard VAT` : "Disabled"}</div>
         </div>
 
         {/* Owner Credentials */}
-        <div className="sm:col-span-2 p-4 rounded-xl border border-teal-200 bg-teal-50/50 space-y-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700">Dedicated Owner Account</span>
+        <div className="sm:col-span-2 p-4 rounded-sm border border-brand-border bg-brand-50 space-y-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-brand-dark">Dedicated Owner Account</span>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
             <div>
               <span className="text-slate-500 block">Owner Name:</span>
-              <span className="font-semibold text-slate-900">{user.name || "—"}</span>
+              <span className="font-semibold text-gray-600">{user.name || "—"}</span>
             </div>
             <div>
               <span className="text-slate-500 block">Login Email:</span>
-              <span className="font-semibold font-mono text-teal-800">{user.email || "—"}</span>
+              <span className="font-semibold font-mono text-brand-dark">{user.email || "—"}</span>
             </div>
             <div>
               <span className="text-slate-500 block">Initial Password:</span>
-              <span className="font-mono text-slate-700">••••••••</span>
+              <span className="font-mono text-gray-600">••••••••</span>
             </div>
           </div>
         </div>
@@ -1027,7 +1027,7 @@ Login URL: ${window.location.origin}/login
         <CustomButton
           onClick={onProvision}
           disabled={loading}
-          className="px-8 py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md"
+          className="px-8 py-3 bg-brand-primary hover:bg-brand-dark text-white font-bold text-sm shadow-md"
         >
           {loading ? (
             <span className="flex items-center gap-2">

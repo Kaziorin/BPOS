@@ -188,7 +188,7 @@ export default function PromotionsPage() {
       {/* Toast Alert */}
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl px-5 py-3.5 shadow-xl transition-all duration-300 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-sm px-5 py-3.5 shadow-xl transition-all duration-300 ${
             toast.type === "success"
               ? "bg-slate-900 text-white border border-slate-700"
               : "bg-red-600 text-white border border-red-700"
@@ -216,7 +216,7 @@ export default function PromotionsPage() {
                 size="sm"
                 variant="outline"
                 leftIcon={<Ticket size={14} />}
-                className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
+                className="border-slate-200 text-gray-600 hover:bg-slate-50 text-xs font-semibold"
               >
                 Coupons Directory
               </CustomButton>
@@ -228,13 +228,13 @@ export default function PromotionsPage() {
                 setEditPromo(null);
                 setShowModal(true);
               }}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               New Promotion
             </CustomButton>
             <button
               onClick={() => loadPromotions()}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
+              className="flex h-7 w-7 items-center justify-center rounded-sm border border-slate-200 bg-slate-50 text-gray-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-border transition shadow-2xs"
               title="Refresh Campaigns"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
@@ -272,41 +272,41 @@ export default function PromotionsPage() {
       </div>
 
       {/* Tab Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2.5 rounded-md border border-slate-200 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2.5 rounded-sm border border-slate-200 shadow-2xs">
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setTab("campaigns")}
-            className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+            className={`flex items-center gap-2 rounded-sm px-3 py-1.5 text-xs font-semibold transition ${
               tab === "campaigns"
-                ? "bg-teal-50 text-teal-700 border border-teal-200 font-bold"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
+                ? "bg-brand-50 text-brand-dark border border-brand-border font-bold"
+                : "text-slate-600 hover:text-gray-600 hover:bg-slate-50 border border-transparent"
             }`}
           >
-            <Tag size={14} className={tab === "campaigns" ? "text-teal-600" : "text-slate-400"} />
+            <Tag size={14} className={tab === "campaigns" ? "text-brand-primary" : "text-slate-400"} />
             <span>All Campaigns</span>
-            <span className="rounded-full bg-slate-200/80 px-1.5 py-0.2 text-[10px] font-bold text-slate-700">
+            <span className="rounded-full bg-slate-200/80 px-1.5 py-0.2 text-[10px] font-bold text-gray-600">
               {promos.length}
             </span>
           </button>
           <button
             onClick={() => setTab("sandbox")}
-            className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+            className={`flex items-center gap-2 rounded-sm px-3 py-1.5 text-xs font-semibold transition ${
               tab === "sandbox"
-                ? "bg-teal-50 text-teal-700 border border-teal-200 font-bold"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
+                ? "bg-brand-50 text-brand-dark border border-brand-border font-bold"
+                : "text-slate-600 hover:text-gray-600 hover:bg-slate-50 border border-transparent"
             }`}
           >
-            <Calculator size={14} className={tab === "sandbox" ? "text-teal-600" : "text-slate-400"} />
+            <Calculator size={14} className={tab === "sandbox" ? "text-brand-primary" : "text-slate-400"} />
             <span>Discount Sandbox & Simulator</span>
           </button>
         </div>
 
         {tab === "campaigns" && (
-          <div className="flex items-center gap-1 rounded-md bg-slate-100 p-1 border border-slate-200">
+          <div className="flex items-center gap-1 rounded-sm bg-slate-100 p-1 border border-slate-200">
             <button
               onClick={() => setViewMode("grid")}
-              className={`rounded p-1 text-slate-600 transition ${
-                viewMode === "grid" ? "bg-white text-teal-700 shadow-2xs font-bold" : "hover:text-slate-900"
+              className={`rounded-sm p-1 text-slate-600 transition ${
+                viewMode === "grid" ? "bg-white text-brand-dark shadow-2xs font-bold" : "hover:text-gray-600"
               }`}
               title="Grid Cards"
             >
@@ -314,8 +314,8 @@ export default function PromotionsPage() {
             </button>
             <button
               onClick={() => setViewMode("table")}
-              className={`rounded p-1 text-slate-600 transition ${
-                viewMode === "table" ? "bg-white text-teal-700 shadow-2xs font-bold" : "hover:text-slate-900"
+              className={`rounded-sm p-1 text-slate-600 transition ${
+                viewMode === "table" ? "bg-white text-brand-dark shadow-2xs font-bold" : "hover:text-gray-600"
               }`}
               title="Table View"
             >
@@ -329,7 +329,7 @@ export default function PromotionsPage() {
       {tab === "campaigns" && (
         <div className="space-y-4">
           {/* Search & Filter Toolbar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-md border border-slate-200 shadow-2xs">
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-sm border border-slate-200 shadow-2xs">
             <div className="relative flex-1 min-w-[200px] max-w-md">
               <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
               <input
@@ -337,7 +337,7 @@ export default function PromotionsPage() {
                 placeholder="Search promotions by name or type..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               />
             </div>
 
@@ -346,7 +346,7 @@ export default function PromotionsPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               >
                 <option value="ALL">All Statuses</option>
                 <option value="ACTIVE">Active Campaigns</option>
@@ -358,7 +358,7 @@ export default function PromotionsPage() {
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               >
                 <option value="ALL">All Types</option>
                 {PROMO_TYPES.map((t) => (
@@ -369,15 +369,15 @@ export default function PromotionsPage() {
           </div>
 
           {loading ? (
-            <div className="flex h-48 items-center justify-center bg-white rounded-md border border-slate-200">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-300 border-t-teal-600" />
+            <div className="flex h-48 items-center justify-center bg-white rounded-sm border border-slate-200">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-300 border-t-brand-primary" />
             </div>
           ) : filteredPromos.length === 0 ? (
-            <div className="rounded-md border border-dashed border-slate-300 bg-white p-12 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-teal-50 text-teal-600">
+            <div className="rounded-sm border border-dashed border-slate-300 bg-white p-12 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-sm bg-brand-50 text-brand-primary">
                 <Tag size={24} />
               </div>
-              <h3 className="mt-3 text-sm font-bold text-slate-900">No promotions found</h3>
+              <h3 className="mt-3 text-sm font-bold text-gray-600">No promotions found</h3>
               <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
                 {search || statusFilter !== "ALL" || typeFilter !== "ALL"
                   ? "Try clearing your filters or changing your search terms."
@@ -387,7 +387,7 @@ export default function PromotionsPage() {
                 size="sm"
                 leftIcon={<Plus size={14} />}
                 onClick={() => { setEditPromo(null); setShowModal(true); }}
-                className="mt-4 bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+                className="mt-4 bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
               >
                 Create First Promotion
               </CustomButton>
@@ -404,24 +404,24 @@ export default function PromotionsPage() {
                 return (
                   <div
                     key={p.id}
-                    className={`group relative flex flex-col justify-between rounded-md border bg-white p-4 shadow-2xs transition-all hover:shadow-md ${
+                    className={`group relative flex flex-col justify-between rounded-sm border bg-white p-4 shadow-2xs transition-all hover:shadow-md ${
                       !p.isActive || isExpired
                         ? "border-slate-200 opacity-80"
-                        : "border-slate-200 hover:border-teal-400"
+                        : "border-slate-200 hover:border-brand-border"
                     }`}
                   >
                     <div>
                       {/* Card Header */}
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2.5">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-teal-50 text-teal-600 border border-teal-100 shrink-0">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border shrink-0">
                             <Icon size={18} />
                           </div>
                           <div>
-                            <h3 className="font-bold text-slate-800 text-xs leading-tight line-clamp-1">
+                            <h3 className="font-bold text-gray-600 text-xs leading-tight line-clamp-1">
                               {p.name}
                             </h3>
-                            <span className="inline-flex items-center rounded-md bg-teal-50 px-1.5 py-0.5 text-[10px] font-semibold text-teal-700 border border-teal-200 mt-0.5">
+                            <span className="inline-flex items-center rounded-sm bg-brand-50 px-1.5 py-0.5 text-[10px] font-semibold text-brand-dark border border-brand-border mt-0.5">
                               {typeObj?.label || p.type.replace(/_/g, " ")}
                             </span>
                           </div>
@@ -430,14 +430,14 @@ export default function PromotionsPage() {
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => { setEditPromo(p); setShowModal(true); }}
-                            className="p-1 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded transition"
+                            className="p-1 text-slate-400 hover:text-brand-primary hover:bg-brand-50 rounded-sm transition"
                             title="Edit Promotion"
                           >
                             <Edit3 size={13} />
                           </button>
                           <button
                             onClick={() => setDeleteConfirm({ id: p.id, name: p.name })}
-                            className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition"
+                            className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-sm transition"
                             title="Delete Promotion"
                           >
                             <Trash2 size={13} />
@@ -453,10 +453,10 @@ export default function PromotionsPage() {
                       )}
 
                       {/* Value & Discount Details */}
-                      <div className="mt-3 rounded-md bg-slate-50 p-2.5 border border-slate-100 space-y-1.5 text-xs">
+                      <div className="mt-3 rounded-sm bg-slate-50 p-2.5 border border-slate-100 space-y-1.5 text-xs">
                         <div className="flex justify-between items-center">
                           <span className="text-slate-500 font-medium">Discount Value:</span>
-                          <span className="font-bold text-teal-700 text-xs">
+                          <span className="font-bold text-brand-dark text-xs">
                             {p.type.includes("PERCENTAGE") || p.type === "HAPPY_HOUR"
                               ? `${p.value}% OFF`
                               : `৳${p.value} OFF`}
@@ -516,7 +516,7 @@ export default function PromotionsPage() {
             </div>
           ) : (
             /* Table View */
-            <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs">
+            <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs">
               <CustomTable
                 columns={[
                   {
@@ -524,7 +524,7 @@ export default function PromotionsPage() {
                     header: "Promotion Campaign",
                     render: (r: Promotion) => (
                       <div>
-                        <p className="font-bold text-slate-800 text-xs">{r.name}</p>
+                        <p className="font-bold text-gray-600 text-xs">{r.name}</p>
                         {r.description && (
                           <p className="text-[11px] text-slate-400 line-clamp-1">{r.description}</p>
                         )}
@@ -535,7 +535,7 @@ export default function PromotionsPage() {
                     key: "type",
                     header: "Type",
                     render: (r: Promotion) => (
-                      <span className="inline-flex rounded-md bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-teal-700 border border-teal-200">
+                      <span className="inline-flex rounded-sm bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-dark border border-brand-border">
                         {r.type.replace(/_/g, " ")}
                       </span>
                     ),
@@ -545,7 +545,7 @@ export default function PromotionsPage() {
                     header: "Discount Value",
                     align: "right",
                     render: (r: Promotion) => (
-                      <span className="font-bold text-teal-700 tabular-nums text-xs">
+                      <span className="font-bold text-brand-dark tabular-nums text-xs">
                         {r.type.includes("PERCENTAGE") || r.type === "HAPPY_HOUR"
                           ? `${r.value}%`
                           : money(Number(r.value) || 0)}
@@ -597,13 +597,13 @@ export default function PromotionsPage() {
                       <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={() => { setEditPromo(r); setShowModal(true); }}
-                          className="p-1.5 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition"
+                          className="p-1.5 text-slate-500 hover:text-brand-primary hover:bg-brand-50 rounded-sm transition"
                         >
                           <Edit3 size={13} />
                         </button>
                         <button
                           onClick={() => setDeleteConfirm({ id: r.id, name: r.name })}
-                          className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-md transition"
+                          className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-sm transition"
                         >
                           <Trash2 size={13} />
                         </button>
@@ -741,28 +741,28 @@ function PromotionFormModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="w-full max-w-xl rounded-xl bg-white p-5 sm:p-6 shadow-xl border border-slate-200 transition-all my-8"
+        className="w-full max-w-xl rounded-sm bg-white p-5 sm:p-6 shadow-xl border border-slate-200 transition-all my-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div>
-            <h3 className="text-base font-bold text-gray-700">
+            <h3 className="text-base font-bold text-gray-600">
               {promo ? "Edit Promotion Campaign" : "New Promotion Campaign"}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
               Set discount value, qualification thresholds, and duration.
             </p>
           </div>
-          <button onClick={onClose} className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+          <button onClick={onClose} className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100 hover:text-gray-600">
             <XCircle size={18} />
           </button>
         </div>
 
         {/* Presets for New Promos */}
         {!promo && (
-          <div className="mt-3 rounded-md bg-teal-50/60 border border-teal-200/60 p-3">
-            <p className="text-xs font-bold text-teal-900 flex items-center gap-1 mb-2">
-              <Sparkles size={13} className="text-teal-600" /> Fast Setup Presets:
+          <div className="mt-3 rounded-sm bg-brand-50 border border-brand-border p-3">
+            <p className="text-xs font-bold text-brand-dark flex items-center gap-1 mb-2">
+              <Sparkles size={13} className="text-brand-primary" /> Fast Setup Presets:
             </p>
             <div className="flex flex-wrap gap-1.5">
               {PRESET_PROMOTIONS.map((p) => (
@@ -770,7 +770,7 @@ function PromotionFormModal({
                   key={p.name}
                   type="button"
                   onClick={() => applyPreset(p)}
-                  className="rounded bg-white px-2 py-0.5 text-xs font-semibold text-teal-800 border border-teal-200 shadow-2xs hover:bg-teal-100 transition"
+                  className="rounded-sm bg-white px-2 py-0.5 text-xs font-semibold text-brand-dark border border-brand-border shadow-2xs hover:bg-brand-50 transition"
                 >
                   {p.name}
                 </button>
@@ -780,7 +780,7 @@ function PromotionFormModal({
         )}
 
         {error && (
-          <div className="mt-3 rounded-md bg-red-50 border border-red-200 p-2.5 text-xs text-red-700 flex items-center gap-2">
+          <div className="mt-3 rounded-sm bg-red-50 border border-red-200 p-2.5 text-xs text-red-700 flex items-center gap-2">
             <AlertCircle size={14} className="shrink-0 text-red-500" />
             <span>{error}</span>
           </div>
@@ -788,7 +788,7 @@ function PromotionFormModal({
 
         <form onSubmit={submit} className="mt-4 space-y-3.5">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Promotion Name *
             </label>
             <input
@@ -796,20 +796,20 @@ function PromotionFormModal({
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               placeholder="e.g. Eid Mega Sale 20%"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Promotion Type *
               </label>
               <select
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               >
                 {PROMO_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
@@ -818,7 +818,7 @@ function PromotionFormModal({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Discount Value *
               </label>
               <div className="relative">
@@ -829,7 +829,7 @@ function PromotionFormModal({
                   required
                   value={form.value}
                   onChange={(e) => setForm({ ...form, value: e.target.value })}
-                  className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-3 pr-7 py-1.5 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                  className="w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-3 pr-7 py-1.5 text-xs font-bold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
                   placeholder="20"
                 />
                 <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
@@ -842,7 +842,7 @@ function PromotionFormModal({
           {/* Spend Thresholds */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Minimum Spend (৳)
               </label>
               <input
@@ -851,13 +851,13 @@ function PromotionFormModal({
                 min="0"
                 value={form.minAmount}
                 onChange={(e) => setForm({ ...form, minAmount: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
                 placeholder="Optional min spend"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Max Discount Cap (৳)
               </label>
               <input
@@ -866,7 +866,7 @@ function PromotionFormModal({
                 min="0"
                 value={form.maxDiscount}
                 onChange={(e) => setForm({ ...form, maxDiscount: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
                 placeholder="Optional max cap"
               />
             </div>
@@ -875,80 +875,80 @@ function PromotionFormModal({
           {/* Validity Period */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Valid From
               </label>
               <input
                 type="date"
                 value={form.validFrom}
                 onChange={(e) => setForm({ ...form, validFrom: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Valid To (Expiry)
               </label>
               <input
                 type="date"
                 value={form.validTo}
                 onChange={(e) => setForm({ ...form, validTo: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Priority Rank
               </label>
               <input
                 type="number"
                 value={form.priority}
                 onChange={(e) => setForm({ ...form, priority: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
                 placeholder="0"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Usage Limit
               </label>
               <input
                 type="number"
                 value={form.usageLimit}
                 onChange={(e) => setForm({ ...form, usageLimit: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
                 placeholder="Unlimited"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Description / Note
             </label>
             <textarea
               rows={2}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               placeholder="e.g. Valid on all bakery items during happy hour"
             />
           </div>
 
-          <div className="rounded-md bg-slate-50 p-2.5 border border-slate-200">
+          <div className="rounded-sm bg-slate-50 p-2.5 border border-slate-200">
             <label className="flex items-center gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
                 checked={form.isActive}
                 onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-                className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                className="h-4 w-4 rounded-sm border-slate-300 text-brand-primary focus:ring-brand-border"
               />
-              <span className="text-xs font-semibold text-slate-700">
+              <span className="text-xs font-semibold text-gray-600">
                 Active Campaign (Ready for POS checkout)
               </span>
             </label>
@@ -968,7 +968,7 @@ function PromotionFormModal({
               type="submit"
               size="sm"
               loading={saving}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               {promo ? "Update Promotion" : "Create Campaign"}
             </CustomButton>
@@ -1026,13 +1026,13 @@ function PromotionSimulator({ promos }: { promos: Promotion[] }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-      <div className="lg:col-span-6 bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-4">
+      <div className="lg:col-span-6 bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-4">
         <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-teal-50 text-teal-600 border border-teal-100">
+          <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border">
             <Calculator size={16} />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-gray-700">Campaign Discount Sandbox</h3>
+            <h3 className="text-xs font-bold text-gray-600">Campaign Discount Sandbox</h3>
             <p className="text-[11px] text-slate-500">
               Test how discount percentages, minimum order caps, and ceilings behave.
             </p>
@@ -1041,7 +1041,7 @@ function PromotionSimulator({ promos }: { promos: Promotion[] }) {
 
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Simulated Cart Subtotal (৳)
             </label>
             <div className="relative">
@@ -1051,7 +1051,7 @@ function PromotionSimulator({ promos }: { promos: Promotion[] }) {
                 min="0"
                 value={subtotal}
                 onChange={(e) => setSubtotal(e.target.value)}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-3 pr-12 py-2 text-base font-bold text-slate-900 focus:bg-white focus:border-teal-500 focus:outline-none transition tabular-nums"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-3 pr-12 py-2 text-base font-bold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition tabular-nums"
                 placeholder="2500"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
@@ -1061,13 +1061,13 @@ function PromotionSimulator({ promos }: { promos: Promotion[] }) {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Select Promotion to Test
             </label>
             <select
               value={selectedPromoId}
               onChange={(e) => setSelectedPromoId(e.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             >
               {promos.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -1079,13 +1079,13 @@ function PromotionSimulator({ promos }: { promos: Promotion[] }) {
         </div>
       </div>
 
-      <div className="lg:col-span-6 bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-4">
+      <div className="lg:col-span-6 bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
               Simulation Result
             </p>
-            <h4 className="text-sm font-bold text-slate-900 mt-0.5">
+            <h4 className="text-sm font-bold text-gray-600 mt-0.5">
               {calculation.applied ? "Promo Applied" : "Promo Condition Not Met"}
             </h4>
           </div>
@@ -1103,20 +1103,20 @@ function PromotionSimulator({ promos }: { promos: Promotion[] }) {
         <div className="space-y-2.5">
           <div className="flex items-center justify-between text-xs text-slate-600">
             <span>Original Cart Subtotal</span>
-            <span className="font-semibold text-slate-900 tabular-nums">{money(parseFloat(subtotal) || 0)}</span>
+            <span className="font-semibold text-gray-600 tabular-nums">{money(parseFloat(subtotal) || 0)}</span>
           </div>
 
           <div className="flex items-center justify-between text-xs text-slate-600">
             <span>Discount Savings</span>
-            <span className="font-bold text-teal-700 tabular-nums">-{money(calculation.discount)}</span>
+            <span className="font-bold text-brand-dark tabular-nums">-{money(calculation.discount)}</span>
           </div>
 
           <div className="border-t border-slate-100 pt-3 flex items-center justify-between">
             <div>
-              <span className="text-xs font-bold text-slate-900">Customer Payable Total</span>
+              <span className="text-xs font-bold text-gray-600">Customer Payable Total</span>
               <span className="block text-[11px] text-slate-500">{calculation.reason}</span>
             </div>
-            <span className="text-xl font-black text-teal-700 tabular-nums">
+            <span className="text-xl font-black text-brand-dark tabular-nums">
               {money(calculation.finalTotal)}
             </span>
           </div>

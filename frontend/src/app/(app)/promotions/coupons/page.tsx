@@ -171,7 +171,7 @@ export default function CouponsPage() {
       {/* Toast Alert */}
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl px-5 py-3.5 shadow-xl transition-all duration-300 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-sm px-5 py-3.5 shadow-xl transition-all duration-300 ${
             toast.type === "success"
               ? "bg-slate-900 text-white border border-slate-700"
               : "bg-red-600 text-white border border-red-700"
@@ -203,7 +203,7 @@ export default function CouponsPage() {
                 size="sm"
                 variant="outline"
                 leftIcon={<Tag size={14} />}
-                className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
+                className="border-slate-200 text-gray-600 hover:bg-slate-50 text-xs font-semibold"
               >
                 All Campaigns
               </CustomButton>
@@ -213,7 +213,7 @@ export default function CouponsPage() {
               variant="outline"
               leftIcon={<Dices size={14} />}
               onClick={() => setTab("batch")}
-              className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
+              className="border-slate-200 text-gray-600 hover:bg-slate-50 text-xs font-semibold"
             >
               Batch Generator
             </CustomButton>
@@ -224,13 +224,13 @@ export default function CouponsPage() {
                 setEditCoupon(null);
                 setShowModal(true);
               }}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               New Coupon
             </CustomButton>
             <button
               onClick={() => loadCoupons()}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
+              className="flex h-7 w-7 items-center justify-center rounded-sm border border-slate-200 bg-slate-50 text-gray-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-border transition shadow-2xs"
               title="Refresh Coupons"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
@@ -268,42 +268,42 @@ export default function CouponsPage() {
       </div>
 
       {/* Tab Selector Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2.5 rounded-md border border-slate-200 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2.5 rounded-sm border border-slate-200 shadow-2xs">
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setTab("list")}
-            className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+            className={`flex items-center gap-2 rounded-sm px-3 py-1.5 text-xs font-semibold transition ${
               tab === "list"
-                ? "bg-teal-50 text-teal-700 border border-teal-200 font-bold"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
+                ? "bg-brand-50 text-brand-dark border border-brand-border font-bold"
+                : "text-slate-600 hover:text-gray-600 hover:bg-slate-50 border border-transparent"
             }`}
           >
-            <Ticket size={14} className={tab === "list" ? "text-teal-600" : "text-slate-400"} />
+            <Ticket size={14} className={tab === "list" ? "text-brand-primary" : "text-slate-400"} />
             <span>All Coupon Codes</span>
-            <span className="rounded-full bg-slate-200/80 px-1.5 py-0.2 text-[10px] font-bold text-slate-700">
+            <span className="rounded-full bg-slate-200/80 px-1.5 py-0.2 text-[10px] font-bold text-gray-600">
               {coupons.length}
             </span>
           </button>
           <button
             onClick={() => setTab("validator")}
-            className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+            className={`flex items-center gap-2 rounded-sm px-3 py-1.5 text-xs font-semibold transition ${
               tab === "validator"
-                ? "bg-teal-50 text-teal-700 border border-teal-200 font-bold"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
+                ? "bg-brand-50 text-brand-dark border border-brand-border font-bold"
+                : "text-slate-600 hover:text-gray-600 hover:bg-slate-50 border border-transparent"
             }`}
           >
-            <Calculator size={14} className={tab === "validator" ? "text-teal-600" : "text-slate-400"} />
+            <Calculator size={14} className={tab === "validator" ? "text-brand-primary" : "text-slate-400"} />
             <span>Live POS Coupon Tester</span>
           </button>
           <button
             onClick={() => setTab("batch")}
-            className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+            className={`flex items-center gap-2 rounded-sm px-3 py-1.5 text-xs font-semibold transition ${
               tab === "batch"
-                ? "bg-teal-50 text-teal-700 border border-teal-200 font-bold"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
+                ? "bg-brand-50 text-brand-dark border border-brand-border font-bold"
+                : "text-slate-600 hover:text-gray-600 hover:bg-slate-50 border border-transparent"
             }`}
           >
-            <Dices size={14} className={tab === "batch" ? "text-teal-600" : "text-slate-400"} />
+            <Dices size={14} className={tab === "batch" ? "text-brand-primary" : "text-slate-400"} />
             <span>Batch Code Generator</span>
           </button>
         </div>
@@ -313,7 +313,7 @@ export default function CouponsPage() {
       {tab === "list" && (
         <div className="space-y-4">
           {/* Search & Filter Controls */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-md border border-slate-200 shadow-2xs">
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-sm border border-slate-200 shadow-2xs">
             <div className="relative flex-1 min-w-[200px] max-w-md">
               <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
               <input
@@ -321,7 +321,7 @@ export default function CouponsPage() {
                 placeholder="Search coupons by code or description..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               />
             </div>
 
@@ -329,7 +329,7 @@ export default function CouponsPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               >
                 <option value="ALL">All Statuses</option>
                 <option value="ACTIVE">Active Only</option>
@@ -340,7 +340,7 @@ export default function CouponsPage() {
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               >
                 <option value="ALL">All Discount Types</option>
                 <option value="PERCENTAGE">Percentage (%)</option>
@@ -350,7 +350,7 @@ export default function CouponsPage() {
           </div>
 
           {/* Table Container */}
-          <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs">
+          <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs">
             <CustomTable
               columns={[
                 {
@@ -358,12 +358,12 @@ export default function CouponsPage() {
                   header: "Coupon Code",
                   render: (c: Coupon) => (
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-2 py-1 rounded border border-slate-200 tracking-wider">
+                      <span className="font-mono text-xs font-bold text-gray-600 bg-slate-100 px-2 py-1 rounded-sm border border-slate-200 tracking-wider">
                         {c.code}
                       </span>
                       <button
                         onClick={() => copyCode(c.code)}
-                        className="p-1 text-slate-400 hover:text-teal-600 transition"
+                        className="p-1 text-slate-400 hover:text-brand-primary transition"
                         title="Copy code"
                       >
                         <Copy size={13} />
@@ -376,11 +376,11 @@ export default function CouponsPage() {
                   header: "Description / Promotion",
                   render: (c: Coupon) => (
                     <div>
-                      <p className="text-xs font-semibold text-slate-700">
+                      <p className="text-xs font-semibold text-gray-600">
                         {c.description || "Direct coupon code"}
                       </p>
                       {c.promotion && (
-                        <p className="text-[11px] text-teal-700">
+                        <p className="text-[11px] text-brand-dark">
                           Linked: {c.promotion.name}
                         </p>
                       )}
@@ -392,7 +392,7 @@ export default function CouponsPage() {
                   header: "Benefit",
                   align: "right",
                   render: (c: Coupon) => (
-                    <span className="font-bold text-teal-700 text-xs tabular-nums">
+                    <span className="font-bold text-brand-dark text-xs tabular-nums">
                       {c.discountType === "PERCENTAGE"
                         ? `${c.discountValue}% OFF`
                         : money(Number(c.discountValue) || 0)}
@@ -416,8 +416,8 @@ export default function CouponsPage() {
                   header: "Redemptions",
                   align: "center",
                   render: (c: Coupon) => (
-                    <span className="text-xs font-medium text-slate-700">
-                      <strong className="text-slate-900">{c.usageCount || 0}</strong>
+                    <span className="text-xs font-medium text-gray-600">
+                      <strong className="text-gray-600">{c.usageCount || 0}</strong>
                       <span className="text-slate-400"> / {c.usageLimit ? c.usageLimit : "∞"}</span>
                     </span>
                   ),
@@ -460,14 +460,14 @@ export default function CouponsPage() {
                           setEditCoupon(c);
                           setShowModal(true);
                         }}
-                        className="p-1.5 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition"
+                        className="p-1.5 text-slate-500 hover:text-brand-primary hover:bg-brand-50 rounded-sm transition"
                         title="Edit Coupon"
                       >
                         <Edit3 size={13} />
                       </button>
                       <button
                         onClick={() => setDeleteConfirm({ id: c.id, code: c.code })}
-                        className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-md transition"
+                        className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-sm transition"
                         title="Delete Coupon"
                       >
                         <Trash2 size={13} />
@@ -620,28 +620,28 @@ function CouponFormModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="w-full max-w-xl rounded-xl bg-white p-5 sm:p-6 shadow-xl border border-slate-200 transition-all my-8"
+        className="w-full max-w-xl rounded-sm bg-white p-5 sm:p-6 shadow-xl border border-slate-200 transition-all my-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div>
-            <h3 className="text-base font-bold text-gray-700">
+            <h3 className="text-base font-bold text-gray-600">
               {coupon ? "Edit Coupon Code" : "New Coupon Code"}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
               Configure promo code, discount mode, spend thresholds, and expiry.
             </p>
           </div>
-          <button onClick={onClose} className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+          <button onClick={onClose} className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100 hover:text-gray-600">
             <XCircle size={18} />
           </button>
         </div>
 
         {/* Quick Presets */}
         {!coupon && (
-          <div className="mt-3 rounded-md bg-teal-50/60 border border-teal-200/60 p-3">
-            <p className="text-xs font-bold text-teal-900 flex items-center gap-1 mb-2">
-              <Sparkles size={13} className="text-teal-600" /> Fast Setup Presets:
+          <div className="mt-3 rounded-sm bg-brand-50 border border-brand-border p-3">
+            <p className="text-xs font-bold text-brand-dark flex items-center gap-1 mb-2">
+              <Sparkles size={13} className="text-brand-primary" /> Fast Setup Presets:
             </p>
             <div className="flex flex-wrap gap-1.5">
               {COUPON_PRESETS.map((p) => (
@@ -649,7 +649,7 @@ function CouponFormModal({
                   key={p.code}
                   type="button"
                   onClick={() => applyPreset(p)}
-                  className="rounded bg-white px-2 py-0.5 text-xs font-semibold text-teal-800 border border-teal-200 shadow-2xs hover:bg-teal-100 transition font-mono"
+                  className="rounded-sm bg-white px-2 py-0.5 text-xs font-semibold text-brand-dark border border-brand-border shadow-2xs hover:bg-brand-50 transition font-mono"
                 >
                   {p.code} ({p.value}{p.type === "PERCENTAGE" ? "%" : "৳"})
                 </button>
@@ -659,7 +659,7 @@ function CouponFormModal({
         )}
 
         {error && (
-          <div className="mt-3 rounded-md bg-red-50 border border-red-200 p-2.5 text-xs text-red-700 flex items-center gap-2">
+          <div className="mt-3 rounded-sm bg-red-50 border border-red-200 p-2.5 text-xs text-red-700 flex items-center gap-2">
             <AlertCircle size={14} className="shrink-0 text-red-500" />
             <span>{error}</span>
           </div>
@@ -668,13 +668,13 @@ function CouponFormModal({
         <form onSubmit={submit} className="mt-4 space-y-3.5">
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider">
                 Coupon Code *
               </label>
               <button
                 type="button"
                 onClick={generateRandomCode}
-                className="text-xs font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-1"
+                className="text-xs font-semibold text-brand-primary hover:text-brand-dark flex items-center gap-1"
               >
                 <Sparkles size={12} /> Auto-Generate
               </button>
@@ -684,20 +684,20 @@ function CouponFormModal({
               required
               value={form.code}
               onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-mono font-bold tracking-wider text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition uppercase"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-mono font-bold tracking-wider text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition uppercase"
               placeholder="e.g. SUMMER2026"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Discount Type *
               </label>
               <select
                 value={form.discountType}
                 onChange={(e) => setForm({ ...form, discountType: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               >
                 <option value="PERCENTAGE">Percentage (%)</option>
                 <option value="FIXED">Fixed Amount (৳)</option>
@@ -705,7 +705,7 @@ function CouponFormModal({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Discount Value *
               </label>
               <div className="relative">
@@ -716,7 +716,7 @@ function CouponFormModal({
                   required
                   value={form.discountValue}
                   onChange={(e) => setForm({ ...form, discountValue: e.target.value })}
-                  className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-3 pr-7 py-1.5 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                  className="w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-3 pr-7 py-1.5 text-xs font-bold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
                   placeholder="10"
                 />
                 <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
@@ -728,7 +728,7 @@ function CouponFormModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Min. Order Spend (৳)
               </label>
               <input
@@ -737,13 +737,13 @@ function CouponFormModal({
                 min="0"
                 value={form.minAmount}
                 onChange={(e) => setForm({ ...form, minAmount: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
                 placeholder="Optional min spend"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Max Discount Cap (৳)
               </label>
               <input
@@ -752,7 +752,7 @@ function CouponFormModal({
                 min="0"
                 value={form.maxDiscount}
                 onChange={(e) => setForm({ ...form, maxDiscount: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
                 placeholder="Optional cap"
               />
             </div>
@@ -760,65 +760,65 @@ function CouponFormModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Valid From
               </label>
               <input
                 type="date"
                 value={form.validFrom}
                 onChange={(e) => setForm({ ...form, validFrom: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Valid To (Expiry)
               </label>
               <input
                 type="date"
                 value={form.validTo}
                 onChange={(e) => setForm({ ...form, validTo: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Usage Limit (Total checkouts)
             </label>
             <input
               type="number"
               value={form.usageLimit}
               onChange={(e) => setForm({ ...form, usageLimit: e.target.value })}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               placeholder="Leave blank for unlimited"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Description / Notes
             </label>
             <textarea
               rows={2}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               placeholder="e.g. 10% discount for first-time website & POS customers"
             />
           </div>
 
-          <div className="rounded-md bg-slate-50 p-2.5 border border-slate-200">
+          <div className="rounded-sm bg-slate-50 p-2.5 border border-slate-200">
             <label className="flex items-center gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
                 checked={form.isActive}
                 onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-                className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                className="h-4 w-4 rounded-sm border-slate-300 text-brand-primary focus:ring-brand-border"
               />
-              <span className="text-xs font-semibold text-slate-700">
+              <span className="text-xs font-semibold text-gray-600">
                 Active & Redeemable at Checkout
               </span>
             </label>
@@ -838,7 +838,7 @@ function CouponFormModal({
               type="submit"
               size="sm"
               loading={saving}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               {coupon ? "Update Coupon" : "Create Coupon"}
             </CustomButton>
@@ -884,13 +884,13 @@ function CouponValidatorTester({ onApplied }: { onApplied?: () => void }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-      <div className="lg:col-span-6 bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-4">
+      <div className="lg:col-span-6 bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-4">
         <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-teal-50 text-teal-600 border border-teal-100">
+          <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border">
             <Calculator size={16} />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-gray-700">Live POS Checkout Validation</h3>
+            <h3 className="text-xs font-bold text-gray-600">Live POS Checkout Validation</h3>
             <p className="text-[11px] text-slate-500">
               Query backend endpoint: <code>POST /api/v1/coupons/validate</code>
             </p>
@@ -899,7 +899,7 @@ function CouponValidatorTester({ onApplied }: { onApplied?: () => void }) {
 
         <form onSubmit={testValidation} className="space-y-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Enter Coupon Code
             </label>
             <input
@@ -907,13 +907,13 @@ function CouponValidatorTester({ onApplied }: { onApplied?: () => void }) {
               required
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-mono font-bold tracking-wider text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition uppercase"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-mono font-bold tracking-wider text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition uppercase"
               placeholder="e.g. WELCOME10"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Simulated Cart Subtotal (৳)
             </label>
             <input
@@ -923,7 +923,7 @@ function CouponValidatorTester({ onApplied }: { onApplied?: () => void }) {
               required
               value={subtotal}
               onChange={(e) => setSubtotal(e.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition tabular-nums"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-bold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition tabular-nums"
               placeholder="2000"
             />
           </div>
@@ -933,20 +933,20 @@ function CouponValidatorTester({ onApplied }: { onApplied?: () => void }) {
             size="sm"
             loading={testing}
             leftIcon={<Zap size={14} />}
-            className="w-full bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+            className="w-full bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
           >
             Validate & Compute Discount
           </CustomButton>
         </form>
       </div>
 
-      <div className="lg:col-span-6 bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-4">
+      <div className="lg:col-span-6 bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
               API Response
             </p>
-            <h4 className="text-sm font-bold text-slate-900 mt-0.5">
+            <h4 className="text-sm font-bold text-gray-600 mt-0.5">
               {result ? (result.valid ? "Coupon Approved" : "Coupon Rejected") : "Awaiting Code Input"}
             </h4>
           </div>
@@ -966,7 +966,7 @@ function CouponValidatorTester({ onApplied }: { onApplied?: () => void }) {
         {result ? (
           <div className="space-y-3">
             <div
-              className={`p-3 rounded-md text-xs font-medium flex items-center gap-2 ${
+              className={`p-3 rounded-sm text-xs font-medium flex items-center gap-2 ${
                 result.valid
                   ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
                   : "bg-red-50 text-red-800 border border-red-200"
@@ -980,19 +980,19 @@ function CouponValidatorTester({ onApplied }: { onApplied?: () => void }) {
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between text-slate-600">
                   <span>Cart Subtotal</span>
-                  <span className="font-semibold text-slate-900 tabular-nums">
+                  <span className="font-semibold text-gray-600 tabular-nums">
                     {money(parseFloat(subtotal) || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Discount Applied</span>
-                  <span className="font-bold text-teal-700 tabular-nums">
+                  <span className="font-bold text-brand-dark tabular-nums">
                     -{money(result.discount || 0)}
                   </span>
                 </div>
-                <div className="border-t border-slate-100 pt-2 flex justify-between items-center text-sm font-bold text-slate-900">
+                <div className="border-t border-slate-100 pt-2 flex justify-between items-center text-sm font-bold text-gray-600">
                   <span>Final Payable Total</span>
-                  <span className="text-base font-black text-teal-700 tabular-nums">
+                  <span className="text-base font-black text-brand-dark tabular-nums">
                     {money(result.finalTotal || 0)}
                   </span>
                 </div>
@@ -1058,13 +1058,13 @@ function BatchCouponGenerator({ onCreated }: { onCreated: () => void }) {
   };
 
   return (
-    <div className="max-w-2xl bg-white rounded-md border border-slate-200 p-5 shadow-2xs space-y-4">
+    <div className="max-w-2xl bg-white rounded-sm border border-slate-200 p-5 shadow-2xs space-y-4">
       <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-teal-50 text-teal-600 border border-teal-100">
+        <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border">
           <Dices size={16} />
         </div>
         <div>
-          <h3 className="text-xs font-bold text-gray-700">Batch Single-Use Coupon Generator</h3>
+          <h3 className="text-xs font-bold text-gray-600">Batch Single-Use Coupon Generator</h3>
           <p className="text-[11px] text-slate-500">
             Generate unique alphanumeric voucher codes for flyer distribution or SMS campaigns.
           </p>
@@ -1072,7 +1072,7 @@ function BatchCouponGenerator({ onCreated }: { onCreated: () => void }) {
       </div>
 
       {error && (
-        <div className="rounded-md bg-red-50 border border-red-200 p-2.5 text-xs text-red-700 flex items-center gap-2">
+        <div className="rounded-sm bg-red-50 border border-red-200 p-2.5 text-xs text-red-700 flex items-center gap-2">
           <AlertCircle size={14} className="shrink-0 text-red-500" />
           <span>{error}</span>
         </div>
@@ -1081,7 +1081,7 @@ function BatchCouponGenerator({ onCreated }: { onCreated: () => void }) {
       <form onSubmit={submitBatch} className="space-y-3.5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Code Prefix
             </label>
             <input
@@ -1089,13 +1089,13 @@ function BatchCouponGenerator({ onCreated }: { onCreated: () => void }) {
               required
               value={prefix}
               onChange={(e) => setPrefix(e.target.value.toUpperCase())}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-mono font-bold text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition uppercase"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-mono font-bold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition uppercase"
               placeholder="PROMO"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Quantity of Codes
             </label>
             <input
@@ -1105,7 +1105,7 @@ function BatchCouponGenerator({ onCreated }: { onCreated: () => void }) {
               required
               value={count}
               onChange={(e) => setCount(e.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-bold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               placeholder="5"
             />
           </div>
@@ -1113,13 +1113,13 @@ function BatchCouponGenerator({ onCreated }: { onCreated: () => void }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Discount Type
             </label>
             <select
               value={discountType}
               onChange={(e) => setDiscountType(e.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             >
               <option value="PERCENTAGE">Percentage (%)</option>
               <option value="FIXED">Fixed Amount (৳)</option>
@@ -1127,7 +1127,7 @@ function BatchCouponGenerator({ onCreated }: { onCreated: () => void }) {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Discount Value
             </label>
             <input
@@ -1136,14 +1136,14 @@ function BatchCouponGenerator({ onCreated }: { onCreated: () => void }) {
               required
               value={discountValue}
               onChange={(e) => setDiscountValue(e.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-bold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               placeholder="10"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
             Min. Order Spend (৳)
           </label>
           <input
@@ -1151,7 +1151,7 @@ function BatchCouponGenerator({ onCreated }: { onCreated: () => void }) {
             step="0.01"
             value={minAmount}
             onChange={(e) => setMinAmount(e.target.value)}
-            className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+            className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             placeholder="1000"
           />
         </div>
@@ -1162,7 +1162,7 @@ function BatchCouponGenerator({ onCreated }: { onCreated: () => void }) {
             size="sm"
             loading={generating}
             leftIcon={<Dices size={14} />}
-            className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+            className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
           >
             Generate {count} Single-Use Vouchers
           </CustomButton>

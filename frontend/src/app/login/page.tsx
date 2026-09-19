@@ -126,7 +126,7 @@ export default function LoginPage() {
             <div className="flex h-13 w-13 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-white shadow-md mb-2.5">
               <Store size={26} />
             </div>
-            <h1 className="text-lg font-bold tracking-tight text-slate-800">Blue Oceans POS</h1>
+            <h1 className="text-lg font-bold tracking-tight text-gray-600">Blue Oceans POS</h1>
             <h2 className="mt-1 text-xs font-semibold text-sky-800">Sign In to Workspace</h2>
           </div>
 

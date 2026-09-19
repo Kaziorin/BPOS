@@ -914,7 +914,7 @@ export default function PaymentsPage() {
                         setSearchQuery("");
                         setPage(1);
                       }}
-                      className="text-gray-400 hover:text-gray-700 cursor-pointer"
+                      className="text-gray-400 hover:text-gray-600 cursor-pointer"
                     >
                       <X size={14} />
                     </button>
@@ -927,7 +927,7 @@ export default function PaymentsPage() {
                   setPage(1);
                 }}
                 containerClassName="w-48 sm:w-64 md:w-72"
-                className="h-[34px] text-xs font-medium text-gray-700 placeholder:text-gray-500 shadow-2xs"
+                className="h-[34px] text-xs font-medium text-gray-600 placeholder:text-gray-500 shadow-2xs"
               />
 
               {/* Table / Grid Switcher */}
@@ -938,7 +938,7 @@ export default function PaymentsPage() {
                   className={`rounded-sm p-1.5 h-[28px] flex items-center transition cursor-pointer ${
                     viewMode === "table"
                       ? "bg-brand-50 text-brand-primary shadow-2xs font-bold"
-                      : "text-gray-500 hover:text-gray-800"
+                      : "text-gray-500 hover:text-gray-600"
                   }`}
                   title="Table View"
                 >
@@ -950,7 +950,7 @@ export default function PaymentsPage() {
                   className={`rounded-sm p-1.5 h-[28px] flex items-center transition cursor-pointer ${
                     viewMode === "grid"
                       ? "bg-brand-50 text-brand-primary shadow-2xs font-bold"
-                      : "text-gray-500 hover:text-gray-800"
+                      : "text-gray-500 hover:text-gray-600"
                   }`}
                   title="Grid Card View"
                 >
@@ -1047,7 +1047,7 @@ export default function PaymentsPage() {
             <div className="rounded-sm bg-brand-50 p-4 text-brand-primary border border-brand-border">
               <Receipt size={36} />
             </div>
-            <h3 className="mt-3 text-sm font-bold text-gray-700">No payment records found</h3>
+            <h3 className="mt-3 text-sm font-bold text-gray-600">No payment records found</h3>
             <p className="mt-1 max-w-sm text-xs text-gray-500 font-medium">
               No payments matched your criteria. Record a customer payment or adjust your search filters.
             </p>
@@ -1068,9 +1068,9 @@ export default function PaymentsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-brand-border bg-slate-50 text-xs font-bold capitalize text-gray-700">
+                  <tr className="border-b border-brand-border bg-slate-50 text-xs font-bold capitalize text-gray-600">
                     <th className="py-3.5 pl-4 pr-2 w-8">
-                      <button onClick={toggleSelectAll} className="text-gray-400 hover:text-gray-700 cursor-pointer">
+                      <button onClick={toggleSelectAll} className="text-gray-400 hover:text-gray-600 cursor-pointer">
                         {selectedIds.length === payments.length && payments.length > 0 ? (
                           <CheckSquare size={16} className="text-brand-primary" />
                         ) : (
@@ -1109,7 +1109,7 @@ export default function PaymentsPage() {
                           <button
                             type="button"
                             onClick={() => toggleSelectRow(p.id)}
-                            className="text-gray-400 hover:text-gray-700 cursor-pointer"
+                            className="text-gray-400 hover:text-gray-600 cursor-pointer"
                           >
                             {isSelected ? <CheckSquare size={16} className="text-brand-primary" /> : <Square size={16} />}
                           </button>
@@ -1124,7 +1124,7 @@ export default function PaymentsPage() {
                                   e.stopPropagation();
                                   copyToClipboard(p.reference || p.id, p.id);
                                 }}
-                                className="cursor-pointer font-mono font-bold text-gray-700 hover:text-brand-primary transition"
+                                className="cursor-pointer font-mono font-bold text-gray-600 hover:text-brand-primary transition"
                                 title="Click to copy receipt #"
                               >
                                 {p.reference || `PAY-${p.id.slice(0, 8)}`}
@@ -1147,7 +1147,7 @@ export default function PaymentsPage() {
                         <td className="px-3 py-3.5">
                           {p.customer ? (
                             <div className="flex flex-col">
-                              <span className="font-bold text-gray-700">{p.customer.name}</span>
+                              <span className="font-bold text-gray-600">{p.customer.name}</span>
                               {p.customer.phone && <span className="text-[11px] text-gray-500">{p.customer.phone}</span>}
                             </div>
                           ) : (
@@ -1169,7 +1169,7 @@ export default function PaymentsPage() {
                         <td className="px-3 py-3.5">
                           {p.invoice?.invoiceNo ? (
                             <div className="flex flex-col">
-                              <span className="font-mono font-bold text-gray-700">{p.invoice.invoiceNo}</span>
+                              <span className="font-mono font-bold text-gray-600">{p.invoice.invoiceNo}</span>
                               <span className="text-[10px] text-gray-500 font-medium">
                                 Total: ৳{Number(p.invoice.total || 0).toLocaleString()}
                               </span>

@@ -73,8 +73,8 @@ export function CustomModal({
     themeColor === "primary"
       ? isDark ? "text-brand-light" : "text-brand-dark"
       : themeColor === "teal"
-      ? isDark ? "text-teal-300" : "text-[#00796b]"
-      : isDark ? "text-slate-100" : "text-slate-800";
+      ? isDark ? "text-brand-primary/60" : "text-[#00796b]"
+      : isDark ? "text-slate-100" : "text-gray-600";
 
   return (
     <div
@@ -86,7 +86,7 @@ export function CustomModal({
         className={cn(
           "w-full rounded-sm shadow-2xl animate-[scale-in_180ms_ease-out] flex flex-col max-h-[92vh] overflow-hidden transition-colors",
           maxWidth ?? sizeClasses[size] ?? "max-w-xl",
-          isDark ? "dark bg-slate-900 border border-slate-800 text-slate-100" : "bg-white border border-slate-200 text-slate-900",
+          isDark ? "dark bg-slate-900 border border-slate-800 text-slate-100" : "bg-white border border-slate-200 text-gray-600",
           className
         )}
       >
@@ -99,7 +99,7 @@ export function CustomModal({
               : themeColor === "primary"
               ? "border-brand-border bg-brand-50/60"
               : themeColor === "teal"
-              ? "border-teal-100 bg-gradient-to-r from-teal-50/80 via-white to-teal-50/50"
+              ? "border-brand-border bg-gradient-to-r from-brand-50/80 via-white to-brand-50/50"
               : "border-slate-200 bg-slate-50/80"
           )}
         >
@@ -111,7 +111,7 @@ export function CustomModal({
                   isDark
                     ? themeColor === "primary"
                       ? "bg-slate-800 text-brand-primary border border-brand-border"
-                      : "bg-teal-950/70 text-teal-300 border border-teal-800"
+                      : "bg-slate-800 text-brand-primary border border-brand-border"
                     : "bg-brand-50 text-brand-primary border border-brand-border"
                 )}
               >

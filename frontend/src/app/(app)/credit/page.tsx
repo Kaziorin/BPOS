@@ -364,7 +364,7 @@ export default function CreditPage() {
               </div>
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">Credit Management & Risk Controls</h1>
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-600">Credit Management & Risk Controls</h1>
                   <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-emerald-700 ring-1 ring-emerald-200">
                     B2B & Commercial
                   </span>
@@ -379,7 +379,7 @@ export default function CreditPage() {
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/invoices"
-              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-600 shadow-2xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
             >
               <FileText size={14} className="text-sky-600" />
               Invoices
@@ -407,7 +407,7 @@ export default function CreditPage() {
                 <CreditCard size={14} />
               </div>
             </div>
-            <div className="mt-2 text-lg sm:text-xl font-black text-slate-900">
+            <div className="mt-2 text-lg sm:text-xl font-black text-gray-600">
               {statsLoading ? "—" : `৳${Number(stats?.totalCreditLimit || 0).toLocaleString()}`}
             </div>
             <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-slate-500">
@@ -466,12 +466,12 @@ export default function CreditPage() {
           {/* 5. Accounts on Credit Hold */}
           <div className="rounded-sm border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs transition hover:shadow-2xs">
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">Frozen on Hold</span>
-              <div className="rounded-sm bg-slate-100 p-1.5 text-slate-700">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-gray-600">Frozen on Hold</span>
+              <div className="rounded-sm bg-slate-100 p-1.5 text-gray-600">
                 <Lock size={14} />
               </div>
             </div>
-            <div className="mt-2 text-lg sm:text-xl font-black text-slate-900">
+            <div className="mt-2 text-lg sm:text-xl font-black text-gray-600">
               {statsLoading ? "—" : stats?.onHoldCount ?? 0}
             </div>
             <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-slate-500">
@@ -487,7 +487,7 @@ export default function CreditPage() {
                 <TrendingUp size={14} />
               </div>
             </div>
-            <div className="mt-2 text-lg sm:text-xl font-black text-slate-900">
+            <div className="mt-2 text-lg sm:text-xl font-black text-gray-600">
               {stats && stats.totalCreditLimit > 0
                 ? `${Math.min(100, Math.round((Number(stats.totalUtilizedDue) / Number(stats.totalCreditLimit)) * 100))}%`
                 : "0%"}
@@ -544,7 +544,7 @@ export default function CreditPage() {
                   className={`rounded-sm px-3 py-1.5 text-xs font-bold transition ${
                     activeTab === tab.id
                       ? "bg-brand-gradient text-white shadow-2xs shadow-sm"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-gray-600"
                   }`}
                 >
                   {tab.label}
@@ -557,7 +557,7 @@ export default function CreditPage() {
                 <button
                   onClick={() => setViewMode("table")}
                   className={`rounded-sm p-1.5 transition ${
-                    viewMode === "table" ? "bg-white text-sky-700 shadow-2xs" : "text-slate-400 hover:text-slate-700"
+                    viewMode === "table" ? "bg-white text-sky-700 shadow-2xs" : "text-slate-400 hover:text-gray-600"
                   }`}
                   title="Table View"
                 >
@@ -566,7 +566,7 @@ export default function CreditPage() {
                 <button
                   onClick={() => setViewMode("grid")}
                   className={`rounded-sm p-1.5 transition ${
-                    viewMode === "grid" ? "bg-white text-sky-700 shadow-2xs" : "text-slate-400 hover:text-slate-700"
+                    viewMode === "grid" ? "bg-white text-sky-700 shadow-2xs" : "text-slate-400 hover:text-gray-600"
                   }`}
                   title="Grid Card View"
                 >
@@ -576,7 +576,7 @@ export default function CreditPage() {
 
               <button
                 onClick={handleExportCSV}
-                className="flex items-center gap-1.5 rounded-sm border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                className="flex items-center gap-1.5 rounded-sm border border-slate-200 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-slate-50"
                 title="Export to CSV"
               >
                 <Download size={14} />
@@ -588,7 +588,7 @@ export default function CreditPage() {
                   loadCustomers();
                   loadStats();
                 }}
-                className="flex items-center gap-1.5 rounded-sm border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 active:scale-95"
+                className="flex items-center gap-1.5 rounded-sm border border-slate-200 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-slate-50 active:scale-95"
                 title="Refresh"
               >
                 <RefreshCw size={14} className={loading ? "animate-spin text-sky-600" : ""} />
@@ -609,7 +609,7 @@ export default function CreditPage() {
                   setSearchQuery(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 py-2 pl-10 pr-4 text-xs font-medium text-slate-800 placeholder-slate-400 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 py-2 pl-10 pr-4 text-xs font-medium text-gray-600 placeholder-slate-400 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               />
               {searchQuery && (
                 <button
@@ -628,7 +628,7 @@ export default function CreditPage() {
                   setSortBy(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs font-semibold text-gray-600 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               >
                 <option value="currentDue">Sort by: Highest Outstanding Due</option>
                 <option value="creditLimit">Sort by: Highest Credit Limit</option>
@@ -650,7 +650,7 @@ export default function CreditPage() {
             <div className="rounded-sm bg-brand-50 p-4 text-sky-600">
               <ShieldCheck size={36} />
             </div>
-            <h3 className="mt-3 text-sm font-bold text-slate-800">No credit accounts found</h3>
+            <h3 className="mt-3 text-sm font-bold text-gray-600">No credit accounts found</h3>
             <p className="mt-1 max-w-sm text-xs text-slate-500">
               No customer records matched your filters. Adjust search keywords or register customer credit limits.
             </p>
@@ -663,7 +663,7 @@ export default function CreditPage() {
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                     <th className="py-3.5 pl-4 pr-2 w-8">
-                      <button onClick={toggleSelectAll} className="text-slate-400 hover:text-slate-700">
+                      <button onClick={toggleSelectAll} className="text-slate-400 hover:text-gray-600">
                         {selectedIds.length === customers.length && customers.length > 0 ? (
                           <CheckSquare size={16} className="text-sky-600" />
                         ) : (
@@ -687,7 +687,7 @@ export default function CreditPage() {
                       <tr key={c.id} className={`group transition ${isSelected ? "bg-brand-50/30" : "hover:bg-slate-50/70"}`}>
                         {/* Checkbox */}
                         <td className="py-3.5 pl-4 pr-2">
-                          <button onClick={() => toggleSelectRow(c.id)} className="text-slate-400 hover:text-slate-700">
+                          <button onClick={() => toggleSelectRow(c.id)} className="text-slate-400 hover:text-gray-600">
                             {isSelected ? <CheckSquare size={16} className="text-sky-600" /> : <Square size={16} />}
                           </button>
                         </td>
@@ -695,7 +695,7 @@ export default function CreditPage() {
                         {/* Customer */}
                         <td className="py-3.5 pl-2 pr-3">
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-bold text-slate-900">{c.name}</span>
+                            <span className="font-bold text-gray-600">{c.name}</span>
                             <div className="flex items-center gap-2 text-[11px] text-slate-400">
                               {c.phone && <span>{c.phone}</span>}
                               {c.email && <span>• {c.email}</span>}
@@ -704,7 +704,7 @@ export default function CreditPage() {
                         </td>
 
                         {/* Credit Limit */}
-                        <td className="px-3 py-3.5 text-right font-black text-slate-900 tabular-nums">
+                        <td className="px-3 py-3.5 text-right font-black text-gray-600 tabular-nums">
                           ৳{Number(c.creditLimit).toLocaleString()}
                         </td>
 
@@ -787,7 +787,7 @@ export default function CreditPage() {
                             <button
                               onClick={() => setSelectedForDrawer(c)}
                               title="Customer Credit Profile"
-                              className="rounded-sm p-1.5 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95"
+                              className="rounded-sm p-1.5 text-slate-600 transition hover:bg-slate-100 hover:text-gray-600 active:scale-95"
                             >
                               <Eye size={15} />
                             </button>
@@ -817,7 +817,7 @@ export default function CreditPage() {
                               <button
                                 onClick={() => openReminderModal(c)}
                                 title="Send Payment Reminder"
-                                className="rounded-sm p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95"
+                                className="rounded-sm p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-gray-600 active:scale-95"
                               >
                                 <MessageSquare size={15} />
                               </button>
@@ -840,14 +840,14 @@ export default function CreditPage() {
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-sm border border-slate-200 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-slate-200 px-2.5 py-1 font-semibold text-gray-600 hover:bg-slate-50 disabled:opacity-40"
                 >
                   <ChevronLeft size={14} />
                 </button>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-sm border border-slate-200 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-slate-200 px-2.5 py-1 font-semibold text-gray-600 hover:bg-slate-50 disabled:opacity-40"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -868,7 +868,7 @@ export default function CreditPage() {
                       {/* Top row */}
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <div className="text-sm font-bold text-slate-900">{c.name}</div>
+                          <div className="text-sm font-bold text-gray-600">{c.name}</div>
                           {c.phone && <span className="text-[11px] text-slate-400">{c.phone}</span>}
                         </div>
                         {c.isOnCreditHold ? (
@@ -890,7 +890,7 @@ export default function CreditPage() {
                       <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
                         <div>
                           <span className="text-[11px] text-slate-400">Credit Limit</span>
-                          <p className="font-black text-slate-900">৳{Number(c.creditLimit).toLocaleString()}</p>
+                          <p className="font-black text-gray-600">৳{Number(c.creditLimit).toLocaleString()}</p>
                         </div>
                         <div className="text-right">
                           <span className="text-[11px] text-slate-400">Utilized Due</span>
@@ -925,7 +925,7 @@ export default function CreditPage() {
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => openManageModal(c)}
-                          className="flex items-center gap-1 rounded-sm border border-slate-200 px-2.5 py-1.5 font-bold text-slate-700 hover:bg-slate-50"
+                          className="flex items-center gap-1 rounded-sm border border-slate-200 px-2.5 py-1.5 font-bold text-gray-600 hover:bg-slate-50"
                         >
                           <SlidersHorizontal size={13} />
                           Configure
@@ -953,14 +953,14 @@ export default function CreditPage() {
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-sm border border-slate-200 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-slate-200 px-3 py-1 font-semibold text-gray-600 hover:bg-slate-50 disabled:opacity-40"
                 >
                   Previous
                 </button>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-sm border border-slate-200 px-3 py-1 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-sm border border-slate-200 px-3 py-1 font-semibold text-gray-600 hover:bg-slate-50 disabled:opacity-40"
                 >
                   Next
                 </button>
@@ -983,7 +983,7 @@ export default function CreditPage() {
                   <SlidersHorizontal size={18} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Configure Credit Facility</h3>
+                  <h3 className="text-sm font-bold text-gray-600">Configure Credit Facility</h3>
                   <p className="text-[11px] text-slate-500">{selectedCustomer.name}</p>
                 </div>
               </div>
@@ -1001,11 +1001,11 @@ export default function CreditPage() {
               <div className="rounded-sm border border-brand-border bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 space-y-2">
                 <div className="flex justify-between text-slate-600">
                   <span>Current Outstanding Due:</span>
-                  <span className="font-bold text-slate-900">৳{Number(selectedCustomer.currentDue).toLocaleString()}</span>
+                  <span className="font-bold text-gray-600">৳{Number(selectedCustomer.currentDue).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Current Credit Limit:</span>
-                  <span className="font-bold text-slate-900">৳{Number(selectedCustomer.creditLimit).toLocaleString()}</span>
+                  <span className="font-bold text-gray-600">৳{Number(selectedCustomer.creditLimit).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Available Credit:</span>
@@ -1015,27 +1015,27 @@ export default function CreditPage() {
 
               {/* Limit Adjustment */}
               <div className="space-y-3">
-                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Credit Limit & Grace Terms</h4>
+                <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider">Credit Limit & Grace Terms</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="mb-1 block font-bold text-slate-700">Approved Credit Limit (৳) *</label>
+                    <label className="mb-1 block font-bold text-gray-600">Approved Credit Limit (৳) *</label>
                     <input
                       type="number"
                       min={0}
                       value={limitForm.creditLimit}
                       onChange={(e) => setLimitForm((p) => ({ ...p, creditLimit: e.target.value }))}
-                      className="w-full rounded-sm border border-slate-200 p-2.5 text-xs font-black text-slate-900 focus:border-primary-500 focus:outline-none"
+                      className="w-full rounded-sm border border-slate-200 p-2.5 text-xs font-black text-gray-600 focus:border-primary-500 focus:outline-none"
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block font-bold text-slate-700">Credit Grace Period (Days)</label>
+                    <label className="mb-1 block font-bold text-gray-600">Credit Grace Period (Days)</label>
                     <input
                       type="number"
                       min={0}
                       placeholder="e.g. 30"
                       value={limitForm.creditPeriodDays}
                       onChange={(e) => setLimitForm((p) => ({ ...p, creditPeriodDays: e.target.value }))}
-                      className="w-full rounded-sm border border-slate-200 p-2.5 text-xs font-bold text-slate-900 focus:border-primary-500 focus:outline-none"
+                      className="w-full rounded-sm border border-slate-200 p-2.5 text-xs font-bold text-gray-600 focus:border-primary-500 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1052,13 +1052,13 @@ export default function CreditPage() {
 
               {/* Credit Hold Governance */}
               <div className="space-y-3 border-t border-slate-100 pt-4">
-                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Credit Freeze / Hold Governance</h4>
+                <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider">Credit Freeze / Hold Governance</h4>
                 <p className="text-[11px] text-slate-500">
                   Placing an account on credit hold instantly prevents cashiers and POS terminals from billing credit invoices to this customer.
                 </p>
 
                 <div>
-                  <label className="mb-1 block font-bold text-slate-700">Hold Reason / Remark</label>
+                  <label className="mb-1 block font-bold text-gray-600">Hold Reason / Remark</label>
                   <input
                     type="text"
                     placeholder="Reason for placing/lifting hold..."
@@ -1106,7 +1106,7 @@ export default function CreditPage() {
                   <CreditCard size={16} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Collect Due Settlement</h3>
+                  <h3 className="text-sm font-bold text-gray-600">Collect Due Settlement</h3>
                   <p className="text-[11px] text-slate-500">{selectedCustomer.name}</p>
                 </div>
               </div>
@@ -1122,7 +1122,7 @@ export default function CreditPage() {
               <div className="rounded-sm bg-slate-50 p-3.5 space-y-1.5 border border-slate-100">
                 <div className="flex justify-between text-slate-600">
                   <span>Customer:</span>
-                  <span className="font-bold text-slate-900">{selectedCustomer.name}</span>
+                  <span className="font-bold text-gray-600">{selectedCustomer.name}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Total Due Outstanding:</span>
@@ -1132,7 +1132,7 @@ export default function CreditPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="font-bold text-slate-700">Settlement Amount (৳) *</label>
+                  <label className="font-bold text-gray-600">Settlement Amount (৳) *</label>
                   <button
                     type="button"
                     onClick={() => setCollectAmount(Number(selectedCustomer.currentDue))}
@@ -1146,12 +1146,12 @@ export default function CreditPage() {
                   min={1}
                   value={collectAmount}
                   onChange={(e) => setCollectAmount(Number(e.target.value))}
-                  className="w-full rounded-sm border border-slate-200 p-2.5 text-sm font-black text-slate-900 focus:border-primary-500 focus:outline-none"
+                  className="w-full rounded-sm border border-slate-200 p-2.5 text-sm font-black text-gray-600 focus:border-primary-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block font-bold text-slate-700">Payment Channel *</label>
+                <label className="mb-1 block font-bold text-gray-600">Payment Channel *</label>
                 <select
                   value={collectMethod}
                   onChange={(e) => setCollectMethod(e.target.value)}
@@ -1167,7 +1167,7 @@ export default function CreditPage() {
               </div>
 
               <div>
-                <label className="mb-1 block font-bold text-slate-700">Reference / Notes</label>
+                <label className="mb-1 block font-bold text-gray-600">Reference / Notes</label>
                 <input
                   type="text"
                   placeholder="Slip # / Trx ID / Check ref"
@@ -1182,7 +1182,7 @@ export default function CreditPage() {
               <button
                 type="button"
                 onClick={() => setShowCollectModal(false)}
-                className="rounded-sm border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-sm border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-gray-600 hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -1211,7 +1211,7 @@ export default function CreditPage() {
                   <MessageSquare size={16} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Payment Reminder</h3>
+                  <h3 className="text-sm font-bold text-gray-600">Payment Reminder</h3>
                   <p className="text-[11px] text-slate-500">{selectedCustomer.name}</p>
                 </div>
               </div>
@@ -1226,13 +1226,13 @@ export default function CreditPage() {
             <div className="flex-1 overflow-y-auto p-5 space-y-3 text-xs">
               <div className="rounded-sm bg-slate-50 p-3 border border-slate-100">
                 <p className="text-[10px] font-bold text-slate-400 uppercase">Recipient</p>
-                <p className="font-bold text-slate-800">{selectedCustomer.name}</p>
+                <p className="font-bold text-gray-600">{selectedCustomer.name}</p>
                 <p className="font-mono text-slate-600">{selectedCustomer.phone || "No phone provided"}</p>
               </div>
 
               <div>
-                <label className="mb-1 block font-bold text-slate-700">Reminder Message Preview</label>
-                <div className="rounded-sm border border-slate-200 bg-slate-50/70 p-3 font-mono text-[11px] text-slate-700">
+                <label className="mb-1 block font-bold text-gray-600">Reminder Message Preview</label>
+                <div className="rounded-sm border border-slate-200 bg-slate-50/70 p-3 font-mono text-[11px] text-gray-600">
                   Dear {selectedCustomer.name}, your account has an outstanding credit balance of ৳
                   {Number(selectedCustomer.currentDue).toLocaleString()}. Please settle at your earliest convenience. Thank you!
                 </div>
@@ -1280,7 +1280,7 @@ export default function CreditPage() {
             <div className="shrink-0 flex items-center justify-between border-b border-slate-100 px-5 py-4 bg-white">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Credit Profile View</span>
-                <h3 className="text-base font-black text-slate-900">{selectedForDrawer.name}</h3>
+                <h3 className="text-base font-black text-gray-600">{selectedForDrawer.name}</h3>
               </div>
               <button
                 onClick={() => setSelectedForDrawer(null)}
@@ -1295,7 +1295,7 @@ export default function CreditPage() {
               {/* Status Banner */}
               <div className="rounded-sm border border-brand-border bg-gradient-to-br from-primary-50/70 via-white to-sky-50/40 p-4 text-center shadow-2xs">
                 <span className="text-[10px] font-bold uppercase text-slate-500">Utilized Credit Due</span>
-                <div className="mt-1 text-3xl font-black text-slate-900">
+                <div className="mt-1 text-3xl font-black text-gray-600">
                   ৳{Number(selectedForDrawer.currentDue).toLocaleString()}
                 </div>
                 <div className="mt-2 flex items-center justify-center gap-1.5">
@@ -1321,7 +1321,7 @@ export default function CreditPage() {
                 <span className="font-bold text-slate-400 uppercase text-[10px]">Credit Terms & Limits</span>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Approved Credit Limit:</span>
-                  <span className="font-bold text-slate-900">৳{Number(selectedForDrawer.creditLimit).toLocaleString()}</span>
+                  <span className="font-bold text-gray-600">৳{Number(selectedForDrawer.creditLimit).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Available Headroom:</span>
@@ -1329,7 +1329,7 @@ export default function CreditPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Grace Terms:</span>
-                  <span className="font-bold text-slate-800">{selectedForDrawer.creditPeriodDays ? `${selectedForDrawer.creditPeriodDays} Days Net` : "Immediate"}</span>
+                  <span className="font-bold text-gray-600">{selectedForDrawer.creditPeriodDays ? `${selectedForDrawer.creditPeriodDays} Days Net` : "Immediate"}</span>
                 </div>
               </div>
 
@@ -1337,12 +1337,12 @@ export default function CreditPage() {
               <div className="rounded-sm border border-slate-100 bg-white p-4 space-y-2 text-xs">
                 <span className="font-bold text-slate-400 uppercase text-[10px]">Contact Info</span>
                 {selectedForDrawer.phone && (
-                  <p className="flex items-center gap-1.5 text-slate-700">
+                  <p className="flex items-center gap-1.5 text-gray-600">
                     <Phone size={13} className="text-slate-400" /> {selectedForDrawer.phone}
                   </p>
                 )}
                 {selectedForDrawer.email && (
-                  <p className="flex items-center gap-1.5 text-slate-700">
+                  <p className="flex items-center gap-1.5 text-gray-600">
                     <Mail size={13} className="text-slate-400" /> {selectedForDrawer.email}
                   </p>
                 )}
@@ -1358,7 +1358,7 @@ export default function CreditPage() {
                 onClick={() => {
                   openManageModal(selectedForDrawer);
                 }}
-                className="rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-gray-600 hover:bg-slate-50"
               >
                 Configure
               </button>

@@ -146,7 +146,7 @@ export function CustomDropdownSelect({
         onClick={handleToggle}
         className={cn(
           "flex w-full items-center justify-between gap-2 rounded-sm border px-3 py-2 text-xs font-semibold transition cursor-pointer shadow-2xs outline-none",
-          "border-brand-border bg-white text-slate-700 hover:border-brand-primary hover:bg-brand-50/40 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20",
+          "border-brand-border bg-white text-gray-600 hover:border-brand-primary hover:bg-brand-50/40 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20",
           disabled && "cursor-not-allowed opacity-50 bg-slate-100",
           className
         )}

@@ -23,9 +23,9 @@ const CHECKBOX_THEME_MAP: Record<string, { hover: string; focus: string; checked
     checked: "peer-checked:bg-brand-primary peer-checked:border-brand-primary",
   },
   teal: {
-    hover: "group-hover:border-[#00897b]",
-    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-[#00897b]/30 peer-focus-visible:border-[#00897b]",
-    checked: "peer-checked:bg-[#00897b] peer-checked:border-[#00897b]",
+    hover: "group-hover:border-brand-primary",
+    focus: "peer-focus-visible:ring-2 peer-focus-visible:ring-brand-primary/30 peer-focus-visible:border-brand-primary",
+    checked: "peer-checked:bg-brand-primary peer-checked:border-brand-primary",
   },
   orange: {
     hover: "group-hover:border-orange-500",
@@ -89,7 +89,7 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
           {/* Custom Checkbox Box */}
           <div
             className={cn(
-              "h-4 w-4 rounded border border-slate-300 bg-white transition-all shadow-2xs flex items-center justify-center peer-checked:text-white peer-checked:[&>svg]:opacity-100",
+              "h-4 w-4 rounded-sm border border-slate-300 bg-white transition-all shadow-2xs flex items-center justify-center peer-checked:text-white peer-checked:[&>svg]:opacity-100",
               themeStyles.hover,
               themeStyles.focus,
               themeStyles.checked
@@ -107,7 +107,7 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
         {(label || description) && (
           <div className="flex flex-col">
             {label && (
-              <span className="text-xs font-semibold text-gray-600 group-hover:text-gray-700 transition">
+              <span className="text-xs font-semibold text-gray-600 group-hover:text-gray-600 transition">
                 {label}
               </span>
             )}

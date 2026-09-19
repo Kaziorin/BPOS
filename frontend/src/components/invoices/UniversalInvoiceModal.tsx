@@ -139,7 +139,7 @@ const VERTICAL_OPTIONS: { id: InvoiceVerticalType; label: string; icon: any; col
   { id: "grocery", label: "Grocery / Supermarket Lane", icon: Scale, color: "text-emerald-600" },
   { id: "wholesale", label: "Wholesale B2B Challan", icon: Truck, color: "text-blue-600" },
   { id: "restaurant", label: "Restaurant & Cafe Bill", icon: UtensilsCrossed, color: "text-amber-600" },
-  { id: "pharmacy", label: "Pharmacy & Rx Dispense", icon: Pill, color: "text-teal-600" },
+  { id: "pharmacy", label: "Pharmacy & Rx Dispense", icon: Pill, color: "text-brand-primary" },
   { id: "salon", label: "Salon & Spa Service Slip", icon: Scissors, color: "text-pink-600" },
   { id: "repair", label: "Repair Service Job Invoice", icon: Wrench, color: "text-orange-600" },
   { id: "manufacturing", label: "Bakery / Batch Delivery", icon: Factory, color: "text-slate-600" },
@@ -359,15 +359,15 @@ export function UniversalInvoiceModal({
 
 function RetailInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; fmt: (n: number) => string; invoiceDate: string }) {
   return (
-    <div className="font-mono text-xs text-slate-800 space-y-4">
+    <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-slate-300 pb-3 space-y-1">
-        <h2 className="text-base font-black tracking-tight text-slate-950 uppercase">{siteConfig.name}</h2>
+        <h2 className="text-base font-black tracking-tight text-gray-600 uppercase">{siteConfig.name}</h2>
         <p className="text-[11px] text-slate-600">{data.branchName || "Dhaka Flagship Outlet"} • Counter #{data.terminalCode || "POS-01"}</p>
         <p className="text-[10px] text-slate-500">BIN / VAT Reg No: 002938194-0101 • Mushak-6.3</p>
       </div>
 
       <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-600 border-b border-dashed border-slate-300 pb-3">
-        <div><span className="text-slate-400">Invoice:</span> <strong className="text-slate-900">{data.invoiceNo}</strong></div>
+        <div><span className="text-slate-400">Invoice:</span> <strong className="text-gray-600">{data.invoiceNo}</strong></div>
         <div className="text-right"><span className="text-slate-400">Date:</span> {invoiceDate}</div>
         <div><span className="text-slate-400">Customer:</span> {data.customer?.name || "Walk-in Patron"}</div>
         <div className="text-right"><span className="text-slate-400">Cashier:</span> {data.cashier?.name || "Admin"}</div>
@@ -387,12 +387,12 @@ function RetailInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; 
           {(data.items || []).map((item, idx) => (
             <tr key={idx} className="py-1.5">
               <td className="py-1.5 pr-2">
-                <span className="font-bold text-slate-900">{item.productName || item.name || "Item"}</span>
+                <span className="font-bold text-gray-600">{item.productName || item.name || "Item"}</span>
                 {item.sku && <span className="block text-[10px] text-slate-400 font-mono">SKU: {item.sku}</span>}
               </td>
               <td className="py-1.5 text-center">{item.qty}</td>
               <td className="py-1.5 text-right">{fmt(item.unitPrice)}</td>
-              <td className="py-1.5 text-right font-bold text-slate-900">{fmt(item.qty * item.unitPrice)}</td>
+              <td className="py-1.5 text-right font-bold text-gray-600">{fmt(item.qty * item.unitPrice)}</td>
             </tr>
           ))}
         </tbody>
@@ -414,11 +414,11 @@ function RetailInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; 
           <span>VAT (Mushak 6.3 - {data.vatRate || ((data.subTotal || data.grandTotal) > 0 && data.taxTotal ? Math.round((data.taxTotal / (data.subTotal || data.grandTotal)) * 100) : 15)}%):</span>
           <span>{fmt(data.taxTotal || (data.grandTotal > 0 ? (data.grandTotal * 15 / 115) : 0))}</span>
         </div>
-        <div className="flex justify-between font-black text-sm text-slate-950 border-t border-b border-slate-300 py-1.5 my-1">
+        <div className="flex justify-between font-black text-sm text-gray-600 border-t border-b border-slate-300 py-1.5 my-1">
           <span>Net Payable:</span>
           <span className="tabular-nums">{fmt(data.grandTotal)}</span>
         </div>
-        <div className="flex justify-between text-slate-700">
+        <div className="flex justify-between text-gray-600">
           <span>Tender Method:</span>
           <span className="font-bold">{data.paymentMethod || "CASH"} (Paid: {fmt(data.paidTotal)})</span>
         </div>
@@ -447,17 +447,17 @@ function RetailInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; 
 
 function GroceryInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; fmt: (n: number) => string; invoiceDate: string }) {
   return (
-    <div className="font-mono text-xs text-slate-800 space-y-4">
+    <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-emerald-300 pb-3 space-y-1">
         <div className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full mb-1">
           <Scale size={12} /> Supermarket Express Lane Checkout
         </div>
-        <h2 className="text-base font-black tracking-tight text-slate-950 uppercase">{siteConfig.name} SUPERSTORE</h2>
+        <h2 className="text-base font-black tracking-tight text-gray-600 uppercase">{siteConfig.name} SUPERSTORE</h2>
         <p className="text-[11px] text-slate-600">Express Scanner Lane #{data.terminalCode || "04"} • NBR Mushak-6.3</p>
       </div>
 
       <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-600 border-b border-dashed border-slate-300 pb-3">
-        <div><span className="text-slate-400">Slip No:</span> <strong className="text-slate-900">{data.invoiceNo}</strong></div>
+        <div><span className="text-slate-400">Slip No:</span> <strong className="text-gray-600">{data.invoiceNo}</strong></div>
         <div className="text-right"><span className="text-slate-400">Date:</span> {invoiceDate}</div>
         <div><span className="text-slate-400">Lane Operator:</span> {data.cashier?.name || "Lane Cashier"}</div>
         <div className="text-right"><span className="text-slate-400">Loyalty ID:</span> {data.customer?.phone || "Guest"}</div>
@@ -479,7 +479,7 @@ function GroceryInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData;
             return (
               <tr key={idx} className="py-1.5">
                 <td className="py-1.5 pr-2">
-                  <span className="font-bold text-slate-900">{item.productName || item.name || "Item"}</span>
+                  <span className="font-bold text-gray-600">{item.productName || item.name || "Item"}</span>
                   {isScaleItem && (
                     <span className="block text-[10px] text-emerald-700 font-bold">
                       [PLU #{item.pluCode || "4011"}] Tare: 0.015kg • Gross: {((item.weightKg || item.qty) + 0.015).toFixed(3)}kg
@@ -490,7 +490,7 @@ function GroceryInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData;
                   {isScaleItem ? `${Number(item.weightKg || item.qty).toFixed(3)} kg` : item.qty}
                 </td>
                 <td className="py-1.5 text-right">{fmt(item.unitPrice)}</td>
-                <td className="py-1.5 text-right font-bold text-slate-900">{fmt(item.qty * item.unitPrice)}</td>
+                <td className="py-1.5 text-right font-bold text-gray-600">{fmt(item.qty * item.unitPrice)}</td>
               </tr>
             );
           })}
@@ -511,11 +511,11 @@ function GroceryInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData;
           <span>NBR Mushak VAT (15% Included):</span>
           <span>{fmt(data.taxTotal || (data.grandTotal > 0 ? (data.grandTotal * 15 / 115) : 0))}</span>
         </div>
-        <div className="flex justify-between font-black text-sm text-slate-950 border-t border-b border-emerald-200 bg-emerald-50/50 p-1.5 my-1 rounded-lg">
+        <div className="flex justify-between font-black text-sm text-gray-600 border-t border-b border-emerald-200 bg-emerald-50/50 p-1.5 my-1 rounded-sm">
           <span>Grand Total:</span>
           <span className="tabular-nums text-emerald-800">{fmt(data.grandTotal)}</span>
         </div>
-        <div className="flex justify-between text-slate-700">
+        <div className="flex justify-between text-gray-600">
           <span>Tender Method:</span>
           <span className="font-bold">{data.paymentMethod || "CASH"} (Paid: {fmt(data.paidTotal || data.grandTotal)})</span>
         </div>
@@ -548,14 +548,14 @@ function GroceryInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData;
 
 function WholesaleInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; fmt: (n: number) => string; invoiceDate: string }) {
   return (
-    <div className="font-sans text-xs text-slate-800 space-y-5">
+    <div className="font-sans text-xs text-gray-600 space-y-5">
       {/* Header Commercial Banner */}
       <div className="flex justify-between items-start border-b-2 border-blue-900 pb-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-black text-blue-800 bg-blue-50 px-2.5 py-1 rounded-md mb-1.5">
+          <div className="inline-flex items-center gap-1.5 text-xs font-black text-blue-800 bg-blue-50 px-2.5 py-1 rounded-sm mb-1.5">
             <Truck size={14} /> Commercial B2B Tax Invoice & Delivery Challan
           </div>
-          <h2 className="text-xl font-black text-slate-950 tracking-tight">{siteConfig.name} DISTRIBUTION HUB</h2>
+          <h2 className="text-xl font-black text-gray-600 tracking-tight">{siteConfig.name} DISTRIBUTION HUB</h2>
           <p className="text-[11px] text-slate-500">Corporate HQ • Central Logistics & Warehouse Division</p>
           <p className="text-[10px] text-slate-500 font-mono">BIN: 004819203-0201 • Trade Lic: TRAD/DSCC/019284/2024</p>
         </div>
@@ -563,7 +563,7 @@ function WholesaleInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDat
           <div className="text-base font-black text-blue-900">CHALLAN: {data.challanNo || `CH-${data.invoiceNo}`}</div>
           <div>Invoice Ref: <strong>{data.invoiceNo}</strong></div>
           <div className="text-slate-500">Date: {invoiceDate}</div>
-          <div className="text-slate-500">Terms: <span className="font-bold text-slate-800">{data.paymentTerms || "Net 30 Days"}</span></div>
+          <div className="text-slate-500">Terms: <span className="font-bold text-gray-600">{data.paymentTerms || "Net 30 Days"}</span></div>
         </div>
       </div>
 
@@ -571,7 +571,7 @@ function WholesaleInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDat
       <div className="grid grid-cols-2 gap-4 p-4 rounded-sm bg-slate-50 border border-slate-200">
         <div>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Consignee / B2B Client Details</p>
-          <h4 className="text-sm font-bold text-slate-900 mt-0.5">{data.customer?.name || "Corporate Wholesale Client"}</h4>
+          <h4 className="text-sm font-bold text-gray-600 mt-0.5">{data.customer?.name || "Corporate Wholesale Client"}</h4>
           <p className="text-slate-600 text-[11px] mt-0.5">{data.customer?.address || "Commercial Enterprise District, Tejgaon I/A, Dhaka"}</p>
           <p className="text-slate-500 text-[10px] font-mono mt-1">
             Client TIN / BIN: {data.customer?.binVatNo || "192837465-0101"} • Contact: {data.customer?.phone || "+880 1711-000000"}
@@ -579,15 +579,15 @@ function WholesaleInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDat
         </div>
         <div className="border-l border-slate-200 pl-4">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dispatch & Logistics Details</p>
-          <p className="text-[11px] text-slate-700 mt-1">Vehicle / Truck No: <strong className="font-mono">{data.vehicleNo || "DHAKA METRO-TA-11-9482"}</strong></p>
-          <p className="text-[11px] text-slate-700">Driver / Dispatcher: <strong>{data.driverName || "Md. Rafiqul Islam (+880 1819-223344)"}</strong></p>
-          <p className="text-[11px] text-slate-700">Packaging Type: <strong>Corrugated Master Cartons (Sealed)</strong></p>
+          <p className="text-[11px] text-gray-600 mt-1">Vehicle / Truck No: <strong className="font-mono">{data.vehicleNo || "DHAKA METRO-TA-11-9482"}</strong></p>
+          <p className="text-[11px] text-gray-600">Driver / Dispatcher: <strong>{data.driverName || "Md. Rafiqul Islam (+880 1819-223344)"}</strong></p>
+          <p className="text-[11px] text-gray-600">Packaging Type: <strong>Corrugated Master Cartons (Sealed)</strong></p>
         </div>
       </div>
 
       {/* Commercial Line Items Table */}
-      <table className="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
-        <thead className="bg-slate-100 text-slate-700 font-bold uppercase text-[11px]">
+      <table className="w-full text-left text-xs border border-slate-200 rounded-sm overflow-hidden">
+        <thead className="bg-slate-100 text-gray-600 font-bold uppercase text-[11px]">
           <tr>
             <th className="py-2.5 px-3">SL</th>
             <th className="py-2.5 px-3">Description & Pack Spec</th>
@@ -602,13 +602,13 @@ function WholesaleInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDat
             <tr key={idx} className="hover:bg-slate-50">
               <td className="py-2 px-3 font-mono text-slate-400">{idx + 1}</td>
               <td className="py-2 px-3">
-                <span className="font-bold text-slate-900">{item.productName || item.name || "Commercial Product"}</span>
+                <span className="font-bold text-gray-600">{item.productName || item.name || "Commercial Product"}</span>
                 <span className="block text-[10px] text-slate-400 font-mono">SKU: {item.sku || "WS-SKU-99"} • Master Carton: 24 units/ctn</span>
               </td>
               <td className="py-2 px-3 text-center font-bold font-mono">{Math.ceil(item.qty / 24)} ctn</td>
               <td className="py-2 px-3 text-center font-bold">{item.qty} {item.uom || "units"}</td>
               <td className="py-2 px-3 text-right font-mono">{fmt(item.unitPrice)}</td>
-              <td className="py-2 px-3 text-right font-black font-mono text-slate-900">{fmt(item.qty * item.unitPrice)}</td>
+              <td className="py-2 px-3 text-right font-black font-mono text-gray-600">{fmt(item.qty * item.unitPrice)}</td>
             </tr>
           ))}
         </tbody>
@@ -616,8 +616,8 @@ function WholesaleInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDat
 
       {/* Commercial Credit & Total Summary */}
       <div className="grid grid-cols-2 gap-4 pt-2">
-        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-          <p className="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Client Credit Ledger Summary</p>
+        <div className="p-3.5 rounded-sm bg-slate-50 border border-slate-200 text-xs space-y-1">
+          <p className="font-bold text-gray-600 uppercase tracking-wider text-[10px]">Client Credit Ledger Summary</p>
           <div className="flex justify-between text-slate-600">
             <span>Previous Outstanding Due:</span>
             <span className="font-mono">{fmt(data.customer?.previousBalance || 45000)}</span>
@@ -636,7 +636,7 @@ function WholesaleInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDat
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-xs space-y-1.5">
+        <div className="p-3.5 rounded-sm bg-blue-50 border border-blue-200 text-xs space-y-1.5">
           <div className="flex justify-between text-slate-600">
             <span>Subtotal (Excl. Tax):</span>
             <span className="font-mono">{fmt(data.subTotal || data.grandTotal)}</span>
@@ -677,12 +677,12 @@ function WholesaleInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDat
 
 function RestaurantInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; fmt: (n: number) => string; invoiceDate: string }) {
   return (
-    <div className="font-mono text-xs text-slate-800 space-y-4">
+    <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-amber-300 pb-3 space-y-1">
         <div className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full mb-1">
           <UtensilsCrossed size={12} /> Restaurant & Cafe Guest Check
         </div>
-        <h2 className="text-base font-black tracking-tight text-slate-950 uppercase">{siteConfig.name} RESTAURANT & LOUNGE</h2>
+        <h2 className="text-base font-black tracking-tight text-gray-600 uppercase">{siteConfig.name} RESTAURANT & LOUNGE</h2>
         <p className="text-[11px] text-slate-600">Dine-in Guest Folio • NBR Mushak-6.3</p>
       </div>
 
@@ -709,7 +709,7 @@ function RestaurantInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDa
           {(data.items || []).map((item, idx) => (
             <tr key={idx} className="py-1.5">
               <td className="py-1.5 pr-2">
-                <span className="font-bold text-slate-900">{item.productName || item.name || "Dish"}</span>
+                <span className="font-bold text-gray-600">{item.productName || item.name || "Dish"}</span>
                 {item.modifiers && item.modifiers.length > 0 ? (
                   <span className="block text-[10px] text-amber-700 italic">★ {item.modifiers.join(", ")}</span>
                 ) : (
@@ -718,7 +718,7 @@ function RestaurantInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDa
               </td>
               <td className="py-1.5 text-center font-bold">{item.qty}</td>
               <td className="py-1.5 text-right">{fmt(item.unitPrice)}</td>
-              <td className="py-1.5 text-right font-bold text-slate-900">{fmt(item.qty * item.unitPrice)}</td>
+              <td className="py-1.5 text-right font-bold text-gray-600">{fmt(item.qty * item.unitPrice)}</td>
             </tr>
           ))}
         </tbody>
@@ -742,7 +742,7 @@ function RestaurantInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDa
           <span>VAT (Mushak 6.3 - 15%):</span>
           <span>{fmt(data.taxTotal || (data.grandTotal > 0 ? (data.grandTotal * 15 / 115) : 0))}</span>
         </div>
-        <div className="flex justify-between font-black text-sm text-slate-950 border-t border-b border-amber-300 bg-amber-50/50 p-2 my-1 rounded-lg">
+        <div className="flex justify-between font-black text-sm text-gray-600 border-t border-b border-amber-300 bg-amber-50/50 p-2 my-1 rounded-sm">
           <span>Total Guest Bill:</span>
           <span className="tabular-nums text-amber-900">{fmt(data.grandTotal)}</span>
         </div>
@@ -775,18 +775,18 @@ function RestaurantInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDa
 
 function PharmacyInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; fmt: (n: number) => string; invoiceDate: string }) {
   return (
-    <div className="font-mono text-xs text-slate-800 space-y-4">
-      <div className="text-center border-b border-dashed border-teal-400 pb-3 space-y-1">
-        <div className="inline-flex items-center gap-1 text-[10px] font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full mb-1">
+    <div className="font-mono text-xs text-gray-600 space-y-4">
+      <div className="text-center border-b border-dashed border-brand-border pb-3 space-y-1">
+        <div className="inline-flex items-center gap-1 text-[10px] font-bold text-brand-dark bg-brand-50 px-2 py-0.5 rounded-full mb-1">
           <Pill size={12} /> DGDA Licensed Pharmacy & Prescription Dispense
         </div>
-        <h2 className="text-base font-black tracking-tight text-slate-950 uppercase">{siteConfig.name} PHARMACY & CLINIC</h2>
+        <h2 className="text-base font-black tracking-tight text-gray-600 uppercase">{siteConfig.name} PHARMACY & CLINIC</h2>
         <p className="text-[11px] text-slate-600">Drug License No: DL-DHK-84920 • FEFO Quality Inspected</p>
       </div>
 
       <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-600 border-b border-dashed border-slate-300 pb-3">
         <div><span className="text-slate-400">Patient:</span> <strong>{data.customer?.name || "Patient Walk-in"}</strong></div>
-        <div className="text-right"><span className="text-slate-400">Rx No:</span> <strong className="text-teal-800">{data.prescriptionNo || "RX-84920"}</strong></div>
+        <div className="text-right"><span className="text-slate-400">Rx No:</span> <strong className="text-brand-dark">{data.prescriptionNo || "RX-84920"}</strong></div>
         <div><span className="text-slate-400">Doctor:</span> {data.doctorName || "Dr. K. Zaman, MBBS, FCPS"}</div>
         <div className="text-right"><span className="text-slate-400">Date:</span> {invoiceDate}</div>
         <div className="col-span-2 text-right"><span className="text-slate-400">Pharmacist/Cashier:</span> <strong>{data.cashier?.name || "Admin"}</strong></div>
@@ -806,17 +806,17 @@ function PharmacyInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData
           {(data.items || []).map((item, idx) => (
             <tr key={idx} className="py-1.5">
               <td className="py-1.5 pr-2">
-                <span className="font-bold text-slate-900">{item.productName || item.name || "Medicine"}</span>
+                <span className="font-bold text-gray-600">{item.productName || item.name || "Medicine"}</span>
                 <span className="block text-[10px] text-slate-500 font-sans">
-                  Gen: {item.genericName || "Paracetamol 500mg"} • Dose: <span className="font-bold text-teal-700">{item.dosage || "1+0+1 (After Meal)"}</span>
+                  Gen: {item.genericName || "Paracetamol 500mg"} • Dose: <span className="font-bold text-brand-dark">{item.dosage || "1+0+1 (After Meal)"}</span>
                 </span>
-                <span className="block text-[9px] text-teal-800 font-mono">
+                <span className="block text-[9px] text-brand-dark font-mono">
                   Batch: {item.batchNo || "BX-2024-09"} • Exp: {item.expiryDate || "10/2026"} (FEFO Verified)
                 </span>
               </td>
               <td className="py-1.5 text-center font-bold">{item.qty} pcs</td>
               <td className="py-1.5 text-right">{fmt(item.unitPrice)}</td>
-              <td className="py-1.5 text-right font-bold text-slate-900">{fmt(item.qty * item.unitPrice)}</td>
+              <td className="py-1.5 text-right font-bold text-gray-600">{fmt(item.qty * item.unitPrice)}</td>
             </tr>
           ))}
         </tbody>
@@ -826,7 +826,7 @@ function PharmacyInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData
       <div className="border-t border-dashed border-slate-300 pt-3 space-y-1.5 text-xs">
         <div className="flex justify-between text-slate-600">
           <span>Prescription Bill Subtotal:</span>
-          <span className="font-bold text-slate-900">{fmt(data.subTotal || data.grandTotal)}</span>
+          <span className="font-bold text-gray-600">{fmt(data.subTotal || data.grandTotal)}</span>
         </div>
         {Number(data.taxTotal || 0) >= 0 && (
           <div className="flex justify-between text-slate-500 text-[11px]">
@@ -834,11 +834,11 @@ function PharmacyInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData
             <span>{fmt(data.taxTotal || (data.grandTotal > 0 ? (data.grandTotal * 15 / 115) : 0))}</span>
           </div>
         )}
-        <div className="flex justify-between font-black text-sm text-teal-950 border-t border-b border-teal-200 bg-teal-50/50 p-2 my-1 rounded-lg">
+        <div className="flex justify-between font-black text-sm text-brand-dark border-t border-b border-brand-border bg-brand-50 p-2 my-1 rounded-sm">
           <span>Net Payable:</span>
-          <span className="tabular-nums text-teal-900">{fmt(data.grandTotal)}</span>
+          <span className="tabular-nums text-brand-dark">{fmt(data.grandTotal)}</span>
         </div>
-        <div className="flex justify-between text-slate-700">
+        <div className="flex justify-between text-gray-600">
           <span>Tender Method:</span>
           <span className="font-bold">{data.paymentMethod || "CASH"} (Paid: {fmt(data.paidTotal || data.grandTotal)})</span>
         </div>
@@ -857,7 +857,7 @@ function PharmacyInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData
       </div>
 
       <div className="pt-2 text-center text-[10px] text-slate-500">
-        <p className="font-bold text-slate-700">Dispensed by: Registered "A" Grade Pharmacist (Reg # 9284)</p>
+        <p className="font-bold text-gray-600">Dispensed by: Registered "A" Grade Pharmacist (Reg # 9284)</p>
         <p className="text-[9px] text-slate-400 mt-0.5">Keep medicines in a cool, dry place out of reach of children.</p>
       </div>
 
@@ -872,12 +872,12 @@ function PharmacyInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData
 
 function SalonInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; fmt: (n: number) => string; invoiceDate: string }) {
   return (
-    <div className="font-mono text-xs text-slate-800 space-y-4">
+    <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-pink-300 pb-3 space-y-1">
         <div className="inline-flex items-center gap-1 text-[10px] font-bold text-pink-700 bg-pink-50 px-2 py-0.5 rounded-full mb-1">
           <Scissors size={12} /> Salon & Spa Beauty Service Voucher
         </div>
-        <h2 className="text-base font-black tracking-tight text-slate-950 uppercase">{siteConfig.name} SALON & SPA</h2>
+        <h2 className="text-base font-black tracking-tight text-gray-600 uppercase">{siteConfig.name} SALON & SPA</h2>
         <p className="text-[11px] text-slate-600">Station / Chair #03 • Senior Stylist Appointment</p>
       </div>
 
@@ -901,18 +901,18 @@ function SalonInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; f
           {(data.items || []).map((item, idx) => (
             <tr key={idx} className="py-1.5">
               <td className="py-1.5 pr-2">
-                <span className="font-bold text-slate-900">{item.productName || item.name || "Salon Treatment"}</span>
+                <span className="font-bold text-gray-600">{item.productName || item.name || "Salon Treatment"}</span>
                 <span className="block text-[10px] text-pink-700">★ Stylist: {item.stylistName || "Lead Artist"}</span>
               </td>
               <td className="py-1.5 text-center">{item.serviceDuration || "45 mins"}</td>
-              <td className="py-1.5 text-right font-bold text-slate-900">{fmt(item.unitPrice * item.qty)}</td>
+              <td className="py-1.5 text-right font-bold text-gray-600">{fmt(item.unitPrice * item.qty)}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
       <div className="border-t border-dashed border-slate-300 pt-3 space-y-1 text-xs">
-        <div className="flex justify-between font-black text-sm text-pink-900 border-t border-b border-pink-200 bg-pink-50/50 p-2 my-1 rounded-lg">
+        <div className="flex justify-between font-black text-sm text-pink-900 border-t border-b border-pink-200 bg-pink-50/50 p-2 my-1 rounded-sm">
           <span>Total Service Fee:</span>
           <span>{fmt(data.grandTotal)}</span>
         </div>
@@ -929,19 +929,19 @@ function SalonInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; f
 
 function RepairInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; fmt: (n: number) => string; invoiceDate: string }) {
   return (
-    <div className="font-mono text-xs text-slate-800 space-y-4">
+    <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-orange-300 pb-3 space-y-1">
         <div className="inline-flex items-center gap-1 text-[10px] font-bold text-orange-800 bg-orange-50 px-2 py-0.5 rounded-full mb-1">
           <Wrench size={12} /> Tech Repair Center Job Card & Invoice
         </div>
-        <h2 className="text-base font-black tracking-tight text-slate-950 uppercase">{siteConfig.name} REPAIR CARE</h2>
+        <h2 className="text-base font-black tracking-tight text-gray-600 uppercase">{siteConfig.name} REPAIR CARE</h2>
         <p className="text-[11px] text-slate-600">Hardware & Screen Replacement Warranty Invoice</p>
       </div>
 
-      <div className="p-3 rounded-xl bg-orange-50/70 border border-orange-200 text-[11px] space-y-1">
+      <div className="p-3 rounded-sm bg-orange-50/70 border border-orange-200 text-[11px] space-y-1">
         <div className="flex justify-between">
           <span>Device Model:</span>
-          <strong className="text-slate-900">{data.deviceModel || "iPhone 15 Pro Max (256GB)"}</strong>
+          <strong className="text-gray-600">{data.deviceModel || "iPhone 15 Pro Max (256GB)"}</strong>
         </div>
         <div className="flex justify-between">
           <span>IMEI / Serial #:</span>
@@ -970,17 +970,17 @@ function RepairInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; 
           {(data.items || []).map((item, idx) => (
             <tr key={idx} className="py-1.5">
               <td className="py-1.5 pr-2">
-                <span className="font-bold text-slate-900">{item.productName || item.name || "Spare Part"}</span>
+                <span className="font-bold text-gray-600">{item.productName || item.name || "Spare Part"}</span>
               </td>
               <td className="py-1.5 text-center text-[10px] text-emerald-700 font-bold">{item.partWarranty || "90 Days"}</td>
-              <td className="py-1.5 text-right font-bold text-slate-900">{fmt(item.unitPrice * item.qty)}</td>
+              <td className="py-1.5 text-right font-bold text-gray-600">{fmt(item.unitPrice * item.qty)}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
       <div className="border-t border-dashed border-slate-300 pt-3 space-y-1 text-xs">
-        <div className="flex justify-between font-black text-sm text-slate-900 border-t border-b border-orange-200 bg-orange-50/50 p-2 my-1 rounded-lg">
+        <div className="flex justify-between font-black text-sm text-gray-600 border-t border-b border-orange-200 bg-orange-50/50 p-2 my-1 rounded-sm">
           <span>Total Repair Charge:</span>
           <span>{fmt(data.grandTotal)}</span>
         </div>
@@ -997,17 +997,17 @@ function RepairInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; 
 
 function ManufacturingInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; fmt: (n: number) => string; invoiceDate: string }) {
   return (
-    <div className="font-mono text-xs text-slate-800 space-y-4">
+    <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-slate-300 pb-3 space-y-1">
-        <div className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full mb-1">
+        <div className="inline-flex items-center gap-1 text-[10px] font-bold text-gray-600 bg-slate-100 px-2 py-0.5 rounded-full mb-1">
           <Factory size={12} /> Bakery & Production Batch Delivery
         </div>
-        <h2 className="text-base font-black tracking-tight text-slate-950 uppercase">{siteConfig.name} FOODS & BAKERY</h2>
+        <h2 className="text-base font-black tracking-tight text-gray-600 uppercase">{siteConfig.name} FOODS & BAKERY</h2>
         <p className="text-[11px] text-slate-600">BSTI & ISO 22000 Certified Production Facility</p>
       </div>
 
       <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-600 border-b border-dashed border-slate-300 pb-3">
-        <div><span className="text-slate-400">Batch Code:</span> <strong className="text-slate-900">BAT-BK-2024-09</strong></div>
+        <div><span className="text-slate-400">Batch Code:</span> <strong className="text-gray-600">BAT-BK-2024-09</strong></div>
         <div className="text-right"><span className="text-slate-400">Prod Date:</span> {data.batchProductionDate || "Today 04:00 AM"}</div>
         <div><span className="text-slate-400">Best Before:</span> <strong>{data.batchBestBefore || "4 Days from bake"}</strong></div>
         <div className="text-right"><span className="text-slate-400">Delivery Slip:</span> {data.invoiceNo}</div>
@@ -1025,17 +1025,17 @@ function ManufacturingInvoiceTemplate({ data, fmt, invoiceDate }: { data: Invoic
         <tbody className="divide-y divide-slate-100">
           {(data.items || []).map((item, idx) => (
             <tr key={idx} className="py-1.5">
-              <td className="py-1.5 pr-2 font-bold text-slate-900">{item.productName || item.name || "Bakery Item"}</td>
+              <td className="py-1.5 pr-2 font-bold text-gray-600">{item.productName || item.name || "Bakery Item"}</td>
               <td className="py-1.5 text-center">{item.qty} packs</td>
               <td className="py-1.5 text-right">{fmt(item.unitPrice)}</td>
-              <td className="py-1.5 text-right font-bold text-slate-900">{fmt(item.unitPrice * item.qty)}</td>
+              <td className="py-1.5 text-right font-bold text-gray-600">{fmt(item.unitPrice * item.qty)}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
       <div className="border-t border-dashed border-slate-300 pt-3 space-y-1 text-xs">
-        <div className="flex justify-between font-black text-sm text-slate-900 border-t border-b border-slate-200 p-2 my-1 rounded-lg">
+        <div className="flex justify-between font-black text-sm text-gray-600 border-t border-b border-slate-200 p-2 my-1 rounded-sm">
           <span>Total Batch Invoiced:</span>
           <span>{fmt(data.grandTotal)}</span>
         </div>
@@ -1054,7 +1054,7 @@ function BarcodeFooter({ invoiceNo, footerText }: { invoiceNo: string; footerTex
   return (
     <div className="text-center border-t border-dashed border-slate-300 pt-3 space-y-1">
       <div className="flex justify-center py-1">
-        <div className="flex items-center gap-0.5 h-7 px-2 bg-slate-100 rounded">
+        <div className="flex items-center gap-0.5 h-7 px-2 bg-slate-100 rounded-sm">
           <div className="w-0.5 h-6 bg-black" />
           <div className="w-1 h-6 bg-black" />
           <div className="w-0.5 h-6 bg-black" />
@@ -1068,7 +1068,7 @@ function BarcodeFooter({ invoiceNo, footerText }: { invoiceNo: string; footerTex
         </div>
       </div>
       <p className="text-[10px] text-slate-400 font-mono">*{invoiceNo}*</p>
-      {footerText && <p className="text-[11px] font-semibold text-slate-700 mt-1">{footerText}</p>}
+      {footerText && <p className="text-[11px] font-semibold text-gray-600 mt-1">{footerText}</p>}
       <p className="text-[9px] text-slate-400">Software by Blue Oceans OmniPOS Cloud • Spec §33</p>
     </div>
   );

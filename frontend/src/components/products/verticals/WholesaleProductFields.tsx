@@ -24,8 +24,8 @@ interface Props {
 
 export const WholesaleProductFields: React.FC<Props> = ({ formData, onChange }) => {
   const inputClass =
-    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border placeholder:text-slate-400";
-  const labelClass = "block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-1";
+    "w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border placeholder:text-slate-400";
+  const labelClass = "block text-xs font-semibold text-gray-600 mb-1.5 flex items-center gap-1";
 
   const tiers = formData.priceTiers || [
     { minQty: "1", maxQty: "10", unitPrice: "" },
@@ -51,11 +51,11 @@ export const WholesaleProductFields: React.FC<Props> = ({ formData, onChange }) 
   };
 
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
+    <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
       <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
         <Truck className="h-4 w-4 text-brand-primary" />
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-600">
             Wholesale & B2B Distribution Setup
           </h3>
           <p className="text-[11px] text-slate-500 font-normal">
@@ -99,9 +99,9 @@ export const WholesaleProductFields: React.FC<Props> = ({ formData, onChange }) 
       </div>
 
       {/* Bulk Quantity Price Tiers Table */}
-      <div className="bg-slate-50 border border-slate-200 rounded-md p-3 space-y-2.5">
+      <div className="bg-slate-50 border border-slate-200 rounded-sm p-3 space-y-2.5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600 uppercase tracking-wider">
             <DollarSign size={14} className="text-brand-primary" />
             Volume Price Break Tiers
           </div>
@@ -123,7 +123,7 @@ export const WholesaleProductFields: React.FC<Props> = ({ formData, onChange }) 
                 placeholder="Min Qty"
                 value={tier.minQty}
                 onChange={(e) => handleTierChange(idx, "minQty", e.target.value)}
-                className="w-24 rounded border border-slate-200 bg-white px-2.5 py-1 text-xs text-gray-700"
+                className="w-24 rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-xs text-gray-600"
               />
               <span className="text-xs text-slate-400">to</span>
               <input
@@ -131,7 +131,7 @@ export const WholesaleProductFields: React.FC<Props> = ({ formData, onChange }) 
                 placeholder="Max Qty"
                 value={tier.maxQty}
                 onChange={(e) => handleTierChange(idx, "maxQty", e.target.value)}
-                className="w-24 rounded border border-slate-200 bg-white px-2.5 py-1 text-xs text-gray-700"
+                className="w-24 rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-xs text-gray-600"
               />
               <span className="text-xs text-slate-400">=</span>
               <input
@@ -139,7 +139,7 @@ export const WholesaleProductFields: React.FC<Props> = ({ formData, onChange }) 
                 placeholder="Custom Price (৳)"
                 value={tier.unitPrice}
                 onChange={(e) => handleTierChange(idx, "unitPrice", e.target.value)}
-                className="w-32 rounded border border-brand-border bg-white px-2.5 py-1 text-xs text-brand-dark font-bold"
+                className="w-32 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs text-brand-dark font-bold"
               />
               {tiers.length > 1 && (
                 <button
@@ -155,7 +155,7 @@ export const WholesaleProductFields: React.FC<Props> = ({ formData, onChange }) 
         </div>
       </div>
 
-      <div className="p-3 bg-slate-50 border border-slate-200 rounded-md">
+      <div className="p-3 bg-slate-50 border border-slate-200 rounded-sm">
         <CustomCheckbox
           id="isCreditEligible"
           checked={formData.isCreditEligible}

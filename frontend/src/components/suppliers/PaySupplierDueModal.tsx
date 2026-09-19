@@ -118,46 +118,46 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
             </div>
 
             <div>
-              <h3 className="text-base font-bold text-gray-900">Payment Recorded Successfully</h3>
+              <h3 className="text-base font-bold text-gray-600">Payment Recorded Successfully</h3>
               <p className="text-xs text-gray-500 mt-0.5">Accounts payable due updated in real-time.</p>
             </div>
 
             <div className="rounded-sm border border-slate-200 bg-brand-50/40 p-4 text-left text-xs space-y-2">
               <div className="flex justify-between text-gray-500">
                 <span>Vendor</span>
-                <span className="font-semibold text-gray-800">{successReceipt.supplierName}</span>
+                <span className="font-semibold text-gray-600">{successReceipt.supplierName}</span>
               </div>
               {successReceipt.company && (
                 <div className="flex justify-between text-gray-500">
                   <span>Company</span>
-                  <span className="font-semibold text-gray-800">{successReceipt.company}</span>
+                  <span className="font-semibold text-gray-600">{successReceipt.company}</span>
                 </div>
               )}
               <div className="flex justify-between text-gray-500">
                 <span>Payment Method</span>
-                <span className="font-semibold text-gray-800 uppercase">{successReceipt.paymentMethod}</span>
+                <span className="font-semibold text-gray-600 uppercase">{successReceipt.paymentMethod}</span>
               </div>
               {successReceipt.referenceNo && (
                 <div className="flex justify-between text-gray-500">
                   <span>Reference / Cheque</span>
-                  <span className="font-semibold text-gray-800">{successReceipt.referenceNo}</span>
+                  <span className="font-semibold text-gray-600">{successReceipt.referenceNo}</span>
                 </div>
               )}
               <div className="flex justify-between text-gray-500">
                 <span>Date & Time</span>
-                <span className="font-semibold text-gray-800">{successReceipt.date}</span>
+                <span className="font-semibold text-gray-600">{successReceipt.date}</span>
               </div>
 
               <div className="border-t border-brand-border/80 pt-2 space-y-1">
                 <div className="flex justify-between text-gray-500">
                   <span>Previous Due</span>
-                  <span className="font-semibold text-gray-700">৳{Number(successReceipt.previousDue).toLocaleString()}</span>
+                  <span className="font-semibold text-gray-600">৳{Number(successReceipt.previousDue).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-rose-600 font-bold">
                   <span>Amount Paid</span>
                   <span>- ৳{Number(successReceipt.amount).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-gray-900 font-bold pt-1 border-t border-brand-border/80">
+                <div className="flex justify-between text-gray-600 font-bold pt-1 border-t border-brand-border/80">
                   <span>Remaining Due</span>
                   <span className={successReceipt.remainingDue > 0 ? "text-rose-600" : "text-emerald-600"}>
                     ৳{Number(successReceipt.remainingDue).toLocaleString()}
@@ -169,7 +169,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
             <div className="flex items-center gap-2 pt-2">
               <button
                 onClick={() => window.print()}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-sm border border-brand-border bg-white py-2 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition cursor-pointer"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-sm border border-brand-border bg-white py-2 text-xs font-semibold text-gray-600 hover:bg-brand-50/50 transition cursor-pointer"
               >
                 <Printer size={14} /> Print Receipt
               </button>
@@ -208,7 +208,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
 
             {/* Amount input */}
             <div>
-              <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+              <label className="block text-[11px] font-semibold text-gray-600 mb-1">
                 Payment Amount (৳) <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -222,13 +222,13 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
                   placeholder="0.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-sm border border-brand-border py-2 pl-7 pr-3 text-sm font-bold text-gray-900 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border transition"
+                  className="w-full rounded-sm border border-brand-border py-2 pl-7 pr-3 text-sm font-bold text-gray-600 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border transition"
                 />
               </div>
               {Number(amount) > 0 && currDue > 0 && (
                 <p className="text-[11px] text-gray-500 mt-1 flex items-center gap-1">
                   Remaining balance after payment:{" "}
-                  <span className="font-bold text-gray-800">
+                  <span className="font-bold text-gray-600">
                     ৳{Math.max(0, currDue - Number(amount)).toLocaleString()}
                   </span>
                 </p>
@@ -237,7 +237,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
 
             {/* Payment Method Selector */}
             <div>
-              <label className="block text-[11px] font-semibold text-gray-700 mb-1.5">
+              <label className="block text-[11px] font-semibold text-gray-600 mb-1.5">
                 Payment Method
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -265,7 +265,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
 
             {/* Reference Number */}
             <div>
-              <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+              <label className="block text-[11px] font-semibold text-gray-600 mb-1">
                 Reference / Cheque / Txn ID (Optional)
               </label>
               <input
@@ -273,13 +273,13 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
                 placeholder="e.g. CQ-90210, TXN-87261"
                 value={referenceNo}
                 onChange={(e) => setReferenceNo(e.target.value)}
-                className="w-full rounded-sm border border-brand-border px-3 py-1.5 text-xs text-gray-900 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border transition"
+                className="w-full rounded-sm border border-brand-border px-3 py-1.5 text-xs text-gray-600 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border transition"
               />
             </div>
 
             {/* Note */}
             <div>
-              <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+              <label className="block text-[11px] font-semibold text-gray-600 mb-1">
                 Note / Remarks (Optional)
               </label>
               <input
@@ -287,7 +287,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
                 placeholder="e.g. Cleared for Invoice #INV-1049"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="w-full rounded-sm border border-brand-border px-3 py-1.5 text-xs text-gray-900 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border transition"
+                className="w-full rounded-sm border border-brand-border px-3 py-1.5 text-xs text-gray-600 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border transition"
               />
             </div>
 
@@ -296,7 +296,7 @@ export function PaySupplierDueModal({ isOpen, onClose, onSuccess, supplier }: Pa
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-sm border border-brand-border px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition cursor-pointer"
+                className="rounded-sm border border-brand-border px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-brand-50/50 transition cursor-pointer"
               >
                 Cancel
               </button>

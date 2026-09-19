@@ -64,23 +64,23 @@ export default function CommissionAgentsPage() {
   return (
     <div className="w-full px-4 sm:px-8 space-y-6">
       <div className="flex items-center gap-3">
-        <Link href="/commission" className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
+        <Link href="/commission" className="rounded-sm p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
           <ArrowLeft size={18} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Commission Agents</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-600">Commission Agents</h1>
           <p className="mt-0.5 text-sm text-gray-500">Sales agents, reps, referral partners & distributors with their earnings</p>
         </div>
       </div>
 
       {toast && (
-        <div className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800"}`}>
+        <div className={`flex items-center gap-2 rounded-sm border p-3 text-sm ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800"}`}>
           {toast.ok ? <CheckCircle size={16} /> : <Clock size={16} />} {toast.text}
         </div>
       )}
 
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+        <div className="rounded-sm border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
           {error} <button onClick={load} className="ml-2 font-medium underline">Retry</button>
         </div>
       )}
@@ -107,7 +107,7 @@ export default function CommissionAgentsPage() {
                       {agent.name.charAt(0)}
                     </div>
                     <div>
-                      <h3 className="font-semibold leading-tight text-gray-900">{agent.name}</h3>
+                      <h3 className="font-semibold leading-tight text-gray-600">{agent.name}</h3>
                       <p className="text-xs text-gray-400">{agent.email}{agent.phone ? ` · ${agent.phone}` : ""}</p>
                     </div>
                   </div>
@@ -118,19 +118,19 @@ export default function CommissionAgentsPage() {
 
                 {/* Stats grid */}
                 <div className="mt-4 grid grid-cols-3 gap-2">
-                  <div className="rounded-xl bg-gradient-to-br from-primary-50 to-white p-3">
+                  <div className="rounded-sm bg-gradient-to-br from-primary-50 to-white p-3">
                     <p className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-gray-400">
                       <TrendingUp size={10} /> Earned
                     </p>
-                    <p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{fmt(s.totalEarned)}</p>
+                    <p className="mt-1 text-lg font-bold tabular-nums text-gray-600">{fmt(s.totalEarned)}</p>
                   </div>
-                  <div className="rounded-xl bg-gradient-to-br from-violet-50 to-white p-3">
+                  <div className="rounded-sm bg-gradient-to-br from-violet-50 to-white p-3">
                     <p className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-gray-400">
                       <Wallet size={10} /> Payable
                     </p>
                     <p className="mt-1 text-lg font-bold tabular-nums text-violet-700">{fmt(s.totalPayable)}</p>
                   </div>
-                  <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-white p-3">
+                  <div className="rounded-sm bg-gradient-to-br from-emerald-50 to-white p-3">
                     <p className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-gray-400">
                       <CheckCircle size={10} /> Paid
                     </p>
@@ -151,7 +151,7 @@ export default function CommissionAgentsPage() {
                   <button
                     onClick={() => payout(agent.id)}
                     disabled={!hasPayable || payingOut === agent.id}
-                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                    className={`flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-medium transition ${
                       hasPayable
                         ? "bg-brand-gradient text-white shadow-2xs hover:opacity-90"
                         : "cursor-not-allowed bg-gray-100 text-gray-400"

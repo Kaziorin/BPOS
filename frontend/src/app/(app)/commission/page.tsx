@@ -25,7 +25,7 @@ interface Commission {
 }
 
 const STATUS_META: Record<string, { label: string; cls: string; dot: string; icon: any }> = {
-  CALCULATED: { label: "Calculated", cls: "bg-slate-100 text-slate-700 border-slate-200", dot: "bg-slate-400", icon: Percent },
+  CALCULATED: { label: "Calculated", cls: "bg-slate-100 text-gray-600 border-slate-200", dot: "bg-slate-400", icon: Percent },
   PENDING: { label: "Pending Review", cls: "bg-amber-50 text-amber-700 border-amber-200", dot: "bg-amber-500", icon: Clock },
   APPROVED: { label: "Approved", cls: "bg-blue-50 text-blue-700 border-blue-200", dot: "bg-blue-500", icon: BadgeCheck },
   PAYABLE: { label: "Payable", cls: "bg-violet-50 text-violet-700 border-violet-200", dot: "bg-violet-500", icon: DollarSign },
@@ -109,16 +109,16 @@ export default function CommissionPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Commission Engine</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-600">Commission Engine</h1>
           <p className="mt-1 text-sm text-gray-500">
             Agent commissions — auto-calculated on every sale, reversed on return (§10.15)
           </p>
         </div>
         <div className="flex gap-2">
-          <Link href="/commission/agents" className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50">
+          <Link href="/commission/agents" className="flex items-center gap-2 rounded-sm border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:bg-gray-50">
             <Users size={16} className="text-primary-600" /> Agents
           </Link>
-          <Link href="/commission/rules" className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:opacity-90">
+          <Link href="/commission/rules" className="flex items-center gap-2 rounded-sm bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:opacity-90">
             <Settings size={16} /> Rules
           </Link>
         </div>
@@ -126,7 +126,7 @@ export default function CommissionPage() {
 
       {/* Toast */}
       {toast && (
-        <div className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800"}`}>
+        <div className={`flex items-center gap-2 rounded-sm border p-3 text-sm ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800"}`}>
           {toast.ok ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
           {toast.text}
         </div>
@@ -143,9 +143,9 @@ export default function CommissionPage() {
           <div key={s.label} className="flex items-center justify-between rounded-sm border border-gray-100 bg-white p-5 shadow-sm">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-400">{s.label}</p>
-              <p className="mt-1.5 text-2xl font-bold text-gray-900">{s.value}</p>
+              <p className="mt-1.5 text-2xl font-bold text-gray-600">{s.value}</p>
             </div>
-            <div className={`rounded-xl p-3 ${s.bg}`}>
+            <div className={`rounded-sm p-3 ${s.bg}`}>
               <s.icon size={22} className={s.accent} />
             </div>
           </div>
@@ -157,13 +157,13 @@ export default function CommissionPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock size={18} className="text-amber-600" />
-            <h2 className="font-semibold text-gray-900">Approval Queue</h2>
+            <h2 className="font-semibold text-gray-600">Approval Queue</h2>
             <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
               {pending.length} waiting
             </span>
           </div>
           {statusFilter && (
-            <button onClick={() => setStatusFilter("")} className="text-xs font-medium text-gray-500 hover:text-gray-800">
+            <button onClick={() => setStatusFilter("")} className="text-xs font-medium text-gray-500 hover:text-gray-600">
               Clear filter ×
             </button>
           )}
@@ -182,7 +182,7 @@ export default function CommissionPage() {
                     {(c.agent?.name || c.agentName || "?").charAt(0)}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-gray-600">
                       {c.agent?.name || c.agentName || "Unknown agent"}
                       <span className="ml-2 text-xs font-normal text-gray-400">{TYPE_LABELS[c.commissionType] ?? c.commissionType}</span>
                     </p>
@@ -192,11 +192,11 @@ export default function CommissionPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-base font-bold text-gray-900">{fmt(Number(c.amount))}</span>
+                  <span className="text-base font-bold text-gray-600">{fmt(Number(c.amount))}</span>
                   <button
                     onClick={() => act(c.id, "approve", "Commission approved")}
                     disabled={busy === c.id + "approve"}
-                    className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
+                    className="flex items-center gap-1.5 rounded-sm bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
                   >
                     {busy === c.id + "approve" ? <Loader2 size={13} className="animate-spin" /> : <BadgeCheck size={13} />}
                     Approve
@@ -238,7 +238,7 @@ export default function CommissionPage() {
 
       {/* Error */}
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+        <div className="rounded-sm border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
           <p className="font-medium">Failed to load</p>
           <p className="mt-1">{error}</p>
           <button onClick={load} className="mt-2 text-sm font-medium text-rose-600 underline">Retry</button>
@@ -287,7 +287,7 @@ export default function CommissionPage() {
                             {(c.agent?.name || c.agentName || "?").charAt(0)}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{c.agent?.name || c.agentName || "—"}</p>
+                            <p className="font-medium text-gray-600">{c.agent?.name || c.agentName || "—"}</p>
                             <p className="text-[11px] uppercase tracking-wide text-gray-400">{c.agentType.replace("_", " ")}</p>
                           </div>
                         </div>
@@ -306,7 +306,7 @@ export default function CommissionPage() {
                       <td className="px-5 py-4 text-right tabular-nums text-gray-600">
                         {c.rate ? `${(Number(c.rate) * 100).toFixed(1)}%` : "—"}
                       </td>
-                      <td className={`px-5 py-4 text-right font-bold tabular-nums ${Number(c.amount) < 0 ? "text-rose-600" : "text-gray-900"}`}>
+                      <td className={`px-5 py-4 text-right font-bold tabular-nums ${Number(c.amount) < 0 ? "text-rose-600" : "text-gray-600"}`}>
                         {fmt(Number(c.amount))}
                       </td>
                       <td className="px-5 py-4">
@@ -319,25 +319,25 @@ export default function CommissionPage() {
                         <div className="flex items-center justify-end gap-1.5 opacity-0 transition group-hover:opacity-100">
                           {canApprove && (
                             <button onClick={() => act(c.id, "approve", "Approved")} disabled={busy === c.id + "approve"}
-                              className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50">
+                              className="rounded-sm border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50">
                               {busy === c.id + "approve" ? <Loader2 size={11} className="animate-spin" /> : "Approve"}
                             </button>
                           )}
                           {canPayable && (
                             <button onClick={() => act(c.id, "payable", "Marked payable")} disabled={busy === c.id + "payable"}
-                              className="rounded-lg border border-violet-200 bg-violet-50 px-2.5 py-1 text-[11px] font-medium text-violet-700 hover:bg-violet-100 disabled:opacity-50">
+                              className="rounded-sm border border-violet-200 bg-violet-50 px-2.5 py-1 text-[11px] font-medium text-violet-700 hover:bg-violet-100 disabled:opacity-50">
                               Mark Payable
                             </button>
                           )}
                           {canPay && (
                             <button onClick={() => act(c.id, "pay", "Payment recorded")} disabled={busy === c.id + "pay"}
-                              className="rounded-lg border border-primary-200 bg-primary-50 px-2.5 py-1 text-[11px] font-medium text-primary-700 hover:bg-primary-100 disabled:opacity-50">
+                              className="rounded-sm border border-primary-200 bg-primary-50 px-2.5 py-1 text-[11px] font-medium text-primary-700 hover:bg-primary-100 disabled:opacity-50">
                               {busy === c.id + "pay" ? <Loader2 size={11} className="animate-spin" /> : "Pay"}
                             </button>
                           )}
                           {["CALCULATED", "PENDING"].includes(c.status) && (
                             <button onClick={() => act(c.id, "reverse", "Commission reversed")} disabled={busy === c.id + "reverse"}
-                              className="rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-medium text-rose-700 hover:bg-rose-100 disabled:opacity-50">
+                              className="rounded-sm border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-medium text-rose-700 hover:bg-rose-100 disabled:opacity-50">
                               Reverse
                             </button>
                           )}

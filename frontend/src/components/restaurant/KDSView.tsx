@@ -51,7 +51,7 @@ const KDS_STATUS_COLORS: Record<KOTTicket["status"], { bg: string; border: strin
   ACCEPTED: { bg: "bg-orange-50", border: "border-orange-200", text: "text-orange-700" },
   PREPARING: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700" },
   READY: { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700" },
-  SERVED: { bg: "bg-slate-100", border: "border-slate-200", text: "text-slate-700" },
+  SERVED: { bg: "bg-slate-100", border: "border-slate-200", text: "text-gray-600" },
 };
 
 export default function KDSView() {
@@ -103,7 +103,7 @@ export default function KDSView() {
   return (
     <div className="space-y-6 w-full">
       {/* Station Filters & Controls (Full Width Card) */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-md border border-slate-200 shadow-2xs w-full">
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-sm border border-slate-200 shadow-2xs w-full">
         <div className="flex-1 min-w-[280px]">
           <CustomTabs
             tabs={[
@@ -130,7 +130,7 @@ export default function KDSView() {
           <button
             id="btn-refresh-kds"
             onClick={fetchKDS}
-            className="p-2 text-gray-600 hover:text-gray-900 bg-slate-100 hover:bg-slate-200 rounded-md transition-all cursor-pointer"
+            className="p-2 text-gray-600 hover:text-gray-600 bg-slate-100 hover:bg-slate-200 rounded-sm transition-all cursor-pointer"
             title="Refresh KDS Tickets"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-orange-600" : ""}`} />
@@ -150,7 +150,7 @@ export default function KDSView() {
             <div
               key={t.id}
               id={`kds-card-${t.kotNo}`}
-              className={`flex flex-col justify-between p-5 rounded-md border ${statusStyle.bg} ${statusStyle.border} shadow-2xs bg-white transition-all duration-200 hover:shadow-md hover:border-orange-300 w-full`}
+              className={`flex flex-col justify-between p-5 rounded-sm border ${statusStyle.bg} ${statusStyle.border} shadow-2xs bg-white transition-all duration-200 hover:shadow-md hover:border-orange-300 w-full`}
             >
               <div className="w-full">
                 {/* Card Header */}
@@ -185,9 +185,9 @@ export default function KDSView() {
                 {/* Items List (Full Width Inside Card) */}
                 <div className="space-y-2 my-3 w-full">
                   {t.items.map((it) => (
-                    <div key={it.id} className="flex items-start justify-between text-xs bg-slate-50 p-2.5 rounded-md border border-slate-100 w-full">
+                    <div key={it.id} className="flex items-start justify-between text-xs bg-slate-50 p-2.5 rounded-sm border border-slate-100 w-full">
                       <div className="flex items-start gap-2.5 w-full">
-                        <span className="w-5 h-5 flex items-center justify-center font-bold text-white bg-orange-600 rounded text-[11px] shrink-0">
+                        <span className="w-5 h-5 flex items-center justify-center font-bold text-white bg-orange-600 rounded-sm text-[11px] shrink-0">
                           {it.qty}
                         </span>
                         <div className="w-full">
@@ -204,7 +204,7 @@ export default function KDSView() {
                 </div>
 
                 {t.notes && (
-                  <div className="text-[11px] font-semibold text-amber-800 bg-amber-50 p-2.5 rounded-md border border-amber-200 mb-3 w-full">
+                  <div className="text-[11px] font-semibold text-amber-800 bg-amber-50 p-2.5 rounded-sm border border-amber-200 mb-3 w-full">
                     <strong>Order Note:</strong> {t.notes}
                   </div>
                 )}
@@ -216,7 +216,7 @@ export default function KDSView() {
                   <button
                     id={`btn-kds-accept-${t.id}`}
                     onClick={() => handleUpdateStatus(t.id, "ACCEPTED")}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-amber-950 bg-amber-400 hover:bg-amber-500 rounded-md shadow-2xs transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-amber-950 bg-amber-400 hover:bg-amber-500 rounded-sm shadow-2xs transition-all"
                   >
                     <Play className="w-3.5 h-3.5" /> Accept Order
                   </button>
@@ -225,7 +225,7 @@ export default function KDSView() {
                   <button
                     id={`btn-kds-prep-${t.id}`}
                     onClick={() => handleUpdateStatus(t.id, "PREPARING")}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-md shadow-2xs transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-sm shadow-2xs transition-all"
                   >
                     <Flame className="w-3.5 h-3.5" /> Start Cooking
                   </button>
@@ -234,7 +234,7 @@ export default function KDSView() {
                   <button
                     id={`btn-kds-ready-${t.id}`}
                     onClick={() => handleUpdateStatus(t.id, "READY")}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md shadow-2xs transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-sm shadow-2xs transition-all"
                   >
                     <CheckCircle className="w-3.5 h-3.5" /> Mark Ready
                   </button>
@@ -243,7 +243,7 @@ export default function KDSView() {
                   <button
                     id={`btn-kds-served-${t.id}`}
                     onClick={() => handleUpdateStatus(t.id, "SERVED")}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-gray-600 bg-slate-100 hover:bg-slate-200 rounded-md transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-gray-600 bg-slate-100 hover:bg-slate-200 rounded-sm transition-all"
                   >
                     <CheckCheck className="w-3.5 h-3.5" /> Serve & Complete
                   </button>
@@ -254,7 +254,7 @@ export default function KDSView() {
         })}
 
         {tickets.length === 0 && !loading && (
-          <div className="col-span-full flex flex-col items-center justify-center p-12 bg-white border border-dashed border-slate-200 rounded-md text-gray-500 text-center shadow-2xs w-full">
+          <div className="col-span-full flex flex-col items-center justify-center p-12 bg-white border border-dashed border-slate-200 rounded-sm text-gray-500 text-center shadow-2xs w-full">
             <UtensilsCrossed className="w-10 h-10 mb-3 text-gray-400" />
             <p className="font-bold text-gray-600">No active kitchen orders</p>
             <p className="text-xs text-gray-500 mt-1">Orders sent to KOT from Restaurant POS will appear here in real-time.</p>

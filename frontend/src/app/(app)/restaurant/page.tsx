@@ -114,13 +114,13 @@ function RestaurantPageContent() {
         title="Restaurant & Culinary Engine"
         description="Section management, KOT & KDS station routing, table transfer/merge, meal shift time-slots, and automated Recipe BOM ingredient costing."
         icon={<UtensilsCrossed size={16} className="text-orange-600" />}
-        iconClassName="flex h-7 w-7 items-center justify-center rounded-md bg-orange-50 text-orange-600 border border-orange-200 shrink-0"
+        iconClassName="flex h-7 w-7 items-center justify-center rounded-sm bg-orange-50 text-orange-600 border border-orange-200 shrink-0"
         items={[{ label: "Restaurant", href: "/restaurant" }]}
         actions={
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
             <a
               href="/restaurant/kitchen"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-orange-200 bg-orange-50 text-orange-700 text-xs font-bold hover:bg-orange-100 transition shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-orange-200 bg-orange-50 text-orange-700 text-xs font-bold hover:bg-orange-100 transition shadow-2xs"
             >
               <ChefHat size={14} /> Kitchen Hub
             </a>
@@ -128,13 +128,13 @@ function RestaurantPageContent() {
               href="/restaurant/customer-display"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-200 bg-slate-50 text-gray-600 text-xs font-semibold hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-slate-200 bg-slate-50 text-gray-600 text-xs font-semibold hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition shadow-2xs"
             >
               <Users size={13} /> Customer POS
             </a>
             <a
               href="/restaurant/pos"
-              className="flex items-center justify-center gap-2 px-4 py-1.5 rounded-md text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-2xs transition"
+              className="flex items-center justify-center gap-2 px-4 py-1.5 rounded-sm text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-2xs transition"
             >
               <ShoppingCart className="w-3.5 h-3.5" /> Open Restaurant POS
             </a>
@@ -143,10 +143,10 @@ function RestaurantPageContent() {
       />
 
       {/* Culinary Banner (Clean Full-Width Card, Gray-600 Headings) */}
-      <div className="w-full p-5 sm:p-6 rounded-md border border-slate-200 bg-white shadow-2xs space-y-4">
+      <div className="w-full p-5 sm:p-6 rounded-sm border border-slate-200 bg-white shadow-2xs space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4 w-full">
           <div className="flex items-start sm:items-center gap-4 w-full sm:w-auto">
-            <div className="p-3 bg-orange-50 border border-orange-200 text-orange-600 rounded-md flex-shrink-0">
+            <div className="p-3 bg-orange-50 border border-orange-200 text-orange-600 rounded-sm flex-shrink-0">
               <UtensilsCrossed className="w-7 h-7" />
             </div>
             <div className="w-full">
@@ -170,12 +170,12 @@ function RestaurantPageContent() {
       {/* 4 Full-Width Executive KPI Metric Cards (Gray-600 Color Palette) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
         {/* Card 1: Dining Room Occupancy */}
-        <div className="w-full p-4 sm:p-5 rounded-md border border-slate-200 bg-white shadow-2xs transition hover:border-orange-300 space-y-3">
+        <div className="w-full p-4 sm:p-5 rounded-sm border border-slate-200 bg-white shadow-2xs transition hover:border-orange-300 space-y-3">
           <div className="flex items-center justify-between w-full">
             <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
               Table Occupancy
             </span>
-            <div className="p-2 rounded-md bg-orange-50 text-orange-600 border border-orange-200">
+            <div className="p-2 rounded-sm bg-orange-50 text-orange-600 border border-orange-200">
               <Users className="w-4 h-4" />
             </div>
           </div>
@@ -196,12 +196,12 @@ function RestaurantPageContent() {
         </div>
 
         {/* Card 2: KDS Active Kitchen Tickets */}
-        <div className="w-full p-4 sm:p-5 rounded-md border border-slate-200 bg-white shadow-2xs transition hover:border-orange-300 space-y-3">
+        <div className="w-full p-4 sm:p-5 rounded-sm border border-slate-200 bg-white shadow-2xs transition hover:border-orange-300 space-y-3">
           <div className="flex items-center justify-between w-full">
             <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
               Active KOT Orders
             </span>
-            <div className="p-2 rounded-md bg-amber-50 text-amber-600 border border-amber-200">
+            <div className="p-2 rounded-sm bg-amber-50 text-amber-600 border border-amber-200">
               <Flame className="w-4 h-4" />
             </div>
           </div>
@@ -215,12 +215,12 @@ function RestaurantPageContent() {
         </div>
 
         {/* Card 3: Today's Estimated Sales */}
-        <div className="w-full p-4 sm:p-5 rounded-md border border-slate-200 bg-white shadow-2xs transition hover:border-orange-300 space-y-3">
+        <div className="w-full p-4 sm:p-5 rounded-sm border border-slate-200 bg-white shadow-2xs transition hover:border-orange-300 space-y-3">
           <div className="flex items-center justify-between w-full">
             <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
               Today&apos;s Dining Sales
             </span>
-            <div className="p-2 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200">
+            <div className="p-2 rounded-sm bg-emerald-50 text-emerald-600 border border-emerald-200">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
@@ -233,12 +233,12 @@ function RestaurantPageContent() {
         </div>
 
         {/* Card 4: Average Recipe Food Cost % */}
-        <div className="w-full p-4 sm:p-5 rounded-md border border-slate-200 bg-white shadow-2xs transition hover:border-orange-300 space-y-3">
+        <div className="w-full p-4 sm:p-5 rounded-sm border border-slate-200 bg-white shadow-2xs transition hover:border-orange-300 space-y-3">
           <div className="flex items-center justify-between w-full">
             <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
               Avg Food Cost %
             </span>
-            <div className="p-2 rounded-md bg-purple-50 text-purple-600 border border-purple-200">
+            <div className="p-2 rounded-sm bg-purple-50 text-purple-600 border border-purple-200">
               <PieChart className="w-4 h-4" />
             </div>
           </div>
@@ -258,7 +258,7 @@ function RestaurantPageContent() {
           { id: "floors", label: "Sections & Table Grid", icon: <LayoutGrid className="w-4 h-4 text-orange-600" /> },
           { id: "kds", label: "Kitchen Management (KDS Routing)", icon: <Flame className="w-4 h-4 text-red-600" /> },
           { id: "recipes", label: "Recipe BOM & Food Costing", icon: <PieChart className="w-4 h-4 text-orange-600" /> },
-          { id: "shifts", label: "POS Shifts & Time Slots", icon: <Clock className="w-4 h-4 text-teal-600" /> },
+          { id: "shifts", label: "POS Shifts & Time Slots", icon: <Clock className="w-4 h-4 text-brand-primary" /> },
         ]}
         activeTab={activeTab}
         onChange={handleTabChange}

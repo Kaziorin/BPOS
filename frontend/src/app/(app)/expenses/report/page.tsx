@@ -150,7 +150,7 @@ export default function ExpenseReportPage() {
                 size="sm"
                 variant="outline"
                 leftIcon={<Receipt size={14} />}
-                className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
+                className="border-slate-200 text-gray-600 hover:bg-slate-50 text-xs font-semibold"
               >
                 All Expenses
               </CustomButton>
@@ -160,7 +160,7 @@ export default function ExpenseReportPage() {
               variant="outline"
               leftIcon={<FileSpreadsheet size={14} className="text-emerald-600" />}
               onClick={handleExportCSV}
-              className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
+              className="border-slate-200 text-gray-600 hover:bg-slate-50 text-xs font-semibold"
             >
               Export CSV
             </CustomButton>
@@ -169,13 +169,13 @@ export default function ExpenseReportPage() {
               variant="outline"
               leftIcon={<Printer size={14} />}
               onClick={handlePrint}
-              className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
+              className="border-slate-200 text-gray-600 hover:bg-slate-50 text-xs font-semibold"
             >
               Print
             </CustomButton>
             <button
               onClick={() => loadReport()}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
+              className="flex h-7 w-7 items-center justify-center rounded-sm border border-slate-200 bg-slate-50 text-gray-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-border transition shadow-2xs"
               title="Refresh Analytics"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
@@ -185,29 +185,29 @@ export default function ExpenseReportPage() {
       />
 
       {/* Date Filter & Preset Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-md border border-slate-200 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-sm border border-slate-200 shadow-2xs">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-            <Calendar size={14} className="text-teal-600" />
+          <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600">
+            <Calendar size={14} className="text-brand-primary" />
             <span>Date Range:</span>
           </div>
           <input
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
-            className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none"
+            className="rounded-sm border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none"
           />
           <span className="text-xs text-slate-400">to</span>
           <input
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
-            className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none"
+            className="rounded-sm border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none"
           />
           <CustomButton
             size="sm"
             onClick={loadReport}
-            className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold px-3 py-1"
+            className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold px-3 py-1"
           >
             Filter
           </CustomButton>
@@ -216,25 +216,25 @@ export default function ExpenseReportPage() {
         <div className="flex items-center gap-1">
           <button
             onClick={() => setPreset("thisMonth")}
-            className="rounded bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-teal-50 hover:text-teal-700 transition"
+            className="rounded-sm bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-brand-50 hover:text-brand-dark transition"
           >
             This Month
           </button>
           <button
             onClick={() => setPreset("lastMonth")}
-            className="rounded bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-teal-50 hover:text-teal-700 transition"
+            className="rounded-sm bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-brand-50 hover:text-brand-dark transition"
           >
             Last Month
           </button>
           <button
             onClick={() => setPreset("last90")}
-            className="rounded bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-teal-50 hover:text-teal-700 transition"
+            className="rounded-sm bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-brand-50 hover:text-brand-dark transition"
           >
             Last 90 Days
           </button>
           <button
             onClick={() => setPreset("thisYear")}
-            className="rounded bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-teal-50 hover:text-teal-700 transition"
+            className="rounded-sm bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-brand-50 hover:text-brand-dark transition"
           >
             This Year
           </button>
@@ -271,11 +271,11 @@ export default function ExpenseReportPage() {
 
       {/* Visual Category Allocations */}
       {report && report.byCategory.length > 0 && (
-        <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+        <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-3">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <div className="flex items-center gap-2">
-              <BarChart3 size={16} className="text-teal-600" />
-              <h2 className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+              <BarChart3 size={16} className="text-brand-primary" />
+              <h2 className="text-xs font-bold text-gray-600 uppercase tracking-wider">
                 Category Spending Distribution
               </h2>
             </div>
@@ -292,16 +292,16 @@ export default function ExpenseReportPage() {
                 return (
                   <div key={c.categoryName} className="space-y-1">
                     <div className="flex justify-between items-center text-xs font-medium">
-                      <span className="text-slate-800 font-semibold">
+                      <span className="text-gray-600 font-semibold">
                         {c.categoryName} <span className="text-slate-400 font-normal">({c.count} transactions)</span>
                       </span>
-                      <span className="font-bold text-slate-900 tabular-nums">
-                        {money(c.total)} <span className="text-teal-700 font-bold">({pct}%)</span>
+                      <span className="font-bold text-gray-600 tabular-nums">
+                        {money(c.total)} <span className="text-brand-dark font-bold">({pct}%)</span>
                       </span>
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
                       <div
-                        className="h-full rounded-full bg-teal-600 transition-all duration-500"
+                        className="h-full rounded-full bg-brand-primary transition-all duration-500"
                         style={{ width: `${(c.total / maxCatTotal) * 100}%` }}
                       />
                     </div>
@@ -313,11 +313,11 @@ export default function ExpenseReportPage() {
       )}
 
       {/* Line Items Table Container */}
-      <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+      <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
-            <Receipt size={16} className="text-teal-600" />
-            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+            <Receipt size={16} className="text-brand-primary" />
+            <h3 className="text-xs font-bold text-gray-600 uppercase tracking-wider">
               Itemized Expense Entries ({filteredLineItems.length})
             </h3>
           </div>
@@ -329,7 +329,7 @@ export default function ExpenseReportPage() {
               placeholder="Search line items..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             />
           </div>
         </div>
@@ -340,7 +340,7 @@ export default function ExpenseReportPage() {
               key: "title",
               header: "Expense Item",
               render: (e: Expense) => (
-                <span className="font-bold text-slate-800 text-xs">{e.title}</span>
+                <span className="font-bold text-gray-600 text-xs">{e.title}</span>
               ),
             },
             {
@@ -348,7 +348,7 @@ export default function ExpenseReportPage() {
               header: "Category",
               align: "center",
               render: (e: Expense) => (
-                <span className="inline-flex rounded-md bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-teal-700 border border-teal-200">
+                <span className="inline-flex rounded-sm bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-dark border border-brand-border">
                   {e.category?.name || "Uncategorized"}
                 </span>
               ),
@@ -368,7 +368,7 @@ export default function ExpenseReportPage() {
               header: "Status",
               align: "center",
               render: (e: Expense) => (
-                <span className="inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                <span className="inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-slate-100 text-gray-600 border border-slate-200">
                   {e.status}
                 </span>
               ),
@@ -378,7 +378,7 @@ export default function ExpenseReportPage() {
               header: "Amount",
               align: "right",
               render: (e: Expense) => (
-                <span className="font-bold text-slate-900 text-xs tabular-nums">
+                <span className="font-bold text-gray-600 text-xs tabular-nums">
                   {money(Number(e.amount) || 0)}
                 </span>
               ),

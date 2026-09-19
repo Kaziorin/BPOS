@@ -61,7 +61,7 @@ export default function SerialsPage() {
       header: "Product",
       render: (r) => (
         <div>
-          <p className="font-medium text-gray-900">{r.product?.name ?? (r as any).productName ?? "Unknown Product"}</p>
+          <p className="font-medium text-gray-600">{r.product?.name ?? (r as any).productName ?? "Unknown Product"}</p>
           <p className="text-xs text-gray-400">{r.product?.sku ?? (r as any).productSku ?? (r as any).sku ?? "—"}</p>
         </div>
       ),
@@ -105,7 +105,7 @@ export default function SerialsPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Serial Numbers</h1>
+        <h1 className="text-2xl font-bold text-gray-600">Serial Numbers</h1>
         <p className="mt-1 text-sm text-gray-500">
           Full lifecycle — In Stock → Sold → Returned / Defective
         </p>
@@ -128,7 +128,7 @@ export default function SerialsPage() {
         />
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white">
+      <div className="rounded-sm border border-gray-200 bg-white">
         <CustomTable
           columns={columns}
           data={filtered}

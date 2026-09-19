@@ -266,13 +266,13 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                   placeholder="Search menu..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-sm border border-brand-border bg-white pl-9 pr-8 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:outline-none focus:border-brand-primary focus:ring-0 shadow-none transition-colors"
+                  className="w-full rounded-sm border border-brand-border bg-white pl-9 pr-8 py-1.5 text-xs text-gray-600 placeholder:text-slate-400 outline-none focus:outline-none focus:border-brand-primary focus:ring-0 shadow-none transition-colors"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                    className="absolute right-2.5 text-slate-400 hover:text-gray-600 transition cursor-pointer"
                   >
                     <X size={13} />
                   </button>

@@ -363,7 +363,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
       {/* Toast alert */}
       {message && (
         <div
-          className={`flex items-center justify-between rounded-xl border p-4 text-sm font-medium shadow-xs transition-all ${
+          className={`flex items-center justify-between rounded-sm border p-4 text-sm font-medium shadow-xs transition-all ${
             message.type === "success"
               ? "border-emerald-200 bg-emerald-50 text-emerald-800"
               : "border-rose-200 bg-rose-50 text-rose-800"
@@ -382,11 +382,11 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 ring-1 ring-primary-500/20 shadow-xs">
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary-50 text-primary-600 ring-1 ring-primary-500/20 shadow-xs">
             <GitBranch size={20} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Workflow Rules & Chain Builder</h1>
+            <h1 className="text-2xl font-bold text-gray-600 tracking-tight">Workflow Rules & Chain Builder</h1>
             <p className="text-xs text-slate-500 sm:text-sm">
               Define condition triggers, approval role tiers, and auto-escalation timeouts for business transactions.
             </p>
@@ -419,7 +419,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
       {/* Preset Policy Library Bar */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+          <span className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
             <Sparkles size={13} className="text-amber-500" />
             Quick Policy Presets
           </span>
@@ -431,16 +431,16 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
             <button
               key={p.name}
               onClick={() => applyPreset(p)}
-              className="group flex flex-col justify-between rounded-xl border border-dashed border-slate-200 bg-white p-3.5 text-left shadow-xs transition hover:border-primary-400 hover:bg-primary-50/20 hover:shadow-sm"
+              className="group flex flex-col justify-between rounded-sm border border-dashed border-slate-200 bg-white p-3.5 text-left shadow-xs transition hover:border-primary-400 hover:bg-primary-50/20 hover:shadow-sm"
             >
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-600 group-hover:bg-primary-100 group-hover:text-primary-700">
+                  <span className="rounded-sm bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-600 group-hover:bg-primary-100 group-hover:text-primary-700">
                     {p.entityType}
                   </span>
                   <span className="text-[10px] text-slate-400 font-semibold">{p.levels.length} Tier{p.levels.length > 1 ? "s" : ""}</span>
                 </div>
-                <p className="mt-2 text-xs font-bold text-slate-800 group-hover:text-primary-700 line-clamp-1">{p.name}</p>
+                <p className="mt-2 text-xs font-bold text-gray-600 group-hover:text-primary-700 line-clamp-1">{p.name}</p>
                 <p className="mt-1 text-[11px] text-slate-500 line-clamp-2">{p.desc}</p>
               </div>
 
@@ -468,7 +468,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
         </div>
 
         <div className="text-xs text-slate-500">
-          Showing <span className="font-bold text-slate-800">{filtered.length}</span> active workflow rule{filtered.length === 1 ? "" : "s"}
+          Showing <span className="font-bold text-gray-600">{filtered.length}</span> active workflow rule{filtered.length === 1 ? "" : "s"}
         </div>
       </div>
 
@@ -484,13 +484,13 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
               <GitBranch size={22} />
             </div>
-            <p className="mt-3 text-sm font-semibold text-slate-700">No approval rules configured</p>
+            <p className="mt-3 text-sm font-semibold text-gray-600">No approval rules configured</p>
             <p className="mt-1 text-xs text-slate-400 max-w-sm mx-auto">
               Changes without a matching approval rule will be automatically approved and applied immediately.
             </p>
             <button
               onClick={openNew}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:opacity-90"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-sm bg-primary-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:opacity-90"
             >
               <Plus size={14} /> Create Your First Rule
             </button>
@@ -513,15 +513,15 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <button
                       onClick={() => setExpanded((e) => ({ ...e, [t.id]: !isOpen }))}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-slate-200 text-slate-500 hover:bg-slate-50 transition"
                     >
                       {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                     </button>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-bold text-slate-900 text-sm tracking-tight">{t.name}</span>
-                        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+                        <span className="font-bold text-gray-600 text-sm tracking-tight">{t.name}</span>
+                        <span className="rounded-sm bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
                           {t.entityLabel ?? t.entityType}
                         </span>
                         <span
@@ -536,7 +536,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
                       </div>
 
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                        <span className="rounded bg-primary-50 px-2 py-0.5 font-mono text-[11px] font-bold text-primary-700 border border-primary-100">
+                        <span className="rounded-sm bg-primary-50 px-2 py-0.5 font-mono text-[11px] font-bold text-primary-700 border border-primary-100">
                           IF {condDisplay}
                         </span>
                         <span>→ Requires {t.levels.length} Tier{t.levels.length > 1 ? "s" : ""}</span>
@@ -549,26 +549,26 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => toggleActive(t)}
-                      className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
+                      className="rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 shadow-xs hover:bg-slate-50 transition"
                     >
                       {t.isActive ? "Pause" : "Activate"}
                     </button>
                     <button
                       onClick={() => duplicateRule(t)}
                       title="Duplicate rule"
-                      className="rounded-lg border border-slate-200 bg-white p-1.5 text-xs font-semibold text-slate-600 shadow-xs hover:bg-slate-50 transition"
+                      className="rounded-sm border border-slate-200 bg-white p-1.5 text-xs font-semibold text-slate-600 shadow-xs hover:bg-slate-50 transition"
                     >
                       <Copy size={13} />
                     </button>
                     <button
                       onClick={() => openEdit(t)}
-                      className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
+                      className="rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 shadow-xs hover:bg-slate-50 transition"
                     >
                       <Edit3 size={12} className="inline mr-1" /> Edit
                     </button>
                     <button
                       onClick={() => remove(t)}
-                      className="rounded-lg border border-rose-200 bg-rose-50 p-1.5 text-xs font-semibold text-rose-600 shadow-xs hover:bg-rose-100 transition"
+                      className="rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-xs font-semibold text-rose-600 shadow-xs hover:bg-rose-100 transition"
                     >
                       <Trash2 size={13} />
                     </button>
@@ -584,8 +584,8 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
 
                     <div className="flex flex-wrap items-center gap-2">
                       {/* Trigger Box */}
-                      <div className="flex items-center gap-2 rounded-xl border border-primary-200 bg-white p-2.5 shadow-xs">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-50 text-primary-600 font-bold text-xs">
+                      <div className="flex items-center gap-2 rounded-sm border border-primary-200 bg-white p-2.5 shadow-xs">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-primary-50 text-primary-600 font-bold text-xs">
                           IF
                         </div>
                         <div>
@@ -599,13 +599,13 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
                       {/* Tier Nodes */}
                       {t.levels.map((l, i) => (
                         <div key={i} className="flex items-center gap-2">
-                          <div className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white p-2.5 shadow-xs">
-                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 font-bold text-xs text-slate-700 border border-slate-200">
+                          <div className="flex items-center gap-2.5 rounded-sm border border-slate-200 bg-white p-2.5 shadow-xs">
+                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 font-bold text-xs text-gray-600 border border-slate-200">
                               L{l.level}
                             </div>
                             <div>
                               <p className="text-[10px] font-bold text-slate-400 uppercase">Tier {l.level}</p>
-                              <p className="text-xs font-bold text-slate-800">{l.role}</p>
+                              <p className="text-xs font-bold text-gray-600">{l.role}</p>
                             </div>
                           </div>
 
@@ -616,8 +616,8 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
                       <ArrowRight size={16} className="text-slate-300 shrink-0" />
 
                       {/* Final Apply Node */}
-                      <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50/70 p-2.5 shadow-xs">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 text-white font-bold text-xs">
+                      <div className="flex items-center gap-2 rounded-sm border border-emerald-200 bg-emerald-50/70 p-2.5 shadow-xs">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-emerald-600 text-white font-bold text-xs">
                           <Check size={14} />
                         </div>
                         <div>
@@ -660,8 +660,8 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
           />
 
           {/* Condition Builder */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 space-y-2">
-            <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
+          <div className="rounded-sm border border-slate-200 bg-slate-50/50 p-3.5 space-y-2">
+            <span className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1">
               <SlidersHorizontal size={13} className="text-primary-600" />
               Evaluation Threshold Condition
             </span>
@@ -702,16 +702,16 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
           </div>
 
           {/* Multi-Tier Chain Builder */}
-          <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-3">
+          <div className="rounded-sm border border-slate-200 bg-white p-3.5 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                 <GitBranch size={13} className="text-primary-600" />
                 Approval Tier Hierarchy ({form.levels.length} Tiers)
               </span>
               <button
                 type="button"
                 onClick={addLevel}
-                className="inline-flex items-center gap-1 rounded-lg bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-700 hover:bg-primary-100 transition"
+                className="inline-flex items-center gap-1 rounded-sm bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-700 hover:bg-primary-100 transition"
               >
                 <Plus size={12} /> Add Tier
               </button>
@@ -719,7 +719,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
 
             <div className="space-y-2">
               {form.levels.map((l, i) => (
-                <div key={i} className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/70 p-2">
+                <div key={i} className="flex items-center gap-2 rounded-sm border border-slate-100 bg-slate-50/70 p-2">
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white">
                     {i + 1}
                   </div>
@@ -733,7 +733,7 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
                     <button
                       type="button"
                       onClick={() => removeLevel(i)}
-                      className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                      className="rounded-sm p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
                     >
                       <Trash2 size={13} />
                     </button>
@@ -753,11 +753,11 @@ export default function WorkflowRules({ autoCreate = false }: { autoCreate?: boo
           />
 
           {/* Real-Time Live Preview */}
-          <div className="rounded-xl border border-primary-100 bg-primary-50/40 p-3">
+          <div className="rounded-sm border border-primary-100 bg-primary-50/40 p-3">
             <p className="text-[10px] font-bold uppercase tracking-wider text-primary-700 mb-1.5">
               Live Preview of Flow
             </p>
-            <p className="text-xs text-slate-700">
+            <p className="text-xs text-gray-600">
               When a <span className="font-bold">{form.entityType}</span> has{" "}
               <span className="font-mono font-bold text-primary-700">
                 {form.conditionField} {form.conditionOperator} {form.conditionValue}

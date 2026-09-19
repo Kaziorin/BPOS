@@ -54,14 +54,14 @@ export function RestaurantCartPanel({
             </span>
           </div>
           {sentItems.map((item, idx) => (
-            <div key={`sent-${idx}`} className="rounded-lg border border-emerald-100 bg-emerald-50/30 p-2.5 opacity-80">
+            <div key={`sent-${idx}`} className="rounded-sm border border-emerald-100 bg-emerald-50/30 p-2.5 opacity-80">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
+                  <p className="text-sm font-medium text-gray-600 truncate">{item.name}</p>
                   <p className="text-xs text-gray-500 mt-0.5">Qty: {item.qty}</p>
                 </div>
                 <div className="shrink-0">
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-100 text-emerald-800">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-medium bg-emerald-100 text-emerald-800">
                     {item.status}
                   </span>
                 </div>
@@ -80,10 +80,10 @@ export function RestaurantCartPanel({
             </span>
           </div>
           {newItems.map((item, idx) => (
-            <div key={`new-${idx}`} className="rounded-lg border border-amber-200 bg-amber-50/50 p-2.5 shadow-sm">
+            <div key={`new-${idx}`} className="rounded-sm border border-amber-200 bg-amber-50/50 p-2.5 shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
+                  <p className="text-sm font-medium text-gray-600 truncate">{item.name}</p>
                   <p className="text-xs text-gray-400 tabular-nums">
                     {item.unitPrice.toFixed(2)} × {item.qty}
                     {item.discountAmount > 0 && (
@@ -94,14 +94,14 @@ export function RestaurantCartPanel({
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => onQtyChange(idx, item.qty - 1)}
-                    className="h-6 w-6 flex items-center justify-center rounded border border-amber-300 text-amber-700 hover:bg-amber-100"
+                    className="h-6 w-6 flex items-center justify-center rounded-sm border border-amber-300 text-amber-700 hover:bg-amber-100"
                   >
                     <Minus size={11} />
                   </button>
                   <span className="w-6 text-center text-xs font-medium tabular-nums">{item.qty}</span>
                   <button
                     onClick={() => onQtyChange(idx, item.qty + 1)}
-                    className="h-6 w-6 flex items-center justify-center rounded border border-amber-300 text-amber-700 hover:bg-amber-100"
+                    className="h-6 w-6 flex items-center justify-center rounded-sm border border-amber-300 text-amber-700 hover:bg-amber-100"
                   >
                     <Plus size={11} />
                   </button>
@@ -135,7 +135,7 @@ export function RestaurantCartPanel({
                 />
               </div>
 
-              <p className="mt-1 text-right text-sm font-semibold text-gray-900 tabular-nums">
+              <p className="mt-1 text-right text-sm font-semibold text-gray-600 tabular-nums">
                 {item.lineTotal.toFixed(2)}
               </p>
             </div>

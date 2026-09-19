@@ -51,7 +51,7 @@ const CARDS = [
     icon: ClipboardList,
     label: "Stock Counts",
     desc: "Physical count & reconciliation",
-    color: "bg-teal-50 text-teal-700 border-teal-200/80",
+    color: "bg-brand-50 text-brand-dark border-brand-border",
   },
   {
     href: "/inventory/batches",
@@ -79,7 +79,7 @@ const CARDS = [
     icon: Settings2,
     label: "Inventory Config",
     desc: "Costing method, batch/serial tracking",
-    color: "bg-slate-50 text-slate-700 border-slate-200/80",
+    color: "bg-slate-50 text-gray-600 border-slate-200/80",
   },
 ];
 
@@ -154,7 +154,7 @@ export default function InventoryPage() {
                 <div className={`mb-3 inline-flex h-9 w-9 items-center justify-center rounded-sm border ${card.color} transition-transform group-hover:scale-105`}>
                   <Icon size={18} />
                 </div>
-                <p className="font-bold text-slate-800 text-xs group-hover:text-brand-primary transition-colors">
+                <p className="font-bold text-gray-600 text-xs group-hover:text-brand-primary transition-colors">
                   {card.label}
                 </p>
                 <p className="mt-1 text-xs text-slate-500 leading-relaxed">

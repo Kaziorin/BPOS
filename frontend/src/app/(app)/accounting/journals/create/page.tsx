@@ -66,7 +66,7 @@ export default function CreateJournalPage() {
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><BookMarked size={19} /></div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-900">Create Journal</h1>
+            <h1 className="text-xl font-bold tracking-tight text-gray-600">Create Journal</h1>
             <p className="text-sm text-gray-500">Post a balanced double-entry journal</p>
           </div>
         </div>
@@ -82,7 +82,7 @@ export default function CreateJournalPage() {
 
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-gray-700">Journal Lines</h3>
+            <h3 className="text-sm font-semibold text-gray-600">Journal Lines</h3>
             <CustomButton type="button" size="sm" variant="outline" leftIcon={<Plus size={13} />} onClick={() => setLines((ls) => [...ls, { accountCode: "", debit: "", credit: "", memo: "" }])}>Add Line</CustomButton>
           </div>
           <div className="space-y-2">

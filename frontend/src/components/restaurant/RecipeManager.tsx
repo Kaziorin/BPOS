@@ -230,8 +230,8 @@ export default function RecipeManager() {
 
   return (
     <div className="space-y-6">
-      {/* Product Selector Bar (Full Width, Compact rounded-md, SearchableSelect, CustomButton) */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-md border border-slate-200 shadow-2xs w-full">
+      {/* Product Selector Bar (Full Width, Compact rounded-sm, SearchableSelect, CustomButton) */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-sm border border-slate-200 shadow-2xs w-full">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full md:w-auto">
           <div className="flex items-center gap-2">
             <Utensils className="w-4 h-4 text-orange-600 shrink-0" />
@@ -285,8 +285,8 @@ export default function RecipeManager() {
 
       {selectedProductId ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
-          {/* Ingredients List Form (Compact rounded-md border-slate-200) */}
-          <div className="lg:col-span-2 bg-white p-5 rounded-md border border-slate-200 shadow-2xs space-y-4 w-full">
+          {/* Ingredients List Form (Compact rounded-sm border-slate-200) */}
+          <div className="lg:col-span-2 bg-white p-5 rounded-sm border border-slate-200 shadow-2xs space-y-4 w-full">
             <h3 className="text-sm font-bold text-gray-600 flex items-center gap-2">
               <Layers className="w-4 h-4 text-orange-600" /> Bill of Materials (BOM Ingredients)
             </h3>
@@ -295,7 +295,7 @@ export default function RecipeManager() {
               {ingredients.map((ing, idx) => (
                 <div
                   key={idx}
-                  className="flex flex-wrap items-center gap-3 bg-slate-50 p-3 rounded-md border border-slate-200 w-full"
+                  className="flex flex-wrap items-center gap-3 bg-slate-50 p-3 rounded-sm border border-slate-200 w-full"
                 >
                   <div className="flex-1 min-w-[200px]">
                     <label className="text-[10px] text-gray-500 uppercase font-bold block mb-1">
@@ -330,7 +330,7 @@ export default function RecipeManager() {
                       onChange={(e) =>
                         handleIngredientChange(idx, "qtyRequired", Number(e.target.value))
                       }
-                      className="w-full bg-white border border-slate-200 text-gray-900 text-xs rounded-md p-2 focus:border-orange-500 focus:outline-none font-medium"
+                      className="w-full bg-white border border-slate-200 text-gray-600 text-xs rounded-sm p-2 focus:border-orange-500 focus:outline-none font-medium"
                     />
                   </div>
 
@@ -344,7 +344,7 @@ export default function RecipeManager() {
                       placeholder="e.g. gm / ml"
                       value={getUnitName(ing.unit)}
                       onChange={(e) => handleIngredientChange(idx, "unit", e.target.value)}
-                      className="w-full bg-white border border-slate-200 text-gray-900 text-xs rounded-md p-2 focus:border-orange-500 focus:outline-none font-medium"
+                      className="w-full bg-white border border-slate-200 text-gray-600 text-xs rounded-sm p-2 focus:border-orange-500 focus:outline-none font-medium"
                     />
                   </div>
 
@@ -360,7 +360,7 @@ export default function RecipeManager() {
                       onChange={(e) =>
                         handleIngredientChange(idx, "unitCost", Number(e.target.value))
                       }
-                      className="w-full bg-white border border-slate-200 text-gray-900 text-xs rounded-md p-2 focus:border-orange-500 focus:outline-none font-medium"
+                      className="w-full bg-white border border-slate-200 text-gray-600 text-xs rounded-sm p-2 focus:border-orange-500 focus:outline-none font-medium"
                     />
                   </div>
 
@@ -368,7 +368,7 @@ export default function RecipeManager() {
                     <button
                       id={`btn-remove-ing-${idx}`}
                       onClick={() => handleRemoveIngredient(idx)}
-                      className="p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-all cursor-pointer"
+                      className="p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-sm transition-all cursor-pointer"
                       title="Remove Ingredient"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -378,36 +378,36 @@ export default function RecipeManager() {
               ))}
 
               {ingredients.length === 0 && (
-                <div className="text-center p-8 bg-slate-50 border border-dashed border-slate-200 rounded-md text-gray-500 text-xs w-full">
+                <div className="text-center p-8 bg-slate-50 border border-dashed border-slate-200 rounded-sm text-gray-500 text-xs w-full">
                   No ingredients added yet. Click &quot;Add Ingredient&quot; above to specify raw materials.
                 </div>
               )}
             </div>
           </div>
 
-          {/* Food Cost & Profit Analytics Summary (Compact rounded-md border-slate-200) */}
-          <div className="bg-white p-5 rounded-md border border-slate-200 shadow-2xs space-y-5 w-full">
+          {/* Food Cost & Profit Analytics Summary (Compact rounded-sm border-slate-200) */}
+          <div className="bg-white p-5 rounded-sm border border-slate-200 shadow-2xs space-y-5 w-full">
             <h3 className="text-sm font-bold text-gray-600 flex items-center gap-2">
               <PieChart className="w-4 h-4 text-orange-600" /> Food Cost Analytics
             </h3>
 
             <div className="space-y-3.5 w-full">
-              <div className="bg-slate-50 p-3.5 rounded-md border border-slate-200 flex items-center justify-between">
+              <div className="bg-slate-50 p-3.5 rounded-sm border border-slate-200 flex items-center justify-between">
                 <span className="text-xs text-gray-600 font-bold">Dish Selling Price</span>
                 <span className="text-base font-bold text-gray-600">৳{livePrice.toFixed(2)}</span>
               </div>
 
-              <div className="bg-slate-50 p-3.5 rounded-md border border-slate-200 flex items-center justify-between">
+              <div className="bg-slate-50 p-3.5 rounded-sm border border-slate-200 flex items-center justify-between">
                 <span className="text-xs text-gray-600 font-bold">Est. Total Food Cost</span>
                 <span className="text-base font-bold text-rose-600">৳{liveTotalCost.toFixed(2)}</span>
               </div>
 
-              <div className="bg-slate-50 p-3.5 rounded-md border border-slate-200 flex items-center justify-between">
+              <div className="bg-slate-50 p-3.5 rounded-sm border border-slate-200 flex items-center justify-between">
                 <span className="text-xs text-gray-600 font-bold">Gross Margin (৳)</span>
                 <span className="text-base font-bold text-emerald-600">৳{liveMargin.toFixed(2)}</span>
               </div>
 
-              <div className="bg-slate-50 p-3.5 rounded-md border border-slate-200 flex items-center justify-between">
+              <div className="bg-slate-50 p-3.5 rounded-sm border border-slate-200 flex items-center justify-between">
                 <span className="text-xs text-gray-600 font-bold">Gross Margin %</span>
                 <span
                   className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
@@ -423,7 +423,7 @@ export default function RecipeManager() {
               </div>
             </div>
 
-            <div className="p-3.5 bg-orange-50 border border-orange-200 rounded-md text-xs text-orange-800 space-y-1 w-full">
+            <div className="p-3.5 bg-orange-50 border border-orange-200 rounded-sm text-xs text-orange-800 space-y-1 w-full">
               <p className="font-bold flex items-center gap-1.5 text-orange-900">
                 <CheckCircle2 className="w-4 h-4 text-orange-600" /> Automated Inventory Deduction
               </p>
@@ -434,7 +434,7 @@ export default function RecipeManager() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center p-14 bg-white border border-dashed border-slate-200 rounded-md text-gray-500 text-center shadow-2xs w-full">
+        <div className="flex flex-col items-center justify-center p-14 bg-white border border-dashed border-slate-200 rounded-sm text-gray-500 text-center shadow-2xs w-full">
           <Utensils className="w-9 h-9 mb-2.5 text-slate-400" />
           <p className="font-bold text-gray-600">Select a dish to manage recipe</p>
           <p className="text-xs text-gray-500 mt-1">Choose a product from the dropdown above to create its Bill of Materials.</p>

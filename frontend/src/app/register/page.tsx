@@ -99,7 +99,7 @@ export default function RegisterPage() {
           className="rounded-sm border border-sky-100/90 bg-white/95 backdrop-blur-2xl p-6 sm:p-7 shadow-2xl space-y-4"
         >
           <div>
-            <h2 className="text-sm font-bold text-gray-900">Step 1: Choose Your Business Type</h2>
+            <h2 className="text-sm font-bold text-gray-600">Step 1: Choose Your Business Type</h2>
             <p className="text-xs text-gray-500 mt-0.5">
               Configures tailored categories, units, and POS features automatically.
             </p>
@@ -129,7 +129,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="pt-2 border-t border-sky-100">
-            <h2 className="text-sm font-bold text-gray-900 mb-2.5">Step 2: Store & Owner Information</h2>
+            <h2 className="text-sm font-bold text-gray-600 mb-2.5">Step 2: Store & Owner Information</h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <CustomInput

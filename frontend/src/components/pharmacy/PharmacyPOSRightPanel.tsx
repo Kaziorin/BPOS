@@ -159,7 +159,7 @@ export function PharmacyPOSRightPanel({
   return (
     <aside className={cn(
       "flex w-full flex-col overflow-hidden h-full transition",
-      darkMode ? "bg-slate-900 text-slate-100" : "bg-white text-slate-800"
+      darkMode ? "bg-slate-900 text-slate-100" : "bg-white text-gray-600"
     )}>
       {/* ═══ TOP HEADER (Silky Teal Wave Gradient) ═══ */}
       <div
@@ -180,7 +180,7 @@ export function PharmacyPOSRightPanel({
             "flex items-center gap-1.5 rounded-sm border px-2.5 py-1 transition shadow-xs",
             darkMode
               ? "bg-slate-900/90 border-slate-700 text-slate-100"
-              : "bg-white border-teal-100/90 text-slate-800"
+              : "bg-white border-slate-200 text-gray-600"
           )}>
             <CustomSwitch
               checked={rxMode}
@@ -193,7 +193,7 @@ export function PharmacyPOSRightPanel({
               htmlFor="rx-mode-switch"
               className={cn(
                 "text-[11.5px] font-extrabold select-none cursor-pointer",
-                darkMode ? "text-slate-100" : "text-slate-800"
+                darkMode ? "text-slate-100" : "text-gray-600"
               )}
             >
               Rx Mode
@@ -212,7 +212,7 @@ export function PharmacyPOSRightPanel({
                 "relative rounded-sm h-8 w-8 flex items-center justify-center border transition active:scale-95 cursor-pointer shadow-xs",
                 darkMode
                   ? "bg-slate-900/90 hover:bg-slate-800 border-slate-700 text-slate-200"
-                  : "bg-white hover:bg-slate-50 border-teal-100/90 text-slate-700 hover:text-[#00796b]"
+                  : "bg-white hover:bg-slate-50 border-slate-200 text-gray-600 hover:text-[#00796b]"
               )}
               title="Notifications"
             >
@@ -243,14 +243,14 @@ export function PharmacyPOSRightPanel({
                 "flex items-center gap-2 rounded-sm px-2.5 py-1 h-8 border transition shadow-xs cursor-pointer active:scale-95",
                 darkMode
                   ? "bg-slate-900/90 hover:bg-slate-800 border-slate-700 text-slate-100"
-                  : "bg-white hover:bg-slate-50 border-teal-100/90 text-slate-800"
+                  : "bg-white hover:bg-slate-50 border-slate-200 text-gray-600"
               )}
             >
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00796b] text-white font-bold text-[11px] shadow-xs">
                 <User size={13} />
               </div>
               <div className="leading-tight text-left">
-                <p className={cn("text-[11px] font-extrabold leading-none", darkMode ? "text-slate-100" : "text-slate-800")}>
+                <p className={cn("text-[11px] font-extrabold leading-none", darkMode ? "text-slate-100" : "text-gray-600")}>
                   {cashierName}
                 </p>
                 <p className={cn("text-[9px] font-bold leading-none mt-0.5", darkMode ? "text-slate-400" : "text-slate-500")}>
@@ -275,7 +275,7 @@ export function PharmacyPOSRightPanel({
       <div className={cn("flex flex-none items-center justify-between border-b px-3 py-2.5 transition", darkMode ? "border-slate-800 bg-slate-900" : "border-slate-100 bg-white")}>
         <div className="flex items-center gap-2">
           <ShoppingBag size={17} className="text-[#00796b]" />
-          <h2 className={cn("text-[13.5px] font-black", darkMode ? "text-slate-100" : "text-slate-800")}>
+          <h2 className={cn("text-[13.5px] font-black", darkMode ? "text-slate-100" : "text-gray-600")}>
             Cart <span className="text-slate-400 font-bold">({itemCount} Items)</span>
           </h2>
           {cart.length > 0 && (
@@ -332,10 +332,10 @@ export function PharmacyPOSRightPanel({
           cart.map((item, idx) => (
             <div
               key={`${item.productId}-${idx}`}
-              className={cn("flex items-center gap-2 rounded-sm border p-2 shadow-2xs transition", darkMode ? "border-slate-800 bg-slate-900 text-slate-100 hover:border-slate-700" : "border-slate-200 bg-white hover:border-teal-200")}
+              className={cn("flex items-center gap-2 rounded-sm border p-2 shadow-2xs transition", darkMode ? "border-slate-800 bg-slate-900 text-slate-100 hover:border-slate-700" : "border-slate-200 bg-white hover:border-brand-border")}
             >
               {/* Thumb */}
-              <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border overflow-hidden", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-slate-100")}>
+              <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border overflow-hidden", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-slate-100")}>
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
@@ -346,9 +346,9 @@ export function PharmacyPOSRightPanel({
 
               {/* Info */}
               <div className="min-w-0 flex-1">
-                <h4 className={cn("truncate text-[12px] font-extrabold leading-tight", darkMode ? "text-slate-100" : "text-slate-800")}>{item.name}</h4>
+                <h4 className={cn("truncate text-[12px] font-extrabold leading-tight", darkMode ? "text-slate-100" : "text-gray-600")}>{item.name}</h4>
                 <p className="text-[10px] font-semibold text-slate-400 leading-none mt-0.5">
-                  {item.genericName ? <span className="text-[#00796b] dark:text-teal-400 font-bold">{item.genericName} · </span> : null}
+                  {item.genericName ? <span className="text-[#00796b] dark:text-brand-primary font-bold">{item.genericName} · </span> : null}
                   ৳{item.unitPrice.toFixed(2)} · Stock: {item.stockQty ?? "—"}
                 </p>
                 {item.drugInteraction && (
@@ -360,22 +360,22 @@ export function PharmacyPOSRightPanel({
               </div>
 
               {/* Qty controls */}
-              <div className={cn("flex items-center gap-0.5 border rounded-lg p-0.5", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-200")}>
+              <div className={cn("flex items-center gap-0.5 border rounded-sm p-0.5", darkMode ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-200")}>
                 <CustomButton
                   variant="ghost"
                   size="xs"
                   onClick={() => onQty(idx, item.qty - 1)}
-                  className={cn("h-5 w-5 !p-0 rounded flex items-center justify-center transition shadow-2xs", darkMode ? "bg-slate-700 text-slate-200 hover:bg-slate-600" : "bg-white text-slate-600 hover:bg-slate-100")}
+                  className={cn("h-5 w-5 !p-0 rounded-sm flex items-center justify-center transition shadow-2xs", darkMode ? "bg-slate-700 text-slate-200 hover:bg-slate-600" : "bg-white text-slate-600 hover:bg-slate-100")}
                   title="Decrease quantity"
                 >
                   <Minus size={10} strokeWidth={2.5} />
                 </CustomButton>
-                <span className={cn("w-5 text-center text-[10.5px] font-extrabold", darkMode ? "text-slate-100" : "text-slate-800")}>{item.qty}</span>
+                <span className={cn("w-5 text-center text-[10.5px] font-extrabold", darkMode ? "text-slate-100" : "text-gray-600")}>{item.qty}</span>
                 <CustomButton
                   variant="ghost"
                   size="xs"
                   onClick={() => onQty(idx, item.qty + 1)}
-                  className={cn("h-5 w-5 !p-0 rounded flex items-center justify-center transition shadow-2xs", darkMode ? "bg-slate-700 text-slate-200 hover:bg-slate-600" : "bg-white text-slate-600 hover:bg-slate-100")}
+                  className={cn("h-5 w-5 !p-0 rounded-sm flex items-center justify-center transition shadow-2xs", darkMode ? "bg-slate-700 text-slate-200 hover:bg-slate-600" : "bg-white text-slate-600 hover:bg-slate-100")}
                   title="Increase quantity"
                 >
                   <Plus size={10} strokeWidth={2.5} />
@@ -383,7 +383,7 @@ export function PharmacyPOSRightPanel({
               </div>
 
               {/* Item total price */}
-              <div className={cn("text-right font-black text-[12px] tabular-nums whitespace-nowrap shrink-0", darkMode ? "text-slate-100" : "text-slate-800")}>
+              <div className={cn("text-right font-black text-[12px] tabular-nums whitespace-nowrap shrink-0", darkMode ? "text-slate-100" : "text-gray-600")}>
                 ৳ {item.lineTotal.toFixed(2)}
               </div>
 
@@ -394,7 +394,7 @@ export function PharmacyPOSRightPanel({
                     variant="ghost"
                     size="xs"
                     onClick={() => onFindGenerics(item.productId)}
-                    className="h-6 w-6 !p-0 text-emerald-600 dark:text-teal-400 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-teal-950/60 rounded flex items-center justify-center"
+                    className="h-6 w-6 !p-0 text-emerald-600 dark:text-brand-primary hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-teal-950/60 rounded-sm flex items-center justify-center"
                     title="View generic alternatives for this medicine"
                   >
                     <Leaf size={13} />
@@ -404,7 +404,7 @@ export function PharmacyPOSRightPanel({
                   variant="ghost"
                   size="xs"
                   onClick={() => onRemove(idx)}
-                  className="h-6 w-6 !p-0 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded flex items-center justify-center"
+                  className="h-6 w-6 !p-0 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-sm flex items-center justify-center"
                   title="Remove item"
                 >
                   <Trash2 size={13} />
@@ -420,7 +420,7 @@ export function PharmacyPOSRightPanel({
         {/* Pharmacy Safety Check Accordion */}
         <div className={cn(
           "rounded-sm border overflow-hidden transition",
-          darkMode ? "border-teal-900/60 bg-teal-950/40" : "border-teal-200/80 bg-[#e8f7f5]"
+          darkMode ? "border-teal-900/60 bg-teal-950/40" : "border-brand-border bg-[#e8f7f5]"
         )}>
           <CustomButton
             variant="ghost"
@@ -428,18 +428,18 @@ export function PharmacyPOSRightPanel({
             onClick={() => setSafetyOpen((v) => !v)}
             className={cn(
               "flex items-center justify-between !px-2.5 !py-1.5 text-left h-auto",
-              darkMode ? "hover:bg-teal-900/30 text-teal-300" : "hover:bg-teal-100/50 text-[#00796b]"
+              darkMode ? "hover:bg-teal-900/30 text-brand-primary/60" : "hover:bg-brand-50/50 text-[#00796b]"
             )}
           >
-            <span className={cn("inline-flex items-center gap-1.5 text-[11.5px] font-extrabold", darkMode ? "text-teal-300" : "text-[#00796b]")}>
+            <span className={cn("inline-flex items-center gap-1.5 text-[11.5px] font-extrabold", darkMode ? "text-brand-primary/60" : "text-[#00796b]")}>
               <ShieldCheck size={14} /> Pharmacy Safety Check
             </span>
-            <ChevronDown size={13} className={cn(darkMode ? "text-teal-300" : "text-[#00796b]", "transition", safetyOpen && "rotate-180")} />
+            <ChevronDown size={13} className={cn(darkMode ? "text-brand-primary/60" : "text-[#00796b]", "transition", safetyOpen && "rotate-180")} />
           </CustomButton>
           {safetyOpen && (
             <div className={cn(
               "space-y-1 border-t px-2.5 py-1.5",
-              darkMode ? "border-teal-900/50 bg-slate-900/60" : "border-teal-200/50 bg-white/40"
+              darkMode ? "border-teal-900/50 bg-slate-900/60" : "border-brand-border/50 bg-white/40"
             )}>
               <div className="flex items-center gap-1.5 text-[10.5px] font-bold text-emerald-500">
                 <CheckCircle2 size={12} /> Prescription verified
@@ -509,7 +509,7 @@ export function PharmacyPOSRightPanel({
         <div className={cn("space-y-1 rounded-sm border p-2 text-[11.5px] transition", darkMode ? "border-slate-700 bg-slate-800/80" : "border-slate-200 bg-slate-50/70")}>
           <div className={cn("flex justify-between font-semibold", darkMode ? "text-slate-300" : "text-slate-600")}>
             <span>Sub Total</span>
-            <span className={cn("font-extrabold tabular-nums whitespace-nowrap", darkMode ? "text-slate-100" : "text-slate-800")}>৳ {subtotal.toFixed(2)}</span>
+            <span className={cn("font-extrabold tabular-nums whitespace-nowrap", darkMode ? "text-slate-100" : "text-gray-600")}>৳ {subtotal.toFixed(2)}</span>
           </div>
           <div className={cn("flex justify-between font-semibold", darkMode ? "text-slate-300" : "text-slate-600")}>
             <span>Discount</span>
@@ -517,10 +517,10 @@ export function PharmacyPOSRightPanel({
           </div>
           <div className={cn("flex justify-between font-semibold", darkMode ? "text-slate-300" : "text-slate-600")}>
             <span>VAT (15%)</span>
-            <span className={cn("font-extrabold tabular-nums whitespace-nowrap", darkMode ? "text-slate-100" : "text-slate-800")}>৳ {vatAmount.toFixed(2)}</span>
+            <span className={cn("font-extrabold tabular-nums whitespace-nowrap", darkMode ? "text-slate-100" : "text-gray-600")}>৳ {vatAmount.toFixed(2)}</span>
           </div>
           <div className={cn("pt-1.5 border-t border-dashed flex items-baseline justify-between", darkMode ? "border-slate-700" : "border-slate-200")}>
-            <span className={cn("text-[13px] font-black", darkMode ? "text-slate-100" : "text-slate-900")}>Total</span>
+            <span className={cn("text-[13px] font-black", darkMode ? "text-slate-100" : "text-gray-600")}>Total</span>
             <span className="text-[20px] font-black tabular-nums text-[#00796b] whitespace-nowrap">
               ৳ {total.toFixed(2)}
             </span>
@@ -551,7 +551,7 @@ export function PharmacyPOSRightPanel({
         </div>
 
         {error && (
-          <p className="rounded-lg bg-rose-50 border border-rose-100 p-1.5 text-[10.5px] font-bold text-rose-600">
+          <p className="rounded-sm bg-rose-50 border border-rose-100 p-1.5 text-[10.5px] font-bold text-rose-600">
             {error}
           </p>
         )}
@@ -565,7 +565,7 @@ export function PharmacyPOSRightPanel({
             disabled={cart.length === 0}
             className={cn(
               "flex flex-col items-center justify-center h-12 px-3 gap-0.5 shrink-0 rounded-sm shadow-2xs",
-              darkMode ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+              darkMode ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700" : "border-slate-200 bg-slate-50 text-gray-600 hover:bg-slate-100"
             )}
           >
             <PauseCircle size={15} />

@@ -189,7 +189,7 @@ export function WholesalePOSLeftPanel({
                 type="button"
                 onClick={onScan}
                 className={cn(
-                  "flex h-6 w-6 items-center justify-center rounded-lg transition-colors cursor-pointer",
+                  "flex h-6 w-6 items-center justify-center rounded-sm transition-colors cursor-pointer",
                   darkMode ? "hover:bg-primary-500/15 text-primary-400" : "",
                 )}
                 style={darkMode ? undefined : { color: iceBlue }}
@@ -198,7 +198,7 @@ export function WholesalePOSLeftPanel({
               </button>
             }
             className={cn(
-              "!h-9 !rounded-xl !py-1.5",
+              "!h-9 !rounded-sm !py-1.5",
               darkMode ? cn(darkField, "shadow-sm") : "",
             )}
             style={darkMode ? undefined : {
@@ -217,7 +217,7 @@ export function WholesalePOSLeftPanel({
               type="button"
               onClick={() => onQuickAction?.(a.id)}
               className={cn(
-                "flex h-9 items-center gap-1.5 rounded-xl px-3 text-[11px] font-bold transition-all cursor-pointer hover:shadow-sm",
+                "flex h-9 items-center gap-1.5 rounded-sm px-3 text-[11px] font-bold transition-all cursor-pointer hover:shadow-sm",
                 darkMode
                   ? "border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
                   : "",
@@ -245,7 +245,7 @@ export function WholesalePOSLeftPanel({
         themeColor="blue"
         darkMode={darkMode}
         className={cn(
-          "!rounded-xl !p-1 shadow-sm transition-all border",
+          "!rounded-sm !p-1 shadow-sm transition-all border",
           darkMode ? "!border-slate-700/50 !bg-slate-900/60" : "",
         )}
         style={darkMode ? undefined : { background: iceInputBg, border: `1px solid ${iceBorder}` } as React.CSSProperties}
@@ -258,7 +258,7 @@ export function WholesalePOSLeftPanel({
             type="button"
             onClick={onOpenFilters}
             className={cn(
-              "flex h-9 items-center gap-1.5 rounded-xl px-3 text-[11px] font-bold transition-all cursor-pointer",
+              "flex h-9 items-center gap-1.5 rounded-sm px-3 text-[11px] font-bold transition-all cursor-pointer",
               darkMode ? "border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700" : "",
             )}
             style={darkMode ? undefined : { background: iceCard, border: `1px solid ${iceBorder}`, color: darkText }}
@@ -272,7 +272,7 @@ export function WholesalePOSLeftPanel({
             onChange={() => {}}
             options={[{ value: "all", label: warehouseName }]}
             className={cn(
-              "!h-9 !rounded-xl !py-1.5 !text-[11px] !font-bold shadow-sm transition-all",
+              "!h-9 !rounded-sm !py-1.5 !text-[11px] !font-bold shadow-sm transition-all",
               darkMode ? darkField : "",
             )}
             style={darkMode ? undefined : {
@@ -285,7 +285,7 @@ export function WholesalePOSLeftPanel({
 
           <div
             className={cn(
-              "inline-flex h-9 items-center rounded-xl border px-3 transition-colors shadow-sm",
+              "inline-flex h-9 items-center rounded-sm border px-3 transition-colors shadow-sm",
               darkMode ? "border-slate-700 bg-slate-800" : "",
             )}
             style={darkMode ? undefined : { background: iceCard, border: `1px solid ${iceBorder}` }}
@@ -318,7 +318,7 @@ export function WholesalePOSLeftPanel({
               { value: "stock", label: "Sort by: Stock" },
             ]}
             className={cn(
-              "!h-9 !rounded-xl !py-1.5 !text-[11px] !font-bold shadow-sm transition-all",
+              "!h-9 !rounded-sm !py-1.5 !text-[11px] !font-bold shadow-sm transition-all",
               darkMode ? darkField : "",
             )}
             style={darkMode ? undefined : {
@@ -331,7 +331,7 @@ export function WholesalePOSLeftPanel({
 
           <div
             className={cn(
-              "flex rounded-xl border p-0.5 shadow-sm transition-all",
+              "flex rounded-sm border p-0.5 shadow-sm transition-all",
               darkMode ? "border-slate-700 bg-slate-800" : "",
             )}
             style={darkMode ? undefined : { background: iceCard, border: `1px solid ${iceBorder}` }}
@@ -343,7 +343,7 @@ export function WholesalePOSLeftPanel({
               size="xs"
               onClick={() => setViewMode("grid")}
               className={cn(
-                "!h-7 !w-7 !rounded-md !px-0 cursor-pointer",
+                "!h-7 !w-7 !rounded-sm !px-0 cursor-pointer",
                 darkMode && viewMode !== "grid" && "!text-slate-400 hover:!bg-slate-700",
                 !darkMode && viewMode !== "grid" && "!text-slate-500 hover:!bg-blue-50 hover:!text-blue-600",
               )}
@@ -357,7 +357,7 @@ export function WholesalePOSLeftPanel({
               size="xs"
               onClick={() => setViewMode("list")}
               className={cn(
-                "!h-7 !w-7 !rounded-md !px-0 cursor-pointer",
+                "!h-7 !w-7 !rounded-sm !px-0 cursor-pointer",
                 darkMode && viewMode !== "list" && "!text-slate-400 hover:!bg-slate-700",
                 !darkMode && viewMode !== "list" && "!text-slate-500 hover:!bg-blue-50 hover:!text-blue-600",
               )}
@@ -474,7 +474,7 @@ function ProductCard({
   return (
     <div
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-xl transition-all text-left cursor-pointer",
+        "group relative flex flex-col overflow-hidden rounded-sm transition-all text-left cursor-pointer",
         darkMode
           ? "border border-slate-700 bg-slate-800 shadow-lg hover:border-blue-500/50"
           : "hover:shadow-[0_4px_20px_rgba(20,110,245,0.12)]",
@@ -505,7 +505,7 @@ function ProductCard({
 
         <div className="absolute top-1.5 left-1.5">
           <span
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter shadow-xs"
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[8px] font-black uppercase tracking-tighter shadow-xs"
             style={lowStock
               ? { background: "#FFF3E0", color: "#E65100", border: "1px solid #FFCC80" }
               : { background: "#E8F5E9", color: "#1B5E20", border: "1px solid #A5D6A7" }
@@ -574,7 +574,7 @@ function ProductListRow({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-all cursor-pointer",
+        "flex items-center gap-3 rounded-sm px-3.5 py-2.5 transition-all cursor-pointer",
         darkMode ? "border border-slate-700 bg-slate-800 hover:border-blue-500/40 hover:shadow-md" : "hover:shadow-md",
       )}
       style={darkMode ? undefined : { background: "#FFFFFF", border: `1px solid ${iceBorder}` }}
@@ -582,7 +582,7 @@ function ProductListRow({
     >
       <div
         className={cn(
-          "flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border",
+          "flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm border",
           darkMode ? "bg-slate-900 border-slate-700" : "",
         )}
         style={darkMode ? undefined : { background: "#F5FAFE", border: `1px solid ${iceBorder}` }}

@@ -94,7 +94,7 @@ export default function LandedCostsPage() {
       key: "total",
       header: "Total Landed Cost",
       align: "right",
-      render: (r) => <span className="font-semibold text-gray-900">{Number(r.totalLandedCost).toFixed(2)}</span>,
+      render: (r) => <span className="font-semibold text-gray-600">{Number(r.totalLandedCost).toFixed(2)}</span>,
     },
     { key: "date", header: "Date", render: (r) => <span className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString()}</span> },
   ];
@@ -105,21 +105,21 @@ export default function LandedCostsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Landed Costs</h1>
+          <h1 className="text-2xl font-bold text-gray-600">Landed Costs</h1>
           <p className="mt-1 text-sm text-gray-500">Allocate import/purchase costs across received products</p>
         </div>
         <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowCreate(true)}>New Landed Cost</CustomButton>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white">
+      <div className="rounded-sm border border-gray-200 bg-white">
         <CustomTable columns={columns} data={costs} rowKey={(r) => r.id} loading={loading} emptyIcon={DollarSign} emptyMessage="No landed costs yet" />
         {totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm text-gray-500">
             <span>{total} records</span>
             <div className="flex gap-2">
-              <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="px-3 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Prev</button>
+              <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="px-3 py-1 rounded-sm border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Prev</button>
               <span className="px-2 py-1">{page} / {totalPages}</span>
-              <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="px-3 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Next</button>
+              <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="px-3 py-1 rounded-sm border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Next</button>
             </div>
           </div>
         )}
@@ -150,7 +150,7 @@ export default function LandedCostsPage() {
             ]}
           />
           <div>
-            <p className="mb-2 text-sm font-medium text-gray-700">Products Received</p>
+            <p className="mb-2 text-sm font-medium text-gray-600">Products Received</p>
             {items.map((item, idx) => (
               <div key={idx} className="mb-2 grid grid-cols-3 gap-2">
                 <CustomInput placeholder="Product ID" value={item.productId} onChange={(e) => { const n = [...items]; n[idx].productId = e.target.value; setItems(n); }} />
@@ -170,7 +170,7 @@ export default function LandedCostsPage() {
       {result && (
         <CustomModal open={!!result} onClose={() => setResult(null)} title="Allocation Result">
           <div className="space-y-3">
-            <p className="text-sm text-gray-600">Total Landed Cost: <span className="font-bold text-gray-900">{result.totalLandedCost.toFixed(2)}</span></p>
+            <p className="text-sm text-gray-600">Total Landed Cost: <span className="font-bold text-gray-600">{result.totalLandedCost.toFixed(2)}</span></p>
             <table className="w-full text-sm">
               <thead><tr className="text-xs text-gray-400 border-b"><th className="py-2 text-left">Product</th><th className="py-2 text-right">Allocated</th><th className="py-2 text-right">Adj. Cost</th></tr></thead>
               <tbody>

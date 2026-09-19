@@ -380,7 +380,7 @@ export function CustomTable<T>({
                   key={col.key}
                   style={col.width ? { width: col.width } : undefined}
                   className={cn(
-                    "px-4 py-3 font-medium text-slate-700 text-sm whitespace-nowrap",
+                    "px-4 py-3 font-medium text-gray-600 text-sm whitespace-nowrap",
                     alignCss,
                     col.className
                   )}

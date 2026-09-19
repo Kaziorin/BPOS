@@ -52,7 +52,7 @@ const STATUS_COLORS: Record<Table["status"], { bg: string; border: string; text:
   PREPARING: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", dot: "bg-amber-500" },
   BILL_REQUESTED: { bg: "bg-cyan-50", border: "border-cyan-200", text: "text-cyan-700", dot: "bg-cyan-500" },
   PAYMENT_PENDING: { bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700", dot: "bg-rose-500" },
-  CLEANING: { bg: "bg-slate-100", border: "border-slate-200", text: "text-slate-700", dot: "bg-slate-500" },
+  CLEANING: { bg: "bg-slate-100", border: "border-slate-200", text: "text-gray-600", dot: "bg-slate-500" },
 };
 
 export const DEFAULT_FLOORS: Floor[] = [
@@ -284,15 +284,15 @@ export default function FloorPlanView() {
   return (
     <div className="space-y-6 w-full">
       {/* Top Action Bar (Full Width Card) */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-md border border-slate-200 shadow-2xs w-full">
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-sm border border-slate-200 shadow-2xs w-full">
         <div className="flex items-center gap-2 overflow-x-auto py-1">
           <button
             id="btn-floor-all"
             onClick={() => setSelectedFloorId("")}
-            className={`px-4 py-2 rounded-md text-xs font-bold transition-all duration-200 cursor-pointer ${
+            className={`px-4 py-2 rounded-sm text-xs font-bold transition-all duration-200 cursor-pointer ${
               selectedFloorId === ""
                 ? "bg-orange-600 text-white shadow-2xs"
-                : "bg-slate-100 text-gray-600 hover:text-gray-900 hover:bg-slate-200"
+                : "bg-slate-100 text-gray-600 hover:text-gray-600 hover:bg-slate-200"
             }`}
           >
             All Sections
@@ -304,10 +304,10 @@ export default function FloorPlanView() {
                 key={f.id}
                 id={`btn-floor-${f.id}`}
                 onClick={() => setSelectedFloorId(f.id)}
-                className={`px-4 py-2 rounded-md text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                className={`px-4 py-2 rounded-sm text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap ${
                   isSelected
                     ? "bg-orange-600 text-white shadow-2xs"
-                    : "bg-slate-100 text-gray-600 hover:text-gray-900 hover:bg-slate-200"
+                    : "bg-slate-100 text-gray-600 hover:text-gray-600 hover:bg-slate-200"
                 }`}
               >
                 {f.name}
@@ -318,7 +318,7 @@ export default function FloorPlanView() {
           <button
             id="btn-add-floor"
             onClick={() => setShowFloorModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 rounded-md transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 rounded-sm transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" /> New Section
           </button>
@@ -337,7 +337,7 @@ export default function FloorPlanView() {
                     setShowEditFloorModal(true);
                   }
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md border border-slate-200 transition cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-600 bg-slate-100 hover:bg-slate-200 rounded-sm border border-slate-200 transition cursor-pointer"
                 title="Edit active section name"
               >
                 <Pencil className="w-3.5 h-3.5 text-slate-600" />
@@ -353,7 +353,7 @@ export default function FloorPlanView() {
                     setDeleteTargetFloor(activeFloor);
                   }
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-md border border-rose-200 transition cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-sm border border-rose-200 transition cursor-pointer"
                 title="Delete active section"
               >
                 <Trash2 className="w-3.5 h-3.5 text-rose-600" />
@@ -367,21 +367,21 @@ export default function FloorPlanView() {
           <button
             id="btn-transfer-table"
             onClick={() => setShowTransferModal(true)}
-            className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-md transition-all"
+            className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-sm transition-all"
           >
             <ArrowRightLeft className="w-4 h-4" /> Transfer Table
           </button>
           <button
             id="btn-add-table"
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white rounded-md shadow-2xs transition-all"
+            className="flex items-center gap-2 px-4 py-2 text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white rounded-sm shadow-2xs transition-all"
           >
             <Plus className="w-4 h-4" /> Add Table
           </button>
           <button
             id="btn-refresh-tables"
             onClick={loadData}
-            className="p-2 text-gray-600 hover:text-gray-900 bg-slate-100 hover:bg-slate-200 rounded-md transition-all"
+            className="p-2 text-gray-600 hover:text-gray-600 bg-slate-100 hover:bg-slate-200 rounded-sm transition-all"
             title="Refresh sections"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-orange-600" : ""}`} />
@@ -391,7 +391,7 @@ export default function FloorPlanView() {
 
       {/* Error Alert */}
       {error && (
-        <div className="flex items-center gap-3 p-4 bg-rose-50 border border-rose-200 rounded-md text-rose-700 text-sm w-full">
+        <div className="flex items-center gap-3 p-4 bg-rose-50 border border-rose-200 rounded-sm text-rose-700 text-sm w-full">
           <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-600" />
           <span>{error}</span>
         </div>
@@ -405,7 +405,7 @@ export default function FloorPlanView() {
             <div
               key={t.id}
               id={`table-card-${t.tableNo}`}
-              className={`relative flex flex-col justify-between p-5 rounded-md border ${style.bg} ${style.border} transition-all duration-200 hover:shadow-2xs hover:border-orange-300 bg-white w-full`}
+              className={`relative flex flex-col justify-between p-5 rounded-sm border ${style.bg} ${style.border} transition-all duration-200 hover:shadow-2xs hover:border-orange-300 bg-white w-full`}
             >
               <div className="w-full">
                 <div className="flex items-start justify-between w-full">
@@ -432,12 +432,12 @@ export default function FloorPlanView() {
                   <div className="flex items-center justify-between gap-2 w-full pt-0.5">
                     <div className="flex items-center gap-2">
                       <Layers className="w-4 h-4 text-orange-600" />
-                      <span>Section: <strong className="text-gray-700">{t.floor?.name || "Unassigned"}</strong></span>
+                      <span>Section: <strong className="text-gray-600">{t.floor?.name || "Unassigned"}</strong></span>
                     </div>
                     <select
                       value={t.floor?.id || ""}
                       onChange={(e) => handleTableFloorChange(t.id, e.target.value)}
-                      className="text-[10px] font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded px-1.5 py-0.5 focus:outline-none cursor-pointer"
+                      className="text-[10px] font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-sm px-1.5 py-0.5 focus:outline-none cursor-pointer"
                       title="Assign / Change Section"
                     >
                       <option value="">Select Floor...</option>
@@ -472,7 +472,7 @@ export default function FloorPlanView() {
                   id={`select-status-${t.id}`}
                   value={t.status}
                   onChange={(e) => handleStatusChange(t.id, e.target.value as Table["status"])}
-                  className="w-full bg-slate-50 border border-slate-200 text-xs text-gray-600 font-medium rounded-md px-3 py-2 focus:outline-none focus:border-orange-500 transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 text-xs text-gray-600 font-medium rounded-sm px-3 py-2 focus:outline-none focus:border-orange-500 transition-all"
                 >
                   <option value="AVAILABLE">AVAILABLE (Emerald Green)</option>
                   <option value="RESERVED">RESERVED (Purple)</option>
@@ -489,7 +489,7 @@ export default function FloorPlanView() {
         })}
 
         {filteredTables.length === 0 && !loading && (
-          <div className="col-span-full flex flex-col items-center justify-center p-12 bg-white border border-dashed border-slate-200 rounded-md text-gray-500 text-center shadow-2xs w-full">
+          <div className="col-span-full flex flex-col items-center justify-center p-12 bg-white border border-dashed border-slate-200 rounded-sm text-gray-500 text-center shadow-2xs w-full">
             <Utensils className="w-10 h-10 mb-3 text-gray-400" />
             <p className="font-bold text-gray-600">No tables in this section yet</p>
             <p className="text-xs text-gray-500 mt-1">Click &quot;Add Table&quot; above to add your first restaurant dining table.</p>
@@ -505,7 +505,7 @@ export default function FloorPlanView() {
         size="md"
       >
         <form onSubmit={handleCreateTable} className="space-y-4">
-          <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-xl border border-orange-100 mb-2">
+          <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-sm border border-orange-100 mb-2">
             <Plus className="text-orange-600" size={20} />
             <p className="text-xs font-bold text-orange-800 uppercase tracking-wider">New Table Configuration</p>
           </div>
@@ -568,7 +568,7 @@ export default function FloorPlanView() {
         size="sm"
       >
         <form onSubmit={handleCreateFloor} className="space-y-4">
-          <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-xl border border-orange-100 mb-2">
+          <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-sm border border-orange-100 mb-2">
             <Layers className="text-orange-600" size={20} />
             <p className="text-xs font-bold text-orange-800 uppercase tracking-wider">Dining Area Management</p>
           </div>
@@ -607,7 +607,7 @@ export default function FloorPlanView() {
         size="md"
       >
         <form onSubmit={handleTransferTable} className="space-y-4">
-          <div className="flex items-center gap-3 bg-amber-50 p-4 rounded-xl border border-amber-100 mb-2">
+          <div className="flex items-center gap-3 bg-amber-50 p-4 rounded-sm border border-amber-100 mb-2">
             <ArrowRightLeft className="text-amber-600" size={20} />
             <p className="text-xs font-bold text-amber-800 uppercase tracking-wider">Order Redistribution</p>
           </div>
@@ -660,7 +660,7 @@ export default function FloorPlanView() {
         size="sm"
       >
         <form onSubmit={handleUpdateFloor} className="space-y-4">
-          <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-xl border border-orange-100 mb-2">
+          <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-sm border border-orange-100 mb-2">
             <Pencil className="text-orange-600" size={20} />
             <p className="text-xs font-bold text-orange-800 uppercase tracking-wider">Rename Dining Area</p>
           </div>

@@ -368,7 +368,7 @@ export default function SalesPage() {
             </div>
           </div>
           <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-gray-900">
+            <span className="text-2xl font-bold text-gray-600">
               ৳{Math.round(totalRevenue).toLocaleString()}
             </span>
             <span className="text-xs font-medium text-emerald-600">
@@ -440,7 +440,7 @@ export default function SalesPage() {
             </div>
           </div>
           <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-gray-900">
+            <span className="text-2xl font-bold text-gray-600">
               ৳{sales.length > 0 ? Math.round(totalRevenue / sales.length).toLocaleString() : "0"}
             </span>
           </div>
@@ -465,7 +465,7 @@ export default function SalesPage() {
               className={`flex items-center gap-1.5 shrink-0 rounded-sm px-3 py-1.5 text-xs font-medium transition ${
                 isActive
                   ? "bg-brand-gradient text-white shadow-xs font-semibold"
-                  : "bg-white text-gray-600 border border-brand-border/60 hover:bg-brand-50/60 hover:text-gray-900"
+                  : "bg-white text-gray-600 border border-brand-border/60 hover:bg-brand-50/60 hover:text-gray-600"
               }`}
             >
               <Icon size={13} className={isActive ? "text-white" : "text-brand-primary"} />
@@ -495,7 +495,7 @@ export default function SalesPage() {
               setSearchQuery(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-sm border border-brand-border py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition"
+            className="w-full rounded-sm border border-brand-border py-1.5 pl-9 pr-8 text-xs text-gray-600 placeholder-gray-400 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none transition"
           />
           {searchQuery && (
             <button
@@ -515,7 +515,7 @@ export default function SalesPage() {
               setPaymentStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-brand-primary focus:outline-none"
+            className="rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs text-gray-600 focus:border-brand-primary focus:outline-none"
           >
             <option value="">All Payment Status</option>
             <option value="PAID">Paid in Full</option>
@@ -529,7 +529,7 @@ export default function SalesPage() {
               setSortBy(e.target.value);
               setPage(1);
             }}
-            className="rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-brand-primary focus:outline-none"
+            className="rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs text-gray-600 focus:border-brand-primary focus:outline-none"
           >
             <option value="date">Date & Time</option>
             <option value="total">Total Amount</option>
@@ -549,14 +549,14 @@ export default function SalesPage() {
           <div className="flex items-center rounded-sm border border-brand-border p-0.5 bg-brand-50/40">
             <button
               onClick={() => setViewMode("table")}
-              className={`rounded-xs p-1 transition ${viewMode === "table" ? "bg-white text-brand-primary shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-xs p-1 transition ${viewMode === "table" ? "bg-white text-brand-primary shadow-2xs font-bold" : "text-gray-400 hover:text-gray-600"}`}
               title="Table View"
             >
               <LayoutList size={14} />
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`rounded-xs p-1 transition ${viewMode === "grid" ? "bg-white text-brand-primary shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-xs p-1 transition ${viewMode === "grid" ? "bg-white text-brand-primary shadow-2xs font-bold" : "text-gray-400 hover:text-gray-600"}`}
               title="Grid View"
             >
               <LayoutGrid size={14} />
@@ -582,7 +582,7 @@ export default function SalesPage() {
       ) : paginatedSales.length === 0 ? (
         <div className="rounded-sm border-2 border-dashed border-brand-border bg-white p-12 text-center shadow-xs">
           <ShoppingCart size={32} className="mx-auto text-brand-primary/40 mb-3" />
-          <h3 className="text-sm font-bold text-gray-900">No Sales Invoices Found</h3>
+          <h3 className="text-sm font-bold text-gray-600">No Sales Invoices Found</h3>
           <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
             {searchQuery || selectedVertical !== "ALL" || paymentStatusFilter
               ? "No transactions matched your search or filter criteria."
@@ -654,7 +654,7 @@ export default function SalesPage() {
                           <div>
                             <button
                               onClick={() => handleOpenInvoice(s)}
-                              className="font-bold text-gray-900 hover:text-brand-primary text-left transition block"
+                              className="font-bold text-gray-600 hover:text-brand-primary text-left transition block"
                             >
                               {s.invoiceNo}
                             </button>
@@ -668,7 +668,7 @@ export default function SalesPage() {
                       {/* Customer */}
                       <td className="px-3 py-3">
                         <div>
-                          <p className="font-semibold text-gray-800">{s.customer?.name || "Walk-in Customer"}</p>
+                          <p className="font-semibold text-gray-600">{s.customer?.name || "Walk-in Customer"}</p>
                           {s.customer?.phone ? (
                             <div className="flex items-center gap-1.5 text-[11px] text-gray-500 mt-0.5">
                               <a href={`tel:${s.customer.phone}`} className="hover:text-brand-primary transition">
@@ -697,7 +697,7 @@ export default function SalesPage() {
 
                       {/* Financials */}
                       <td className="px-3 py-3 text-right">
-                        <span className="text-xs font-bold text-gray-900 block tabular-nums">
+                        <span className="text-xs font-bold text-gray-600 block tabular-nums">
                           ৳{Math.round(s.total || 0).toLocaleString()}
                         </span>
                       </td>
@@ -788,7 +788,7 @@ export default function SalesPage() {
                     <div>
                       <h3
                         onClick={() => handleOpenInvoice(s)}
-                        className="font-bold text-gray-900 hover:text-brand-primary cursor-pointer transition text-xs"
+                        className="font-bold text-gray-600 hover:text-brand-primary cursor-pointer transition text-xs"
                       >
                         {s.invoiceNo}
                       </h3>
@@ -806,7 +806,7 @@ export default function SalesPage() {
                   <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-slate-200 text-center">
                     <div className="rounded-sm bg-brand-50/40 border border-brand-border/60 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Total</p>
-                      <p className="text-xs font-bold text-gray-900">৳{total.toLocaleString()}</p>
+                      <p className="text-xs font-bold text-gray-600">৳{total.toLocaleString()}</p>
                     </div>
                     <div className="rounded-sm bg-brand-50/40 border border-brand-border/60 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Paid</p>
@@ -858,11 +858,11 @@ export default function SalesPage() {
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-sm border border-slate-200 bg-white p-3 shadow-xs">
           <p className="text-xs text-gray-500">
-            Showing <span className="font-semibold text-gray-800">{(page - 1) * perPage + 1}</span> -{" "}
-            <span className="font-semibold text-gray-800">
+            Showing <span className="font-semibold text-gray-600">{(page - 1) * perPage + 1}</span> -{" "}
+            <span className="font-semibold text-gray-600">
               {Math.min(page * perPage, totalItems)}
             </span>{" "}
-            of <span className="font-semibold text-gray-800">{totalItems}</span> transactions
+            of <span className="font-semibold text-gray-600">{totalItems}</span> transactions
           </p>
 
           <div className="flex items-center gap-2">
@@ -872,7 +872,7 @@ export default function SalesPage() {
                 setPerPage(Number(e.target.value));
                 setPage(1);
               }}
-              className="rounded-sm border border-brand-border px-2 py-1 text-xs text-gray-700 focus:outline-none"
+              className="rounded-sm border border-brand-border px-2 py-1 text-xs text-gray-600 focus:outline-none"
             >
               <option value="10">10 / page</option>
               <option value="20">20 / page</option>

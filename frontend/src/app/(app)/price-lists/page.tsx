@@ -3,10 +3,18 @@
 import { useEffect, useState } from "react";
 import { Loader2, Plus, Trash2, DollarSign, Package, Eye, X, Tag, Sparkles } from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
-import { CustomButton } from "@/components/custom/CustomButton";
-import { ConfirmModal, ModalType } from "@/components/custom/ConfirmModal";
-import { SearchableSelect } from "@/components/custom/SearchableSelect";
+import {
+  CustomBreadcrumb,
+  CustomButton,
+  CustomInput,
+  CustomDropdownSelect,
+  CustomModal,
+  CustomTable,
+  type CustomTableColumn,
+  ConfirmModal,
+  type ModalType,
+  SearchableSelect,
+} from "@/components/custom";
 
 interface PriceList {
   id: string;
@@ -226,7 +234,7 @@ export default function PriceListsPage() {
             size="sm"
             leftIcon={<Plus size={14} />}
             onClick={() => setShowCreate(true)}
-            className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+            className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
           >
             Create Price List
           </CustomButton>
@@ -234,8 +242,8 @@ export default function PriceListsPage() {
       />
 
       {/* Explanation Banner */}
-      <div className="rounded-md border border-teal-100 bg-teal-50/50 p-4 text-xs text-teal-900 leading-relaxed flex items-start gap-3">
-        <Sparkles className="h-5 w-5 text-teal-600 shrink-0 mt-0.5" />
+      <div className="rounded-sm border border-brand-border bg-brand-50 p-4 text-xs text-brand-dark leading-relaxed flex items-start gap-3">
+        <Sparkles className="h-5 w-5 text-brand-primary shrink-0 mt-0.5" />
         <div>
           <span className="font-bold block text-indigo-950 mb-0.5">How Price Lists work with Products:</span>
           Each Price List defines custom prices for products. When a wholesale or VIP customer buys a product, POS automatically applies the custom rate set in that customer's Price List instead of standard retail price. Click <b>"Manage Product Prices"</b> on any list below to set custom rates per product!
@@ -244,16 +252,16 @@ export default function PriceListsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-teal-600" />
+          <Loader2 size={24} className="animate-spin text-brand-primary" />
         </div>
       ) : lists.length === 0 ? (
-        <div className="rounded-md border-2 border-dashed border-slate-200 p-12 text-center bg-white">
+        <div className="rounded-sm border-2 border-dashed border-slate-200 p-12 text-center bg-white">
           <DollarSign size={44} className="mx-auto text-slate-300 mb-2" />
           <p className="text-sm font-semibold text-gray-600">No price lists created yet</p>
           <p className="text-xs text-slate-400 mt-1">Create your first Price List (e.g. Wholesale Rate) to customize product prices!</p>
           <button
             onClick={() => setShowCreate(true)}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-teal-600 px-4 py-2 text-xs font-semibold text-white hover:bg-teal-700"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-sm bg-brand-primary px-4 py-2 text-xs font-semibold text-white hover:bg-brand-dark"
           >
             <Plus size={14} /> Create Price List
           </button>
@@ -263,8 +271,8 @@ export default function PriceListsPage() {
           {lists.map((pl) => (
             <div
               key={pl.id}
-              className={`rounded-md border bg-white p-5 shadow-2xs transition hover:shadow-xs ${
-                activeList?.id === pl.id ? "border-teal-500 ring-2 ring-teal-500/20" : "border-slate-200"
+              className={`rounded-sm border bg-white p-5 shadow-2xs transition hover:shadow-xs ${
+                activeList?.id === pl.id ? "border-brand-primary ring-2 ring-brand-border" : "border-slate-200"
               }`}
             >
               <div className="flex items-start justify-between">
@@ -272,19 +280,19 @@ export default function PriceListsPage() {
                   <div className="flex items-center gap-2">
                     <h3 className="font-bold text-gray-600 text-sm">{pl.name}</h3>
                     {pl.isDefault && (
-                      <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200">
+                      <span className="rounded-sm bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200">
                         Default
                       </span>
                     )}
                   </div>
                   <p className="mt-1 text-xs text-slate-500">
                     Currency: <span className="font-bold text-gray-600">{pl.currency}</span> · Custom Prices:{" "}
-                    <span className="font-bold text-teal-600">{pl._count?.items || 0} products</span>
+                    <span className="font-bold text-brand-primary">{pl._count?.items || 0} products</span>
                   </p>
                 </div>
                 <button
                   onClick={() => confirmDelete(pl.id, pl.name)}
-                  className="rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
+                  className="rounded-sm p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
                   title="Delete Price List"
                 >
                   <Trash2 size={15} />
@@ -297,7 +305,7 @@ export default function PriceListsPage() {
                 </span>
                 <button
                   onClick={() => openListItems(pl)}
-                  className="flex items-center gap-1 text-xs font-bold text-teal-600 hover:text-teal-800 bg-teal-50 px-3 py-1.5 rounded-md transition"
+                  className="flex items-center gap-1 text-xs font-bold text-brand-primary hover:text-brand-dark bg-brand-50 px-3 py-1.5 rounded-sm transition"
                 >
                   <Eye size={13} /> Manage Product Prices
                 </button>
@@ -308,78 +316,60 @@ export default function PriceListsPage() {
       )}
 
       {/* CREATE MODAL */}
-      {showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md rounded-md bg-white p-6 shadow-xl border border-slate-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-              <h3 className="text-sm font-bold text-gray-600">Create New Price List</h3>
-              <button onClick={() => setShowCreate(false)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-            <div className="space-y-3.5">
-              <div>
-                <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
-                  Price List Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="e.g. Wholesale Tier / Corporate Rate"
-                  className="w-full rounded-md border border-slate-200 px-3.5 py-2 text-xs text-gray-600 focus:border-teal-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">Currency</label>
-                <select
-                  value={newCurrency}
-                  onChange={(e) => setNewCurrency(e.target.value)}
-                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-xs text-gray-600 focus:border-teal-500 focus:outline-none"
-                >
-                  <option value="BDT">BDT (৳ - Bangladeshi Taka)</option>
-                  <option value="USD">USD ($ - US Dollar)</option>
-                </select>
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end gap-2">
-              <button
-                onClick={() => setShowCreate(false)}
-                className="rounded-md border border-slate-200 px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-slate-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={createList}
-                disabled={!newName.trim()}
-                className="rounded-md bg-teal-600 px-4 py-2 text-xs font-semibold text-white hover:bg-teal-700 disabled:opacity-50"
-              >
-                Save Price List
-              </button>
-            </div>
+      <CustomModal
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
+        title="Create New Price List"
+        size="md"
+      >
+        <div className="space-y-4">
+          <CustomInput
+            label="Price List Name"
+            required
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="e.g. Wholesale Tier / Corporate Rate"
+          />
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Currency</label>
+            <CustomDropdownSelect
+              value={newCurrency}
+              onChange={(val) => setNewCurrency(val)}
+              options={[
+                { value: "BDT", label: "BDT (৳ - Bangladeshi Taka)" },
+                { value: "USD", label: "USD ($ - US Dollar)" },
+              ]}
+            />
+          </div>
+          <div className="mt-6 flex justify-end gap-2 pt-3 border-t border-slate-100">
+            <CustomButton variant="outline" size="sm" onClick={() => setShowCreate(false)}>
+              Cancel
+            </CustomButton>
+            <CustomButton
+              variant="primary"
+              size="sm"
+              onClick={createList}
+              disabled={!newName.trim()}
+            >
+              Save Price List
+            </CustomButton>
           </div>
         </div>
-      )}
+      </CustomModal>
 
-      {/* MANAGE PRODUCT PRICES DRAWER / MODAL */}
+      {/* MANAGE PRODUCT PRICES MODAL */}
       {activeList && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-2xl rounded-md bg-white p-6 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-              <div>
-                <h3 className="text-base font-bold text-gray-600 flex items-center gap-2">
-                  <Package className="h-5 w-5 text-teal-600" /> Manage Prices — {activeList.name}
-                </h3>
-                <p className="text-xs text-slate-500">Set custom price rates for products under this list</p>
-              </div>
-              <button onClick={() => setActiveList(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={18} />
-              </button>
-            </div>
-
+        <CustomModal
+          open={Boolean(activeList)}
+          onClose={() => setActiveList(null)}
+          title={`Manage Prices — ${activeList.name}`}
+          size="2xl"
+          icon={<Package className="h-5 w-5 text-brand-primary" />}
+        >
+          <div className="flex flex-col space-y-4">
             {/* Form to Add/Set Product Price */}
-            <div className="rounded-md border border-teal-100 bg-teal-50/40 p-4 mb-4 space-y-3">
-              <h4 className="text-xs font-bold text-teal-900">Add / Edit Product Custom Price</h4>
+            <div className="rounded-sm border border-brand-border bg-brand-50 p-4 space-y-3">
+              <h4 className="text-xs font-bold text-brand-dark">Add / Edit Product Custom Price</h4>
               <div className="grid gap-3 sm:grid-cols-12 items-end">
                 <div className="sm:col-span-6">
                   <SearchableSelect
@@ -395,74 +385,78 @@ export default function PriceListsPage() {
                   />
                 </div>
                 <div className="sm:col-span-3">
-                  <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">Custom Rate (৳)</label>
-                  <input
+                  <CustomInput
+                    label="Custom Rate (৳)"
                     type="number"
                     value={customPrice}
                     onChange={(e) => setCustomPrice(e.target.value)}
                     placeholder="e.g. 85.00"
-                    className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs text-gray-600 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div className="sm:col-span-3">
-                  <button
+                  <CustomButton
+                    variant="primary"
+                    size="sm"
+                    className="w-full h-[38px]"
                     onClick={handleAddItem}
+                    loading={addingItem}
                     disabled={addingItem || !selectedProductId || !customPrice}
-                    className="w-full rounded-md bg-teal-600 py-2 text-xs font-semibold text-white hover:bg-teal-700 disabled:opacity-50 flex items-center justify-center gap-1"
+                    leftIcon={<Plus size={14} />}
                   >
-                    {addingItem ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Save Rate
-                  </button>
+                    Save Rate
+                  </CustomButton>
                 </div>
               </div>
             </div>
 
-            {/* List of Custom Product Prices */}
-            <div className="flex-1 overflow-y-auto space-y-2">
+            {/* List of Custom Product Prices with CustomTable */}
+            <div className="space-y-2">
               <h4 className="text-xs font-bold text-gray-600">Current Product Rates in List ({listItems.length})</h4>
-              {loadingItems ? (
-                <div className="py-12 text-center text-xs text-slate-400">Loading products...</div>
-              ) : listItems.length === 0 ? (
-                <div className="py-12 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-md">
-                  No custom product prices set yet. Use the form above to add a custom rate for any product!
-                </div>
-              ) : (
-                <div className="rounded-md border border-slate-200 overflow-hidden">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-slate-200 text-gray-600 text-left">
-                        <th className="px-3.5 py-2 font-semibold">Product Name</th>
-                        <th className="px-3.5 py-2 font-semibold">SKU</th>
-                        <th className="px-3.5 py-2 font-semibold text-right">Standard Price</th>
-                        <th className="px-3.5 py-2 font-semibold text-right">Custom List Rate</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {listItems.map((item) => (
-                        <tr key={item.id} className="hover:bg-slate-50/60">
-                          <td className="px-3.5 py-2.5 font-semibold text-gray-600">{item.productName}</td>
-                          <td className="px-3.5 py-2.5 font-mono text-slate-500">{item.productSku}</td>
-                          <td className="px-3.5 py-2.5 text-right text-slate-500 line-through">৳{item.defaultSellingPrice.toLocaleString()}</td>
-                          <td className="px-3.5 py-2.5 text-right font-bold text-teal-700 bg-teal-50/50">
-                            ৳{item.price.toLocaleString()}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              <CustomTable
+                columns={[
+                  {
+                    key: "productName",
+                    header: "Product Name",
+                    render: (r: PriceListItem) => <span className="font-semibold text-gray-600">{r.productName}</span>,
+                  },
+                  {
+                    key: "productSku",
+                    header: "SKU",
+                    render: (r: PriceListItem) => <span className="font-mono text-slate-500">{r.productSku}</span>,
+                  },
+                  {
+                    key: "defaultSellingPrice",
+                    header: "Standard Price",
+                    align: "right",
+                    render: (r: PriceListItem) => (
+                      <span className="text-slate-400 line-through">৳{r.defaultSellingPrice?.toLocaleString()}</span>
+                    ),
+                  },
+                  {
+                    key: "price",
+                    header: "Custom Rate",
+                    align: "right",
+                    render: (r: PriceListItem) => (
+                      <span className="font-bold text-brand-dark bg-brand-50 px-2 py-0.5 rounded-sm">
+                        ৳{r.price?.toLocaleString()}
+                      </span>
+                    ),
+                  },
+                ]}
+                data={listItems}
+                loading={loadingItems}
+                emptyMessage="No custom product prices set yet. Use the form above to add a custom rate!"
+                pageSize={5}
+              />
             </div>
 
             <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
-              <button
-                onClick={() => setActiveList(null)}
-                className="rounded-md bg-slate-800 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-700"
-              >
+              <CustomButton variant="outline" size="sm" onClick={() => setActiveList(null)}>
                 Done
-              </button>
+              </CustomButton>
             </div>
           </div>
-        </div>
+        </CustomModal>
       )}
     </div>
   );

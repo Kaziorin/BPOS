@@ -66,14 +66,14 @@ const ENTITY_META: Record<string, { label: string; icon: any; colorCls: string; 
   SUPPLIERS: { label: "Suppliers", icon: Truck, colorCls: "text-purple-600 bg-purple-50 border-purple-200", badgeCls: "bg-purple-50 text-purple-700 border-purple-200" },
   SALES: { label: "Sales & Invoices", icon: Receipt, colorCls: "text-amber-600 bg-amber-50 border-amber-200", badgeCls: "bg-amber-50 text-amber-700 border-amber-200" },
   INVOICES: { label: "Invoices", icon: Receipt, colorCls: "text-amber-600 bg-amber-50 border-amber-200", badgeCls: "bg-amber-50 text-amber-700 border-amber-200" },
-  INVENTORY: { label: "Inventory Stock", icon: Layers, colorCls: "text-teal-600 bg-teal-50 border-teal-200", badgeCls: "bg-teal-50 text-teal-700 border-teal-200" },
-  STOCK: { label: "Warehouse Stock", icon: Layers, colorCls: "text-teal-600 bg-teal-50 border-teal-200", badgeCls: "bg-teal-50 text-teal-700 border-teal-200" },
+  INVENTORY: { label: "Inventory Stock", icon: Layers, colorCls: "text-brand-primary bg-brand-50 border-brand-border", badgeCls: "bg-brand-50 text-brand-dark border-brand-border" },
+  STOCK: { label: "Warehouse Stock", icon: Layers, colorCls: "text-brand-primary bg-brand-50 border-brand-border", badgeCls: "bg-brand-50 text-brand-dark border-brand-border" },
   ACCOUNTING: { label: "Accounting", icon: Building2, colorCls: "text-indigo-600 bg-indigo-50 border-indigo-200", badgeCls: "bg-indigo-50 text-indigo-700 border-indigo-200" },
   ORDERS: { label: "Purchase Orders", icon: FileText, colorCls: "text-rose-600 bg-rose-50 border-rose-200", badgeCls: "bg-rose-50 text-rose-700 border-rose-200" },
   QUOTATIONS: { label: "Quotations", icon: FileSpreadsheet, colorCls: "text-violet-600 bg-violet-50 border-violet-200", badgeCls: "bg-violet-50 text-violet-700 border-violet-200" },
   PAYMENTS: { label: "Payments", icon: DollarSign, colorCls: "text-pink-600 bg-pink-50 border-pink-200", badgeCls: "bg-pink-50 text-pink-700 border-pink-200" },
   EMPLOYEES: { label: "Employees / HRM", icon: Briefcase, colorCls: "text-cyan-600 bg-cyan-50 border-cyan-200", badgeCls: "bg-cyan-50 text-cyan-700 border-cyan-200" },
-  CATEGORIES: { label: "Categories", icon: Tag, colorCls: "text-slate-600 bg-slate-50 border-slate-200", badgeCls: "bg-slate-100 text-slate-700 border-slate-200" },
+  CATEGORIES: { label: "Categories", icon: Tag, colorCls: "text-slate-600 bg-slate-50 border-slate-200", badgeCls: "bg-slate-100 text-gray-600 border-slate-200" },
 };
 
 type ActiveTab = "search" | "import" | "export" | "bulk" | "migration";
@@ -130,13 +130,13 @@ export default function DataManagementPage() {
       {/* ── Toast Notification ── */}
       {toast && (
         <div
-          className={`fixed top-5 right-5 z-50 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium shadow-lg animate-in slide-in-from-top duration-200 ${
+          className={`fixed top-5 right-5 z-50 flex items-center gap-2 rounded-sm border px-4 py-3 text-sm font-medium shadow-lg animate-in slide-in-from-top duration-200 ${
             toast.ok
-              ? "border-teal-200 bg-teal-50 text-teal-800"
+              ? "border-brand-border bg-brand-50 text-brand-dark"
               : "border-rose-200 bg-rose-50 text-rose-800"
           }`}
         >
-          {toast.ok ? <CheckCircle2 className="w-5 h-5 text-teal-600" /> : <AlertTriangle className="w-5 h-5 text-rose-600" />}
+          {toast.ok ? <CheckCircle2 className="w-5 h-5 text-brand-primary" /> : <AlertTriangle className="w-5 h-5 text-rose-600" />}
           {toast.text}
         </div>
       )}
@@ -196,7 +196,7 @@ export default function DataManagementPage() {
       </div>
 
       {/* ── Tab Bar ── */}
-      <div className="flex border-b border-slate-200 bg-white px-3 pt-2 rounded-t-xl shadow-2xs overflow-x-auto gap-1">
+      <div className="flex border-b border-slate-200 bg-white px-3 pt-2 rounded-t-sm shadow-2xs overflow-x-auto gap-1">
         {[
           { key: "search", label: "Global Enterprise Search", icon: Search },
           { key: "import", label: "CSV Data Import", icon: UploadCloud },
@@ -211,11 +211,11 @@ export default function DataManagementPage() {
               onClick={() => setActiveTab(key as ActiveTab)}
               className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
                 active
-                  ? "border-teal-600 text-teal-700 bg-teal-50/40 rounded-t-lg"
-                  : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                  ? "border-brand-primary text-brand-dark bg-brand-50 rounded-t-sm"
+                  : "border-transparent text-slate-500 hover:text-gray-600 hover:bg-slate-50"
               }`}
             >
-              <Icon className={`w-4 h-4 ${active ? "text-teal-600" : "text-slate-400"}`} />
+              <Icon className={`w-4 h-4 ${active ? "text-brand-primary" : "text-slate-400"}`} />
               {label}
             </button>
           );
@@ -223,7 +223,7 @@ export default function DataManagementPage() {
       </div>
 
       {/* ── Tab Content Container ── */}
-      <div className="rounded-b-xl border border-t-0 border-slate-200 bg-white p-5 shadow-2xs">
+      <div className="rounded-b-sm border border-t-0 border-slate-200 bg-white p-5 shadow-2xs">
         {activeTab === "search" && <SearchTab notify={notify} />}
         {activeTab === "import" && <ImportTab notify={notify} onStatsUpdate={loadGlobalStats} />}
         {activeTab === "export" && <ExportTab notify={notify} onStatsUpdate={loadGlobalStats} />}
@@ -292,12 +292,12 @@ function SearchTab({ notify }: { notify: (ok: boolean, text: string) => void }) 
             value={query}
             onChange={(e) => onInputChange(e.target.value)}
             placeholder="Search instantly across products, customers, suppliers, invoices, orders, barcodes, SKUs..."
-            className="w-full rounded-lg border border-slate-200 bg-slate-50/50 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-800 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+            className="w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-10 pr-4 py-2.5 text-sm font-medium text-gray-600 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
             autoFocus
           />
           {loading && (
             <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-              <RefreshCw className="h-4 w-4 animate-spin text-teal-600" />
+              <RefreshCw className="h-4 w-4 animate-spin text-brand-primary" />
             </div>
           )}
         </div>
@@ -305,7 +305,7 @@ function SearchTab({ notify }: { notify: (ok: boolean, text: string) => void }) 
         <select
           value={type}
           onChange={(e) => handleTypeChange(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+          className="rounded-sm border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
         >
           <option value="">All Entities (Omni Search)</option>
           {ENTITY_TYPES.map((t) => (
@@ -321,14 +321,14 @@ function SearchTab({ notify }: { notify: (ok: boolean, text: string) => void }) 
         <span>
           {query ? (
             <>
-              Found <strong className="text-slate-800 font-mono">{results.length}</strong> matching records for &ldquo;
+              Found <strong className="text-gray-600 font-mono">{results.length}</strong> matching records for &ldquo;
               {query}&rdquo;
             </>
           ) : (
             "Type at least 1 character to initiate instant cross-module search"
           )}
         </span>
-        {results.length > 0 && <span className="text-[11px] text-teal-700 font-medium">Click any row to inspect details</span>}
+        {results.length > 0 && <span className="text-[11px] text-brand-dark font-medium">Click any row to inspect details</span>}
       </div>
 
       {/* Results Table */}
@@ -342,7 +342,7 @@ function SearchTab({ notify }: { notify: (ok: boolean, text: string) => void }) 
               const Icon = meta.icon;
               return (
                 <div className="flex items-center gap-2">
-                  <div className={`flex h-7 w-7 items-center justify-center rounded-md border ${meta.colorCls}`}>
+                  <div className={`flex h-7 w-7 items-center justify-center rounded-sm border ${meta.colorCls}`}>
                     <Icon className="w-3.5 h-3.5" />
                   </div>
                   <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold border ${meta.badgeCls}`}>
@@ -360,7 +360,7 @@ function SearchTab({ notify }: { notify: (ok: boolean, text: string) => void }) 
                 row.name || row.invoiceNo || row.orderNo || row.quotationNo || row.reference || row.id || "—";
               return (
                 <div>
-                  <p className="font-semibold text-xs text-slate-900">{mainTitle}</p>
+                  <p className="font-semibold text-xs text-gray-600">{mainTitle}</p>
                   {row.code && <p className="font-mono text-[10px] text-slate-400">Code: {row.code}</p>}
                 </div>
               );
@@ -372,23 +372,23 @@ function SearchTab({ notify }: { notify: (ok: boolean, text: string) => void }) 
             render: (row) => (
               <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-600">
                 {row.sku && (
-                  <span className="font-mono text-[11px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">
+                  <span className="font-mono text-[11px] bg-slate-100 px-1.5 py-0.5 rounded-sm text-gray-600">
                     SKU: {row.sku}
                   </span>
                 )}
                 {row.barcode && (
-                  <span className="font-mono text-[11px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">
+                  <span className="font-mono text-[11px] bg-slate-100 px-1.5 py-0.5 rounded-sm text-gray-600">
                     Barcode: {row.barcode}
                   </span>
                 )}
                 {row.phone && <span>📞 {row.phone}</span>}
                 {row.email && <span>✉️ {row.email}</span>}
-                {row.total != null && <span className="font-mono font-bold text-teal-700">{money(row.total)}</span>}
+                {row.total != null && <span className="font-mono font-bold text-brand-dark">{money(row.total)}</span>}
                 {row.sellingPrice != null && (
-                  <span className="font-mono font-bold text-teal-700">{money(row.sellingPrice)}</span>
+                  <span className="font-mono font-bold text-brand-dark">{money(row.sellingPrice)}</span>
                 )}
                 {row.status && (
-                  <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 uppercase">
+                  <span className="rounded-sm bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 uppercase">
                     {row.status}
                   </span>
                 )}
@@ -401,7 +401,7 @@ function SearchTab({ notify }: { notify: (ok: boolean, text: string) => void }) 
             render: (row) => (
               <button
                 onClick={() => setSelectedResult(row)}
-                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-teal-700 hover:bg-teal-50 transition cursor-pointer"
+                className="inline-flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-brand-dark hover:bg-brand-50 transition cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5" /> Details
               </button>
@@ -422,21 +422,21 @@ function SearchTab({ notify }: { notify: (ok: boolean, text: string) => void }) 
       >
         {selectedResult && (
           <div className="space-y-4">
-            <div className="rounded-lg bg-slate-50 p-4 border border-slate-200">
+            <div className="rounded-sm bg-slate-50 p-4 border border-slate-200">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Primary Identifier</span>
-              <h4 className="text-base font-bold text-slate-900 mt-0.5">
+              <h4 className="text-base font-bold text-gray-600 mt-0.5">
                 {selectedResult.name || selectedResult.invoiceNo || selectedResult.orderNo || selectedResult.id}
               </h4>
               <p className="text-xs text-slate-500 font-mono mt-1">ID: {selectedResult.id}</p>
             </div>
 
             <div className="space-y-2 text-xs">
-              <h5 className="font-bold text-slate-700 uppercase tracking-wider text-[11px]">Field Key-Values</h5>
-              <div className="max-h-60 overflow-y-auto divide-y divide-slate-100 rounded-lg border border-slate-200">
+              <h5 className="font-bold text-gray-600 uppercase tracking-wider text-[11px]">Field Key-Values</h5>
+              <div className="max-h-60 overflow-y-auto divide-y divide-slate-100 rounded-sm border border-slate-200">
                 {Object.entries(selectedResult).map(([k, v]) => (
                   <div key={k} className="flex justify-between py-2 px-3 hover:bg-slate-50">
                     <span className="font-mono text-slate-500">{k}</span>
-                    <span className="font-medium text-slate-800 max-w-[60%] truncate text-right">
+                    <span className="font-medium text-gray-600 max-w-[60%] truncate text-right">
                       {typeof v === "object" ? JSON.stringify(v) : String(v ?? "—")}
                     </span>
                   </div>
@@ -556,10 +556,10 @@ function ImportTab({
   return (
     <div className="space-y-5">
       {/* Upload Box */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
+      <div className="rounded-sm border border-slate-200 bg-slate-50/50 p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-3">
           <div>
-            <h4 className="text-sm font-bold text-slate-800">CSV Import Engine</h4>
+            <h4 className="text-sm font-bold text-gray-600">CSV Import Engine</h4>
             <p className="text-xs text-slate-500">
               Upload standard UTF-8 encoded CSV files with column headers to batch import records.
             </p>
@@ -567,7 +567,7 @@ function ImportTab({
           <CustomButton
             variant="outline"
             size="sm"
-            icon={<FileDown className="w-4 h-4 text-teal-600" />}
+            icon={<FileDown className="w-4 h-4 text-brand-primary" />}
             onClick={downloadSampleTemplate}
           >
             Download {entityType} CSV Template
@@ -576,13 +576,13 @@ function ImportTab({
 
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
           <div className="sm:col-span-4">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Target Entity
             </label>
             <select
               value={entityType}
               onChange={(e) => setEntityType(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
             >
               {["PRODUCTS", "CUSTOMERS", "SUPPLIERS", "STOCK", "EMPLOYEES"].map((t) => (
                 <option key={t} value={t}>
@@ -593,14 +593,14 @@ function ImportTab({
           </div>
 
           <div className="sm:col-span-5">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Select CSV File
             </label>
             <input
               ref={fileRef}
               type="file"
               accept=".csv"
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
+              className="w-full rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs text-gray-600 file:mr-2 file:py-1 file:px-2.5 file:rounded-sm file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-dark hover:file:bg-brand-50"
             />
           </div>
 
@@ -620,14 +620,14 @@ function ImportTab({
 
         {/* Expected schema preview */}
         {schemaColumns.length > 0 && (
-          <div className="rounded-lg bg-white border border-slate-200 p-3 text-xs">
-            <span className="font-semibold text-slate-700">Expected Column Headers: </span>
+          <div className="rounded-sm bg-white border border-slate-200 p-3 text-xs">
+            <span className="font-semibold text-gray-600">Expected Column Headers: </span>
             <div className="flex flex-wrap gap-1 mt-1">
               {schemaColumns.map((col, idx) => (
                 <span
                   key={col}
-                  className={`font-mono text-[10px] px-1.5 py-0.5 rounded border ${
-                    idx < 2 ? "bg-teal-50 text-teal-700 border-teal-200 font-bold" : "bg-slate-50 text-slate-600 border-slate-200"
+                  className={`font-mono text-[10px] px-1.5 py-0.5 rounded-sm border ${
+                    idx < 2 ? "bg-brand-50 text-brand-dark border-brand-border font-bold" : "bg-slate-50 text-slate-600 border-slate-200"
                   }`}
                 >
                   {col} {idx < 2 && "(required)"}
@@ -640,11 +640,11 @@ function ImportTab({
 
       {/* Validation Results Panel */}
       {importResult && (
-        <div className="rounded-xl border border-teal-200 bg-teal-50/40 p-5 space-y-4 animate-in fade-in duration-200">
+        <div className="rounded-sm border border-brand-border bg-brand-50 p-5 space-y-4 animate-in fade-in duration-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-teal-600" />
-              <h4 className="text-sm font-bold text-slate-800">CSV Validation Results: {importResult.fileName}</h4>
+              <CheckCircle2 className="w-5 h-5 text-brand-primary" />
+              <h4 className="text-sm font-bold text-gray-600">CSV Validation Results: {importResult.fileName}</h4>
             </div>
             <CustomButton
               variant="primary"
@@ -658,15 +658,15 @@ function ImportTab({
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <div className="rounded-lg bg-white p-3 border border-slate-200 text-center">
+            <div className="rounded-sm bg-white p-3 border border-slate-200 text-center">
               <p className="text-[10px] uppercase font-bold text-slate-400">Total Rows</p>
-              <p className="text-base font-bold font-mono text-slate-800 mt-0.5">{importResult.totalRows}</p>
+              <p className="text-base font-bold font-mono text-gray-600 mt-0.5">{importResult.totalRows}</p>
             </div>
-            <div className="rounded-lg bg-white p-3 border border-emerald-200 text-center">
+            <div className="rounded-sm bg-white p-3 border border-emerald-200 text-center">
               <p className="text-[10px] uppercase font-bold text-emerald-600">Valid Rows</p>
               <p className="text-base font-bold font-mono text-emerald-700 mt-0.5">{importResult.validatedRows}</p>
             </div>
-            <div className="rounded-lg bg-white p-3 border border-rose-200 text-center">
+            <div className="rounded-sm bg-white p-3 border border-rose-200 text-center">
               <p className="text-[10px] uppercase font-bold text-rose-600">Error Rows</p>
               <p className="text-base font-bold font-mono text-rose-700 mt-0.5">{importResult.errorRows}</p>
             </div>
@@ -674,12 +674,12 @@ function ImportTab({
 
           {/* Column mapping */}
           {importResult.mapping && (
-            <div className="rounded-lg bg-white p-3 border border-slate-200 text-xs">
-              <p className="font-bold text-slate-700 mb-1">Detected Column Mapping:</p>
+            <div className="rounded-sm bg-white p-3 border border-slate-200 text-xs">
+              <p className="font-bold text-gray-600 mb-1">Detected Column Mapping:</p>
               <div className="flex flex-wrap gap-2 font-mono text-[11px]">
                 {Object.entries(importResult.mapping).map(([csvCol, dbCol]) => (
-                  <span key={csvCol} className="bg-slate-100 px-2 py-0.5 rounded text-slate-700 border border-slate-200">
-                    <strong>{csvCol}</strong> → <span className="text-teal-700">{String(dbCol)}</span>
+                  <span key={csvCol} className="bg-slate-100 px-2 py-0.5 rounded-sm text-gray-600 border border-slate-200">
+                    <strong>{csvCol}</strong> → <span className="text-brand-dark">{String(dbCol)}</span>
                   </span>
                 ))}
               </div>
@@ -688,7 +688,7 @@ function ImportTab({
 
           {/* Validation Errors List */}
           {importResult.errors?.length > 0 && (
-            <div className="rounded-lg bg-rose-50 border border-rose-200 p-3 space-y-1.5 max-h-44 overflow-y-auto">
+            <div className="rounded-sm bg-rose-50 border border-rose-200 p-3 space-y-1.5 max-h-44 overflow-y-auto">
               <p className="text-xs font-bold text-rose-800">Validation Discrepancies ({importResult.errors.length}):</p>
               {importResult.errors.map((e: any, i: number) => (
                 <div key={i} className="text-[11px] text-rose-700 font-mono">
@@ -702,7 +702,7 @@ function ImportTab({
 
       {/* Import History Table */}
       <div className="space-y-3">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">Recent Import Jobs</h4>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">Recent Import Jobs</h4>
         <CustomTable
           columns={[
             {
@@ -710,8 +710,8 @@ function ImportTab({
               header: "File Name",
               render: (row) => (
                 <div className="flex items-center gap-2">
-                  <FileSpreadsheet className="w-4 h-4 text-teal-600" />
-                  <span className="font-medium text-xs text-slate-800">{row.fileName}</span>
+                  <FileSpreadsheet className="w-4 h-4 text-brand-primary" />
+                  <span className="font-medium text-xs text-gray-600">{row.fileName}</span>
                 </div>
               ),
             },
@@ -719,7 +719,7 @@ function ImportTab({
               key: "entityType",
               header: "Entity Type",
               render: (row) => (
-                <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+                <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-gray-600">
                   {row.entityType}
                 </span>
               ),
@@ -728,7 +728,7 @@ function ImportTab({
               key: "totalRows",
               header: "Total / Processed",
               render: (row) => (
-                <span className="font-mono text-xs text-slate-700">
+                <span className="font-mono text-xs text-gray-600">
                   {row.processedRows || row.totalRows || 0} / {row.totalRows || 0}
                 </span>
               ),
@@ -822,9 +822,9 @@ function ExportTab({
   return (
     <div className="space-y-5">
       {/* Export Action Card */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
+      <div className="rounded-sm border border-slate-200 bg-slate-50/50 p-5 space-y-4">
         <div>
-          <h4 className="text-sm font-bold text-slate-800">Enterprise Data Exporter</h4>
+          <h4 className="text-sm font-bold text-gray-600">Enterprise Data Exporter</h4>
           <p className="text-xs text-slate-500">
             Generate and download comprehensive data extracts for reporting, external accounting, or backup.
           </p>
@@ -832,13 +832,13 @@ function ExportTab({
 
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
           <div className="sm:col-span-5">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Select Dataset
             </label>
             <select
               value={entityType}
               onChange={(e) => setEntityType(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
             >
               {["PRODUCTS", "CUSTOMERS", "SUPPLIERS", "SALES", "INVENTORY", "ACCOUNTING", "ORDERS"].map((t) => (
                 <option key={t} value={t}>
@@ -849,11 +849,11 @@ function ExportTab({
           </div>
 
           <div className="sm:col-span-3">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Format</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">Format</label>
             <select
               value={format}
               onChange={(e) => setFormat(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
             >
               <option value="CSV">CSV (.csv)</option>
               <option value="EXCEL">Excel (.xlsx)</option>
@@ -877,7 +877,7 @@ function ExportTab({
 
       {/* Export History */}
       <div className="space-y-3">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">Export History & Downloads</h4>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">Export History & Downloads</h4>
         <CustomTable
           columns={[
             {
@@ -886,7 +886,7 @@ function ExportTab({
               render: (row) => (
                 <div className="flex items-center gap-2">
                   <DownloadCloud className="w-4 h-4 text-blue-600" />
-                  <span className="font-semibold text-xs text-slate-800">{row.entityType}</span>
+                  <span className="font-semibold text-xs text-gray-600">{row.entityType}</span>
                 </div>
               ),
             },
@@ -894,7 +894,7 @@ function ExportTab({
               key: "format",
               header: "Format",
               render: (row) => (
-                <span className="font-mono text-xs font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-700">
+                <span className="font-mono text-xs font-bold bg-slate-100 px-2 py-0.5 rounded-sm text-gray-600">
                   {row.format}
                 </span>
               ),
@@ -902,7 +902,7 @@ function ExportTab({
             {
               key: "totalRows",
               header: "Extracted Rows",
-              render: (row) => <span className="font-mono text-xs font-semibold text-slate-800">{row.totalRows || 0}</span>,
+              render: (row) => <span className="font-mono text-xs font-semibold text-gray-600">{row.totalRows || 0}</span>,
             },
             {
               key: "status",
@@ -1052,21 +1052,21 @@ function BulkTab({ notify }: { notify: (ok: boolean, text: string) => void }) {
               key={o.key}
               type="button"
               onClick={() => setOperation(o.key as any)}
-              className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
+              className={`p-4 rounded-sm border text-left transition-all cursor-pointer ${
                 isSelected
-                  ? "border-teal-600 bg-teal-50/50 shadow-xs ring-1 ring-teal-600"
+                  ? "border-brand-primary bg-brand-50 shadow-xs ring-1 ring-brand-border"
                   : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
               }`}
             >
               <div className="flex items-center gap-2.5">
                 <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-lg ${
-                    isSelected ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-600"
+                  className={`flex h-8 w-8 items-center justify-center rounded-sm ${
+                    isSelected ? "bg-brand-primary text-white" : "bg-slate-100 text-slate-600"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
                 </div>
-                <span className={`text-xs font-bold ${isSelected ? "text-teal-950" : "text-slate-800"}`}>{o.label}</span>
+                <span className={`text-xs font-bold ${isSelected ? "text-brand-dark" : "text-gray-600"}`}>{o.label}</span>
               </div>
               <p className="mt-2 text-[11px] text-slate-500 line-clamp-2">{o.desc}</p>
             </button>
@@ -1075,10 +1075,10 @@ function BulkTab({ notify }: { notify: (ok: boolean, text: string) => void }) {
       </div>
 
       {/* Operation Interactive Form */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-5 space-y-4">
+      <div className="rounded-sm border border-slate-200 bg-slate-50/40 p-5 space-y-4">
         <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
-          <SlidersHorizontal className="w-4 h-4 text-teal-600" />
-          <h4 className="text-sm font-bold text-slate-800">
+          <SlidersHorizontal className="w-4 h-4 text-brand-primary" />
+          <h4 className="text-sm font-bold text-gray-600">
             {opsList.find((o) => o.key === operation)?.label} Configuration
           </h4>
         </div>
@@ -1087,7 +1087,7 @@ function BulkTab({ notify }: { notify: (ok: boolean, text: string) => void }) {
           {operation === "update-products" && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   New Selling Price (Tk)
                 </label>
                 <input
@@ -1097,12 +1097,12 @@ function BulkTab({ notify }: { notify: (ok: boolean, text: string) => void }) {
                   value={productSellingPrice}
                   onChange={(e) => setProductSellingPrice(e.target.value)}
                   placeholder="e.g. 450"
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   New Cost Price (Tk)
                 </label>
                 <input
@@ -1112,18 +1112,18 @@ function BulkTab({ notify }: { notify: (ok: boolean, text: string) => void }) {
                   value={productCostPrice}
                   onChange={(e) => setProductCostPrice(e.target.value)}
                   placeholder="e.g. 320"
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   Catalog Status
                 </label>
                 <select
                   value={productStatus}
                   onChange={(e) => setProductStatus(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
                 >
                   <option value="ACTIVE">ACTIVE</option>
                   <option value="INACTIVE">INACTIVE</option>
@@ -1135,13 +1135,13 @@ function BulkTab({ notify }: { notify: (ok: boolean, text: string) => void }) {
 
           {operation === "assign-category" && (
             <div className="max-w-md">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Target Category
               </label>
               <select
                 value={targetCategoryId}
                 onChange={(e) => setTargetCategoryId(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
                 required
               >
                 <option value="">-- Choose Category --</option>
@@ -1157,7 +1157,7 @@ function BulkTab({ notify }: { notify: (ok: boolean, text: string) => void }) {
           {operation === "update-customers" && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   New Credit Limit (Tk)
                 </label>
                 <input
@@ -1167,12 +1167,12 @@ function BulkTab({ notify }: { notify: (ok: boolean, text: string) => void }) {
                   value={customerCreditLimit}
                   onChange={(e) => setCustomerCreditLimit(e.target.value)}
                   placeholder="e.g. 50000"
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   Bonus Loyalty Points
                 </label>
                 <input
@@ -1181,7 +1181,7 @@ function BulkTab({ notify }: { notify: (ok: boolean, text: string) => void }) {
                   value={customerLoyaltyPoints}
                   onChange={(e) => setCustomerLoyaltyPoints(e.target.value)}
                   placeholder="e.g. 100"
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
                 />
               </div>
             </div>
@@ -1190,13 +1190,13 @@ function BulkTab({ notify }: { notify: (ok: boolean, text: string) => void }) {
           {operation === "stock-adjust" && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   Warehouse Location
                 </label>
                 <select
                   value={warehouseId}
                   onChange={(e) => setWarehouseId(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
                 >
                   {warehouses.map((w) => (
                     <option key={w.id} value={w.id}>
@@ -1207,7 +1207,7 @@ function BulkTab({ notify }: { notify: (ok: boolean, text: string) => void }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   Quantity Adjustment Delta (+/-)
                 </label>
                 <input
@@ -1216,7 +1216,7 @@ function BulkTab({ notify }: { notify: (ok: boolean, text: string) => void }) {
                   value={stockAdjustQty}
                   onChange={(e) => setStockAdjustQty(e.target.value)}
                   placeholder="e.g. +50 or -10"
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
                   required
                 />
               </div>
@@ -1305,13 +1305,13 @@ function MigrationTab({
   return (
     <div className="space-y-5">
       {/* Wizard Intro Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-teal-200 bg-teal-50/50 p-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-sm border border-brand-border bg-brand-50 p-5">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-600 text-white">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-brand-primary text-white">
             <RefreshCw className="h-5 w-5" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-slate-900">Legacy POS System Migration Wizard</h4>
+            <h4 className="text-sm font-bold text-gray-600">Legacy POS System Migration Wizard</h4>
             <p className="text-xs text-slate-600 mt-0.5 max-w-2xl">
               Seamlessly migrate catalog items, inventory levels, customer master files, and supplier directories from
               Square, Lightspeed, Clover, Toast, QuickBooks, or custom spreadsheets.
@@ -1337,12 +1337,12 @@ function MigrationTab({
           { step: "3", title: "Column Mapping", desc: "Auto-map columns to BlueOceans data schema" },
           { step: "4", title: "Execute & Commit", desc: "Validate integrity & import directly to live DB" },
         ].map((s) => (
-          <div key={s.step} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+          <div key={s.step} className="rounded-sm border border-slate-200 bg-slate-50/60 p-3">
             <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-600 text-[10px] font-bold text-white">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-primary text-[10px] font-bold text-white">
                 {s.step}
               </span>
-              <span className="font-bold text-slate-800">{s.title}</span>
+              <span className="font-bold text-gray-600">{s.title}</span>
             </div>
             <p className="mt-1 text-[11px] text-slate-500">{s.desc}</p>
           </div>
@@ -1351,7 +1351,7 @@ function MigrationTab({
 
       {/* Migration Sessions Table */}
       <div className="space-y-3">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">Active Migration Pipelines</h4>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">Active Migration Pipelines</h4>
         <CustomTable
           columns={[
             {
@@ -1359,7 +1359,7 @@ function MigrationTab({
               header: "Migration Name",
               render: (row) => (
                 <div>
-                  <span className="font-bold text-xs text-slate-900">{row.name}</span>
+                  <span className="font-bold text-xs text-gray-600">{row.name}</span>
                   <p className="text-[10px] text-slate-400 font-mono">ID: {row.id}</p>
                 </div>
               ),
@@ -1368,7 +1368,7 @@ function MigrationTab({
               key: "sourceSystem",
               header: "Source Platform",
               render: (row) => (
-                <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+                <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-gray-600">
                   {row.sourceSystem || "Custom POS"}
                 </span>
               ),
@@ -1377,7 +1377,7 @@ function MigrationTab({
               key: "tables",
               header: "Target Tables",
               render: (row) => (
-                <span className="font-mono text-xs text-slate-700">
+                <span className="font-mono text-xs text-gray-600">
                   {Array.isArray(row.tables) ? `${row.tables.length} tables` : "4 tables"}
                 </span>
               ),
@@ -1408,7 +1408,7 @@ function MigrationTab({
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => setSelectedSession(row)}
-                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-teal-700 hover:bg-teal-50 transition cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium text-brand-dark hover:bg-brand-50 transition cursor-pointer"
                   >
                     <Eye className="w-3.5 h-3.5" /> Inspect
                   </button>
@@ -1417,7 +1417,7 @@ function MigrationTab({
                     <button
                       onClick={() => handleRunMigration(row.id)}
                       disabled={runningId === row.id}
-                      className="inline-flex items-center gap-1 rounded-md bg-teal-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-teal-700 transition cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1 rounded-sm bg-brand-primary px-2.5 py-1 text-xs font-semibold text-white hover:bg-brand-dark transition cursor-pointer disabled:opacity-50"
                     >
                       {runningId === row.id ? (
                         <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -1446,7 +1446,7 @@ function MigrationTab({
       >
         <form onSubmit={handleCreateSession} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Migration Name / Label *
             </label>
             <input
@@ -1454,20 +1454,20 @@ function MigrationTab({
               value={sessionName}
               onChange={(e) => setSessionName(e.target.value)}
               placeholder="e.g. Migration from Square POS 2026"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="w-full rounded-sm border border-slate-200 px-3 py-2 text-xs font-medium text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
               autoFocus
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Source System / Platform
             </label>
             <select
               value={sourceSystem}
               onChange={(e) => setSourceSystem(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
             >
               {["Square POS", "Lightspeed", "Clover POS", "Toast POS", "QuickBooks POS", "Shopify POS", "Custom Excel / CSV"].map(
                 (src) => (
@@ -1499,21 +1499,21 @@ function MigrationTab({
       >
         {selectedSession && (
           <div className="space-y-4">
-            <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 space-y-1">
+            <div className="rounded-sm bg-slate-50 p-4 border border-slate-200 space-y-1">
               <p className="text-xs text-slate-500">
-                Source System: <strong className="text-slate-800">{selectedSession.sourceSystem}</strong>
+                Source System: <strong className="text-gray-600">{selectedSession.sourceSystem}</strong>
               </p>
               <p className="text-xs text-slate-500">
-                Status: <strong className="text-teal-700">{selectedSession.status}</strong>
+                Status: <strong className="text-brand-dark">{selectedSession.status}</strong>
               </p>
               <p className="text-xs text-slate-500">
-                Created: <strong className="text-slate-800">{dateTime(selectedSession.createdAt)}</strong>
+                Created: <strong className="text-gray-600">{dateTime(selectedSession.createdAt)}</strong>
               </p>
             </div>
 
             <div>
-              <h5 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Target Data Schema Tables</h5>
-              <div className="divide-y divide-slate-100 rounded-lg border border-slate-200 text-xs">
+              <h5 className="text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">Target Data Schema Tables</h5>
+              <div className="divide-y divide-slate-100 rounded-sm border border-slate-200 text-xs">
                 {(Array.isArray(selectedSession.tables)
                   ? selectedSession.tables
                   : [
@@ -1524,10 +1524,10 @@ function MigrationTab({
                     ]
                 ).map((t: any, i: number) => (
                   <div key={i} className="flex items-center justify-between p-3">
-                    <span className="font-semibold text-slate-800">
-                      {t.source} → <span className="font-mono text-teal-700">{t.target}</span>
+                    <span className="font-semibold text-gray-600">
+                      {t.source} → <span className="font-mono text-brand-dark">{t.target}</span>
                     </span>
-                    <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase">
+                    <span className="rounded-sm bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase">
                       {t.status || "pending"}
                     </span>
                   </div>

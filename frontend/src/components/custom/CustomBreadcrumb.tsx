@@ -96,7 +96,7 @@ export function CustomBreadcrumb({
                       {item.label}
                     </Link>
                   ) : (
-                    <span className="font-semibold text-slate-700">{item.label}</span>
+                    <span className="font-semibold text-gray-600">{item.label}</span>
                   )}
                 </div>
               ))}

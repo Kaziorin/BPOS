@@ -156,7 +156,7 @@ export function ImageUploader({
                   <img src={value} alt="Preview" className="h-full w-full object-contain p-1" />
                 </div>
                 <div className="flex-1 min-w-0 space-y-1">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800 truncate">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 truncate">
                     <FileImage className="h-4 w-4 text-brand-primary shrink-0" />
                     <span className="truncate">{fileName || (value.includes("/image_storage/") ? value.split("/").pop() : "Uploaded Image")}</span>
                   </div>
@@ -199,7 +199,7 @@ export function ImageUploader({
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 border border-brand-border text-brand-primary group-hover:scale-105 group-hover:bg-brand-primary group-hover:text-white group-hover:border-brand-primary transition-all shadow-2xs">
                 <UploadCloud className="h-6 w-6" />
               </div>
-              <p className="mt-3 text-xs font-semibold text-slate-700">
+              <p className="mt-3 text-xs font-semibold text-gray-600">
                 <span className="text-brand-primary font-bold underline underline-offset-2 hover:text-brand-dark">Click to choose image</span> or drag & drop file here
               </p>
               <p className="mt-1 text-[11px] text-slate-400">
@@ -218,7 +218,7 @@ export function ImageUploader({
               type="url"
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              className="w-full rounded-sm border border-brand-border bg-white px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/20 shadow-2xs"
+              className="w-full rounded-sm border border-brand-border bg-white px-3 py-2 text-xs text-gray-600 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/20 shadow-2xs"
               placeholder="https://example.com/product-image.jpg"
             />
             {value && (

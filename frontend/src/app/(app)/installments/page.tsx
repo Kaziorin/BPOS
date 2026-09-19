@@ -525,7 +525,7 @@ export default function InstallmentsPage() {
               </div>
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-600">
                     Installment Management & BNPL Engine
                   </h1>
                   <span className="rounded-full bg-primary-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-primary-700 ring-1 ring-primary-200">
@@ -543,7 +543,7 @@ export default function InstallmentsPage() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2 text-xs font-semibold text-white shadow-xs shadow-primary-500/25 transition hover:opacity-90 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm bg-primary-600 px-4 py-2 text-xs font-semibold text-white shadow-xs shadow-primary-500/25 transition hover:opacity-90 active:scale-95"
             >
               <Plus size={15} />
               Create Installment Plan
@@ -551,7 +551,7 @@ export default function InstallmentsPage() {
 
             <Link
               href="/credit"
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-600 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
             >
               <ShieldCheck size={14} className="text-emerald-600" />
               Credit Limits
@@ -559,7 +559,7 @@ export default function InstallmentsPage() {
 
             <Link
               href="/credit/aging"
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-600 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 active:scale-95"
             >
               <Calendar size={14} className="text-primary-600" />
               AR Aging
@@ -567,7 +567,7 @@ export default function InstallmentsPage() {
 
             <Link
               href="/payments"
-              className="flex items-center gap-1.5 rounded-xl border border-primary-200 bg-primary-50/70 px-3.5 py-2 text-xs font-semibold text-primary-700 shadow-xs transition hover:bg-primary-100/80 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-primary-200 bg-primary-50/70 px-3.5 py-2 text-xs font-semibold text-primary-700 shadow-xs transition hover:bg-primary-100/80 active:scale-95"
             >
               <Wallet size={14} />
               Payments Hub
@@ -578,7 +578,7 @@ export default function InstallmentsPage() {
                 loadPlans();
                 loadStats();
               }}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 shadow-xs transition hover:bg-slate-50 active:scale-95"
               title="Refresh Data"
             >
               <RefreshCw size={14} className={loading ? "animate-spin text-primary-600" : "text-slate-500"} />
@@ -586,7 +586,7 @@ export default function InstallmentsPage() {
 
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-95"
+              className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-600 shadow-xs transition hover:bg-slate-50 active:scale-95"
             >
               <Download size={14} className="text-slate-500" />
               Export
@@ -602,11 +602,11 @@ export default function InstallmentsPage() {
           <div className="rounded-sm border border-slate-200 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Financed</span>
-              <div className="rounded-lg bg-primary-50 p-1.5 text-primary-600">
+              <div className="rounded-sm bg-primary-50 p-1.5 text-primary-600">
                 <CreditCard size={14} />
               </div>
             </div>
-            <div className="mt-2 text-lg sm:text-xl font-black text-slate-900">
+            <div className="mt-2 text-lg sm:text-xl font-black text-gray-600">
               {statsLoading ? "—" : fmt(stats?.totalFinanced || 0)}
             </div>
             <div className="mt-1 flex items-center justify-between text-[11px] font-semibold text-slate-500">
@@ -619,7 +619,7 @@ export default function InstallmentsPage() {
           <div className="rounded-sm border border-slate-200 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Total Collected</span>
-              <div className="rounded-lg bg-emerald-50 p-1.5 text-emerald-600">
+              <div className="rounded-sm bg-emerald-50 p-1.5 text-emerald-600">
                 <CheckCircle2 size={14} />
               </div>
             </div>
@@ -640,7 +640,7 @@ export default function InstallmentsPage() {
           <div className="rounded-sm border border-slate-200 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">Outstanding Principal</span>
-              <div className="rounded-lg bg-amber-50 p-1.5 text-amber-600">
+              <div className="rounded-sm bg-amber-50 p-1.5 text-amber-600">
                 <Clock size={14} />
               </div>
             </div>
@@ -656,7 +656,7 @@ export default function InstallmentsPage() {
           <div className="rounded-sm border border-slate-200 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600">Active Contracts</span>
-              <div className="rounded-lg bg-indigo-50 p-1.5 text-indigo-600">
+              <div className="rounded-sm bg-indigo-50 p-1.5 text-indigo-600">
                 <TrendingUp size={14} />
               </div>
             </div>
@@ -672,7 +672,7 @@ export default function InstallmentsPage() {
           <div className="rounded-sm border border-slate-200 bg-white p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-[11px] font-bold uppercase tracking-wider text-rose-600">Overdue EMIs</span>
-              <div className="rounded-lg bg-rose-50 p-1.5 text-rose-600">
+              <div className="rounded-sm bg-rose-50 p-1.5 text-rose-600">
                 <ShieldAlert size={14} />
               </div>
             </div>
@@ -688,7 +688,7 @@ export default function InstallmentsPage() {
           <div className="rounded-sm border border-red-200/80 bg-red-50/40 p-3.5 sm:p-4 shadow-xs transition hover:shadow-md">
             <div className="flex items-center justify-between text-red-700">
               <span className="text-[11px] font-bold uppercase tracking-wider text-red-600">Overdue Total</span>
-              <div className="rounded-lg bg-red-100 p-1.5 text-red-700">
+              <div className="rounded-sm bg-red-100 p-1.5 text-red-700">
                 <AlertTriangle size={14} />
               </div>
             </div>
@@ -712,7 +712,7 @@ export default function InstallmentsPage() {
                 placeholder="Search plan #, customer name, phone, or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-slate-800 placeholder-slate-400"
+                className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-gray-600 placeholder-slate-400"
               />
               {searchQuery && (
                 <button
@@ -726,13 +726,13 @@ export default function InstallmentsPage() {
 
             {/* Sort & View Mode */}
             <div className="flex items-center gap-2 self-end lg:self-auto">
-              <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-600">
+              <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-sm px-2.5 py-1.5 text-xs text-slate-600">
                 <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                 <span>Sort:</span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-transparent font-medium text-slate-800 focus:outline-none cursor-pointer"
+                  className="bg-transparent font-medium text-gray-600 focus:outline-none cursor-pointer"
                 >
                   <option value="date">Contract Date</option>
                   <option value="financed">Financed Amount</option>
@@ -748,13 +748,13 @@ export default function InstallmentsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <div className="flex items-center bg-slate-100 p-1 rounded-sm border border-slate-200">
                 <button
                   onClick={() => setViewMode("table")}
-                  className={`p-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`p-1.5 rounded-sm text-xs font-medium transition-all ${
                     viewMode === "table"
                       ? "bg-white text-primary-600 shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900"
+                      : "text-slate-600 hover:text-gray-600"
                   }`}
                   title="Table View"
                 >
@@ -762,10 +762,10 @@ export default function InstallmentsPage() {
                 </button>
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`p-1.5 rounded-sm text-xs font-medium transition-all ${
                     viewMode === "grid"
                       ? "bg-white text-primary-600 shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900"
+                      : "text-slate-600 hover:text-gray-600"
                   }`}
                   title="Card Grid View"
                 >
@@ -788,17 +788,17 @@ export default function InstallmentsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-1.5 rounded-sm font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                     isActive
                       ? "bg-brand-gradient text-white shadow-2xs shadow-xs shadow-sm"
-                      : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200"
+                      : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-gray-600 border border-slate-200"
                   }`}
                 >
                   <span>{tab.label}</span>
                   {tab.count !== undefined && (
                     <span
                       className={`px-1.5 py-0.2 text-[10px] rounded-full font-bold ${
-                        isActive ? "bg-white/20 text-white" : "bg-slate-200 text-slate-700"
+                        isActive ? "bg-white/20 text-white" : "bg-slate-200 text-gray-600"
                       }`}
                     >
                       {tab.count}
@@ -860,7 +860,7 @@ export default function InstallmentsPage() {
                           <td className="py-3.5 px-4">
                             <button
                               onClick={() => setSelectedForDrawer(p)}
-                              className="font-mono font-bold text-slate-900 hover:text-primary-600 block text-left"
+                              className="font-mono font-bold text-gray-600 hover:text-primary-600 block text-left"
                             >
                               {p.planNo}
                             </button>
@@ -871,7 +871,7 @@ export default function InstallmentsPage() {
 
                           {/* Customer */}
                           <td className="py-3.5 px-4">
-                            <div className="font-semibold text-slate-900">
+                            <div className="font-semibold text-gray-600">
                               {p.customer?.name || "Unknown Customer"}
                             </div>
                             <div className="text-[11px] text-slate-400">
@@ -880,18 +880,18 @@ export default function InstallmentsPage() {
                           </td>
 
                           {/* Financed */}
-                          <td className="py-3.5 px-3 text-right font-medium text-slate-700">
+                          <td className="py-3.5 px-3 text-right font-medium text-gray-600">
                             {fmt(p.financedAmount)}
                           </td>
 
                           {/* EMI */}
-                          <td className="py-3.5 px-3 text-right font-semibold text-slate-900">
+                          <td className="py-3.5 px-3 text-right font-semibold text-gray-600">
                             {fmt(p.installmentAmount)}
                           </td>
 
                           {/* Tenure */}
                           <td className="py-3.5 px-3 text-center">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-semibold bg-slate-100 text-gray-600 border border-slate-200">
                               {p.installmentCount} × {p.frequency}
                             </span>
                           </td>
@@ -929,7 +929,7 @@ export default function InstallmentsPage() {
                               {!isComplete && (
                                 <button
                                   onClick={() => openPayModal(p)}
-                                  className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors"
+                                  className="p-1.5 rounded-sm bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors"
                                   title="Record EMI Payment"
                                 >
                                   <DollarSign className="w-3.5 h-3.5" />
@@ -940,14 +940,14 @@ export default function InstallmentsPage() {
                                   setSelectedPlan(p);
                                   setShowReminderModal(true);
                                 }}
-                                className="p-1.5 rounded-lg bg-primary-50 text-primary-700 hover:bg-primary-100 border border-primary-200 transition-colors"
+                                className="p-1.5 rounded-sm bg-primary-50 text-primary-700 hover:bg-primary-100 border border-primary-200 transition-colors"
                                 title="Send EMI Reminder"
                               >
                                 <Send className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => setSelectedForDrawer(p)}
-                                className="p-1.5 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors"
+                                className="p-1.5 rounded-sm bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors"
                                 title="View Contract & Schedules"
                               >
                                 <Eye className="w-3.5 h-3.5" />
@@ -990,10 +990,10 @@ export default function InstallmentsPage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <span className="font-mono font-black text-sm text-slate-900 block">
+                        <span className="font-mono font-black text-sm text-gray-600 block">
                           {p.planNo}
                         </span>
-                        <div className="text-xs font-semibold text-slate-700 mt-0.5">
+                        <div className="text-xs font-semibold text-gray-600 mt-0.5">
                           {p.customer?.name || "Unknown Customer"}
                         </div>
                         <div className="text-[11px] text-slate-400">{p.customer?.phone || "No phone"}</div>
@@ -1014,14 +1014,14 @@ export default function InstallmentsPage() {
                     </div>
 
                     {/* Financial Summary */}
-                    <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200/70 text-xs">
+                    <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-sm border border-slate-200/70 text-xs">
                       <div>
                         <span className="text-slate-400 text-[10px]">Financed</span>
-                        <div className="font-bold text-slate-900 mt-0.5">{fmt(p.financedAmount)}</div>
+                        <div className="font-bold text-gray-600 mt-0.5">{fmt(p.financedAmount)}</div>
                       </div>
                       <div>
                         <span className="text-slate-400 text-[10px]">EMI Amount</span>
-                        <div className="font-bold text-slate-900 mt-0.5">{fmt(p.installmentAmount)}</div>
+                        <div className="font-bold text-gray-600 mt-0.5">{fmt(p.installmentAmount)}</div>
                       </div>
                       <div>
                         <span className="text-slate-400 text-[10px]">Remaining</span>
@@ -1033,7 +1033,7 @@ export default function InstallmentsPage() {
                     <div className="space-y-1">
                       <div className="flex justify-between text-[11px] text-slate-500 font-medium">
                         <span>Recovery Progress</span>
-                        <span className="text-slate-900 font-bold">{progressPct}%</span>
+                        <span className="text-gray-600 font-bold">{progressPct}%</span>
                       </div>
                       <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                         <div
@@ -1050,7 +1050,7 @@ export default function InstallmentsPage() {
                       {remaining > 0 && (
                         <button
                           onClick={() => openPayModal(p)}
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all"
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-sm transition-all"
                         >
                           <DollarSign className="w-3.5 h-3.5" />
                           Pay EMI
@@ -1061,14 +1061,14 @@ export default function InstallmentsPage() {
                           setSelectedPlan(p);
                           setShowReminderModal(true);
                         }}
-                        className="p-2 text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-xl transition-all"
+                        className="p-2 text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-sm transition-all"
                         title="Send Reminder"
                       >
                         <Send className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => setSelectedForDrawer(p)}
-                        className="p-2 text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-all"
+                        className="p-2 text-gray-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-sm transition-all"
                         title="View Schedule"
                       >
                         <Eye className="w-3.5 h-3.5" />
@@ -1088,17 +1088,17 @@ export default function InstallmentsPage() {
           <div className="bg-white rounded-sm max-w-xl w-full p-6 shadow-xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-150 my-8">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <span className="p-2 rounded-xl bg-primary-50 text-primary-600">
+                <span className="p-2 rounded-sm bg-primary-50 text-primary-600">
                   <CreditCard className="w-5 h-5" />
                 </span>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-base">New Installment / Hire Purchase Plan</h3>
+                  <h3 className="font-bold text-gray-600 text-base">New Installment / Hire Purchase Plan</h3>
                   <p className="text-xs text-slate-400">Generate installment contract with automated EMI schedule</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100"
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-sm hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1107,14 +1107,14 @@ export default function InstallmentsPage() {
             <form onSubmit={handleCreatePlanSubmit} className="space-y-4 text-xs sm:text-sm">
               {/* Customer Selector */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
                   Customer / Commercial Client *
                 </label>
                 <select
                   required
                   value={selectedCustomerId}
                   onChange={(e) => setSelectedCustomerId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-medium"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-medium"
                 >
                   <option value="">Select customer...</option>
                   {customers.map((c) => (
@@ -1128,7 +1128,7 @@ export default function InstallmentsPage() {
               {/* Amount & Down Payment */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     Total Sale Value (৳) *
                   </label>
                   <input
@@ -1138,11 +1138,11 @@ export default function InstallmentsPage() {
                     value={createSaleAmount}
                     onChange={(e) => setCreateSaleAmount(e.target.value)}
                     placeholder="e.g. 50000"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-bold"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-bold"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     Down Payment (৳)
                   </label>
                   <input
@@ -1151,7 +1151,7 @@ export default function InstallmentsPage() {
                     value={createDownPayment}
                     onChange={(e) => setCreateDownPayment(e.target.value)}
                     placeholder="0"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   />
                 </div>
               </div>
@@ -1159,13 +1159,13 @@ export default function InstallmentsPage() {
               {/* Installment Count & Frequency */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     Installment Count (EMIs) *
                   </label>
                   <select
                     value={createCount}
                     onChange={(e) => setCreateCount(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-semibold"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-semibold"
                   >
                     <option value="3">3 Installments</option>
                     <option value="6">6 Installments</option>
@@ -1176,13 +1176,13 @@ export default function InstallmentsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     Payment Frequency *
                   </label>
                   <select
                     value={createFrequency}
                     onChange={(e) => setCreateFrequency(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-semibold"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 font-semibold"
                   >
                     <option value="MONTHLY">Monthly</option>
                     <option value="WEEKLY">Weekly</option>
@@ -1192,14 +1192,14 @@ export default function InstallmentsPage() {
               </div>
 
               {/* Calculated EMI Preview Box */}
-              <div className="bg-primary-50/70 border border-primary-200/80 rounded-xl p-3.5 space-y-2">
+              <div className="bg-primary-50/70 border border-primary-200/80 rounded-sm p-3.5 space-y-2">
                 <div className="text-[11px] font-bold text-primary-700 uppercase tracking-wider">
                   Contract Simulation Preview
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-xs">
                   <div>
                     <span className="text-slate-500 text-[10px]">Net Financed</span>
-                    <div className="font-bold text-slate-900 text-sm">
+                    <div className="font-bold text-gray-600 text-sm">
                       {fmt(calculatedEmi.financed)}
                     </div>
                   </div>
@@ -1211,7 +1211,7 @@ export default function InstallmentsPage() {
                   </div>
                   <div>
                     <span className="text-slate-500 text-[10px]">Total Payable</span>
-                    <div className="font-bold text-slate-900 text-sm">
+                    <div className="font-bold text-gray-600 text-sm">
                       {fmt(calculatedEmi.totalPayable)}
                     </div>
                   </div>
@@ -1219,7 +1219,7 @@ export default function InstallmentsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
                   Contract Remarks / Product Description
                 </label>
                 <input
@@ -1227,7 +1227,7 @@ export default function InstallmentsPage() {
                   value={createNote}
                   onChange={(e) => setCreateNote(e.target.value)}
                   placeholder="e.g. Financed Electronics / Commercial Equipment"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-sm focus:outline-none"
                 />
               </div>
 
@@ -1235,14 +1235,14 @@ export default function InstallmentsPage() {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+                  className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-sm transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingCreate}
-                  className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-primary-600 hover:opacity-90 rounded-xl transition-all shadow-xs shadow-primary-500/25 disabled:opacity-50"
+                  className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-primary-600 hover:opacity-90 rounded-sm transition-all shadow-xs shadow-primary-500/25 disabled:opacity-50"
                 >
                   {submittingCreate ? "Creating Contract..." : "Confirm & Generate Schedule"}
                 </button>
@@ -1258,11 +1258,11 @@ export default function InstallmentsPage() {
           <div className="bg-white rounded-sm max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <span className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+                <span className="p-2 rounded-sm bg-emerald-50 text-emerald-600">
                   <DollarSign className="w-5 h-5" />
                 </span>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-base">
+                  <h3 className="font-bold text-gray-600 text-base">
                     Pay Installment #{selectedSchedule.sequenceNo}
                   </h3>
                   <p className="text-xs text-slate-400">
@@ -1272,30 +1272,30 @@ export default function InstallmentsPage() {
               </div>
               <button
                 onClick={() => setShowPayModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100"
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-sm hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handlePaySubmit} className="space-y-4 text-xs sm:text-sm">
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex justify-between items-center text-xs">
+              <div className="bg-slate-50 p-3.5 rounded-sm border border-slate-200 flex justify-between items-center text-xs">
                 <div>
                   <span className="text-slate-400">Scheduled Due Date</span>
-                  <div className="font-bold text-slate-900 mt-0.5">
+                  <div className="font-bold text-gray-600 mt-0.5">
                     {new Date(selectedSchedule.dueDate).toLocaleDateString("en-BD")}
                   </div>
                 </div>
                 <div className="text-right">
                   <span className="text-slate-400">EMI Target</span>
-                  <div className="font-bold text-slate-900 mt-0.5">
+                  <div className="font-bold text-gray-600 mt-0.5">
                     {fmt(selectedSchedule.amount)}
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
                   Payment Amount (৳) *
                 </label>
                 <input
@@ -1304,19 +1304,19 @@ export default function InstallmentsPage() {
                   required
                   value={payAmount}
                   onChange={(e) => setPayAmount(e.target.value)}
-                  className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-bold text-slate-900"
+                  className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-bold text-gray-600"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     Payment Method *
                   </label>
                   <select
                     value={payMethod}
                     onChange={(e) => setPayMethod(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl font-medium"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-sm font-medium"
                   >
                     <option value="CASH">Cash</option>
                     <option value="BANK_TRANSFER">Bank Transfer</option>
@@ -1327,7 +1327,7 @@ export default function InstallmentsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     Transaction / Ref #
                   </label>
                   <input
@@ -1335,7 +1335,7 @@ export default function InstallmentsPage() {
                     value={payRef}
                     onChange={(e) => setPayRef(e.target.value)}
                     placeholder="e.g. TR-88319"
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-sm"
                   />
                 </div>
               </div>
@@ -1344,14 +1344,14 @@ export default function InstallmentsPage() {
                 <button
                   type="button"
                   onClick={() => setShowPayModal(false)}
-                  className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+                  className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-sm transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingPay}
-                  className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-xs disabled:opacity-50"
+                  className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-sm transition-all shadow-xs disabled:opacity-50"
                 >
                   {submittingPay ? "Processing..." : "Confirm & Post EMI Payment"}
                 </button>
@@ -1366,27 +1366,27 @@ export default function InstallmentsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
           <div className="bg-white rounded-sm max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="font-bold text-slate-900 text-base">Early Settlement & Payoff</h3>
+              <h3 className="font-bold text-gray-600 text-base">Early Settlement & Payoff</h3>
               <button
                 onClick={() => setShowSettleModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100"
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-sm hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSettleSubmit} className="space-y-4 text-xs sm:text-sm">
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1">
+              <div className="bg-slate-50 p-3 rounded-sm border border-slate-200 space-y-1">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Remaining Balance:</span>
-                  <span className="font-bold text-slate-900">
+                  <span className="font-bold text-gray-600">
                     {fmt(Math.max(0, Number(selectedPlan.totalPayable || 0) - Number(selectedPlan.paidTotal || 0)))}
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
                   Early Settlement Discount / Waiver (৳)
                 </label>
                 <input
@@ -1395,7 +1395,7 @@ export default function InstallmentsPage() {
                   value={settleDiscount}
                   onChange={(e) => setSettleDiscount(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl font-semibold"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-sm font-semibold"
                 />
               </div>
 
@@ -1403,14 +1403,14 @@ export default function InstallmentsPage() {
                 <button
                   type="button"
                   onClick={() => setShowSettleModal(false)}
-                  className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl"
+                  className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingSettle}
-                  className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs"
+                  className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-sm shadow-xs"
                 >
                   {submittingSettle ? "Settling..." : "Confirm Full Payoff"}
                 </button>
@@ -1426,11 +1426,11 @@ export default function InstallmentsPage() {
           <div className="bg-white rounded-sm max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <span className="p-2 rounded-xl bg-primary-50 text-primary-600">
+                <span className="p-2 rounded-sm bg-primary-50 text-primary-600">
                   <Send className="w-5 h-5" />
                 </span>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-base">Send EMI Reminder</h3>
+                  <h3 className="font-bold text-gray-600 text-base">Send EMI Reminder</h3>
                   <p className="text-xs text-slate-400">
                     Plan {selectedPlan.planNo} · {selectedPlan.customer?.name}
                   </p>
@@ -1438,7 +1438,7 @@ export default function InstallmentsPage() {
               </div>
               <button
                 onClick={() => setShowReminderModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100"
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-sm hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1455,7 +1455,7 @@ export default function InstallmentsPage() {
                     key={ch.id}
                     type="button"
                     onClick={() => setReminderChannel(ch.id as any)}
-                    className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                    className={`p-2.5 rounded-sm border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
                       reminderChannel === ch.id
                         ? "bg-primary-50 border-primary-300 text-primary-700 shadow-2xs"
                         : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
@@ -1469,7 +1469,7 @@ export default function InstallmentsPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-slate-700">Message Text</label>
+                  <label className="text-xs font-semibold text-gray-600">Message Text</label>
                   <button
                     onClick={handleCopyReminder}
                     className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 font-medium"
@@ -1478,7 +1478,7 @@ export default function InstallmentsPage() {
                     {copiedReminder ? "Copied" : "Copy"}
                   </button>
                 </div>
-                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-mono leading-relaxed">
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-sm text-xs text-gray-600 font-mono leading-relaxed">
                   {reminderMessage}
                 </div>
               </div>
@@ -1487,14 +1487,14 @@ export default function InstallmentsPage() {
                 <button
                   type="button"
                   onClick={() => setShowReminderModal(false)}
-                  className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl"
+                  className="px-4 py-2 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleSendReminderAction}
-                  className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-primary-600 hover:opacity-90 rounded-xl shadow-xs shadow-primary-500/25"
+                  className="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-primary-600 hover:opacity-90 rounded-sm shadow-xs shadow-primary-500/25"
                 >
                   {reminderChannel === "WHATSAPP"
                     ? "Open WhatsApp"
@@ -1514,11 +1514,11 @@ export default function InstallmentsPage() {
           <div className="bg-white w-full max-w-2xl h-full shadow-2xl p-6 overflow-y-auto space-y-6 animate-in slide-in-from-right duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary-700 font-bold flex items-center justify-center border border-primary-100">
+                <div className="w-10 h-10 rounded-sm bg-primary-50 text-primary-700 font-bold flex items-center justify-center border border-primary-100">
                   <CreditCard className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-base">Contract {selectedForDrawer.planNo}</h3>
+                  <h3 className="font-bold text-gray-600 text-base">Contract {selectedForDrawer.planNo}</h3>
                   <p className="text-xs text-slate-400">
                     {selectedForDrawer.customer?.name} · {selectedForDrawer.frequency}
                   </p>
@@ -1526,7 +1526,7 @@ export default function InstallmentsPage() {
               </div>
               <button
                 onClick={() => setSelectedForDrawer(null)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100"
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-sm hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1534,19 +1534,19 @@ export default function InstallmentsPage() {
 
             {/* Quick Summary */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-sm">
                 <span className="text-[10px] text-slate-400 uppercase font-semibold">Total Financed</span>
-                <div className="text-base font-bold text-slate-900 mt-0.5">
+                <div className="text-base font-bold text-gray-600 mt-0.5">
                   {fmt(selectedForDrawer.financedAmount)}
                 </div>
               </div>
-              <div className="p-3 bg-emerald-50/70 border border-emerald-100 rounded-xl">
+              <div className="p-3 bg-emerald-50/70 border border-emerald-100 rounded-sm">
                 <span className="text-[10px] text-emerald-700 uppercase font-semibold">Paid Total</span>
                 <div className="text-base font-bold text-emerald-800 mt-0.5">
                   {fmt(selectedForDrawer.paidTotal)}
                 </div>
               </div>
-              <div className="p-3 bg-amber-50/70 border border-amber-100 rounded-xl">
+              <div className="p-3 bg-amber-50/70 border border-amber-100 rounded-sm">
                 <span className="text-[10px] text-amber-700 uppercase font-semibold">Remaining</span>
                 <div className="text-base font-bold text-amber-800 mt-0.5">
                   {fmt(Math.max(0, Number(selectedForDrawer.totalPayable || 0) - Number(selectedForDrawer.paidTotal || 0)))}
@@ -1557,12 +1557,12 @@ export default function InstallmentsPage() {
             {/* Schedules Table */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider">
                   EMI Installment Schedule ({selectedForDrawer.schedules?.length || 0} Terms)
                 </h4>
               </div>
 
-              <div className="rounded-xl border border-slate-200 overflow-hidden">
+              <div className="rounded-sm border border-slate-200 overflow-hidden">
                 <table className="w-full text-xs text-left">
                   <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
                     <tr>
@@ -1577,11 +1577,11 @@ export default function InstallmentsPage() {
                   <tbody className="divide-y divide-slate-100">
                     {selectedForDrawer.schedules?.map((sc) => (
                       <tr key={sc.id} className="hover:bg-slate-50">
-                        <td className="py-2.5 px-3 font-bold text-slate-700">#{sc.sequenceNo}</td>
+                        <td className="py-2.5 px-3 font-bold text-gray-600">#{sc.sequenceNo}</td>
                         <td className="py-2.5 px-3 text-slate-600">
                           {new Date(sc.dueDate).toLocaleDateString("en-BD")}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-semibold text-slate-900">
+                        <td className="py-2.5 px-3 text-right font-semibold text-gray-600">
                           {fmt(sc.amount)}
                         </td>
                         <td className="py-2.5 px-3 text-right text-emerald-700 font-semibold">
@@ -1632,7 +1632,7 @@ export default function InstallmentsPage() {
                     setSelectedPlan(selectedForDrawer);
                     setShowSettleModal(true);
                   }}
-                  className="flex-1 py-2.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all shadow-xs"
+                  className="flex-1 py-2.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-sm transition-all shadow-xs"
                 >
                   Early Settlement / Payoff
                 </button>
@@ -1641,7 +1641,7 @@ export default function InstallmentsPage() {
                     setSelectedPlan(selectedForDrawer);
                     setShowReminderModal(true);
                   }}
-                  className="py-2.5 px-4 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-xl transition-all"
+                  className="py-2.5 px-4 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-sm transition-all"
                 >
                   Send Reminder
                 </button>

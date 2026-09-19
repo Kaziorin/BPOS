@@ -342,7 +342,7 @@ export default function ApprovalCenter({
     <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
       <button
         onClick={() => openDetail(row)}
-        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 hover:text-primary-700 transition"
+        className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 shadow-xs hover:bg-slate-50 hover:text-primary-700 transition"
       >
         <Eye size={12} /> View
       </button>
@@ -353,7 +353,7 @@ export default function ApprovalCenter({
               setAct({ kind: "approve", row });
               setComment("");
             }}
-            className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50/80 px-2.5 py-1 text-xs font-semibold text-emerald-700 shadow-xs hover:bg-emerald-100 transition"
+            className="inline-flex items-center gap-1 rounded-sm border border-emerald-200 bg-emerald-50/80 px-2.5 py-1 text-xs font-semibold text-emerald-700 shadow-xs hover:bg-emerald-100 transition"
           >
             <Check size={12} /> Approve
           </button>
@@ -362,7 +362,7 @@ export default function ApprovalCenter({
               setAct({ kind: "reject", row });
               setComment("");
             }}
-            className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50/80 px-2.5 py-1 text-xs font-semibold text-rose-700 shadow-xs hover:bg-rose-100 transition"
+            className="inline-flex items-center gap-1 rounded-sm border border-rose-200 bg-rose-50/80 px-2.5 py-1 text-xs font-semibold text-rose-700 shadow-xs hover:bg-rose-100 transition"
           >
             <X size={12} /> Reject
           </button>
@@ -372,7 +372,7 @@ export default function ApprovalCenter({
               setComment("");
             }}
             title="Escalate to next level"
-            className="inline-flex items-center gap-1 rounded-lg border border-brand-border bg-brand-50/80 px-2 py-1 text-xs font-semibold text-brand-dark shadow-xs hover:bg-brand-50 transition"
+            className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-brand-50/80 px-2 py-1 text-xs font-semibold text-brand-dark shadow-xs hover:bg-brand-50 transition"
           >
             <ArrowUpRight size={12} />
           </button>
@@ -382,7 +382,7 @@ export default function ApprovalCenter({
               setComment("");
             }}
             title="Cancel / Withdraw"
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-500 shadow-xs hover:bg-slate-200 transition"
+            className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-500 shadow-xs hover:bg-slate-200 transition"
           >
             <Ban size={12} />
           </button>
@@ -396,7 +396,7 @@ export default function ApprovalCenter({
       {/* Toast alert */}
       {message && (
         <div
-          className={`flex items-center justify-between rounded-xl border p-4 text-sm font-medium shadow-sm transition-all animate-in fade-in-50 duration-200 ${
+          className={`flex items-center justify-between rounded-sm border p-4 text-sm font-medium shadow-sm transition-all animate-in fade-in-50 duration-200 ${
             message.type === "success"
               ? "border-emerald-200 bg-emerald-50 text-emerald-800"
               : message.type === "error"
@@ -424,11 +424,11 @@ export default function ApprovalCenter({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 ring-1 ring-primary-500/20 shadow-xs">
+            <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary-50 text-primary-600 ring-1 ring-primary-500/20 shadow-xs">
               <GitMerge size={20} />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-2xl font-bold text-gray-600 tracking-tight">
                 {mine ? "My Submitted Approvals" : "Approval Center & Action Queue"}
               </h1>
               <p className="text-xs text-slate-500 sm:text-sm">
@@ -488,7 +488,7 @@ export default function ApprovalCenter({
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Awaiting Decision</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+            <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-amber-100 text-amber-700">
               <Clock size={16} />
             </span>
           </div>
@@ -498,7 +498,7 @@ export default function ApprovalCenter({
           </div>
           <div className="mt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2">
             <span>Pending volume:</span>
-            <span className="font-bold text-slate-800">{taka(metrics.pendingValue)}</span>
+            <span className="font-bold text-gray-600">{taka(metrics.pendingValue)}</span>
           </div>
         </div>
 
@@ -513,17 +513,17 @@ export default function ApprovalCenter({
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Workflow Volume</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-100 text-primary-700">
+            <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary-100 text-primary-700">
               <Layers size={16} />
             </span>
           </div>
           <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{metrics.total}</span>
+            <span className="text-3xl font-extrabold text-gray-600 tracking-tight">{metrics.total}</span>
             <span className="text-xs text-slate-400 font-medium">total requests</span>
           </div>
           <div className="mt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2">
             <span>Total processed value:</span>
-            <span className="font-bold text-slate-800">{taka(metrics.totalValue)}</span>
+            <span className="font-bold text-gray-600">{taka(metrics.totalValue)}</span>
           </div>
         </div>
 
@@ -538,7 +538,7 @@ export default function ApprovalCenter({
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Approved Requests</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+            <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-100 text-emerald-700">
               <FileCheck2 size={16} />
             </span>
           </div>
@@ -563,7 +563,7 @@ export default function ApprovalCenter({
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Rejected & Expired</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-100 text-rose-700">
+            <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-rose-100 text-rose-700">
               <XCircle size={16} />
             </span>
           </div>
@@ -575,7 +575,7 @@ export default function ApprovalCenter({
           </div>
           <div className="mt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2">
             <span>Cancelled requests:</span>
-            <span className="font-bold text-slate-700">{metrics.counts.CANCELLED}</span>
+            <span className="font-bold text-gray-600">{metrics.counts.CANCELLED}</span>
           </div>
         </div>
       </div>
@@ -596,7 +596,7 @@ export default function ApprovalCenter({
               <button
                 key={st.id}
                 onClick={() => setStatus(st.id)}
-                className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+                className={`flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-semibold transition ${
                   status === st.id
                     ? "bg-primary-600 text-white shadow-xs"
                     : "bg-slate-100/80 text-slate-600 hover:bg-slate-200/80"
@@ -622,7 +622,7 @@ export default function ApprovalCenter({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search request #, submitter, item…"
-                className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-8 pr-3 text-xs text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-brand-border"
+                className="h-9 w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-8 pr-3 text-xs text-gray-600 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-brand-border"
               />
               {search && (
                 <button
@@ -676,7 +676,7 @@ export default function ApprovalCenter({
                     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
                       <Inbox size={22} />
                     </div>
-                    <p className="mt-3 text-sm font-semibold text-slate-700">No approval requests found</p>
+                    <p className="mt-3 text-sm font-semibold text-gray-600">No approval requests found</p>
                     <p className="mt-1 text-xs text-slate-400 max-w-sm mx-auto">
                       {status || entity || search
                         ? "Try clearing filters to view more approval transactions."
@@ -689,7 +689,7 @@ export default function ApprovalCenter({
                           setEntity("");
                           setSearch("");
                         }}
-                        className="mt-3 rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                        className="mt-3 rounded-sm border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50"
                       >
                         Clear Filters
                       </button>
@@ -711,7 +711,7 @@ export default function ApprovalCenter({
                       {/* Request Details */}
                       <td className="py-3.5 pl-4 pr-3">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-slate-900 group-hover:text-primary-600 transition">
+                          <span className="font-mono text-xs font-bold text-gray-600 group-hover:text-primary-600 transition">
                             #{r.requestNo}
                           </span>
                         </div>
@@ -728,7 +728,7 @@ export default function ApprovalCenter({
                       {/* Entity & Type */}
                       <td className="px-3 py-3.5">
                         <div className="flex items-center gap-1.5">
-                          <span className="inline-flex rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
+                          <span className="inline-flex rounded-sm bg-slate-100 px-2 py-0.5 text-xs font-semibold text-gray-600">
                             {r.entityLabel ?? r.entityType}
                           </span>
                         </div>
@@ -739,17 +739,17 @@ export default function ApprovalCenter({
 
                       {/* Amount */}
                       <td className="px-3 py-3.5">
-                        <span className="text-xs font-bold text-slate-900">{taka(r.amount)}</span>
+                        <span className="text-xs font-bold text-gray-600">{taka(r.amount)}</span>
                       </td>
 
                       {/* Workflow Progression */}
                       <td className="px-3 py-3.5">
                         <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1 text-xs font-semibold text-slate-700">
+                          <div className="flex items-center gap-1 text-xs font-semibold text-gray-600">
                             <span>Level {r.currentLevel}</span>
                             {r.totalLevels && <span className="text-slate-400">of {r.totalLevels}</span>}
                           </div>
-                          <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500">
+                          <span className="rounded-sm bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500">
                             {r.currentRole || "ANY"}
                           </span>
                         </div>
@@ -775,7 +775,7 @@ export default function ApprovalCenter({
 
                       {/* Submitted Date */}
                       <td className="px-3 py-3.5">
-                        <p className="text-xs font-medium text-slate-700">{fmtDt(r.createdAt)}</p>
+                        <p className="text-xs font-medium text-gray-600">{fmtDt(r.createdAt)}</p>
                         <p className="text-[11px] text-slate-400">{timeAgo(r.createdAt)}</p>
                       </td>
 
@@ -807,25 +807,25 @@ export default function ApprovalCenter({
           <div className="space-y-5">
             {/* Overview Strip */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              <div className="rounded-xl border border-slate-100 bg-slate-50/80 p-3">
+              <div className="rounded-sm border border-slate-100 bg-slate-50/80 p-3">
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Target Entity</p>
-                <p className="mt-1 font-bold text-xs text-slate-800">{detail.entityLabel ?? detail.entityType}</p>
+                <p className="mt-1 font-bold text-xs text-gray-600">{detail.entityLabel ?? detail.entityType}</p>
                 {detail.entityNo && <p className="text-[11px] font-mono text-slate-500">#{detail.entityNo}</p>}
               </div>
 
-              <div className="rounded-xl border border-slate-100 bg-slate-50/80 p-3">
+              <div className="rounded-sm border border-slate-100 bg-slate-50/80 p-3">
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Evaluated Value</p>
-                <p className="mt-1 font-extrabold text-sm text-slate-900">{taka(detail.amount)}</p>
+                <p className="mt-1 font-extrabold text-sm text-gray-600">{taka(detail.amount)}</p>
               </div>
 
-              <div className="rounded-xl border border-slate-100 bg-slate-50/80 p-3">
+              <div className="rounded-sm border border-slate-100 bg-slate-50/80 p-3">
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Current Stage</p>
-                <p className="mt-1 font-bold text-xs text-slate-800">
+                <p className="mt-1 font-bold text-xs text-gray-600">
                   Tier {detail.currentLevel} · {detail.currentRole || "ANY"}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-slate-100 bg-slate-50/80 p-3">
+              <div className="rounded-sm border border-slate-100 bg-slate-50/80 p-3">
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Status</p>
                 <div className="mt-1">
                   <span
@@ -840,20 +840,20 @@ export default function ApprovalCenter({
             </div>
 
             {/* Summary description */}
-            <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
+            <div className="rounded-sm border border-slate-200 bg-white p-3.5 shadow-xs">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Change Description</p>
-              <p className="mt-1 text-sm font-medium text-slate-800">{detail.summary || "No description provided"}</p>
+              <p className="mt-1 text-sm font-medium text-gray-600">{detail.summary || "No description provided"}</p>
             </div>
 
             {/* Visual Step-by-Step Approval Chain */}
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+            <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-xs">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <p className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                   <GitMerge size={14} className="text-primary-600" />
                   Approval Audit Trail & Chain of Custody
                 </p>
                 {detail.expiresAt && detail.status === "PENDING" && (
-                  <span className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-0.5 flex items-center gap-1">
+                  <span className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-sm px-2 py-0.5 flex items-center gap-1">
                     <Clock size={11} /> Auto-escalate at: {fmtDt(detail.expiresAt)}
                   </span>
                 )}
@@ -867,7 +867,7 @@ export default function ApprovalCenter({
                   return (
                     <div
                       key={s.id || idx}
-                      className={`relative flex items-start gap-3 rounded-xl border p-3 transition ${
+                      className={`relative flex items-start gap-3 rounded-sm border p-3 transition ${
                         isCurrent
                           ? "border-amber-300 bg-amber-50/40 ring-2 ring-amber-300/20"
                           : s.status === "APPROVED"
@@ -903,7 +903,7 @@ export default function ApprovalCenter({
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center justify-between gap-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-xs text-slate-900">
+                            <span className="font-bold text-xs text-gray-600">
                               Level {s.level}: Role {s.role || "AUTHORITY"}
                             </span>
                             <span
@@ -919,12 +919,12 @@ export default function ApprovalCenter({
 
                         {s.actedBy && (
                           <p className="mt-0.5 text-xs text-slate-600">
-                            Acted by: <span className="font-semibold text-slate-800">{s.actedBy}</span>
+                            Acted by: <span className="font-semibold text-gray-600">{s.actedBy}</span>
                           </p>
                         )}
 
                         {s.comment && (
-                          <div className="mt-1.5 rounded-lg bg-white p-2 border border-slate-100 text-xs text-slate-700 italic">
+                          <div className="mt-1.5 rounded-sm bg-white p-2 border border-slate-100 text-xs text-gray-600 italic">
                             “{s.comment}”
                           </div>
                         )}
@@ -941,12 +941,12 @@ export default function ApprovalCenter({
 
             {/* Proposed Payload Inspection */}
             {detail.payload && Object.keys(detail.payload).length > 0 && (
-              <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-                <p className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-xs">
+                <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <SlidersHorizontal size={13} className="text-primary-600" />
                   Proposed Commercial Change Payload
                 </p>
-                <div className="overflow-x-auto rounded-lg bg-slate-900 p-3 text-slate-100">
+                <div className="overflow-x-auto rounded-sm bg-slate-900 p-3 text-slate-100">
                   <pre className="font-mono text-[11px] leading-relaxed">
                     {JSON.stringify(detail.payload, null, 2)}
                   </pre>
@@ -1023,10 +1023,10 @@ export default function ApprovalCenter({
         } — #${act?.row.requestNo ?? ""}`}
       >
         <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 text-xs text-slate-700">
-            <p className="font-bold text-slate-900">{act?.row.entityLabel ?? act?.row.entityType}</p>
+          <div className="rounded-sm border border-slate-200 bg-slate-50/70 p-3.5 text-xs text-gray-600">
+            <p className="font-bold text-gray-600">{act?.row.entityLabel ?? act?.row.entityType}</p>
             <p className="mt-0.5 text-slate-600">{act?.row.summary}</p>
-            <p className="mt-1 font-semibold text-slate-800">Evaluated Value: {taka(act?.row.amount)}</p>
+            <p className="mt-1 font-semibold text-gray-600">Evaluated Value: {taka(act?.row.amount)}</p>
           </div>
 
           {act?.kind === "reject" ? (
@@ -1053,7 +1053,7 @@ export default function ApprovalCenter({
           )}
 
           {act?.kind === "escalate" && (
-            <p className="text-xs text-slate-500 bg-brand-50 border border-slate-200 rounded-lg p-2.5">
+            <p className="text-xs text-slate-500 bg-brand-50 border border-slate-200 rounded-sm p-2.5">
               Escalating will mark the current tier as bypassed and immediately promote the approval request to Tier{" "}
               {(act?.row.currentLevel || 1) + 1}.
             </p>

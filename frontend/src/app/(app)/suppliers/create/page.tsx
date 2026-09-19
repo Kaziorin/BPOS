@@ -52,28 +52,28 @@ export default function CreateSupplierPage() {
     }
   }
 
-  const inputClass = "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500";
-  const labelClass = "block text-sm font-medium text-gray-700";
+  const inputClass = "mt-1 block w-full rounded-sm border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500";
+  const labelClass = "block text-sm font-medium text-gray-600";
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center gap-3">
-        <button onClick={() => router.push("/suppliers")} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+        <button onClick={() => router.push("/suppliers")} className="rounded-sm p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Add Supplier</h1>
+          <h1 className="text-2xl font-bold text-gray-600">Add Supplier</h1>
           <p className="text-sm text-gray-500">Create a new supplier record</p>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
+        <div className="rounded-sm border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
+        <div className="rounded-sm border border-gray-200 bg-white p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-gray-600">Basic Information</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Name *</label>
@@ -110,8 +110,8 @@ export default function CreateSupplierPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Payment & Terms</h2>
+        <div className="rounded-sm border border-gray-200 bg-white p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-gray-600">Payment & Terms</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Payment Terms (days)</label>
@@ -132,8 +132,8 @@ export default function CreateSupplierPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Notes</h2>
+        <div className="rounded-sm border border-gray-200 bg-white p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-gray-600">Notes</h2>
           <textarea
             value={form.notes}
             onChange={(e) => updateForm("notes", e.target.value)}
@@ -144,10 +144,10 @@ export default function CreateSupplierPage() {
         </div>
 
         <div className="flex justify-end gap-3">
-          <button type="button" onClick={() => router.push("/suppliers")} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <button type="button" onClick={() => router.push("/suppliers")} className="rounded-sm border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">
             Cancel
           </button>
-          <button type="submit" disabled={saving} className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50">
+          <button type="submit" disabled={saving} className="flex items-center gap-2 rounded-sm bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50">
             {saving && <Loader2 size={16} className="animate-spin" />}
             {saving ? "Creating..." : "Create Supplier"}
           </button>

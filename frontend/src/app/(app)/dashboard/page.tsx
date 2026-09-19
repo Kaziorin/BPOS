@@ -199,7 +199,7 @@ export default function DashboardPage() {
                 className="group flex items-center justify-between p-2.5 rounded-sm border border-brand-light/80 bg-white hover:bg-brand-50/40 hover:border-brand-border transition-all duration-150 shadow-2xs"
               >
                 <div className="min-w-0 pr-2">
-                  <p className="font-bold text-xs text-slate-700 group-hover:text-brand-primary transition-colors truncate">
+                  <p className="font-bold text-xs text-gray-600 group-hover:text-brand-primary transition-colors truncate">
                     {s.invoiceNo}
                   </p>
                   <div className="mt-0.5 flex items-center gap-1.5 text-xs truncate">

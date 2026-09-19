@@ -21,8 +21,8 @@ function StatementSection({ title, rows, tone, emptyIcon }: { title: string; row
       <CustomTable
         columns={[
           { key: "code", header: "Code", render: (r) => <span className="font-mono text-xs text-gray-500">{r.code}</span> },
-          { key: "name", header: "Account", render: (r) => <span className="text-sm text-gray-800">{r.name}</span> },
-          { key: "balance", header: "Balance", align: "right", render: (r) => <span className="font-semibold tabular-nums text-gray-900">{money(r.balance)}</span> },
+          { key: "name", header: "Account", render: (r) => <span className="text-sm text-gray-600">{r.name}</span> },
+          { key: "balance", header: "Balance", align: "right", render: (r) => <span className="font-semibold tabular-nums text-gray-600">{money(r.balance)}</span> },
         ]}
         data={rows}
         rowKey={(r) => r.id}
@@ -61,7 +61,7 @@ export default function BalanceSheetPage() {
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><FileText size={19} /></div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-900">Balance Sheet</h1>
+            <h1 className="text-xl font-bold tracking-tight text-gray-600">Balance Sheet</h1>
             <p className="text-sm text-gray-500">Assets = Liabilities + Equity</p>
           </div>
         </div>
@@ -77,9 +77,9 @@ export default function BalanceSheetPage() {
 
       {data && (
         <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs"><p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Assets</p><p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{money(data.totalAssets)}</p></div>
-          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs"><p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Liabilities</p><p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{money(data.totalLiabilities)}</p></div>
-          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs"><p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Equity</p><p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{money(data.totalEquity)}</p></div>
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs"><p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Assets</p><p className="mt-1 text-lg font-bold tabular-nums text-gray-600">{money(data.totalAssets)}</p></div>
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs"><p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Liabilities</p><p className="mt-1 text-lg font-bold tabular-nums text-gray-600">{money(data.totalLiabilities)}</p></div>
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs"><p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Equity</p><p className="mt-1 text-lg font-bold tabular-nums text-gray-600">{money(data.totalEquity)}</p></div>
         </div>
       )}
 

@@ -173,29 +173,29 @@ export default function CommissionRulesPage() {
     }
   }
 
-  const inputCls = "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500";
+  const inputCls = "mt-1 block w-full rounded-sm border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500";
   const labelCls = "block text-xs font-semibold uppercase tracking-wide text-gray-500";
 
   return (
     <div className="w-full px-4 sm:px-8 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/commission" className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
+          <Link href="/commission" className="rounded-sm p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
             <ArrowLeft size={18} />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Commission Rules</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-600">Commission Rules</h1>
             <p className="mt-0.5 text-sm text-gray-500">Configure how commissions calculate per agent type (§10.15)</p>
           </div>
         </div>
         <button onClick={() => { resetForm(); setShowModal(true); }}
-          className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:opacity-90">
+          className="flex items-center gap-2 rounded-sm bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:opacity-90">
           <Plus size={16} /> New Rule
         </button>
       </div>
 
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+        <div className="rounded-sm border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
           {error} <button onClick={load} className="ml-2 font-medium underline">Retry</button>
         </div>
       )}
@@ -215,11 +215,11 @@ export default function CommissionRulesPage() {
               {/* Type badge */}
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-sm bg-primary-50">
                     <Layers size={17} className="text-primary-600" />
                   </span>
                   <div>
-                    <h3 className="font-semibold leading-tight text-gray-900">{rule.name}</h3>
+                    <h3 className="font-semibold leading-tight text-gray-600">{rule.name}</h3>
                     <p className="text-[11px] uppercase tracking-wide text-gray-400">
                       {AGENT_TYPES.find(([v]) => v === rule.agentType)?.[1]} · priority {rule.priority}
                     </p>
@@ -227,11 +227,11 @@ export default function CommissionRulesPage() {
                 </div>
                 <div className="flex gap-1 opacity-0 transition group-hover:opacity-100">
                   <button onClick={() => toggleActive(rule)} title={rule.isActive ? "Deactivate" : "Activate"}
-                    className={`rounded-lg p-1.5 ${rule.isActive ? "text-emerald-600 hover:bg-emerald-50" : "text-gray-400 hover:bg-gray-100"}`}>
+                    className={`rounded-sm p-1.5 ${rule.isActive ? "text-emerald-600 hover:bg-emerald-50" : "text-gray-400 hover:bg-gray-100"}`}>
                     <Power size={14} />
                   </button>
                   <button onClick={() => deleteRule(rule)} title="Delete"
-                    className="rounded-lg p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600">
+                    className="rounded-sm p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600">
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -242,7 +242,7 @@ export default function CommissionRulesPage() {
                 {rule.commissionType === "SLAB" && rule.slabConfig && (
                   <div className="space-y-1.5">
                     {(rule.slabConfig as any[]).map((tier: any, i: number) => (
-                      <div key={i} className="flex items-center justify-between rounded-lg bg-gradient-to-r from-primary-50/70 to-transparent px-3 py-1.5 text-xs">
+                      <div key={i} className="flex items-center justify-between rounded-sm bg-gradient-to-r from-primary-50/70 to-transparent px-3 py-1.5 text-xs">
                         <span className="tabular-nums text-gray-600">
                           ৳{Number(tier.from).toLocaleString()} {tier.to == null ? "+" : `– ৳${Number(tier.to).toLocaleString()}`}
                         </span>
@@ -287,11 +287,11 @@ export default function CommissionRulesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4 backdrop-blur-sm" onClick={() => setShowModal(false)}>
           <div className="max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-sm bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900">New Commission Rule</h2>
-              <button onClick={() => setShowModal(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100"><X size={18} /></button>
+              <h2 className="text-lg font-bold text-gray-600">New Commission Rule</h2>
+              <button onClick={() => setShowModal(false)} className="rounded-sm p-1.5 text-gray-400 hover:bg-gray-100"><X size={18} /></button>
             </div>
 
-            {modalError && <div className="mt-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{modalError}</div>}
+            {modalError && <div className="mt-4 rounded-sm border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{modalError}</div>}
 
             <form onSubmit={handleCreate} className="mt-5 space-y-5">
               {/* Basic */}
@@ -325,7 +325,7 @@ export default function CommissionRulesPage() {
                 <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {COMMISSION_TYPES.map(([v, l]) => (
                     <button key={v} type="button" onClick={() => { setForm({ ...form, commissionType: v }); setPreview(null); }}
-                      className={`rounded-xl border px-3 py-2.5 text-left text-xs font-medium transition ${
+                      className={`rounded-sm border px-3 py-2.5 text-left text-xs font-medium transition ${
                         form.commissionType === v ? "border-primary-500 bg-primary-50 text-primary-700 ring-1 ring-primary-500" : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
                       }`}>
                       {l.split(" — ")[0]}
@@ -336,7 +336,7 @@ export default function CommissionRulesPage() {
               </div>
 
               {/* Type-specific config */}
-              <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
+              <div className="rounded-sm border border-gray-100 bg-gray-50/60 p-4">
                 {["PERCENTAGE", "PROFIT", "TARGET", "PRODUCT", "CATEGORY"].includes(form.commissionType) && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -382,16 +382,16 @@ export default function CommissionRulesPage() {
                       {slabs.map((slab, i) => (
                         <div key={i} className="flex items-center gap-2">
                           <input type="number" value={slab.from} onChange={(e) => setSlabs(slabs.map((s, j) => j === i ? { ...s, from: Number(e.target.value) } : s))}
-                            className="w-32 rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs tabular-nums" placeholder="From" />
+                            className="w-32 rounded-sm border border-gray-300 px-2.5 py-1.5 text-xs tabular-nums" placeholder="From" />
                           <span className="text-xs text-gray-400">to</span>
                           <input type="number" value={slab.to ?? ""} onChange={(e) => setSlabs(slabs.map((s, j) => j === i ? { ...s, to: e.target.value === "" ? null : Number(e.target.value) } : s))}
-                            className="w-32 rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs tabular-nums" placeholder="∞" />
+                            className="w-32 rounded-sm border border-gray-300 px-2.5 py-1.5 text-xs tabular-nums" placeholder="∞" />
                           <span className="text-xs text-gray-400">rate %</span>
                           <input type="number" step="0.1" value={slab.rate} onChange={(e) => setSlabs(slabs.map((s, j) => j === i ? { ...s, rate: Number(e.target.value) } : s))}
-                            className="w-20 rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs tabular-nums" />
+                            className="w-20 rounded-sm border border-gray-300 px-2.5 py-1.5 text-xs tabular-nums" />
                           {slabs.length > 1 && (
                             <button type="button" onClick={() => setSlabs(slabs.filter((_, j) => j !== i))}
-                              className="rounded p-1 text-gray-300 hover:bg-rose-50 hover:text-rose-500"><X size={12} /></button>
+                              className="rounded-sm p-1 text-gray-300 hover:bg-rose-50 hover:text-rose-500"><X size={12} /></button>
                           )}
                         </div>
                       ))}
@@ -401,7 +401,7 @@ export default function CommissionRulesPage() {
               </div>
 
               {/* Dry run */}
-              <div className="flex items-center justify-between rounded-xl border border-primary-100 bg-primary-50/50 p-4">
+              <div className="flex items-center justify-between rounded-sm border border-primary-100 bg-primary-50/50 p-4">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Calculator size={16} className="text-primary-600" />
                   {preview != null ? (
@@ -411,16 +411,16 @@ export default function CommissionRulesPage() {
                   )}
                 </div>
                 <button type="button" onClick={dryRun}
-                  className="flex items-center gap-1.5 rounded-lg border border-primary-300 bg-white px-3 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-50">
+                  className="flex items-center gap-1.5 rounded-sm border border-primary-300 bg-white px-3 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-50">
                   <Check size={13} /> Dry Run
                 </button>
               </div>
 
               <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
                 <button type="button" onClick={() => setShowModal(false)}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+                  className="rounded-sm border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancel</button>
                 <button type="submit" disabled={saving}
-                  className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50">
+                  className="flex items-center gap-2 rounded-sm bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50">
                   {saving && <Loader2 size={15} className="animate-spin" />}
                   Create Rule
                 </button>

@@ -22,15 +22,15 @@ const GENDERS = ["Unisex", "Men", "Women", "Kids / Boys", "Kids / Girls", "Babie
 
 export const RetailProductFields: React.FC<Props> = ({ formData, onChange }) => {
   const inputClass =
-    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border placeholder:text-slate-400";
-  const labelClass = "block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-1";
+    "w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border placeholder:text-slate-400";
+  const labelClass = "block text-xs font-semibold text-gray-600 mb-1.5 flex items-center gap-1";
 
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
+    <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
       <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
         <ShoppingBag className="h-4 w-4 text-brand-primary" />
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-600">
             Retail & Lifestyle Product Setup
           </h3>
           <p className="text-[11px] text-slate-500 font-normal">
@@ -61,7 +61,7 @@ export const RetailProductFields: React.FC<Props> = ({ formData, onChange }) => 
 
         {/* Gender / Target */}
         <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+          <label className="block text-xs font-semibold text-gray-600 mb-1.5">
             Target Demographic
           </label>
           <select
@@ -79,7 +79,7 @@ export const RetailProductFields: React.FC<Props> = ({ formData, onChange }) => 
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-        <div className="p-3 bg-slate-50 border border-slate-200 rounded-md">
+        <div className="p-3 bg-slate-50 border border-slate-200 rounded-sm">
           <CustomCheckbox
             id="hasVariantMatrix"
             checked={formData.hasVariantMatrix}
@@ -88,7 +88,7 @@ export const RetailProductFields: React.FC<Props> = ({ formData, onChange }) => 
           />
         </div>
 
-        <div className="p-3 bg-slate-50 border border-slate-200 rounded-md">
+        <div className="p-3 bg-slate-50 border border-slate-200 rounded-sm">
           <CustomCheckbox
             id="isReturnable"
             checked={formData.isReturnable}

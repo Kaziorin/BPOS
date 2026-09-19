@@ -307,13 +307,13 @@ export default function MarketingPage() {
       {/* ── Toast Notification ── */}
       {toast && (
         <div
-          className={`fixed top-5 right-5 z-50 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium shadow-lg animate-in slide-in-from-top duration-200 ${
+          className={`fixed top-5 right-5 z-50 flex items-center gap-2 rounded-sm border px-4 py-3 text-sm font-medium shadow-lg animate-in slide-in-from-top duration-200 ${
             toast.ok
-              ? "border-teal-200 bg-teal-50 text-teal-800"
+              ? "border-brand-border bg-brand-50 text-brand-dark"
               : "border-rose-200 bg-rose-50 text-rose-800"
           }`}
         >
-          {toast.ok ? <CheckCircle2 className="w-5 h-5 text-teal-600" /> : <AlertTriangle className="w-5 h-5 text-rose-600" />}
+          {toast.ok ? <CheckCircle2 className="w-5 h-5 text-brand-primary" /> : <AlertTriangle className="w-5 h-5 text-rose-600" />}
           {toast.text}
         </div>
       )}
@@ -383,7 +383,7 @@ export default function MarketingPage() {
       </div>
 
       {/* ── Tab Navigation Bar ── */}
-      <div className="flex border-b border-slate-200 bg-white px-3 pt-2 rounded-t-xl shadow-2xs overflow-x-auto gap-1">
+      <div className="flex border-b border-slate-200 bg-white px-3 pt-2 rounded-t-sm shadow-2xs overflow-x-auto gap-1">
         {[
           { key: "campaigns", label: "Automated Campaigns", icon: Megaphone, count: campaigns.length },
           { key: "triggers", label: "Trigger Catalog & Recipes", icon: Zap, count: triggers.length },
@@ -396,15 +396,15 @@ export default function MarketingPage() {
               onClick={() => setActiveTab(key as any)}
               className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
                 active
-                  ? "border-teal-600 text-teal-700 bg-teal-50/40 rounded-t-lg"
-                  : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                  ? "border-brand-primary text-brand-dark bg-brand-50 rounded-t-sm"
+                  : "border-transparent text-slate-500 hover:text-gray-600 hover:bg-slate-50"
               }`}
             >
-              <Icon className={`w-4 h-4 ${active ? "text-teal-600" : "text-slate-400"}`} />
+              <Icon className={`w-4 h-4 ${active ? "text-brand-primary" : "text-slate-400"}`} />
               <span>{label}</span>
               <span
                 className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                  active ? "bg-teal-100 text-teal-800" : "bg-slate-100 text-slate-600"
+                  active ? "bg-brand-50 text-brand-dark" : "bg-slate-100 text-slate-600"
                 }`}
               >
                 {count}
@@ -415,13 +415,13 @@ export default function MarketingPage() {
       </div>
 
       {/* ── TAB CONTENT ── */}
-      <div className="rounded-b-xl border border-t-0 border-slate-200 bg-white p-5 shadow-2xs">
+      <div className="rounded-b-sm border border-t-0 border-slate-200 bg-white p-5 shadow-2xs">
         {activeTab === "campaigns" && (
           /* ── CAMPAIGNS TABLE ── */
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
               <div>
-                <h4 className="text-sm font-bold text-slate-800">Trigger-Based Campaigns</h4>
+                <h4 className="text-sm font-bold text-gray-600">Trigger-Based Campaigns</h4>
                 <p className="text-xs text-slate-500">
                   Event-driven and schedule-evaluated rules that generate targeted coupons and queue notifications.
                 </p>
@@ -445,7 +445,7 @@ export default function MarketingPage() {
                     <div className="space-y-0.5">
                       <button
                         onClick={() => openAudienceDetail(row)}
-                        className="font-bold text-xs text-slate-900 hover:text-teal-700 text-left transition"
+                        className="font-bold text-xs text-gray-600 hover:text-brand-dark text-left transition"
                       >
                         {row.name}
                       </button>
@@ -461,8 +461,8 @@ export default function MarketingPage() {
                   render: (row) => {
                     const TriggerIcon = TRIGGER_ICONS[row.triggerType] || Zap;
                     return (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-teal-50 border border-teal-100 px-2 py-0.5 text-xs font-bold text-teal-700">
-                        <TriggerIcon className="w-3.5 h-3.5 text-teal-600" />
+                      <span className="inline-flex items-center gap-1 rounded-sm bg-brand-50 border border-brand-border px-2 py-0.5 text-xs font-bold text-brand-dark">
+                        <TriggerIcon className="w-3.5 h-3.5 text-brand-primary" />
                         {row.triggerType.replace(/_/g, " ")}
                       </span>
                     );
@@ -478,7 +478,7 @@ export default function MarketingPage() {
                     }
                     return (
                       <div className="text-xs">
-                        <span className="font-bold font-mono text-teal-700">
+                        <span className="font-bold font-mono text-brand-dark">
                           {tpl.discountValue}
                           {tpl.discountType === "PERCENTAGE" ? "%" : " Tk"} OFF
                         </span>
@@ -497,7 +497,7 @@ export default function MarketingPage() {
                       {(row.channels || ["SMS"]).map((ch) => (
                         <span
                           key={ch}
-                          className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700 uppercase"
+                          className="rounded-sm bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 uppercase"
                         >
                           {ch}
                         </span>
@@ -510,7 +510,7 @@ export default function MarketingPage() {
                   header: "Audience Matched",
                   render: (row) => (
                     <div className="text-xs">
-                      <span className="font-bold font-mono text-slate-800">{row.totalMatched || 0}</span>
+                      <span className="font-bold font-mono text-gray-600">{row.totalMatched || 0}</span>
                       <span className="text-[10px] text-slate-400 block">{row.totalSent || 0} queued</span>
                     </div>
                   ),
@@ -536,28 +536,28 @@ export default function MarketingPage() {
                       <button
                         onClick={() => runCampaign(row)}
                         disabled={running}
-                        className="inline-flex items-center gap-1 rounded-md bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700 hover:bg-teal-100 transition cursor-pointer"
+                        className="inline-flex items-center gap-1 rounded-sm bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-dark hover:bg-brand-50 transition cursor-pointer"
                       >
                         <Play className="w-3 h-3" /> Run
                       </button>
 
                       <button
                         onClick={() => toggleStatus(row)}
-                        className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                        className="inline-flex items-center rounded-sm px-2 py-1 text-xs font-medium text-gray-600 hover:bg-slate-100 transition cursor-pointer"
                       >
                         {row.status === "ACTIVE" ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 text-emerald-600" />}
                       </button>
 
                       <button
                         onClick={() => openAudienceDetail(row)}
-                        className="inline-flex items-center rounded-md p-1 text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                        className="inline-flex items-center rounded-sm p-1 text-slate-600 hover:bg-slate-100 transition cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </button>
 
                       <button
                         onClick={() => setDeleteModalCampaign(row)}
-                        className="inline-flex items-center rounded-md p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                        className="inline-flex items-center rounded-sm p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -576,7 +576,7 @@ export default function MarketingPage() {
           /* ── TRIGGER CATALOG ── */
           <div className="space-y-4">
             <div className="border-b border-slate-100 pb-3">
-              <h4 className="text-sm font-bold text-slate-800">Trigger Recipe Catalog</h4>
+              <h4 className="text-sm font-bold text-gray-600">Trigger Recipe Catalog</h4>
               <p className="text-xs text-slate-500">
                 Pre-configured lifecycle hooks that detect specific customer behaviors and trigger automatic rewards.
               </p>
@@ -590,19 +590,19 @@ export default function MarketingPage() {
                 return (
                   <div
                     key={t.code}
-                    className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs hover:shadow-md transition hover:-translate-y-0.5 space-y-3 flex flex-col justify-between"
+                    className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs hover:shadow-md transition hover:-translate-y-0.5 space-y-3 flex flex-col justify-between"
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600 border border-teal-100">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border">
                           <Icon className="w-5 h-5" />
                         </div>
-                        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+                        <span className="rounded-sm bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
                           {activeForTrigger} Active
                         </span>
                       </div>
 
-                      <h5 className="font-bold text-sm text-slate-900">{t.label}</h5>
+                      <h5 className="font-bold text-sm text-gray-600">{t.label}</h5>
                       <p className="text-xs text-slate-500 leading-relaxed">{t.description}</p>
                     </div>
 
@@ -611,7 +611,7 @@ export default function MarketingPage() {
                         variant="outline"
                         size="sm"
                         className="w-full justify-center"
-                        icon={<Sparkles className="w-3.5 h-3.5 text-teal-600" />}
+                        icon={<Sparkles className="w-3.5 h-3.5 text-brand-primary" />}
                         onClick={() => openCreateWithTrigger(t.code)}
                       >
                         Use This Trigger
@@ -628,7 +628,7 @@ export default function MarketingPage() {
           /* ── GRANTED COUPONS & AUDIENCE LOG ── */
           <div className="space-y-4">
             <div className="border-b border-slate-100 pb-3">
-              <h4 className="text-sm font-bold text-slate-800">Coupon Grants & Delivery Ledger</h4>
+              <h4 className="text-sm font-bold text-gray-600">Coupon Grants & Delivery Ledger</h4>
               <p className="text-xs text-slate-500">
                 Audit history of all unique discount coupons generated for evaluated customers across campaigns.
               </p>
@@ -641,7 +641,7 @@ export default function MarketingPage() {
                   header: "Target Customer",
                   render: (row) => (
                     <div className="space-y-0.5">
-                      <p className="font-bold text-xs text-slate-900">{row.customerName}</p>
+                      <p className="font-bold text-xs text-gray-600">{row.customerName}</p>
                       <p className="text-[10px] text-slate-500">
                         {row.phone ? `📞 ${row.phone}` : ""} {row.email ? `✉️ ${row.email}` : ""}
                       </p>
@@ -653,7 +653,7 @@ export default function MarketingPage() {
                   header: "Generated Coupon",
                   render: (row) =>
                     row.couponCode ? (
-                      <span className="font-mono text-xs font-bold text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded">
+                      <span className="font-mono text-xs font-bold text-brand-dark bg-brand-50 border border-brand-border px-2 py-0.5 rounded-sm">
                         {row.couponCode}
                       </span>
                     ) : (
@@ -664,7 +664,7 @@ export default function MarketingPage() {
                   key: "channel",
                   header: "Channel",
                   render: (row) => (
-                    <span className="inline-flex rounded bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">
+                    <span className="inline-flex rounded-sm bg-slate-100 px-2 py-0.5 text-xs font-bold text-gray-600">
                       {row.channel}
                     </span>
                   ),
@@ -713,7 +713,7 @@ export default function MarketingPage() {
       >
         <form onSubmit={createCampaign} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Campaign Name *
             </label>
             <input
@@ -721,7 +721,7 @@ export default function MarketingPage() {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="e.g. Inactive Customer 30-Day Win-Back Offer"
-              className="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+              className="w-full rounded-sm border border-slate-200 px-3.5 py-2 text-sm font-semibold text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
               autoFocus
               required
             />
@@ -729,13 +729,13 @@ export default function MarketingPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Trigger Event
               </label>
               <select
                 value={form.triggerType}
                 onChange={(e) => changeTrigger(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
               >
                 {triggers.map((t) => (
                   <option key={t.code} value={t.code}>
@@ -746,13 +746,13 @@ export default function MarketingPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Notification Channel
               </label>
               <select
                 value={(form.channels || ["SMS"])[0]}
                 onChange={(e) => setForm({ ...form, channels: [e.target.value] })}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
+                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:outline-hidden focus:ring-2 focus:ring-brand-border focus:border-brand-primary"
               >
                 <option value="SMS">📱 SMS Notification</option>
                 <option value="EMAIL">✉️ Email Campaign</option>
@@ -763,18 +763,18 @@ export default function MarketingPage() {
           </div>
 
           {/* Coupon Offer Engine Section */}
-          <div className="rounded-xl border border-teal-200 bg-teal-50/40 p-4 space-y-3">
-            <span className="flex items-center gap-1.5 text-xs font-bold text-teal-900 uppercase tracking-wider">
-              <Ticket className="w-4 h-4 text-teal-600" /> Automated Coupon Generation
+          <div className="rounded-sm border border-brand-border bg-brand-50 p-4 space-y-3">
+            <span className="flex items-center gap-1.5 text-xs font-bold text-brand-dark uppercase tracking-wider">
+              <Ticket className="w-4 h-4 text-brand-primary" /> Automated Coupon Generation
             </span>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Discount Type</label>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Discount Type</label>
                 <select
                   value={form.discountType}
                   onChange={(e) => setForm({ ...form, discountType: e.target.value })}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600"
                 >
                   <option value="PERCENTAGE">% Percentage</option>
                   <option value="FIXED">Tk Fixed Amount</option>
@@ -782,7 +782,7 @@ export default function MarketingPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
                   Discount Value ({form.discountType === "PERCENTAGE" ? "%" : "Tk"})
                 </label>
                 <input
@@ -791,44 +791,44 @@ export default function MarketingPage() {
                   step="any"
                   value={form.discountValue}
                   onChange={(e) => setForm({ ...form, discountValue: e.target.value })}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 font-mono"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 font-mono"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Min Spend (Tk)</label>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Min Spend (Tk)</label>
                 <input
                   type="number"
                   min="0"
                   value={form.minAmount}
                   onChange={(e) => setForm({ ...form, minAmount: e.target.value })}
                   placeholder="Optional"
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 font-mono"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Validity (Days)</label>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Validity (Days)</label>
                 <input
                   type="number"
                   min="1"
                   value={form.validDays}
                   onChange={(e) => setForm({ ...form, validDays: e.target.value })}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 font-mono"
+                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 font-mono"
                 />
               </div>
             </div>
           </div>
 
           {/* Trigger Condition Parameters */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">Trigger Threshold Conditions</span>
+          <div className="rounded-sm border border-slate-200 bg-slate-50 p-4 space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-600">Trigger Threshold Conditions</span>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {form.triggerType === "INACTIVE_30D" && (
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Inactive Period (Days)</label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Inactive Period (Days)</label>
                   <input
                     type="number"
                     value={form.conditions?.daysInactive ?? 30}
@@ -838,14 +838,14 @@ export default function MarketingPage() {
                         conditions: { ...form.conditions, daysInactive: e.target.value },
                       })
                     }
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800"
+                    className="w-full rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600"
                   />
                 </div>
               )}
 
               {form.triggerType === "HIGH_VALUE" && (
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Minimum Order Total (Tk)</label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Minimum Order Total (Tk)</label>
                   <input
                     type="number"
                     value={form.conditions?.minAmount ?? 10000}
@@ -855,14 +855,14 @@ export default function MarketingPage() {
                         conditions: { ...form.conditions, minAmount: e.target.value },
                       })
                     }
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800"
+                    className="w-full rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600"
                   />
                 </div>
               )}
 
               {form.triggerType === "LOYALTY_MILESTONE" && (
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Milestone Points Threshold</label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Milestone Points Threshold</label>
                   <input
                     type="number"
                     value={form.conditions?.milestonePoints ?? 500}
@@ -872,7 +872,7 @@ export default function MarketingPage() {
                         conditions: { ...form.conditions, milestonePoints: e.target.value },
                       })
                     }
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800"
+                    className="w-full rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600"
                   />
                 </div>
               )}
@@ -904,36 +904,36 @@ export default function MarketingPage() {
         {detail && (
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="rounded-lg bg-teal-50 border border-teal-100 p-3">
-                <span className="text-[10px] font-bold uppercase text-teal-600">Matched Customers</span>
-                <p className="text-xl font-bold font-mono text-teal-900 mt-0.5">{detail.totalMatched || 0}</p>
+              <div className="rounded-sm bg-brand-50 border border-brand-border p-3">
+                <span className="text-[10px] font-bold uppercase text-brand-primary">Matched Customers</span>
+                <p className="text-xl font-bold font-mono text-brand-dark mt-0.5">{detail.totalMatched || 0}</p>
               </div>
 
-              <div className="rounded-lg bg-blue-50 border border-blue-100 p-3">
+              <div className="rounded-sm bg-blue-50 border border-blue-100 p-3">
                 <span className="text-[10px] font-bold uppercase text-blue-600">Messages Queued</span>
                 <p className="text-xl font-bold font-mono text-blue-900 mt-0.5">{detail.totalSent || 0}</p>
               </div>
 
-              <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-3">
+              <div className="rounded-sm bg-emerald-50 border border-emerald-100 p-3">
                 <span className="text-[10px] font-bold uppercase text-emerald-600">Coupons Granted</span>
                 <p className="text-xl font-bold font-mono text-emerald-900 mt-0.5">{(detail.grants || []).length}</p>
               </div>
             </div>
 
             <div className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">Audience Recipients</span>
-              <div className="max-h-60 overflow-y-auto divide-y divide-slate-100 rounded-lg border border-slate-200">
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-600">Audience Recipients</span>
+              <div className="max-h-60 overflow-y-auto divide-y divide-slate-100 rounded-sm border border-slate-200">
                 {(detail.grants || []).map((g: any) => (
                   <div key={g.id} className="flex items-center justify-between p-3 text-xs hover:bg-slate-50">
                     <div>
-                      <p className="font-bold text-slate-900">
+                      <p className="font-bold text-gray-600">
                         {g.customerName} <span className="text-[10px] text-slate-400">({g.channel})</span>
                       </p>
                       <p className="text-[11px] text-slate-500">{g.phone || g.email || "No contact info"}</p>
                     </div>
                     <div className="text-right">
                       {g.couponCode && (
-                        <span className="font-mono text-[11px] font-bold bg-teal-50 text-teal-700 px-2 py-0.5 rounded border border-teal-200">
+                        <span className="font-mono text-[11px] font-bold bg-brand-50 text-brand-dark px-2 py-0.5 rounded-sm border border-brand-border">
                           {g.couponCode}
                         </span>
                       )}

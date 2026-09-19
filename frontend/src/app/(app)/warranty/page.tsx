@@ -41,14 +41,14 @@ export default function WarrantyPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between rounded-sm bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 p-6 text-white shadow-md">
+      <div className="flex items-center justify-between rounded-sm bg-gradient-to-br from-emerald-500 via-emerald-600 to-brand-primary p-6 text-white shadow-md">
         <div>
           <p className="flex items-center gap-2 text-sm text-emerald-100"><Shield size={15} /> Warranty Management</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight">Warranty Claims</h1>
           <p className="mt-1 text-sm text-emerald-200">§10.22 — Claim → Inspection → Approved → Repair/Replace → Complete</p>
         </div>
         <button onClick={() => setShowForm(true)}
-          className="hidden items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-medium ring-1 ring-white/20 transition hover:bg-white/20 sm:inline-flex">
+          className="hidden items-center gap-2 rounded-sm bg-white/10 px-4 py-2.5 text-sm font-medium ring-1 ring-white/20 transition hover:bg-white/20 sm:inline-flex">
           <Plus size={15} /> New Claim
         </button>
       </div>
@@ -75,7 +75,7 @@ export default function WarrantyPage() {
             { key: "status", header: "Status", render: (c) => <CustomBadge tone={STATUS_TONE[c.status] ?? "gray"}>{c.status}</CustomBadge> },
             { key: "actions", header: "", align: "right", render: (c) => (
               <button onClick={() => setActionClaim(c)}
-                className="rounded p-1.5 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600" title="Process">
+                className="rounded-sm p-1.5 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600" title="Process">
                 <Clock size={14} />
               </button>
             )},
@@ -103,9 +103,9 @@ function StatCard({ label, value, icon: Icon, tone = "primary" }: { label: strin
   };
   return (
     <div className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
-      <div className={`mb-2 inline-flex rounded-xl p-2 ${tones[tone]}`}><Icon size={16} /></div>
+      <div className={`mb-2 inline-flex rounded-sm p-2 ${tones[tone]}`}><Icon size={16} /></div>
       <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
-      <p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{value}</p>
+      <p className="mt-1 text-lg font-bold tabular-nums text-gray-600">{value}</p>
     </div>
   );
 }
@@ -141,27 +141,27 @@ function WarrantyForm({ onClose, onSaved }: { onClose: () => void; onSaved: () =
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-lg font-semibold text-gray-900">File Warranty Claim</h3>
-        {error && <div className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+        <h3 className="text-lg font-semibold text-gray-600">File Warranty Claim</h3>
+        {error && <div className="mt-2 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
         <div className="mt-4 grid gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Product *</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Product *</label>
             <select value={productId} onChange={(e) => setProductId(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+              className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm">
               <option value="">Select product</option>
               {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Serial / IMEI</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Serial / IMEI</label>
               <input value={serialNo} onChange={(e) => setSerialNo(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono" placeholder="Optional" />
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm font-mono" placeholder="Optional" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Warranty Type</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Warranty Type</label>
               <select value={warrantyType} onChange={(e) => setWarrantyType(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm">
                 <option value="MANUFACTURER">Manufacturer</option>
                 <option value="SELLER">Seller</option>
                 <option value="EXTENDED">Extended</option>
@@ -170,26 +170,26 @@ function WarrantyForm({ onClose, onSaved }: { onClose: () => void; onSaved: () =
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Warranty Start</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Warranty Start</label>
               <input type="date" value={warrantyStart} onChange={(e) => setWarrantyStart(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Warranty End *</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Warranty End *</label>
               <input type="date" value={warrantyEnd} onChange={(e) => setWarrantyEnd(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm" />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Issue Description *</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Issue Description *</label>
             <textarea value={issue} onChange={(e) => setIssue(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={3} placeholder="Describe the issue..." />
+              className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm" rows={3} placeholder="Describe the issue..." />
           </div>
         </div>
         <div className="mt-6 flex items-center justify-end gap-3">
-          <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
+          <button onClick={onClose} className="rounded-sm px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
           <button onClick={submit} disabled={saving}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50">
+            className="rounded-sm bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50">
             {saving ? "Filing..." : "File Claim"}
           </button>
         </div>
@@ -231,43 +231,43 @@ function WarrantyActionModal({ claim, onClose, onSaved }: { claim: WarrantyClaim
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-lg font-semibold text-gray-900">Warranty Action — {claim.claimNo}</h3>
+        <h3 className="text-lg font-semibold text-gray-600">Warranty Action — {claim.claimNo}</h3>
         <p className="text-sm text-gray-500">Product: {claim.product?.name} | Status: <CustomBadge tone={STATUS_TONE[claim.status] ?? "gray"}>{claim.status}</CustomBadge></p>
-        {error && <div className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+        {error && <div className="mt-2 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
         <div className="mt-4 grid gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Action *</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Action *</label>
             <select value={action} onChange={(e) => setAction(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+              className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm">
               {validActions.map((a) => <option key={a} value={a}>{a.replace(/_/g, " ")}</option>)}
             </select>
           </div>
           {action === "complete" && (
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Resolution</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Resolution</label>
                 <select value={resolution} onChange={(e) => setResolution(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm">
                   {RESOLUTIONS.map((r) => <option key={r} value={r}>{r.replace(/_/g, " ")}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Actual Cost</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Actual Cost</label>
                 <input type="number" step="0.01" value={actualCost} onChange={(e) => setActualCost(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="0.00" />
+                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm" placeholder="0.00" />
               </div>
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Notes</label>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={3} placeholder="Inspection/repair notes..." />
+              className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm" rows={3} placeholder="Inspection/repair notes..." />
           </div>
         </div>
         <div className="mt-6 flex items-center justify-end gap-3">
-          <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
+          <button onClick={onClose} className="rounded-sm px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
           <button onClick={submit} disabled={saving || validActions.length === 0}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50">
+            className="rounded-sm bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50">
             {saving ? "Processing..." : "Submit"}
           </button>
         </div>

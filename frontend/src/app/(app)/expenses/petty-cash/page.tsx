@@ -167,7 +167,7 @@ export default function PettyCashPage() {
       {/* Toast Alert */}
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl px-5 py-3.5 shadow-xl transition-all duration-300 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-sm px-5 py-3.5 shadow-xl transition-all duration-300 ${
             toast.type === "success"
               ? "bg-slate-900 text-white border border-slate-700"
               : "bg-red-600 text-white border border-red-700"
@@ -198,7 +198,7 @@ export default function PettyCashPage() {
                 size="sm"
                 variant="outline"
                 leftIcon={<Receipt size={14} />}
-                className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
+                className="border-slate-200 text-gray-600 hover:bg-slate-50 text-xs font-semibold"
               >
                 All Expenses
               </CustomButton>
@@ -212,7 +212,7 @@ export default function PettyCashPage() {
                 setNote("");
                 setModalError(null);
               }}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               Fund Petty Cash
             </CustomButton>
@@ -226,13 +226,13 @@ export default function PettyCashPage() {
                 setNote("");
                 setModalError(null);
               }}
-              className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
+              className="border-slate-200 text-gray-600 hover:bg-slate-50 text-xs font-semibold"
             >
               Reimburse Float
             </CustomButton>
             <button
               onClick={() => loadData()}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
+              className="flex h-7 w-7 items-center justify-center rounded-sm border border-slate-200 bg-slate-50 text-gray-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-border transition shadow-2xs"
               title="Refresh Ledger"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
@@ -242,15 +242,15 @@ export default function PettyCashPage() {
       />
 
       {/* Branch Selector & Active Float Indicator */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-md border border-slate-200 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-sm border border-slate-200 shadow-2xs">
         <div className="flex items-center gap-2">
-          <Building2 size={16} className="text-teal-600" />
-          <span className="text-xs font-bold text-slate-700">Select Outlet / Branch Float:</span>
+          <Building2 size={16} className="text-brand-primary" />
+          <span className="text-xs font-bold text-gray-600">Select Outlet / Branch Float:</span>
           {branches.length > 0 ? (
             <select
               value={branchId}
               onChange={(e) => setBranchId(e.target.value)}
-              className="rounded-md border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none"
+              className="rounded-sm border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none"
             >
               {branches.map((b) => (
                 <option key={b.id} value={b.id}>{b.name}</option>
@@ -263,7 +263,7 @@ export default function PettyCashPage() {
 
         <div className="flex items-center gap-2 text-xs">
           <span className="text-slate-500 font-medium">Available Cash Float:</span>
-          <span className="font-black text-sm text-teal-700 tabular-nums">
+          <span className="font-black text-sm text-brand-dark tabular-nums">
             {money(currentBalance)}
           </span>
         </div>
@@ -298,7 +298,7 @@ export default function PettyCashPage() {
       </div>
 
       {/* Transactions Ledger Table Container */}
-      <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+      <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-3">
         {/* Search & Multi-Filter Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div className="relative flex-1 min-w-[200px] max-w-md">
@@ -308,7 +308,7 @@ export default function PettyCashPage() {
               placeholder="Search ledger by notes or transaction type..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             />
           </div>
 
@@ -316,7 +316,7 @@ export default function PettyCashPage() {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             >
               <option value="ALL">All Transaction Types</option>
               <option value="FUND">Cash Injection (Fund)</option>
@@ -346,12 +346,12 @@ export default function PettyCashPage() {
               render: (t: Txn) => {
                 const meta = TXN_META[t.type] || {
                   label: t.type,
-                  badgeCls: "bg-slate-100 text-slate-700 border-slate-200",
+                  badgeCls: "bg-slate-100 text-gray-600 border-slate-200",
                   isPositive: false,
                 };
                 return (
                   <span
-                    className={`inline-flex rounded-md px-2.5 py-0.5 text-[11px] font-semibold border ${meta.badgeCls}`}
+                    className={`inline-flex rounded-sm px-2.5 py-0.5 text-[11px] font-semibold border ${meta.badgeCls}`}
                   >
                     {meta.label}
                   </span>
@@ -362,7 +362,7 @@ export default function PettyCashPage() {
               key: "note",
               header: "Description / Reason",
               render: (t: Txn) => (
-                <span className="text-xs font-semibold text-slate-800">
+                <span className="text-xs font-semibold text-gray-600">
                   {t.note || "Petty cash movement"}
                 </span>
               ),
@@ -390,7 +390,7 @@ export default function PettyCashPage() {
               header: "Running Balance After",
               align: "right",
               render: (t: Txn) => (
-                <span className="text-xs font-black text-slate-900 tabular-nums">
+                <span className="text-xs font-black text-gray-600 tabular-nums">
                   {money(Number(t.balanceAfter) || 0)}
                 </span>
               ),
@@ -408,12 +408,12 @@ export default function PettyCashPage() {
       {modalMode && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto" onClick={() => setModalMode(null)}>
           <div
-            className="w-full max-w-md rounded-xl bg-white p-5 sm:p-6 shadow-xl border border-slate-200 transition-all my-8"
+            className="w-full max-w-md rounded-sm bg-white p-5 sm:p-6 shadow-xl border border-slate-200 transition-all my-8"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <h3 className="text-base font-bold text-gray-700">
+                <h3 className="text-base font-bold text-gray-600">
                   {modalMode === "fund" ? "Fund Petty Cash Float" : "Reimburse Petty Cash"}
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -422,13 +422,13 @@ export default function PettyCashPage() {
                     : "Withdraw spent receipts and replenish the cash balance."}
                 </p>
               </div>
-              <button onClick={() => setModalMode(null)} className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+              <button onClick={() => setModalMode(null)} className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100 hover:text-gray-600">
                 <XCircle size={18} />
               </button>
             </div>
 
             {modalError && (
-              <div className="mt-3 rounded-md bg-red-50 border border-red-200 p-2.5 text-xs text-red-700 flex items-center gap-2">
+              <div className="mt-3 rounded-sm bg-red-50 border border-red-200 p-2.5 text-xs text-red-700 flex items-center gap-2">
                 <AlertCircle size={14} className="shrink-0 text-red-500" />
                 <span>{modalError}</span>
               </div>
@@ -436,7 +436,7 @@ export default function PettyCashPage() {
 
             <form onSubmit={handleFundOrReimburse} className="mt-4 space-y-3.5">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   Amount (৳) *
                 </label>
                 <input
@@ -446,20 +446,20 @@ export default function PettyCashPage() {
                   required
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition tabular-nums"
+                  className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-bold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition tabular-nums"
                   placeholder="5000"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   Narration / Audit Reference Note
                 </label>
                 <textarea
                   rows={2}
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                  className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
                   placeholder={modalMode === "fund" ? "e.g. Monthly float replenishment from central bank" : "e.g. Replenishment against food & stationery receipts"}
                 />
               </div>
@@ -478,7 +478,7 @@ export default function PettyCashPage() {
                   type="submit"
                   size="sm"
                   loading={saving}
-                  className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+                  className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
                 >
                   {modalMode === "fund" ? "Confirm Funding" : "Confirm Reimbursement"}
                 </CustomButton>

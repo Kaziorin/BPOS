@@ -68,7 +68,7 @@ export function ConfirmModal({
     },
     INFO: {
       icon: Info,
-      iconBg: isDark ? "bg-slate-800 text-slate-300 border border-slate-700" : "bg-slate-100 text-slate-700 border border-slate-200",
+      iconBg: isDark ? "bg-slate-800 text-slate-300 border border-slate-700" : "bg-slate-100 text-gray-600 border border-slate-200",
       border: "border-slate-200",
       confirmBtn: isDark ? "bg-slate-700 hover:bg-slate-600 text-white shadow-xs" : "bg-slate-800 hover:bg-slate-900 text-white shadow-xs",
       defaultTitle: "Information",
@@ -90,7 +90,7 @@ export function ConfirmModal({
     <div className={cn("fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-200", isDark && "dark")}>
       <div className={cn(
         "relative w-full max-w-md rounded-sm p-6 shadow-xl border animate-in zoom-in-95 duration-200",
-        isDark ? "bg-slate-900 border-slate-800 text-slate-100" : `bg-white ${typeConfig.border} text-slate-800`
+        isDark ? "bg-slate-900 border-slate-800 text-slate-100" : `bg-white ${typeConfig.border} text-gray-600`
       )}>
         {/* Close Button */}
         <button
@@ -114,7 +114,7 @@ export function ConfirmModal({
 
           {/* Title & Message */}
           <div className="flex-1 min-w-0 pr-4">
-            <h3 className={cn("text-[15px] font-bold", isDark ? "text-slate-100" : "text-slate-800")}>
+            <h3 className={cn("text-[15px] font-bold", isDark ? "text-slate-100" : "text-gray-600")}>
               {title || typeConfig.defaultTitle}
             </h3>
             <p className={cn("mt-1.5 text-xs leading-relaxed break-words", isDark ? "text-slate-400" : "text-slate-600")}>

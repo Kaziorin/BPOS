@@ -19,6 +19,8 @@ import { CustomTable, CustomTableColumn } from "@/components/custom/CustomTable"
 import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { CustomButton } from "@/components/custom/CustomButton";
+import { CustomInput } from "@/components/custom/CustomInput";
+import { CustomDropdownSelect } from "@/components/custom/CustomDropdownSelect";
 import { toast } from "react-toastify";
 
 interface Unit {
@@ -181,7 +183,7 @@ export default function UnitsPage() {
       sortable: true,
       align: "center",
       render: (u) => (
-        <span className="font-mono text-slate-600 font-medium bg-slate-100 px-2 py-0.5 rounded-md text-xs">
+        <span className="font-mono text-slate-600 font-medium bg-slate-100 px-2 py-0.5 rounded-sm text-xs">
           {u.code || "—"}
         </span>
       ),
@@ -206,14 +208,14 @@ export default function UnitsPage() {
           ) : u.status === "ACTIVE" ? (
             <>
               <ToggleRight className="h-4.5 w-4.5 text-emerald-600" />
-              <span className="rounded-md bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">
+              <span className="rounded-sm bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">
                 Active
               </span>
             </>
           ) : (
             <>
               <ToggleLeft className="h-4.5 w-4.5 text-red-400" />
-              <span className="rounded-md bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 group-hover:bg-red-100 transition">
+              <span className="rounded-sm bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 group-hover:bg-red-100 transition">
                 Inactive
               </span>
             </>
@@ -229,14 +231,14 @@ export default function UnitsPage() {
         <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => handleOpenEditModal(u)}
-            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600 transition"
+            className="rounded-sm border border-slate-200 p-1.5 text-slate-600 hover:border-brand-border hover:bg-brand-50 hover:text-brand-primary transition"
             title="Edit Unit"
           >
             <Edit3 className="h-4 w-4" />
           </button>
           <button
             onClick={() => setDeleteId(u.id)}
-            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+            className="rounded-sm border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
             title="Delete Unit"
           >
             <Trash2 className="h-4 w-4" />
@@ -258,7 +260,7 @@ export default function UnitsPage() {
             size="sm"
             leftIcon={<Plus size={14} />}
             onClick={handleOpenAddModal}
-            className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+            className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
           >
             Add New Unit
           </CustomButton>
@@ -267,41 +269,43 @@ export default function UnitsPage() {
 
       {/* Toast Notification */}
       {msg && (
-        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
+        <div className="flex items-center gap-2 rounded-sm border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-600" /> {msg}
         </div>
       )}
 
       {/* Table Container */}
-      <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+      <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-3">
         {/* Search & Status Filter Toolbar */}
         <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2 flex-1 max-w-md">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
-              <input
-                type="text"
+            <div className="flex-1">
+              <CustomInput
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   setPage(1);
                 }}
+                leftIcon={<Search className="h-3.5 w-3.5" />}
                 placeholder="Search units or abbreviation..."
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="py-1.5 text-xs font-medium"
               />
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(1);
-              }}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
-            >
-              <option value="ALL">All Status</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-            </select>
+            <div className="w-36 shrink-0">
+              <CustomDropdownSelect
+                options={[
+                  { label: "All Status", value: "ALL" },
+                  { label: "Active", value: "ACTIVE" },
+                  { label: "Inactive", value: "INACTIVE" },
+                ]}
+                value={statusFilter}
+                onChange={(val) => {
+                  setStatusFilter(val);
+                  setPage(1);
+                }}
+                className="py-1.5 text-xs font-semibold"
+              />
+            </div>
           </div>
 
           <span className="text-xs font-semibold text-slate-500">
@@ -335,33 +339,23 @@ export default function UnitsPage() {
         size="md"
       >
         <form onSubmit={handleSave} className="space-y-4">
-          <div>
-            <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
-              Unit Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={formName}
-              onChange={(e) => setFormName(e.target.value)}
-              placeholder="e.g. Kilogram, Box, Bottle, Piece"
-              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-teal-500 focus:outline-none"
-              required
-              autoFocus
-            />
-          </div>
+          <CustomInput
+            label="Unit Name"
+            value={formName}
+            onChange={(e) => setFormName(e.target.value)}
+            placeholder="e.g. Kilogram, Box, Bottle, Piece"
+            className="text-xs font-medium"
+            required
+            autoFocus
+          />
 
-          <div>
-            <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
-              Unit Code / Abbreviation
-            </label>
-            <input
-              type="text"
-              value={formCode}
-              onChange={(e) => setFormCode(e.target.value)}
-              placeholder="e.g. kg, pcs, box, btl, ltr"
-              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-teal-500 focus:outline-none"
-            />
-          </div>
+          <CustomInput
+            label="Unit Code / Abbreviation"
+            value={formCode}
+            onChange={(e) => setFormCode(e.target.value)}
+            placeholder="e.g. kg, pcs, box, btl, ltr"
+            className="text-xs font-medium"
+          />
 
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
             <CustomButton
@@ -369,7 +363,7 @@ export default function UnitsPage() {
               variant="outline"
               size="sm"
               onClick={() => setModalOpen(false)}
-              className="rounded-md text-xs"
+              className="rounded-sm text-xs"
             >
               Cancel
             </CustomButton>
@@ -378,7 +372,7 @@ export default function UnitsPage() {
               size="sm"
               loading={saving}
               leftIcon={<Check size={14} />}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs"
             >
               {editingUnit ? "Update Unit" : "Save Unit"}
             </CustomButton>

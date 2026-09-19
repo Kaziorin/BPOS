@@ -55,7 +55,7 @@ export default function LedgerPage() {
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><Book size={19} /></div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-900">General Ledger</h1>
+            <h1 className="text-xl font-bold tracking-tight text-gray-600">General Ledger</h1>
             <p className="text-sm text-gray-500">Posted entries with running balances</p>
           </div>
         </div>
@@ -73,9 +73,9 @@ export default function LedgerPage() {
               { key: "date", header: "Date", render: (e) => <span className="text-xs text-gray-500">{dateTime(e.entryDate)}</span> },
               { key: "journal", header: "Journal", render: (e) => <span className="font-mono text-xs text-sky-700">{e.journalNo}</span> },
               { key: "memo", header: "Memo", render: (e) => <span className="text-sm text-gray-600">{e.memo || e.refType}</span> },
-              { key: "debit", header: "Debit", align: "right", render: (e) => <span className="tabular-nums text-gray-700">{Number(e.debit) > 0 ? money(Number(e.debit)) : "—"}</span> },
-              { key: "credit", header: "Credit", align: "right", render: (e) => <span className="tabular-nums text-gray-700">{Number(e.credit) > 0 ? money(Number(e.credit)) : "—"}</span> },
-              { key: "bal", header: "Balance", align: "right", render: (e) => <span className="font-semibold tabular-nums text-gray-900">{money(Number(e.runningBalance ?? 0))}</span> },
+              { key: "debit", header: "Debit", align: "right", render: (e) => <span className="tabular-nums text-gray-600">{Number(e.debit) > 0 ? money(Number(e.debit)) : "—"}</span> },
+              { key: "credit", header: "Credit", align: "right", render: (e) => <span className="tabular-nums text-gray-600">{Number(e.credit) > 0 ? money(Number(e.credit)) : "—"}</span> },
+              { key: "bal", header: "Balance", align: "right", render: (e) => <span className="font-semibold tabular-nums text-gray-600">{money(Number(e.runningBalance ?? 0))}</span> },
             ]}
             data={entries}
             rowKey={(e) => `${e.journalNo}-${e.refId}-${e.memo ?? ""}`}
@@ -87,10 +87,10 @@ export default function LedgerPage() {
           <CustomTable
             columns={[
               { key: "date", header: "Date", render: (e) => <span className="text-xs text-gray-500">{dateTime(e.entryDate)}</span> },
-              { key: "account", header: "Account", render: (e) => <span className="text-sm text-gray-700">{e.accountCode} — {e.accountName}</span> },
+              { key: "account", header: "Account", render: (e) => <span className="text-sm text-gray-600">{e.accountCode} — {e.accountName}</span> },
               { key: "journal", header: "Journal", render: (e) => <span className="font-mono text-xs text-sky-700">{e.journalNo}</span> },
-              { key: "debit", header: "Debit", align: "right", render: (e) => <span className="tabular-nums text-gray-700">{Number(e.debit) > 0 ? money(Number(e.debit)) : "—"}</span> },
-              { key: "credit", header: "Credit", align: "right", render: (e) => <span className="tabular-nums text-gray-700">{Number(e.credit) > 0 ? money(Number(e.credit)) : "—"}</span> },
+              { key: "debit", header: "Debit", align: "right", render: (e) => <span className="tabular-nums text-gray-600">{Number(e.debit) > 0 ? money(Number(e.debit)) : "—"}</span> },
+              { key: "credit", header: "Credit", align: "right", render: (e) => <span className="tabular-nums text-gray-600">{Number(e.credit) > 0 ? money(Number(e.credit)) : "—"}</span> },
             ]}
             data={entries}
             rowKey={(e) => `${e.journalNo}-${e.accountCode ?? ""}-${e.memo ?? ""}`}

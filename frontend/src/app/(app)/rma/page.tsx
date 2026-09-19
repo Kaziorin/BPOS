@@ -49,7 +49,7 @@ export default function RmaPage() {
           <p className="mt-1 text-sm text-blue-200">§10.22 — Inspection, defect classification, repair/refund/replacement workflow</p>
         </div>
         <button onClick={() => setShowForm(true)}
-          className="hidden items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-medium ring-1 ring-white/20 transition hover:bg-white/20 sm:inline-flex">
+          className="hidden items-center gap-2 rounded-sm bg-white/10 px-4 py-2.5 text-sm font-medium ring-1 ring-white/20 transition hover:bg-white/20 sm:inline-flex">
           <Plus size={15} /> New RMA
         </button>
       </div>
@@ -63,13 +63,13 @@ export default function RmaPage() {
             { key: "type", header: "Type", render: (r) => <span className="text-xs uppercase text-gray-400">{r.returnType}</span> },
             { key: "defect", header: "Defect", render: (r) => <span className="text-xs text-gray-500">{r.defectType?.replace(/_/g, " ")}</span> },
             { key: "items", header: "Items", align: "center", render: (r) => <span className="text-sm font-medium">{r.items?.length || 0}</span> },
-            { key: "amount", header: "Amount", align: "right", render: (r) => <span className="font-semibold tabular-nums text-gray-900">{money(r.refundAmount)}</span> },
+            { key: "amount", header: "Amount", align: "right", render: (r) => <span className="font-semibold tabular-nums text-gray-600">{money(r.refundAmount)}</span> },
             { key: "status", header: "Status", render: (r) => <CustomBadge tone={STATUS_TONE[r.status] ?? "gray"}>{r.status}</CustomBadge> },
             { key: "date", header: "Date", render: (r) => <span className="text-xs text-gray-500">{dateTime(r.createdAt)}</span> },
             { key: "actions", header: "", align: "right", render: (r) => (
               <div className="flex items-center justify-end gap-1">
                 <button onClick={() => setActionTicket(r)}
-                  className="rounded p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600" title="Process">
+                  className="rounded-sm p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600" title="Process">
                   <ArrowRight size={14} />
                 </button>
               </div>
@@ -121,43 +121,43 @@ function RmaForm({ onClose, onSaved }: { onClose: () => void; onSaved: () => voi
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-lg font-semibold text-gray-900">Create RMA Ticket</h3>
-        {error && <div className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+        <h3 className="text-lg font-semibold text-gray-600">Create RMA Ticket</h3>
+        {error && <div className="mt-2 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
         <div className="mt-4 grid gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sale *</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Sale *</label>
             <select value={saleId} onChange={(e) => setSaleId(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+              className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm">
               <option value="">Select sale</option>
               {sales.map((s) => <option key={s.id} value={s.id}>{s.invoiceNo} — {money(s.total)}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Return Type</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Return Type</label>
               <select value={returnType} onChange={(e) => setReturnType(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm">
                 {RETURN_TYPES.map((t) => <option key={t} value={t}>{t.replace(/_/g, " ")}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Defect Type</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Defect Type</label>
               <select value={defectType} onChange={(e) => setDefectType(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm">
                 {DEFECT_TYPES.map((t) => <option key={t} value={t}>{t.replace(/_/g, " ")}</option>)}
               </select>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Reason / Description</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Reason / Description</label>
             <textarea value={reason} onChange={(e) => setReason(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={3} placeholder="Describe the issue..." />
+              className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm" rows={3} placeholder="Describe the issue..." />
           </div>
         </div>
         <div className="mt-6 flex items-center justify-end gap-3">
-          <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
+          <button onClick={onClose} className="rounded-sm px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
           <button onClick={submit} disabled={saving}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+            className="rounded-sm bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
             {saving ? "Creating..." : "Create RMA"}
           </button>
         </div>
@@ -195,22 +195,22 @@ function RmaActionModal({ ticket, onClose, onSaved }: { ticket: RmaTicket; onClo
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-lg font-semibold text-gray-900">RMA Action — {ticket.rmaNo}</h3>
+        <h3 className="text-lg font-semibold text-gray-600">RMA Action — {ticket.rmaNo}</h3>
         <p className="text-sm text-gray-500">Current status: <CustomBadge tone={STATUS_TONE[ticket.status] ?? "gray"}>{ticket.status}</CustomBadge></p>
-        {error && <div className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+        {error && <div className="mt-2 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
         <div className="mt-4 grid gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Action *</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Action *</label>
             <select value={action} onChange={(e) => setAction(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+              className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm">
               {validActions.map((a) => <option key={a} value={a}>{a.replace(/_/g, " ")}</option>)}
             </select>
           </div>
           {(action === "complete") && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Resolution</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Resolution</label>
               <select value={resolution} onChange={(e) => setResolution(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm">
                 <option value="REFUND">Refund</option>
                 <option value="REPLACEMENT">Replacement</option>
                 <option value="REPAIR">Repair</option>
@@ -219,15 +219,15 @@ function RmaActionModal({ ticket, onClose, onSaved }: { ticket: RmaTicket; onClo
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Notes</label>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={3} placeholder="Inspection notes..." />
+              className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm" rows={3} placeholder="Inspection notes..." />
           </div>
         </div>
         <div className="mt-6 flex items-center justify-end gap-3">
-          <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
+          <button onClick={onClose} className="rounded-sm px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
           <button onClick={submit} disabled={saving || validActions.length === 0}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+            className="rounded-sm bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
             {saving ? "Processing..." : "Submit"}
           </button>
         </div>

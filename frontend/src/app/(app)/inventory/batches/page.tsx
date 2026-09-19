@@ -63,7 +63,7 @@ export default function BatchesPage() {
       header: "Product",
       render: (r) => (
         <div>
-          <p className="font-medium text-gray-900">{r.product?.name ?? (r as any).productName ?? "Unknown Product"}</p>
+          <p className="font-medium text-gray-600">{r.product?.name ?? (r as any).productName ?? "Unknown Product"}</p>
           <p className="text-xs text-gray-400">{r.product?.sku ?? (r as any).productSku ?? (r as any).sku ?? "—"}</p>
         </div>
       ),
@@ -108,7 +108,7 @@ export default function BatchesPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Batch & Expiry Tracking</h1>
+          <h1 className="text-2xl font-bold text-gray-600">Batch & Expiry Tracking</h1>
           <p className="mt-1 text-sm text-gray-500">FEFO — First Expired, First Out. Batches sorted by earliest expiry.</p>
         </div>
       </div>
@@ -126,13 +126,13 @@ export default function BatchesPage() {
             type="checkbox"
             checked={expiringSoon}
             onChange={(e) => setExpiringSoon(e.target.checked)}
-            className="rounded border-gray-300 text-primary-500 focus:ring-primary-400"
+            className="rounded-sm border-gray-300 text-primary-500 focus:ring-primary-400"
           />
           Expiring within 30 days
         </label>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white">
+      <div className="rounded-sm border border-gray-200 bg-white">
         <CustomTable
           columns={columns}
           data={filtered}

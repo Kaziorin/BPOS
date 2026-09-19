@@ -35,11 +35,11 @@ const THEME_MAP: Record<string, { focus: string; addBtn: string; optionHover: st
     checkIcon: "text-brand-primary",
   },
   teal: {
-    focus: "focus:border-teal-500 focus:ring-teal-500/20",
-    addBtn: "border-teal-200 bg-teal-50 text-teal-600 hover:bg-teal-600 hover:text-white shadow-2xs",
-    optionHover: "hover:bg-teal-50 hover:text-teal-700",
-    optionSelected: "bg-teal-50 text-teal-800 font-bold",
-    checkIcon: "text-teal-600",
+    focus: "focus:border-brand-primary focus:ring-brand-border",
+    addBtn: "border-brand-border bg-brand-50 text-brand-primary hover:bg-brand-primary hover:text-white shadow-2xs",
+    optionHover: "hover:bg-brand-50 hover:text-brand-dark",
+    optionSelected: "bg-brand-50 text-brand-dark font-bold",
+    checkIcon: "text-brand-primary",
   },
   orange: {
     focus: "focus:border-orange-500 focus:ring-orange-500/20",
@@ -197,7 +197,7 @@ export function SearchableSelect({
             themeStyles.focus,
             disabled
               ? "cursor-not-allowed bg-slate-100/90 text-slate-400 border-slate-300 border-dashed shadow-none select-none"
-              : "border-brand-border bg-white text-slate-800 cursor-pointer hover:border-brand-primary",
+              : "border-brand-border bg-white text-gray-600 cursor-pointer hover:border-brand-primary",
             !selectedOption && !disabled && "text-slate-400"
           )}
         >
@@ -298,7 +298,7 @@ export function SearchableSelect({
                         setIsOpen(false);
                       }}
                       className={cn(
-                        "flex w-full items-center justify-between rounded px-2.5 py-1.5 text-left text-xs font-medium transition cursor-pointer",
+                        "flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-left text-xs font-medium transition cursor-pointer",
                         themeStyles.optionHover,
                         isSelected ? themeStyles.optionSelected : "text-gray-600"
                       )}

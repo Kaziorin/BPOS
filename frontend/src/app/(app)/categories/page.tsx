@@ -25,12 +25,17 @@ import {
   Building2,
 } from "lucide-react";
 import { api, TENANT_STORAGE_KEY } from "@/lib/api";
-import { SearchableSelect } from "@/components/custom/SearchableSelect";
-import { ConfirmModal } from "@/components/custom/ConfirmModal";
-import { CustomTable, CustomTableColumn } from "@/components/custom/CustomTable";
-import { CustomModal } from "@/components/custom/CustomModal";
-import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
-import { CustomButton } from "@/components/custom/CustomButton";
+import {
+  SearchableSelect,
+  ConfirmModal,
+  CustomTable,
+  type CustomTableColumn,
+  CustomModal,
+  CustomBreadcrumb,
+  CustomButton,
+  CustomInput,
+  CustomDropdownSelect,
+} from "@/components/custom";
 import { toast } from "react-toastify";
 import { CATEGORY_ICONS_LIST, getCategoryIcon } from "@/lib/categoryIcons";
 
@@ -362,7 +367,7 @@ export default function CategoriesPage() {
         const IconComponent = isRestaurantTenant && cat.icon ? getCategoryIcon(cat.icon, cat.name) : Tags;
         return (
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-teal-50 text-teal-600 shrink-0 border border-teal-100">
+            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-50 text-brand-primary shrink-0 border border-brand-border">
               <IconComponent size={16} />
             </div>
             <span className="font-bold text-gray-600 text-sm">{cat.name}</span>
@@ -391,14 +396,14 @@ export default function CategoriesPage() {
           ) : cat.status === "ACTIVE" ? (
             <>
               <ToggleRight className="h-4.5 w-4.5 text-emerald-600" />
-              <span className="rounded-md bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">
+              <span className="rounded-sm bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">
                 Active
               </span>
             </>
           ) : (
             <>
               <ToggleLeft className="h-4.5 w-4.5 text-red-400" />
-              <span className="rounded-md bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 group-hover:bg-red-100 transition">
+              <span className="rounded-sm bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 group-hover:bg-red-100 transition">
                 Inactive
               </span>
             </>
@@ -414,14 +419,14 @@ export default function CategoriesPage() {
         <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => handleOpenEditMain(cat)}
-            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600 transition"
+            className="rounded-sm border border-slate-200 p-1.5 text-slate-600 hover:border-brand-border hover:bg-brand-50 hover:text-brand-primary transition"
             title="Edit Main Category"
           >
             <Edit3 className="h-4 w-4" />
           </button>
           <button
             onClick={() => setDeleteId(cat.id)}
-            className="rounded-lg border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+            className="rounded-sm border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
             title="Delete Main Category"
           >
             <Trash2 className="h-4 w-4" />
@@ -442,7 +447,7 @@ export default function CategoriesPage() {
         const IconComponent = isRestaurantTenant && cat.icon ? getCategoryIcon(cat.icon, cat.name) : CornerDownRight;
         return (
           <div className="flex items-center gap-2 font-bold text-gray-600 text-sm">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-teal-50 text-teal-600 shrink-0 border border-teal-100">
+            <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-brand-50 text-brand-primary shrink-0 border border-brand-border">
               <IconComponent size={13} />
             </div>
             <span>{cat.name}</span>
@@ -459,7 +464,7 @@ export default function CategoriesPage() {
       render: (cat) => {
         const parentObj = allMainCats.find((c) => c.id === cat.parentId);
         return (
-          <span className="inline-flex items-center rounded-md bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-700 border border-teal-100">
+          <span className="inline-flex items-center rounded-sm bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-dark border border-brand-border">
             {parentObj?.name || "Parent"}
           </span>
         );
@@ -485,14 +490,14 @@ export default function CategoriesPage() {
           ) : cat.status === "ACTIVE" ? (
             <>
               <ToggleRight className="h-4 w-4 text-emerald-600" />
-              <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">
+              <span className="rounded-sm bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">
                 Active
               </span>
             </>
           ) : (
             <>
               <ToggleLeft className="h-4 w-4 text-red-400" />
-              <span className="rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600 group-hover:bg-red-100 transition">
+              <span className="rounded-sm bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600 group-hover:bg-red-100 transition">
                 Inactive
               </span>
             </>
@@ -508,14 +513,14 @@ export default function CategoriesPage() {
         <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => handleOpenEditSub(cat)}
-            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600 transition"
+            className="rounded-sm border border-slate-200 p-1.5 text-slate-600 hover:border-brand-border hover:bg-brand-50 hover:text-brand-primary transition"
             title="Edit Subcategory"
           >
             <Edit3 className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => setDeleteId(cat.id)}
-            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+            className="rounded-sm border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
             title="Delete Subcategory"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -536,7 +541,7 @@ export default function CategoriesPage() {
 
       {/* Toast Notification */}
       {msg && (
-        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
+        <div className="flex items-center gap-2 rounded-sm border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-600" /> {msg}
         </div>
       )}
@@ -544,18 +549,18 @@ export default function CategoriesPage() {
       {/* 2-COLUMN SIDE BY SIDE LAYOUT — Dynamic Height items-start */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
         {/* LEFT COLUMN: MAIN CATEGORIES TABLE */}
-        <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+        <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-3">
           {/* Top Bar with Add Button */}
           <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <Tags className="h-4 w-4 text-teal-600" />
+              <Tags className="h-4 w-4 text-brand-primary" />
               <h2 className="text-sm font-bold text-gray-600">Main Categories ({mainTotal})</h2>
             </div>
             <CustomButton
               size="sm"
               leftIcon={<Plus size={14} />}
               onClick={handleOpenAddMain}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               Add Main Category
             </CustomButton>
@@ -564,30 +569,30 @@ export default function CategoriesPage() {
           {/* Search & Status Filter Controls */}
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
-              <input
-                type="text"
+              <CustomInput
+                leftIcon={<Search className="h-3.5 w-3.5 text-slate-400" />}
                 value={searchMain}
                 onChange={(e) => {
                   setSearchMain(e.target.value);
                   setMainPage(1);
                 }}
                 placeholder="Search main categories..."
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-teal-500 focus:outline-none transition"
               />
             </div>
-            <select
-              value={statusFilterMain}
-              onChange={(e) => {
-                setStatusFilterMain(e.target.value);
-                setMainPage(1);
-              }}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
-            >
-              <option value="ALL">All Status</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-            </select>
+            <div className="w-36">
+              <CustomDropdownSelect
+                value={statusFilterMain}
+                onChange={(val) => {
+                  setStatusFilterMain(val);
+                  setMainPage(1);
+                }}
+                options={[
+                  { value: "ALL", label: "All Status" },
+                  { value: "ACTIVE", label: "Active" },
+                  { value: "INACTIVE", label: "Inactive" },
+                ]}
+              />
+            </div>
           </div>
 
           {/* Table with Real API Pagination */}
@@ -611,18 +616,18 @@ export default function CategoriesPage() {
         </div>
 
         {/* RIGHT COLUMN: SUBCATEGORIES TABLE */}
-        <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+        <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-3">
           {/* Top Bar with Add Button */}
           <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <CornerDownRight className="h-4 w-4 text-teal-600" />
+              <CornerDownRight className="h-4 w-4 text-brand-primary" />
               <h2 className="text-sm font-bold text-gray-600">Subcategories ({subTotal})</h2>
             </div>
             <CustomButton
               size="sm"
               leftIcon={<Plus size={14} />}
               onClick={handleOpenAddSub}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               Add Subcategory
             </CustomButton>
@@ -631,30 +636,30 @@ export default function CategoriesPage() {
           {/* Search & Status Filter Controls */}
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
-              <input
-                type="text"
+              <CustomInput
+                leftIcon={<Search className="h-3.5 w-3.5 text-slate-400" />}
                 value={searchSub}
                 onChange={(e) => {
                   setSearchSub(e.target.value);
                   setSubPage(1);
                 }}
                 placeholder="Search subcategories..."
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
               />
             </div>
-            <select
-              value={statusFilterSub}
-              onChange={(e) => {
-                setStatusFilterSub(e.target.value);
-                setSubPage(1);
-              }}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
-            >
-              <option value="ALL">All Status</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-            </select>
+            <div className="w-36">
+              <CustomDropdownSelect
+                value={statusFilterSub}
+                onChange={(val) => {
+                  setStatusFilterSub(val);
+                  setSubPage(1);
+                }}
+                options={[
+                  { value: "ALL", label: "All Status" },
+                  { value: "ACTIVE", label: "Active" },
+                  { value: "INACTIVE", label: "Inactive" },
+                ]}
+              />
+            </div>
           </div>
 
           {/* Table with Real API Pagination */}
@@ -686,27 +691,21 @@ export default function CategoriesPage() {
         size={isRestaurantTenant ? "3xl" : "md"}
       >
         <form onSubmit={handleSave} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5 capitalize">
-              Category Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={formName}
-              onChange={(e) => setFormName(e.target.value)}
-              placeholder="e.g. Beverages, Fast Food, Snacks"
-              className="w-full rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-gray-700 focus:border-teal-500 focus:outline-none transition"
-              required
-              autoFocus
-            />
-          </div>
+          <CustomInput
+            label="Category Name"
+            required
+            autoFocus
+            value={formName}
+            onChange={(e) => setFormName(e.target.value)}
+            placeholder="e.g. Beverages, Fast Food, Snacks"
+          />
 
           {isRestaurantTenant && (
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5 capitalize">
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5 capitalize">
                 Select Restaurant Category Icon
               </label>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-md max-h-72 overflow-y-auto overflow-x-hidden custom-scrollbar w-full">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-sm max-h-72 overflow-y-auto overflow-x-hidden custom-scrollbar w-full">
                 {CATEGORY_ICONS_LIST.map((item) => {
                   const ItemIcon = item.icon;
                   const isSelected = formIcon === item.name;
@@ -716,14 +715,14 @@ export default function CategoriesPage() {
                       type="button"
                       onClick={() => setFormIcon(item.name)}
                       title={item.label}
-                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-md transition-all cursor-pointer text-left min-w-0 ${
+                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-sm transition-all cursor-pointer text-left min-w-0 ${
                         isSelected
                           ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-xs font-bold ring-2 ring-orange-500/30 border border-orange-600"
-                          : "bg-white text-slate-700 border border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
+                          : "bg-white text-gray-600 border border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
                       }`}
                     >
                       <div
-                        className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 ${
+                        className={`flex h-7 w-7 items-center justify-center rounded-sm shrink-0 ${
                           isSelected ? "bg-white/20 text-white" : "bg-orange-50 text-orange-600"
                         }`}
                       >
@@ -745,7 +744,7 @@ export default function CategoriesPage() {
               variant="outline"
               size="sm"
               onClick={() => setModalMode(null)}
-              className="rounded-md text-xs font-medium"
+              className="rounded-sm text-xs font-medium"
             >
               Cancel
             </CustomButton>
@@ -754,7 +753,7 @@ export default function CategoriesPage() {
               size="sm"
               loading={saving}
               leftIcon={<Check size={14} />}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               {modalMode === "EDIT_MAIN" ? "Update Category" : "Save Category"}
             </CustomButton>
@@ -781,27 +780,21 @@ export default function CategoriesPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5 capitalize">
-              Subcategory Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={formName}
-              onChange={(e) => setFormName(e.target.value)}
-              placeholder="e.g. Soft Drinks, Burgers, Sides"
-              className="w-full rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-gray-700 focus:border-teal-500 focus:outline-none transition"
-              required
-              autoFocus
-            />
-          </div>
+          <CustomInput
+            label="Subcategory Name"
+            required
+            autoFocus
+            value={formName}
+            onChange={(e) => setFormName(e.target.value)}
+            placeholder="e.g. Soft Drinks, Burgers, Sides"
+          />
 
           {isRestaurantTenant && (
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5 capitalize">
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5 capitalize">
                 Select Restaurant Subcategory Icon
               </label>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-md max-h-72 overflow-y-auto overflow-x-hidden custom-scrollbar w-full">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-sm max-h-72 overflow-y-auto overflow-x-hidden custom-scrollbar w-full">
                 {CATEGORY_ICONS_LIST.map((item) => {
                   const ItemIcon = item.icon;
                   const isSelected = formIcon === item.name;
@@ -811,14 +804,14 @@ export default function CategoriesPage() {
                       type="button"
                       onClick={() => setFormIcon(item.name)}
                       title={item.label}
-                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-md transition-all cursor-pointer text-left min-w-0 ${
+                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-sm transition-all cursor-pointer text-left min-w-0 ${
                         isSelected
                           ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-xs font-bold ring-2 ring-orange-500/30 border border-orange-600"
-                          : "bg-white text-slate-700 border border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
+                          : "bg-white text-gray-600 border border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
                       }`}
                     >
                       <div
-                        className={`flex h-7 w-7 items-center justify-center rounded-md shrink-0 ${
+                        className={`flex h-7 w-7 items-center justify-center rounded-sm shrink-0 ${
                           isSelected ? "bg-white/20 text-white" : "bg-orange-50 text-orange-600"
                         }`}
                       >
@@ -840,7 +833,7 @@ export default function CategoriesPage() {
               variant="outline"
               size="sm"
               onClick={() => setModalMode(null)}
-              className="rounded-md text-xs font-medium"
+              className="rounded-sm text-xs font-medium"
             >
               Cancel
             </CustomButton>
@@ -849,7 +842,7 @@ export default function CategoriesPage() {
               size="sm"
               loading={saving}
               leftIcon={<Check size={14} />}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               {modalMode === "EDIT_SUB" ? "Update Subcategory" : "Save Subcategory"}
             </CustomButton>

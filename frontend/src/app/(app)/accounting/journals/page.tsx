@@ -60,7 +60,7 @@ export default function JournalsPage() {
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><BookMarked size={19} /></div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-900">Journals</h1>
+            <h1 className="text-xl font-bold tracking-tight text-gray-600">Journals</h1>
             <p className="text-sm text-gray-500">{journals.length} posted journals · append-only, reversible (§10.20)</p>
           </div>
         </div>
@@ -89,7 +89,7 @@ export default function JournalsPage() {
             { key: "narration", header: "Narration", render: (j) => <span className="text-sm text-gray-600">{j.narration}</span> },
             { key: "status", header: "Status", render: (j) => <CustomBadge tone={STATUS_TONE[j.status] ?? "gray"}>{j.status}</CustomBadge> },
             { key: "date", header: "Date", render: (j) => <span className="text-xs text-gray-500">{dateTime(j.createdAt)}</span> },
-            { key: "total", header: "Total", align: "right", render: (j) => <span className="font-semibold tabular-nums text-gray-900">{money(j.totalDebit)}</span> },
+            { key: "total", header: "Total", align: "right", render: (j) => <span className="font-semibold tabular-nums text-gray-600">{money(j.totalDebit)}</span> },
             { key: "actions", header: "", align: "right", render: (j) => (
               j.status === "POSTED" ? (
                 <CustomButton size="sm" variant="outline" loading={busy === j.id} leftIcon={<RotateCcw size={13} />} onClick={() => reverse(j)}>Reverse</CustomButton>
@@ -109,7 +109,7 @@ export default function JournalsPage() {
         if (!j) return null;
         return (
           <div key={j.id} className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs">
-            <h3 className="font-semibold text-gray-900">{j.journalNo} — entries</h3>
+            <h3 className="font-semibold text-gray-600">{j.journalNo} — entries</h3>
             <div className="mt-3 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead><tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-gray-400">
@@ -121,9 +121,9 @@ export default function JournalsPage() {
                 <tbody>
                   {j.entries.map((e, i) => (
                     <tr key={i} className="border-b border-gray-50">
-                      <td className="px-3 py-2"><span className="font-mono text-xs text-gray-500">{e.accountCode}</span> <span className="ml-1 text-gray-700">{e.accountName}</span></td>
-                      <td className="px-3 py-2 text-right font-semibold tabular-nums text-gray-900">{Number(e.debit) > 0 ? money(Number(e.debit)) : "—"}</td>
-                      <td className="px-3 py-2 text-right font-semibold tabular-nums text-gray-900">{Number(e.credit) > 0 ? money(Number(e.credit)) : "—"}</td>
+                      <td className="px-3 py-2"><span className="font-mono text-xs text-gray-500">{e.accountCode}</span> <span className="ml-1 text-gray-600">{e.accountName}</span></td>
+                      <td className="px-3 py-2 text-right font-semibold tabular-nums text-gray-600">{Number(e.debit) > 0 ? money(Number(e.debit)) : "—"}</td>
+                      <td className="px-3 py-2 text-right font-semibold tabular-nums text-gray-600">{Number(e.credit) > 0 ? money(Number(e.credit)) : "—"}</td>
                       <td className="px-3 py-2 text-xs text-gray-500">{e.memo}</td>
                     </tr>
                   ))}

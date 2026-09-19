@@ -198,7 +198,7 @@ export default function RestaurantSlotsMatrixPage() {
       <CustomBreadcrumb
         title="Food Shifts & Time Slots Matrix"
         description="Quickly assign and unassign meal shift serving hours across your entire restaurant food catalog in bulk."
-        icon={<TableProperties size={18} className="text-teal-600" />}
+        icon={<TableProperties size={18} className="text-brand-primary" />}
         items={[
           { label: "Restaurant", href: "/restaurant" },
           { label: "Food Shifts Matrix" },
@@ -207,7 +207,7 @@ export default function RestaurantSlotsMatrixPage() {
           <div className="flex items-center gap-2.5">
             <Link
               href="/restaurant"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-slate-200 bg-white text-gray-600 text-xs font-semibold hover:bg-slate-50 transition shadow-2xs"
             >
               <ArrowLeft size={14} /> Back to Hub
             </Link>
@@ -217,7 +217,7 @@ export default function RestaurantSlotsMatrixPage() {
               disabled={!hasChanges || saving}
               className={`px-5 py-2 font-bold text-xs shadow-md transition ${
                 hasChanges
-                  ? "bg-teal-600 hover:bg-teal-700 text-white animate-pulse"
+                  ? "bg-brand-primary hover:bg-brand-dark text-white animate-pulse"
                   : "bg-slate-200 text-slate-400 cursor-not-allowed"
               }`}
             >
@@ -239,7 +239,7 @@ export default function RestaurantSlotsMatrixPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search foods by name or SKU..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 focus:border-orange-500 focus:outline-none bg-slate-50"
+              className="w-full pl-9 pr-3 py-1.5 text-xs font-medium rounded-sm border border-slate-200 focus:border-orange-500 focus:outline-none bg-slate-50"
             />
           </div>
 
@@ -249,7 +249,7 @@ export default function RestaurantSlotsMatrixPage() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 focus:outline-none cursor-pointer"
+              className="px-3 py-1.5 text-xs font-semibold rounded-sm border border-slate-200 bg-slate-50 text-gray-600 focus:outline-none cursor-pointer"
             >
               <option value="ALL">All Categories ({products.length})</option>
               {categories.map((c) => (
@@ -264,13 +264,13 @@ export default function RestaurantSlotsMatrixPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={handleMarkAll24Seven}
-            className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer"
+            className="px-3 py-1.5 text-xs font-bold text-gray-600 bg-slate-100 hover:bg-slate-200 rounded-sm transition cursor-pointer"
           >
             Mark All 24/7 (All Shifts)
           </button>
           <button
             onClick={fetchMatrixData}
-            className="p-2 text-slate-500 hover:text-orange-600 bg-slate-50 hover:bg-orange-50 border border-slate-200 rounded-xl transition cursor-pointer"
+            className="p-2 text-slate-500 hover:text-orange-600 bg-slate-50 hover:bg-orange-50 border border-slate-200 rounded-sm transition cursor-pointer"
             title="Reload Matrix Data"
           >
             <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
@@ -282,7 +282,7 @@ export default function RestaurantSlotsMatrixPage() {
       <div className="rounded-sm border border-slate-200 bg-white shadow-xs overflow-hidden">
         {loading ? (
           <div className="py-20 text-center text-slate-400 space-y-2">
-            <RefreshCw size={28} className="mx-auto animate-spin text-teal-600" />
+            <RefreshCw size={28} className="mx-auto animate-spin text-brand-primary" />
             <p className="text-xs font-semibold text-slate-600">Loading Food Shifts Matrix...</p>
           </div>
         ) : (
@@ -295,16 +295,16 @@ export default function RestaurantSlotsMatrixPage() {
                   <th className="py-3 px-3 min-w-[90px] text-right">Price</th>
                   
                   {/* Column 1: All Shifts (24/7) */}
-                  <th className="py-3 px-4 text-center bg-teal-50/50 min-w-[130px] border-l border-r border-teal-100">
-                    <span className="block text-teal-900 font-extrabold">All Shifts (24/7)</span>
-                    <span className="text-[9px] text-teal-600 normal-case font-normal">Available Anytime</span>
+                  <th className="py-3 px-4 text-center bg-brand-50 min-w-[130px] border-l border-r border-brand-border">
+                    <span className="block text-brand-dark font-extrabold">All Shifts (24/7)</span>
+                    <span className="text-[9px] text-brand-primary normal-case font-normal">Available Anytime</span>
                   </th>
 
                   {/* Columns for Each Configured Slot */}
                   {slots.map((slot) => (
                     <th key={slot.id} className="py-3 px-4 text-center min-w-[140px] border-r border-slate-100">
                       <div className="flex flex-col items-center">
-                        <span className="font-bold text-slate-800 flex items-center gap-1">
+                        <span className="font-bold text-gray-600 flex items-center gap-1">
                           <span
                             className="w-2 h-2 rounded-full shrink-0"
                             style={{ backgroundColor: slot.color || "#0d9488" }}
@@ -318,7 +318,7 @@ export default function RestaurantSlotsMatrixPage() {
                           <button
                             type="button"
                             onClick={() => handleSelectAllForSlot(slot.id)}
-                            className="text-[9px] text-teal-600 hover:underline font-bold"
+                            className="text-[9px] text-brand-primary hover:underline font-bold"
                           >
                             + All
                           </button>
@@ -356,15 +356,15 @@ export default function RestaurantSlotsMatrixPage() {
                             <img
                               src={prod.imageUrl}
                               alt={prod.name}
-                              className="w-8 h-8 rounded-lg object-cover border border-slate-200 shrink-0"
+                              className="w-8 h-8 rounded-sm object-cover border border-slate-200 shrink-0"
                             />
                           ) : (
-                            <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-500 text-xs shrink-0">
+                            <div className="w-8 h-8 rounded-sm bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-500 text-xs shrink-0">
                               {prod.name.slice(0, 1).toUpperCase()}
                             </div>
                           )}
                           <div className="min-w-0">
-                            <h4 className="font-bold text-slate-900 text-xs truncate max-w-[220px]">
+                            <h4 className="font-bold text-gray-600 text-xs truncate max-w-[220px]">
                               {prod.name}
                             </h4>
                             <span className="font-mono text-[10px] text-slate-400">
@@ -380,18 +380,18 @@ export default function RestaurantSlotsMatrixPage() {
                       </td>
 
                       {/* Price */}
-                      <td className="py-3 px-3 text-right font-bold text-slate-800 tabular-nums">
+                      <td className="py-3 px-3 text-right font-bold text-gray-600 tabular-nums">
                         ৳{prod.sellingPrice.toLocaleString()}
                       </td>
 
                       {/* All Shifts 24/7 Checkbox Cell */}
-                      <td className="py-3 px-4 text-center bg-teal-50/30 border-l border-r border-teal-100">
-                        <label className="inline-flex items-center justify-center p-2 rounded-lg hover:bg-teal-100/50 transition cursor-pointer">
+                      <td className="py-3 px-4 text-center bg-brand-50/30 border-l border-r border-brand-border">
+                        <label className="inline-flex items-center justify-center p-2 rounded-sm hover:bg-brand-50/50 transition cursor-pointer">
                           <input
                             type="checkbox"
                             checked={isAll}
                             onChange={() => handleToggleAllShifts(prod.id)}
-                            className="h-4.5 w-4.5 rounded border-teal-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                            className="h-4.5 w-4.5 rounded-sm border-brand-border text-brand-primary focus:ring-brand-border cursor-pointer"
                           />
                         </label>
                       </td>
@@ -402,15 +402,15 @@ export default function RestaurantSlotsMatrixPage() {
 
                         return (
                           <td key={slot.id} className="py-3 px-4 text-center border-r border-slate-100">
-                            <label className="inline-flex items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer">
+                            <label className="inline-flex items-center justify-center p-2 rounded-sm hover:bg-slate-100 transition cursor-pointer">
                               <input
                                 type="checkbox"
                                 checked={isChecked}
                                 onChange={() => handleToggleSlot(prod.id, slot.id)}
-                                className={`h-4.5 w-4.5 rounded cursor-pointer ${
+                                className={`h-4.5 w-4.5 rounded-sm cursor-pointer ${
                                   isAll
-                                    ? "border-teal-400 text-teal-600 opacity-60"
-                                    : "border-slate-300 text-teal-600 focus:ring-teal-500"
+                                    ? "border-brand-border text-brand-primary opacity-60"
+                                    : "border-slate-300 text-brand-primary focus:ring-brand-border"
                                 }`}
                               />
                             </label>
@@ -436,7 +436,7 @@ export default function RestaurantSlotsMatrixPage() {
         {/* Footer info bar */}
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
           <div className="flex items-center gap-2">
-            <Info size={14} className="text-teal-600" />
+            <Info size={14} className="text-brand-primary" />
             <span>
               Items with <strong>All Shifts</strong> checked are served 24/7 across every shift. Individual shift checks restrict items to specific hours when the POS filter is enabled.
             </span>
@@ -448,7 +448,7 @@ export default function RestaurantSlotsMatrixPage() {
             size="sm"
             className={`font-bold text-xs ${
               hasChanges
-                ? "bg-teal-600 hover:bg-teal-700 text-white"
+                ? "bg-brand-primary hover:bg-brand-dark text-white"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed"
             }`}
           >

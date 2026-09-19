@@ -146,7 +146,7 @@ export default function GroceryHubPage() {
                 <stat.icon size={16} />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900 tracking-tight">{stat.val}</p>
+            <p className="text-2xl font-bold text-gray-600 tracking-tight">{stat.val}</p>
             <p className="text-[11px] text-gray-400 mt-0.5">{stat.sub}</p>
           </div>
         ))}
@@ -172,7 +172,7 @@ export default function GroceryHubPage() {
                   placeholder="Search invoice, cashier..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="rounded-sm border border-slate-200 bg-white py-1.5 pl-8 pr-3 text-xs text-gray-800 placeholder-gray-400 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 focus:outline-none transition w-56"
+                  className="rounded-sm border border-slate-200 bg-white py-1.5 pl-8 pr-3 text-xs text-gray-600 placeholder-gray-400 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 focus:outline-none transition w-56"
                 />
               </div>
               <button
@@ -194,7 +194,7 @@ export default function GroceryHubPage() {
             ) : filteredSales.length === 0 ? (
               <div className="py-24 text-center space-y-2">
                 <Receipt size={32} className="mx-auto text-emerald-300" />
-                <p className="text-sm font-bold text-gray-700">No Lane Activity</p>
+                <p className="text-sm font-bold text-gray-600">No Lane Activity</p>
                 <p className="text-xs text-gray-400">Launch a POS lane to start processing supermarket baskets</p>
               </div>
             ) : (
@@ -223,7 +223,7 @@ export default function GroceryHubPage() {
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex flex-col">
-                            <span className="font-semibold text-gray-900">{custName}</span>
+                            <span className="font-semibold text-gray-600">{custName}</span>
                             <div className="flex items-center gap-1.5 mt-0.5">
                               <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-sm border uppercase ${tier.color} ${tier.bg} ${tier.border}`}>
                                 {tier.name}
@@ -243,7 +243,7 @@ export default function GroceryHubPage() {
                             {itemCount}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-right font-bold text-gray-900 text-xs">
+                        <td className="py-3 px-4 text-right font-bold text-gray-600 text-xs">
                           {fmt(totalAmt)}
                         </td>
                         <td className="py-3 px-4 text-center">
@@ -294,7 +294,7 @@ export default function GroceryHubPage() {
                       {p.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-semibold text-gray-800 truncate text-xs">{p.name}</p>
+                      <p className="font-semibold text-gray-600 truncate text-xs">{p.name}</p>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className="text-[9px] font-mono text-gray-400">{p.sku || "NO-SKU"}</span>
                         {isKg && <span className="text-[8px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-1 rounded-sm">SCALE</span>}
@@ -302,7 +302,7 @@ export default function GroceryHubPage() {
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <span className="text-xs font-bold text-gray-900 block">{fmt(Number(p.sellingPrice || 0))}</span>
+                    <span className="text-xs font-bold text-gray-600 block">{fmt(Number(p.sellingPrice || 0))}</span>
                     <span className="text-[9px] text-gray-400 uppercase">per {p.uom || "kg"}</span>
                   </div>
                 </div>

@@ -44,7 +44,7 @@ export default function PriceCheckerPage() {
   return (
     <div className="mx-auto max-w-lg space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Price Checker</h1>
+        <h1 className="text-2xl font-bold text-gray-600">Price Checker</h1>
         <p className="mt-1 text-sm text-gray-500">
           Scan barcode or enter SKU — no cart, no checkout
         </p>
@@ -66,19 +66,19 @@ export default function PriceCheckerPage() {
       </div>
 
       {notFound && (
-        <div className="rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-600">
+        <div className="rounded-sm border border-red-100 bg-red-50 p-4 text-sm text-red-600">
           Product not found for &ldquo;{query}&rdquo;
         </div>
       )}
 
       {product && (
-        <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-4">
+        <div className="rounded-sm border border-gray-200 bg-white p-5 space-y-4">
           <div className="flex items-start gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm bg-primary-50 text-primary-600">
               <Package size={22} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">{product.name}</h2>
+              <h2 className="text-lg font-bold text-gray-600">{product.name}</h2>
               <p className="text-sm text-gray-400">
                 SKU: {product.sku}
                 {product.barcode && ` · Barcode: ${product.barcode}`}
@@ -88,14 +88,14 @@ export default function PriceCheckerPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-lg bg-primary-50 p-4 text-center">
+            <div className="rounded-sm bg-primary-50 p-4 text-center">
               <p className="text-xs text-gray-500 mb-1">Selling Price</p>
               <p className="text-3xl font-bold text-primary-700 tabular-nums">
                 {Number(product.sellingPrice).toFixed(2)}
               </p>
               <p className="text-xs text-gray-400 mt-1">per {product.unit}</p>
             </div>
-            <div className="rounded-lg bg-gray-50 p-4 text-center">
+            <div className="rounded-sm bg-gray-50 p-4 text-center">
               <p className="text-xs text-gray-500 mb-1">Purchase Price</p>
               <p className="text-2xl font-semibold text-gray-600 tabular-nums">
                 {Number(product.purchasePrice).toFixed(2)}
@@ -111,7 +111,7 @@ export default function PriceCheckerPage() {
                 {product.variants.map((v) => (
                   <div
                     key={v.id}
-                    className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 text-sm"
+                    className="flex items-center justify-between rounded-sm bg-gray-50 px-3 py-2 text-sm"
                   >
                     <div className="flex items-center gap-2">
                       <Tag size={13} className="text-gray-400" />

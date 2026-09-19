@@ -40,7 +40,7 @@ import {
 function getCustomerTier(pts: number) {
   if (pts >= 5000) return { name: "VIP Partner", color: "text-indigo-700", bg: "bg-indigo-50", border: "border-indigo-100" };
   if (pts >= 2000) return { name: "Platinum", color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-100" };
-  return { name: "Standard", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-200" };
+  return { name: "Standard", color: "text-gray-600", bg: "bg-slate-50", border: "border-slate-200" };
 }
 
 export default function WholesaleHubPage() {
@@ -181,7 +181,7 @@ export default function WholesaleHubPage() {
         <div className="lg:col-span-2 rounded-sm bg-white border border-slate-200 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
           <div className="p-8 border-b border-slate-50 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <h3 className="text-xl font-black text-gray-600 tracking-tight flex items-center gap-2">
                 <History className="text-blue-500" size={24} /> B2B Activity
               </h3>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Distribution & Fulfillment Stream</p>
@@ -239,12 +239,12 @@ export default function WholesaleHubPage() {
                       return (
                         <tr key={s.id} className="group hover:bg-blue-50/40 transition-colors">
                           <td className="py-5 px-6">
-                            <span className="font-mono font-black text-xs text-slate-700">{s.orderNo}</span>
+                            <span className="font-mono font-black text-xs text-gray-600">{s.orderNo}</span>
                           </td>
                           <td className="py-5 px-6">
                             <div className="flex flex-col">
-                              <span className="text-xs font-black text-slate-900 tracking-tight">{s.customerName || "B2B Client"}</span>
-                              <span className={`w-fit mt-1 text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-widest ${tier.color} ${tier.bg} ${tier.border}`}>
+                              <span className="text-xs font-black text-gray-600 tracking-tight">{s.customerName || "B2B Client"}</span>
+                              <span className={`w-fit mt-1 text-[8px] font-black px-1.5 py-0.5 rounded-sm border uppercase tracking-widest ${tier.color} ${tier.bg} ${tier.border}`}>
                                 {tier.name}
                               </span>
                             </div>
@@ -257,7 +257,7 @@ export default function WholesaleHubPage() {
                               {s.status}
                             </span>
                           </td>
-                          <td className="py-5 px-6 text-right font-black tabular-nums text-slate-900 text-sm">
+                          <td className="py-5 px-6 text-right font-black tabular-nums text-gray-600 text-sm">
                             {fmt(s.total)}
                           </td>
                           <td className="py-5 px-6 text-center">
@@ -282,7 +282,7 @@ export default function WholesaleHubPage() {
         <div className="rounded-sm bg-white border border-slate-200 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
           <div className="p-8 border-b border-slate-50 bg-slate-50/30">
             <div className="flex items-center justify-between mb-1">
-              <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <h3 className="text-xl font-black text-gray-600 tracking-tight flex items-center gap-2">
                 <Boxes className="text-blue-500" size={24} /> Distribution
               </h3>
               <Link href="/products/create" className="w-8 h-8 rounded-sm bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition shadow-2xs shadow-blue-500/20 active:scale-90">
@@ -300,12 +300,12 @@ export default function WholesaleHubPage() {
                     {p.imageUrl ? <img src={p.imageUrl} className="h-full w-full object-cover" /> : p.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-black text-slate-800 truncate text-xs tracking-tight">{p.name}</p>
+                    <p className="font-black text-gray-600 truncate text-xs tracking-tight">{p.name}</p>
                     <span className="text-[9px] font-black text-slate-400 uppercase font-mono">{p.sku}</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-black text-slate-900 block">{fmt(p.sellingPrice)}</span>
+                  <span className="text-sm font-black text-gray-600 block">{fmt(p.sellingPrice)}</span>
                   <span className="text-[9px] font-bold text-slate-400 uppercase">Stock: {p.stockQty}</span>
                 </div>
               </div>

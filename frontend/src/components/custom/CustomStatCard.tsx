@@ -20,8 +20,8 @@ const TONE_STYLES: Record<StatTone, { bg: string; icon: string; border: string }
     border: "border-violet-100 hover:border-violet-400",
   },
   green: {
-    bg: "bg-gradient-to-br from-emerald-50/70 via-white to-teal-50/30",
-    icon: "bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-2xs",
+    bg: "bg-gradient-to-br from-emerald-50/70 via-white to-brand-50/30",
+    icon: "bg-gradient-to-tr from-emerald-500 to-brand-primary text-white shadow-2xs",
     border: "border-emerald-100 hover:border-emerald-400",
   },
   amber: {
@@ -69,7 +69,7 @@ export function CustomStatCard({ label, value, icon: Icon, tone = "primary", cla
 
       {/* Right side: Value on top, Name below */}
       <div className="flex flex-col items-end text-right min-w-0">
-        <p className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 group-hover:text-brand-dark transition-colors [font-variant-numeric:tabular-nums]">
+        <p className="text-xl sm:text-2xl font-extrabold tracking-tight text-gray-600 group-hover:text-brand-dark transition-colors [font-variant-numeric:tabular-nums]">
           {value}
         </p>
         <p className="mt-0.5 text-xs sm:text-[12.5px] font-bold text-slate-600 leading-snug truncate">

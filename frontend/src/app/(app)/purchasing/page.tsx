@@ -89,7 +89,7 @@ export default function PurchasingPage() {
             <button
               onClick={load}
               disabled={loading}
-              className="rounded-sm border border-brand-border bg-white p-2 text-slate-600 shadow-2xs transition hover:bg-brand-50/50 hover:text-slate-900 disabled:opacity-50 cursor-pointer"
+              className="rounded-sm border border-brand-border bg-white p-2 text-slate-600 shadow-2xs transition hover:bg-brand-50/50 hover:text-gray-600 disabled:opacity-50 cursor-pointer"
               title="Refresh Data"
             >
               <RefreshCw size={15} className={loading ? "animate-spin text-brand-primary" : ""} />
@@ -164,8 +164,8 @@ export default function PurchasingPage() {
               <div className={`flex h-9 w-9 items-center justify-center rounded-sm ${step.bg} border border-slate-200 transition group-hover:scale-105`}>
                 <step.icon size={17} className={step.color} />
               </div>
-              <p className="mt-2.5 text-xs font-semibold text-slate-800">{step.label}</p>
-              <p className="text-xl font-bold tabular-nums text-slate-900">
+              <p className="mt-2.5 text-xs font-semibold text-gray-600">{step.label}</p>
+              <p className="text-xl font-bold tabular-nums text-gray-600">
                 {loading ? "—" : step.count}
                 {step.pending && !loading && step.count > 0 && (
                   <span className="ml-1.5 inline-block h-2 w-2 animate-pulse rounded-full bg-amber-500 align-middle" />
@@ -187,7 +187,7 @@ export default function PurchasingPage() {
           <div key={s.label} className="flex items-center justify-between rounded-sm border border-slate-200 bg-white p-4 shadow-2xs hover:border-brand-border transition">
             <div>
               <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{s.label}</p>
-              <p className="mt-1.5 text-xl font-bold text-slate-900">{s.value}</p>
+              <p className="mt-1.5 text-xl font-bold text-gray-600">{s.value}</p>
             </div>
             <div className={`rounded-sm p-2.5 ${s.bg} border border-slate-200/60`}><s.icon size={20} className={s.accent} /></div>
           </div>
@@ -210,7 +210,7 @@ export default function PurchasingPage() {
         ) : recentPos.length === 0 ? (
           <div className="p-10 text-center">
             <ShoppingCart size={36} className="mx-auto text-slate-300" />
-            <p className="mt-2.5 font-bold text-xs text-slate-700">No purchase orders yet</p>
+            <p className="mt-2.5 font-bold text-xs text-gray-600">No purchase orders yet</p>
             <p className="mt-1 text-xs text-gray-400">Create a requisition or a direct PO to get started.</p>
           </div>
         ) : (
@@ -237,7 +237,7 @@ export default function PurchasingPage() {
                       <td className="px-5 py-3.5">
                         <Link href="/purchasing/orders" className="font-mono text-xs font-bold text-brand-primary hover:underline">{po.poNo}</Link>
                       </td>
-                      <td className="px-5 py-3.5 font-semibold text-slate-800">{po.supplier?.name ?? "—"}</td>
+                      <td className="px-5 py-3.5 font-semibold text-gray-600">{po.supplier?.name ?? "—"}</td>
                       <td className="px-5 py-3.5">
                         <div className="mx-auto w-28">
                           <div className="flex justify-between text-[10px] text-gray-400">
@@ -249,7 +249,7 @@ export default function PurchasingPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-3.5 text-right font-bold tabular-nums text-slate-900">{fmt(Number(po.total))}</td>
+                      <td className="px-5 py-3.5 text-right font-bold tabular-nums text-gray-600">{fmt(Number(po.total))}</td>
                       <td className="px-5 py-3.5">
                         <span className={`rounded-sm px-2 py-0.5 text-[10px] font-bold ${meta.cls}`}>{meta.label}</span>
                       </td>
@@ -277,7 +277,7 @@ export default function PurchasingPage() {
             className="group relative overflow-hidden rounded-sm border border-slate-200 bg-white p-4 shadow-2xs transition hover:border-brand-border hover:shadow-xs">
             <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${l.color}`} />
             <l.icon size={20} className="text-gray-400 transition group-hover:text-brand-primary" />
-            <p className="mt-2.5 font-bold text-xs text-slate-900">{l.title}</p>
+            <p className="mt-2.5 font-bold text-xs text-gray-600">{l.title}</p>
             <p className="mt-0.5 text-[11px] text-gray-400">{l.desc}</p>
           </Link>
         ))}

@@ -42,7 +42,7 @@ import {
 function getCustomerTier(pts: number) {
   if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-100" };
   if (pts >= 1500) return { name: "Gold", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" };
-  if (pts >= 500) return { name: "Silver", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-200" };
+  if (pts >= 500) return { name: "Silver", color: "text-gray-600", bg: "bg-slate-50", border: "border-slate-200" };
   return { name: "Bronze", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-100" };
 }
 
@@ -123,11 +123,11 @@ export default function PharmacyHubPage() {
       </div>
 
       {/* Header Banner: Glassmorphic & Curved */}
-      <div className="relative group overflow-hidden rounded-sm border border-teal-500/30 bg-gradient-to-r from-emerald-800 via-teal-700 to-teal-800 p-6 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="relative group overflow-hidden rounded-sm border border-brand-primary/30 bg-gradient-to-r from-emerald-800 via-teal-700 to-teal-800 p-6 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-6">
         <div className={`absolute -left-20 -top-20 w-64 h-64 blur-3xl opacity-20 rounded-full bg-cyan-400 group-hover:scale-125 transition-transform duration-700`} />
 
         <div className="relative flex items-center gap-6 z-10">
-          <div className="w-14 h-14 rounded-sm bg-white/15 border border-teal-200/30 text-white flex items-center justify-center text-white shadow-2xs transform rotate-3 group-hover:rotate-6 transition-transform duration-500">
+          <div className="w-14 h-14 rounded-sm bg-white/15 border border-brand-border/30 text-white flex items-center justify-center text-white shadow-2xs transform rotate-3 group-hover:rotate-6 transition-transform duration-500">
             <HeartPulse size={40} strokeWidth={2.2} />
           </div>
           <div>
@@ -146,7 +146,7 @@ export default function PharmacyHubPage() {
         <div className="relative flex flex-col sm:flex-row items-center gap-3 z-10">
           <Link
             href="/pharmacy/pos"
-            className="group/btn flex items-center gap-3 px-5 py-2.5 rounded-sm text-xs font-bold bg-white text-teal-800 shadow-2xs hover:bg-teal-50 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
+            className="group/btn flex items-center gap-3 px-5 py-2.5 rounded-sm text-xs font-bold bg-white text-brand-dark shadow-2xs hover:bg-brand-50 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
           >
             <Zap size={18} className="text-cyan-400 group-hover/btn:animate-pulse" />
             Open Rx Register
@@ -156,7 +156,7 @@ export default function PharmacyHubPage() {
           <Link
             href="/pharmacy/patient-display"
             target="_blank"
-            className="group/cd flex items-center gap-3 px-6 py-3.5 rounded-sm text-sm font-black bg-white text-slate-700 border border-slate-200 shadow-2xs shadow-slate-200/20 hover:bg-slate-50 hover:border-cyan-300 hover:text-cyan-700 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
+            className="group/cd flex items-center gap-3 px-6 py-3.5 rounded-sm text-sm font-black bg-white text-gray-600 border border-slate-200 shadow-2xs shadow-slate-200/20 hover:bg-slate-50 hover:border-cyan-300 hover:text-cyan-700 transition-all duration-300 transform hover:-translate-y-1 active:scale-95"
           >
             <Monitor size={18} className="text-slate-400 group-hover/cd:text-cyan-500" />
             Patient Display
@@ -168,7 +168,7 @@ export default function PharmacyHubPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           { label: "Daily Revenue", val: fmt(totalSales), sub: "Rx checkout volume", icon: TrendingUp, color: "cyan", iconColor: "text-cyan-600", bg: "bg-cyan-50" },
-          { label: "Prescriptions", val: sales.length, sub: "Completed dispenses", icon: Receipt, color: "teal", iconColor: "text-teal-600", bg: "bg-teal-50" },
+          { label: "Prescriptions", val: sales.length, sub: "Completed dispenses", icon: Receipt, color: "teal", iconColor: "text-brand-primary", bg: "bg-brand-50" },
           { label: "Units Dispensed", val: totalItemsSold, sub: "Medicine units sold", icon: Pill, color: "indigo", iconColor: "text-indigo-600", bg: "bg-indigo-50" },
           { label: "Active Medicines", val: products.length, sub: "FEFO tracked stock", icon: Activity, color: "amber", iconColor: "text-amber-600", bg: "bg-amber-50" },
         ].map((stat, i) => (
@@ -198,7 +198,7 @@ export default function PharmacyHubPage() {
         <div className="lg:col-span-2 rounded-sm bg-white border border-slate-200 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
           <div className="p-8 border-b border-slate-50 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <h3 className="text-xl font-black text-gray-600 tracking-tight flex items-center gap-2">
                 <History className="text-cyan-500" size={24} /> Rx Activity
               </h3>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Dispense & Sales Stream</p>
@@ -267,14 +267,14 @@ export default function PharmacyHubPage() {
                               <div className="w-8 h-8 rounded-sm bg-cyan-50 text-cyan-600 flex items-center justify-center font-mono font-black text-[10px] border border-cyan-100">
                                 Rx
                               </div>
-                              <span className="font-mono font-black text-xs text-slate-700">{s.invoiceNo || s.id.slice(0, 8).toUpperCase()}</span>
+                              <span className="font-mono font-black text-xs text-gray-600">{s.invoiceNo || s.id.slice(0, 8).toUpperCase()}</span>
                             </div>
                           </td>
                           <td className="py-5 px-6">
                             <div className="flex flex-col">
-                              <span className="text-xs font-black text-slate-900 tracking-tight">{custName}</span>
+                              <span className="text-xs font-black text-gray-600 tracking-tight">{custName}</span>
                               <div className="flex items-center gap-2 mt-1">
-                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-widest ${tier.color} ${tier.bg} ${tier.border}`}>
+                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-sm border uppercase tracking-widest ${tier.color} ${tier.bg} ${tier.border}`}>
                                   {tier.name}
                                 </span>
                                 <span className="text-[9px] font-bold text-slate-400">{s.paymentMethod || "CASH"}</span>
@@ -283,16 +283,16 @@ export default function PharmacyHubPage() {
                           </td>
                           <td className="py-5 px-6">
                             <div className="flex flex-col">
-                              <span className="text-xs font-black text-slate-700">{new Date(s.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}</span>
+                              <span className="text-xs font-black text-gray-600">{new Date(s.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}</span>
                               <span className="text-[10px] font-bold text-slate-400">{new Date(s.createdAt).toLocaleDateString()}</span>
                             </div>
                           </td>
                           <td className="py-5 px-6 text-center">
-                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-[10px] font-black">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-gray-600 text-[10px] font-black">
                               {itemCount}
                             </span>
                           </td>
-                          <td className="py-5 px-6 text-right font-black tabular-nums text-slate-900 text-sm">
+                          <td className="py-5 px-6 text-right font-black tabular-nums text-gray-600 text-sm">
                             {fmt(totalAmt)}
                           </td>
                           <td className="py-5 px-6 text-center">
@@ -317,7 +317,7 @@ export default function PharmacyHubPage() {
         <div className="rounded-sm bg-white border border-slate-200 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
           <div className="p-8 border-b border-slate-50 bg-slate-50/30">
             <div className="flex items-center justify-between mb-1">
-              <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <h3 className="text-xl font-black text-gray-600 tracking-tight flex items-center gap-2">
                 <Stethoscope className="text-cyan-500" size={24} /> Inventory
               </h3>
               <Link
@@ -348,19 +348,19 @@ export default function PharmacyHubPage() {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-black text-slate-800 truncate text-xs tracking-tight">{p.name}</p>
+                      <p className="font-black text-gray-600 truncate text-xs tracking-tight">{p.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-[9px] font-black text-slate-400 uppercase font-mono">{p.sku || "NO-SKU"}</span>
                         {outOfStock ? (
-                           <span className="text-[8px] font-black bg-rose-100 text-rose-700 px-1 rounded uppercase">Out</span>
+                           <span className="text-[8px] font-black bg-rose-100 text-rose-700 px-1 rounded-sm uppercase">Out</span>
                         ) : (
-                           <span className="text-[8px] font-black bg-cyan-100 text-cyan-700 px-1 rounded uppercase">In Stock</span>
+                           <span className="text-[8px] font-black bg-cyan-100 text-cyan-700 px-1 rounded-sm uppercase">In Stock</span>
                         )}
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-black text-slate-900 tracking-tighter block">{fmt(Number(p.sellingPrice || 0))}</span>
+                    <span className="text-sm font-black text-gray-600 tracking-tighter block">{fmt(Number(p.sellingPrice || 0))}</span>
                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Qty: {p.stockQty ?? 0}</span>
                   </div>
                 </div>

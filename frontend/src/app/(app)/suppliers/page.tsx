@@ -298,7 +298,7 @@ export default function SuppliersPage() {
             </div>
           </div>
           <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-gray-900">
+            <span className="text-2xl font-bold text-gray-600">
               {statsLoading ? "—" : (stats?.total || 0).toLocaleString()}
             </span>
             <span className="text-xs font-medium text-emerald-600">
@@ -349,7 +349,7 @@ export default function SuppliersPage() {
             </div>
           </div>
           <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-gray-900">
+            <span className="text-2xl font-bold text-gray-600">
               ৳{statsLoading ? "—" : Math.round(stats?.totalPurchaseValue || 0).toLocaleString()}
             </span>
           </div>
@@ -367,7 +367,7 @@ export default function SuppliersPage() {
             </div>
           </div>
           <div className="mt-2.5 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-gray-900">98.4%</span>
+            <span className="text-2xl font-bold text-gray-600">98.4%</span>
             <span className="text-xs font-medium text-emerald-600">Quality pass</span>
           </div>
           <p className="mt-1 text-[11px] text-gray-400">
@@ -390,7 +390,7 @@ export default function SuppliersPage() {
               className={`flex items-center gap-1.5 shrink-0 rounded-sm px-3 py-1.5 text-xs font-medium transition cursor-pointer ${
                 isActive
                   ? "bg-brand-gradient text-white shadow-2xs font-semibold"
-                  : "bg-white text-slate-600 border border-slate-200 hover:bg-brand-50/50 hover:text-slate-900"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-brand-50/50 hover:text-gray-600"
               }`}
             >
               <span>{tab.label}</span>
@@ -419,7 +419,7 @@ export default function SuppliersPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-sm border border-brand-border py-1.5 pl-9 pr-8 text-xs text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border transition"
+            className="w-full rounded-sm border border-brand-border py-1.5 pl-9 pr-8 text-xs text-gray-600 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border transition"
           />
           {search && (
             <button
@@ -439,7 +439,7 @@ export default function SuppliersPage() {
               setFilterStatus(e.target.value);
               setPage(1);
             }}
-            className="rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-brand-primary focus:outline-none"
+            className="rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs text-gray-600 focus:border-brand-primary focus:outline-none"
           >
             <option value="">All Statuses</option>
             <option value="ACTIVE">Active</option>
@@ -452,7 +452,7 @@ export default function SuppliersPage() {
               setSortBy(e.target.value);
               setPage(1);
             }}
-            className="rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs text-gray-700 focus:border-brand-primary focus:outline-none"
+            className="rounded-sm border border-brand-border bg-white px-2.5 py-1.5 text-xs text-gray-600 focus:border-brand-primary focus:outline-none"
           >
             <option value="createdAt">Newest First</option>
             <option value="name">Supplier Name (A-Z)</option>
@@ -473,14 +473,14 @@ export default function SuppliersPage() {
           <div className="flex items-center rounded-sm border border-brand-border p-0.5 bg-slate-50">
             <button
               onClick={() => setViewMode("table")}
-              className={`rounded-sm p-1 transition cursor-pointer ${viewMode === "table" ? "bg-white text-brand-primary shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1 transition cursor-pointer ${viewMode === "table" ? "bg-white text-brand-primary shadow-2xs font-bold" : "text-gray-400 hover:text-gray-600"}`}
               title="Table View"
             >
               <LayoutList size={14} />
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`rounded-sm p-1 transition cursor-pointer ${viewMode === "grid" ? "bg-white text-brand-primary shadow-2xs font-bold" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1 transition cursor-pointer ${viewMode === "grid" ? "bg-white text-brand-primary shadow-2xs font-bold" : "text-gray-400 hover:text-gray-600"}`}
               title="Grid View"
             >
               <LayoutGrid size={14} />
@@ -517,12 +517,12 @@ export default function SuppliersPage() {
       {loading ? (
         <div className="rounded-sm border border-slate-200 bg-white p-12 text-center shadow-2xs">
           <RefreshCw size={24} className="mx-auto animate-spin text-brand-primary mb-2" />
-          <p className="text-xs font-semibold text-gray-700">Loading suppliers directory...</p>
+          <p className="text-xs font-semibold text-gray-600">Loading suppliers directory...</p>
         </div>
       ) : suppliers.length === 0 ? (
         <div className="rounded-sm border-2 border-dashed border-brand-border bg-white p-12 text-center shadow-2xs">
           <Truck size={32} className="mx-auto text-brand-primary/40 mb-3" />
-          <h3 className="text-sm font-bold text-gray-900">No Suppliers Found</h3>
+          <h3 className="text-sm font-bold text-gray-600">No Suppliers Found</h3>
           <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
             {search || activeTab !== "ALL" || filterStatus
               ? "No suppliers matched your filter criteria."
@@ -592,7 +592,7 @@ export default function SuppliersPage() {
                           <div className="min-w-0">
                             <button
                               onClick={() => handleOpenDrawer(s.id)}
-                              className="font-semibold text-gray-900 hover:text-brand-primary text-left transition truncate max-w-[190px] block cursor-pointer"
+                              className="font-semibold text-gray-600 hover:text-brand-primary text-left transition truncate max-w-[190px] block cursor-pointer"
                             >
                               {s.name}
                             </button>
@@ -613,7 +613,7 @@ export default function SuppliersPage() {
                       {/* Contact & WhatsApp */}
                       <td className="px-3 py-3">
                         <div>
-                          <p className="font-medium text-gray-800 text-xs">{s.contactPerson || "—"}</p>
+                          <p className="font-medium text-gray-600 text-xs">{s.contactPerson || "—"}</p>
                           {s.phone ? (
                             <div className="flex items-center gap-1.5 text-[11px] text-gray-600 mt-0.5">
                               <a href={`tel:${s.phone}`} className="hover:text-brand-primary transition">
@@ -637,7 +637,7 @@ export default function SuppliersPage() {
 
                       {/* Purchasing stats */}
                       <td className="px-3 py-3">
-                        <div className="text-gray-800">
+                        <div className="text-gray-600">
                           <span className="font-bold text-xs">৳{totalPurchased.toLocaleString()}</span>
                           <p className="text-[11px] text-gray-400">
                             {s._count?.purchaseOrders || 0} POs &bull; {s._count?.products || 0} products
@@ -648,7 +648,7 @@ export default function SuppliersPage() {
                       {/* Credit Limit & Terms */}
                       <td className="px-3 py-3">
                         <div>
-                          <span className="font-semibold text-gray-700">
+                          <span className="font-semibold text-gray-600">
                             ৳{Number(s.creditLimit || 0).toLocaleString()}
                           </span>
                           <p className="text-[11px] text-gray-400">
@@ -660,7 +660,7 @@ export default function SuppliersPage() {
                       {/* Accounts Payable Due */}
                       <td className="px-3 py-3 text-right">
                         <div className="inline-flex flex-col items-end">
-                          <span className={`font-semibold ${isDue ? "text-rose-600 font-bold" : "text-gray-700"}`}>
+                          <span className={`font-semibold ${isDue ? "text-rose-600 font-bold" : "text-gray-600"}`}>
                             ৳{due.toLocaleString()}
                           </span>
                           {isDue && (
@@ -752,7 +752,7 @@ export default function SuppliersPage() {
                       <div className="min-w-0">
                         <h3
                           onClick={() => handleOpenDrawer(s.id)}
-                          className="font-bold text-gray-900 hover:text-brand-primary cursor-pointer transition text-xs truncate max-w-[160px]"
+                          className="font-bold text-gray-600 hover:text-brand-primary cursor-pointer transition text-xs truncate max-w-[160px]"
                         >
                           {s.name}
                         </h3>
@@ -773,13 +773,13 @@ export default function SuppliersPage() {
                   <div className="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-slate-200 text-center">
                     <div className="rounded-sm bg-slate-50 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Payable Due</p>
-                      <p className={`text-xs font-bold ${isDue ? "text-rose-600" : "text-gray-700"}`}>
+                      <p className={`text-xs font-bold ${isDue ? "text-rose-600" : "text-gray-600"}`}>
                         ৳{due.toLocaleString()}
                       </p>
                     </div>
                     <div className="rounded-sm bg-slate-50 p-1.5">
                       <p className="text-[10px] text-gray-400 font-medium">Orders</p>
-                      <p className="text-xs font-bold text-gray-700">
+                      <p className="text-xs font-bold text-gray-600">
                         {s._count?.purchaseOrders || 0}
                       </p>
                     </div>
@@ -849,11 +849,11 @@ export default function SuppliersPage() {
       {pagination.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-sm border border-slate-200 bg-white p-3 shadow-2xs">
           <p className="text-xs text-gray-500">
-            Showing <span className="font-semibold text-gray-800">{(page - 1) * perPage + 1}</span> -{" "}
-            <span className="font-semibold text-gray-800">
+            Showing <span className="font-semibold text-gray-600">{(page - 1) * perPage + 1}</span> -{" "}
+            <span className="font-semibold text-gray-600">
               {Math.min(page * perPage, pagination.total)}
             </span>{" "}
-            of <span className="font-semibold text-gray-800">{pagination.total}</span> suppliers
+            of <span className="font-semibold text-gray-600">{pagination.total}</span> suppliers
           </p>
 
           <div className="flex items-center gap-2">
@@ -863,7 +863,7 @@ export default function SuppliersPage() {
                 setPerPage(Number(e.target.value));
                 setPage(1);
               }}
-              className="rounded-sm border border-brand-border px-2 py-1 text-xs text-gray-700 focus:border-brand-primary focus:outline-none"
+              className="rounded-sm border border-brand-border px-2 py-1 text-xs text-gray-600 focus:border-brand-primary focus:outline-none"
             >
               <option value="10">10 / page</option>
               <option value="20">20 / page</option>
@@ -874,7 +874,7 @@ export default function SuppliersPage() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="flex items-center gap-1 rounded-sm border border-brand-border px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-brand-50/50 disabled:opacity-40 transition cursor-pointer"
+              className="flex items-center gap-1 rounded-sm border border-brand-border px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-brand-50/50 disabled:opacity-40 transition cursor-pointer"
             >
               <ChevronLeft size={13} /> Prev
             </button>
@@ -886,7 +886,7 @@ export default function SuppliersPage() {
             <button
               onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
               disabled={page >= pagination.totalPages}
-              className="flex items-center gap-1 rounded-sm border border-brand-border px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-brand-50/50 disabled:opacity-40 transition cursor-pointer"
+              className="flex items-center gap-1 rounded-sm border border-brand-border px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-brand-50/50 disabled:opacity-40 transition cursor-pointer"
             >
               Next <ChevronRight size={13} />
             </button>

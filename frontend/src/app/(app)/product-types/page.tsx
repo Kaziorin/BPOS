@@ -28,6 +28,8 @@ import { CustomTable, CustomTableColumn } from "@/components/custom/CustomTable"
 import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
 import { CustomButton } from "@/components/custom/CustomButton";
+import { CustomInput } from "@/components/custom/CustomInput";
+import { CustomDropdownSelect } from "@/components/custom/CustomDropdownSelect";
 import { toast } from "react-toastify";
 
 interface ProductTypeItem {
@@ -193,11 +195,11 @@ export default function ProductTypesPage() {
       key: "name",
       render: (row) => (
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-teal-50 text-teal-600 border border-teal-100 shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-brand-border shrink-0">
             <Layers size={16} />
           </div>
           <div>
-            <span className="text-xs font-bold text-gray-700 block">{row.name}</span>
+            <span className="text-xs font-bold text-gray-600 block">{row.name}</span>
           </div>
         </div>
       ),
@@ -227,7 +229,7 @@ export default function ProductTypesPage() {
           <button
             type="button"
             onClick={() => handleOpenEditModal(row)}
-            className="p-1.5 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition cursor-pointer"
+            className="p-1.5 text-slate-500 hover:text-brand-primary hover:bg-brand-50 rounded-sm transition cursor-pointer"
             title="Edit Type"
           >
             <Edit3 size={15} />
@@ -235,7 +237,7 @@ export default function ProductTypesPage() {
           <button
             type="button"
             onClick={() => setDeleteId(row.id)}
-            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-sm transition cursor-pointer"
             title="Delete Type"
           >
             <Trash2 size={15} />
@@ -258,7 +260,7 @@ export default function ProductTypesPage() {
             size="sm"
             onClick={handleOpenAddModal}
             leftIcon={<Plus size={15} />}
-            className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+            className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
           >
             Add Product Type
           </CustomButton>
@@ -266,14 +268,14 @@ export default function ProductTypesPage() {
       />
 
       {msg && (
-        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
+        <div className="flex items-center gap-2 rounded-sm border border-emerald-200 bg-emerald-50 p-3 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
           <CheckCircle2 size={16} className="text-emerald-600" />
           {msg}
         </div>
       )}
 
       {errorMsg && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-700">
+        <div className="rounded-sm border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-700">
           ⚠️ {errorMsg}
         </div>
       )}
@@ -282,45 +284,47 @@ export default function ProductTypesPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="rounded-md border border-slate-200 bg-white p-3.5 shadow-2xs">
+        <div className="rounded-sm border border-slate-200 bg-white p-3.5 shadow-2xs">
           <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Types</div>
-          <div className="text-lg font-bold text-gray-700 mt-0.5">{totalTypes}</div>
+          <div className="text-lg font-bold text-gray-600 mt-0.5">{totalTypes}</div>
         </div>
-        <div className="rounded-md border border-slate-200 bg-white p-3.5 shadow-2xs">
+        <div className="rounded-sm border border-slate-200 bg-white p-3.5 shadow-2xs">
           <div className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">Active Types</div>
-          <div className="text-lg font-bold text-gray-700 mt-0.5">{activeTypes}</div>
+          <div className="text-lg font-bold text-gray-600 mt-0.5">{activeTypes}</div>
         </div>
-        <div className="rounded-md border border-slate-200 bg-white p-3.5 shadow-2xs">
+        <div className="rounded-sm border border-slate-200 bg-white p-3.5 shadow-2xs">
           <div className="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">Inactive Types</div>
-          <div className="text-lg font-bold text-gray-700 mt-0.5">{inactiveTypes}</div>
+          <div className="text-lg font-bold text-gray-600 mt-0.5">{inactiveTypes}</div>
         </div>
       </div>
 
       {/* Main Table Card */}
-      <div className="rounded-md border border-slate-200 bg-white shadow-2xs overflow-hidden">
+      <div className="rounded-sm border border-slate-200 bg-white shadow-2xs overflow-hidden">
         {/* Controls Bar */}
         <div className="p-3.5 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50">
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
-            <input
-              type="text"
+          <div className="w-full sm:w-72">
+            <CustomInput
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search product types..."
-              className="w-full rounded-md border border-slate-200 bg-white pl-8 pr-3 py-1.5 text-xs text-gray-600 placeholder-slate-400 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              leftIcon={<Search className="h-3.5 w-3.5" />}
+              className="py-1.5 text-xs text-gray-600 placeholder-slate-400"
             />
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:border-teal-500 focus:outline-none"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-            </select>
+            <div className="w-36">
+              <CustomDropdownSelect
+                value={statusFilter}
+                onChange={(val) => setStatusFilter(val)}
+                options={[
+                  { label: "All Statuses", value: "ALL" },
+                  { label: "Active", value: "ACTIVE" },
+                  { label: "Inactive", value: "INACTIVE" },
+                ]}
+                className="py-1.5 text-xs font-semibold"
+              />
+            </div>
           </div>
         </div>
 
@@ -340,33 +344,27 @@ export default function ProductTypesPage() {
         title={editingItem ? "Edit Product Type" : "Add New Product Type"}
       >
         <form onSubmit={handleSaveItem} className="space-y-4">
-          <div>
-            <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
-              Type Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={formName}
-              onChange={(e) => setFormName(e.target.value)}
-              placeholder="e.g. Gift Card, Medicine, Menu Item..."
-              className="w-full rounded-md border border-slate-200 px-3 py-2 text-xs text-gray-600 focus:border-teal-500 focus:outline-none"
-              required
-              autoFocus
-            />
-          </div>
-
-
+          <CustomInput
+            label="Type Name"
+            value={formName}
+            onChange={(e) => setFormName(e.target.value)}
+            placeholder="e.g. Gift Card, Medicine, Menu Item..."
+            className="text-xs text-gray-600"
+            required
+            autoFocus
+          />
 
           <div>
-            <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">Status</label>
-            <select
+            <CustomDropdownSelect
+              label="Status"
               value={formStatus}
-              onChange={(e) => setFormStatus(e.target.value)}
-              className="w-full rounded-md border border-slate-200 px-3 py-2 text-xs text-gray-600 focus:border-teal-500 focus:outline-none"
-            >
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-            </select>
+              onChange={(val) => setFormStatus(val)}
+              options={[
+                { label: "Active", value: "ACTIVE" },
+                { label: "Inactive", value: "INACTIVE" },
+              ]}
+              className="text-xs text-gray-600"
+            />
           </div>
 
           <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
@@ -375,7 +373,7 @@ export default function ProductTypesPage() {
               variant="outline"
               size="sm"
               onClick={() => setModalOpen(false)}
-              className="rounded-md text-xs font-semibold"
+              className="rounded-sm text-xs font-semibold"
             >
               Cancel
             </CustomButton>
@@ -384,7 +382,7 @@ export default function ProductTypesPage() {
               size="sm"
               loading={saving}
               leftIcon={<Check size={14} />}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               {editingItem ? "Update Type" : "Create Type"}
             </CustomButton>

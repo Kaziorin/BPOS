@@ -225,8 +225,8 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
   const [newIngCost, setNewIngCost] = useState("");
 
   const inputClass =
-    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border placeholder:text-slate-400";
-  const labelClass = "block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-1";
+    "w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border placeholder:text-slate-400";
+  const labelClass = "block text-xs font-semibold text-gray-600 mb-1.5 flex items-center gap-1";
 
   // ADDON Handlers
   const handleAddAddon = () => {
@@ -323,17 +323,17 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
   }, 0);
 
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
+    <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-brand-50 text-brand-primary border border-slate-200">
+          <div className="p-2 rounded-sm bg-brand-50 text-brand-primary border border-slate-200">
             <Utensils className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 flex items-center gap-1.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center gap-1.5">
               Restaurant & Food Operations
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-brand-50 text-brand-dark font-semibold uppercase">
+              <span className="px-1.5 py-0.5 rounded-sm text-[10px] bg-brand-50 text-brand-dark font-semibold uppercase">
                 Food Menu Setup
               </span>
             </h3>
@@ -344,14 +344,14 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
         </div>
 
         {/* Modular Navigation Tabs */}
-        <div className="flex items-center bg-slate-100/90 p-1 rounded-md border border-slate-200 gap-1">
+        <div className="flex items-center bg-slate-100/90 p-1 rounded-sm border border-slate-200 gap-1">
           <button
             type="button"
             onClick={() => setActiveTab("KITCHEN")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2.5 py-1 text-xs font-semibold rounded-sm transition cursor-pointer flex items-center gap-1 ${
               activeTab === "KITCHEN"
                 ? "bg-white text-brand-dark shadow-2xs font-bold"
-                : "text-slate-600 hover:text-gray-900"
+                : "text-slate-600 hover:text-gray-600"
             }`}
           >
             <Printer size={13} />
@@ -360,10 +360,10 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           <button
             type="button"
             onClick={() => setActiveTab("SIZES")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2.5 py-1 text-xs font-semibold rounded-sm transition cursor-pointer flex items-center gap-1 ${
               activeTab === "SIZES"
                 ? "bg-white text-brand-dark shadow-2xs font-bold"
-                : "text-slate-600 hover:text-gray-900"
+                : "text-slate-600 hover:text-gray-600"
             }`}
           >
             <Scale size={13} />
@@ -377,10 +377,10 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           <button
             type="button"
             onClick={() => setActiveTab("ADDONS")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2.5 py-1 text-xs font-semibold rounded-sm transition cursor-pointer flex items-center gap-1 ${
               activeTab === "ADDONS"
                 ? "bg-white text-brand-dark shadow-2xs font-bold"
-                : "text-slate-600 hover:text-gray-900"
+                : "text-slate-600 hover:text-gray-600"
             }`}
           >
             <Sparkles size={13} />
@@ -394,10 +394,10 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           <button
             type="button"
             onClick={() => setActiveTab("RELATED")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2.5 py-1 text-xs font-semibold rounded-sm transition cursor-pointer flex items-center gap-1 ${
               activeTab === "RELATED"
                 ? "bg-white text-brand-dark shadow-2xs font-bold"
-                : "text-slate-600 hover:text-gray-900"
+                : "text-slate-600 hover:text-gray-600"
             }`}
           >
             <Share2 size={13} />
@@ -411,10 +411,10 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           <button
             type="button"
             onClick={() => setActiveTab("RECIPE")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2.5 py-1 text-xs font-semibold rounded-sm transition cursor-pointer flex items-center gap-1 ${
               activeTab === "RECIPE"
                 ? "bg-white text-brand-dark shadow-2xs font-bold"
-                : "text-slate-600 hover:text-gray-900"
+                : "text-slate-600 hover:text-gray-600"
             }`}
           >
             <Layers size={13} />
@@ -433,7 +433,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
         <div className="space-y-4 animate-in fade-in-50 duration-200">
           {/* Kitchen / KOT Item Checkbox Card */}
           <div
-            className={`p-3.5 rounded-xl border transition-all ${
+            className={`p-3.5 rounded-sm border transition-all ${
               (formData.isKitchenProduct ?? true)
                 ? "bg-brand-50/60 border-brand-border"
                 : "bg-amber-50/70 border-amber-200"
@@ -526,9 +526,9 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           </div>
 
           {/* Meal Shifts & Time Slots Availability */}
-          <div className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-md space-y-3">
+          <div className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-sm space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="text-xs font-bold text-gray-700 flex items-center gap-1.5 uppercase tracking-wide">
+              <div className="text-xs font-bold text-gray-600 flex items-center gap-1.5 uppercase tracking-wide">
                 <Clock size={13} className="text-brand-primary" />
                 Meal Shifts &amp; Time Slots (Menu Availability)
               </div>
@@ -572,14 +572,14 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                         <div
                           key={slot.id}
                           onClick={toggleSlot}
-                          className={`p-2.5 rounded-lg border text-left cursor-pointer transition flex items-center justify-between gap-2 ${
+                          className={`p-2.5 rounded-sm border text-left cursor-pointer transition flex items-center justify-between gap-2 ${
                             isSelected
                               ? "bg-brand-50 border-brand-border shadow-2xs"
                               : "bg-white border-slate-200 hover:border-slate-300"
                           }`}
                         >
                           <div className="min-w-0">
-                            <span className="font-bold text-xs text-slate-800 block truncate">
+                            <span className="font-bold text-xs text-gray-600 block truncate">
                               {slot.name}
                             </span>
                             <span className="text-[10px] text-slate-500 font-mono font-medium">
@@ -590,14 +590,14 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                             type="checkbox"
                             checked={isSelected}
                             onChange={toggleSlot}
-                            className="h-4 w-4 rounded border-slate-300 text-brand-primary focus:ring-brand-border pointer-events-none"
+                            className="h-4 w-4 rounded-sm border-slate-300 text-brand-primary focus:ring-brand-border pointer-events-none"
                           />
                         </div>
                       );
                     })}
                   </div>
                 ) : (
-                  <div className="p-3 bg-white rounded-lg border border-slate-200 text-xs text-slate-500 flex items-center justify-between">
+                  <div className="p-3 bg-white rounded-sm border border-slate-200 text-xs text-slate-500 flex items-center justify-between">
                     <span>No custom shifts created yet. Create shifts from the Restaurant Hub.</span>
                   </div>
                 )}
@@ -606,13 +606,13 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           </div>
 
           {/* Dining Channels & Order Availability */}
-          <div className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-md space-y-2">
-            <div className="text-xs font-bold text-gray-700 flex items-center gap-1.5 uppercase tracking-wide">
+          <div className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-sm space-y-2">
+            <div className="text-xs font-bold text-gray-600 flex items-center gap-1.5 uppercase tracking-wide">
               <ShoppingBag size={13} className="text-brand-primary" />
               Order Channel Availability
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-              <div className="p-2.5 bg-white border border-slate-200 rounded-md">
+              <div className="p-2.5 bg-white border border-slate-200 rounded-sm">
                 <CustomCheckbox
                   id="dineInAvailable"
                   checked={formData.dineInAvailable ?? true}
@@ -620,7 +620,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                   label="Available for Dine-in"
                 />
               </div>
-              <div className="p-2.5 bg-white border border-slate-200 rounded-md">
+              <div className="p-2.5 bg-white border border-slate-200 rounded-sm">
                 <CustomCheckbox
                   id="takeawayAvailable"
                   checked={formData.takeawayAvailable ?? true}
@@ -628,7 +628,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                   label="Available for Takeaway / Parcel"
                 />
               </div>
-              <div className="p-2.5 bg-white border border-slate-200 rounded-md">
+              <div className="p-2.5 bg-white border border-slate-200 rounded-sm">
                 <CustomCheckbox
                   id="deliveryAvailable"
                   checked={formData.deliveryAvailable ?? true}
@@ -640,13 +640,13 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           </div>
 
           {/* Dietary & Menu Badges */}
-          <div className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-md space-y-2">
-            <div className="text-xs font-bold text-gray-700 flex items-center gap-1.5 uppercase tracking-wide">
+          <div className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-sm space-y-2">
+            <div className="text-xs font-bold text-gray-600 flex items-center gap-1.5 uppercase tracking-wide">
               <ShieldCheck size={13} className="text-brand-primary" />
               Dietary Tags & Menu Badges (Visible on POS & Receipts)
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
-              <div className="p-2.5 bg-white border border-slate-200 rounded-md">
+              <div className="p-2.5 bg-white border border-slate-200 rounded-sm">
                 <CustomCheckbox
                   id="isVegetarian"
                   checked={formData.isVegetarian}
@@ -654,7 +654,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                   label="🌱 100% Vegetarian (Veg)"
                 />
               </div>
-              <div className="p-2.5 bg-white border border-slate-200 rounded-md">
+              <div className="p-2.5 bg-white border border-slate-200 rounded-sm">
                 <CustomCheckbox
                   id="isHalal"
                   checked={formData.isHalal ?? true}
@@ -662,7 +662,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                   label="✨ 100% Halal Certified"
                 />
               </div>
-              <div className="p-2.5 bg-white border border-slate-200 rounded-md">
+              <div className="p-2.5 bg-white border border-slate-200 rounded-sm">
                 <CustomCheckbox
                   id="isChefSpecial"
                   checked={formData.isChefSpecial}
@@ -670,7 +670,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                   label="👨‍🍳 Chef's Special / Signature"
                 />
               </div>
-              <div className="p-2.5 bg-white border border-slate-200 rounded-md">
+              <div className="p-2.5 bg-white border border-slate-200 rounded-sm">
                 <CustomCheckbox
                   id="isGlutenFree"
                   checked={formData.isGlutenFree}
@@ -686,7 +686,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
       {/* TAB: Portion Sizes & Variations */}
       {activeTab === "SIZES" && (
         <div className="space-y-4 animate-in fade-in-50 duration-200">
-          <div className="bg-brand-50/60 border border-brand-border p-3.5 rounded-xl">
+          <div className="bg-brand-50/60 border border-brand-border p-3.5 rounded-sm">
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="text-xs font-bold text-brand-dark uppercase tracking-wider flex items-center gap-1.5">
@@ -706,20 +706,20 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
               return (
                 <div
                   key={size.id}
-                  className={`px-3 py-2.5 rounded-lg border transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 ${
+                  className={`px-3 py-2.5 rounded-sm border transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 ${
                     size.isEnabled
                       ? "bg-white border-brand-border shadow-2xs ring-1 ring-brand-border"
                       : "bg-slate-50/70 border-slate-200 opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <label className="flex items-center gap-2 text-xs font-bold text-gray-800 cursor-pointer select-none shrink-0 min-w-0">
+                  <label className="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer select-none shrink-0 min-w-0">
                     <input
                       type="checkbox"
                       checked={size.isEnabled}
                       onChange={() => handleTogglePortionSizeEnabled(size.id)}
-                      className="h-4 w-4 rounded border-slate-300 text-brand-primary focus:ring-brand-border accent-brand-primary cursor-pointer"
+                      className="h-4 w-4 rounded-sm border-slate-300 text-brand-primary focus:ring-brand-border accent-brand-primary cursor-pointer"
                     />
-                    <span className="text-xs font-bold text-slate-800 truncate">{size.name}</span>
+                    <span className="text-xs font-bold text-gray-600 truncate">{size.name}</span>
                     {size.isDefault && size.isEnabled && (
                       <span className="px-1.5 py-0.2 rounded-full bg-brand-primary text-white text-[9px] font-black uppercase tracking-wide shrink-0">
                         Default
@@ -738,14 +738,14 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                           value={size.price}
                           onChange={(e) => handleUpdatePortionSizePrice(size.id, e.target.value)}
                           placeholder="0.00"
-                          className="w-full rounded border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-gray-800 focus:border-brand-primary focus:outline-none"
+                          className="w-full rounded-sm border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-gray-600 focus:border-brand-primary focus:outline-none"
                         />
                       </div>
 
                       <button
                         type="button"
                         onClick={() => handleSetDefaultPortionSize(size.id)}
-                        className={`px-2 py-1 rounded text-[10px] font-bold transition cursor-pointer shrink-0 ${
+                        className={`px-2 py-1 rounded-sm text-[10px] font-bold transition cursor-pointer shrink-0 ${
                           size.isDefault
                             ? "bg-brand-primary text-white shadow-2xs"
                             : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -758,7 +758,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                         <button
                           type="button"
                           onClick={() => handleRemovePortionSize(size.id)}
-                          className="p-1 rounded text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
+                          className="p-1 rounded-sm text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
                           title="Remove size"
                         >
                           <Trash2 size={13} />
@@ -770,7 +770,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                       <button
                         type="button"
                         onClick={() => handleRemovePortionSize(size.id)}
-                        className="p-1 rounded text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
+                        className="p-1 rounded-sm text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
                         title="Remove size"
                       >
                         <Trash2 size={13} />
@@ -783,8 +783,8 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           </div>
 
           {/* Add Custom Portion Size */}
-          <div className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-lg space-y-2">
-            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+          <div className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-sm space-y-2">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide">
               Add Custom Size (e.g. Medium, Half Pack, Family Pack)
             </label>
             <div className="flex items-center gap-2">
@@ -793,19 +793,19 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 placeholder="Size Name (e.g. Medium / 1 Litre / Family Pack)"
                 value={newCustomSizeName}
                 onChange={(e) => setNewCustomSizeName(e.target.value)}
-                className="flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium focus:border-brand-primary focus:outline-none"
+                className="flex-1 rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium focus:border-brand-primary focus:outline-none"
               />
               <input
                 type="number"
                 placeholder="Price (৳)"
                 value={newCustomSizePrice}
                 onChange={(e) => setNewCustomSizePrice(e.target.value)}
-                className="w-32 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium focus:border-brand-primary focus:outline-none"
+                className="w-32 rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium focus:border-brand-primary focus:outline-none"
               />
               <button
                 type="button"
                 onClick={handleAddCustomSize}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-brand-primary text-white text-xs font-bold hover:opacity-90 transition cursor-pointer shrink-0"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-sm bg-brand-primary text-white text-xs font-bold hover:opacity-90 transition cursor-pointer shrink-0"
               >
                 <Plus size={14} /> Add Size
               </button>
@@ -817,7 +817,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
       {/* TAB 2: Add-ons & Modifiers Setup */}
       {activeTab === "ADDONS" && (
         <div className="space-y-4 animate-in fade-in-50 duration-200">
-          <div className="p-3 bg-brand-50/60 border border-slate-200 rounded-md flex items-start gap-2">
+          <div className="p-3 bg-brand-50/60 border border-slate-200 rounded-sm flex items-start gap-2">
             <Info size={16} className="text-brand-primary shrink-0 mt-0.5" />
             <div className="text-[11px] text-brand-dark">
               <span className="font-bold">Add-on Products & Extras:</span> Customers can customize this dish at POS by adding extra toppings, side dips, extra cheese, or portion upgrades with specific extra pricing.
@@ -825,8 +825,8 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           </div>
 
           {/* Add Add-on Form */}
-          <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3 space-y-2">
-            <div className="text-xs font-bold text-gray-700 uppercase tracking-wide">
+          <div className="rounded-sm border border-slate-200 bg-slate-50/70 p-3 space-y-2">
+            <div className="text-xs font-bold text-gray-600 uppercase tracking-wide">
               + Add New Extra Add-on / Modifier
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
@@ -854,7 +854,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <button
                   type="button"
                   onClick={handleAddAddon}
-                  className="w-full h-full py-2 bg-brand-primary hover:opacity-90 text-white rounded-md text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer transition"
+                  className="w-full h-full py-2 bg-brand-primary hover:opacity-90 text-white rounded-sm text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer transition"
                 >
                   <Plus size={14} /> Add
                 </button>
@@ -879,7 +879,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                     setNewAddonName(item.name);
                     setNewAddonPrice(item.price);
                   }}
-                  className="text-[10px] bg-white border border-slate-200 hover:border-brand-border px-2 py-0.5 rounded text-slate-700 transition cursor-pointer"
+                  className="text-[10px] bg-white border border-slate-200 hover:border-brand-border px-2 py-0.5 rounded-sm text-gray-600 transition cursor-pointer"
                 >
                   + {item.name} (৳{item.price})
                 </button>
@@ -889,12 +889,12 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
 
           {/* Active Add-ons List */}
           <div className="space-y-2">
-            <div className="text-xs font-bold text-gray-700 uppercase tracking-wide flex items-center justify-between">
+            <div className="text-xs font-bold text-gray-600 uppercase tracking-wide flex items-center justify-between">
               <span>Configured Add-ons ({(formData.addons || []).length})</span>
             </div>
 
             {(!formData.addons || formData.addons.length === 0) ? (
-              <div className="text-center py-6 border border-dashed border-slate-200 rounded-md bg-slate-50/50">
+              <div className="text-center py-6 border border-dashed border-slate-200 rounded-sm bg-slate-50/50">
                 <Sparkles className="mx-auto h-6 w-6 text-slate-300 mb-1" />
                 <p className="text-xs font-semibold text-slate-500">No add-ons added yet</p>
                 <p className="text-[11px] text-slate-400">Use the form above to add extra toppings or options.</p>
@@ -904,14 +904,14 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 {formData.addons.map((addon) => (
                   <div
                     key={addon.id}
-                    className="flex items-center justify-between p-2.5 rounded-md border border-slate-200 bg-white hover:border-brand-border transition shadow-2xs"
+                    className="flex items-center justify-between p-2.5 rounded-sm border border-slate-200 bg-white hover:border-brand-border transition shadow-2xs"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-md bg-brand-50 text-brand-dark">
+                      <div className="p-1.5 rounded-sm bg-brand-50 text-brand-dark">
                         <Sparkles size={13} />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-gray-800">{addon.name}</div>
+                        <div className="text-xs font-bold text-gray-600">{addon.name}</div>
                         <div className="text-[11px] font-semibold text-brand-primary">
                           +৳{parseFloat(addon.price || "0").toFixed(2)}
                         </div>
@@ -921,7 +921,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                       <button
                         type="button"
                         onClick={() => handleToggleAddonAvailable(addon.id)}
-                        className={`text-[10px] px-2 py-0.5 rounded font-semibold cursor-pointer ${
+                        className={`text-[10px] px-2 py-0.5 rounded-sm font-semibold cursor-pointer ${
                           addon.isAvailable !== false
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : "bg-slate-100 text-slate-500"
@@ -949,7 +949,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
       {/* TAB 3: Related / Upsell Products */}
       {activeTab === "RELATED" && (
         <div className="space-y-4 animate-in fade-in-50 duration-200">
-          <div className="p-3 bg-amber-50/60 border border-amber-100 rounded-md flex items-start gap-2">
+          <div className="p-3 bg-amber-50/60 border border-amber-100 rounded-sm flex items-start gap-2">
             <Info size={16} className="text-amber-600 shrink-0 mt-0.5" />
             <div className="text-[11px] text-amber-800">
               <span className="font-bold">Cross-Sell & Upsell Suggestions:</span> When a cashier adds this product to cart at POS, the system will prompt suggestions (e.g. &quot;Would you like French Fries or a Soft Drink with this?&quot;).
@@ -957,8 +957,8 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           </div>
 
           {/* Add Related Item Form */}
-          <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3 space-y-2">
-            <div className="text-xs font-bold text-gray-700 uppercase tracking-wide">
+          <div className="rounded-sm border border-slate-200 bg-slate-50/70 p-3 space-y-2">
+            <div className="text-xs font-bold text-gray-600 uppercase tracking-wide">
               + Link Suggested / Related Product
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
@@ -995,7 +995,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 <button
                   type="button"
                   onClick={handleAddRelated}
-                  className="w-full h-full py-2 bg-brand-primary hover:opacity-90 text-white rounded-md text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer transition"
+                  className="w-full h-full py-2 bg-brand-primary hover:opacity-90 text-white rounded-sm text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer transition"
                 >
                   <Plus size={14} /> Link
                 </button>
@@ -1020,7 +1020,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                     setNewRelatedPrice(item.price);
                     setNewRelatedCat(item.cat);
                   }}
-                  className="text-[10px] bg-white border border-slate-200 hover:border-brand-border px-2 py-0.5 rounded text-slate-700 transition cursor-pointer"
+                  className="text-[10px] bg-white border border-slate-200 hover:border-brand-border px-2 py-0.5 rounded-sm text-gray-600 transition cursor-pointer"
                 >
                   + {item.name} (৳{item.price})
                 </button>
@@ -1030,12 +1030,12 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
 
           {/* Active Related Items */}
           <div className="space-y-2">
-            <div className="text-xs font-bold text-gray-700 uppercase tracking-wide">
+            <div className="text-xs font-bold text-gray-600 uppercase tracking-wide">
               Linked Upsell Items ({(formData.relatedProducts || []).length})
             </div>
 
             {(!formData.relatedProducts || formData.relatedProducts.length === 0) ? (
-              <div className="text-center py-6 border border-dashed border-slate-200 rounded-md bg-slate-50/50">
+              <div className="text-center py-6 border border-dashed border-slate-200 rounded-sm bg-slate-50/50">
                 <Share2 className="mx-auto h-6 w-6 text-slate-300 mb-1" />
                 <p className="text-xs font-semibold text-slate-500">No related products linked yet</p>
                 <p className="text-[11px] text-slate-400">Add complementary side dishes, drinks, or desserts to boost sales.</p>
@@ -1045,14 +1045,14 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 {formData.relatedProducts.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between p-2.5 rounded-md border border-slate-200 bg-white shadow-2xs"
+                    className="flex items-center justify-between p-2.5 rounded-sm border border-slate-200 bg-white shadow-2xs"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-md bg-amber-50 text-amber-700">
+                      <div className="p-1.5 rounded-sm bg-amber-50 text-amber-700">
                         <Tag size={13} />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-gray-800">{item.name}</div>
+                        <div className="text-xs font-bold text-gray-600">{item.name}</div>
                         <div className="text-[10px] text-slate-400">
                           {item.category || "Sides"} • <span className="text-brand-primary font-semibold">৳{item.price || "0"}</span>
                         </div>
@@ -1077,9 +1077,9 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
       {/* TAB 4: Recipe & BOM (Bill of Materials) */}
       {activeTab === "RECIPE" && (
         <div className="space-y-4 animate-in fade-in-50 duration-200">
-          <div className="p-3 bg-slate-50 border border-slate-200 rounded-md space-y-2">
+          <div className="p-3 bg-slate-50 border border-slate-200 rounded-sm space-y-2">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600 uppercase tracking-wider">
                 <Layers size={14} className="text-brand-primary" />
                 Automated Kitchen Recipe BOM Deduction
               </div>
@@ -1098,8 +1098,8 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           {formData.hasRecipeBom && (
             <div className="space-y-3">
               {/* Add Ingredient Row */}
-              <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3 space-y-2">
-                <div className="text-xs font-bold text-gray-700 uppercase tracking-wide">
+              <div className="rounded-sm border border-slate-200 bg-slate-50/70 p-3 space-y-2">
+                <div className="text-xs font-bold text-gray-600 uppercase tracking-wide">
                   + Add Recipe Raw Ingredient
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
@@ -1152,7 +1152,7 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                     <button
                       type="button"
                       onClick={handleAddRecipeIngredient}
-                      className="w-full h-full py-2 bg-brand-primary hover:opacity-90 text-white rounded-md text-xs font-semibold flex items-center justify-center cursor-pointer transition"
+                      className="w-full h-full py-2 bg-brand-primary hover:opacity-90 text-white rounded-sm text-xs font-semibold flex items-center justify-center cursor-pointer transition"
                       title="Add Ingredient"
                     >
                       <Plus size={14} />
@@ -1163,13 +1163,13 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
 
               {/* Recipe Table */}
               {(!formData.recipeBom || formData.recipeBom.length === 0) ? (
-                <div className="text-center py-6 border border-dashed border-slate-200 rounded-md bg-slate-50/50">
+                <div className="text-center py-6 border border-dashed border-slate-200 rounded-sm bg-slate-50/50">
                   <ChefHat className="mx-auto h-6 w-6 text-slate-300 mb-1" />
                   <p className="text-xs font-semibold text-slate-500">No ingredients linked yet</p>
                   <p className="text-[11px] text-slate-400">Add the ingredients required to prepare 1 serving of this dish.</p>
                 </div>
               ) : (
-                <div className="rounded-md border border-slate-200 overflow-hidden">
+                <div className="rounded-sm border border-slate-200 overflow-hidden">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px]">
                       <tr>
@@ -1186,11 +1186,11 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                         const subtotal = (parseFloat(item.quantity) || 0) * (parseFloat(item.unitCost) || 0);
                         return (
                           <tr key={item.id} className="hover:bg-slate-50/50">
-                            <td className="px-3 py-2 font-bold text-gray-800">{item.ingredientName}</td>
+                            <td className="px-3 py-2 font-bold text-gray-600">{item.ingredientName}</td>
                             <td className="px-3 py-2 text-center font-mono font-semibold text-brand-dark">{item.quantity}</td>
                             <td className="px-3 py-2 text-center text-slate-500 capitalize">{item.unit}</td>
                             <td className="px-3 py-2 text-right text-slate-600">৳{parseFloat(item.unitCost || "0").toFixed(2)}</td>
-                            <td className="px-3 py-2 text-right font-bold text-gray-800">৳{subtotal.toFixed(2)}</td>
+                            <td className="px-3 py-2 text-right font-bold text-gray-600">৳{subtotal.toFixed(2)}</td>
                             <td className="px-3 py-2 text-center">
                               <button
                                 type="button"

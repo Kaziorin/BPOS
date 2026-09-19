@@ -111,9 +111,9 @@ const STATUS_CONFIG: Record<
   },
   CONFIRMED: {
     label: "Confirmed",
-    bg: "bg-teal-50 border-teal-200",
-    text: "text-teal-700",
-    dot: "bg-teal-500",
+    bg: "bg-brand-50 border-brand-border",
+    text: "text-brand-dark",
+    dot: "bg-brand-primary",
     icon: CalendarCheck,
   },
   CHECKED_IN: {
@@ -181,7 +181,7 @@ function StatusPill({ status }: { status: string }) {
   const cfg = STATUS_CONFIG[status] || {
     label: status,
     bg: "bg-slate-50 border-slate-200",
-    text: "text-slate-700",
+    text: "text-gray-600",
     dot: "bg-slate-400",
     icon: Calendar,
   };
@@ -733,7 +733,7 @@ export default function AppointmentsPage() {
                         setSelectedAppt(row);
                         setShowDetailModal(true);
                       }}
-                      className="font-mono text-xs font-bold text-gray-700 hover:text-brand-primary transition text-left cursor-pointer"
+                      className="font-mono text-xs font-bold text-gray-600 hover:text-brand-primary transition text-left cursor-pointer"
                       title="Click to view booking"
                     >
                       {row.appointmentNo}
@@ -752,7 +752,7 @@ export default function AppointmentsPage() {
                       {(row.customerName || "W")[0].toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-gray-700 text-xs truncate">
+                      <p className="font-bold text-gray-600 text-xs truncate">
                         {row.customerName || "Walk-in Guest"}
                       </p>
                       <p className="text-[11px] text-gray-500 font-mono mt-0.5 flex items-center gap-1">
@@ -774,7 +774,7 @@ export default function AppointmentsPage() {
                 header: "Service & Staff",
                 render: (row) => (
                   <div className="space-y-1">
-                    <p className="text-xs font-bold text-gray-700 truncate">
+                    <p className="text-xs font-bold text-gray-600 truncate">
                       {row.serviceName || "General Service"}
                     </p>
                     <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -811,7 +811,7 @@ export default function AppointmentsPage() {
 
                   return (
                     <div className="space-y-0.5">
-                      <p className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+                      <p className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
                         <Calendar size={12} className="text-brand-primary" />
                         {formatted}
                       </p>
@@ -1004,7 +1004,7 @@ export default function AppointmentsPage() {
                     <div className="bg-brand-50/50 border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Calendar size={14} className="text-brand-primary" />
-                        <span className="text-xs font-bold text-slate-800">
+                        <span className="text-xs font-bold text-gray-600">
                           {formattedHeading}
                         </span>
                       </div>
@@ -1025,11 +1025,11 @@ export default function AppointmentsPage() {
                             </div>
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-semibold text-slate-900 text-xs">
+                                <span className="font-semibold text-gray-600 text-xs">
                                   {appt.customerName || "Walk-in Guest"}
                                 </span>
                                 <span className="text-slate-300">•</span>
-                                <span className="text-xs font-medium text-slate-700">
+                                <span className="text-xs font-medium text-gray-600">
                                   {appt.serviceName || "Service"}
                                 </span>
                                 <TypeBadge type={appt.appointmentType} />
@@ -1041,7 +1041,7 @@ export default function AppointmentsPage() {
                                 <span>•</span>
                                 <span>Duration: {appt.durationMin}m</span>
                                 <span>•</span>
-                                <span className="font-bold text-slate-700">
+                                <span className="font-bold text-gray-600">
                                   {money(Number(appt.price) || 0)}
                                 </span>
                               </div>
@@ -1244,14 +1244,14 @@ export default function AppointmentsPage() {
                       {svc.durationMin} mins
                     </span>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-sm mb-1">{svc.name}</h3>
+                  <h3 className="font-bold text-gray-600 text-sm mb-1">{svc.name}</h3>
                   <p className="text-xs text-slate-500 line-clamp-2">
                     {svc.description || "Professional service performed by licensed technicians and specialists."}
                   </p>
                 </div>
 
                 <div className="pt-3 mt-3 border-t border-slate-200 flex items-center justify-between">
-                  <span className="text-sm font-extrabold text-slate-900 [font-variant-numeric:tabular-nums]">
+                  <span className="text-sm font-extrabold text-gray-600 [font-variant-numeric:tabular-nums]">
                     {money(Number(svc.price) || 0)}
                   </span>
                   <CustomButton
@@ -1480,7 +1480,7 @@ export default function AppointmentsPage() {
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
                   <span className="text-slate-400">Customer</span>
-                  <p className="font-bold text-slate-800 text-xs mt-0.5">
+                  <p className="font-bold text-gray-600 text-xs mt-0.5">
                     {selectedAppt.customerName || "Walk-in Guest"}
                   </p>
                   {selectedAppt.customerPhone && (
@@ -1490,14 +1490,14 @@ export default function AppointmentsPage() {
 
                 <div>
                   <span className="text-slate-400">Assigned Staff</span>
-                  <p className="font-bold text-slate-800 text-xs mt-0.5">
+                  <p className="font-bold text-gray-600 text-xs mt-0.5">
                     {selectedAppt.staffName || "Unassigned"}
                   </p>
                 </div>
 
                 <div>
                   <span className="text-slate-400">Scheduled Time</span>
-                  <p className="font-semibold text-slate-800 mt-0.5 text-xs">
+                  <p className="font-semibold text-gray-600 mt-0.5 text-xs">
                     {dateTime(selectedAppt.startAt)}
                   </p>
                   <span className="text-slate-400 text-[11px]">
@@ -1516,7 +1516,7 @@ export default function AppointmentsPage() {
               {selectedAppt.notes && (
                 <div className="pt-2 border-t border-slate-200 text-xs">
                   <span className="text-slate-400">Notes & Instructions:</span>
-                  <p className="text-slate-700 mt-0.5 bg-brand-50/50 p-2 rounded-sm border border-slate-200 text-xs">
+                  <p className="text-gray-600 mt-0.5 bg-brand-50/50 p-2 rounded-sm border border-slate-200 text-xs">
                     {selectedAppt.notes}
                   </p>
                 </div>

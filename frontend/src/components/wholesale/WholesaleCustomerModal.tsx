@@ -93,7 +93,7 @@ export function WholesaleCustomerModal({
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
                   className={cn(
-                    "flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200",
+                    "flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm text-sm font-bold transition-all duration-200",
                     isActive
                       ? "bg-primary-600 text-white shadow-md shadow-primary-600/20"
                       : darkMode
@@ -117,7 +117,7 @@ export function WholesaleCustomerModal({
               onChange={(e) => setSearchTerm(e.target.value)}
               leftIcon={<Search size={18} />}
               darkMode={darkMode}
-              className="!h-11 !rounded-xl"
+              className="!h-11 !rounded-sm"
             />
 
             <div className="max-h-[380px] overflow-y-auto space-y-2.5 pr-1 custom-scrollbar">
@@ -147,13 +147,13 @@ export function WholesaleCustomerModal({
                   >
                     <div className="flex items-center gap-4">
                       <div className={cn(
-                        "w-11 h-11 rounded-xl flex items-center justify-center font-black text-sm transition-colors",
+                        "w-11 h-11 rounded-sm flex items-center justify-center font-black text-sm transition-colors",
                         darkMode ? "bg-slate-900 text-primary-400" : "bg-primary-50 text-primary-600"
                       )}>
                         {c.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h4 className={cn("text-[14px] font-bold", darkMode ? "text-slate-100" : "text-slate-900")}>
+                        <h4 className={cn("text-[14px] font-bold", darkMode ? "text-slate-100" : "text-gray-600")}>
                           {c.name}
                         </h4>
                         <div className="flex items-center gap-3 mt-1">
@@ -162,7 +162,7 @@ export function WholesaleCustomerModal({
                           </span>
                           {c.tier && (
                             <span className={cn(
-                              "px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter",
+                              "px-2 py-0.5 rounded-sm text-[9px] font-black uppercase tracking-tighter",
                               darkMode ? "bg-primary-500/10 text-primary-400" : "bg-primary-50 text-primary-600"
                             )}>
                               {c.tier}
@@ -172,7 +172,7 @@ export function WholesaleCustomerModal({
                       </div>
                     </div>
                     <div className={cn(
-                      "px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity",
+                      "px-3 py-1.5 rounded-sm text-[11px] font-black uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity",
                       darkMode ? "bg-primary-500/20 text-primary-300" : "bg-primary-600 text-white"
                     )}>
                       Select
@@ -230,7 +230,7 @@ export function WholesaleCustomerModal({
                 variant="ghost"
                 onClick={onClose}
                 darkMode={darkMode}
-                className="!rounded-xl px-6 font-bold"
+                className="!rounded-sm px-6 font-bold"
               >
                 Cancel
               </CustomButton>
@@ -238,7 +238,7 @@ export function WholesaleCustomerModal({
                 type="submit"
                 themeColor="primary"
                 darkMode={darkMode}
-                className="!rounded-xl px-8 !h-11 shadow-lg shadow-primary-600/20 font-black uppercase tracking-wide"
+                className="!rounded-sm px-8 !h-11 shadow-lg shadow-primary-600/20 font-black uppercase tracking-wide"
               >
                 Register & Select
               </CustomButton>

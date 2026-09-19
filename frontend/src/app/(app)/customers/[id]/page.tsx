@@ -165,7 +165,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
   };
 
   const inputClass =
-    "w-full rounded-sm border border-brand-border bg-white px-3.5 py-2 text-xs font-bold text-gray-700 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border shadow-2xs";
+    "w-full rounded-sm border border-brand-border bg-white px-3.5 py-2 text-xs font-bold text-gray-600 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border shadow-2xs";
   const labelClass = "block text-xs font-semibold text-brand-dark mb-1.5";
 
   const tabs = [
@@ -243,7 +243,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl font-black text-gray-700 tracking-tight">{customer.name}</h1>
+                <h1 className="text-xl font-black text-gray-600 tracking-tight">{customer.name}</h1>
                 <span className={`inline-flex items-center gap-1 rounded-sm border px-2.5 py-1 text-xs font-bold ${seg.bg}`}>
                   <Award size={12} />
                   {seg.label}
@@ -256,7 +256,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                 </span>
               </div>
               <p className="text-xs text-gray-500 font-medium mt-1">
-                Group: <span className="font-bold text-gray-700">{customer.group?.name || "General"}</span> &bull; Customer since <span className="font-bold text-gray-700">{customer.createdAt ? new Date(customer.createdAt).toLocaleDateString() : "—"}</span>
+                Group: <span className="font-bold text-gray-600">{customer.group?.name || "General"}</span> &bull; Customer since <span className="font-bold text-gray-600">{customer.createdAt ? new Date(customer.createdAt).toLocaleDateString() : "—"}</span>
               </p>
             </div>
           </div>
@@ -374,9 +374,9 @@ export default function CustomerDetailPage({ params }: PageProps) {
                       placeholder="Enter customer name"
                     />
                   ) : (
-                    <div className="flex items-center gap-2.5 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 shadow-2xs min-h-[38px]">
+                    <div className="flex items-center gap-2.5 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-600 shadow-2xs min-h-[38px]">
                       <User size={14} className="text-brand-primary shrink-0" />
-                      <span className="text-sm font-black text-gray-700">{customer.name}</span>
+                      <span className="text-sm font-black text-gray-600">{customer.name}</span>
                     </div>
                   )}
                 </div>
@@ -397,7 +397,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                         <div className="flex items-center gap-2 min-w-0">
                           <Phone size={14} className="text-brand-primary shrink-0" />
                           {customer.phone ? (
-                            <span className="font-bold text-gray-700 tabular-nums">{customer.phone}</span>
+                            <span className="font-bold text-gray-600 tabular-nums">{customer.phone}</span>
                           ) : (
                             <span className="text-gray-400 font-normal italic">Not provided</span>
                           )}
@@ -430,7 +430,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                       <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
                         <Mail size={14} className="text-brand-primary shrink-0" />
                         {customer.email ? (
-                          <span className="font-bold text-gray-700 truncate">{customer.email}</span>
+                          <span className="font-bold text-gray-600 truncate">{customer.email}</span>
                         ) : (
                           <span className="text-gray-400 font-normal italic">Not provided</span>
                         )}
@@ -454,7 +454,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                       <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
                         <Building size={14} className="text-brand-primary shrink-0" />
                         {customer.city ? (
-                          <span className="font-bold text-gray-700">{customer.city}</span>
+                          <span className="font-bold text-gray-600">{customer.city}</span>
                         ) : (
                           <span className="text-gray-400 font-normal italic">Not specified</span>
                         )}
@@ -476,7 +476,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                       <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
                         <FileText size={14} className="text-brand-primary shrink-0" />
                         {customer.taxRegNo ? (
-                          <span className="font-bold text-gray-700 font-mono">{customer.taxRegNo}</span>
+                          <span className="font-bold text-gray-600 font-mono">{customer.taxRegNo}</span>
                         ) : (
                           <span className="text-gray-400 font-normal italic">None</span>
                         )}
@@ -499,7 +499,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                     <div className="flex items-start gap-2.5 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2.5 text-xs shadow-2xs min-h-[50px]">
                       <MapPin size={14} className="text-brand-primary shrink-0 mt-0.5" />
                       {customer.address ? (
-                        <span className="font-bold text-gray-700 leading-relaxed">{customer.address}</span>
+                        <span className="font-bold text-gray-600 leading-relaxed">{customer.address}</span>
                       ) : (
                         <span className="text-gray-400 font-normal italic">No street address on file</span>
                       )}
@@ -588,7 +588,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                     ) : (
                       <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
                         <CreditCard size={14} className="text-brand-primary shrink-0" />
-                        <span className="font-black text-gray-700 tabular-nums">৳{Number(customer.creditLimit || 0).toLocaleString()}</span>
+                        <span className="font-black text-gray-600 tabular-nums">৳{Number(customer.creditLimit || 0).toLocaleString()}</span>
                       </div>
                     )}
                   </div>
@@ -607,7 +607,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                       <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-slate-50 px-3.5 py-2 text-xs shadow-2xs min-h-[38px]">
                         <Clock size={14} className="text-brand-primary shrink-0" />
                         {customer.creditPeriodDays ? (
-                          <span className="font-bold text-gray-700 tabular-nums">{customer.creditPeriodDays} Days</span>
+                          <span className="font-bold text-gray-600 tabular-nums">{customer.creditPeriodDays} Days</span>
                         ) : (
                           <span className="text-gray-400 font-normal italic">No grace period set</span>
                         )}
@@ -630,7 +630,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                     <div className="flex items-start gap-2.5 rounded-sm border border-brand-border bg-slate-50 p-3.5 text-xs shadow-2xs min-h-[70px]">
                       <FileText size={15} className="text-brand-primary shrink-0 mt-0.5" />
                       {customer.notes ? (
-                        <p className="font-semibold text-gray-700 leading-relaxed whitespace-pre-wrap">{customer.notes}</p>
+                        <p className="font-semibold text-gray-600 leading-relaxed whitespace-pre-wrap">{customer.notes}</p>
                       ) : (
                         <span className="text-gray-400 font-normal italic">No internal notes on record.</span>
                       )}
@@ -677,7 +677,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="font-black text-gray-700 text-sm tabular-nums">৳{Number(sale.total).toLocaleString()}</p>
+                        <p className="font-black text-gray-600 text-sm tabular-nums">৳{Number(sale.total).toLocaleString()}</p>
                         <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-sm border border-emerald-300">
                           {sale.status}
                         </span>
@@ -721,7 +721,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                 placeholder="Log customer contact or reminder..."
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
-                className="w-full rounded-sm border border-brand-border p-3 text-xs font-medium text-gray-700 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border shadow-2xs"
+                className="w-full rounded-sm border border-brand-border p-3 text-xs font-medium text-gray-600 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border shadow-2xs"
               />
               <div className="flex justify-end">
                 <CustomButton
@@ -740,7 +740,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
               {customer.customerNotes && customer.customerNotes.length > 0 ? (
                 customer.customerNotes.map((note: any) => (
                   <div key={note.id} className="rounded-sm border border-brand-border bg-slate-50 p-3.5 text-xs space-y-1.5 shadow-2xs">
-                    <p className="text-gray-700 font-bold leading-relaxed">{note.note}</p>
+                    <p className="text-gray-600 font-bold leading-relaxed">{note.note}</p>
                     <p className="text-[11px] text-gray-400 font-medium flex items-center gap-1 pt-0.5">
                       <Clock size={11} className="text-brand-primary" /> {note.createdAt ? new Date(note.createdAt).toLocaleString() : "Just now"}
                     </p>
@@ -823,7 +823,7 @@ export default function CustomerDetailPage({ params }: PageProps) {
                 customer.complaints.map((c: any) => (
                   <div key={c.id} className="rounded-sm border border-slate-200 bg-white p-3.5 space-y-2 text-xs shadow-2xs">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-bold text-gray-700">{c.subject}</h4>
+                      <h4 className="font-bold text-gray-600">{c.subject}</h4>
                       <span className={`rounded-sm px-2 py-0.5 text-[10px] font-bold border ${
                         c.priority === "URGENT"
                           ? "bg-rose-100 text-rose-700 border-rose-300"

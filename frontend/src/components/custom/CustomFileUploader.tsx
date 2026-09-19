@@ -90,7 +90,7 @@ export function CustomFileUploader({
               key={`${file.name}-${i}`}
               className="flex items-center justify-between rounded-sm border border-brand-border bg-white px-3 py-2 text-xs"
             >
-              <span className="flex items-center gap-2 truncate text-slate-700">
+              <span className="flex items-center gap-2 truncate text-gray-600">
                 <FileText size={14} className="shrink-0 text-brand-primary" />
                 <span className="truncate">{file.name}</span>
               </span>

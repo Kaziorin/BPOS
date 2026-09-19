@@ -124,7 +124,7 @@ export function WholesaleCheckoutModal({
 
   if (!open) return null;
 
-  const textPrimary = darkMode ? "text-slate-100" : "text-slate-900";
+  const textPrimary = darkMode ? "text-slate-100" : "text-gray-600";
   const textSub = darkMode ? "text-slate-400" : "text-slate-500";
   const cardBg = darkMode ? "bg-slate-800/60 border-slate-700" : "bg-slate-50/50 border-slate-200";
 
@@ -250,12 +250,12 @@ export function WholesaleCheckoutModal({
                   placeholder="0.00"
                   className={cn(
                     "w-full rounded-sm border pl-10 pr-5 py-4 text-[28px] font-black text-right tabular-nums focus:outline-none focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 transition-all",
-                    darkMode ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-800" : "bg-white border-slate-200 text-slate-900 placeholder-slate-100",
+                    darkMode ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-800" : "bg-white border-slate-200 text-gray-600 placeholder-slate-100",
                     isExact ? "border-emerald-400 focus:ring-emerald-600/10" : ""
                   )}
                 />
                 {isExact && (
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 shadow-sm animate-in zoom-in-50">
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-sm border border-emerald-200 shadow-sm animate-in zoom-in-50">
                     MATCHED
                   </span>
                 )}
@@ -268,10 +268,10 @@ export function WholesaleCheckoutModal({
                     type="button"
                     onClick={() => addDenom(d)}
                     className={cn(
-                      "rounded-xl border py-3 text-[12px] font-black transition-all active:scale-95 shadow-sm",
+                      "rounded-sm border py-3 text-[12px] font-black transition-all active:scale-95 shadow-sm",
                       darkMode
                         ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
-                        : "border-slate-100 bg-white text-slate-700 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+                        : "border-slate-100 bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
                     )}
                   >
                     +৳{d >= 1000 ? `${d / 1000}k` : d}
@@ -328,7 +328,7 @@ export function WholesaleCheckoutModal({
                   placeholder="0.00"
                   className={cn(
                     "w-full rounded-sm border pl-10 pr-5 py-4 text-[28px] font-black text-right tabular-nums focus:outline-none focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 transition-all",
-                    darkMode ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-800" : "bg-white border-slate-200 text-slate-900 placeholder-slate-100",
+                    darkMode ? "bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-800" : "bg-white border-slate-200 text-gray-600 placeholder-slate-100",
                   )}
                 />
               </div>
@@ -363,7 +363,7 @@ export function WholesaleCheckoutModal({
               "flex items-center gap-4 rounded-sm border px-5 py-4 shadow-sm",
               darkMode ? "border-blue-900/30 bg-blue-950/20" : "border-blue-100 bg-blue-50/30"
             )}>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-600/20">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-blue-600 text-white shadow-md shadow-blue-600/20">
                 <CheckCircle2 size={20} strokeWidth={2.5} />
               </div>
               <div>
@@ -384,7 +384,7 @@ export function WholesaleCheckoutModal({
           )}>
             <div className="flex items-center gap-4">
               <div className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-xl",
+                "flex h-9 w-9 items-center justify-center rounded-sm",
                 darkMode ? "bg-slate-700 text-slate-300" : "bg-slate-50 text-slate-600"
               )}>
                 <Printer size={18} />
@@ -426,7 +426,7 @@ export function WholesaleCheckoutModal({
               "rounded-sm border px-6 py-3.5 text-[14px] font-black transition-all active:scale-95",
               darkMode
                 ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
-                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-gray-600"
             )}
           >
             CANCEL

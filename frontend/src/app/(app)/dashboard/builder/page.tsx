@@ -164,9 +164,9 @@ function WidgetCard({
                 ].map((row, i) => (
                   <div
                     key={i}
-                    className="flex justify-between items-center p-2 bg-brand-50/40 rounded-sm border border-slate-200 text-slate-700"
+                    className="flex justify-between items-center p-2 bg-brand-50/40 rounded-sm border border-slate-200 text-gray-600"
                   >
-                    <span className="font-medium text-slate-700">{row.name}</span>
+                    <span className="font-medium text-gray-600">{row.name}</span>
                     <span className="font-bold text-brand-dark">{row.val}</span>
                   </div>
                 ))}
@@ -196,7 +196,7 @@ function WidgetCard({
                   >
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
-                      <span className="font-medium text-slate-700">{item.title}</span>
+                      <span className="font-medium text-gray-600">{item.title}</span>
                     </div>
                     <span className="text-[10px] text-slate-400">{item.time}</span>
                   </div>
@@ -550,7 +550,7 @@ export default function DashboardBuilderPage() {
                       <WIcon className="w-4 h-4" />
                     </div>
                     <span className={`text-[10px] font-bold text-center line-clamp-1 ${
-                      isSelected ? "text-brand-dark" : "text-slate-700"
+                      isSelected ? "text-brand-dark" : "text-gray-600"
                     }`}>
                       {wt.label}
                     </span>

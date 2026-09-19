@@ -124,7 +124,7 @@ export default function SelfCheckoutPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <div className="rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-sm text-primary-700 font-medium">
+      <div className="rounded-sm border border-primary-200 bg-primary-50 px-4 py-3 text-sm text-primary-700 font-medium">
         Self Checkout — Scan your items and pay
       </div>
 
@@ -144,9 +144,9 @@ export default function SelfCheckoutPage() {
             <button
               key={p.id}
               onClick={() => addProduct(p)}
-              className="rounded-xl border border-gray-100 bg-white p-3 text-left hover:border-primary-300 hover:shadow-sm"
+              className="rounded-sm border border-gray-100 bg-white p-3 text-left hover:border-primary-300 hover:shadow-sm"
             >
-              <p className="text-sm font-medium text-gray-800 line-clamp-2">{p.name}</p>
+              <p className="text-sm font-medium text-gray-600 line-clamp-2">{p.name}</p>
               <p className="mt-1 text-sm font-bold text-primary-600 tabular-nums">
                 {Number(p.sellingPrice).toFixed(2)}
               </p>
@@ -155,8 +155,8 @@ export default function SelfCheckoutPage() {
         </div>
       )}
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+      <div className="rounded-sm border border-gray-200 bg-white p-4 space-y-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-gray-600">
           <ShoppingCart size={15} />
           Your Cart ({cart.length} items)
         </div>
@@ -174,7 +174,7 @@ export default function SelfCheckoutPage() {
           onPriceOverride={() => {}}
         />
 
-        <div className="flex justify-between border-t border-gray-100 pt-2 font-bold text-gray-900">
+        <div className="flex justify-between border-t border-gray-100 pt-2 font-bold text-gray-600">
           <span>Total</span>
           <span className="tabular-nums">{total.toFixed(2)}</span>
         </div>

@@ -14,11 +14,16 @@ import {
   ToggleRight,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { ConfirmModal } from "@/components/custom/ConfirmModal";
-import { CustomTable, CustomTableColumn } from "@/components/custom/CustomTable";
-import { CustomModal } from "@/components/custom/CustomModal";
-import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
-import { CustomButton } from "@/components/custom/CustomButton";
+import {
+  ConfirmModal,
+  CustomTable,
+  type CustomTableColumn,
+  CustomModal,
+  CustomBreadcrumb,
+  CustomButton,
+  CustomInput,
+  CustomDropdownSelect,
+} from "@/components/custom";
 import { toast } from "react-toastify";
 
 interface Brand {
@@ -185,14 +190,14 @@ export default function BrandsPage() {
           ) : b.status === "ACTIVE" ? (
             <>
               <ToggleRight className="h-4.5 w-4.5 text-emerald-600" />
-              <span className="rounded-md bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">
+              <span className="rounded-sm bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 group-hover:bg-emerald-100 transition">
                 Active
               </span>
             </>
           ) : (
             <>
               <ToggleLeft className="h-4.5 w-4.5 text-red-400" />
-              <span className="rounded-md bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 group-hover:bg-red-100 transition">
+              <span className="rounded-sm bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-600 group-hover:bg-red-100 transition">
                 Inactive
               </span>
             </>
@@ -208,14 +213,14 @@ export default function BrandsPage() {
         <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => handleOpenEditModal(b)}
-            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600 transition"
+            className="rounded-sm border border-slate-200 p-1.5 text-slate-600 hover:border-brand-border hover:bg-brand-50 hover:text-brand-primary transition"
             title="Edit Brand"
           >
             <Edit3 className="h-4 w-4" />
           </button>
           <button
             onClick={() => setDeleteId(b.id)}
-            className="rounded-md border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+            className="rounded-sm border border-slate-200 p-1.5 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
             title="Delete Brand"
           >
             <Trash2 className="h-4 w-4" />
@@ -237,7 +242,7 @@ export default function BrandsPage() {
             size="sm"
             leftIcon={<Plus size={14} />}
             onClick={handleOpenAddModal}
-            className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+            className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
           >
             Add New Brand
           </CustomButton>
@@ -246,41 +251,41 @@ export default function BrandsPage() {
 
       {/* Toast Notification */}
       {msg && (
-        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
+        <div className="flex items-center gap-2 rounded-sm border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-600" /> {msg}
         </div>
       )}
 
       {/* Table Container */}
-      <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+      <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-3">
         {/* Search & Status Filter Toolbar */}
         <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2 flex-1 max-w-md">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
-              <input
-                type="text"
+              <CustomInput
+                leftIcon={<Search className="h-3.5 w-3.5 text-slate-400" />}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   setPage(1);
                 }}
                 placeholder="Search brands..."
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
               />
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(1);
-              }}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
-            >
-              <option value="ALL">All Status</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-            </select>
+            <div className="w-36">
+              <CustomDropdownSelect
+                value={statusFilter}
+                onChange={(val) => {
+                  setStatusFilter(val);
+                  setPage(1);
+                }}
+                options={[
+                  { value: "ALL", label: "All Status" },
+                  { value: "ACTIVE", label: "Active" },
+                  { value: "INACTIVE", label: "Inactive" },
+                ]}
+              />
+            </div>
           </div>
 
           <span className="text-xs font-semibold text-slate-500">
@@ -314,20 +319,14 @@ export default function BrandsPage() {
         size="md"
       >
         <form onSubmit={handleSave} className="space-y-4">
-          <div>
-            <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
-              Brand Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={formName}
-              onChange={(e) => setFormName(e.target.value)}
-              placeholder="e.g. Sony, Samsung, Nestlé, Unilever"
-              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-teal-500 focus:outline-none"
-              required
-              autoFocus
-            />
-          </div>
+          <CustomInput
+            label="Brand Name"
+            required
+            autoFocus
+            value={formName}
+            onChange={(e) => setFormName(e.target.value)}
+            placeholder="e.g. Sony, Samsung, Nestlé, Unilever"
+          />
 
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
             <CustomButton
@@ -335,7 +334,7 @@ export default function BrandsPage() {
               variant="outline"
               size="sm"
               onClick={() => setModalOpen(false)}
-              className="rounded-md text-xs"
+              className="rounded-sm text-xs"
             >
               Cancel
             </CustomButton>
@@ -344,7 +343,7 @@ export default function BrandsPage() {
               size="sm"
               loading={saving}
               leftIcon={<Check size={14} />}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs"
             >
               {editingBrand ? "Update Brand" : "Save Brand"}
             </CustomButton>

@@ -82,9 +82,9 @@ const MOVEMENT_CONFIG: Record<
   },
   ADJUSTMENT_IN: {
     label: "Adjustment In",
-    bg: "bg-teal-50 border-teal-200",
-    text: "text-teal-700",
-    dot: "bg-teal-500",
+    bg: "bg-brand-50 border-brand-border",
+    text: "text-brand-dark",
+    dot: "bg-brand-primary",
     isInbound: true,
   },
   ADJUSTMENT_OUT: {
@@ -255,7 +255,7 @@ export default function MovementsPage() {
 
         return (
           <div className="flex flex-col">
-            <span className="font-semibold text-xs text-slate-800 flex items-center gap-1.5">
+            <span className="font-semibold text-xs text-gray-600 flex items-center gap-1.5">
               <Clock size={12} className="text-slate-400 shrink-0" />
               {datePart}
             </span>
@@ -273,7 +273,7 @@ export default function MovementsPage() {
         const cfg = MOVEMENT_CONFIG[r.movementType] || {
           label: r.movementType.replace(/_/g, " "),
           bg: "bg-slate-50 border-slate-200",
-          text: "text-slate-700",
+          text: "text-gray-600",
           dot: "bg-slate-400",
           isInbound: false,
         };
@@ -299,7 +299,7 @@ export default function MovementsPage() {
             <Package size={14} />
           </div>
           <div className="min-w-0">
-            <p className="font-bold text-xs text-slate-900 truncate">
+            <p className="font-bold text-xs text-gray-600 truncate">
               {r.product?.name ?? (r as any).productName ?? "Unknown Product"}
             </p>
             <p className="font-mono text-[11px] text-slate-400 mt-0.5">
@@ -315,7 +315,7 @@ export default function MovementsPage() {
       align: "left",
       width: "14%",
       render: (r) => (
-        <span className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium">
+        <span className="inline-flex items-center gap-1.5 text-xs text-gray-600 font-medium">
           <WarehouseIcon size={13} className="text-brand-primary shrink-0" />
           {r.warehouse?.name ?? (r as any).warehouseName ?? "Main Warehouse"}
         </span>
@@ -349,7 +349,7 @@ export default function MovementsPage() {
         <div className="inline-flex items-center gap-1 font-mono text-xs font-semibold text-slate-600 bg-slate-50 px-2 py-0.5 rounded-sm border border-slate-200">
           <span className="text-slate-500">{Number(r.qtyBefore).toLocaleString()}</span>
           <ArrowRight size={11} className="text-slate-400" />
-          <span className="font-bold text-slate-900">{Number(r.qtyAfter).toLocaleString()}</span>
+          <span className="font-bold text-gray-600">{Number(r.qtyAfter).toLocaleString()}</span>
         </div>
       ),
     },
@@ -364,7 +364,7 @@ export default function MovementsPage() {
 
         return (
           <div className="flex flex-col items-center">
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[10px] font-bold bg-slate-100 text-gray-600 border border-slate-200">
               <FileText size={10} className="text-slate-400" />
               {refLabel} {shortId}
             </span>

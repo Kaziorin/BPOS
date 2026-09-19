@@ -264,7 +264,7 @@ export default function GrnsPage() {
   }
 
   const fmt = (n: number) => `৳${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const inputCls = "mt-1 block w-full rounded-sm border border-slate-200 px-3.5 py-2.5 text-sm bg-white text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition";
+  const inputCls = "mt-1 block w-full rounded-sm border border-slate-200 px-3.5 py-2.5 text-sm bg-white text-gray-600 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition";
 
   // KPIs
   const totalCount = grns.length;
@@ -296,9 +296,9 @@ export default function GrnsPage() {
           <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
             <Link href="/purchasing" className="hover:text-brand-primary transition">Purchasing Hub</Link>
             <ChevronRight size={13} className="text-gray-400" />
-            <span className="text-gray-900 font-bold">Goods Received Notes (GRN)</span>
+            <span className="text-gray-600 font-bold">Goods Received Notes (GRN)</span>
           </div>
-          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">Goods Received (GRN)</h1>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-600 sm:text-3xl">Goods Received (GRN)</h1>
           <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
             Physical stock receiving verification · updates inventory & creates supplier AP invoice (§10.17)
           </p>
@@ -308,7 +308,7 @@ export default function GrnsPage() {
           <button
             onClick={load}
             disabled={loading}
-            className="rounded-sm border border-slate-200 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50"
+            className="rounded-sm border border-slate-200 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600 disabled:opacity-50"
             title="Refresh Data"
           >
             <RefreshCw size={17} className={loading ? "animate-spin text-violet-600" : ""} />
@@ -337,7 +337,7 @@ export default function GrnsPage() {
             className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition whitespace-nowrap ${
               tab.active
                 ? "bg-brand-gradient text-white shadow-2xs"
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-600"
             }`}
           >
             <tab.icon size={15} />
@@ -368,10 +368,10 @@ export default function GrnsPage() {
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-gray-900">{totalCount}</span>
+            <span className="text-2xl font-black text-gray-600">{totalCount}</span>
             <span className="text-xs font-semibold text-gray-500">Receipts</span>
           </div>
-          <p className="mt-1 text-xs text-gray-400 font-medium">From POs: <strong className="text-gray-700">{fromPoCount}</strong></p>
+          <p className="mt-1 text-xs text-gray-400 font-medium">From POs: <strong className="text-gray-600">{fromPoCount}</strong></p>
         </div>
 
         <div className="rounded-sm border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs">
@@ -395,7 +395,7 @@ export default function GrnsPage() {
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-gray-900">{totalUnits}</span>
+            <span className="text-2xl font-black text-gray-600">{totalUnits}</span>
             <span className="text-xs font-semibold text-gray-500">Units</span>
           </div>
           <p className="mt-1 text-xs text-gray-400">Verified & stocked</p>
@@ -453,14 +453,14 @@ export default function GrnsPage() {
         <div className="flex items-center rounded-sm border border-slate-200 bg-gray-50/70 p-1">
           <button
             onClick={() => setViewMode("table")}
-            className={`rounded-sm p-1.5 transition ${viewMode === "table" ? "bg-white text-violet-600 shadow-2xs" : "text-gray-400 hover:text-gray-700"}`}
+            className={`rounded-sm p-1.5 transition ${viewMode === "table" ? "bg-white text-violet-600 shadow-2xs" : "text-gray-400 hover:text-gray-600"}`}
             title="Table View"
           >
             <ListFilter size={16} />
           </button>
           <button
             onClick={() => setViewMode("cards")}
-            className={`rounded-sm p-1.5 transition ${viewMode === "cards" ? "bg-white text-violet-600 shadow-2xs" : "text-gray-400 hover:text-gray-700"}`}
+            className={`rounded-sm p-1.5 transition ${viewMode === "cards" ? "bg-white text-violet-600 shadow-2xs" : "text-gray-400 hover:text-gray-600"}`}
             title="Grid Card View"
           >
             <LayoutGrid size={16} />
@@ -476,7 +476,7 @@ export default function GrnsPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-sm bg-violet-50 text-violet-600">
             <PackageCheck size={32} />
           </div>
-          <h3 className="mt-4 text-lg font-bold text-gray-900">No Goods Received Notes (GRN) Found</h3>
+          <h3 className="mt-4 text-lg font-bold text-gray-600">No Goods Received Notes (GRN) Found</h3>
           <p className="mx-auto mt-1 max-w-md text-sm text-gray-500">
             Receive goods against an approved purchase order or post a direct GRN to increase inventory.
           </p>
@@ -484,7 +484,7 @@ export default function GrnsPage() {
             <button onClick={openDirectModal} className="rounded-sm bg-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-2xs hover:bg-violet-700">
               <Plus size={16} className="mr-1.5 inline" /> Post Direct GRN
             </button>
-            <Link href="/purchasing/orders" className="rounded-sm border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50">
+            <Link href="/purchasing/orders" className="rounded-sm border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50">
               Go to Purchase Orders →
             </Link>
           </div>
@@ -518,34 +518,34 @@ export default function GrnsPage() {
                     <tr key={grn.id} className="hover:bg-gray-50/80 transition group">
                       <td className="py-3.5 px-4 text-center font-bold text-gray-400">{index + 1}</td>
                       <td className="py-3.5 px-4">
-                        <span className="font-mono font-black text-gray-900 group-hover:text-violet-600 transition">{grn.grnNo}</span>
+                        <span className="font-mono font-black text-gray-600 group-hover:text-violet-600 transition">{grn.grnNo}</span>
                         <p className="text-[11px] text-gray-400">{new Date(grn.receivedDate).toLocaleDateString()}</p>
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <p className="font-bold text-gray-900">{grn.supplier?.name || "Direct Vendor"}</p>
+                        <p className="font-bold text-gray-600">{grn.supplier?.name || "Direct Vendor"}</p>
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <span className="inline-flex items-center gap-1 rounded-sm bg-gray-100 border border-slate-200 px-2 py-1 text-[11px] font-semibold text-gray-700">
+                        <span className="inline-flex items-center gap-1 rounded-sm bg-gray-100 border border-slate-200 px-2 py-1 text-[11px] font-semibold text-gray-600">
                           📍 {grn.warehouse?.name || "Warehouse"}
                         </span>
                       </td>
 
                       <td className="py-3.5 px-4">
                         {grn.purchaseOrder ? (
-                          <Link href="/purchasing/orders" className="inline-flex items-center gap-1 rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100">
+                          <Link href="/purchasing/orders" className="inline-flex items-center gap-1 rounded-sm bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100">
                             PO #{grn.purchaseOrder.poNo}
                           </Link>
                         ) : (
-                          <span className="rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
+                          <span className="rounded-sm bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
                             Direct Inward
                           </span>
                         )}
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <p className="font-bold text-gray-800">{totalUnits} units across {items.length} lines</p>
+                        <p className="font-bold text-gray-600">{totalUnits} units across {items.length} lines</p>
                         <div className="mt-0.5 flex flex-wrap gap-1">
                           {items.slice(0, 2).map((it, i) => (
                             <span key={i} className="text-[10px] text-gray-500 truncate max-w-[140px]">
@@ -556,14 +556,14 @@ export default function GrnsPage() {
                         </div>
                       </td>
 
-                      <td className="py-3.5 px-4 text-right font-black tabular-nums text-gray-900 text-sm">
+                      <td className="py-3.5 px-4 text-right font-black tabular-nums text-gray-600 text-sm">
                         {fmt(total)}
                       </td>
 
                       <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={() => setViewGrn(grn)}
-                          className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900"
+                          className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600"
                         >
                           <Eye size={13} /> View Slip
                         </button>
@@ -591,17 +591,17 @@ export default function GrnsPage() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-base font-black text-gray-900">{grn.grnNo}</span>
+                        <span className="font-mono text-base font-black text-gray-600">{grn.grnNo}</span>
                         <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
                           {grn.status}
                         </span>
                       </div>
                       <p className="mt-0.5 text-xs text-gray-400">
-                        {new Date(grn.receivedDate).toLocaleDateString()} · <strong className="text-gray-700">{grn.supplier?.name || "Direct Vendor"}</strong>
+                        {new Date(grn.receivedDate).toLocaleDateString()} · <strong className="text-gray-600">{grn.supplier?.name || "Direct Vendor"}</strong>
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-black tabular-nums text-gray-900">{fmt(total)}</p>
+                      <p className="text-lg font-black tabular-nums text-gray-600">{fmt(total)}</p>
                       <p className="text-[10px] text-gray-400 font-semibold">{totalUnits} units</p>
                     </div>
                   </div>
@@ -611,7 +611,7 @@ export default function GrnsPage() {
                       📍 {grn.warehouse?.name || "Warehouse"}
                     </span>
                     {grn.purchaseOrder && (
-                      <span className="rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
+                      <span className="rounded-sm bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
                         PO #{grn.purchaseOrder.poNo}
                       </span>
                     )}
@@ -619,7 +619,7 @@ export default function GrnsPage() {
 
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {items.slice(0, 3).map((item, idx) => (
-                      <span key={idx} className="rounded-sm bg-gray-50 border border-slate-200 px-2 py-1 text-[11px] font-medium text-gray-700">
+                      <span key={idx} className="rounded-sm bg-gray-50 border border-slate-200 px-2 py-1 text-[11px] font-medium text-gray-600">
                         {item.productName || item.product?.name || "Item"} × {item.qty}
                       </span>
                     ))}
@@ -653,7 +653,7 @@ export default function GrnsPage() {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-100 bg-violet-50/70 px-7 py-5">
               <div>
-                <h2 className="text-xl font-black tracking-tight text-gray-900">Direct Goods Received Note (GRN)</h2>
+                <h2 className="text-xl font-black tracking-tight text-gray-600">Direct Goods Received Note (GRN)</h2>
                 <p className="text-xs font-medium text-gray-500">Receive stock directly into warehouse without prior purchase order</p>
               </div>
               <button onClick={() => setShowDirectModal(false)} className="rounded-sm border border-slate-200 bg-white p-2 text-gray-400 hover:bg-gray-100">
@@ -720,7 +720,7 @@ export default function GrnsPage() {
                       onChange={(e) => setScanInput(e.target.value)}
                       onKeyDown={handleScanAdd}
                       placeholder="Scan Barcode or Type SKU / Name & press Enter to auto-add item…"
-                      className="w-full rounded-sm border border-violet-200 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                      className="w-full rounded-sm border border-violet-200 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-gray-600 placeholder:text-gray-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
                     />
                   </div>
                   <div className="flex items-center gap-2">
@@ -731,7 +731,7 @@ export default function GrnsPage() {
                           e.target.value = "";
                         }
                       }}
-                      className="rounded-sm border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-gray-700 shadow-2xs focus:border-violet-500 focus:outline-none"
+                      className="rounded-sm border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-gray-600 shadow-2xs focus:border-violet-500 focus:outline-none"
                     >
                       <option value="">+ Quick Pick Item…</option>
                       {products.map((p) => (
@@ -747,7 +747,7 @@ export default function GrnsPage() {
               {/* Tabular Direct GRN Lines */}
               <div className="rounded-sm border border-slate-200 bg-white overflow-hidden shadow-2xs">
                 <div className="bg-gray-50/80 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700">Received Product Line Items ({directLines.length})</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">Received Product Line Items ({directLines.length})</h4>
                   <button
                     type="button"
                     onClick={() => setDirectLines([...directLines, {
@@ -786,7 +786,7 @@ export default function GrnsPage() {
                               <select
                                 value={line.productId}
                                 onChange={(e) => updateDirectLine(idx, "productId", e.target.value)}
-                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-900 focus:border-violet-500 focus:outline-none"
+                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:border-violet-500 focus:outline-none"
                                 required
                               >
                                 <option value="">Select Product…</option>
@@ -803,7 +803,7 @@ export default function GrnsPage() {
                                 min="1"
                                 value={line.qty}
                                 onChange={(e) => updateDirectLine(idx, "qty", e.target.value)}
-                                className="w-full rounded-sm border border-slate-200 bg-white px-2 py-2 text-center text-xs font-black text-gray-900 focus:border-violet-500 focus:outline-none"
+                                className="w-full rounded-sm border border-slate-200 bg-white px-2 py-2 text-center text-xs font-black text-gray-600 focus:border-violet-500 focus:outline-none"
                                 required
                               />
                             </td>
@@ -814,7 +814,7 @@ export default function GrnsPage() {
                                 step="0.01"
                                 value={line.costPrice}
                                 onChange={(e) => updateDirectLine(idx, "costPrice", e.target.value)}
-                                className="w-full rounded-sm border border-slate-200 bg-white px-2 py-2 text-right text-xs font-semibold text-gray-900 focus:border-violet-500 focus:outline-none"
+                                className="w-full rounded-sm border border-slate-200 bg-white px-2 py-2 text-right text-xs font-semibold text-gray-600 focus:border-violet-500 focus:outline-none"
                                 required
                               />
                             </td>
@@ -835,7 +835,7 @@ export default function GrnsPage() {
                                 className="w-full rounded-sm border border-slate-200 bg-white px-2 py-2 text-xs"
                               />
                             </td>
-                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-900 text-sm">
+                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-600 text-sm">
                               {fmt(lineTotal)}
                             </td>
                             <td className="py-3 px-4 text-center">
@@ -860,11 +860,11 @@ export default function GrnsPage() {
                 <div className="flex items-center gap-6">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Total Lines</span>
-                    <p className="text-lg font-black text-gray-900">{totalLinesCount}</p>
+                    <p className="text-lg font-black text-gray-600">{totalLinesCount}</p>
                   </div>
                   <div className="border-l border-slate-200 pl-6">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Total Units</span>
-                    <p className="text-lg font-black text-gray-900">{totalDirectUnits}</p>
+                    <p className="text-lg font-black text-gray-600">{totalDirectUnits}</p>
                   </div>
                   <div className="border-l border-slate-200 pl-6">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Grand Received Cost</span>
@@ -876,7 +876,7 @@ export default function GrnsPage() {
                   <button
                     type="button"
                     onClick={() => setShowDirectModal(false)}
-                    className="rounded-sm border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50"
+                    className="rounded-sm border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50"
                   >
                     Cancel
                   </button>
@@ -908,7 +908,7 @@ export default function GrnsPage() {
                   <span className="rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-black uppercase tracking-wider text-emerald-700">
                     {viewGrn.status}
                   </span>
-                  <span className="font-mono text-xl sm:text-2xl font-black text-gray-900">{viewGrn.grnNo}</span>
+                  <span className="font-mono text-xl sm:text-2xl font-black text-gray-600">{viewGrn.grnNo}</span>
                   {viewGrn.purchaseOrder && (
                     <span className="rounded-sm bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-xs font-bold text-indigo-700">
                       PO #{viewGrn.purchaseOrder.poNo}
@@ -923,7 +923,7 @@ export default function GrnsPage() {
               <div className="flex items-center gap-2 no-print">
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900"
+                  className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600"
                 >
                   <Printer size={15} /> Print Receipt Slip
                 </button>
@@ -941,14 +941,14 @@ export default function GrnsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Warehouse & Supplier Details</p>
-                  <div className="mt-2.5 space-y-2 text-xs text-gray-700">
+                  <div className="mt-2.5 space-y-2 text-xs text-gray-600">
                     <div className="flex justify-between py-1 border-b border-slate-100">
                       <span className="text-gray-500">Receiving Warehouse:</span>
-                      <strong className="text-gray-900">{viewGrn.warehouse?.name || "Main Warehouse"}</strong>
+                      <strong className="text-gray-600">{viewGrn.warehouse?.name || "Main Warehouse"}</strong>
                     </div>
                     <div className="flex justify-between py-1 border-b border-slate-100">
                       <span className="text-gray-500">Supplier:</span>
-                      <strong className="text-gray-900">{viewGrn.supplier?.name || "Direct Vendor"}</strong>
+                      <strong className="text-gray-600">{viewGrn.supplier?.name || "Direct Vendor"}</strong>
                     </div>
                     <div className="flex justify-between py-1">
                       <span className="text-gray-500">Stock Status:</span>
@@ -959,7 +959,7 @@ export default function GrnsPage() {
 
                 <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Receiving Notes & Challan</p>
-                  <p className="mt-2.5 text-xs text-gray-700 leading-relaxed min-h-[50px] italic">
+                  <p className="mt-2.5 text-xs text-gray-600 leading-relaxed min-h-[50px] italic">
                     {viewGrn.note ? `"${viewGrn.note}"` : "No special challan notes recorded on receipt."}
                   </p>
                 </div>
@@ -968,7 +968,7 @@ export default function GrnsPage() {
               {/* Received Items Table */}
               <div className="rounded-sm border border-slate-200 bg-white overflow-hidden shadow-2xs">
                 <div className="bg-gray-50/80 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700">Inwarded Product Items ({(viewGrn.items || []).length})</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">Inwarded Product Items ({(viewGrn.items || []).length})</h4>
                   <span className="text-xs font-semibold text-gray-500">
                     Total Units: {(viewGrn.items || []).reduce((s, i) => s + Number(i.qty), 0)}
                   </span>
@@ -992,7 +992,7 @@ export default function GrnsPage() {
                           <tr key={idx} className="hover:bg-gray-50/60 transition">
                             <td className="py-3 px-4 text-center font-bold text-gray-400">{idx + 1}</td>
                             <td className="py-3 px-4">
-                              <p className="font-bold text-gray-900">{it.productName || it.product?.name || "Product Item"}</p>
+                              <p className="font-bold text-gray-600">{it.productName || it.product?.name || "Product Item"}</p>
                               <p className="text-[11px] font-mono text-gray-400">{it.product?.sku || "—"}</p>
                             </td>
                             <td className="py-3 px-4 text-center">
@@ -1003,10 +1003,10 @@ export default function GrnsPage() {
                             <td className="py-3 px-4">
                               <span className="font-mono text-xs text-gray-600">{it.batchNo || "—"}</span>
                             </td>
-                            <td className="py-3 px-4 text-right font-medium text-gray-700">
+                            <td className="py-3 px-4 text-right font-medium text-gray-600">
                               {fmt(Number(it.costPrice))}
                             </td>
-                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-900">
+                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-600">
                               {fmt(lineTot)}
                             </td>
                           </tr>
@@ -1015,7 +1015,7 @@ export default function GrnsPage() {
                     </tbody>
                     <tfoot className="bg-gray-50/80 border-t-2 border-slate-200">
                       <tr>
-                        <td colSpan={5} className="py-3.5 px-4 text-right font-bold text-gray-700 uppercase tracking-wider">
+                        <td colSpan={5} className="py-3.5 px-4 text-right font-bold text-gray-600 uppercase tracking-wider">
                           Total Received Value
                         </td>
                         <td className="py-3.5 px-4 text-right font-black text-base text-violet-700 tabular-nums">
@@ -1029,7 +1029,7 @@ export default function GrnsPage() {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-end border-t border-slate-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-3xl no-print">
+            <div className="flex items-center justify-end border-t border-slate-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-sm no-print">
               <button
                 onClick={() => setViewGrn(null)}
                 className="rounded-sm bg-gray-900 px-6 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-gray-800 transition"

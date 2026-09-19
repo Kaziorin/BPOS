@@ -80,9 +80,9 @@ export function PosToast({ message, type = "success", onClose }: ToastProps) {
   }, [onClose]);
 
   const colors = {
-    success: "bg-gradient-to-br from-[#00796b] to-[#00897b] border border-teal-500/30",
+    success: "bg-gradient-to-br from-[#00796b] to-[#00897b] border border-brand-primary/30",
     error: "bg-gradient-to-br from-rose-600 to-pink-600 border border-rose-500/30",
-    info: "bg-gradient-to-br from-[#004d40] to-[#00695c] border border-teal-500/30 shadow-teal-950/20",
+    info: "bg-gradient-to-br from-[#004d40] to-[#00695c] border border-brand-primary/30 shadow-teal-950/20",
   };
 
   const Icon = type === "error" ? AlertTriangle : type === "info" ? Info : CheckCircle2;
@@ -125,7 +125,7 @@ export function SlideOver({
   subtitle,
   Icon,
   iconColor = "text-[#00796b]",
-  iconBg = "bg-teal-50 border border-teal-200/80",
+  iconBg = "bg-brand-50 border border-brand-border",
   children,
   width = "w-[560px] xl:w-[640px]",
   darkMode,
@@ -147,22 +147,22 @@ export function SlideOver({
       <div
         className={cn(
           "relative ml-auto flex h-full flex-col shadow-2xl border-l",
-          isDark ? "bg-slate-900 border-slate-800 text-slate-100" : "bg-white border-slate-200 text-slate-800",
+          isDark ? "bg-slate-900 border-slate-800 text-slate-100" : "bg-white border-slate-200 text-gray-600",
           width,
         )}
       >
         {/* Header */}
         <div className={cn(
           "flex flex-none items-center gap-3 border-b px-5 py-4",
-          isDark ? "border-slate-800 bg-slate-900" : "border-teal-100 bg-gradient-to-r from-teal-50/80 via-white to-teal-50/50"
+          isDark ? "border-slate-800 bg-slate-900" : "border-brand-border bg-gradient-to-r from-teal-50/80 via-white to-teal-50/50"
         )}>
           {Icon && (
-            <div className={cn("flex h-9 w-9 items-center justify-center rounded-sm shrink-0", isDark ? "bg-slate-800 border border-slate-700 text-teal-400" : iconBg)}>
-              <Icon size={18} className={isDark ? "text-teal-400" : iconColor} />
+            <div className={cn("flex h-9 w-9 items-center justify-center rounded-sm shrink-0", isDark ? "bg-slate-800 border border-slate-700 text-brand-primary" : iconBg)}>
+              <Icon size={18} className={isDark ? "text-brand-primary" : iconColor} />
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h2 className={cn("text-[15px] font-bold", isDark ? "text-teal-400" : "text-[#00796b]")}>{title}</h2>
+            <h2 className={cn("text-[15px] font-bold", isDark ? "text-brand-primary" : "text-[#00796b]")}>{title}</h2>
             {subtitle && <p className={cn("text-[11px] font-medium", isDark ? "text-slate-400" : "text-slate-400")}>{subtitle}</p>}
           </div>
           <CustomButton
@@ -372,13 +372,13 @@ export function SalesHistoryPanel({ open, onClose, darkMode }: SalesHistoryPanel
       <div className="flex flex-col h-full">
         {/* Scope Tabs & Refresh */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2 border-b border-slate-100 bg-slate-50/60">
-          <div className="flex items-center gap-1.5 p-1 bg-slate-200/60 rounded-xl">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-200/60 rounded-sm">
             <CustomButton
               size="xs"
               variant={viewScope === "today" ? "primary" : "ghost"}
               themeColor={viewScope === "today" ? "teal" : undefined}
               onClick={() => setViewScope("today")}
-              className="px-3 py-1 text-[11px] font-bold rounded-lg h-auto"
+              className="px-3 py-1 text-[11px] font-bold rounded-sm h-auto"
             >
               Today
             </CustomButton>
@@ -387,7 +387,7 @@ export function SalesHistoryPanel({ open, onClose, darkMode }: SalesHistoryPanel
               variant={viewScope === "all" ? "primary" : "ghost"}
               themeColor={viewScope === "all" ? "teal" : undefined}
               onClick={() => setViewScope("all")}
-              className="px-3 py-1 text-[11px] font-bold rounded-lg h-auto"
+              className="px-3 py-1 text-[11px] font-bold rounded-sm h-auto"
             >
               All Recent
             </CustomButton>
@@ -398,25 +398,25 @@ export function SalesHistoryPanel({ open, onClose, darkMode }: SalesHistoryPanel
             themeColor="teal"
             onClick={fetchSales}
             disabled={loading}
-            className="gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-xl h-auto"
+            className="gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-sm h-auto"
             title="Refresh sales list"
           >
-            <RefreshCw size={13} className={cn(loading && "animate-spin text-teal-600")} />
+            <RefreshCw size={13} className={cn(loading && "animate-spin text-brand-primary")} />
             Refresh
           </CustomButton>
         </div>
 
         {/* Stats Bar */}
         <div className="grid grid-cols-3 gap-3 border-b border-slate-100 px-5 py-3 bg-white">
-          <div className="rounded-xl bg-emerald-50 p-3 text-center border border-emerald-100/60">
+          <div className="rounded-sm bg-emerald-50 p-3 text-center border border-emerald-100/60">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Total Sales</p>
             <p className="text-[18px] font-black text-emerald-600 tabular-nums">৳{totalRevenue.toFixed(2)}</p>
           </div>
-          <div className="rounded-xl bg-teal-50 p-3 text-center border border-teal-100/60">
+          <div className="rounded-sm bg-brand-50 p-3 text-center border border-brand-border/60">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Transactions</p>
-            <p className="text-[18px] font-black text-teal-700 tabular-nums">{transactionsCount}</p>
+            <p className="text-[18px] font-black text-brand-dark tabular-nums">{transactionsCount}</p>
           </div>
-          <div className="rounded-xl bg-purple-50 p-3 text-center border border-purple-100/60">
+          <div className="rounded-sm bg-purple-50 p-3 text-center border border-purple-100/60">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Avg. Bill</p>
             <p className="text-[18px] font-black text-purple-600 tabular-nums">
               ৳{avgBill.toFixed(2)}
@@ -453,7 +453,7 @@ export function SalesHistoryPanel({ open, onClose, darkMode }: SalesHistoryPanel
                 size="xs"
                 variant="danger"
                 onClick={fetchSales}
-                className="mt-2 text-[11px] font-bold px-3 py-1.5 rounded-xl h-auto"
+                className="mt-2 text-[11px] font-bold px-3 py-1.5 rounded-sm h-auto"
               >
                 Retry
               </CustomButton>
@@ -475,7 +475,7 @@ export function SalesHistoryPanel({ open, onClose, darkMode }: SalesHistoryPanel
                   variant="outline"
                   themeColor="teal"
                   onClick={() => setViewScope("all")}
-                  className="mt-3 text-[11px] font-bold px-3 py-1.5 rounded-xl h-auto"
+                  className="mt-3 text-[11px] font-bold px-3 py-1.5 rounded-sm h-auto"
                 >
                   View All Recent Sales
                 </CustomButton>
@@ -497,22 +497,22 @@ export function SalesHistoryPanel({ open, onClose, darkMode }: SalesHistoryPanel
                   className={cn(
                     "rounded-sm border transition overflow-hidden bg-white",
                     isExpanded
-                      ? "border-teal-300 ring-2 ring-teal-50 shadow-sm"
-                      : "border-slate-200 hover:border-teal-200 hover:shadow-xs"
+                      ? "border-brand-border ring-2 ring-teal-50 shadow-sm"
+                      : "border-slate-200 hover:border-brand-border hover:shadow-xs"
                   )}
                 >
                   <div
                     onClick={() => setExpandedSaleId(isExpanded ? null : sale.id)}
                     className="flex items-center gap-3 p-3 cursor-pointer select-none"
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#e0f2f1] text-[#00796b]">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-[#e0f2f1] text-[#00796b]">
                       <ReceiptText size={18} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <p className="text-[12.5px] font-black text-slate-800 tracking-tight">{invNo}</p>
+                        <p className="text-[12.5px] font-black text-gray-600 tracking-tight">{invNo}</p>
                         {sale.paymentMethod && (
-                          <span className="text-[9.5px] font-extrabold uppercase px-1.5 py-0.2 rounded-md bg-slate-100 text-slate-600">
+                          <span className="text-[9.5px] font-extrabold uppercase px-1.5 py-0.2 rounded-sm bg-slate-100 text-slate-600">
                             {sale.paymentMethod}
                           </span>
                         )}
@@ -540,16 +540,16 @@ export function SalesHistoryPanel({ open, onClose, darkMode }: SalesHistoryPanel
                       <div className="grid grid-cols-2 gap-2 text-slate-600 pb-2 border-b border-slate-200/60">
                         <div>
                           <span className="font-semibold text-slate-400">Cashier: </span>
-                          <span className="font-bold text-slate-700">{sale.cashier?.name || "System"}</span>
+                          <span className="font-bold text-gray-600">{sale.cashier?.name || "System"}</span>
                         </div>
                         <div>
                           <span className="font-semibold text-slate-400">Payment: </span>
-                          <span className="font-bold text-slate-700">{sale.paymentMethod || "CASH"}</span>
+                          <span className="font-bold text-gray-600">{sale.paymentMethod || "CASH"}</span>
                         </div>
                         {sale.customer?.phone && (
                           <div className="col-span-2">
                             <span className="font-semibold text-slate-400">Phone: </span>
-                            <span className="font-bold text-slate-700">{sale.customer.phone}</span>
+                            <span className="font-bold text-gray-600">{sale.customer.phone}</span>
                           </div>
                         )}
                         {due > 0 && (
@@ -563,16 +563,16 @@ export function SalesHistoryPanel({ open, onClose, darkMode }: SalesHistoryPanel
                       {sale.items && sale.items.length > 0 ? (
                         <div className="space-y-1 pt-1">
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Purchased Items</p>
-                          <div className="divide-y divide-slate-100 bg-white rounded-xl border border-slate-200/70 overflow-hidden">
+                          <div className="divide-y divide-slate-100 bg-white rounded-sm border border-slate-200/70 overflow-hidden">
                             {sale.items.map((it, idx) => (
                               <div key={it.id || idx} className="flex items-center justify-between p-2">
                                 <div className="min-w-0 flex-1 pr-2">
-                                  <p className="font-bold text-slate-800 truncate">{it.name || it.productName || "Product"}</p>
+                                  <p className="font-bold text-gray-600 truncate">{it.name || it.productName || "Product"}</p>
                                   <p className="text-[10px] text-slate-400">
                                     Qty: {it.qty} × ৳{Number(it.unitPrice || 0).toFixed(2)}
                                   </p>
                                 </div>
-                                <p className="font-black text-slate-700 shrink-0 tabular-nums">
+                                <p className="font-black text-gray-600 shrink-0 tabular-nums">
                                   ৳{Number(it.lineTotal || (it.qty || 0) * (it.unitPrice || 0)).toFixed(2)}
                                 </p>
                               </div>
@@ -622,7 +622,7 @@ export function PrescriptionModal({ open, onClose, onAttach, darkMode }: Prescri
       subtitle="Attach prescription details and prescribing physician"
       Icon={Shield}
       iconColor="text-[#00796b]"
-      iconBg="bg-teal-50"
+      iconBg="bg-brand-50"
       size="xl"
       darkMode={darkMode}
     >
@@ -704,7 +704,7 @@ export function AddDoctorModal({ open, onClose, onSave, darkMode }: AddDoctorMod
       subtitle="Register physician with medical registration number"
       Icon={Stethoscope}
       iconColor="text-[#00796b]"
-      iconBg="bg-teal-50"
+      iconBg="bg-brand-50"
       size="xl"
       darkMode={darkMode}
     >
@@ -833,7 +833,7 @@ export function LoyaltyModal({ open, onClose, customerName, currentPoints, onRed
         </div>
 
         {/* Add bonus points (mock) */}
-        <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 p-3">
+        <div className="rounded-sm border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 p-3">
           <p className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
             <TrendingUp size={13} />
             After this sale, you&apos;ll earn ~{Math.floor((currentPoints * 0.1))} bonus points
@@ -908,25 +908,25 @@ export function QuickReturnModal({ open, onClose, cart, onReturn, darkMode }: Qu
               {cart.map((item) => {
                 const returnQty = returnQtys[item.productId] ?? 0;
                 return (
-                  <div key={item.productId} className="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 p-3">
+                  <div key={item.productId} className="flex items-center gap-3 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 p-3">
                     <div className="flex-1 min-w-0">
-                      <p className="text-[12.5px] font-extrabold text-slate-800 dark:text-slate-100 truncate">{item.name}</p>
+                      <p className="text-[12.5px] font-extrabold text-gray-600 dark:text-slate-100 truncate">{item.name}</p>
                       <p className="text-[10.5px] text-slate-400 dark:text-slate-400">৳{item.unitPrice.toFixed(2)} × {item.qty} ordered</p>
                     </div>
-                    <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1">
+                    <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-sm p-1">
                       <CustomButton
                         variant="ghost"
                         size="xs"
                         onClick={() => setQty(item.productId, Math.max(0, returnQty - 1))}
-                        className="h-6 w-6 !p-0 rounded bg-white dark:bg-slate-800 shadow-2xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex items-center justify-center"
+                        className="h-6 w-6 !p-0 rounded-sm bg-white dark:bg-slate-800 shadow-2xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex items-center justify-center"
                         icon={<Minus size={10} />}
                       />
-                      <span className="w-6 text-center text-[11px] font-extrabold text-slate-800 dark:text-slate-100">{returnQty}</span>
+                      <span className="w-6 text-center text-[11px] font-extrabold text-gray-600 dark:text-slate-100">{returnQty}</span>
                       <CustomButton
                         variant="ghost"
                         size="xs"
                         onClick={() => setQty(item.productId, Math.min(item.qty, returnQty + 1))}
-                        className="h-6 w-6 !p-0 rounded bg-white dark:bg-slate-800 shadow-2xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex items-center justify-center"
+                        className="h-6 w-6 !p-0 rounded-sm bg-white dark:bg-slate-800 shadow-2xs text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex items-center justify-center"
                         icon={<Plus size={10} />}
                       />
                     </div>
@@ -936,7 +936,7 @@ export function QuickReturnModal({ open, onClose, cart, onReturn, darkMode }: Qu
             </div>
 
             {totalRefund > 0 && (
-              <div className="rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 px-4 py-3 flex items-center justify-between">
+              <div className="rounded-sm bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 px-4 py-3 flex items-center justify-between">
                 <span className="text-[12px] font-bold text-orange-700 dark:text-orange-300">Total Refund:</span>
                 <span className="text-[16px] font-black text-orange-600 dark:text-orange-400 tabular-nums">৳{totalRefund.toFixed(2)}</span>
               </div>
@@ -1082,24 +1082,24 @@ export function AddCustomerModal({
               <div
                 onClick={() => handleSelect("")}
                 className={cn(
-                  "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition select-none",
+                  "flex items-center justify-between p-3 rounded-sm border cursor-pointer transition select-none",
                   !selectedCustomerId
-                    ? "border-[#00897b] dark:border-teal-500 bg-[#e0f2f1]/80 dark:bg-teal-950/70 ring-2 ring-[#00897b]/20 dark:ring-teal-500/30 shadow-xs"
-                    : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-300 dark:hover:border-teal-700 hover:bg-slate-50/80 dark:hover:bg-slate-800/60"
+                    ? "border-[#00897b] dark:border-brand-primary bg-[#e0f2f1]/80 dark:bg-teal-950/70 ring-2 ring-[#00897b]/20 dark:ring-brand-border/30 shadow-xs"
+                    : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-brand-border dark:hover:border-teal-700 hover:bg-slate-50/80 dark:hover:bg-slate-800/60"
                 )}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className={cn(
-                    "flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-xl font-black text-xs transition",
+                    "flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-sm font-black text-xs transition",
                     !selectedCustomerId
                       ? "bg-[#00796b] text-white shadow-2xs"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                      : "bg-slate-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
                   )}>
                     W
                   </div>
                   <div>
-                    <h4 className="text-[13.5px] font-bold text-slate-900 dark:text-slate-100">Walk-in Customer</h4>
-                    <p className={cn("text-[11px] font-medium", !selectedCustomerId ? "text-[#00695c] dark:text-teal-300" : "text-slate-400 dark:text-slate-500")}>
+                    <h4 className="text-[13.5px] font-bold text-gray-600 dark:text-slate-100">Walk-in Customer</h4>
+                    <p className={cn("text-[11px] font-medium", !selectedCustomerId ? "text-[#00695c] dark:text-brand-primary/60" : "text-slate-400 dark:text-slate-500")}>
                       Default generic sale
                     </p>
                   </div>
@@ -1140,32 +1140,32 @@ export function AddCustomerModal({
                       key={c.id}
                       onClick={() => handleSelect(c.id)}
                       className={cn(
-                        "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition select-none",
+                        "flex items-center justify-between p-3 rounded-sm border cursor-pointer transition select-none",
                         isSelected
-                          ? "border-[#00897b] dark:border-teal-500 bg-[#e0f2f1]/80 dark:bg-teal-950/70 ring-2 ring-[#00897b]/20 dark:ring-teal-500/30 shadow-xs"
-                          : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-300 dark:hover:border-teal-700 hover:bg-slate-50/80 dark:hover:bg-slate-800/60"
+                          ? "border-[#00897b] dark:border-brand-primary bg-[#e0f2f1]/80 dark:bg-teal-950/70 ring-2 ring-[#00897b]/20 dark:ring-brand-border/30 shadow-xs"
+                          : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-brand-border dark:hover:border-teal-700 hover:bg-slate-50/80 dark:hover:bg-slate-800/60"
                       )}
                     >
                       <div className="flex items-center gap-3 min-w-0 pr-3">
                         <div className={cn(
-                          "flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-xl font-black text-xs transition",
+                          "flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-sm font-black text-xs transition",
                           isSelected
                             ? "bg-[#00796b] text-white shadow-2xs"
-                            : "bg-[#e0f2f1] dark:bg-teal-950/60 text-[#00796b] dark:text-teal-400 border border-teal-200/80 dark:border-teal-800"
+                            : "bg-[#e0f2f1] dark:bg-teal-950/60 text-[#00796b] dark:text-brand-primary border border-brand-border dark:border-teal-800"
                         )}>
                           {initials}
                         </div>
                         <div className="min-w-0">
-                          <h4 className="text-[13.5px] font-bold text-slate-900 dark:text-slate-100 truncate">{c.name}</h4>
-                          <div className={cn("flex flex-wrap items-center gap-3 text-[11px] font-medium mt-0.5", isSelected ? "text-[#00695c] dark:text-teal-300" : "text-slate-500 dark:text-slate-400")}>
+                          <h4 className="text-[13.5px] font-bold text-gray-600 dark:text-slate-100 truncate">{c.name}</h4>
+                          <div className={cn("flex flex-wrap items-center gap-3 text-[11px] font-medium mt-0.5", isSelected ? "text-[#00695c] dark:text-brand-primary/60" : "text-slate-500 dark:text-slate-400")}>
                             {c.phone && (
                               <span className="flex items-center gap-1">
-                                <Phone size={11} className={isSelected ? "text-[#00796b] dark:text-teal-400" : "text-slate-400"} /> {c.phone}
+                                <Phone size={11} className={isSelected ? "text-[#00796b] dark:text-brand-primary" : "text-slate-400"} /> {c.phone}
                               </span>
                             )}
                             {c.address && (
                               <span className="flex items-center gap-1 truncate max-w-[220px]">
-                                <MapPin size={11} className={isSelected ? "text-[#00796b] dark:text-teal-400" : "text-slate-400"} /> {c.address}
+                                <MapPin size={11} className={isSelected ? "text-[#00796b] dark:text-brand-primary" : "text-slate-400"} /> {c.address}
                               </span>
                             )}
                           </div>
@@ -1204,7 +1204,7 @@ export function AddCustomerModal({
           /* Add Form */
           <div className="space-y-3.5">
             <div>
-              <label className="block mb-1 text-xs font-bold text-slate-700 dark:text-slate-300">Full Name *</label>
+              <label className="block mb-1 text-xs font-bold text-gray-600 dark:text-slate-300">Full Name *</label>
               <CustomInput
                 leftIcon={<User size={14} className="text-[#00796b]" />}
                 value={name}
@@ -1215,7 +1215,7 @@ export function AddCustomerModal({
               />
             </div>
             <div>
-              <label className="block mb-1 text-xs font-bold text-slate-700 dark:text-slate-300">Phone Number</label>
+              <label className="block mb-1 text-xs font-bold text-gray-600 dark:text-slate-300">Phone Number</label>
               <CustomInput
                 type="tel"
                 leftIcon={<Phone size={14} className="text-[#00796b]" />}
@@ -1227,7 +1227,7 @@ export function AddCustomerModal({
               />
             </div>
             <div>
-              <label className="block mb-1 text-xs font-bold text-slate-700 dark:text-slate-300">Email (optional)</label>
+              <label className="block mb-1 text-xs font-bold text-gray-600 dark:text-slate-300">Email (optional)</label>
               <CustomInput
                 type="email"
                 leftIcon={<Mail size={14} className="text-[#00796b]" />}
@@ -1239,7 +1239,7 @@ export function AddCustomerModal({
               />
             </div>
             <div>
-              <label className="block mb-1 text-xs font-bold text-slate-700 dark:text-slate-300">Address (optional)</label>
+              <label className="block mb-1 text-xs font-bold text-gray-600 dark:text-slate-300">Address (optional)</label>
               <CustomTextarea
                 rows={2}
                 value={address}
@@ -1366,16 +1366,16 @@ export function HardwareSettingsModal({
                 <div className="flex items-center gap-3.5 min-w-0 pr-3">
                   <div
                     className={cn(
-                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors",
+                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-sm transition-colors",
                       enabled
-                        ? "bg-teal-50 dark:bg-teal-950/60 text-[#00796b] dark:text-teal-400 border border-teal-200/90 dark:border-teal-800 shadow-2xs"
+                        ? "bg-brand-50 dark:bg-teal-950/60 text-[#00796b] dark:text-brand-primary border border-brand-border dark:border-teal-800 shadow-2xs"
                         : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700"
                     )}
                   >
                     <IconComp size={20} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[14px] font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-snug">
+                    <p className="text-[14px] font-extrabold text-gray-600 dark:text-slate-100 tracking-tight leading-snug">
                       {label}
                     </p>
                     <div className="flex flex-wrap items-center gap-2 mt-0.5">
@@ -1414,12 +1414,12 @@ export function HardwareSettingsModal({
         </div>
 
         {/* Info Alert Box */}
-        <div className="rounded-sm bg-teal-50/90 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800/80 p-3.5 sm:p-4 flex items-start gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/60 text-[#00796b] dark:text-teal-300 shrink-0 mt-0.5">
+        <div className="rounded-sm bg-brand-50/90 dark:bg-teal-950/40 border border-brand-border dark:border-teal-800/80 p-3.5 sm:p-4 flex items-start gap-3">
+          <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-brand-50 dark:bg-teal-900/60 text-[#00796b] dark:text-brand-primary/60 shrink-0 mt-0.5">
             <Info size={16} />
           </div>
-          <div className="text-[12px] leading-relaxed text-teal-950 dark:text-teal-200 font-medium">
-            <span className="font-bold text-[#00796b] dark:text-teal-300">Hardware Driver Integration:</span> Full hardware activation requires SDK/driver integration. UI is ready — connect ESC/POS, Bluetooth or USB packages in the backend to activate.
+          <div className="text-[12px] leading-relaxed text-brand-dark dark:text-teal-200 font-medium">
+            <span className="font-bold text-[#00796b] dark:text-brand-primary/60">Hardware Driver Integration:</span> Full hardware activation requires SDK/driver integration. UI is ready — connect ESC/POS, Bluetooth or USB packages in the backend to activate.
           </div>
         </div>
 
@@ -1495,7 +1495,7 @@ export function NotificationDropdown({
       ref={ref}
       className={cn(
         "absolute right-0 top-full z-50 mt-1.5 w-84 rounded-sm border shadow-2xl overflow-hidden",
-        darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-slate-200 bg-white text-slate-800"
+        darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-slate-200 bg-white text-gray-600"
       )}
     >
       <div className={cn(
@@ -1503,7 +1503,7 @@ export function NotificationDropdown({
         darkMode ? "border-slate-800 bg-slate-800/80" : "border-slate-100 bg-slate-50/80"
       )}>
         <div className="flex items-center gap-2">
-          <h3 className={cn("text-[13px] font-black", darkMode ? "text-slate-100" : "text-slate-800")}>Notifications</h3>
+          <h3 className={cn("text-[13px] font-black", darkMode ? "text-slate-100" : "text-gray-600")}>Notifications</h3>
           {unreadCount > 0 && (
             <span className="rounded-full bg-rose-500/20 px-2 py-0.5 text-[10px] font-bold text-rose-500">
               {unreadCount} new
@@ -1516,7 +1516,7 @@ export function NotificationDropdown({
               variant="ghost"
               size="xs"
               onClick={onMarkAllRead}
-              className="text-[10.5px] font-bold text-[#00796b] dark:text-teal-400 hover:underline !p-0 h-auto"
+              className="text-[10.5px] font-bold text-[#00796b] dark:text-brand-primary hover:underline !p-0 h-auto"
             >
               Mark read
             </CustomButton>
@@ -1536,7 +1536,7 @@ export function NotificationDropdown({
       <div className={cn("max-h-80 overflow-y-auto divide-y", darkMode ? "divide-slate-800" : "divide-slate-100")}>
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-slate-400">
-            <Bell size={28} className={cn("mb-2", darkMode ? "text-slate-700" : "text-slate-300")} />
+            <Bell size={28} className={cn("mb-2", darkMode ? "text-gray-600" : "text-slate-300")} />
             <p className="text-[12px] font-semibold">No notifications</p>
             <p className="text-[10.5px] text-slate-400">All alerts cleared</p>
           </div>
@@ -1547,22 +1547,22 @@ export function NotificationDropdown({
               className={cn(
                 "group flex items-start gap-3 px-4 py-3 transition relative",
                 darkMode ? "hover:bg-slate-800/60" : "hover:bg-slate-50",
-                !n.read ? (darkMode ? "bg-teal-950/30" : "bg-teal-50/40") : "",
+                !n.read ? (darkMode ? "bg-teal-950/30" : "bg-brand-50") : "",
               )}
             >
               <div
                 className={cn(
-                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl mt-0.5",
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-sm mt-0.5",
                   n.type === "warning" ? (darkMode ? "bg-amber-950/60 text-amber-400" : "bg-amber-100 text-amber-600") :
                     n.type === "error" ? (darkMode ? "bg-rose-950/60 text-rose-400" : "bg-rose-100 text-rose-600") :
-                    n.type === "info" ? (darkMode ? "bg-teal-950/60 text-teal-400" : "bg-teal-100 text-[#00796b]") :
+                    n.type === "info" ? (darkMode ? "bg-teal-950/60 text-brand-primary" : "bg-brand-50 text-[#00796b]") :
                       (darkMode ? "bg-emerald-950/60 text-emerald-400" : "bg-emerald-100 text-emerald-600"),
                 )}
               >
                 {n.type === "warning" || n.type === "error" ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
               </div>
               <div className="flex-1 min-w-0 pr-4">
-                <p className={cn("text-[11.5px] font-extrabold", darkMode ? "text-slate-100" : "text-slate-800")}>{n.title}</p>
+                <p className={cn("text-[11.5px] font-extrabold", darkMode ? "text-slate-100" : "text-gray-600")}>{n.title}</p>
                 <p className={cn("text-[10.5px] font-medium truncate", darkMode ? "text-slate-400" : "text-slate-500")}>{n.body}</p>
                 <p className="mt-0.5 text-[9.5px] font-semibold text-slate-400">{n.time}</p>
               </div>
@@ -1633,11 +1633,11 @@ export function ProfileDropdown({
       ref={ref}
       className={cn(
         "absolute right-0 top-full z-50 mt-1.5 w-56 rounded-sm border shadow-xl overflow-hidden",
-        darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-slate-200 bg-white text-slate-800"
+        darkMode ? "border-slate-800 bg-slate-900 text-slate-100" : "border-slate-200 bg-white text-gray-600"
       )}
     >
       <div className={cn("border-b px-4 py-3", darkMode ? "border-slate-800 bg-slate-800/80" : "border-slate-100 bg-slate-50/50")}>
-        <p className={cn("text-[12px] font-extrabold", darkMode ? "text-slate-100" : "text-slate-800")}>{cashierName}</p>
+        <p className={cn("text-[12px] font-extrabold", darkMode ? "text-slate-100" : "text-gray-600")}>{cashierName}</p>
         <p className="text-[10px] font-semibold text-slate-400">Terminal: {terminalName}</p>
       </div>
       <div className="py-1">
@@ -1649,7 +1649,7 @@ export function ProfileDropdown({
             onClose();
             onOpenSettings?.();
           }}
-          className={cn("!justify-start gap-2.5 px-4 py-2 text-[12px] font-semibold transition h-auto rounded-none", darkMode ? "text-slate-300 hover:bg-slate-800 hover:text-white" : "text-slate-700 hover:bg-slate-50")}
+          className={cn("!justify-start gap-2.5 px-4 py-2 text-[12px] font-semibold transition h-auto rounded-none", darkMode ? "text-slate-300 hover:bg-slate-800 hover:text-white" : "text-gray-600 hover:bg-slate-50")}
           icon={<Settings size={14} className={darkMode ? "text-slate-400" : "text-slate-600"} />}
         >
           Hardware Settings
@@ -1658,7 +1658,7 @@ export function ProfileDropdown({
           variant="ghost"
           fullWidth
           size="sm"
-          className={cn("!justify-start gap-2.5 px-4 py-2 text-[12px] font-semibold transition h-auto rounded-none", darkMode ? "text-slate-300 hover:bg-slate-800 hover:text-white" : "text-slate-700 hover:bg-slate-50")}
+          className={cn("!justify-start gap-2.5 px-4 py-2 text-[12px] font-semibold transition h-auto rounded-none", darkMode ? "text-slate-300 hover:bg-slate-800 hover:text-white" : "text-gray-600 hover:bg-slate-50")}
           icon={<Clock size={14} className={darkMode ? "text-slate-400" : "text-slate-600"} />}
         >
           Shift Report
@@ -1667,7 +1667,7 @@ export function ProfileDropdown({
           variant="ghost"
           fullWidth
           size="sm"
-          className={cn("!justify-start gap-2.5 px-4 py-2 text-[12px] font-semibold transition h-auto rounded-none", darkMode ? "text-slate-300 hover:bg-slate-800 hover:text-white" : "text-slate-700 hover:bg-slate-50")}
+          className={cn("!justify-start gap-2.5 px-4 py-2 text-[12px] font-semibold transition h-auto rounded-none", darkMode ? "text-slate-300 hover:bg-slate-800 hover:text-white" : "text-gray-600 hover:bg-slate-50")}
           icon={<Package size={14} className={darkMode ? "text-slate-400" : "text-slate-600"} />}
         >
           Stock Check
@@ -1729,7 +1729,7 @@ export function AdvancedFilterPanel({ open, onClose, onApply, darkMode }: Advanc
       subtitle="Filter medicines by price, brand, and stock status"
       Icon={SlidersHorizontal}
       iconColor="text-[#00796b]"
-      iconBg="bg-teal-50"
+      iconBg="bg-brand-50"
       size="xl"
       darkMode={darkMode}
     >
@@ -1769,7 +1769,7 @@ export function AdvancedFilterPanel({ open, onClose, onApply, darkMode }: Advanc
             darkMode={darkMode}
           />
         </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 px-4 py-3">
+        <div className="rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 px-4 py-3">
           <CustomCheckbox
             checked={inStockOnly}
             onChange={(e) => setInStockOnly(e.target.checked)}
@@ -1838,7 +1838,7 @@ export function GenericAlternativesModal({
           {!originalProduct ? (
             <div className="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-slate-500">
               <Leaf size={36} className="mb-3 text-slate-300 dark:text-slate-600" />
-              <p className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">No medicine currently selected</p>
+              <p className="text-[13px] font-semibold text-gray-600 dark:text-slate-300">No medicine currently selected</p>
               <p className="text-[11px] mt-1 text-slate-400 dark:text-slate-500 max-w-xs text-center">
                 Click any medicine from the product grid or use the leaf icon in the cart to view its cheaper generic alternatives.
               </p>
@@ -1846,7 +1846,7 @@ export function GenericAlternativesModal({
           ) : alternatives.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-slate-500">
               <Leaf size={36} className="mb-3 text-slate-300 dark:text-slate-600" />
-              <p className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">No generic alternatives found</p>
+              <p className="text-[13px] font-semibold text-gray-600 dark:text-slate-300">No generic alternatives found</p>
               <p className="text-[11px] mt-1 text-slate-400 dark:text-slate-500">No lower-cost generic matches found in stock for {originalProduct.name}</p>
             </div>
           ) : (
@@ -1860,13 +1860,13 @@ export function GenericAlternativesModal({
               return (
                 <div
                   key={alt.id}
-                  className="flex items-center gap-3.5 rounded-sm border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850/80 p-3.5 hover:border-[#00796b]/40 dark:hover:border-teal-500/50 hover:bg-[#f0faf8] dark:hover:bg-slate-800 transition shadow-2xs"
+                  className="flex items-center gap-3.5 rounded-sm border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850/80 p-3.5 hover:border-[#00796b]/40 dark:hover:border-brand-primary/50 hover:bg-[#f0faf8] dark:hover:bg-slate-800 transition shadow-2xs"
                 >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-950/60 text-[#00796b] dark:text-teal-400">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-brand-50 dark:bg-teal-950/60 text-[#00796b] dark:text-brand-primary">
                     <Leaf size={22} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-extrabold text-slate-800 dark:text-slate-100 truncate">{alt.name}</p>
+                    <p className="text-[13px] font-extrabold text-gray-600 dark:text-slate-100 truncate">{alt.name}</p>
                     <p className="text-[10.5px] font-medium text-slate-400 dark:text-slate-400 truncate">
                       {alt.unit || "Generic"} · Stock: {alt.stockQty ?? 0}
                     </p>
@@ -1877,7 +1877,7 @@ export function GenericAlternativesModal({
                     )}
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="text-[15px] font-black text-[#00796b] dark:text-teal-400 tabular-nums">
+                    <p className="text-[15px] font-black text-[#00796b] dark:text-brand-primary tabular-nums">
                       ৳{alt.sellingPrice.toFixed(2)}
                     </p>
                     {isCheaper && (
@@ -2067,7 +2067,7 @@ export function PaymentCheckoutModal({
 
   if (!open) return null;
 
-  const textPrimary = darkMode ? "text-slate-100" : "text-slate-900";
+  const textPrimary = darkMode ? "text-slate-100" : "text-gray-600";
   const textSub = darkMode ? "text-slate-400" : "text-slate-500";
   const cardBg = darkMode ? "bg-slate-800/60 border-slate-700" : "bg-slate-50/50 border-slate-200";
 
@@ -2089,7 +2089,7 @@ export function PaymentCheckoutModal({
         {/* ── HEADER ── */}
         <div className={cn(
           "flex items-center justify-between px-6 py-4 border-b",
-          darkMode ? "border-slate-800 bg-slate-900" : "border-teal-100 bg-gradient-to-r from-teal-50/80 via-white to-teal-50/50"
+          darkMode ? "border-slate-800 bg-slate-900" : "border-brand-border bg-gradient-to-r from-teal-50/80 via-white to-teal-50/50"
         )}>
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-[#00796b] text-white shadow-md">
@@ -2167,7 +2167,7 @@ export function PaymentCheckoutModal({
                     title={desc}
                     className={cn(
                       "flex flex-col items-center justify-center gap-1.5 rounded-sm py-3.5 text-center transition h-auto",
-                      !active && (darkMode ? "border-slate-700 bg-slate-800 text-slate-400 hover:border-teal-700 hover:bg-slate-700 hover:text-teal-300" : "border-slate-200 bg-white text-slate-500 hover:border-teal-300 hover:bg-teal-50 hover:text-[#00796b]")
+                      !active && (darkMode ? "border-slate-700 bg-slate-800 text-slate-400 hover:border-teal-700 hover:bg-slate-700 hover:text-brand-primary/60" : "border-slate-200 bg-white text-slate-500 hover:border-brand-border hover:bg-brand-50 hover:text-[#00796b]")
                     )}
                   >
                     {icon}
@@ -2228,10 +2228,10 @@ export function PaymentCheckoutModal({
                     variant="outline"
                     onClick={() => addDenom(d)}
                     className={cn(
-                      "rounded-xl py-2.5 text-[11.5px] font-black transition",
+                      "rounded-sm py-2.5 text-[11.5px] font-black transition",
                       darkMode
-                        ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-teal-900/60 hover:border-teal-800 hover:text-teal-300"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-teal-400 hover:bg-teal-50 hover:text-[#00796b]"
+                        ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-teal-900/60 hover:border-teal-800 hover:text-brand-primary/60"
+                        : "border-slate-200 bg-white text-gray-600 hover:border-brand-border hover:bg-brand-50 hover:text-[#00796b]"
                     )}
                   >
                     +৳{d >= 1000 ? `${d / 1000}k` : d}
@@ -2241,7 +2241,7 @@ export function PaymentCheckoutModal({
 
               {/* Change to return */}
               <div className={cn(
-                "flex items-center justify-between rounded-xl border px-4 py-3 transition",
+                "flex items-center justify-between rounded-sm border px-4 py-3 transition",
                 change > 0
                   ? (darkMode ? "border-emerald-800 bg-emerald-950/60" : "border-emerald-300 bg-emerald-50")
                   : darkMode
@@ -2268,16 +2268,16 @@ export function PaymentCheckoutModal({
           {payMethod !== "CASH" && (
             <div className={cn(
               "flex items-center gap-3 rounded-sm border px-4 py-3.5",
-              darkMode ? "border-teal-900/60 bg-teal-950/30" : "border-teal-200 bg-teal-50"
+              darkMode ? "border-teal-900/60 bg-teal-950/30" : "border-brand-border bg-brand-50"
             )}>
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#00796b] text-white">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-[#00796b] text-white">
                 <CheckCircle2 size={18} />
               </div>
               <div>
-                <p className={cn("text-[13px] font-extrabold", darkMode ? "text-teal-300" : "text-[#00796b]")}>
+                <p className={cn("text-[13px] font-extrabold", darkMode ? "text-brand-primary/60" : "text-[#00796b]")}>
                   {CHECKOUT_METHODS.find(m => m.id === payMethod)?.label} Payment Selected
                 </p>
-                <p className={cn("text-[11px] font-medium mt-0.5", darkMode ? "text-teal-500" : "text-teal-600/80")}>
+                <p className={cn("text-[11px] font-medium mt-0.5", darkMode ? "text-brand-primary" : "text-brand-primary/80")}>
                   {CHECKOUT_METHODS.find(m => m.id === payMethod)?.desc} · Amount: ৳{total.toFixed(2)}
                 </p>
               </div>
@@ -2286,12 +2286,12 @@ export function PaymentCheckoutModal({
 
           {/* PRINT TOGGLE */}
           <div className={cn(
-            "flex items-center justify-between rounded-xl border px-4 py-3",
+            "flex items-center justify-between rounded-sm border px-4 py-3",
             darkMode ? "border-slate-700 bg-slate-800/40" : "border-slate-200 bg-white"
           )}>
             <div className="flex items-center gap-3">
               <div className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-xl",
+                "flex h-8 w-8 items-center justify-center rounded-sm",
                 darkMode ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-600"
               )}>
                 <Printer size={15} />
@@ -2406,20 +2406,20 @@ export function PharmacyPOSHeldBillsModal({
                   key={bill.id}
                   className={cn(
                     "flex flex-col gap-3 rounded-sm border p-4 transition-all hover:shadow-md sm:flex-row sm:items-center sm:justify-between",
-                    darkMode ? "border-slate-800 bg-slate-900 hover:border-teal-700" : "border-slate-200 bg-white hover:border-teal-300"
+                    darkMode ? "border-slate-800 bg-slate-900 hover:border-teal-700" : "border-slate-200 bg-white hover:border-brand-border"
                   )}
                 >
                   {/* Bill Info */}
                   <div className="flex flex-1 items-start gap-4">
                     <div className={cn(
-                      "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl font-bold",
+                      "flex h-12 w-12 shrink-0 items-center justify-center rounded-sm font-bold",
                       darkMode ? "bg-slate-800 text-slate-300" : "bg-slate-100 text-slate-500"
                     )}>
                       #{bill.id.slice(0, 4)}
                     </div>
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
-                        <h4 className={cn("text-sm font-extrabold", darkMode ? "text-slate-200" : "text-slate-800")}>
+                        <h4 className={cn("text-sm font-extrabold", darkMode ? "text-slate-200" : "text-gray-600")}>
                           #{bill.id.slice(0, 8).toUpperCase()}
                         </h4>
                         <CustomBadge tone="primary">
@@ -2430,7 +2430,7 @@ export function PharmacyPOSHeldBillsModal({
                         {bill.createdAt ? new Date(bill.createdAt).toLocaleTimeString("en-BD", { hour: "2-digit", minute: "2-digit" }) : "N/A"}
                         {bill.note ? ` • ${bill.note}` : ""}
                       </p>
-                      <p className={cn("text-sm font-black mt-2", darkMode ? "text-teal-400" : "text-[#00796b]")}>
+                      <p className={cn("text-sm font-black mt-2", darkMode ? "text-brand-primary" : "text-[#00796b]")}>
                         ৳{total.toFixed(2)}
                       </p>
                     </div>

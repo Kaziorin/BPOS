@@ -37,7 +37,7 @@ export default function PnlPage() {
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><BarChart3 size={19} /></div>
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-gray-900">Profit &amp; Loss</h1>
+          <h1 className="text-xl font-bold tracking-tight text-gray-600">Profit &amp; Loss</h1>
           <p className="text-sm text-gray-500">Revenue minus expenses for the period</p>
         </div>
       </div>
@@ -64,7 +64,7 @@ export default function PnlPage() {
           <CustomTable
             columns={[
               { key: "code", header: "Code", render: (r) => <span className="font-mono text-xs text-gray-500">{r.code}</span> },
-              { key: "name", header: "Account", render: (r) => <span className="text-sm text-gray-800">{r.name}</span> },
+              { key: "name", header: "Account", render: (r) => <span className="text-sm text-gray-600">{r.name}</span> },
               { key: "amount", header: "Amount", align: "right", render: (r) => <span className="font-semibold tabular-nums text-emerald-700">{money(r.amount)}</span> },
             ]}
             data={data?.revenue ?? []}
@@ -79,7 +79,7 @@ export default function PnlPage() {
           <CustomTable
             columns={[
               { key: "code", header: "Code", render: (r) => <span className="font-mono text-xs text-gray-500">{r.code}</span> },
-              { key: "name", header: "Account", render: (r) => <span className="text-sm text-gray-800">{r.name}</span> },
+              { key: "name", header: "Account", render: (r) => <span className="text-sm text-gray-600">{r.name}</span> },
               { key: "amount", header: "Amount", align: "right", render: (r) => <span className="font-semibold tabular-nums text-red-600">{money(r.amount)}</span> },
             ]}
             data={data?.expenses ?? []}

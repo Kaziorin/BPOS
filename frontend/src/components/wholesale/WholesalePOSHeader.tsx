@@ -102,7 +102,7 @@ export function WholesalePOSHeader({
         >
           <div
             className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all group-hover:scale-105",
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border transition-all group-hover:scale-105",
               darkMode
                 ? "border-slate-700 bg-slate-800 text-slate-300 group-hover:border-slate-600 group-hover:text-white"
                 : "border-slate-200 bg-slate-100 text-slate-600 group-hover:border-blue-400 group-hover:bg-blue-50 group-hover:text-blue-600",
@@ -170,7 +170,7 @@ export function WholesalePOSHeader({
           </div>
 
           <Divider darkMode={darkMode} />
-          <Metric label="Credit Limit" value={fmt(customer.creditLimit)} valueClass={darkMode ? "text-slate-100" : "text-slate-900"} darkMode={darkMode} />
+          <Metric label="Credit Limit" value={fmt(customer.creditLimit)} valueClass={darkMode ? "text-slate-100" : "text-gray-600"} darkMode={darkMode} />
           <Divider darkMode={darkMode} />
           <Metric label="Available Credit" value={fmt(customer.availableCredit)} valueClass="text-emerald-600 font-black" darkMode={darkMode} />
           <Divider darkMode={darkMode} />
@@ -179,7 +179,7 @@ export function WholesalePOSHeader({
 
         <div className="flex shrink-0 items-center gap-2.5 pl-1">
           <div className="hidden text-right sm:block">
-            <p className={cn("text-[14px] font-extrabold leading-tight tabular-nums", darkMode ? "text-slate-100" : "text-slate-900")}>
+            <p className={cn("text-[14px] font-extrabold leading-tight tabular-nums", darkMode ? "text-slate-100" : "text-gray-600")}>
               {timeStr}
             </p>
             <p className={cn("mt-0.5 text-[11px] font-semibold", darkMode ? "text-slate-400" : "text-slate-500")}>{dateStr}</p>
@@ -227,10 +227,10 @@ export function WholesalePOSHeader({
               onClick={onToggleFullscreen}
               title={isFullscreen ? "Exit Fullscreen (F)" : "Full Screen (F)"}
               className={cn(
-                "h-9 w-9 !p-0 rounded-xl border flex items-center justify-center shrink-0 shadow-sm",
+                "h-9 w-9 !p-0 rounded-sm border flex items-center justify-center shrink-0 shadow-sm",
                 darkMode
                   ? "border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-600 hover:bg-slate-700 hover:text-white"
-                  : "border-slate-300 bg-slate-100 text-slate-700 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600",
+                  : "border-slate-300 bg-slate-100 text-gray-600 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600",
               )}
             >
               {isFullscreen ? <Minimize size={16} strokeWidth={2.2} /> : <Maximize size={16} strokeWidth={2.2} />}
@@ -244,7 +244,7 @@ export function WholesalePOSHeader({
           <div key={m.label}>
             <div
               className={cn(
-                "flex items-center gap-2.5 rounded-xl p-2.5 transition-all shadow-sm cursor-default",
+                "flex items-center gap-2.5 rounded-sm p-2.5 transition-all shadow-sm cursor-default",
                 darkMode
                   ? "border border-slate-700/80 bg-slate-900/60"
                   : "hover:shadow-md",
@@ -253,7 +253,7 @@ export function WholesalePOSHeader({
             >
               <div
                 className={cn(
-                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-sm",
                   darkMode ? "bg-slate-800 border border-slate-700 text-slate-300" : "",
                 )}
                 style={darkMode ? undefined : { background: "#EBF3FE", color: iceBlue }}

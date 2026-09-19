@@ -56,7 +56,7 @@ interface WarehouseOption {
 const STATUS_CONFIG: Record<string, { label: string; badge: string; dot: string; bg: string }> = {
   DRAFT: {
     label: "Draft",
-    badge: "border-slate-200 bg-slate-50 text-slate-700",
+    badge: "border-slate-200 bg-slate-50 text-gray-600",
     dot: "bg-slate-400",
     bg: "bg-slate-500/10",
   },
@@ -382,7 +382,7 @@ export default function RequisitionsPage() {
   }
 
   const fmt = (n: number) => `৳${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const inputCls = "mt-1 block w-full rounded-sm border border-slate-200 px-3.5 py-2.5 text-sm bg-white text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition";
+  const inputCls = "mt-1 block w-full rounded-sm border border-slate-200 px-3.5 py-2.5 text-sm bg-white text-gray-600 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition";
 
   // KPIs
   const totalCount = requisitions.length;
@@ -416,9 +416,9 @@ export default function RequisitionsPage() {
           <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
             <Link href="/purchasing" className="hover:text-brand-primary transition">Purchasing Hub</Link>
             <ChevronRight size={13} className="text-gray-400" />
-            <span className="text-gray-900 font-bold">Purchase Requisitions</span>
+            <span className="text-gray-600 font-bold">Purchase Requisitions</span>
           </div>
-          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">Purchase Requisitions</h1>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-600 sm:text-3xl">Purchase Requisitions</h1>
           <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
             Internal department procurement requests → multi-tier approval → 1-click PO conversion
           </p>
@@ -428,7 +428,7 @@ export default function RequisitionsPage() {
           <button
             onClick={load}
             disabled={loading}
-            className="rounded-sm border border-slate-200 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50"
+            className="rounded-sm border border-slate-200 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600 disabled:opacity-50"
             title="Refresh Data"
           >
             <RefreshCw size={17} className={loading ? "animate-spin text-brand-primary" : ""} />
@@ -457,7 +457,7 @@ export default function RequisitionsPage() {
             className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition whitespace-nowrap ${
               tab.active
                 ? "bg-brand-gradient text-white shadow-2xs"
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-600"
             }`}
           >
             <tab.icon size={15} />
@@ -497,7 +497,7 @@ export default function RequisitionsPage() {
             sub: `${fmt(totalEstVal)} est. value`,
             icon: ClipboardList,
             bg: "bg-blue-50 text-blue-600 border-blue-100",
-            valCls: "text-gray-900",
+            valCls: "text-gray-600",
           },
           {
             label: "Pending Approvals",
@@ -564,7 +564,7 @@ export default function RequisitionsPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by PR #, product, or note…"
-              className="w-full rounded-sm border border-slate-200 bg-gray-50/50 py-2.5 pl-10 pr-4 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              className="w-full rounded-sm border border-slate-200 bg-gray-50/50 py-2.5 pl-10 pr-4 text-sm font-medium text-gray-600 placeholder:text-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
             {searchTerm && (
               <button
@@ -580,7 +580,7 @@ export default function RequisitionsPage() {
           <select
             value={warehouseFilter}
             onChange={(e) => setWarehouseFilter(e.target.value)}
-            className="rounded-sm border border-slate-200 bg-gray-50/50 px-3.5 py-2.5 text-sm font-semibold text-gray-700 focus:border-primary-500 focus:bg-white focus:outline-none"
+            className="rounded-sm border border-slate-200 bg-gray-50/50 px-3.5 py-2.5 text-sm font-semibold text-gray-600 focus:border-primary-500 focus:bg-white focus:outline-none"
           >
             <option value="">All Warehouses</option>
             {warehouses.map((w) => (
@@ -607,8 +607,8 @@ export default function RequisitionsPage() {
                 onClick={() => setStatusFilter(st.key)}
                 className={`rounded-sm px-3 py-1.5 text-xs font-bold transition whitespace-nowrap ${
                   statusFilter === st.key
-                    ? "bg-white text-gray-900 shadow-2xs"
-                    : "text-gray-500 hover:text-gray-900"
+                    ? "bg-white text-gray-600 shadow-2xs"
+                    : "text-gray-500 hover:text-gray-600"
                 }`}
               >
                 {st.label}
@@ -620,14 +620,14 @@ export default function RequisitionsPage() {
           <div className="hidden sm:flex items-center gap-1 rounded-sm border border-slate-200 bg-white p-1">
             <button
               onClick={() => setViewMode("table")}
-              className={`rounded-sm p-1.5 transition ${viewMode === "table" ? "bg-brand-50 text-brand-primary" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1.5 transition ${viewMode === "table" ? "bg-brand-50 text-brand-primary" : "text-gray-400 hover:text-gray-600"}`}
               title="Table View"
             >
               <ListFilter size={17} />
             </button>
             <button
               onClick={() => setViewMode("cards")}
-              className={`rounded-sm p-1.5 transition ${viewMode === "cards" ? "bg-brand-50 text-brand-primary" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1.5 transition ${viewMode === "cards" ? "bg-brand-50 text-brand-primary" : "text-gray-400 hover:text-gray-600"}`}
               title="Card View"
             >
               <LayoutGrid size={17} />
@@ -649,7 +649,7 @@ export default function RequisitionsPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-sm bg-brand-50 text-brand-primary">
             <ClipboardList size={32} />
           </div>
-          <h3 className="mt-4 text-lg font-bold text-gray-900">No Purchase Requisitions Found</h3>
+          <h3 className="mt-4 text-lg font-bold text-gray-600">No Purchase Requisitions Found</h3>
           <p className="mx-auto mt-1 max-w-md text-sm text-gray-500">
             {searchTerm || statusFilter !== "ALL" || warehouseFilter
               ? "No requisitions matched your current filters. Try resetting the search terms."
@@ -659,7 +659,7 @@ export default function RequisitionsPage() {
             {searchTerm || statusFilter !== "ALL" || warehouseFilter ? (
               <button
                 onClick={() => { setSearchTerm(""); setStatusFilter("ALL"); setWarehouseFilter(""); }}
-                className="rounded-sm border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50"
+                className="rounded-sm border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50"
               >
                 Clear Filters
               </button>
@@ -706,7 +706,7 @@ export default function RequisitionsPage() {
                           <div>
                             <button
                               onClick={() => setViewReq(req)}
-                              className="font-mono text-sm font-black text-gray-900 hover:text-brand-primary transition"
+                              className="font-mono text-sm font-black text-gray-600 hover:text-brand-primary transition"
                             >
                               {req.prNo}
                             </button>
@@ -721,7 +721,7 @@ export default function RequisitionsPage() {
 
                       {/* Warehouse & Request Date */}
                       <td className="py-4 px-4">
-                        <p className="font-bold text-gray-900">{whObj?.name || req.warehouseName || "Main Warehouse"}</p>
+                        <p className="font-bold text-gray-600">{whObj?.name || req.warehouseName || "Main Warehouse"}</p>
                         <p className="text-xs text-gray-400">{new Date(req.requestDate).toLocaleDateString()}</p>
                       </td>
 
@@ -731,9 +731,9 @@ export default function RequisitionsPage() {
                           {items.slice(0, 3).map((it, idx) => (
                             <span
                               key={idx}
-                              className="inline-flex items-center rounded-sm border border-slate-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-700"
+                              className="inline-flex items-center rounded-sm border border-slate-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-600"
                             >
-                              {it.productName || it.product?.name || "Product"} × <strong className="ml-1 text-gray-900">{Number(it.qty)}</strong>
+                              {it.productName || it.product?.name || "Product"} × <strong className="ml-1 text-gray-600">{Number(it.qty)}</strong>
                             </span>
                           ))}
                           {items.length > 3 && (
@@ -748,7 +748,7 @@ export default function RequisitionsPage() {
                       </td>
 
                       {/* Est Total */}
-                      <td className="py-4 px-4 text-right font-black tabular-nums text-gray-900">
+                      <td className="py-4 px-4 text-right font-black tabular-nums text-gray-600">
                         {fmt(total)}
                       </td>
 
@@ -809,7 +809,7 @@ export default function RequisitionsPage() {
 
                           <button
                             onClick={() => setViewReq(req)}
-                            className="rounded-sm border border-slate-200 p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                            className="rounded-sm border border-slate-200 p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-600"
                             title="View Voucher"
                           >
                             <Eye size={15} />
@@ -841,7 +841,7 @@ export default function RequisitionsPage() {
                 <div>
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className="font-mono text-base font-black text-gray-900">{req.prNo}</span>
+                      <span className="font-mono text-base font-black text-gray-600">{req.prNo}</span>
                       <p className="text-xs text-gray-400">
                         {whObj?.name || req.warehouseName || "Warehouse"} · {new Date(req.requestDate).toLocaleDateString()}
                       </p>
@@ -855,10 +855,10 @@ export default function RequisitionsPage() {
                   <div className="mt-4 space-y-1.5">
                     {items.map((it, idx) => (
                       <div key={idx} className="flex justify-between text-xs">
-                        <span className="text-gray-700 truncate max-w-[180px]">
+                        <span className="text-gray-600 truncate max-w-[180px]">
                           {it.productName || it.product?.name || "Product"}
                         </span>
-                        <span className="font-bold text-gray-900">
+                        <span className="font-bold text-gray-600">
                           {Number(it.qty)} × {fmt(Number(it.estUnitPrice))}
                         </span>
                       </div>
@@ -870,7 +870,7 @@ export default function RequisitionsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Est. Total</span>
-                      <p className="text-lg font-black text-gray-900">{fmt(total)}</p>
+                      <p className="text-lg font-black text-gray-600">{fmt(total)}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       {req.status === "APPROVED" && (
@@ -912,7 +912,7 @@ export default function RequisitionsPage() {
                   <ClipboardList size={22} />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black tracking-tight text-gray-900">New Purchase Requisition</h2>
+                  <h2 className="text-xl font-black tracking-tight text-gray-600">New Purchase Requisition</h2>
                   <p className="text-xs font-medium text-gray-500">Scan barcodes or add items from catalog to create internal request</p>
                 </div>
               </div>
@@ -998,7 +998,7 @@ export default function RequisitionsPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Barcode size={17} className="text-brand-primary" />
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-800">Scan or Quick Add Products</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Scan or Quick Add Products</label>
                   </div>
                   <span className="text-xs font-medium text-gray-400">Press enter after typing to auto-add</span>
                 </div>
@@ -1014,7 +1014,7 @@ export default function RequisitionsPage() {
                       onChange={(e) => setScanInput(e.target.value)}
                       onKeyDown={handleScan}
                       placeholder="Scan Barcode or Type SKU & press Enter…"
-                      className="w-full rounded-sm border-2 border-primary-500/30 bg-brand-50/20 py-2.5 pl-10 pr-4 text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-500/10"
+                      className="w-full rounded-sm border-2 border-primary-500/30 bg-brand-50/20 py-2.5 pl-10 pr-4 text-sm font-bold text-gray-600 placeholder:text-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-500/10"
                     />
                   </div>
 
@@ -1025,7 +1025,7 @@ export default function RequisitionsPage() {
                         addProductToLines(e.target.value);
                         e.target.value = "";
                       }}
-                      className="w-full rounded-sm border border-slate-200 bg-white py-2.5 px-3.5 text-sm font-semibold text-gray-800 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                      className="w-full rounded-sm border border-slate-200 bg-white py-2.5 px-3.5 text-sm font-semibold text-gray-600 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                       defaultValue=""
                     >
                       <option value="" disabled>+ Choose product from catalog…</option>
@@ -1074,7 +1074,7 @@ export default function RequisitionsPage() {
                               <select
                                 value={line.productId}
                                 onChange={(e) => updateLine(idx, "productId", e.target.value)}
-                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-sm font-bold text-gray-900 focus:border-primary-500 focus:outline-none"
+                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-sm font-bold text-gray-600 focus:border-primary-500 focus:outline-none"
                               >
                                 {products.map((p) => (
                                   <option key={p.id} value={p.id}>
@@ -1097,7 +1097,7 @@ export default function RequisitionsPage() {
                                   min="1"
                                   value={line.qty}
                                   onChange={(e) => updateLine(idx, "qty", e.target.value)}
-                                  className="w-20 rounded-sm border border-slate-200 bg-white px-2 py-1.5 text-center text-sm font-black tabular-nums text-gray-900 focus:border-primary-500 focus:outline-none"
+                                  className="w-20 rounded-sm border border-slate-200 bg-white px-2 py-1.5 text-center text-sm font-black tabular-nums text-gray-600 focus:border-primary-500 focus:outline-none"
                                   required
                                 />
                                 <button
@@ -1116,12 +1116,12 @@ export default function RequisitionsPage() {
                                 step="0.01"
                                 value={line.estUnitPrice}
                                 onChange={(e) => updateLine(idx, "estUnitPrice", e.target.value)}
-                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-right text-sm font-bold tabular-nums text-gray-900 focus:border-primary-500 focus:outline-none"
+                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-right text-sm font-bold tabular-nums text-gray-600 focus:border-primary-500 focus:outline-none"
                                 placeholder="0.00"
                                 required
                               />
                             </td>
-                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-900">
+                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-600">
                               {fmt(lineTotal)}
                             </td>
                             <td className="py-3 pl-2 pr-4 text-center">
@@ -1146,7 +1146,7 @@ export default function RequisitionsPage() {
                 <div className="flex items-center gap-6">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Total Items</span>
-                    <p className="text-base font-black text-gray-900">{totalLinesCount} lines ({totalUnitsCount} units)</p>
+                    <p className="text-base font-black text-gray-600">{totalLinesCount} lines ({totalUnitsCount} units)</p>
                   </div>
                   <div className="h-8 w-px bg-gray-200" />
                   <div>
@@ -1159,7 +1159,7 @@ export default function RequisitionsPage() {
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="rounded-sm border border-slate-200 bg-white px-6 py-2.5 text-sm font-bold text-gray-700 shadow-2xs hover:bg-gray-50"
+                    className="rounded-sm border border-slate-200 bg-white px-6 py-2.5 text-sm font-bold text-gray-600 shadow-2xs hover:bg-gray-50"
                   >
                     Cancel
                   </button>
@@ -1188,7 +1188,7 @@ export default function RequisitionsPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-bold text-purple-700">1-Click Convert</span>
-                  <h2 className="text-xl font-black text-gray-900">PR #{convertingReq.prNo} → Purchase Order</h2>
+                  <h2 className="text-xl font-black text-gray-600">PR #{convertingReq.prNo} → Purchase Order</h2>
                 </div>
                 <p className="text-xs font-medium text-gray-500">Select supplier and confirm negotiated purchase order prices</p>
               </div>
@@ -1267,7 +1267,7 @@ export default function RequisitionsPage() {
                       const lineTot = (Number(line.qty) || 0) * (Number(line.unitPrice) || 0);
                       return (
                         <tr key={i}>
-                          <td className="py-3 px-4 font-bold text-gray-900">{prod?.name || "Product"}</td>
+                          <td className="py-3 px-4 font-bold text-gray-600">{prod?.name || "Product"}</td>
                           <td className="py-3 px-4 text-center">
                             <input
                               type="number"
@@ -1287,7 +1287,7 @@ export default function RequisitionsPage() {
                               className="w-28 rounded-sm border border-slate-200 bg-white px-2.5 py-1.5 text-right text-sm font-bold tabular-nums"
                             />
                           </td>
-                          <td className="py-3 px-4 text-right font-black tabular-nums text-gray-900">{fmt(lineTot)}</td>
+                          <td className="py-3 px-4 text-right font-black tabular-nums text-gray-600">{fmt(lineTot)}</td>
                         </tr>
                       );
                     })}
@@ -1304,7 +1304,7 @@ export default function RequisitionsPage() {
                   </p>
                 </div>
                 <div className="flex gap-3">
-                  <button type="button" onClick={() => setConvertingReq(null)} className="rounded-sm border border-slate-200 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50">Cancel</button>
+                  <button type="button" onClick={() => setConvertingReq(null)} className="rounded-sm border border-slate-200 px-6 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50">Cancel</button>
                   <button type="submit" disabled={convertSaving} className="flex items-center gap-2 rounded-sm bg-purple-600 px-7 py-2.5 text-sm font-black text-white shadow-lg shadow-purple-600/25 hover:bg-purple-700">
                     {convertSaving && <Loader2 size={16} className="animate-spin" />} <ShoppingCart size={17} /> Confirm & Generate PO
                   </button>
@@ -1320,7 +1320,7 @@ export default function RequisitionsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-md" onClick={() => setRejectingReq(null)}>
           <div className="w-full max-w-md rounded-sm bg-white p-6 shadow-2xs" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-black text-gray-900">Reject Requisition {rejectingReq.prNo}</h3>
+              <h3 className="text-lg font-black text-gray-600">Reject Requisition {rejectingReq.prNo}</h3>
               <button onClick={() => setRejectingReq(null)} className="rounded-sm p-1 text-gray-400 hover:bg-gray-100"><X size={18} /></button>
             </div>
             <form onSubmit={handleReject} className="mt-4 space-y-4">
@@ -1336,7 +1336,7 @@ export default function RequisitionsPage() {
                 />
               </div>
               <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
-                <button type="button" onClick={() => setRejectingReq(null)} className="rounded-sm border border-slate-200 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50">Cancel</button>
+                <button type="button" onClick={() => setRejectingReq(null)} className="rounded-sm border border-slate-200 px-4 py-2 text-sm font-bold text-gray-600 hover:bg-gray-50">Cancel</button>
                 <button type="submit" disabled={rejectSaving} className="flex items-center gap-2 rounded-sm bg-rose-600 px-4 py-2 text-sm font-bold text-white hover:bg-rose-700 disabled:opacity-50">
                   {rejectSaving && <Loader2 size={15} className="animate-spin" />} Reject PR
                 </button>
@@ -1358,9 +1358,9 @@ export default function RequisitionsPage() {
                   <span className={`rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wider ${STATUS_CONFIG[viewReq.status]?.badge}`}>
                     {STATUS_CONFIG[viewReq.status]?.label || viewReq.status}
                   </span>
-                  <span className="font-mono text-xl sm:text-2xl font-black text-gray-900">{viewReq.prNo}</span>
+                  <span className="font-mono text-xl sm:text-2xl font-black text-gray-600">{viewReq.prNo}</span>
                   {viewReq.warehouseName && (
-                    <span className="rounded-sm bg-gray-100 border border-slate-200 px-2.5 py-0.5 text-xs font-semibold text-gray-700">
+                    <span className="rounded-sm bg-gray-100 border border-slate-200 px-2.5 py-0.5 text-xs font-semibold text-gray-600">
                       📍 {viewReq.warehouseName}
                     </span>
                   )}
@@ -1374,7 +1374,7 @@ export default function RequisitionsPage() {
               <div className="flex items-center gap-2 no-print">
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900"
+                  className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600"
                 >
                   <Printer size={15} /> Print Slip
                 </button>
@@ -1419,25 +1419,25 @@ export default function RequisitionsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Request & Location Details</p>
-                  <div className="mt-2.5 space-y-2 text-xs text-gray-700">
+                  <div className="mt-2.5 space-y-2 text-xs text-gray-600">
                     <div className="flex justify-between py-1 border-b border-slate-100">
                       <span className="text-gray-500">Destination Warehouse:</span>
-                      <strong className="text-gray-900">{viewReq.warehouseName || warehouses.find(w => w.id === viewReq.warehouseId)?.name || "Central Warehouse"}</strong>
+                      <strong className="text-gray-600">{viewReq.warehouseName || warehouses.find(w => w.id === viewReq.warehouseId)?.name || "Central Warehouse"}</strong>
                     </div>
                     <div className="flex justify-between py-1 border-b border-slate-100">
                       <span className="text-gray-500">Requested By:</span>
-                      <strong className="text-gray-900">{viewReq.requestedBy || "Department Lead"}</strong>
+                      <strong className="text-gray-600">{viewReq.requestedBy || "Department Lead"}</strong>
                     </div>
                     <div className="flex justify-between py-1">
                       <span className="text-gray-500">Expected Delivery:</span>
-                      <strong className="text-gray-900">{viewReq.expectedDate ? new Date(viewReq.expectedDate).toLocaleDateString() : "Immediate"}</strong>
+                      <strong className="text-gray-600">{viewReq.expectedDate ? new Date(viewReq.expectedDate).toLocaleDateString() : "Immediate"}</strong>
                     </div>
                   </div>
                 </div>
 
                 <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Notes & Business Justification</p>
-                  <p className="mt-2.5 text-xs text-gray-700 leading-relaxed min-h-[50px] italic">
+                  <p className="mt-2.5 text-xs text-gray-600 leading-relaxed min-h-[50px] italic">
                     {viewReq.note ? `"${viewReq.note}"` : "No internal justification notes provided for this requisition."}
                   </p>
                   {viewReq.rejectionReason && (
@@ -1451,7 +1451,7 @@ export default function RequisitionsPage() {
               {/* Requested Items Table */}
               <div className="rounded-sm border border-slate-200 bg-white overflow-hidden shadow-2xs">
                 <div className="bg-gray-50/80 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700">Requested Product Items ({(viewReq.items || []).length})</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">Requested Product Items ({(viewReq.items || []).length})</h4>
                   <span className="text-xs font-semibold text-gray-500">
                     Total Units: {(viewReq.items || []).reduce((s, i) => s + Number(i.qty), 0)}
                   </span>
@@ -1474,7 +1474,7 @@ export default function RequisitionsPage() {
                           <tr key={idx} className="hover:bg-gray-50/60 transition">
                             <td className="py-3 px-4 text-center font-bold text-gray-400">{idx + 1}</td>
                             <td className="py-3 px-4">
-                              <p className="font-bold text-gray-900">{it.productName || it.product?.name || "Product Item"}</p>
+                              <p className="font-bold text-gray-600">{it.productName || it.product?.name || "Product Item"}</p>
                               <p className="text-[11px] font-mono text-gray-400">{it.sku || it.product?.sku || "—"}</p>
                             </td>
                             <td className="py-3 px-4 text-center">
@@ -1482,10 +1482,10 @@ export default function RequisitionsPage() {
                                 {Number(it.qty)} Units
                               </span>
                             </td>
-                            <td className="py-3 px-4 text-right font-medium text-gray-700">
+                            <td className="py-3 px-4 text-right font-medium text-gray-600">
                               {fmt(Number(it.estUnitPrice))}
                             </td>
-                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-900">
+                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-600">
                               {fmt(lineTot)}
                             </td>
                           </tr>
@@ -1494,7 +1494,7 @@ export default function RequisitionsPage() {
                     </tbody>
                     <tfoot className="bg-gray-50/80 border-t-2 border-slate-200">
                       <tr>
-                        <td colSpan={4} className="py-3.5 px-4 text-right font-bold text-gray-700 uppercase tracking-wider">
+                        <td colSpan={4} className="py-3.5 px-4 text-right font-bold text-gray-600 uppercase tracking-wider">
                           Estimated Grand Total
                         </td>
                         <td className="py-3.5 px-4 text-right font-black text-base text-brand-dark tabular-nums">
@@ -1528,7 +1528,7 @@ export default function RequisitionsPage() {
             </div>
 
             {/* Footer Action Controls */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-3xl no-print">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-sm no-print">
               <div className="flex items-center gap-2">
                 {viewReq.status === "DRAFT" && (
                   <button

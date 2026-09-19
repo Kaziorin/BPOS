@@ -180,11 +180,11 @@ export default function NotificationsConsole({
 
   return (
     <div className="space-y-6">
-      {message && <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700">{message}</div>}
+      {message && <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700">{message}</div>}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-900">
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-600">
             <Bell size={22} className="text-primary-600" /> Notification Engine
           </h1>
           <p className="mt-1 text-sm text-gray-500">In-app, email, SMS, WhatsApp &amp; push — one engine, consent checked centrally per customer/channel</p>
@@ -197,19 +197,19 @@ export default function NotificationsConsole({
 
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
           <p className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><Inbox size={13} /> Unread in-app</p>
           <p className="mt-1 text-2xl font-bold text-primary-600">{unread}</p>
         </div>
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
           <p className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><Send size={13} /> Sent (outbox)</p>
           <p className="mt-1 text-2xl font-bold text-emerald-600">{logKpis.SENT || 0}</p>
         </div>
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
           <p className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><CheckCheck size={13} /> Skipped (opt-out)</p>
           <p className="mt-1 text-2xl font-bold text-gray-500">{logKpis.SKIPPED_OPTOUT || 0}</p>
         </div>
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
           <p className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><FileText size={13} /> Templates</p>
           <p className="mt-1 text-2xl font-bold text-violet-600">{templates.length}</p>
         </div>
@@ -220,7 +220,7 @@ export default function NotificationsConsole({
         {([["inbox", "Inbox", Inbox], ["logs", "Outbox logs", Send], ["templates", "Templates", FileText],
            ["consent", "Customer consent", CheckCheck], ["channels", "Channels", Bell]] as [any, string, any][]).map(([id, label, Icon]) => (
           <button key={id} onClick={() => setTab(id)}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium transition ${tab === id ? "bg-primary-50 text-primary-700" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}>
+            className={`flex items-center gap-1.5 rounded-sm px-3.5 py-2 text-sm font-medium transition ${tab === id ? "bg-primary-50 text-primary-700" : "text-gray-500 hover:bg-gray-50 hover:text-gray-600"}`}>
             <Icon size={15} /> {label}
           </button>
         ))}
@@ -231,22 +231,22 @@ export default function NotificationsConsole({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <label className="flex items-center gap-2 text-sm text-gray-600">
-              <input type="checkbox" checked={onlyUnread} onChange={(e) => setOnlyUnread(e.target.checked)} className="rounded border-gray-300" /> Unread only
+              <input type="checkbox" checked={onlyUnread} onChange={(e) => setOnlyUnread(e.target.checked)} className="rounded-sm border-gray-300" /> Unread only
             </label>
             <CustomButton variant="outline" size="sm" onClick={readAll}><CheckCheck size={13} /> Mark all read</CustomButton>
           </div>
-          {inbox.length === 0 && <div className="rounded-xl border-2 border-dashed border-gray-200 p-12 text-center"><p className="text-sm text-gray-400">No notifications — approvals, low stock, delivery updates and sync alerts land here.</p></div>}
+          {inbox.length === 0 && <div className="rounded-sm border-2 border-dashed border-gray-200 p-12 text-center"><p className="text-sm text-gray-400">No notifications — approvals, low stock, delivery updates and sync alerts land here.</p></div>}
           <div className="space-y-2">
             {inbox.map((n) => (
               <div key={n.id} onClick={() => { if (!n.isRead) markRead(n.id); }}
-                className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 shadow-sm transition ${n.isRead ? "border-gray-100 bg-white" : "border-primary-100 bg-primary-50/40"}`}>
-                <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${n.isRead ? "bg-gray-100 text-gray-400" : "bg-primary-100 text-primary-600"}`}>
+                className={`flex cursor-pointer items-start gap-3 rounded-sm border px-4 py-3 shadow-sm transition ${n.isRead ? "border-gray-100 bg-white" : "border-primary-100 bg-primary-50/40"}`}>
+                <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-sm ${n.isRead ? "bg-gray-100 text-gray-400" : "bg-primary-100 text-primary-600"}`}>
                   {(CH_ICON[n.eventType === "APPROVAL_REQUIRED" ? "IN_APP" : "IN_APP"]) ? <Bell size={15} /> : <Bell size={15} />}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className={`text-sm ${n.isRead ? "font-medium text-gray-700" : "font-semibold text-gray-900"}`}>{n.title}</p>
-                    <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-bold text-gray-500">{n.eventType}</span>
+                    <p className={`text-sm ${n.isRead ? "font-medium text-gray-600" : "font-semibold text-gray-600"}`}>{n.title}</p>
+                    <span className="rounded-sm bg-gray-100 px-1.5 py-0.5 text-[10px] font-bold text-gray-500">{n.eventType}</span>
                     {!n.isRead && <span className="h-1.5 w-1.5 rounded-full bg-primary-500" />}
                   </div>
                   <p className="mt-0.5 text-xs text-gray-500">{n.body}</p>
@@ -270,7 +270,7 @@ export default function NotificationsConsole({
               options={[{ value: "", label: "All events" }, ...events.map((e) => ({ value: e.code, label: e.label }))]} containerClassName="w-52" />
             <button onClick={() => { setLogStatus(""); setLogChannel(""); setLogEvent(""); }} className="text-xs text-gray-400 hover:text-gray-600">Clear</button>
           </div>
-          <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
+          <div className="overflow-x-auto rounded-sm border border-gray-100 bg-white shadow-sm">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 text-left text-xs uppercase tracking-wide text-gray-400">
@@ -286,23 +286,23 @@ export default function NotificationsConsole({
                     <tr key={l.id} className="border-b border-gray-50 hover:bg-gray-50/60">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 text-gray-500"><Icon size={13} /></span>
+                          <span className="flex h-7 w-7 items-center justify-center rounded-sm bg-gray-100 text-gray-500"><Icon size={13} /></span>
                           <div>
-                            <p className="font-semibold text-gray-800">{l.eventType}</p>
+                            <p className="font-semibold text-gray-600">{l.eventType}</p>
                             <p className="text-[10px] text-gray-400">{l.channel}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-gray-800">{l.recipientName || "—"}</p>
+                        <p className="text-gray-600">{l.recipientName || "—"}</p>
                         <p className="text-[11px] text-gray-400">{l.recipientAddress || (l.recipientType === "USER" ? "in-app" : "")}</p>
                       </td>
                       <td className="max-w-[220px] px-4 py-3">
-                        <p className="truncate text-xs font-medium text-gray-700">{l.subject}</p>
+                        <p className="truncate text-xs font-medium text-gray-600">{l.subject}</p>
                         <p className="truncate text-[11px] text-gray-400">{l.body}</p>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${CHIP[l.status] || "bg-gray-100 text-gray-500"}`}>
+                        <span className={`rounded-sm px-2 py-0.5 text-[11px] font-bold ${CHIP[l.status] || "bg-gray-100 text-gray-500"}`}>
                           {l.status === "SKIPPED_OPTOUT" ? "OPTED OUT" : l.status}
                         </span>
                         {l.errorMsg && <p className="mt-0.5 text-[10px] text-gray-400">{l.errorMsg}</p>}
@@ -310,7 +310,7 @@ export default function NotificationsConsole({
                       <td className="px-4 py-3 text-xs text-gray-500">{fmt(l.sentAt || l.createdAt)}</td>
                       <td className="px-4 py-3 text-right">
                         {["FAILED", "PENDING"].includes(l.status) && (
-                          <button onClick={() => retryLog(l)} className="rounded-md bg-gray-100 px-2 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-200">Retry</button>
+                          <button onClick={() => retryLog(l)} className="rounded-sm bg-gray-100 px-2 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-200">Retry</button>
                         )}
                       </td>
                     </tr>
@@ -330,20 +330,20 @@ export default function NotificationsConsole({
             <CustomSelect value={tplFilter} onChange={(e) => setTplFilter(e.target.value)}
               options={[{ value: "", label: "All events" }, ...events.map((e) => ({ value: e.code, label: e.label }))]} containerClassName="w-56" />
           </div>
-          {templates.length === 0 && <div className="rounded-xl border-2 border-dashed border-gray-200 p-12 text-center"><p className="text-sm text-gray-400">No custom templates — built-in wording is used for every event/channel.</p></div>}
+          {templates.length === 0 && <div className="rounded-sm border-2 border-dashed border-gray-200 p-12 text-center"><p className="text-sm text-gray-400">No custom templates — built-in wording is used for every event/channel.</p></div>}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {templates.filter((t) => !tplFilter || t.eventType === tplFilter).map((t) => (
-              <div key={t.id} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+              <div key={t.id} className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
                 <div className="flex items-start justify-between">
                   <div>
-                    <span className="rounded-md bg-primary-50 px-2 py-0.5 text-[10px] font-bold text-primary-700">{t.eventType}</span>
-                    <span className="ml-1 rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500">{t.channel}</span>
+                    <span className="rounded-sm bg-primary-50 px-2 py-0.5 text-[10px] font-bold text-primary-700">{t.eventType}</span>
+                    <span className="ml-1 rounded-sm bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500">{t.channel}</span>
                   </div>
                   <button onClick={() => deleteTemplate(t)} className="text-gray-300 hover:text-rose-500"><Trash2 size={13} /></button>
                 </div>
-                <p className="mt-2 font-semibold text-gray-900">{t.name || t.eventType}</p>
+                <p className="mt-2 font-semibold text-gray-600">{t.name || t.eventType}</p>
                 <p className="mt-0.5 truncate text-xs text-gray-500">{t.subject}</p>
-                <p className="mt-2 line-clamp-2 rounded-lg bg-gray-50 p-2 text-[11px] text-gray-500">{t.body}</p>
+                <p className="mt-2 line-clamp-2 rounded-sm bg-gray-50 p-2 text-[11px] text-gray-500">{t.body}</p>
               </div>
             ))}
           </div>
@@ -354,17 +354,17 @@ export default function NotificationsConsole({
       {tab === "consent" && (
         <div className="grid gap-4 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+            <div className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
               <div className="relative mb-3">
                 <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input value={custSearch} onChange={(e) => { setCustSearch(e.target.value); loadCustomers(e.target.value); }}
                   placeholder="Search customers…"
-                  className="h-9 w-full rounded-lg border border-gray-200 bg-white pl-8 pr-3 text-sm outline-none focus:border-primary-400" />
+                  className="h-9 w-full rounded-sm border border-gray-200 bg-white pl-8 pr-3 text-sm outline-none focus:border-primary-400" />
               </div>
               <div className="max-h-[420px] space-y-1 overflow-y-auto">
                 {custOptions.map((c) => (
                   <button key={c.id} onClick={() => openConsent(c)}
-                    className={`w-full rounded-lg px-3 py-2 text-left text-sm transition hover:bg-gray-50 ${consentCust?.id === c.id ? "bg-primary-50 text-primary-700" : "text-gray-700"}`}>
+                    className={`w-full rounded-sm px-3 py-2 text-left text-sm transition hover:bg-gray-50 ${consentCust?.id === c.id ? "bg-primary-50 text-primary-700" : "text-gray-600"}`}>
                     <p className="font-medium">{c.name}</p>
                     <p className="text-[11px] text-gray-400">{c.phone || ""}{c.email ? ` · ${c.email}` : ""}</p>
                   </button>
@@ -375,12 +375,12 @@ export default function NotificationsConsole({
           </div>
           <div className="lg:col-span-3">
             {!consentCust ? (
-              <div className="flex h-full items-center justify-center rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
+              <div className="flex h-full items-center justify-center rounded-sm border-2 border-dashed border-gray-200 p-12 text-center">
                 <p className="text-sm text-gray-400">Pick a customer to manage their per-channel marketing consent.</p>
               </div>
             ) : (
-              <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                <p className="text-base font-bold text-gray-900">{consentCust.name}</p>
+              <div className="rounded-sm border border-gray-100 bg-white p-5 shadow-sm">
+                <p className="text-base font-bold text-gray-600">{consentCust.name}</p>
                 <p className="mt-0.5 text-xs text-gray-400">Communication consent per channel — opt-outs are enforced by the engine at send time, everywhere.</p>
                 <div className="mt-4 space-y-3">
                   {consents && CHANNEL_LIST.map((ch) => {
@@ -388,11 +388,11 @@ export default function NotificationsConsole({
                     const Icon = CH_ICON[ch] || Bell;
                     const opted = st === "OPTED_IN";
                     return (
-                      <div key={ch} className="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3">
+                      <div key={ch} className="flex items-center justify-between rounded-sm border border-gray-100 px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${opted ? "bg-emerald-50 text-emerald-600" : "bg-gray-100 text-gray-400"}`}><Icon size={16} /></span>
+                          <span className={`flex h-9 w-9 items-center justify-center rounded-sm ${opted ? "bg-emerald-50 text-emerald-600" : "bg-gray-100 text-gray-400"}`}><Icon size={16} /></span>
                           <div>
-                            <p className="text-sm font-semibold text-gray-800">{ch}</p>
+                            <p className="text-sm font-semibold text-gray-600">{ch}</p>
                             <p className="text-[11px] text-gray-400">{ch === "IN_APP" ? "In-app bell" : ch === "SMS" ? "Text message" : ch === "EMAIL" ? "Email" : ch === "WHATSAPP" ? "WhatsApp" : "Mobile push"}</p>
                           </div>
                         </div>
@@ -419,13 +419,13 @@ export default function NotificationsConsole({
             const Icon = CH_ICON[ch.code] || Bell;
             const on = !!ch.isEnabled;
             return (
-              <div key={ch.code} className={`rounded-xl border p-5 shadow-sm ${on ? "border-emerald-100 bg-white" : "border-gray-200 bg-gray-50"}`}>
-                <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${on ? "bg-emerald-50 text-emerald-600" : "bg-gray-200 text-gray-400"}`}><Icon size={18} /></span>
-                <p className="mt-3 font-semibold text-gray-900">{ch.code}</p>
+              <div key={ch.code} className={`rounded-sm border p-5 shadow-sm ${on ? "border-emerald-100 bg-white" : "border-gray-200 bg-gray-50"}`}>
+                <span className={`flex h-10 w-10 items-center justify-center rounded-sm ${on ? "bg-emerald-50 text-emerald-600" : "bg-gray-200 text-gray-400"}`}><Icon size={18} /></span>
+                <p className="mt-3 font-semibold text-gray-600">{ch.code}</p>
                 <p className="text-xs text-gray-400">{ch.name}</p>
                 <div className="mt-4">
                   <button onClick={() => toggleChannel(ch.code, on)}
-                    className={`w-full rounded-lg px-3 py-1.5 text-xs font-semibold transition ${on ? "bg-gray-900 text-white hover:bg-gray-700" : "bg-emerald-500 text-white hover:bg-emerald-600"}`}>
+                    className={`w-full rounded-sm px-3 py-1.5 text-xs font-semibold transition ${on ? "bg-gray-900 text-white hover:bg-gray-700" : "bg-emerald-500 text-white hover:bg-emerald-600"}`}>
                     {on ? "Disable channel" : "Enable channel"}
                   </button>
                 </div>
@@ -450,7 +450,7 @@ export default function NotificationsConsole({
             <p className="mb-1 text-xs font-medium text-gray-500">Body</p>
             <textarea value={tplForm.body} onChange={(e) => setTplForm({ ...tplForm, body: e.target.value })} rows={5}
               placeholder="Dear {name}, your total is ৳{amount}…"
-              className="w-full rounded-lg border border-gray-200 bg-white p-3 font-mono text-xs outline-none focus:border-primary-400" />
+              className="w-full rounded-sm border border-gray-200 bg-white p-3 font-mono text-xs outline-none focus:border-primary-400" />
             <p className="mt-1 text-[11px] text-gray-400">Placeholders: {'{name} {amount} {invoiceNo} {deliveryNo} {status} {product} {coupon} …'}</p>
           </div>
           <div className="flex justify-end gap-2">

@@ -74,11 +74,11 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
       {/* 80mm Thermal Receipt Container */}
       <div
         id="thermal-receipt"
-        className="w-full rounded-sm border border-teal-200/90 bg-white p-6 shadow-md font-mono text-xs text-gray-800 space-y-3"
+        className="w-full rounded-sm border border-brand-border bg-white p-6 shadow-md font-mono text-xs text-gray-600 space-y-3"
       >
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-base font-extrabold tracking-wider text-gray-950 uppercase">{siteConfig.name || "BLUE OCEANS POS"}</h2>
+          <h2 className="text-base font-extrabold tracking-wider text-gray-600 uppercase">{siteConfig.name || "BLUE OCEANS POS"}</h2>
           <p className="text-[11px] text-gray-500 mt-1">Dhaka Flagship Outlet • Counter #POS-01</p>
           <p className="text-[10px] text-gray-500 mt-0.5">BIN / VAT Reg No: 002938194-0101 • Mushak-6.3</p>
         </div>
@@ -90,21 +90,21 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
           <div className="flex justify-between items-baseline gap-2">
             <div className="truncate">
               <span className="text-gray-400">Invoice: </span>
-              <span className="font-bold text-gray-900">{result.invoiceNo}</span>
+              <span className="font-bold text-gray-600">{result.invoiceNo}</span>
             </div>
             <div className="shrink-0 text-right">
               <span className="text-gray-400">Date: </span>
-              <span className="text-gray-800">{currentDate}</span>
+              <span className="text-gray-600">{currentDate}</span>
             </div>
           </div>
           <div className="flex justify-between items-baseline gap-2">
             <div className="truncate">
               <span className="text-gray-400">Customer: </span>
-              <span className="text-gray-800 font-medium">{customerName || "Walk-in Retail Customer"}</span>
+              <span className="text-gray-600 font-medium">{customerName || "Walk-in Retail Customer"}</span>
             </div>
             <div className="shrink-0 text-right">
               <span className="text-gray-400">Cashier: </span>
-              <span className="text-gray-800 font-medium">{cashierName || "Admin"}</span>
+              <span className="text-gray-600 font-medium">{cashierName || "Admin"}</span>
             </div>
           </div>
         </div>
@@ -127,12 +127,12 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
                 return (
                   <div key={idx} className="grid grid-cols-12 items-baseline text-xs leading-tight">
                     <div className="col-span-5 pr-1">
-                      <div className="font-bold text-gray-900 leading-tight">{item.name}</div>
+                      <div className="font-bold text-gray-600 leading-tight">{item.name}</div>
                       <div className="text-[10px] text-gray-400 font-mono">SKU: {skuCode}</div>
                     </div>
-                    <div className="col-span-1 text-center text-gray-700 font-mono">{item.qty}</div>
-                    <div className="col-span-3 text-right text-gray-700 font-mono">৳{item.unitPrice.toFixed(2)}</div>
-                    <div className="col-span-3 text-right font-bold text-gray-900 font-mono">৳{item.lineTotal.toFixed(2)}</div>
+                    <div className="col-span-1 text-center text-gray-600 font-mono">{item.qty}</div>
+                    <div className="col-span-3 text-right text-gray-600 font-mono">৳{item.unitPrice.toFixed(2)}</div>
+                    <div className="col-span-3 text-right font-bold text-gray-600 font-mono">৳{item.lineTotal.toFixed(2)}</div>
                   </div>
                 );
               })}
@@ -143,29 +143,29 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
         <div className="border-t border-dashed border-gray-300" />
 
         {/* Financial Breakdown */}
-        <div className="space-y-1.5 text-xs text-gray-700">
+        <div className="space-y-1.5 text-xs text-gray-600">
           <div className="flex justify-between">
             <span className="text-gray-500">Subtotal:</span>
-            <span className="font-mono text-gray-900">৳{subtotal.toFixed(2)}</span>
+            <span className="font-mono text-gray-600">৳{subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-gray-500">
             <span>VAT (Mushak 6.3 - {vatRatePct}%):</span>
             <span className="font-mono">৳{vatAmount.toFixed(2)}</span>
           </div>
 
-          <div className="flex justify-between font-bold text-sm text-gray-950 border-t border-b border-gray-300 py-1.5 my-1">
+          <div className="flex justify-between font-bold text-sm text-gray-600 border-t border-b border-gray-300 py-1.5 my-1">
             <span>Net Payable:</span>
             <span className="font-mono text-base">৳{netPayable.toFixed(2)}</span>
           </div>
 
           <div className="flex justify-between items-baseline gap-2">
             <span className="text-gray-500 shrink-0">Tender Method:</span>
-            <span className="font-bold text-gray-900 text-right font-mono">{primaryMethod}</span>
+            <span className="font-bold text-gray-600 text-right font-mono">{primaryMethod}</span>
           </div>
 
           <div className="flex justify-between items-baseline gap-2">
             <span className="text-gray-500 shrink-0">Paid Amount:</span>
-            <span className="font-bold text-gray-900 text-right font-mono">৳{paidTotal.toFixed(2)}</span>
+            <span className="font-bold text-gray-600 text-right font-mono">৳{paidTotal.toFixed(2)}</span>
           </div>
 
           {Number(result.dueTotal || 0) > 0 && (
@@ -186,7 +186,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
         {/* Barcode & Policy Footer */}
         <div className="text-center space-y-1">
           <div className="flex justify-center py-1">
-            <div className="flex items-center gap-[2px] h-8 px-3 bg-gray-50 rounded">
+            <div className="flex items-center gap-[2px] h-8 px-3 bg-gray-50 rounded-sm">
               <div className="w-0.5 h-7 bg-black" />
               <div className="w-1.5 h-7 bg-black" />
               <div className="w-0.5 h-7 bg-black" />
@@ -202,7 +202,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
             </div>
           </div>
           <p className="text-[10px] text-gray-400 font-mono">*{result.invoiceNo}*</p>
-          <p className="text-xs font-bold text-gray-700 text-center max-w-[260px] mx-auto mt-2 leading-tight">
+          <p className="text-xs font-bold text-gray-600 text-center max-w-[260px] mx-auto mt-2 leading-tight">
             Items can be exchanged within 7 days with original receipt.
           </p>
           <p className="text-[10px] text-gray-400 text-center font-mono mt-2">
@@ -216,7 +216,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
         <CustomButton
           variant="outline"
           onClick={() => window.print()}
-          className="flex-1 h-10 gap-1.5 border-teal-200 bg-white text-xs font-bold text-slate-700 hover:bg-teal-50"
+          className="flex-1 h-10 gap-1.5 border-brand-border bg-white text-xs font-bold text-gray-600 hover:bg-brand-50"
         >
           <Printer size={15} />
           Print Thermal (80mm)

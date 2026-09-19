@@ -76,7 +76,7 @@ function getEmojiColor(_emoji: string) {
 function getCustomerTier(pts: number) {
   if (pts >= 4000) return { name: "VIP", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-100" };
   if (pts >= 1500) return { name: "Gold", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" };
-  if (pts >= 500) return { name: "Silver", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-100" };
+  if (pts >= 500) return { name: "Silver", color: "text-gray-600", bg: "bg-slate-50", border: "border-slate-100" };
   return { name: "Bronze", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-100" };
 }
 
@@ -769,18 +769,18 @@ export default function GroceryPOSPage() {
 
         {/* Brand Logo: BPOS */}
         <div className="relative z-10 flex items-center gap-3">
-          <Link href="/grocery" className="flex items-center text-slate-700 hover:text-slate-900 transition mr-1 bg-white/90 hover:bg-white p-1.5 rounded-xl border border-emerald-300/80 shadow-2xs">
+          <Link href="/grocery" className="flex items-center text-gray-600 hover:text-gray-600 transition mr-1 bg-white/90 hover:bg-white p-1.5 rounded-sm border border-emerald-300/80 shadow-2xs">
             <ChevronLeft size={18} />
           </Link>
           <div className="flex items-center gap-2.5">
-            <div className="relative w-10 h-10 rounded-xl bg-white border border-emerald-400 text-emerald-700 flex items-center justify-center shadow-xs">
+            <div className="relative w-10 h-10 rounded-sm bg-white border border-emerald-400 text-emerald-700 flex items-center justify-center shadow-xs">
               <ShoppingCart size={22} strokeWidth={2.2} />
               <div className="absolute -top-1 -right-1 text-xs">🌿</div>
             </div>
             <div className="leading-tight">
               <div className="flex items-center gap-1.5">
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">BPOS</h1>
-                <span className="bg-emerald-700 text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider shadow-2xs">GROCERY</span>
+                <h1 className="text-xl font-black text-gray-600 tracking-tight">BPOS</h1>
+                <span className="bg-emerald-700 text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-sm uppercase tracking-wider shadow-2xs">GROCERY</span>
               </div>
               <p className="text-[9.5px] font-bold tracking-wider text-emerald-800 uppercase">POS SYSTEM</p>
             </div>
@@ -789,11 +789,11 @@ export default function GroceryPOSPage() {
 
         {/* Search Bar */}
         <div className="relative z-10 flex-1 max-w-xl">
-          <div className="flex items-center bg-white/95 backdrop-blur-sm rounded-full border border-emerald-400 shadow-sm px-4 py-1.5 text-slate-800 transition focus-within:ring-2 focus-within:ring-emerald-500">
+          <div className="flex items-center bg-white/95 backdrop-blur-sm rounded-full border border-emerald-400 shadow-sm px-4 py-1.5 text-gray-600 transition focus-within:ring-2 focus-within:ring-emerald-500">
             <Search size={17} className="text-slate-400 shrink-0 mr-2.5" />
             <input ref={scanRef} type="text" value={scanInput} onChange={e => { setScanInput(e.target.value); setSearchFilter(e.target.value); }} onKeyDown={handleScanKey}
               placeholder="Search product by name, barcode or scan..."
-              className="w-full bg-transparent text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none" />
+              className="w-full bg-transparent text-xs font-bold text-gray-600 placeholder:text-slate-400 focus:outline-none" />
             <ScanLine size={17} className="text-emerald-700 shrink-0 ml-2" />
           </div>
         </div>
@@ -806,10 +806,10 @@ export default function GroceryPOSPage() {
             { icon: <FileText size={14} strokeWidth={2.2} />, bg: "bg-emerald-100 text-emerald-900 border-emerald-300", label: "Invoice", sub: "INV-250520-0012", onClick: () => setLiveInvoiceModalOpen(true) },
             { icon: <Clock size={14} strokeWidth={2.2} />, bg: "bg-emerald-100 text-emerald-900 border-emerald-300", label: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), sub: now.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) },
           ].map((c, i) => (
-            <div key={i} onClick={c.onClick} className="flex items-center gap-2 bg-white/90 hover:bg-white rounded-xl px-3 py-1.5 border border-emerald-300/80 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
-              <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${c.bg}`}>{c.icon}</div>
+            <div key={i} onClick={c.onClick} className="flex items-center gap-2 bg-white/90 hover:bg-white rounded-sm px-3 py-1.5 border border-emerald-300/80 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
+              <div className={`w-6 h-6 rounded-sm flex items-center justify-center shrink-0 ${c.bg}`}>{c.icon}</div>
               <div className="leading-tight">
-                <p className="text-[11px] font-extrabold text-slate-800 whitespace-nowrap">{c.label}</p>
+                <p className="text-[11px] font-extrabold text-gray-600 whitespace-nowrap">{c.label}</p>
                 <p className="text-[9px] font-bold text-slate-500 whitespace-nowrap">{c.sub}</p>
               </div>
             </div>
@@ -819,7 +819,7 @@ export default function GroceryPOSPage() {
           <button
             onClick={toggleFullscreen}
             title={isFullscreen ? "Exit Fullscreen (F)" : "Enter Fullscreen (F)"}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 transition cursor-pointer border border-emerald-300 shrink-0"
+            className="flex h-8 w-8 items-center justify-center rounded-sm bg-emerald-100 hover:bg-emerald-200 text-emerald-800 transition cursor-pointer border border-emerald-300 shrink-0"
           >
             {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
           </button>
@@ -842,7 +842,7 @@ export default function GroceryPOSPage() {
                   <button key={cat} onClick={() => { setSelectedCat(cat); setMoreOpen(false); }}
                     className={`flex items-center justify-center gap-1.5 px-2 py-2 rounded-sm text-xs font-black transition-all duration-200 transform truncate ${on
                         ? "bg-emerald-600 text-white shadow-md scale-[1.03] active:scale-95"
-                        : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:-translate-y-0.5 shadow-2xs active:scale-95"
+                        : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:-translate-y-0.5 shadow-2xs active:scale-95"
                       }`}>
                     <span className={on ? "text-white shrink-0" : `${item.color} shrink-0`}>{item.icon}</span>
                     <span className="truncate">{cat}</span>
@@ -854,7 +854,7 @@ export default function GroceryPOSPage() {
               <button onClick={() => setMoreOpen(p => !p)}
                 className={`flex items-center justify-center gap-1 px-2 py-2 rounded-sm text-xs font-black transition-all duration-200 transform truncate ${MORE_CATS.includes(selectedCat) || moreOpen
                     ? "bg-emerald-600 text-white shadow-md scale-[1.03]"
-                    : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:-translate-y-0.5 shadow-2xs active:scale-95"
+                    : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:-translate-y-0.5 shadow-2xs active:scale-95"
                   }`}>
                 <span className="truncate">••• More {MORE_CATS.includes(selectedCat) ? `(${selectedCat})` : ""}</span>
                 <ChevronDown size={14} className={`shrink-0 transition-transform duration-200 ${moreOpen ? "rotate-180" : ""}`} />
@@ -865,7 +865,7 @@ export default function GroceryPOSPage() {
           {/* Inline Expanded Category Drawer */}
           {moreOpen && (
             <div className="flex-none bg-gray-50 border-b border-gray-200 px-4 py-2.5 flex items-center gap-2 flex-wrap shadow-inner animate-in fade-in slide-in-from-top-1">
-              <span className="text-[10px] font-black text-gray-700 uppercase tracking-wider mr-1">
+              <span className="text-[10px] font-black text-gray-600 uppercase tracking-wider mr-1">
                 More Categories:
               </span>
               {MORE_CATS.map(cat => {
@@ -874,13 +874,13 @@ export default function GroceryPOSPage() {
                 const item = CAT_ICON_MAP[cat] || { icon: <Package size={14} />, color: "text-emerald-600" };
                 return (
                   <button key={cat} onClick={() => { setSelectedCat(cat); setMoreOpen(false); }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all transform hover:scale-105 active:scale-95 ${on
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-bold transition-all transform hover:scale-105 active:scale-95 ${on
                         ? "bg-emerald-600 text-white shadow-sm"
-                        : "bg-white border border-gray-200 text-gray-800 hover:bg-gray-100"
+                        : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-100"
                       }`}>
                     <span className={on ? "text-white" : item.color}>{item.icon}</span>
                     <span>{cat}</span>
-                    <span className={`text-[10px] font-mono rounded px-1 py-0.5 ${on ? "bg-white/20 text-white" : "bg-gray-100 text-gray-700"}`}>
+                    <span className={`text-[10px] font-mono rounded-sm px-1 py-0.5 ${on ? "bg-white/20 text-white" : "bg-gray-100 text-gray-600"}`}>
                       {count}
                     </span>
                   </button>
@@ -891,7 +891,7 @@ export default function GroceryPOSPage() {
 
           {/* Quick actions */}
           <div className="flex-none bg-white border-b border-gray-200 px-4 py-2.5">
-            <p className="text-xs font-bold text-slate-700 mb-2">Quick Actions</p>
+            <p className="text-xs font-bold text-gray-600 mb-2">Quick Actions</p>
             <div className="flex items-center gap-2.5">
               {[
                 { label: "Price Check", key: "F3", icon: <Search size={15} />, onClick: () => setPriceCheckOpen(true) },
@@ -901,17 +901,17 @@ export default function GroceryPOSPage() {
                 { label: "Hold Bill", key: "F7", icon: <PauseCircle size={15} />, onClick: () => { if (cart.length) holdCart(); else setHeldCartsOpen(true); } },
               ].map(a => (
                 <button key={a.label} onClick={a.onClick}
-                  className="flex-1 bg-white rounded-xl border border-gray-200 p-2 flex items-center gap-2 shadow-2xs hover:shadow-md hover:border-gray-300 hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[0.98] transition-all duration-150 text-left group cursor-pointer">
-                  <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-200 text-slate-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-emerald-600 group-hover:text-white transition-all duration-200">
+                  className="flex-1 bg-white rounded-sm border border-gray-200 p-2 flex items-center gap-2 shadow-2xs hover:shadow-md hover:border-gray-300 hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[0.98] transition-all duration-150 text-left group cursor-pointer">
+                  <div className="w-8 h-8 rounded-sm bg-gray-50 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-emerald-600 group-hover:text-white transition-all duration-200">
                     {a.icon}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-slate-800 truncate leading-snug group-hover:text-emerald-700 transition-colors">{a.label}</p>
-                    <span className="text-[10px] font-semibold font-mono text-slate-700 bg-gray-100 border border-gray-200 px-1.5 py-0.2 rounded inline-block mt-0.5">{a.key}</span>
+                    <p className="text-xs font-bold text-gray-600 truncate leading-snug group-hover:text-emerald-700 transition-colors">{a.label}</p>
+                    <span className="text-[10px] font-semibold font-mono text-gray-600 bg-gray-100 border border-gray-200 px-1.5 py-0.2 rounded-sm inline-block mt-0.5">{a.key}</span>
                   </div>
                 </button>
               ))}
-              <button onClick={() => setSettingsOpen(true)} className="p-2.5 rounded-xl border border-gray-200 bg-white text-slate-600 hover:text-emerald-700 hover:border-gray-300 hover:shadow-md active:translate-y-0.5 active:scale-95 shadow-2xs shrink-0 transition-all cursor-pointer">
+              <button onClick={() => setSettingsOpen(true)} className="p-2.5 rounded-sm border border-gray-200 bg-white text-slate-600 hover:text-emerald-700 hover:border-gray-300 hover:shadow-md active:translate-y-0.5 active:scale-95 shadow-2xs shrink-0 transition-all cursor-pointer">
                 <Settings size={17} />
               </button>
             </div>
@@ -919,7 +919,7 @@ export default function GroceryPOSPage() {
 
           {/* Sub-header */}
           <div className="flex-none px-4 py-2 bg-white border-b border-gray-200 flex items-center justify-between">
-            <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wide">All Products ({filteredProducts.length})</h2>
+            <h2 className="text-xs font-bold text-gray-600 uppercase tracking-wide">All Products ({filteredProducts.length})</h2>
             <button onClick={() => { setSelectedCat("All Items"); setSearchFilter(""); }} className="text-xs font-bold text-emerald-600 hover:underline">View All</button>
           </div>
 
@@ -947,12 +947,12 @@ export default function GroceryPOSPage() {
                     )}
 
                     {/* Pure White Square Image / Emoji Showcase */}
-                    <div className="w-full h-20 sm:h-22 aspect-square flex items-center justify-center rounded-xl text-[38px] leading-none mb-2 select-none group-hover:scale-108 transition-all duration-200 border border-gray-100 bg-white relative overflow-hidden shrink-0 shadow-2xs">
+                    <div className="w-full h-20 sm:h-22 aspect-square flex items-center justify-center rounded-sm text-[38px] leading-none mb-2 select-none group-hover:scale-108 transition-all duration-200 border border-gray-100 bg-white relative overflow-hidden shrink-0 shadow-2xs">
                       {p.imageUrl ? (
                         <img
                           src={p.imageUrl}
                           alt={p.name}
-                          className="w-full h-full object-cover rounded-xl"
+                          className="w-full h-full object-cover rounded-sm"
                         />
                       ) : (
                         <span className="relative z-10 drop-shadow-xs select-none">{emoji}</span>
@@ -961,18 +961,18 @@ export default function GroceryPOSPage() {
 
                     <div className="flex-1 flex flex-col justify-between min-w-0">
                       <div>
-                        <p className="text-xs font-bold text-slate-800 truncate group-hover:text-emerald-700 transition-colors leading-snug tracking-tight">{p.name}</p>
+                        <p className="text-xs font-bold text-gray-600 truncate group-hover:text-emerald-700 transition-colors leading-snug tracking-tight">{p.name}</p>
                         <div className="flex items-center gap-1 mt-1">
-                          <span className="text-[10px] font-semibold font-mono text-slate-600 bg-gray-100 border border-gray-200 px-1.5 py-0.2 rounded">{p.uom || "1kg"}</span>
-                          {isKg && <span className="text-[9px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-1 rounded">Scale</span>}
+                          <span className="text-[10px] font-semibold font-mono text-slate-600 bg-gray-100 border border-gray-200 px-1.5 py-0.2 rounded-sm">{p.uom || "1kg"}</span>
+                          {isKg && <span className="text-[9px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-1 rounded-sm">Scale</span>}
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between mt-2.5 pt-1.5 border-t border-gray-100">
-                        <span className="text-xs font-extrabold text-slate-900 bg-white border border-gray-200 px-2 py-0.5 rounded-lg shadow-2xs">
+                        <span className="text-xs font-extrabold text-gray-600 bg-white border border-gray-200 px-2 py-0.5 rounded-sm shadow-2xs">
                           ৳ {Number(p.sellingPrice).toFixed(2)}
                         </span>
-                        <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-2xs group-hover:scale-110 group-hover:bg-emerald-500 transition-all duration-200">
+                        <div className="w-6 h-6 rounded-sm bg-emerald-600 text-white flex items-center justify-center shadow-2xs group-hover:scale-110 group-hover:bg-emerald-500 transition-all duration-200">
                           <Plus size={13} strokeWidth={2.5} />
                         </div>
                       </div>
@@ -995,19 +995,19 @@ export default function GroceryPOSPage() {
             {/* Status Summary Bar — Pure White */}
             <div className="bg-white rounded-sm border border-gray-200 shadow-md px-4 py-2.5 flex items-center justify-between divide-x divide-gray-100">
               {[
-                { icon: <ShoppingBag size={16} />, label: "Total Items", val: totalItems, bg: "bg-slate-100 text-slate-700 border border-slate-200" },
-                { icon: <Package size={16} />, label: "Total Qty", val: Math.round(totalQty * 100) / 100, bg: "bg-slate-100 text-slate-700 border border-slate-200" },
-                { icon: <FileText size={16} />, label: "Subtotal", val: fmt(subTotal), bg: "bg-slate-100 text-slate-700 border border-slate-200" },
-                { icon: <Tag size={16} />, label: "Discount", val: fmt(discAmt), bg: "bg-slate-100 text-slate-700 border border-slate-200" },
-                { icon: <Gift size={16} />, label: "Total Savings", val: fmt(discAmt), bg: "bg-slate-100 text-slate-700 border border-slate-200" },
+                { icon: <ShoppingBag size={16} />, label: "Total Items", val: totalItems, bg: "bg-slate-100 text-gray-600 border border-slate-200" },
+                { icon: <Package size={16} />, label: "Total Qty", val: Math.round(totalQty * 100) / 100, bg: "bg-slate-100 text-gray-600 border border-slate-200" },
+                { icon: <FileText size={16} />, label: "Subtotal", val: fmt(subTotal), bg: "bg-slate-100 text-gray-600 border border-slate-200" },
+                { icon: <Tag size={16} />, label: "Discount", val: fmt(discAmt), bg: "bg-slate-100 text-gray-600 border border-slate-200" },
+                { icon: <Gift size={16} />, label: "Total Savings", val: fmt(discAmt), bg: "bg-slate-100 text-gray-600 border border-slate-200" },
               ].map((s, idx) => (
                 <div key={s.label} className={`flex items-center gap-2.5 ${idx === 0 ? "" : "pl-3.5"} ${idx === 4 ? "" : "pr-3.5"} flex-1`}>
-                  <div className={`w-8 h-8 rounded-xl ${s.bg} flex items-center justify-center shrink-0 shadow-2xs`}>
+                  <div className={`w-8 h-8 rounded-sm ${s.bg} flex items-center justify-center shrink-0 shadow-2xs`}>
                     {s.icon}
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide leading-tight">{s.label}</p>
-                    <p className="text-xs sm:text-sm font-extrabold text-slate-800 leading-snug mt-0.5">{s.val}</p>
+                    <p className="text-xs sm:text-sm font-extrabold text-gray-600 leading-snug mt-0.5">{s.val}</p>
                   </div>
                 </div>
               ))}
@@ -1023,18 +1023,18 @@ export default function GroceryPOSPage() {
                 { label: "Save & Print", key: "F12", icon: <Printer size={16} />, onClick: () => window.print() },
               ].map((a) => (
                 <button key={a.label} onClick={a.onClick}
-                  className={`border rounded-xl p-2 flex items-center justify-between shadow-2xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[0.98] transition-all duration-150 text-left group overflow-hidden cursor-pointer bg-white ${a.isDanger
+                  className={`border rounded-sm p-2 flex items-center justify-between shadow-2xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0.5 active:scale-[0.98] transition-all duration-150 text-left group overflow-hidden cursor-pointer bg-white ${a.isDanger
                       ? "border-red-200 hover:border-red-500"
                       : "border-gray-200 hover:border-gray-400"
                     }`}>
                   <div className="flex items-center gap-2 min-w-0">
-                    <div className={`w-8 h-8 rounded-lg bg-gray-50 border flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-all duration-200 ${a.isDanger ? "border-red-200 text-red-600 group-hover:bg-red-600 group-hover:text-white" : "border-gray-200 text-slate-700 group-hover:bg-slate-900 group-hover:text-white"
+                    <div className={`w-8 h-8 rounded-sm bg-gray-50 border flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-all duration-200 ${a.isDanger ? "border-red-200 text-red-600 group-hover:bg-red-600 group-hover:text-white" : "border-gray-200 text-gray-600 group-hover:bg-slate-900 group-hover:text-white"
                       }`}>
                       {a.icon}
                     </div>
                     <div className="min-w-0">
-                      <p className={`text-xs font-bold truncate leading-snug transition-colors ${a.isDanger ? "text-red-900 group-hover:text-red-700" : "text-slate-800 group-hover:text-slate-900"}`}>{a.label}</p>
-                      <span className={`text-[9.5px] font-mono font-semibold px-1.5 py-0.2 rounded inline-block mt-0.5 border ${a.isDanger ? "bg-red-600 text-white border-red-700/50" : "bg-emerald-700 text-white border-emerald-800/50"
+                      <p className={`text-xs font-bold truncate leading-snug transition-colors ${a.isDanger ? "text-red-900 group-hover:text-red-700" : "text-gray-600 group-hover:text-gray-600"}`}>{a.label}</p>
+                      <span className={`text-[9.5px] font-mono font-semibold px-1.5 py-0.2 rounded-sm inline-block mt-0.5 border ${a.isDanger ? "bg-red-600 text-white border-red-700/50" : "bg-emerald-700 text-white border-emerald-800/50"
                         }`}>{a.key}</span>
                     </div>
                   </div>
@@ -1054,17 +1054,17 @@ export default function GroceryPOSPage() {
             {/* Cart header */}
             <div className="shrink-0 flex items-center justify-between px-4 pt-3 pb-2">
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-slate-800">Cart</h2>
+                <h2 className="text-base font-bold text-gray-600">Cart</h2>
                 <span className="text-emerald-600 font-bold text-xs">({totalItems} Items)</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <button onClick={() => { if (cart.length) holdCart(); else setHeldCartsOpen(true); }}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-xl border text-xs font-bold transition cursor-pointer ${heldCarts.length > 0 ? "border-amber-300 bg-amber-50 text-amber-800" : "border-emerald-200 bg-emerald-50/70 text-emerald-800 hover:bg-emerald-100/70"
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-sm border text-xs font-bold transition cursor-pointer ${heldCarts.length > 0 ? "border-amber-300 bg-amber-50 text-amber-800" : "border-emerald-200 bg-emerald-50/70 text-emerald-800 hover:bg-emerald-100/70"
                     }`}>
                   Hold (F7) {heldCarts.length > 0 ? `(${heldCarts.length})` : ""}
                 </button>
                 <button onClick={clearCart} disabled={!cart.length}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-xl border border-red-200 bg-red-50/70 text-xs font-bold text-red-600 hover:bg-red-100 transition disabled:opacity-40 cursor-pointer">
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-sm border border-red-200 bg-red-50/70 text-xs font-bold text-red-600 hover:bg-red-100 transition disabled:opacity-40 cursor-pointer">
                   <Trash2 size={12} /> Clear
                 </button>
               </div>
@@ -1094,28 +1094,28 @@ export default function GroceryPOSPage() {
                     style={{ gridTemplateColumns: "1.8fr 1fr 0.9fr 0.9fr 0.9fr 26px" }}>
                     <div className="flex items-center gap-2 min-w-0">
                       {(item as any).image ? (
-                        <div className="w-6 h-6 rounded-md flex-shrink-0 overflow-hidden border border-gray-100 shadow-2xs bg-white">
+                        <div className="w-6 h-6 rounded-sm flex-shrink-0 overflow-hidden border border-gray-100 shadow-2xs bg-white">
                           <img src={(item as any).image} alt={item.name} className="w-full h-full object-cover" />
                         </div>
                       ) : (
-                        <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-sm leading-none" style={{ background: bg }}>{emoji}</div>
+                        <div className="w-6 h-6 rounded-sm flex items-center justify-center flex-shrink-0 text-sm leading-none" style={{ background: bg }}>{emoji}</div>
                       )}
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-800 truncate leading-tight">{item.name}</p>
+                        <p className="text-xs font-bold text-gray-600 truncate leading-tight">{item.name}</p>
                         <p className="text-[10px] text-slate-500 font-medium">৳ {item.unitPrice.toFixed(2)} / {item.uom || "pcs"}</p>
                       </div>
                     </div>
                     <div className="flex items-center justify-center">
-                      <div className="flex items-center bg-white border border-gray-200 rounded-lg px-1 py-0.5 shadow-2xs">
-                        <button onClick={e => { e.stopPropagation(); updateQty(item.id, item.isWeighed ? -0.1 : -1); }} className="w-4 h-4 flex items-center justify-center text-slate-500 hover:text-slate-900 font-bold text-xs flex-shrink-0 cursor-pointer">−</button>
-                        <span className="w-6 text-center font-bold text-xs text-slate-800">{item.isWeighed ? item.qty.toFixed(1) : item.qty}</span>
-                        <button onClick={e => { e.stopPropagation(); updateQty(item.id, item.isWeighed ? 0.1 : 1); }} className="w-4 h-4 flex items-center justify-center text-slate-500 hover:text-slate-900 font-bold text-xs flex-shrink-0 cursor-pointer">+</button>
+                      <div className="flex items-center bg-white border border-gray-200 rounded-sm px-1 py-0.5 shadow-2xs">
+                        <button onClick={e => { e.stopPropagation(); updateQty(item.id, item.isWeighed ? -0.1 : -1); }} className="w-4 h-4 flex items-center justify-center text-slate-500 hover:text-gray-600 font-bold text-xs flex-shrink-0 cursor-pointer">−</button>
+                        <span className="w-6 text-center font-bold text-xs text-gray-600">{item.isWeighed ? item.qty.toFixed(1) : item.qty}</span>
+                        <button onClick={e => { e.stopPropagation(); updateQty(item.id, item.isWeighed ? 0.1 : 1); }} className="w-4 h-4 flex items-center justify-center text-slate-500 hover:text-gray-600 font-bold text-xs flex-shrink-0 cursor-pointer">+</button>
                       </div>
                     </div>
-                    <div className="text-right text-xs font-semibold text-slate-700">৳ {item.unitPrice.toFixed(2)}</div>
+                    <div className="text-right text-xs font-semibold text-gray-600">৳ {item.unitPrice.toFixed(2)}</div>
                     <div className="text-center">
                       {item.discountPct
-                        ? <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded inline-block">{item.discountPct}%</span>
+                        ? <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded-sm inline-block">{item.discountPct}%</span>
                         : <span className="text-slate-300">-</span>}
                     </div>
                     <div className="text-right text-xs font-bold text-emerald-700">৳ {lineFinal.toFixed(2)}</div>
@@ -1133,18 +1133,18 @@ export default function GroceryPOSPage() {
             {/* Cart footer */}
             <div className="shrink-0 flex items-center justify-between px-3 py-2 border-t border-gray-100">
               <div className="flex items-center gap-1.5">
-                <button onClick={() => noteInputRef.current?.focus()} className="flex items-center gap-1 px-2 py-1 rounded-lg border border-gray-200 bg-white text-xs font-bold text-slate-700 hover:bg-gray-50 transition cursor-pointer">
+                <button onClick={() => noteInputRef.current?.focus()} className="flex items-center gap-1 px-2 py-1 rounded-sm border border-gray-200 bg-white text-xs font-bold text-gray-600 hover:bg-gray-50 transition cursor-pointer">
                   <Plus size={12} className="text-emerald-600" /> Note
                 </button>
-                <button onClick={() => discountInputRef.current?.focus()} className="flex items-center gap-1 px-2 py-1 rounded-lg border border-gray-200 bg-white text-xs font-bold text-emerald-700 hover:bg-gray-50 transition cursor-pointer">
+                <button onClick={() => discountInputRef.current?.focus()} className="flex items-center gap-1 px-2 py-1 rounded-sm border border-gray-200 bg-white text-xs font-bold text-emerald-700 hover:bg-gray-50 transition cursor-pointer">
                   <Tag size={12} className="text-emerald-600" /> Discount
                 </button>
-                <button onClick={() => couponInputRef.current?.focus()} className="flex items-center gap-1 px-2 py-1 rounded-lg border border-gray-200 bg-white text-xs font-bold text-rose-600 hover:bg-gray-50 transition cursor-pointer">
+                <button onClick={() => couponInputRef.current?.focus()} className="flex items-center gap-1 px-2 py-1 rounded-sm border border-gray-200 bg-white text-xs font-bold text-rose-600 hover:bg-gray-50 transition cursor-pointer">
                   <Gift size={12} className="text-rose-500" /> Coupon
                 </button>
               </div>
-              <div className="text-xs font-bold text-slate-700">
-                Items: <b className="text-slate-900">{totalItems}</b> <span className="ml-2">Qty: <b className="text-slate-900">{Math.round(totalQty * 100) / 100}</b></span>
+              <div className="text-xs font-bold text-gray-600">
+                Items: <b className="text-gray-600">{totalItems}</b> <span className="ml-2">Qty: <b className="text-gray-600">{Math.round(totalQty * 100) / 100}</b></span>
               </div>
             </div>
           </div>
@@ -1153,32 +1153,32 @@ export default function GroceryPOSPage() {
           <div className="shrink-0 grid grid-cols-2 gap-2">
 
             {/* Discount / Coupon / Note */}
-            <div className="bg-gradient-to-b from-[#f2faf4] to-[#e6f7ec] rounded-xl p-2.5 border-t border-x border-[#e2f5e7] border-b-[2.5px] border-b-[#c8eed3] flex flex-col gap-1.5 shadow-2xs">
+            <div className="bg-gradient-to-b from-[#f2faf4] to-[#e6f7ec] rounded-sm p-2.5 border-t border-x border-[#e2f5e7] border-b-[2.5px] border-b-[#c8eed3] flex flex-col gap-1.5 shadow-2xs">
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-bold text-slate-700 w-14 shrink-0">Discount</span>
-                <div className="flex-1 bg-white rounded-lg border border-gray-200 px-2 py-1 flex items-center shadow-2xs">
+                <span className="text-[11px] font-bold text-gray-600 w-14 shrink-0">Discount</span>
+                <div className="flex-1 bg-white rounded-sm border border-gray-200 px-2 py-1 flex items-center shadow-2xs">
                   <input ref={discountInputRef} type="number" value={discountPct} onChange={e => setDiscountPct(e.target.value)}
-                    className="w-full bg-transparent text-xs font-bold text-slate-800 text-right focus:outline-none pr-1" />
+                    className="w-full bg-transparent text-xs font-bold text-gray-600 text-right focus:outline-none pr-1" />
                   <span className="text-xs font-semibold text-slate-400">%</span>
                 </div>
                 <button onClick={() => { setCouponToast("Discount Percentage Updated!"); setTimeout(() => setCouponToast(""), 2500); }}
-                  className="rounded-lg text-xs font-bold text-white px-2.5 py-1 shadow-xs transition hover:brightness-110 active:scale-95 cursor-pointer bg-emerald-600 border-b border-emerald-800">Apply</button>
+                  className="rounded-sm text-xs font-bold text-white px-2.5 py-1 shadow-xs transition hover:brightness-110 active:scale-95 cursor-pointer bg-emerald-600 border-b border-emerald-800">Apply</button>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-bold text-slate-700 w-14 shrink-0">Coupon</span>
-                <div className="flex-1 bg-white rounded-lg border border-gray-200 px-2 py-1 flex items-center shadow-2xs">
+                <span className="text-[11px] font-bold text-gray-600 w-14 shrink-0">Coupon</span>
+                <div className="flex-1 bg-white rounded-sm border border-gray-200 px-2 py-1 flex items-center shadow-2xs">
                   <input ref={couponInputRef} type="text" value={couponCode} onChange={e => setCouponCode(e.target.value)} placeholder="e.g. SAVE10"
-                    className="w-full bg-transparent text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none" />
+                    className="w-full bg-transparent text-xs font-medium text-gray-600 placeholder:text-slate-400 focus:outline-none" />
                 </div>
                 <button onClick={() => applyCouponCode()}
-                  className="rounded-lg text-xs font-bold text-white px-2.5 py-1 shadow-xs transition hover:brightness-110 active:scale-95 cursor-pointer bg-emerald-600 border-b border-emerald-800">Apply</button>
+                  className="rounded-sm text-xs font-bold text-white px-2.5 py-1 shadow-xs transition hover:brightness-110 active:scale-95 cursor-pointer bg-emerald-600 border-b border-emerald-800">Apply</button>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-bold text-slate-700 w-14 shrink-0">Note</span>
-                <div className="flex-1 bg-white rounded-lg border border-gray-200 pl-2 pr-1 py-0.5 flex items-center shadow-2xs">
+                <span className="text-[11px] font-bold text-gray-600 w-14 shrink-0">Note</span>
+                <div className="flex-1 bg-white rounded-sm border border-gray-200 pl-2 pr-1 py-0.5 flex items-center shadow-2xs">
                   <input ref={noteInputRef} type="text" value={salesNote} onChange={e => setSalesNote(e.target.value)} placeholder="Add note..."
-                    className="w-full bg-transparent text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none" />
-                  <div className="w-5 h-5 rounded bg-gray-50 flex items-center justify-center text-emerald-600 shrink-0 ml-1">
+                    className="w-full bg-transparent text-xs font-medium text-gray-600 placeholder:text-slate-400 focus:outline-none" />
+                  <div className="w-5 h-5 rounded-sm bg-gray-50 flex items-center justify-center text-emerald-600 shrink-0 ml-1">
                     <AlignLeft size={11} />
                   </div>
                 </div>
@@ -1186,10 +1186,10 @@ export default function GroceryPOSPage() {
             </div>
 
             {/* Financial Summary */}
-            <div className="bg-gradient-to-b from-white via-emerald-50/30 to-emerald-100/40 rounded-xl px-3 py-2 border-t border-x border-emerald-200/90 border-b-[2.5px] border-b-emerald-300 shadow-2xs flex flex-col justify-between">
+            <div className="bg-gradient-to-b from-white via-emerald-50/30 to-emerald-100/40 rounded-sm px-3 py-2 border-t border-x border-emerald-200/90 border-b-[2.5px] border-b-emerald-300 shadow-2xs flex flex-col justify-between">
               <div className="space-y-1 text-xs">
                 <div className="flex justify-between items-center text-slate-500 font-semibold">
-                  <span>Subtotal</span><span className="text-slate-800 font-bold">৳ {subTotal.toFixed(2)}</span>
+                  <span>Subtotal</span><span className="text-gray-600 font-bold">৳ {subTotal.toFixed(2)}</span>
                 </div>
                 {discAmt > 0 && (
                   <div className="flex justify-between items-center text-slate-500 font-semibold">
@@ -1197,29 +1197,29 @@ export default function GroceryPOSPage() {
                   </div>
                 )}
                 <div className="flex justify-between items-center text-slate-500 font-semibold">
-                  <span>Tax (15%)</span><span className="text-slate-800 font-bold">৳ {taxTotal.toFixed(2)}</span>
+                  <span>Tax (15%)</span><span className="text-gray-600 font-bold">৳ {taxTotal.toFixed(2)}</span>
                 </div>
                 <div className="pt-1 border-t border-dashed border-emerald-200 flex justify-between items-baseline">
-                  <span className="text-xs font-bold text-slate-900 uppercase">Net Total</span>
+                  <span className="text-xs font-bold text-gray-600 uppercase">Net Total</span>
                   <span className="text-lg font-extrabold text-emerald-600">৳ {grandTotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center text-[11px] pt-0.5">
                   <span className="text-slate-600 font-semibold">Cash Given:</span>
-                  <span className="text-slate-900 font-mono font-bold">৳ {paidAmount.toFixed(2)}</span>
+                  <span className="text-gray-600 font-mono font-bold">৳ {paidAmount.toFixed(2)}</span>
                 </div>
               </div>
               {changeDue > 0 ? (
-                <div className="mt-1 bg-emerald-600 text-white py-1 px-2.5 rounded-lg font-extrabold text-xs shadow-xs animate-in zoom-in-95 flex items-center justify-between">
+                <div className="mt-1 bg-emerald-600 text-white py-1 px-2.5 rounded-sm font-extrabold text-xs shadow-xs animate-in zoom-in-95 flex items-center justify-between">
                   <span className="text-[10px] uppercase tracking-wide opacity-90">Change:</span>
                   <span className="font-mono text-sm font-black">৳ {changeDue.toFixed(2)}</span>
                 </div>
               ) : remainingDue > 0 ? (
-                <div className="mt-1 bg-amber-500 text-white py-1 px-2.5 rounded-lg font-extrabold text-xs shadow-xs flex items-center justify-between">
+                <div className="mt-1 bg-amber-500 text-white py-1 px-2.5 rounded-sm font-extrabold text-xs shadow-xs flex items-center justify-between">
                   <span className="text-[10px] uppercase tracking-wide opacity-90">Due:</span>
                   <span className="font-mono text-sm font-black">৳ {remainingDue.toFixed(2)}</span>
                 </div>
               ) : (
-                <div className="mt-1 bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-center py-0.5 px-2 rounded-lg font-bold text-[11px]">
+                <div className="mt-1 bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-center py-0.5 px-2 rounded-sm font-bold text-[11px]">
                   Change: ৳ 0.00
                 </div>
               )}
@@ -1242,11 +1242,11 @@ export default function GroceryPOSPage() {
                       { label: "Recent Sales", key: "F5", Icon: History, onClick: () => setRecentSalesOpen(true) },
                       { label: "Returns", key: "F6", Icon: RotateCcw, onClick: () => setRecentSalesOpen(true) },
                     ].map(({ label, key, Icon, onClick }) => (
-                      <button key={key} onClick={onClick} className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl bg-white border border-gray-200 hover:border-emerald-500 hover:shadow-xs active:scale-95 transition-all duration-150 flex-1 overflow-hidden text-left shadow-2xs group cursor-pointer">
+                      <button key={key} onClick={onClick} className="flex items-center gap-1.5 px-2 py-1.5 rounded-sm bg-white border border-gray-200 hover:border-emerald-500 hover:shadow-xs active:scale-95 transition-all duration-150 flex-1 overflow-hidden text-left shadow-2xs group cursor-pointer">
                         <Icon size={14} className="text-emerald-600 group-hover:scale-110 transition-transform shrink-0" />
                         <div className="min-w-0 flex-1">
-                          <p className="text-[11px] font-bold text-slate-800 truncate leading-tight group-hover:text-emerald-700">{label}</p>
-                          <span className="text-[8px] font-bold font-mono bg-slate-100 text-slate-700 border border-slate-200 px-1 py-0.1 rounded inline-block mt-0.5">{key}</span>
+                          <p className="text-[11px] font-bold text-gray-600 truncate leading-tight group-hover:text-emerald-700">{label}</p>
+                          <span className="text-[8px] font-bold font-mono bg-slate-100 text-gray-600 border border-slate-200 px-1 py-0.1 rounded-sm inline-block mt-0.5">{key}</span>
                         </div>
                       </button>
                     ))}
@@ -1254,10 +1254,10 @@ export default function GroceryPOSPage() {
                   <div className="flex-1 grid grid-cols-4 gap-1 min-w-0">
                     {NUM_KEYS.map(k => (
                       <button key={k} onClick={() => numPress(k)}
-                        className={`rounded-xl font-extrabold text-sm flex items-center justify-center transition-all duration-150 transform hover:-translate-y-0.5 active:translate-y-0.5 active:scale-90 cursor-pointer ${
+                        className={`rounded-sm font-extrabold text-sm flex items-center justify-center transition-all duration-150 transform hover:-translate-y-0.5 active:translate-y-0.5 active:scale-90 cursor-pointer ${
                           k === "=" ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm font-bold text-base"
                           : k === "⌫" ? "bg-rose-50 text-red-600 border border-red-200 hover:bg-red-100 font-bold"
-                          : "bg-gray-50 border border-gray-200 text-slate-800 hover:bg-white hover:border-gray-300 shadow-2xs"
+                          : "bg-gray-50 border border-gray-200 text-gray-600 hover:bg-white hover:border-gray-300 shadow-2xs"
                         }`}>
                         {k}
                       </button>
@@ -1276,10 +1276,10 @@ export default function GroceryPOSPage() {
                     const on = payMethod === pm.id;
                     return (
                       <button key={pm.id} onClick={() => setPayMethod(pm.id as any)}
-                        className={`flex-1 flex items-center gap-2 px-2.5 rounded-xl border text-xs font-bold transition-all duration-150 transform hover:-translate-y-0.5 active:scale-95 text-left min-w-0 cursor-pointer ${
+                        className={`flex-1 flex items-center gap-2 px-2.5 rounded-sm border text-xs font-bold transition-all duration-150 transform hover:-translate-y-0.5 active:scale-95 text-left min-w-0 cursor-pointer ${
                           on 
                             ? "bg-emerald-600 text-white border-emerald-700 shadow-sm font-extrabold" 
-                            : "bg-white border-gray-200 text-slate-700 hover:border-gray-300"
+                            : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
                         }`}>
                         <pm.Icon size={14} className={`shrink-0 ${on ? "text-white" : "text-slate-500"}`} />
                         <span className="truncate leading-none text-[11px]">{pm.label}</span>
@@ -1318,7 +1318,7 @@ export default function GroceryPOSPage() {
 
                   {/* Bottom: Save & Print Bill */}
                   <button onClick={() => window.print()} disabled={!cart.length}
-                    className="w-full py-2 rounded-xl border border-gray-200 text-xs font-bold flex items-center justify-center gap-2 transition-all duration-150 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-40 bg-white hover:bg-gray-50 text-slate-800 shadow-2xs shrink-0 cursor-pointer group">
+                    className="w-full py-2 rounded-sm border border-gray-200 text-xs font-bold flex items-center justify-center gap-2 transition-all duration-150 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-40 bg-white hover:bg-gray-50 text-gray-600 shadow-2xs shrink-0 cursor-pointer group">
                     <Printer size={14} className="shrink-0 text-slate-600 group-hover:scale-110 transition-transform" />
                     <span className="truncate">Save &amp; Print Bill</span>
                   </button>
@@ -1343,11 +1343,11 @@ export default function GroceryPOSPage() {
         {/* Sub-header Navigation Tabs */}
         <div className="flex items-center border-b border-gray-100 bg-gray-50 px-4 py-2 gap-2 mb-4 -mx-6 -mt-5">
           <button onClick={() => setIsAddingCustomer(false)}
-            className={`flex-1 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${!isAddingCustomer ? "bg-white text-emerald-700 shadow-2xs border border-gray-200" : "text-gray-500 hover:text-gray-800"}`}>
+            className={`flex-1 py-1.5 rounded-sm text-xs font-black transition-all cursor-pointer ${!isAddingCustomer ? "bg-white text-emerald-700 shadow-2xs border border-gray-200" : "text-gray-500 hover:text-gray-600"}`}>
             Select Customer ({customerList.length})
           </button>
           <button onClick={() => setIsAddingCustomer(true)}
-            className={`flex-1 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${isAddingCustomer ? "bg-emerald-600 text-white shadow-xs" : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"}`}>
+            className={`flex-1 py-1.5 rounded-sm text-xs font-black transition-all cursor-pointer ${isAddingCustomer ? "bg-emerald-600 text-white shadow-xs" : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"}`}>
             ＋ Add New Customer
           </button>
         </div>
@@ -1385,7 +1385,7 @@ export default function GroceryPOSPage() {
                 <div>
                   <label className="mb-1.5 block text-[15px] font-semibold text-gray-600 capitalize">Customer Group</label>
                   <input type="text" readOnly value="Regular Customer"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 outline-none" />
+                    className="w-full rounded-sm border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 outline-none" />
                 </div>
               </div>
 
@@ -1444,16 +1444,16 @@ export default function GroceryPOSPage() {
                             {c.name.slice(0, 2).toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-xs font-black text-gray-900">{c.name}</p>
+                            <p className="text-xs font-black text-gray-600">{c.name}</p>
                             <div className="flex items-center gap-2 mt-0.5">
                               <p className="text-[10px] font-semibold text-gray-400">{c.phone}</p>
-                              <span className={`text-[9px] font-black px-1.5 py-0.2 rounded border uppercase tracking-tighter ${tier.color} ${tier.bg} ${tier.border}`}>
+                              <span className={`text-[9px] font-black px-1.5 py-0.2 rounded-sm border uppercase tracking-tighter ${tier.color} ${tier.bg} ${tier.border}`}>
                                 {tier.name}
                               </span>
                             </div>
                           </div>
                         </div>
-                        <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-xl">
+                        <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-sm">
                           ★ {c.points} Pts
                         </span>
                       </button>
@@ -1485,18 +1485,18 @@ export default function GroceryPOSPage() {
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-sm border border-gray-200 shadow-sm font-mono text-xs text-slate-800 space-y-3">
+          <div className="bg-white p-5 rounded-sm border border-gray-200 shadow-sm font-mono text-xs text-gray-600 space-y-3">
             {cart.length === 0 ? (
               <div className="py-12 text-center text-slate-400">
                 <ShoppingCart size={40} className="mx-auto mb-3 text-slate-300" />
-                <p className="text-sm font-extrabold text-slate-700">Cart is currently empty</p>
+                <p className="text-sm font-extrabold text-gray-600">Cart is currently empty</p>
                 <p className="text-xs text-slate-400 mt-1 uppercase">Add items to the cart to preview active cart invoice.</p>
               </div>
             ) : (
               <>
                 {/* Shop Header */}
                 <div className="text-center border-b border-dashed border-gray-300 pb-3 space-y-1">
-                  <p className="text-base font-extrabold text-slate-950 tracking-tight uppercase">Blue Oceans Superstore</p>
+                  <p className="text-base font-extrabold text-gray-600 tracking-tight uppercase">Blue Oceans Superstore</p>
                   <p className="text-[11px] text-slate-500">Dhaka Main Outlet • POS Terminal-01</p>
                   <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Draft Cart Invoice</p>
                 </div>
@@ -1505,7 +1505,7 @@ export default function GroceryPOSPage() {
                 <div className="space-y-1 text-[11px] text-slate-600 border-b border-dashed border-gray-300 pb-2">
                   <div className="flex justify-between">
                     <span>Invoice No:</span>
-                    <span className="font-bold text-slate-900">INV-250520-0012</span>
+                    <span className="font-bold text-gray-600">INV-250520-0012</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Date & Time:</span>
@@ -1513,7 +1513,7 @@ export default function GroceryPOSPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Customer:</span>
-                    <span className="font-bold text-slate-900">{selectedCustomer.name}</span>
+                    <span className="font-bold text-gray-600">{selectedCustomer.name}</span>
                   </div>
                 </div>
 
@@ -1527,12 +1527,12 @@ export default function GroceryPOSPage() {
                   {cart.map((item, idx) => (
                     <div key={idx} className="flex justify-between text-[11px] py-0.5 border-b border-gray-50 last:border-0">
                       <div className="min-w-0 max-w-[170px]">
-                        <p className="font-bold text-slate-800 truncate">{item.name}</p>
+                        <p className="font-bold text-gray-600 truncate">{item.name}</p>
                       </div>
                       <div className="text-slate-500 font-mono text-[10px]">
                         {item.qty} {item.uom || "pcs"} x ৳{item.unitPrice.toFixed(2)}
                       </div>
-                      <div className="font-bold text-slate-900 font-mono">
+                      <div className="font-bold text-gray-600 font-mono">
                         ৳{item.lineTotal.toFixed(2)}
                       </div>
                     </div>
@@ -1551,7 +1551,7 @@ export default function GroceryPOSPage() {
                       <span>- ৳{discAmt.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between font-extrabold text-sm text-slate-900 border-t border-b border-gray-200 py-1 my-1">
+                  <div className="flex justify-between font-extrabold text-sm text-gray-600 border-t border-b border-gray-200 py-1 my-1">
                     <span>Net Cart Total:</span>
                     <span className="text-emerald-700 font-black">৳{grandTotal.toFixed(2)}</span>
                   </div>
@@ -1608,7 +1608,7 @@ export default function GroceryPOSPage() {
                 <div className="flex items-center gap-3">
                   <span className="text-2xl group-hover:scale-110 transition-transform">{getEmoji(p.name)}</span>
                   <div>
-                    <p className="text-xs font-black text-gray-900 leading-tight">{p.name}</p>
+                    <p className="text-xs font-black text-gray-600 leading-tight">{p.name}</p>
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-0.5">SKU: {p.sku} • {p.category?.name}</p>
                   </div>
                 </div>
@@ -1642,15 +1642,15 @@ export default function GroceryPOSPage() {
           {products.slice(0, 15).map((p) => (
             <div key={p.id} className="p-3.5 rounded-sm border border-gray-100 bg-white flex items-center justify-between shadow-xs hover:border-emerald-200 transition-all">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-xl">
+                <div className="w-10 h-10 rounded-sm bg-slate-50 flex items-center justify-center text-xl">
                   {getEmoji(p.name)}
                 </div>
                 <div>
-                  <p className="text-xs font-black text-gray-900 leading-tight">{p.name}</p>
+                  <p className="text-xs font-black text-gray-600 leading-tight">{p.name}</p>
                   <p className="text-[10px] font-bold text-gray-400 mt-0.5">Rate: ৳{p.sellingPrice.toFixed(2)} / {p.uom}</p>
                 </div>
               </div>
-              <span className={`text-[10px] font-black px-3 py-1 rounded-xl border uppercase tracking-wider ${
+              <span className={`text-[10px] font-black px-3 py-1 rounded-sm border uppercase tracking-wider ${
                 (p.stock ?? 0) > 10
                   ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                   : "bg-amber-50 text-amber-700 border-amber-100"
@@ -1695,8 +1695,8 @@ export default function GroceryPOSPage() {
                 <div key={idx} className="p-4 rounded-sm border border-gray-100 bg-white flex items-center justify-between shadow-xs hover:border-emerald-200 transition-all">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-black text-slate-900 uppercase font-mono tracking-tighter">#{s.invoiceNo}</span>
-                      <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase tracking-widest">{s.paymentMethod}</span>
+                      <span className="text-[11px] font-black text-gray-600 uppercase font-mono tracking-tighter">#{s.invoiceNo}</span>
+                      <span className="text-[9px] font-black px-2 py-0.5 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase tracking-widest">{s.paymentMethod}</span>
                     </div>
                     <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tight">{s.customer} • {s.date}</p>
                   </div>
@@ -1721,7 +1721,7 @@ export default function GroceryPOSPage() {
                         paymentMethod: s.paymentMethod
                       });
                       setTimeout(() => window.print(), 150);
-                    }} className="p-2.5 rounded-xl border border-gray-100 bg-slate-50 hover:bg-emerald-50 text-slate-500 hover:text-emerald-600 transition-all active:scale-90">
+                    }} className="p-2.5 rounded-sm border border-gray-100 bg-slate-50 hover:bg-emerald-50 text-slate-500 hover:text-emerald-600 transition-all active:scale-90">
                       <Printer size={16} />
                     </button>
                   </div>
@@ -1765,8 +1765,8 @@ export default function GroceryPOSPage() {
             <div key={o.code} className="p-4 rounded-sm border border-emerald-100 bg-emerald-50/50 flex items-center justify-between group hover:bg-white transition-all">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-black text-emerald-800 font-mono bg-white px-2 py-0.5 rounded border border-emerald-200">{o.code}</span>
-                  <span className="text-xs font-black text-slate-900">{o.title}</span>
+                  <span className="text-[11px] font-black text-emerald-800 font-mono bg-white px-2 py-0.5 rounded-sm border border-emerald-200">{o.code}</span>
+                  <span className="text-xs font-black text-gray-600">{o.title}</span>
                 </div>
                 <p className="text-[10px] font-bold text-emerald-600 mt-1 uppercase tracking-tight">{o.desc}</p>
               </div>
@@ -1837,13 +1837,13 @@ export default function GroceryPOSPage() {
             ].map(item => {
               const isON = (hardwareSettings as any)[item.key];
               return (
-                <div key={item.key} className="flex items-center justify-between p-3.5 transition hover:bg-white rounded-xl group">
+                <div key={item.key} className="flex items-center justify-between p-3.5 transition hover:bg-white rounded-sm group">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-xl shadow-xs group-hover:border-emerald-200 transition-colors">
+                    <div className="w-10 h-10 rounded-sm bg-white border border-gray-100 flex items-center justify-center text-xl shadow-xs group-hover:border-emerald-200 transition-colors">
                       {item.emoji}
                     </div>
                     <div>
-                      <p className="text-xs font-black text-slate-800 leading-tight">{item.label}</p>
+                      <p className="text-xs font-black text-gray-600 leading-tight">{item.label}</p>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mt-0.5">{item.desc}</p>
                     </div>
                   </div>
@@ -1884,7 +1884,7 @@ export default function GroceryPOSPage() {
             </div>
             <div>
               <p className="text-[10px] font-black text-emerald-700 uppercase tracking-widest mb-0.5">Hardware Event</p>
-              <p className="text-xs font-extrabold text-slate-900">Cash Drawer Opened</p>
+              <p className="text-xs font-extrabold text-gray-600">Cash Drawer Opened</p>
               <p className="text-[10px] font-bold text-slate-400 mt-0.5">RJ11 pulse signal sent to port</p>
             </div>
           </div>
@@ -1937,7 +1937,7 @@ export default function GroceryPOSPage() {
                   <X size={14} strokeWidth={3} />
                 </button>
               </div>
-              <p className="text-xs font-extrabold text-slate-800 leading-snug">
+              <p className="text-xs font-extrabold text-gray-600 leading-snug">
                 {couponToast.replace(/^[⚠️🎉✨💾🚀📌ℹ️]\s*/, "")}
               </p>
             </div>
@@ -1985,12 +1985,12 @@ export default function GroceryPOSPage() {
                 <div className="flex items-center justify-center gap-3 text-center">
                   <div>
                     <p className="text-[10px] text-slate-400 font-bold">Bill Total</p>
-                    <p className="text-base font-extrabold text-slate-800">৳ {completedInv.grandTotal.toFixed(2)}</p>
+                    <p className="text-base font-extrabold text-gray-600">৳ {completedInv.grandTotal.toFixed(2)}</p>
                   </div>
                   <div className="h-7 w-px bg-gray-200" />
                   <div>
                     <p className="text-[10px] text-slate-400 font-bold">Cash Received</p>
-                    <p className="text-base font-extrabold text-slate-800">৳ {(completedInv.paidAmount || completedInv.grandTotal).toFixed(2)}</p>
+                    <p className="text-base font-extrabold text-gray-600">৳ {(completedInv.paidAmount || completedInv.grandTotal).toFixed(2)}</p>
                   </div>
                   <div className="h-7 w-px bg-gray-200" />
                   <div>
@@ -2001,11 +2001,11 @@ export default function GroceryPOSPage() {
               </div>
 
               {/* Printable 80mm Receipt Slip Container */}
-              <div id="printable-thermal-receipt" className="bg-white p-5 rounded-sm border border-gray-200 shadow-sm font-mono text-xs text-slate-800 space-y-3">
+              <div id="printable-thermal-receipt" className="bg-white p-5 rounded-sm border border-gray-200 shadow-sm font-mono text-xs text-gray-600 space-y-3">
                 
                 {/* Shop Header */}
                 <div className="text-center border-b border-dashed border-gray-300 pb-3 space-y-1">
-                  <p className="text-base font-extrabold text-slate-950 tracking-tight uppercase">Blue Oceans Superstore</p>
+                  <p className="text-base font-extrabold text-gray-600 tracking-tight uppercase">Blue Oceans Superstore</p>
                   <p className="text-[11px] text-slate-500">Dhaka Main Outlet • POS Terminal-01</p>
                   <p className="text-[10px] text-slate-400">BIN: 002938194-0101 • Mushak-6.3 Tax Invoice</p>
                 </div>
@@ -2014,7 +2014,7 @@ export default function GroceryPOSPage() {
                 <div className="space-y-1 text-[11px] text-slate-600 border-b border-dashed border-gray-300 pb-2">
                   <div className="flex justify-between">
                     <span>Invoice:</span>
-                    <span className="font-bold text-slate-900">{completedInv.invoiceNo}</span>
+                    <span className="font-bold text-gray-600">{completedInv.invoiceNo}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Date &amp; Time:</span>
@@ -2022,7 +2022,7 @@ export default function GroceryPOSPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Customer:</span>
-                    <span className="font-bold text-slate-900">{completedInv.customer}</span>
+                    <span className="font-bold text-gray-600">{completedInv.customer}</span>
                   </div>
                 </div>
 
@@ -2036,12 +2036,12 @@ export default function GroceryPOSPage() {
                   {(completedInv.items || []).map((item: any, idx: number) => (
                     <div key={idx} className="flex justify-between text-[11px] py-0.5 border-b border-gray-50 last:border-0">
                       <div className="min-w-0 flex-1 pr-2">
-                        <p className="font-bold text-slate-800 break-words">{item.name}</p>
+                        <p className="font-bold text-gray-600 break-words">{item.name}</p>
                       </div>
                       <div className="text-slate-500 font-mono text-[10px] whitespace-nowrap">
                         {item.qty} {item.uom || "pcs"} x ৳{item.unitPrice.toFixed(2)}
                       </div>
-                      <div className="font-bold text-slate-900 font-mono">
+                      <div className="font-bold text-gray-600 font-mono">
                         ৳{item.lineTotal.toFixed(2)}
                       </div>
                     </div>
@@ -2064,11 +2064,11 @@ export default function GroceryPOSPage() {
                     <span>VAT (15%):</span>
                     <span>৳{(completedInv.grandTotal - completedInv.subTotal + completedInv.discAmt).toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between font-extrabold text-sm text-slate-900 border-t border-b border-gray-200 py-1 my-1">
+                  <div className="flex justify-between font-extrabold text-sm text-gray-600 border-t border-b border-gray-200 py-1 my-1">
                     <span>Net Bill Total:</span>
-                    <span className="text-slate-900">৳{completedInv.grandTotal.toFixed(2)}</span>
+                    <span className="text-gray-600">৳{completedInv.grandTotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-slate-700 font-semibold text-[11px]">
+                  <div className="flex justify-between text-gray-600 font-semibold text-[11px]">
                     <span>Cash Received:</span>
                     <span>৳{(completedInv.paidAmount || completedInv.grandTotal).toFixed(2)}</span>
                   </div>
@@ -2081,7 +2081,7 @@ export default function GroceryPOSPage() {
                 {/* Barcode & Footer */}
                 <div className="text-center border-t border-dashed border-gray-300 pt-3 space-y-1">
                   <div className="flex justify-center py-1">
-                    <div className="flex items-center gap-0.5 h-6 px-2 bg-gray-100 rounded">
+                    <div className="flex items-center gap-0.5 h-6 px-2 bg-gray-100 rounded-sm">
                       <div className="w-0.5 h-5 bg-black" />
                       <div className="w-1 h-5 bg-black" />
                       <div className="w-0.5 h-5 bg-black" />
@@ -2102,7 +2102,7 @@ export default function GroceryPOSPage() {
 
             {/* Actions */}
             <div className="p-4 bg-white border-t border-gray-100 flex gap-2.5 shrink-0">
-              <button onClick={() => window.print()} className="flex-1 py-3 rounded-sm border border-gray-300 bg-white hover:bg-gray-50 text-slate-800 font-extrabold text-xs flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer active:scale-95">
+              <button onClick={() => window.print()} className="flex-1 py-3 rounded-sm border border-gray-300 bg-white hover:bg-gray-50 text-gray-600 font-extrabold text-xs flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer active:scale-95">
                 <Printer size={16} /> Print Receipt (80mm)
               </button>
               <button onClick={() => setCompletedInv(null)} className="flex-1 py-3 rounded-sm bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-600/30 transition cursor-pointer active:scale-95">

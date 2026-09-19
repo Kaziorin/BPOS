@@ -111,7 +111,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                   {supplier.phone && (
                     <a
                       href={`tel:${supplier.phone}`}
-                      className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition"
+                      className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-brand-50/50 transition"
                     >
                       <Phone size={12} className="text-brand-primary" />
                       Call
@@ -133,7 +133,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                   {supplier.email && (
                     <a
                       href={`mailto:${supplier.email}`}
-                      className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition"
+                      className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-brand-50/50 transition"
                     >
                       <Mail size={12} className="text-brand-primary" />
                       Email
@@ -152,7 +152,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
 
                   <button
                     onClick={() => onEdit(supplier)}
-                    className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-brand-50/50 transition cursor-pointer"
                   >
                     <Edit3 size={12} />
                     Edit
@@ -160,7 +160,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
 
                   <Link
                     href={`/suppliers/${supplier.id}`}
-                    className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 hover:text-brand-primary transition ml-auto"
+                    className="inline-flex items-center gap-1 rounded-sm border border-brand-border bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-brand-50/50 hover:text-brand-primary transition ml-auto"
                   >
                     <span>Full Page</span>
                     <ExternalLink size={12} />
@@ -175,19 +175,19 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
             <div className="grid grid-cols-3 divide-x divide-slate-100 border-b border-slate-200 bg-white text-center py-3">
               <div className="px-2">
                 <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Payable Due</span>
-                <p className={`text-sm font-bold mt-0.5 ${due > 0 ? "text-rose-600" : "text-gray-800"}`}>
+                <p className={`text-sm font-bold mt-0.5 ${due > 0 ? "text-rose-600" : "text-gray-600"}`}>
                   ৳{due.toLocaleString()}
                 </p>
               </div>
               <div className="px-2">
                 <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Total Purchases</span>
-                <p className="text-sm font-bold text-gray-800 mt-0.5">
+                <p className="text-sm font-bold text-gray-600 mt-0.5">
                   ৳{totalPurchased.toLocaleString()}
                 </p>
               </div>
               <div className="px-2">
                 <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Total POs</span>
-                <p className="text-sm font-bold text-gray-800 mt-0.5">
+                <p className="text-sm font-bold text-gray-600 mt-0.5">
                   {supplier.purchaseHistory?.totalOrders || supplier._count?.purchaseOrders || 0}
                 </p>
               </div>
@@ -201,7 +201,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
               className={`border-b-2 px-3 py-2.5 text-xs font-semibold transition cursor-pointer ${
                 activeTab === "overview"
                   ? "border-brand-primary text-brand-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-800"
+                  : "border-transparent text-gray-500 hover:text-gray-600"
               }`}
             >
               Overview
@@ -211,7 +211,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
               className={`border-b-2 px-3 py-2.5 text-xs font-semibold transition cursor-pointer ${
                 activeTab === "purchases"
                   ? "border-brand-primary text-brand-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-800"
+                  : "border-transparent text-gray-500 hover:text-gray-600"
               }`}
             >
               Recent POs ({supplier?.recentPOs?.length || 0})
@@ -221,7 +221,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
               className={`border-b-2 px-3 py-2.5 text-xs font-semibold transition cursor-pointer ${
                 activeTab === "performance"
                   ? "border-brand-primary text-brand-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-800"
+                  : "border-transparent text-gray-500 hover:text-gray-600"
               }`}
             >
               Performance
@@ -231,7 +231,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
               className={`border-b-2 px-3 py-2.5 text-xs font-semibold transition cursor-pointer ${
                 activeTab === "notes"
                   ? "border-brand-primary text-brand-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-800"
+                  : "border-transparent text-gray-500 hover:text-gray-600"
               }`}
             >
               Notes
@@ -248,59 +248,59 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
               <div className="space-y-4">
                 {/* Contact & Address Card */}
                 <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
-                  <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Contact & Address</h3>
+                  <h3 className="text-xs font-bold text-gray-600 uppercase tracking-wider">Contact & Address</h3>
                   
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>
                       <span className="text-[11px] text-gray-400 block font-medium">Contact Person</span>
-                      <span className="font-semibold text-gray-800">{supplier.contactPerson || "—"}</span>
+                      <span className="font-semibold text-gray-600">{supplier.contactPerson || "—"}</span>
                     </div>
 
                     <div>
                       <span className="text-[11px] text-gray-400 block font-medium">Phone</span>
-                      <span className="font-semibold text-gray-800">{supplier.phone || "—"}</span>
+                      <span className="font-semibold text-gray-600">{supplier.phone || "—"}</span>
                     </div>
 
                     <div>
                       <span className="text-[11px] text-gray-400 block font-medium">Email</span>
-                      <span className="font-semibold text-gray-800 truncate block">{supplier.email || "—"}</span>
+                      <span className="font-semibold text-gray-600 truncate block">{supplier.email || "—"}</span>
                     </div>
 
                     <div>
                       <span className="text-[11px] text-gray-400 block font-medium">VAT / Tax Reg</span>
-                      <span className="font-semibold text-gray-800">{supplier.vatRegNo || "—"}</span>
+                      <span className="font-semibold text-gray-600">{supplier.vatRegNo || "—"}</span>
                     </div>
 
                     <div className="col-span-2">
                       <span className="text-[11px] text-gray-400 block font-medium">Full Address</span>
-                      <span className="font-semibold text-gray-800">{supplier.address || "—"}</span>
+                      <span className="font-semibold text-gray-600">{supplier.address || "—"}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Financial & Terms Card */}
                 <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
-                  <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Financial & Terms</h3>
+                  <h3 className="text-xs font-bold text-gray-600 uppercase tracking-wider">Financial & Terms</h3>
                   
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>
                       <span className="text-[11px] text-gray-400 block font-medium">Credit Limit</span>
-                      <span className="font-semibold text-gray-800">৳{Number(supplier.creditLimit || 0).toLocaleString()}</span>
+                      <span className="font-semibold text-gray-600">৳{Number(supplier.creditLimit || 0).toLocaleString()}</span>
                     </div>
 
                     <div>
                       <span className="text-[11px] text-gray-400 block font-medium">Payment Terms</span>
-                      <span className="font-semibold text-gray-800">{supplier.paymentTermsDays ? `${supplier.paymentTermsDays} days` : "Net 30"}</span>
+                      <span className="font-semibold text-gray-600">{supplier.paymentTermsDays ? `${supplier.paymentTermsDays} days` : "Net 30"}</span>
                     </div>
 
                     <div>
                       <span className="text-[11px] text-gray-400 block font-medium">Trade Rebate</span>
-                      <span className="font-semibold text-gray-800">{supplier.rebatePercent || 0}%</span>
+                      <span className="font-semibold text-gray-600">{supplier.rebatePercent || 0}%</span>
                     </div>
 
                     <div>
                       <span className="text-[11px] text-gray-400 block font-medium">Supplied Products</span>
-                      <span className="font-semibold text-gray-800">{supplier._count?.products || 0} items</span>
+                      <span className="font-semibold text-gray-600">{supplier._count?.products || 0} items</span>
                     </div>
                   </div>
                 </div>
@@ -331,7 +331,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                     >
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-xs text-gray-900">{po.poNo || `PO-${po.id.slice(0, 8)}`}</span>
+                          <span className="font-bold text-xs text-gray-600">{po.poNo || `PO-${po.id.slice(0, 8)}`}</span>
                           <span className={`rounded-sm px-2 py-0.2 text-[10px] font-bold ${
                             po.status === "COMPLETED" || po.status === "RECEIVED" ? "bg-emerald-50 text-emerald-700" :
                             po.status === "PENDING" ? "bg-amber-50 text-amber-700" : "bg-gray-100 text-gray-600"
@@ -344,7 +344,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs font-bold text-gray-900">৳{Number(po.total || 0).toLocaleString()}</span>
+                        <span className="text-xs font-bold text-gray-600">৳{Number(po.total || 0).toLocaleString()}</span>
                       </div>
                     </div>
                   ))
@@ -357,7 +357,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                 <div className="pt-2">
                   <Link
                     href={`/purchasing/orders?supplierId=${supplier.id}`}
-                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-sm border border-brand-border bg-white py-2 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition"
+                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-sm border border-brand-border bg-white py-2 text-xs font-semibold text-gray-600 hover:bg-brand-50/50 transition"
                   >
                     View All Purchasing Orders <ChevronRight size={13} />
                   </Link>
@@ -366,7 +366,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
             ) : activeTab === "performance" ? (
               <div className="space-y-4">
                 <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
-                  <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <h3 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                     <ShieldCheck size={14} className="text-brand-primary" />
                     Supplier Scorecard
                   </h3>
@@ -395,7 +395,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
                     <div>
                       <div className="flex justify-between text-xs font-semibold mb-1">
                         <span className="text-gray-600">Defect Rate</span>
-                        <span className="text-gray-700">{supplier.defectRate || 1.2}%</span>
+                        <span className="text-gray-600">{supplier.defectRate || 1.2}%</span>
                       </div>
                       <div className="h-2 w-full rounded-sm bg-brand-50 overflow-hidden">
                         <div className="h-full bg-amber-500 rounded-sm" style={{ width: `${Math.min(100, (supplier.defectRate || 1.2) * 10)}%` }} />
@@ -407,8 +407,8 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
             ) : (
               <div className="space-y-3">
                 <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
-                  <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Supplier Notes</h3>
-                  <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  <h3 className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Supplier Notes</h3>
+                  <p className="text-xs text-gray-600 whitespace-pre-wrap leading-relaxed">
                     {supplier.notes || "No notes entered for this supplier."}
                   </p>
                 </div>
@@ -420,7 +420,7 @@ export function SupplierDrawer({ supplierId, isOpen, onClose, onEdit, onPayDue }
           <div className="border-t border-slate-200 bg-gradient-to-r from-brand-50/50 via-white to-brand-50/30 p-4 flex items-center justify-between">
             <button
               onClick={() => onEdit(supplier)}
-              className="inline-flex items-center gap-1.5 rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-brand-50/50 transition cursor-pointer"
             >
               <Edit3 size={13} />
               Edit Supplier

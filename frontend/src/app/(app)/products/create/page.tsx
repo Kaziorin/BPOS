@@ -836,7 +836,7 @@ export default function CreateProductPage() {
   }));
 
   const inputClass =
-    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border placeholder:text-slate-400";
+    "w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border placeholder:text-slate-400";
   const labelClass = "block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize";
 
   return (
@@ -855,7 +855,7 @@ export default function CreateProductPage() {
         actions={
           <div className="flex items-center gap-2">
             {isSuperAdmin ? (
-              <div className="flex items-center gap-2 bg-brand-50 border border-brand-border rounded-lg px-2.5 py-1 text-xs shadow-xs">
+              <div className="flex items-center gap-2 bg-brand-50 border border-brand-border rounded-sm px-2.5 py-1 text-xs shadow-xs">
                 {React.createElement(
                   BUSINESS_VERTICALS.find((v) => v.id === selectedVertical)?.icon || Package,
                   { size: 14, className: "text-brand-dark shrink-0" }
@@ -867,18 +867,18 @@ export default function CreateProductPage() {
                   className="bg-transparent font-bold text-brand-dark text-xs outline-none cursor-pointer pr-1"
                 >
                   {BUSINESS_VERTICALS.map((v) => (
-                    <option key={v.id} value={v.id} className="text-slate-900 bg-white">
+                    <option key={v.id} value={v.id} className="text-gray-600 bg-white">
                       {v.label}
                     </option>
                   ))}
                 </select>
-                <span className="text-[10px] font-semibold text-brand-dark bg-brand-50 px-1.5 py-0.5 rounded ml-0.5">
+                <span className="text-[10px] font-semibold text-brand-dark bg-brand-50 px-1.5 py-0.5 rounded-sm ml-0.5">
                   Super Admin
                 </span>
               </div>
             ) : (
               <div
-                className="flex items-center gap-1.5 bg-slate-100/90 border border-slate-200 rounded-lg px-2.5 py-1 text-xs select-none"
+                className="flex items-center gap-1.5 bg-slate-100/90 border border-slate-200 rounded-sm px-2.5 py-1 text-xs select-none"
                 title="Locked by Store Business Type"
               >
                 {React.createElement(
@@ -886,7 +886,7 @@ export default function CreateProductPage() {
                   { size: 13, className: "text-brand-primary shrink-0" }
                 )}
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vertical:</span>
-                <span className="font-bold text-slate-700 text-xs">
+                <span className="font-bold text-gray-600 text-xs">
                   {BUSINESS_VERTICALS.find((v) => v.id === selectedVertical)?.label || selectedVertical}
                 </span>
                 <Lock size={11} className="text-slate-400 shrink-0 ml-0.5" />
@@ -900,7 +900,7 @@ export default function CreateProductPage() {
                 size="sm"
                 onClick={(e) => handleSubmit(e, true)}
                 disabled={saving}
-                className="rounded-md text-xs font-semibold"
+                className="rounded-sm text-xs font-semibold"
               >
                 Save and Insert Another
               </CustomButton>
@@ -911,7 +911,7 @@ export default function CreateProductPage() {
               onClick={(e) => handleSubmit(e, false)}
               loading={saving}
               leftIcon={<Check size={14} />}
-              className="bg-brand-primary hover:opacity-90 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:opacity-90 text-white rounded-sm text-xs font-semibold"
             >
               {isEditMode ? "Update Product" : "Add Product"}
             </CustomButton>
@@ -920,13 +920,13 @@ export default function CreateProductPage() {
       />
 
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3.5 text-xs font-medium text-red-700 animate-in slide-in-from-top-2">
+        <div className="rounded-sm border border-red-200 bg-red-50 p-3.5 text-xs font-medium text-red-700 animate-in slide-in-from-top-2">
           ⚠️ {error}
         </div>
       )}
 
       {successMsg && (
-        <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
+        <div className="flex items-center gap-2 rounded-sm border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-700 animate-in slide-in-from-top-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-600" /> {successMsg}
         </div>
       )}
@@ -937,7 +937,7 @@ export default function CreateProductPage() {
         <div className="lg:col-span-8 space-y-4">
 
           {/* BOX 1: Basic Information */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <Package className="h-4 w-4 text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
@@ -1055,7 +1055,7 @@ export default function CreateProductPage() {
           </div>
 
           {/* BOX 2: Media */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <ImageIcon className="h-4 w-4 text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
@@ -1071,7 +1071,7 @@ export default function CreateProductPage() {
           </div>
 
           {/* BOX 3: Pricing */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
               <div className="flex items-center gap-2 text-gray-600">
                 <DollarSign className="h-4 w-4 text-brand-primary" />
@@ -1108,7 +1108,7 @@ export default function CreateProductPage() {
                       className={`px-3 py-1 text-[11px] rounded-xs font-bold transition-all duration-150 cursor-pointer flex items-center gap-1 ${
                         marginType === "PERCENTAGE"
                           ? "bg-brand-primary text-white shadow-2xs scale-[1.02]"
-                          : "text-slate-600 hover:text-gray-900 hover:bg-slate-200/60"
+                          : "text-slate-600 hover:text-gray-600 hover:bg-slate-200/60"
                       }`}
                     >
                       % Percentage
@@ -1119,7 +1119,7 @@ export default function CreateProductPage() {
                       className={`px-3 py-1 text-[11px] rounded-xs font-bold transition-all duration-150 cursor-pointer flex items-center gap-1 ${
                         marginType === "FLAT"
                           ? "bg-brand-primary text-white shadow-2xs scale-[1.02]"
-                          : "text-slate-600 hover:text-gray-900 hover:bg-slate-200/60"
+                          : "text-slate-600 hover:text-gray-600 hover:bg-slate-200/60"
                       }`}
                     >
                       Flat (৳)
@@ -1204,11 +1204,11 @@ export default function CreateProductPage() {
 
           {/* DEDICATED RESTAURANT PORTION SIZES & PRICING CARD */}
           {isRestaurant && (
-            <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
                 <div className="flex items-center gap-2">
                   <Scale className="h-4 w-4 text-brand-primary" />
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                     Variation &amp; Size (Optional)
                   </h2>
                 </div>
@@ -1229,20 +1229,20 @@ export default function CreateProductPage() {
                   return (
                     <div
                       key={size.id}
-                      className={`px-3 py-2.5 rounded-lg border transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 ${
+                      className={`px-3 py-2.5 rounded-sm border transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 ${
                         size.isEnabled
                           ? "bg-white border-brand-border shadow-2xs ring-1 ring-brand-border"
                           : "bg-slate-50/70 border-slate-200 opacity-70 hover:opacity-100"
                       }`}
                     >
-                      <label className="flex items-center gap-2 text-xs font-bold text-gray-800 cursor-pointer select-none shrink-0 min-w-0">
+                      <label className="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer select-none shrink-0 min-w-0">
                         <input
                           type="checkbox"
                           checked={size.isEnabled}
                           onChange={() => togglePortionSizeInCreate(size.id)}
-                          className="h-4 w-4 rounded border-slate-300 text-brand-primary focus:ring-brand-border accent-brand-primary cursor-pointer"
+                          className="h-4 w-4 rounded-sm border-slate-300 text-brand-primary focus:ring-brand-border accent-brand-primary cursor-pointer"
                         />
-                        <span className="text-xs font-bold text-slate-800 truncate">{size.name}</span>
+                        <span className="text-xs font-bold text-gray-600 truncate">{size.name}</span>
                         {size.isDefault && size.isEnabled && (
                           <span className="px-1.5 py-0.2 rounded-full bg-brand-primary text-white text-[9px] font-black uppercase tracking-wide shrink-0">
                             Default
@@ -1261,14 +1261,14 @@ export default function CreateProductPage() {
                               value={size.price}
                               onChange={(e) => updatePortionSizePriceInCreate(size.id, e.target.value)}
                               placeholder="0.00"
-                              className="w-full rounded border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-gray-800 focus:border-brand-primary focus:outline-none"
+                              className="w-full rounded-sm border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-gray-600 focus:border-brand-primary focus:outline-none"
                             />
                           </div>
 
                           <button
                             type="button"
                             onClick={() => setDefaultPortionSizeInCreate(size.id)}
-                            className={`px-2 py-1 rounded text-[10px] font-bold transition cursor-pointer shrink-0 ${
+                            className={`px-2 py-1 rounded-sm text-[10px] font-bold transition cursor-pointer shrink-0 ${
                               size.isDefault
                                 ? "bg-brand-primary text-white shadow-2xs"
                                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -1281,7 +1281,7 @@ export default function CreateProductPage() {
                             <button
                               type="button"
                               onClick={() => removePortionSizeInCreate(size.id)}
-                              className="p-1 rounded text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
+                              className="p-1 rounded-sm text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
                               title="Remove size"
                             >
                               <Trash2 size={13} />
@@ -1293,7 +1293,7 @@ export default function CreateProductPage() {
                           <button
                             type="button"
                             onClick={() => removePortionSizeInCreate(size.id)}
-                            className="p-1 rounded text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
+                            className="p-1 rounded-sm text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
                             title="Remove size"
                           >
                             <Trash2 size={13} />
@@ -1316,19 +1316,19 @@ export default function CreateProductPage() {
                     placeholder="Size Name (e.g. Medium, Half, 1 Litre, Family Pack)"
                     value={createCustomSizeName}
                     onChange={(e) => setCreateCustomSizeName(e.target.value)}
-                    className="flex-1 rounded border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium focus:border-brand-primary focus:outline-none"
+                    className="flex-1 rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium focus:border-brand-primary focus:outline-none"
                   />
                   <input
                     type="number"
                     placeholder="Price (৳)"
                     value={createCustomSizePrice}
                     onChange={(e) => setCreateCustomSizePrice(e.target.value)}
-                    className="w-full sm:w-28 rounded border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium focus:border-brand-primary focus:outline-none"
+                    className="w-full sm:w-28 rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium focus:border-brand-primary focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={addCustomPortionSizeInCreate}
-                    className="px-3.5 py-1.5 rounded bg-brand-primary text-white text-xs font-bold hover:opacity-90 transition cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs"
+                    className="px-3.5 py-1.5 rounded-sm bg-brand-primary text-white text-xs font-bold hover:opacity-90 transition cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs"
                   >
                     <Plus size={13} /> Add Size
                   </button>
@@ -1338,7 +1338,7 @@ export default function CreateProductPage() {
           )}
 
           {/* BOX 4: Units */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <Layers className="h-4 w-4 text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
@@ -1387,7 +1387,7 @@ export default function CreateProductPage() {
 
           {/* BOX 5: Variant-wise Price (RESTAURANT business only — hidden for Grocery, Retail, etc.) */}
           {isRestaurant && (
-            <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                 <div className="flex items-center gap-2 text-gray-600">
                   <Tag className="h-4 w-4 text-brand-primary" />
@@ -1408,14 +1408,14 @@ export default function CreateProductPage() {
                       <button
                         type="button"
                         onClick={addVariant}
-                        className="flex items-center gap-1 text-xs font-semibold text-brand-primary hover:text-brand-dark bg-brand-50 px-2.5 py-1.5 rounded-md border border-brand-border cursor-pointer"
+                        className="flex items-center gap-1 text-xs font-semibold text-brand-primary hover:text-brand-dark bg-brand-50 px-2.5 py-1.5 rounded-sm border border-brand-border cursor-pointer"
                       >
                         <Plus className="h-3.5 w-3.5" /> Add Variant Item
                       </button>
                     </div>
 
                     {variants.map((variant, idx) => (
-                      <div key={idx} className="rounded-md border border-slate-200 bg-slate-50/60 p-3 relative space-y-2">
+                      <div key={idx} className="rounded-sm border border-slate-200 bg-slate-50/60 p-3 relative space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-bold text-gray-600">Variant #{idx + 1}</span>
                           <button
@@ -1483,7 +1483,7 @@ export default function CreateProductPage() {
 
           {/* BOX 6: Inventory Controls */}
           {!isServiceOnly && (
-            <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                 <Package className="h-4 w-4 text-brand-primary" />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Inventory Controls</h2>
@@ -1534,7 +1534,7 @@ export default function CreateProductPage() {
         {/* RIGHT COLUMN SIDEBAR (30%) */}
         <div className="lg:col-span-4 space-y-4">
           {/* SIDEBAR 1: Organization */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <Layers className="h-4 w-4 text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
@@ -1603,7 +1603,7 @@ export default function CreateProductPage() {
           </div>
 
           {/* SIDEBAR 2: Status & Badges */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <ShieldCheck className="h-4 w-4 text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Status & Badges</h2>
@@ -1656,7 +1656,7 @@ export default function CreateProductPage() {
 
           {/* SIDEBAR 3: Warranty & Guarantee (Only for Retail, Repair, Wholesale, Mfg) */}
           {showWarranty && (
-            <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                 <ShieldCheck className="h-4 w-4 text-brand-primary" />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
@@ -1705,7 +1705,7 @@ export default function CreateProductPage() {
           )}
 
           {/* SIDEBAR 4: Inventory Settings */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <Info className="h-4 w-4 text-brand-primary" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
@@ -1743,7 +1743,7 @@ export default function CreateProductPage() {
       {/* QUICK CREATE POPUP MODAL */}
       {activeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-sm rounded-md border border-slate-200 bg-white p-5 shadow-xl space-y-4">
+          <div className="w-full max-w-sm rounded-sm border border-slate-200 bg-white p-5 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <h3 className="text-sm font-bold text-gray-600">
                 Quick Add {activeModal === "BRAND" ? "Brand" : activeModal === "CATEGORY" ? "Main Category" : activeModal === "SUBCATEGORY" ? "Sub Category" : activeModal === "UNIT" ? "Unit" : "Supplier"}
@@ -1794,7 +1794,7 @@ export default function CreateProductPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => setActiveModal(null)}
-                  className="rounded-md text-xs"
+                  className="rounded-sm text-xs"
                 >
                   Cancel
                 </CustomButton>
@@ -1803,7 +1803,7 @@ export default function CreateProductPage() {
                   size="sm"
                   loading={creatingItem}
                   leftIcon={<Plus className="h-3.5 w-3.5" />}
-                  className="bg-brand-primary hover:opacity-90 text-white rounded-md text-xs"
+                  className="bg-brand-primary hover:opacity-90 text-white rounded-sm text-xs"
                 >
                   Save & Select
                 </CustomButton>

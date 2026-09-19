@@ -116,9 +116,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
   if (!product) {
     return (
-      <div className="p-8 text-center bg-white rounded-md border border-slate-200 m-4">
+      <div className="p-8 text-center bg-white rounded-sm border border-slate-200 m-4">
         <AlertCircle className="mx-auto h-10 w-10 text-slate-400 mb-2" />
-        <h3 className="text-base font-bold text-gray-700">Product Not Found</h3>
+        <h3 className="text-base font-bold text-gray-600">Product Not Found</h3>
         <p className="text-xs text-slate-500 mt-1 mb-4">The requested product could not be found or has been removed.</p>
         <Link href="/products">
           <CustomButton size="sm" className="bg-brand-primary text-white hover:opacity-90">
@@ -135,7 +135,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const marginPct = cost > 0 ? ((profit / cost) * 100).toFixed(1) : "0.0";
 
   const inputClass =
-    "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border";
+    "w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border";
   const labelClass = "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1";
 
   const imgUrl = product.imageUrl || product.images?.[0]?.url;
@@ -160,7 +160,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => router.push("/products")}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-sm hover:bg-slate-50 transition cursor-pointer"
             >
               <ArrowLeft size={14} /> Back
             </button>
@@ -172,7 +172,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     setEditing(false);
                     setForm(product);
                   }}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 cursor-pointer"
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-sm hover:bg-slate-50 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -181,7 +181,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   onClick={handleSave}
                   loading={saving}
                   leftIcon={<Save size={14} />}
-                  className="bg-brand-primary hover:opacity-90 text-white rounded-md text-xs font-semibold"
+                  className="bg-brand-primary hover:opacity-90 text-white rounded-sm text-xs font-semibold"
                 >
                   Save Changes
                 </CustomButton>
@@ -190,7 +190,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <>
                 <button
                   onClick={() => router.push(`/products/create?id=${id}`)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-dark bg-brand-50 border border-brand-border rounded-md hover:bg-brand-50 transition cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-dark bg-brand-50 border border-brand-border rounded-sm hover:bg-brand-50 transition cursor-pointer"
                 >
                   <Edit size={14} /> Edit Product
                 </button>
@@ -201,7 +201,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       "_blank"
                     )
                   }
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-slate-200 rounded-sm hover:bg-slate-50 transition cursor-pointer"
                 >
                   <Barcode size={14} /> Barcode
                 </button>
@@ -212,13 +212,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       "_blank"
                     )
                   }
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-slate-200 rounded-sm hover:bg-slate-50 transition cursor-pointer"
                 >
                   <Tag size={14} /> Shelf Label
                 </button>
                 <button
                   onClick={() => setDeleteModalOpen(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-sm hover:bg-red-100 transition cursor-pointer"
                 >
                   <Trash2 size={14} /> Delete
                 </button>
@@ -229,23 +229,23 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       />
 
       {/* TOP PROFILE HERO BANNER CARD */}
-      <div className="rounded-md border border-slate-200 bg-white p-5 shadow-2xs">
+      <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             {imgUrl ? (
               <img
                 src={imgUrl}
                 alt={product.name}
-                className="h-16 w-16 rounded-md object-cover border border-slate-200 shrink-0 bg-slate-50 shadow-2xs"
+                className="h-16 w-16 rounded-sm object-cover border border-slate-200 shrink-0 bg-slate-50 shadow-2xs"
               />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-md bg-brand-50 text-brand-primary border border-slate-200 shrink-0 shadow-2xs">
+              <div className="flex h-16 w-16 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-slate-200 shrink-0 shadow-2xs">
                 <Package size={30} />
               </div>
             )}
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-gray-800">{product.name}</h1>
+                <h1 className="text-base font-bold text-gray-600">{product.name}</h1>
                 <span
                   className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
                     product.status === "ACTIVE"
@@ -255,22 +255,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 >
                   {product.status}
                 </span>
-                <span className="inline-flex rounded-md bg-brand-50 px-2 py-0.5 text-[10px] font-bold text-brand-dark border border-brand-border">
+                <span className="inline-flex rounded-sm bg-brand-50 px-2 py-0.5 text-[10px] font-bold text-brand-dark border border-brand-border">
                   {product.productType}
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1.5">
                 <span>
-                  SKU: <strong className="font-mono text-gray-700">{product.sku}</strong>
+                  SKU: <strong className="font-mono text-gray-600">{product.sku}</strong>
                 </span>
                 {product.barcode && (
                   <span>
-                    • Barcode: <strong className="font-mono text-gray-700">{product.barcode}</strong>
+                    • Barcode: <strong className="font-mono text-gray-600">{product.barcode}</strong>
                   </span>
                 )}
                 {product.category && (
                   <span>
-                    • Category: <strong className="text-gray-700">{product.category.name}</strong>
+                    • Category: <strong className="text-gray-600">{product.category.name}</strong>
                   </span>
                 )}
               </div>
@@ -279,15 +279,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
           {/* Quick Financial Summary Pill Cards */}
           <div className="flex items-center gap-3 w-full sm:w-auto border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0">
-            <div className="bg-slate-50 rounded-md border border-slate-200 px-3.5 py-2 text-right">
+            <div className="bg-slate-50 rounded-sm border border-slate-200 px-3.5 py-2 text-right">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Cost</span>
-              <span className="text-sm font-bold text-gray-700">৳{Number(cost).toFixed(2)}</span>
+              <span className="text-sm font-bold text-gray-600">৳{Number(cost).toFixed(2)}</span>
             </div>
-            <div className="bg-brand-50 rounded-md border border-brand-border px-3.5 py-2 text-right">
+            <div className="bg-brand-50 rounded-sm border border-brand-border px-3.5 py-2 text-right">
               <span className="text-[10px] font-bold uppercase tracking-wider text-brand-primary block">Selling</span>
               <span className="text-sm font-bold text-brand-dark">৳{Number(selling).toFixed(2)}</span>
             </div>
-            <div className="bg-emerald-50 rounded-md border border-emerald-200 px-3.5 py-2 text-right">
+            <div className="bg-emerald-50 rounded-sm border border-emerald-200 px-3.5 py-2 text-right">
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 block">Margin</span>
               <span className="text-sm font-bold text-emerald-700">+{marginPct}%</span>
             </div>
@@ -300,10 +300,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         {/* LEFT COLUMN: Basic Info & Pricing */}
         <div className="lg:col-span-8 space-y-4">
           {/* Card 1: Basic Information */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
               <Info size={16} className="text-brand-primary" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">Basic Information</h2>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Basic Information</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -317,13 +317,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     className={inputClass}
                   />
                 ) : (
-                  <p className="text-xs font-semibold text-gray-800">{product.name}</p>
+                  <p className="text-xs font-semibold text-gray-600">{product.name}</p>
                 )}
               </div>
 
               <div>
                 <label className={labelClass}>SKU Code</label>
-                <p className="text-xs font-mono font-bold text-gray-700">{product.sku}</p>
+                <p className="text-xs font-mono font-bold text-gray-600">{product.sku}</p>
               </div>
 
               <div>
@@ -336,38 +336,38 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     className={inputClass}
                   />
                 ) : (
-                  <p className="text-xs font-mono font-semibold text-gray-700">{product.barcode || "—"}</p>
+                  <p className="text-xs font-mono font-semibold text-gray-600">{product.barcode || "—"}</p>
                 )}
               </div>
 
               <div>
                 <label className={labelClass}>Product Type</label>
-                <p className="text-xs font-semibold text-gray-700">{product.productType}</p>
+                <p className="text-xs font-semibold text-gray-600">{product.productType}</p>
               </div>
 
               <div>
                 <label className={labelClass}>Category</label>
-                <p className="text-xs font-semibold text-gray-700">{product.category?.name || "—"}</p>
+                <p className="text-xs font-semibold text-gray-600">{product.category?.name || "—"}</p>
               </div>
 
               <div>
                 <label className={labelClass}>Sub Category</label>
-                <p className="text-xs font-semibold text-gray-700">{product.subCategory?.name || "—"}</p>
+                <p className="text-xs font-semibold text-gray-600">{product.subCategory?.name || "—"}</p>
               </div>
 
               <div>
                 <label className={labelClass}>Brand</label>
-                <p className="text-xs font-semibold text-gray-700">{product.brand?.name || "—"}</p>
+                <p className="text-xs font-semibold text-gray-600">{product.brand?.name || "—"}</p>
               </div>
 
               <div>
                 <label className={labelClass}>Unit of Measure</label>
-                <p className="text-xs font-semibold text-gray-700">{product.unit?.name || "—"}</p>
+                <p className="text-xs font-semibold text-gray-600">{product.unit?.name || "—"}</p>
               </div>
 
               <div>
                 <label className={labelClass}>Supplier</label>
-                <p className="text-xs font-semibold text-gray-700">{product.supplier?.name || "—"}</p>
+                <p className="text-xs font-semibold text-gray-600">{product.supplier?.name || "—"}</p>
               </div>
 
               <div>
@@ -380,7 +380,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     className={inputClass}
                   />
                 ) : (
-                  <p className="text-xs font-semibold text-gray-700">{product.manufacturer || "—"}</p>
+                  <p className="text-xs font-semibold text-gray-600">{product.manufacturer || "—"}</p>
                 )}
               </div>
 
@@ -394,7 +394,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     className={inputClass}
                   />
                 ) : (
-                  <p className="text-xs font-semibold text-gray-700">{product.warrantyDays ? `${product.warrantyDays} Days` : "—"}</p>
+                  <p className="text-xs font-semibold text-gray-600">{product.warrantyDays ? `${product.warrantyDays} Days` : "—"}</p>
                 )}
               </div>
             </div>
@@ -408,10 +408,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           </div>
 
           {/* Card 2: Stock & Inventory Levels */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
               <Warehouse size={16} className="text-brand-primary" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                 Warehouse Stock & Inventory ({product.stockRows?.length || 0})
               </h2>
             </div>
@@ -430,7 +430,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   <tbody className="divide-y divide-slate-100">
                     {product.stockRows.map((s: any) => (
                       <tr key={s.id} className="hover:bg-slate-50/50">
-                        <td className="py-2 px-3 font-semibold text-gray-700">
+                        <td className="py-2 px-3 font-semibold text-gray-600">
                           {s.warehouseName || s.warehouse?.name || "Main Warehouse"}
                         </td>
                         <td className="py-2 px-3 text-right font-medium text-slate-600">{s.qtyOnHand || 0}</td>
@@ -450,10 +450,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
           {/* Card 3: Variants Table (If variable) */}
           {product.variants?.length > 0 && (
-            <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
+            <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
                 <Layers size={16} className="text-brand-primary" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                   Product Variants ({product.variants.length})
                 </h2>
               </div>
@@ -473,13 +473,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   <tbody className="divide-y divide-slate-100">
                     {product.variants.map((v: any) => (
                       <tr key={v.id} className="hover:bg-slate-50/50">
-                        <td className="py-2 px-3 font-bold text-gray-700">{v.name}</td>
+                        <td className="py-2 px-3 font-bold text-gray-600">{v.name}</td>
                         <td className="py-2 px-3 font-mono text-slate-600">{v.sku}</td>
                         <td className="py-2 px-3 font-mono text-slate-500">{v.barcode || "—"}</td>
                         <td className="py-2 px-3 text-right text-slate-600">
                           {v.costPrice ? `৳${Number(v.costPrice).toFixed(2)}` : "—"}
                         </td>
-                        <td className="py-2 px-3 text-right font-bold text-gray-700">
+                        <td className="py-2 px-3 text-right font-bold text-gray-600">
                           {v.sellingPrice ? `৳${Number(v.sellingPrice).toFixed(2)}` : "—"}
                         </td>
                         <td className="py-2 px-3 text-center">
@@ -505,10 +505,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         {/* RIGHT SIDEBAR: Pricing & Margins Card */}
         <div className="lg:col-span-4 space-y-4">
           {/* Card: Pricing Breakdown */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
               <DollarSign size={16} className="text-brand-primary" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">Pricing & Tax Breakdown</h2>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Pricing & Tax Breakdown</h2>
             </div>
 
             <div className="space-y-3">
@@ -520,10 +520,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     step="0.01"
                     value={form.costPrice || ""}
                     onChange={(e) => setForm({ ...form, costPrice: e.target.value })}
-                    className="w-28 rounded border border-slate-200 px-2 py-1 text-xs text-right font-bold"
+                    className="w-28 rounded-sm border border-slate-200 px-2 py-1 text-xs text-right font-bold"
                   />
                 ) : (
-                  <span className="text-xs font-bold text-slate-700">৳{Number(product.costPrice || 0).toFixed(2)}</span>
+                  <span className="text-xs font-bold text-gray-600">৳{Number(product.costPrice || 0).toFixed(2)}</span>
                 )}
               </div>
 
@@ -535,7 +535,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     step="0.01"
                     value={form.sellingPrice || ""}
                     onChange={(e) => setForm({ ...form, sellingPrice: e.target.value })}
-                    className="w-28 rounded border border-slate-200 px-2 py-1 text-xs text-right font-bold text-brand-dark"
+                    className="w-28 rounded-sm border border-slate-200 px-2 py-1 text-xs text-right font-bold text-brand-dark"
                   />
                 ) : (
                   <span className="text-xs font-bold text-brand-dark">৳{Number(product.sellingPrice || 0).toFixed(2)}</span>
@@ -550,10 +550,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     step="0.01"
                     value={form.wholesalePrice || ""}
                     onChange={(e) => setForm({ ...form, wholesalePrice: e.target.value })}
-                    className="w-28 rounded border border-slate-200 px-2 py-1 text-xs text-right"
+                    className="w-28 rounded-sm border border-slate-200 px-2 py-1 text-xs text-right"
                   />
                 ) : (
-                  <span className="text-xs font-semibold text-slate-700">
+                  <span className="text-xs font-semibold text-gray-600">
                     {product.wholesalePrice ? `৳${Number(product.wholesalePrice).toFixed(2)}` : "—"}
                   </span>
                 )}
@@ -574,10 +574,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     step="0.1"
                     value={form.taxRate || ""}
                     onChange={(e) => setForm({ ...form, taxRate: e.target.value })}
-                    className="w-24 rounded border border-slate-200 px-2 py-1 text-xs text-right"
+                    className="w-24 rounded-sm border border-slate-200 px-2 py-1 text-xs text-right"
                   />
                 ) : (
-                  <span className="text-xs font-semibold text-slate-700">
+                  <span className="text-xs font-semibold text-gray-600">
                     {product.taxRate ? `${product.taxRate}%` : "—"}
                   </span>
                 )}
@@ -585,7 +585,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Calculated Profit Margin Banner */}
-            <div className="rounded-md bg-brand-50 border border-brand-border p-3 space-y-1">
+            <div className="rounded-sm bg-brand-50 border border-brand-border p-3 space-y-1">
               <div className="flex items-center justify-between text-xs font-bold text-brand-dark">
                 <span>Profit per Unit:</span>
                 <span>৳{profit.toFixed(2)}</span>
@@ -598,10 +598,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           </div>
 
           {/* Card: Extended System Metadata */}
-          <div className="rounded-md border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
+          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
               <Sparkles size={16} className="text-brand-primary" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-700">Metadata & System Info</h2>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Metadata & System Info</h2>
             </div>
 
             <div className="space-y-2 text-xs text-slate-500">
@@ -611,7 +611,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
               <div className="flex items-center justify-between">
                 <span>Created At:</span>
-                <span className="font-medium text-slate-700">
+                <span className="font-medium text-gray-600">
                   {product.createdAt ? new Date(product.createdAt).toLocaleDateString() : "—"}
                 </span>
               </div>

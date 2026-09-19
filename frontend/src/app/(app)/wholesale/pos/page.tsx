@@ -752,7 +752,7 @@ function WholesalePOSInner() {
             >
               <div className={cn("flex items-center justify-between border-b p-5 transition-colors", darkMode ? "border-slate-800" : "border-slate-100")}>
                 <div>
-                  <h3 className={cn("text-lg font-bold", darkMode ? "text-white" : "text-slate-900")}>
+                  <h3 className={cn("text-lg font-bold", darkMode ? "text-white" : "text-gray-600")}>
                     Sales History & Held Orders
                   </h3>
                   <p className={cn("text-xs font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>
@@ -810,7 +810,7 @@ function WholesalePOSInner() {
                   ) : recentSales.length === 0 ? (
                     <div className="flex h-full flex-col items-center justify-center gap-3 text-center py-12">
                       <div className={cn("h-16 w-16 rounded-full flex items-center justify-center", darkMode ? "bg-slate-800" : "bg-slate-50")}>
-                        <ShoppingBag className={cn("opacity-20", darkMode ? "text-white" : "text-slate-900")} size={32} />
+                        <ShoppingBag className={cn("opacity-20", darkMode ? "text-white" : "text-gray-600")} size={32} />
                       </div>
                       <p className={cn("text-sm font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>
                         No sales history found
@@ -829,7 +829,7 @@ function WholesalePOSInner() {
                       >
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className={cn("text-sm font-bold", darkMode ? "text-white" : "text-slate-900")}>
+                            <span className={cn("text-sm font-bold", darkMode ? "text-white" : "text-gray-600")}>
                               {s.invoiceNo || s.orderNo || "INV-POS"}
                             </span>
                             <span className={cn("text-[10px] font-black uppercase px-2 py-0.5 rounded-full",
@@ -838,7 +838,7 @@ function WholesalePOSInner() {
                               {s.status || "COMPLETED"}
                             </span>
                             {s.source && (
-                              <span className="text-[10px] font-bold uppercase bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">
+                              <span className="text-[10px] font-bold uppercase bg-slate-200 text-gray-600 px-1.5 py-0.5 rounded-sm">
                                 {s.source}
                               </span>
                             )}
@@ -849,7 +849,7 @@ function WholesalePOSInner() {
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="text-right">
-                            <p className={cn("text-sm font-black", darkMode ? "text-white" : "text-slate-900")}>
+                            <p className={cn("text-sm font-black", darkMode ? "text-white" : "text-gray-600")}>
                               ৳{Number(s.total || 0).toFixed(2)}
                             </p>
                             <p className={cn("text-[10px] font-bold uppercase", darkMode ? "text-slate-500" : "text-slate-400")}>
@@ -863,7 +863,7 @@ function WholesalePOSInner() {
                 ) : heldBills.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center gap-3 text-center py-12">
                     <div className={cn("h-16 w-16 rounded-full flex items-center justify-center", darkMode ? "bg-slate-800" : "bg-slate-50")}>
-                      <ShoppingBag className={cn("opacity-20", darkMode ? "text-white" : "text-slate-900")} size={32} />
+                      <ShoppingBag className={cn("opacity-20", darkMode ? "text-white" : "text-gray-600")} size={32} />
                     </div>
                     <p className={cn("text-sm font-medium", darkMode ? "text-slate-500" : "text-slate-400")}>
                       No held orders found
@@ -882,7 +882,7 @@ function WholesalePOSInner() {
                     >
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className={cn("text-sm font-bold", darkMode ? "text-white" : "text-slate-900")}>
+                          <span className={cn("text-sm font-bold", darkMode ? "text-white" : "text-gray-600")}>
                             {held.items.length} Items
                           </span>
                           <span className={cn("text-[10px] font-black uppercase tracking-widest", darkMode ? "text-blue-400" : "text-blue-600")}>
@@ -895,7 +895,7 @@ function WholesalePOSInner() {
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="text-right">
-                          <p className={cn("text-sm font-black", darkMode ? "text-white" : "text-slate-900")}>
+                          <p className={cn("text-sm font-black", darkMode ? "text-white" : "text-gray-600")}>
                             ৳{held.items.reduce((s, i) => s + i.lineTotal, 0).toFixed(2)}
                           </p>
                           <p className={cn("text-[10px] font-bold uppercase", darkMode ? "text-slate-600" : "text-slate-400")}>
@@ -905,7 +905,7 @@ function WholesalePOSInner() {
                         <button
                           onClick={() => recallOrder(held)}
                           className={cn(
-                            "flex h-10 items-center justify-center rounded-xl px-5 text-xs font-bold transition-all active:scale-95",
+                            "flex h-10 items-center justify-center rounded-sm px-5 text-xs font-bold transition-all active:scale-95",
                             darkMode
                               ? "bg-blue-600 text-white hover:bg-blue-500 shadow-2xs"
                               : "bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-200",

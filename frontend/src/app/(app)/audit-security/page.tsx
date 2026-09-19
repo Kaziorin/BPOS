@@ -114,7 +114,7 @@ const ACTION_COLORS: Record<string, { bg: string; text: string; border: string }
   UPDATE: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" },
   DELETE: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200" },
   VOID: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200" },
-  APPROVE: { bg: "bg-teal-50", text: "text-teal-700", border: "border-teal-200" },
+  APPROVE: { bg: "bg-brand-50", text: "text-brand-dark", border: "border-brand-border" },
   REJECT: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
   PRICE_CHANGE: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" },
   DISCOUNT: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" },
@@ -131,7 +131,7 @@ const SEVERITY_CONFIG: Record<
 > = {
   LOW: {
     label: "Low Severity",
-    badgeCls: "bg-slate-100 text-slate-700 border-slate-200",
+    badgeCls: "bg-slate-100 text-gray-600 border-slate-200",
     borderCls: "border-slate-300",
     dotCls: "bg-slate-400",
     cardBorder: "border-slate-200",
@@ -378,7 +378,7 @@ function AuditSecurityContent() {
               <ShieldCheck size={14} className="text-emerald-600" />
               <span>Enterprise SOC & Audit Trail (§17 Security & Compliance)</span>
             </div>
-            <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+            <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-600">
               Audit Ledger & Threat Intelligence
             </h1>
             <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -393,7 +393,7 @@ function AuditSecurityContent() {
               className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all shadow-2xs cursor-pointer ${
                 activeTab === "audit"
                   ? "bg-brand-gradient text-white shadow-2xs shadow-sm"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  : "bg-slate-100 text-gray-600 hover:bg-slate-200"
               }`}
             >
               <FileText size={15} />
@@ -405,7 +405,7 @@ function AuditSecurityContent() {
               className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all shadow-2xs cursor-pointer ${
                 activeTab === "security"
                   ? "bg-brand-gradient text-white shadow-2xs shadow-sm"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  : "bg-slate-100 text-gray-600 hover:bg-slate-200"
               }`}
             >
               <ShieldAlert size={15} />
@@ -417,7 +417,7 @@ function AuditSecurityContent() {
               className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all shadow-2xs cursor-pointer ${
                 activeTab === "health"
                   ? "bg-brand-gradient text-white shadow-2xs shadow-sm"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  : "bg-slate-100 text-gray-600 hover:bg-slate-200"
               }`}
             >
               <Activity size={15} />
@@ -517,7 +517,7 @@ function AuditSecurityContent() {
                 </span>
               </div>
               <div className="mt-2.5 flex items-baseline gap-2">
-                <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{auditStats?.total || auditLogs.length}</span>
+                <span className="text-3xl font-extrabold text-gray-600 tracking-tight">{auditStats?.total || auditLogs.length}</span>
                 <span className="text-xs text-slate-400 font-medium">total log entries</span>
               </div>
               <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
@@ -549,7 +549,7 @@ function AuditSecurityContent() {
                 </span>
               </div>
               <div className="mt-2.5 flex items-baseline gap-2">
-                <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                <span className="text-2xl font-extrabold text-gray-600 tracking-tight">
                   {auditStats?.byEntity?.[0]?.entityType || "SALE"}
                 </span>
                 <span className="text-xs text-slate-400 font-medium font-mono">
@@ -587,7 +587,7 @@ function AuditSecurityContent() {
                   value={auditSearch}
                   onChange={(e) => setAuditSearch(e.target.value)}
                   placeholder="Search user, entity ID, IP, reason…"
-                  className="h-9 w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-8 pr-3 text-xs text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-brand-border"
+                  className="h-9 w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-8 pr-3 text-xs text-gray-600 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-brand-border"
                 />
                 {auditSearch && (
                   <button
@@ -658,13 +658,13 @@ function AuditSecurityContent() {
                         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
                           <FileText size={22} />
                         </div>
-                        <p className="mt-3 text-sm font-semibold text-slate-700">No audit records found</p>
+                        <p className="mt-3 text-sm font-semibold text-gray-600">No audit records found</p>
                         <p className="mt-1 text-xs text-slate-400">Try adjusting your filters or search terms.</p>
                       </td>
                     </tr>
                   ) : (
                     filteredAuditLogs.map((log, idx) => {
-                      const actCfg = ACTION_COLORS[log.action] || { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-200" };
+                      const actCfg = ACTION_COLORS[log.action] || { bg: "bg-slate-100", text: "text-gray-600", border: "border-slate-200" };
 
                       return (
                         <tr
@@ -674,7 +674,7 @@ function AuditSecurityContent() {
                         >
                           {/* Timestamp */}
                           <td className="py-3.5 pl-4 pr-3">
-                            <p className="text-xs font-semibold text-slate-900 group-hover:text-sky-600 transition">
+                            <p className="text-xs font-semibold text-gray-600 group-hover:text-sky-600 transition">
                               {fmtDt(log.createdAt)}
                             </p>
                             <p className="text-[11px] text-slate-400">{timeAgo(log.createdAt)}</p>
@@ -683,7 +683,7 @@ function AuditSecurityContent() {
                           {/* Action */}
                           <td className="px-3 py-3.5">
                             <span
-                              className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-bold ${actCfg.bg} ${actCfg.text} ${actCfg.border}`}
+                              className={`inline-flex items-center rounded-sm border px-2.5 py-0.5 text-xs font-bold ${actCfg.bg} ${actCfg.text} ${actCfg.border}`}
                             >
                               {log.action}
                             </span>
@@ -691,13 +691,13 @@ function AuditSecurityContent() {
 
                           {/* Entity */}
                           <td className="px-3 py-3.5">
-                            <span className="font-semibold text-xs text-slate-800">{log.entity}</span>
+                            <span className="font-semibold text-xs text-gray-600">{log.entity}</span>
                           </td>
 
                           {/* Entity ID */}
                           <td className="px-3 py-3.5">
                             {log.entityId ? (
-                              <span className="font-mono text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
+                              <span className="font-mono text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded-sm">
                                 #{log.entityId.slice(0, 16)}
                               </span>
                             ) : (
@@ -707,7 +707,7 @@ function AuditSecurityContent() {
 
                           {/* User */}
                           <td className="px-3 py-3.5">
-                            <div className="flex items-center gap-1.5 text-xs text-slate-700 font-medium">
+                            <div className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
                               <User size={12} className="text-slate-400" />
                               <span>{log.userId || "system"}</span>
                             </div>
@@ -725,7 +725,7 @@ function AuditSecurityContent() {
                                 e.stopPropagation();
                                 setSelectedAudit(log);
                               }}
-                              className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:text-sky-700 transition"
+                              className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 shadow-2xs hover:bg-slate-50 hover:text-sky-700 transition"
                             >
                               <Eye size={12} /> Inspect
                             </button>
@@ -754,7 +754,7 @@ function AuditSecurityContent() {
                 </span>
               </div>
               <div className="mt-2.5 flex items-baseline gap-2">
-                <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                <span className="text-3xl font-extrabold text-gray-600 tracking-tight">
                   {secStats?.totalEvents || secEvents.length}
                 </span>
                 <span className="text-xs text-slate-400 font-medium">events recorded</span>
@@ -829,7 +829,7 @@ function AuditSecurityContent() {
                   value={secSearch}
                   onChange={(e) => setSecSearch(e.target.value)}
                   placeholder="Search threat type, IP, user, endpoint…"
-                  className="h-9 w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-8 pr-3 text-xs text-slate-800 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-brand-border"
+                  className="h-9 w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-8 pr-3 text-xs text-gray-600 outline-none transition focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-brand-border"
                 />
                 {secSearch && (
                   <button
@@ -903,7 +903,7 @@ function AuditSecurityContent() {
                         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                           <ShieldCheck size={24} />
                         </div>
-                        <p className="mt-3 text-sm font-semibold text-slate-800">No security incidents detected</p>
+                        <p className="mt-3 text-sm font-semibold text-gray-600">No security incidents detected</p>
                         <p className="mt-1 text-xs text-slate-400">All inbound traffic complies with security firewall rules.</p>
                       </td>
                     </tr>
@@ -919,7 +919,7 @@ function AuditSecurityContent() {
                         >
                           {/* Event Time */}
                           <td className="py-3.5 pl-4 pr-3">
-                            <p className="text-xs font-semibold text-slate-900 group-hover:text-sky-600 transition">
+                            <p className="text-xs font-semibold text-gray-600 group-hover:text-sky-600 transition">
                               {fmtDt(ev.createdAt)}
                             </p>
                             <p className="text-[11px] text-slate-400">{timeAgo(ev.createdAt)}</p>
@@ -927,7 +927,7 @@ function AuditSecurityContent() {
 
                           {/* Threat Type */}
                           <td className="px-3 py-3.5">
-                            <span className="font-mono text-xs font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">
+                            <span className="font-mono text-xs font-bold text-gray-600 bg-slate-100 px-2 py-0.5 rounded-sm">
                               {ev.eventType}
                             </span>
                           </td>
@@ -944,7 +944,7 @@ function AuditSecurityContent() {
 
                           {/* Origin IP */}
                           <td className="px-3 py-3.5">
-                            <span className="font-mono text-xs text-slate-700">{ev.ipAddress || "—"}</span>
+                            <span className="font-mono text-xs text-gray-600">{ev.ipAddress || "—"}</span>
                           </td>
 
                           {/* Target Endpoint */}
@@ -957,11 +957,11 @@ function AuditSecurityContent() {
                           {/* Action Taken */}
                           <td className="px-3 py-3.5">
                             {ev.blocked ? (
-                              <span className="inline-flex items-center gap-1 rounded-md bg-rose-50 border border-rose-200 px-2 py-0.5 text-xs font-bold text-rose-700">
+                              <span className="inline-flex items-center gap-1 rounded-sm bg-rose-50 border border-rose-200 px-2 py-0.5 text-xs font-bold text-rose-700">
                                 <Ban size={11} /> Dropped (Blocked)
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                              <span className="inline-flex items-center gap-1 rounded-sm bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
                                 Logged & Monitored
                               </span>
                             )}
@@ -974,7 +974,7 @@ function AuditSecurityContent() {
                                 e.stopPropagation();
                                 setSelectedSecEvent(ev);
                               }}
-                              className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:text-sky-700 transition"
+                              className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 shadow-2xs hover:bg-slate-50 hover:text-sky-700 transition"
                             >
                               <Eye size={12} /> Inspect
                             </button>
@@ -1020,7 +1020,7 @@ function AuditSecurityContent() {
                     {health?.riskLevel === "LOW" ? "A+" : health?.riskLevel === "MEDIUM" ? "B" : "C"}
                   </div>
                   <div>
-                    <p className="text-lg font-extrabold text-slate-900">{health?.riskLevel || "LOW"} Risk Level</p>
+                    <p className="text-lg font-extrabold text-gray-600">{health?.riskLevel || "LOW"} Risk Level</p>
                     <p className="text-xs text-slate-500">Continuous automated vulnerability scan</p>
                   </div>
                 </div>
@@ -1029,7 +1029,7 @@ function AuditSecurityContent() {
               <div className="mt-6 space-y-2 border-t border-slate-100 pt-4 text-xs">
                 <div className="flex justify-between text-slate-600">
                   <span>Total Monitored Events:</span>
-                  <span className="font-bold text-slate-900">{health?.totalEvents || 0}</span>
+                  <span className="font-bold text-gray-600">{health?.totalEvents || 0}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Critical Severity Incidents:</span>
@@ -1046,7 +1046,7 @@ function AuditSecurityContent() {
             <div className="lg:col-span-2 rounded-sm border border-slate-200 bg-white p-6 shadow-2xs">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">Automated SOC Recommendations</h3>
+                  <h3 className="text-base font-bold text-gray-600">Automated SOC Recommendations</h3>
                   <p className="text-xs text-slate-500">Security hardening guidelines computed from live event logs.</p>
                 </div>
                 <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-bold text-sky-700 border border-primary-100">
@@ -1064,7 +1064,7 @@ function AuditSecurityContent() {
                       {i + 1}
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-800">{rec}</p>
+                      <p className="text-xs font-bold text-gray-600">{rec}</p>
                       <p className="text-[11px] text-slate-500 mt-0.5">
                         Enforced automatically by the BlueOceans multi-tier security filter chain.
                       </p>
@@ -1148,13 +1148,13 @@ function AuditSecurityContent() {
                       </span>
                     </div>
 
-                    <h4 className="mt-3 text-sm font-bold text-slate-900">{p.title}</h4>
+                    <h4 className="mt-3 text-sm font-bold text-gray-600">{p.title}</h4>
                     <p className="mt-1 text-xs text-slate-500 leading-relaxed">{p.desc}</p>
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                     <span className="text-slate-400">Configuration:</span>
-                    <span className="font-mono font-bold text-slate-700 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                    <span className="font-mono font-bold text-gray-600 bg-slate-50 px-2 py-0.5 rounded-sm border border-slate-200">
                       {p.badge}
                     </span>
                   </div>
@@ -1176,29 +1176,29 @@ function AuditSecurityContent() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
               <div className="rounded-sm bg-slate-50 p-2.5 border border-slate-100">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Action</p>
-                <p className="mt-0.5 font-bold text-slate-800">{selectedAudit.action}</p>
+                <p className="mt-0.5 font-bold text-gray-600">{selectedAudit.action}</p>
               </div>
 
               <div className="rounded-sm bg-slate-50 p-2.5 border border-slate-100">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Entity Type</p>
-                <p className="mt-0.5 font-bold text-slate-800">{selectedAudit.entity}</p>
+                <p className="mt-0.5 font-bold text-gray-600">{selectedAudit.entity}</p>
               </div>
 
               <div className="rounded-sm bg-slate-50 p-2.5 border border-slate-100">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Operator ID</p>
-                <p className="mt-0.5 font-bold text-slate-800 truncate">{selectedAudit.userId || "system"}</p>
+                <p className="mt-0.5 font-bold text-gray-600 truncate">{selectedAudit.userId || "system"}</p>
               </div>
 
               <div className="rounded-sm bg-slate-50 p-2.5 border border-slate-100">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Client IP</p>
-                <p className="mt-0.5 font-mono font-bold text-slate-800">{selectedAudit.ipAddress || "127.0.0.1"}</p>
+                <p className="mt-0.5 font-mono font-bold text-gray-600">{selectedAudit.ipAddress || "127.0.0.1"}</p>
               </div>
             </div>
 
             {selectedAudit.reason && (
               <div className="rounded-sm bg-slate-50 p-3 border border-slate-100 text-xs">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Reason / Audit Context</p>
-                <p className="mt-1 font-medium text-slate-800">{selectedAudit.reason}</p>
+                <p className="mt-1 font-medium text-gray-600">{selectedAudit.reason}</p>
               </div>
             )}
 
@@ -1245,7 +1245,7 @@ function AuditSecurityContent() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
               <div className="rounded-sm bg-slate-50 p-2.5 border border-slate-100">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Threat Type</p>
-                <p className="mt-0.5 font-bold text-slate-800">{selectedSecEvent.eventType}</p>
+                <p className="mt-0.5 font-bold text-gray-600">{selectedSecEvent.eventType}</p>
               </div>
 
               <div className="rounded-sm bg-slate-50 p-2.5 border border-slate-100">
@@ -1255,19 +1255,19 @@ function AuditSecurityContent() {
 
               <div className="rounded-sm bg-slate-50 p-2.5 border border-slate-100">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Origin IP</p>
-                <p className="mt-0.5 font-mono font-bold text-slate-800">{selectedSecEvent.ipAddress || "—"}</p>
+                <p className="mt-0.5 font-mono font-bold text-gray-600">{selectedSecEvent.ipAddress || "—"}</p>
               </div>
 
               <div className="rounded-sm bg-slate-50 p-2.5 border border-slate-100">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Verdict</p>
-                <p className="mt-0.5 font-bold text-slate-800">{selectedSecEvent.blocked ? "BLOCKED" : "LOGGED"}</p>
+                <p className="mt-0.5 font-bold text-gray-600">{selectedSecEvent.blocked ? "BLOCKED" : "LOGGED"}</p>
               </div>
             </div>
 
             {selectedSecEvent.endpoint && (
               <div className="rounded-sm bg-slate-50 p-3 border border-slate-100 text-xs">
                 <p className="text-slate-400 font-semibold uppercase text-[10px]">Target URI Endpoint</p>
-                <p className="mt-1 font-mono font-bold text-slate-800">{selectedSecEvent.endpoint}</p>
+                <p className="mt-1 font-mono font-bold text-gray-600">{selectedSecEvent.endpoint}</p>
               </div>
             )}
 

@@ -139,7 +139,7 @@ interface BranchOption {
 
 const TYPE_CONFIG: Record<string, { label: string; badge: string; border: string; icon: any }> = {
   TAX: { label: "Mushak 6.3 Tax", badge: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200", border: "border-indigo-200", icon: ShieldCheck },
-  STANDARD: { label: "Commercial Standard", badge: "bg-slate-100 text-slate-700 ring-1 ring-slate-200", border: "border-slate-200", icon: FileText },
+  STANDARD: { label: "Commercial Standard", badge: "bg-slate-100 text-gray-600 ring-1 ring-slate-200", border: "border-slate-200", icon: FileText },
   CREDIT_NOTE: { label: "Credit Note (Refund)", badge: "bg-rose-50 text-rose-700 ring-1 ring-rose-200", border: "border-rose-200", icon: RotateCcw },
   DEBIT_NOTE: { label: "Debit Note (Adj.)", badge: "bg-amber-50 text-amber-700 ring-1 ring-amber-200", border: "border-amber-200", icon: AlertCircle },
   PROFORMA: { label: "Proforma Estimate", badge: "bg-purple-50 text-purple-700 ring-1 ring-purple-200", border: "border-purple-200", icon: Sparkles },
@@ -1051,7 +1051,7 @@ export default function InvoicesPage() {
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-white px-3 py-1.5 shadow-2xs">
               <span className="text-[11px] font-semibold text-gray-500">Total Receivables:</span>
-              <span className="text-xs font-black text-gray-700">
+              <span className="text-xs font-black text-gray-600">
                 ৳{agingBuckets.totalReceivables.toLocaleString()}
               </span>
             </div>
@@ -1129,12 +1129,12 @@ export default function InvoicesPage() {
               </span>
             </div>
             <div className="my-2">
-              <p className="text-base font-black text-gray-700 tracking-tight">
+              <p className="text-base font-black text-gray-600 tracking-tight">
                 ৳{agingBuckets.notDue.toLocaleString()}
               </p>
             </div>
             <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-emerald-200/70">
-              <span className="font-bold text-gray-700">{agingBuckets.countNotDue} invoices</span>
+              <span className="font-bold text-gray-600">{agingBuckets.countNotDue} invoices</span>
               <span className="font-bold text-emerald-700">On Track</span>
             </div>
           </div>
@@ -1155,7 +1155,7 @@ export default function InvoicesPage() {
               </p>
             </div>
             <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-amber-200/70">
-              <span className="font-bold text-gray-700">{agingBuckets.count1_30} invoices</span>
+              <span className="font-bold text-gray-600">{agingBuckets.count1_30} invoices</span>
               <span className="font-bold text-amber-700">Early Watch</span>
             </div>
           </div>
@@ -1176,7 +1176,7 @@ export default function InvoicesPage() {
               </p>
             </div>
             <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-orange-200/70">
-              <span className="font-bold text-gray-700">{agingBuckets.count31_60} invoices</span>
+              <span className="font-bold text-gray-600">{agingBuckets.count31_60} invoices</span>
               <span className="font-bold text-orange-700">Follow-up</span>
             </div>
           </div>
@@ -1197,7 +1197,7 @@ export default function InvoicesPage() {
               </p>
             </div>
             <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-rose-200/70">
-              <span className="font-bold text-gray-700">{agingBuckets.count61_90} invoices</span>
+              <span className="font-bold text-gray-600">{agingBuckets.count61_90} invoices</span>
               <span className="font-bold text-rose-700">High Risk</span>
             </div>
           </div>
@@ -1218,7 +1218,7 @@ export default function InvoicesPage() {
               </p>
             </div>
             <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-red-200">
-              <span className="font-bold text-gray-700">{agingBuckets.count90_plus} invoices</span>
+              <span className="font-bold text-gray-600">{agingBuckets.count90_plus} invoices</span>
               <span className="font-black text-red-700">Immediate Action</span>
             </div>
           </div>
@@ -1295,7 +1295,7 @@ export default function InvoicesPage() {
                         setSearchQuery("");
                         setPage(1);
                       }}
-                      className="text-gray-400 hover:text-gray-700 cursor-pointer"
+                      className="text-gray-400 hover:text-gray-600 cursor-pointer"
                     >
                       <X size={14} />
                     </button>
@@ -1308,7 +1308,7 @@ export default function InvoicesPage() {
                   setPage(1);
                 }}
                 containerClassName="w-48 sm:w-64 md:w-72"
-                className="h-[34px] text-xs font-medium text-gray-700 placeholder:text-gray-500 shadow-2xs"
+                className="h-[34px] text-xs font-medium text-gray-600 placeholder:text-gray-500 shadow-2xs"
               />
 
               {/* Table / Grid Switcher */}
@@ -1319,7 +1319,7 @@ export default function InvoicesPage() {
                   className={`rounded-sm p-1.5 h-[28px] flex items-center transition cursor-pointer ${
                     viewMode === "table"
                       ? "bg-brand-50 text-brand-primary shadow-2xs font-bold"
-                      : "text-gray-500 hover:text-gray-800"
+                      : "text-gray-500 hover:text-gray-600"
                   }`}
                   title="Table View"
                 >
@@ -1331,7 +1331,7 @@ export default function InvoicesPage() {
                   className={`rounded-sm p-1.5 h-[28px] flex items-center transition cursor-pointer ${
                     viewMode === "grid"
                       ? "bg-brand-50 text-brand-primary shadow-2xs font-bold"
-                      : "text-gray-500 hover:text-gray-800"
+                      : "text-gray-500 hover:text-gray-600"
                   }`}
                   title="Grid Card View"
                 >
@@ -1442,7 +1442,7 @@ export default function InvoicesPage() {
             <div className="rounded-sm bg-brand-50 p-4 text-brand-primary">
               <FileText size={36} />
             </div>
-            <h3 className="mt-3 text-sm font-bold text-gray-700">No invoices found</h3>
+            <h3 className="mt-3 text-sm font-bold text-gray-600">No invoices found</h3>
             <p className="mt-1 max-w-sm text-xs text-gray-500">
               No invoice records matched your criteria. Create a new invoice or adjust your search filters.
             </p>
@@ -1460,9 +1460,9 @@ export default function InvoicesPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-brand-border/60 bg-brand-50/40 text-xs font-bold capitalize text-gray-700">
+                  <tr className="border-b border-brand-border/60 bg-brand-50/40 text-xs font-bold capitalize text-gray-600">
                     <th className="py-3.5 pl-4 pr-2 w-8">
-                      <button onClick={toggleSelectAll} className="text-gray-400 hover:text-gray-700 cursor-pointer">
+                      <button onClick={toggleSelectAll} className="text-gray-400 hover:text-gray-600 cursor-pointer">
                         {selectedIds.length === invoices.length && invoices.length > 0 ? (
                           <CheckSquare size={16} className="text-brand-primary" />
                         ) : (
@@ -1493,7 +1493,7 @@ export default function InvoicesPage() {
                       <tr key={inv.id} className={`group transition ${isSelected ? "bg-brand-50/30" : "hover:bg-slate-50/70"}`}>
                         {/* Checkbox */}
                         <td className="py-3.5 pl-4 pr-2">
-                          <button onClick={() => toggleSelectRow(inv.id)} className="text-gray-400 hover:text-gray-700 cursor-pointer">
+                          <button onClick={() => toggleSelectRow(inv.id)} className="text-gray-400 hover:text-gray-600 cursor-pointer">
                             {isSelected ? <CheckSquare size={16} className="text-brand-primary" /> : <Square size={16} />}
                           </button>
                         </td>
@@ -1504,7 +1504,7 @@ export default function InvoicesPage() {
                             <div className="flex items-center gap-1.5">
                               <span
                                 onClick={() => copyToClipboard(inv.invoiceNo, inv.id)}
-                                className="cursor-pointer font-mono font-bold text-gray-700 transition hover:text-brand-primary"
+                                className="cursor-pointer font-mono font-bold text-gray-600 transition hover:text-brand-primary"
                                 title="Click to copy invoice number"
                               >
                                 {inv.invoiceNo}
@@ -1532,7 +1532,7 @@ export default function InvoicesPage() {
                         <td className="px-3 py-3.5">
                           {inv.customer ? (
                             <div className="flex flex-col">
-                              <span className="font-bold text-gray-700">{inv.customer.name}</span>
+                              <span className="font-bold text-gray-600">{inv.customer.name}</span>
                               <div className="flex items-center gap-2 text-[11px] text-gray-500 font-medium">
                                 {inv.customer.phone && <span>{inv.customer.phone}</span>}
                                 {inv.customer.binVatNo && (
@@ -1548,7 +1548,7 @@ export default function InvoicesPage() {
                         {/* Issue & Due Date */}
                         <td className="px-3 py-3.5">
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-medium text-gray-700">
+                            <span className="font-medium text-gray-600">
                               {new Date(inv.issueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                             </span>
                             {inv.dueDate && (
@@ -1571,7 +1571,7 @@ export default function InvoicesPage() {
                         </td>
 
                         {/* Total Amount */}
-                        <td className="px-3 py-3.5 text-right font-black text-gray-700 tabular-nums">
+                        <td className="px-3 py-3.5 text-right font-black text-gray-600 tabular-nums">
                           ৳{Number(inv.total).toLocaleString()}
                         </td>
 
@@ -1597,7 +1597,7 @@ export default function InvoicesPage() {
                         <td className="px-3 py-3.5 text-right">
                           <span
                             className={`font-black tabular-nums ${
-                              dueAmt > 0 ? (overdue ? "text-rose-600 font-black" : "text-gray-700") : "text-gray-500"
+                              dueAmt > 0 ? (overdue ? "text-rose-600 font-black" : "text-gray-600") : "text-gray-500"
                             }`}
                           >
                             {dueAmt > 0 ? `৳${dueAmt.toLocaleString()}` : "—"}
@@ -1630,7 +1630,7 @@ export default function InvoicesPage() {
                             <button
                               onClick={() => openInvoiceDrawer(inv.id)}
                               title="Invoice Breakdown & Ledger"
-                              className="rounded-sm p-1.5 text-gray-500 transition hover:bg-slate-100 hover:text-gray-800 cursor-pointer active:scale-95"
+                              className="rounded-sm p-1.5 text-gray-500 transition hover:bg-slate-100 hover:text-gray-600 cursor-pointer active:scale-95"
                             >
                               <Eye size={15} />
                             </button>
@@ -1719,7 +1719,7 @@ export default function InvoicesPage() {
                       {/* Top row */}
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <div className="flex items-center gap-1.5 font-mono text-sm font-bold text-gray-700">
+                          <div className="flex items-center gap-1.5 font-mono text-sm font-bold text-gray-600">
                             {inv.invoiceNo}
                           </div>
                           <span className={`mt-1 inline-block rounded-sm px-2 py-0.5 text-[10px] font-bold ${typeCfg.badge}`}>
@@ -1737,7 +1737,7 @@ export default function InvoicesPage() {
                       {/* Customer Info */}
                       <div className="mt-4 rounded-sm bg-slate-50 p-3 border border-slate-100">
                         <p className="text-xs font-bold capitalize text-gray-600">Customer</p>
-                        <p className="text-xs font-bold text-gray-700">{inv.customer?.name || "Walk-in Customer"}</p>
+                        <p className="text-xs font-bold text-gray-600">{inv.customer?.name || "Walk-in Customer"}</p>
                         {inv.customer?.phone && <p className="text-[11px] text-gray-500">{inv.customer.phone}</p>}
                       </div>
 
@@ -1745,7 +1745,7 @@ export default function InvoicesPage() {
                       <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
                         <div>
                           <span className="text-[11px] font-medium text-gray-600">Total Invoiced</span>
-                          <p className="font-black text-gray-700">৳{Number(inv.total).toLocaleString()}</p>
+                          <p className="font-black text-gray-600">৳{Number(inv.total).toLocaleString()}</p>
                         </div>
                         <div className="text-right">
                           <span className="text-[11px] font-medium text-gray-600">Due Balance</span>

@@ -44,7 +44,7 @@ export default function ReturnsPage() {
           <p className="mt-1 text-sm text-red-200">§10.22 — Full return flow with stock, accounting, commission, loyalty reversal</p>
         </div>
         <button onClick={() => setShowForm(true)}
-          className="hidden items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-medium ring-1 ring-white/20 transition hover:bg-white/20 sm:inline-flex">
+          className="hidden items-center gap-2 rounded-sm bg-white/10 px-4 py-2.5 text-sm font-medium ring-1 ring-white/20 transition hover:bg-white/20 sm:inline-flex">
           <Plus size={15} /> New Return
         </button>
       </div>
@@ -91,9 +91,9 @@ function StatCard({ label, value, icon: Icon, tone = "primary" }: { label: strin
   };
   return (
     <div className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
-      <div className={`mb-2 inline-flex rounded-xl p-2 ${tones[tone]}`}><Icon size={16} /></div>
+      <div className={`mb-2 inline-flex rounded-sm p-2 ${tones[tone]}`}><Icon size={16} /></div>
       <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
-      <p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{value}</p>
+      <p className="mt-1 text-lg font-bold tabular-nums text-gray-600">{value}</p>
     </div>
   );
 }
@@ -124,23 +124,23 @@ function ReturnForm({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div className="w-full max-w-lg rounded-sm bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-lg font-semibold text-gray-900">Process Return</h3>
+        <h3 className="text-lg font-semibold text-gray-600">Process Return</h3>
         <p className="text-sm text-gray-500 mt-1">Full return flow: stock + accounting + commission + loyalty reversal</p>
-        {error && <div className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+        {error && <div className="mt-2 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
         <div className="mt-4 grid gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sale *</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Sale *</label>
             <select value={saleId} onChange={(e) => setSaleId(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+              className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm">
               <option value="">Select sale to return</option>
               {sales.map((s) => <option key={s.id} value={s.id}>{s.invoiceNo} — {money(s.total)}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Reason</label>
               <select value={returnReason} onChange={(e) => setReturnReason(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm">
                 <option value="DEFECTIVE">Defective</option>
                 <option value="WRONG_ITEM">Wrong Item</option>
                 <option value="NOT_AS_DESCRIBED">Not as Described</option>
@@ -149,9 +149,9 @@ function ReturnForm({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Refund Method</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Refund Method</label>
               <select value={refundMethod} onChange={(e) => setRefundMethod(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm">
                 <option value="CASH">Cash</option>
                 <option value="CARD">Card</option>
                 <option value="BANK">Bank Transfer</option>
@@ -160,15 +160,15 @@ function ReturnForm({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Notes</label>
             <textarea value={reason} onChange={(e) => setReason(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={2} placeholder="Additional notes..." />
+              className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm" rows={2} placeholder="Additional notes..." />
           </div>
         </div>
         <div className="mt-6 flex items-center justify-end gap-3">
-          <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
+          <button onClick={onClose} className="rounded-sm px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
           <button onClick={submit} disabled={saving}
-            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
+            className="rounded-sm bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
             {saving ? "Processing..." : "Process Return"}
           </button>
         </div>

@@ -140,16 +140,16 @@ export default function ProductsPage() {
               <img
                 src={imgUrl}
                 alt={product.name}
-                className="h-9 w-9 rounded-md object-cover border border-slate-200 shrink-0 bg-slate-50"
+                className="h-9 w-9 rounded-sm object-cover border border-slate-200 shrink-0 bg-slate-50"
               />
             ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-brand-50 text-brand-primary border border-slate-200 shrink-0">
+              <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-brand-50 text-brand-primary border border-slate-200 shrink-0">
                 <Package size={16} />
               </div>
             )}
             <Link
               href={`/products/${product.id}`}
-              className="font-bold text-gray-700 text-xs hover:text-brand-primary transition block truncate max-w-[180px]"
+              className="font-bold text-gray-600 text-xs hover:text-brand-primary transition block truncate max-w-[180px]"
             >
               {product.name}
             </Link>
@@ -163,7 +163,7 @@ export default function ProductsPage() {
       align: "center",
       sortable: true,
       render: (product) => (
-        <span className="font-mono text-xs font-semibold text-slate-700">{product.sku}</span>
+        <span className="font-mono text-xs font-semibold text-gray-600">{product.sku}</span>
       ),
     },
     {
@@ -195,7 +195,7 @@ export default function ProductsPage() {
       sortable: true,
       render: (product: any) => (
         product.subCategory?.name ? (
-          <span className="inline-flex items-center rounded-md bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-dark border border-brand-border">
+          <span className="inline-flex items-center rounded-sm bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-dark border border-brand-border">
             {product.subCategory.name}
           </span>
         ) : (
@@ -218,7 +218,7 @@ export default function ProductsPage() {
       align: "center",
       sortable: true,
       render: (product) => (
-        <span className="text-xs font-semibold text-slate-700">{product.unit?.name || "—"}</span>
+        <span className="text-xs font-semibold text-gray-600">{product.unit?.name || "—"}</span>
       ),
     },
     {
@@ -244,7 +244,7 @@ export default function ProductsPage() {
         return (
           <div className="flex flex-col items-center gap-1">
             <span
-              className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-bold rounded-md border ${
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-bold rounded-sm border ${
                 stock > 0
                   ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                   : "bg-rose-50 text-rose-600 border-rose-200"
@@ -277,7 +277,7 @@ export default function ProductsPage() {
       align: "center",
       sortable: true,
       render: (product) => (
-        <span className="text-xs font-bold text-gray-700">৳{Number(product.sellingPrice || 0).toFixed(2)}</span>
+        <span className="text-xs font-bold text-gray-600">৳{Number(product.sellingPrice || 0).toFixed(2)}</span>
       ),
     },
     {
@@ -318,7 +318,7 @@ export default function ProductsPage() {
       sortable: true,
       render: (product: any) => (
         product.taxRate ? (
-          <span className="text-xs font-semibold text-slate-700">{product.taxRate}%</span>
+          <span className="text-xs font-semibold text-gray-600">{product.taxRate}%</span>
         ) : (
           <span className="text-xs text-slate-300">—</span>
         )
@@ -331,7 +331,7 @@ export default function ProductsPage() {
       sortable: true,
       render: (product: any) => (
         product.warrantyDays ? (
-          <span className="text-xs font-semibold text-slate-700">{Math.round(product.warrantyDays / 30)} Mos</span>
+          <span className="text-xs font-semibold text-gray-600">{Math.round(product.warrantyDays / 30)} Mos</span>
         ) : (
           <span className="text-xs text-slate-300">—</span>
         )
@@ -344,7 +344,7 @@ export default function ProductsPage() {
       sortable: true,
       render: (product: any) => (
         product.attributes?.barcodeSymbology ? (
-          <span className="font-mono text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+          <span className="font-mono text-xs font-semibold text-gray-600 bg-slate-100 px-2 py-0.5 rounded-sm border border-slate-200">
             {product.attributes.barcodeSymbology}
           </span>
         ) : (
@@ -377,7 +377,7 @@ export default function ProductsPage() {
       sortable: true,
       render: (product: any) => (
         product.taxRate ? (
-          <span className="text-xs font-semibold text-slate-700">
+          <span className="text-xs font-semibold text-gray-600">
             {product.taxRate}% {product.attributes?.taxMethod ? `(${product.attributes.taxMethod})` : ""}
           </span>
         ) : (
@@ -392,7 +392,7 @@ export default function ProductsPage() {
       sortable: true,
       render: (product: any) => (
         product.attributes?.guaranteeValue ? (
-          <span className="text-xs font-semibold text-slate-700">
+          <span className="text-xs font-semibold text-gray-600">
             {product.attributes.guaranteeValue} {product.attributes.guaranteeUnit || "Months"}
           </span>
         ) : (
@@ -422,7 +422,7 @@ export default function ProductsPage() {
       sortable: true,
       render: (product: any) => (
         product.reorderPoint !== undefined && product.reorderPoint !== null ? (
-          <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+          <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-sm border border-amber-200">
             {product.reorderPoint}
           </span>
         ) : (
@@ -503,7 +503,7 @@ export default function ProductsPage() {
 
       {/* Error Notification */}
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium">
+        <div className="rounded-sm border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium">
           ⚠️ {error}
         </div>
       )}
@@ -524,7 +524,7 @@ export default function ProductsPage() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full rounded-sm border border-brand-border bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-brand-primary focus:outline-none transition shadow-2xs"
+                className="w-full rounded-sm border border-brand-border bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition shadow-2xs"
               />
             </div>
 
@@ -535,7 +535,7 @@ export default function ProductsPage() {
                 setFilterType(e.target.value);
                 setPage(1);
               }}
-              className="rounded-sm border border-brand-border bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-brand-primary focus:outline-none transition cursor-pointer shadow-2xs"
+              className="rounded-sm border border-brand-border bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition cursor-pointer shadow-2xs"
             >
               <option value="">All Product Types</option>
               <option value="Standard">Standard Product</option>
@@ -555,7 +555,7 @@ export default function ProductsPage() {
                 setFilterStatus(e.target.value);
                 setPage(1);
               }}
-              className="rounded-sm border border-brand-border bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-brand-primary focus:outline-none transition cursor-pointer shadow-2xs"
+              className="rounded-sm border border-brand-border bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition cursor-pointer shadow-2xs"
             >
               <option value="">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -569,7 +569,7 @@ export default function ProductsPage() {
                 setFilterWarehouse(e.target.value);
                 setPage(1);
               }}
-              className="rounded-sm border border-brand-border bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-brand-primary focus:outline-none transition cursor-pointer shadow-2xs"
+              className="rounded-sm border border-brand-border bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition cursor-pointer shadow-2xs"
             >
               <option value="">All Warehouses</option>
               {warehouses.map((w) => (
@@ -593,7 +593,7 @@ export default function ProductsPage() {
           </div>
 
           <div className="text-xs font-semibold text-slate-500">
-            Total Items: <strong className="text-gray-700">{total}</strong>
+            Total Items: <strong className="text-gray-600">{total}</strong>
           </div>
         </div>
 

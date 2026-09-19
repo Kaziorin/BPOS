@@ -182,7 +182,7 @@ export default function RecurringExpensesPage() {
       {/* Toast Alert */}
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl px-5 py-3.5 shadow-xl transition-all duration-300 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-sm px-5 py-3.5 shadow-xl transition-all duration-300 ${
             toast.type === "success"
               ? "bg-slate-900 text-white border border-slate-700"
               : "bg-red-600 text-white border border-red-700"
@@ -213,7 +213,7 @@ export default function RecurringExpensesPage() {
                 size="sm"
                 variant="outline"
                 leftIcon={<Receipt size={14} />}
-                className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
+                className="border-slate-200 text-gray-600 hover:bg-slate-50 text-xs font-semibold"
               >
                 All Expenses
               </CustomButton>
@@ -224,7 +224,7 @@ export default function RecurringExpensesPage() {
               leftIcon={<PlayCircle size={14} />}
               loading={running}
               onClick={handleRunScheduler}
-              className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
+              className="border-slate-200 text-gray-600 hover:bg-slate-50 text-xs font-semibold"
             >
               Run Due Schedules
             </CustomButton>
@@ -235,13 +235,13 @@ export default function RecurringExpensesPage() {
                 setEditItem(null);
                 setShowModal(true);
               }}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               New Recurring Schedule
             </CustomButton>
             <button
               onClick={() => loadData()}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
+              className="flex h-7 w-7 items-center justify-center rounded-sm border border-slate-200 bg-slate-50 text-gray-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-border transition shadow-2xs"
               title="Refresh Schedules"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
@@ -279,7 +279,7 @@ export default function RecurringExpensesPage() {
       </div>
 
       {/* Main Table Container */}
-      <div className="bg-white rounded-md border border-slate-200 p-4 shadow-2xs space-y-3">
+      <div className="bg-white rounded-sm border border-slate-200 p-4 shadow-2xs space-y-3">
         {/* Search & Filter Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div className="relative flex-1 min-w-[200px] max-w-md">
@@ -289,7 +289,7 @@ export default function RecurringExpensesPage() {
               placeholder="Search schedules by name or category..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             />
           </div>
 
@@ -297,7 +297,7 @@ export default function RecurringExpensesPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             >
               <option value="ALL">All Statuses</option>
               <option value="ACTIVE">Active Schedules</option>
@@ -307,7 +307,7 @@ export default function RecurringExpensesPage() {
             <select
               value={freqFilter}
               onChange={(e) => setFreqFilter(e.target.value)}
-              className="rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
             >
               <option value="ALL">All Frequencies</option>
               {FREQUENCIES.map((f) => (
@@ -325,8 +325,8 @@ export default function RecurringExpensesPage() {
               header: "Schedule Name",
               render: (r: Recurring) => (
                 <div>
-                  <p className="font-bold text-slate-800 text-xs">{r.name}</p>
-                  <p className="text-[11px] text-teal-700 mt-0.5">
+                  <p className="font-bold text-gray-600 text-xs">{r.name}</p>
+                  <p className="text-[11px] text-brand-dark mt-0.5">
                     {r.category?.name || "Uncategorized"}
                   </p>
                 </div>
@@ -337,7 +337,7 @@ export default function RecurringExpensesPage() {
               header: "Frequency",
               align: "center",
               render: (r: Recurring) => (
-                <span className="inline-flex rounded-md bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-teal-700 border border-teal-200">
+                <span className="inline-flex rounded-sm bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-dark border border-brand-border">
                   {r.frequency}
                 </span>
               ),
@@ -347,7 +347,7 @@ export default function RecurringExpensesPage() {
               header: "Recurring Amount",
               align: "right",
               render: (r: Recurring) => (
-                <span className="font-bold text-slate-900 text-xs tabular-nums">
+                <span className="font-bold text-gray-600 text-xs tabular-nums">
                   {money(Number(r.amount) || 0)}
                 </span>
               ),
@@ -358,7 +358,7 @@ export default function RecurringExpensesPage() {
               align: "center",
               render: (r: Recurring) => (
                 <div className="text-xs">
-                  <p className="font-semibold text-slate-800">{dateOnly(r.nextRunDate)}</p>
+                  <p className="font-semibold text-gray-600">{dateOnly(r.nextRunDate)}</p>
                   {r.lastGeneratedAt && (
                     <p className="text-[10px] text-slate-400">Last: {dateOnly(r.lastGeneratedAt)}</p>
                   )}
@@ -370,7 +370,7 @@ export default function RecurringExpensesPage() {
               header: "Generated",
               align: "center",
               render: (r: Recurring) => (
-                <span className="text-xs font-semibold text-slate-700 tabular-nums">
+                <span className="text-xs font-semibold text-gray-600 tabular-nums">
                   {r._count?.expenses || 0} times
                 </span>
               ),
@@ -404,14 +404,14 @@ export default function RecurringExpensesPage() {
                       setEditItem(r);
                       setShowModal(true);
                     }}
-                    className="p-1.5 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition"
+                    className="p-1.5 text-slate-500 hover:text-brand-primary hover:bg-brand-50 rounded-sm transition"
                     title="Edit Schedule"
                   >
                     <Edit3 size={13} />
                   </button>
                   <button
                     onClick={() => setDeleteConfirm({ id: r.id, name: r.name })}
-                    className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-md transition"
+                    className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-sm transition"
                     title="Delete Schedule"
                   >
                     <Trash2 size={13} />
@@ -520,25 +520,25 @@ function RecurringFormModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="w-full max-w-lg rounded-xl bg-white p-5 sm:p-6 shadow-xl border border-slate-200 transition-all my-8"
+        className="w-full max-w-lg rounded-sm bg-white p-5 sm:p-6 shadow-xl border border-slate-200 transition-all my-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div>
-            <h3 className="text-base font-bold text-gray-700">
+            <h3 className="text-base font-bold text-gray-600">
               {item ? "Edit Recurring Schedule" : "New Recurring Schedule"}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
               Automate repeated vendor invoices or utility bill postings.
             </p>
           </div>
-          <button onClick={onClose} className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+          <button onClick={onClose} className="rounded-sm p-1.5 text-slate-400 hover:bg-slate-100 hover:text-gray-600">
             <XCircle size={18} />
           </button>
         </div>
 
         {error && (
-          <div className="mt-3 rounded-md bg-red-50 border border-red-200 p-2.5 text-xs text-red-700 flex items-center gap-2">
+          <div className="mt-3 rounded-sm bg-red-50 border border-red-200 p-2.5 text-xs text-red-700 flex items-center gap-2">
             <AlertCircle size={14} className="shrink-0 text-red-500" />
             <span>{error}</span>
           </div>
@@ -546,7 +546,7 @@ function RecurringFormModal({
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
               Schedule Name *
             </label>
             <input
@@ -554,14 +554,14 @@ function RecurringFormModal({
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-medium text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               placeholder="e.g. Monthly Fiber Internet Billing"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Amount (৳) *
               </label>
               <input
@@ -571,19 +571,19 @@ function RecurringFormModal({
                 required
                 value={form.amount}
                 onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 focus:outline-none transition tabular-nums"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-bold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition tabular-nums"
                 placeholder="3000"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Frequency *
               </label>
               <select
                 value={form.frequency}
                 onChange={(e) => setForm({ ...form, frequency: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               >
                 {FREQUENCIES.map((f) => (
                   <option key={f.value} value={f.value}>{f.label}</option>
@@ -594,13 +594,13 @@ function RecurringFormModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Category
               </label>
               <select
                 value={form.categoryId}
                 onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               >
                 <option value="">Uncategorized</option>
                 {categories.map((c) => (
@@ -611,13 +611,13 @@ function RecurringFormModal({
 
             {branches.length > 0 && (
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                   Branch Outlet
                 </label>
                 <select
                   value={form.branchId}
                   onChange={(e) => setForm({ ...form, branchId: e.target.value })}
-                  className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                  className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
                 >
                   <option value="">All / Headquarters</option>
                   {branches.map((b) => (
@@ -630,7 +630,7 @@ function RecurringFormModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 Next Run Date *
               </label>
               <input
@@ -638,19 +638,19 @@ function RecurringFormModal({
                 required
                 value={form.nextRunDate}
                 onChange={(e) => setForm({ ...form, nextRunDate: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
                 End Date (Optional)
               </label>
               <input
                 type="date"
                 value={form.endDate}
                 onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                className="w-full rounded-md border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:bg-white focus:border-teal-500 focus:outline-none transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-gray-600 focus:bg-white focus:border-brand-primary focus:outline-none transition"
               />
             </div>
           </div>
@@ -669,7 +669,7 @@ function RecurringFormModal({
               type="submit"
               size="sm"
               loading={saving}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               {item ? "Update Schedule" : "Create Schedule"}
             </CustomButton>

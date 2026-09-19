@@ -166,7 +166,7 @@ export default function StockPage() {
               <Package size={14} />
             </div>
             <div className="min-w-0">
-              <p className="font-bold text-gray-700 text-xs truncate">{name}</p>
+              <p className="font-bold text-gray-600 text-xs truncate">{name}</p>
               <p className="font-mono text-[11px] text-slate-400 mt-0.5">{sku}</p>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function StockPage() {
       align: "right",
       width: "110px",
       render: (r) => (
-        <span className="font-mono font-bold text-xs text-slate-800">
+        <span className="font-mono font-bold text-xs text-gray-600">
           {Number(r.qtyOnHand)}
         </span>
       ),
@@ -232,7 +232,7 @@ export default function StockPage() {
       align: "right",
       width: "120px",
       render: (r) => (
-        <span className="font-mono font-bold tabular-nums text-xs text-slate-700">
+        <span className="font-mono font-bold tabular-nums text-xs text-gray-600">
           {r.avgCost
             ? `৳${Number(r.avgCost).toLocaleString(undefined, {
                 minimumFractionDigits: 2,

@@ -36,7 +36,7 @@ export default function TrialBalancePage() {
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><Scale size={19} /></div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-900">Trial Balance</h1>
+            <h1 className="text-xl font-bold tracking-tight text-gray-600">Trial Balance</h1>
             <p className="text-sm text-gray-500">Debit vs credit footing for every account (§10.20)</p>
           </div>
         </div>
@@ -54,15 +54,15 @@ export default function TrialBalancePage() {
         <div className="grid grid-cols-3 gap-4">
           <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Debit</p>
-            <p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{money(data.totalDebit)}</p>
+            <p className="mt-1 text-lg font-bold tabular-nums text-gray-600">{money(data.totalDebit)}</p>
           </div>
           <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Total Credit</p>
-            <p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{money(data.totalCredit)}</p>
+            <p className="mt-1 text-lg font-bold tabular-nums text-gray-600">{money(data.totalCredit)}</p>
           </div>
           <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Accounts</p>
-            <p className="mt-1 text-lg font-bold tabular-nums text-gray-900">{data.accounts.length}</p>
+            <p className="mt-1 text-lg font-bold tabular-nums text-gray-600">{data.accounts.length}</p>
           </div>
         </div>
       )}
@@ -71,10 +71,10 @@ export default function TrialBalancePage() {
         <CustomTable
           columns={[
             { key: "code", header: "Code", render: (r) => <span className="font-mono text-xs text-sky-700">{r.code}</span> },
-            { key: "name", header: "Account", render: (r) => <span className="text-sm font-medium text-gray-800">{r.name}</span> },
+            { key: "name", header: "Account", render: (r) => <span className="text-sm font-medium text-gray-600">{r.name}</span> },
             { key: "type", header: "Type", render: (r) => <span className="text-xs uppercase text-gray-400">{r.accountType}</span> },
-            { key: "debit", header: "Debit", align: "right", render: (r) => <span className="font-semibold tabular-nums text-gray-900">{Number(r.debit) > 0 ? money(Number(r.debit)) : "—"}</span> },
-            { key: "credit", header: "Credit", align: "right", render: (r) => <span className="font-semibold tabular-nums text-gray-900">{Number(r.credit) > 0 ? money(Number(r.credit)) : "—"}</span> },
+            { key: "debit", header: "Debit", align: "right", render: (r) => <span className="font-semibold tabular-nums text-gray-600">{Number(r.debit) > 0 ? money(Number(r.debit)) : "—"}</span> },
+            { key: "credit", header: "Credit", align: "right", render: (r) => <span className="font-semibold tabular-nums text-gray-600">{Number(r.credit) > 0 ? money(Number(r.credit)) : "—"}</span> },
           ]}
           data={data?.accounts ?? []}
           rowKey={(r) => r.id}

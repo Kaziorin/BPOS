@@ -371,7 +371,7 @@ function SaaSContent() {
         actions={
           <div className="flex items-center gap-2">
             {saveToast && (
-              <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-300 shadow-sm animate-in fade-in">
+              <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-sm bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-300 shadow-sm animate-in fade-in">
                 <CheckCircle2 size={15} className="text-emerald-600" /> {saveToast}
               </div>
             )}
@@ -453,7 +453,7 @@ function SaaSContent() {
 
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2.5">
               <span>Cloud Enterprise Platform Core</span>
-              <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-white/10 text-slate-300 border border-white/10 font-mono">
+              <span className="text-xs font-bold px-2.5 py-1 rounded-sm bg-white/10 text-slate-300 border border-white/10 font-mono">
                 SaaS Control Plane
               </span>
             </h1>
@@ -507,10 +507,10 @@ function SaaSContent() {
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition whitespace-nowrap shrink-0",
+                  "flex items-center gap-2 px-4 py-2.5 rounded-sm text-xs font-bold transition whitespace-nowrap shrink-0",
                   isAct
                     ? "bg-brand-gradient text-white shadow-2xs shadow-md shadow-sm"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-gray-600"
                 )}
               >
                 <Icon size={15} className={isAct ? "text-white" : "text-slate-400"} />
@@ -518,7 +518,7 @@ function SaaSContent() {
                 {tab.badge && (
                   <span
                     className={cn(
-                      "text-[9px] px-1.5 py-0.5 rounded-md font-bold",
+                      "text-[9px] px-1.5 py-0.5 rounded-sm font-bold",
                       isAct ? "bg-white/20 text-white" : "bg-primary-50 text-primary-700"
                     )}
                   >
@@ -554,7 +554,7 @@ function SaaSContent() {
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Total Tenants</span>
                       <Building2 size={16} className="text-slate-400" />
                     </div>
-                    <p className="text-2xl font-black text-slate-900">{overview?.totalTenants ?? platformTenants.length ?? 0}</p>
+                    <p className="text-2xl font-black text-gray-600">{overview?.totalTenants ?? platformTenants.length ?? 0}</p>
                     <span className="text-[11px] text-slate-500">Registered SaaS clients</span>
                   </div>
 
@@ -593,7 +593,7 @@ function SaaSContent() {
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Total Users</span>
                       <Users size={16} className="text-slate-400" />
                     </div>
-                    <p className="text-xl font-bold text-slate-900">{overview?.totalUsers ?? 0}</p>
+                    <p className="text-xl font-bold text-gray-600">{overview?.totalUsers ?? 0}</p>
                     <span className="text-[11px] text-slate-500">Active credentials</span>
                   </div>
 
@@ -602,7 +602,7 @@ function SaaSContent() {
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Total Outlets</span>
                       <Building2 size={16} className="text-slate-400" />
                     </div>
-                    <p className="text-xl font-bold text-slate-900">{overview?.totalBranches ?? 0}</p>
+                    <p className="text-xl font-bold text-gray-600">{overview?.totalBranches ?? 0}</p>
                     <span className="text-[11px] text-slate-500">Physical store locations</span>
                   </div>
 
@@ -611,7 +611,7 @@ function SaaSContent() {
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Today's Sales Volume</span>
                       <BarChart3 size={16} className="text-primary-600" />
                     </div>
-                    <p className="text-xl font-bold text-slate-900">{overview?.dailyTransactions ?? 0}</p>
+                    <p className="text-xl font-bold text-gray-600">{overview?.dailyTransactions ?? 0}</p>
                     <span className="text-[11px] text-slate-500">Completed POS tickets</span>
                   </div>
 
@@ -629,7 +629,7 @@ function SaaSContent() {
                 <div className="bg-white rounded-sm border border-slate-200 p-6 shadow-2xs space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                      <h3 className="text-base font-black text-slate-900">Tenant Client Directory</h3>
+                      <h3 className="text-base font-black text-gray-600">Tenant Client Directory</h3>
                       <p className="text-slate-500 text-[11px]">All tenant instances provisioned on this multi-tenant database</p>
                     </div>
 
@@ -641,14 +641,14 @@ function SaaSContent() {
                           value={tenantSearch}
                           onChange={(e) => setTenantSearch(e.target.value)}
                           placeholder="Search tenants..."
-                          className="pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-primary-500 bg-slate-50"
+                          className="pl-8 pr-3 py-1.5 rounded-sm border border-slate-200 text-xs font-semibold focus:outline-none focus:border-primary-500 bg-slate-50"
                         />
                       </div>
 
                       <select
                         value={tenantStatusFilter}
                         onChange={(e) => setTenantStatusFilter(e.target.value)}
-                        className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold focus:outline-none bg-slate-50"
+                        className="px-3 py-1.5 rounded-sm border border-slate-200 text-xs font-bold focus:outline-none bg-slate-50"
                       >
                         <option value="ALL">All Statuses</option>
                         <option value="ACTIVE">Active</option>
@@ -672,9 +672,9 @@ function SaaSContent() {
                       <tbody className="divide-y divide-slate-100">
                         {filteredTenants.map((t: any) => (
                           <tr key={t.id || t.name} className="hover:bg-slate-50/80 transition">
-                            <td className="py-3 px-4 font-bold text-slate-900">
+                            <td className="py-3 px-4 font-bold text-gray-600">
                               <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 font-black flex items-center justify-center text-xs">
+                                <div className="w-7 h-7 rounded-sm bg-indigo-50 text-indigo-700 font-black flex items-center justify-center text-xs">
                                   {(t.name || "T")[0].toUpperCase()}
                                 </div>
                                 <span>{t.name}</span>
@@ -688,7 +688,7 @@ function SaaSContent() {
                                     ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                     : t.status === "TRIAL"
                                     ? "bg-amber-50 text-amber-700 border-amber-200"
-                                    : "bg-slate-100 text-slate-700 border-slate-200"
+                                    : "bg-slate-100 text-gray-600 border-slate-200"
                                 )}
                               >
                                 {t.status}
@@ -697,8 +697,8 @@ function SaaSContent() {
                             <td className="py-3 px-4">
                               <span className="font-mono text-slate-600 font-semibold">{t.businessType || "GROCERY"}</span>
                             </td>
-                            <td className="py-3 px-4 font-bold text-slate-700">{t.userCount ?? 0}</td>
-                            <td className="py-3 px-4 font-mono font-bold text-slate-900">{t.saleCount ?? 0}</td>
+                            <td className="py-3 px-4 font-bold text-gray-600">{t.userCount ?? 0}</td>
+                            <td className="py-3 px-4 font-mono font-bold text-gray-600">{t.saleCount ?? 0}</td>
                           </tr>
                         ))}
                         {filteredTenants.length === 0 && (
@@ -722,7 +722,7 @@ function SaaSContent() {
               <div className="space-y-6 text-xs animate-in fade-in">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-base font-black text-slate-900">Commercial SaaS Pricing Plans</h3>
+                    <h3 className="text-base font-black text-gray-600">Commercial SaaS Pricing Plans</h3>
                     <p className="text-slate-500 text-[11px]">Configured pricing tiers, resource quotas, and API limits</p>
                   </div>
                 </div>
@@ -739,7 +739,7 @@ function SaaSContent() {
                             <span className="text-[10px] font-bold text-primary-600 uppercase tracking-widest font-mono">
                               {p.code}
                             </span>
-                            <h4 className="text-xl font-black text-slate-900">{p.name}</h4>
+                            <h4 className="text-xl font-black text-gray-600">{p.name}</h4>
                           </div>
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-50 text-primary-700 border border-primary-200">
                             Tier
@@ -748,11 +748,11 @@ function SaaSContent() {
 
                         <div className="p-4 rounded-sm bg-slate-50 border border-slate-100 space-y-1.5">
                           <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-black text-slate-900">{currency(p.monthlyPrice)}</span>
+                            <span className="text-2xl font-black text-gray-600">{currency(p.monthlyPrice)}</span>
                             <span className="text-slate-400 text-xs">/month</span>
                           </div>
                           <p className="text-[11px] text-slate-500">
-                            Yearly Billing: <strong className="text-slate-700">{currency(p.yearlyPrice)}</strong> /yr
+                            Yearly Billing: <strong className="text-gray-600">{currency(p.yearlyPrice)}</strong> /yr
                           </p>
                         </div>
 
@@ -822,8 +822,8 @@ function SaaSContent() {
                         className={cn(
                           "px-3 py-1.5 rounded-full text-xs font-bold border",
                           subscription.status === "ACTIVE"
-                            ? "bg-emerald-500 text-slate-950 border-emerald-400"
-                            : "bg-amber-500 text-slate-950 border-amber-400"
+                            ? "bg-emerald-500 text-gray-600 border-emerald-400"
+                            : "bg-amber-500 text-gray-600 border-amber-400"
                         )}
                       >
                         {subscription.status}
@@ -833,28 +833,28 @@ function SaaSContent() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="p-4 rounded-sm bg-slate-50 border border-slate-200 space-y-1">
                         <span className="text-[10px] font-bold text-slate-400 uppercase">Billing Period Start</span>
-                        <p className="text-sm font-bold text-slate-800 font-mono">
+                        <p className="text-sm font-bold text-gray-600 font-mono">
                           {subscription.currentPeriodStart?.split("T")[0] || "2026-09-01"}
                         </p>
                       </div>
 
                       <div className="p-4 rounded-sm bg-slate-50 border border-slate-200 space-y-1">
                         <span className="text-[10px] font-bold text-slate-400 uppercase">Next Renewal Date</span>
-                        <p className="text-sm font-bold text-slate-800 font-mono">
+                        <p className="text-sm font-bold text-gray-600 font-mono">
                           {subscription.currentPeriodEnd?.split("T")[0] || "2026-10-01"}
                         </p>
                       </div>
 
                       <div className="p-4 rounded-sm bg-slate-50 border border-slate-200 space-y-1">
                         <span className="text-[10px] font-bold text-slate-400 uppercase">Trial Expiration</span>
-                        <p className="text-sm font-bold text-slate-800 font-mono">
+                        <p className="text-sm font-bold text-gray-600 font-mono">
                           {subscription.trialEndsAt?.split("T")[0] || "N/A (Subscribed)"}
                         </p>
                       </div>
 
                       <div className="p-4 rounded-sm bg-slate-50 border border-slate-200 space-y-1">
                         <span className="text-[10px] font-bold text-slate-400 uppercase">Payment Method</span>
-                        <p className="text-sm font-bold text-slate-800 font-mono">
+                        <p className="text-sm font-bold text-gray-600 font-mono">
                           Direct Bank / Card POS
                         </p>
                       </div>
@@ -890,7 +890,7 @@ function SaaSContent() {
                         <gauge.icon size={14} className="text-slate-400" />
                       </div>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-xl font-black text-slate-900">{gauge.current}</span>
+                        <span className="text-xl font-black text-gray-600">{gauge.current}</span>
                         <span className="text-slate-400 text-xs font-mono">/ {gauge.limit}</span>
                       </div>
                     </div>
@@ -918,7 +918,7 @@ function SaaSContent() {
             {activeTab === "features" && (
               <div className="bg-white rounded-sm border border-slate-200 p-6 shadow-2xs space-y-4 text-xs animate-in fade-in">
                 <div>
-                  <h3 className="text-base font-black text-slate-900">Dynamic Feature Flags</h3>
+                  <h3 className="text-base font-black text-gray-600">Dynamic Feature Flags</h3>
                   <p className="text-slate-500 text-[11px]">Enable or disable vertical engines and platform modules in real-time</p>
                 </div>
 
@@ -932,7 +932,7 @@ function SaaSContent() {
                       )}
                     >
                       <div>
-                        <span className="font-mono font-bold text-slate-900 text-xs">{f.moduleCode}</span>
+                        <span className="font-mono font-bold text-gray-600 text-xs">{f.moduleCode}</span>
                         <p className="text-slate-400 text-[11px]">
                           {f.isEnabled ? "Module active on tenant routing" : "Disabled by platform policy"}
                         </p>
@@ -974,7 +974,7 @@ function SaaSContent() {
                       key={et.value}
                       onClick={() => setSelectedEntityType(et.value)}
                       className={cn(
-                        "px-3.5 py-1.5 rounded-xl text-xs font-bold transition",
+                        "px-3.5 py-1.5 rounded-sm text-xs font-bold transition",
                         selectedEntityType === et.value
                           ? "bg-brand-gradient text-white shadow-2xs shadow-xs"
                           : "text-slate-600 hover:bg-slate-100"
@@ -989,7 +989,7 @@ function SaaSContent() {
                 <div className="bg-white rounded-sm border border-slate-200 p-6 shadow-2xs space-y-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h4 className="text-base font-black text-slate-900">{selectedEntityType} Custom Attributes</h4>
+                      <h4 className="text-base font-black text-gray-600">{selectedEntityType} Custom Attributes</h4>
                       <p className="text-slate-500 text-[11px]">Dynamic fields rendered automatically on {selectedEntityType} forms</p>
                     </div>
 
@@ -1013,7 +1013,7 @@ function SaaSContent() {
                         >
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <span className="font-bold text-slate-900">{f.fieldName}</span>
+                              <span className="font-bold text-gray-600">{f.fieldName}</span>
                               {f.isRequired && <span className="text-rose-500 font-bold">*</span>}
                             </div>
                             <span className="text-[10px] font-mono text-slate-400 uppercase">{f.fieldType}</span>
@@ -1021,7 +1021,7 @@ function SaaSContent() {
 
                           <button
                             onClick={() => deleteField(f.id)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                            className="p-1.5 rounded-sm text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
                             title="Delete Attribute"
                           >
                             <Trash2 size={14} />
@@ -1052,8 +1052,8 @@ function SaaSContent() {
                     >
                       <div className="flex items-start justify-between">
                         <div>
-                          <h4 className="font-black text-slate-900 text-sm">{f.name}</h4>
-                          <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
+                          <h4 className="font-black text-gray-600 text-sm">{f.name}</h4>
+                          <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-sm">
                             {f.formType}
                           </span>
                         </div>
@@ -1066,7 +1066,7 @@ function SaaSContent() {
                               loadData("forms");
                             }
                           }}
-                          className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition"
+                          className="text-slate-400 hover:text-rose-600 p-1.5 rounded-sm hover:bg-rose-50 transition"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -1100,16 +1100,16 @@ function SaaSContent() {
                     >
                       <div className="flex items-center gap-3">
                         {h.status === "OK" ? (
-                          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-sm bg-emerald-50 text-emerald-600 flex items-center justify-center">
                             <CheckCircle2 size={16} />
                           </div>
                         ) : (
-                          <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-sm bg-rose-50 text-rose-600 flex items-center justify-center">
                             <AlertCircle size={16} />
                           </div>
                         )}
                         <div>
-                          <p className="font-bold text-slate-900 text-xs">{h.checkType || "System Component"}</p>
+                          <p className="font-bold text-gray-600 text-xs">{h.checkType || "System Component"}</p>
                           <span className="text-[10px] text-slate-400">
                             Latency: {h.latencyMs ? `${h.latencyMs}ms` : "1.2ms"} · Checked: {h.checkedAt?.split("T")[0] || "Today"}
                           </span>
@@ -1175,13 +1175,13 @@ function SaaSContent() {
                               {t.priority}
                             </span>
                           </div>
-                          <h4 className="font-bold text-slate-900 text-sm">{t.subject}</h4>
+                          <h4 className="font-bold text-gray-600 text-sm">{t.subject}</h4>
                         </div>
 
                         {t.status !== "RESOLVED" && (
                           <button
                             onClick={() => resolveTicket(t.id)}
-                            className="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold text-[10px] border border-emerald-200 transition"
+                            className="px-2.5 py-1 rounded-sm bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold text-[10px] border border-emerald-200 transition"
                           >
                             Resolve
                           </button>
@@ -1232,9 +1232,9 @@ function SaaSContent() {
               type="checkbox"
               checked={newFieldRequired}
               onChange={(e) => setNewFieldRequired(e.target.checked)}
-              className="w-4 h-4 rounded text-primary-600 focus:ring-0"
+              className="w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
             />
-            <span className="font-bold text-slate-800">Mandatory / Required Field</span>
+            <span className="font-bold text-gray-600">Mandatory / Required Field</span>
           </label>
 
           <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
@@ -1316,11 +1316,11 @@ function SaaSContent() {
           />
 
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Issue Description</label>
+            <label className="block font-bold text-gray-600 mb-1">Issue Description</label>
             <textarea
               value={newTicketDescription}
               onChange={(e) => setNewTicketDescription(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60 text-xs"
+              className="w-full rounded-sm border border-slate-200 px-3.5 py-2.5 font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60 text-xs"
               rows={3}
               placeholder="Describe what occurred, steps to reproduce, or requested assistance..."
               required

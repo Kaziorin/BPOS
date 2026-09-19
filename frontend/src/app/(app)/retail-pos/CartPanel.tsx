@@ -28,7 +28,7 @@ export function CartPanel({ items, selfCheckout, onQtyChange, onRemove, onDiscou
         <div key={idx} className="rounded-sm border border-slate-200 bg-white p-2.5 shadow-2xs">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
+              <p className="text-sm font-medium text-gray-600 truncate">{item.name}</p>
               <p className="text-xs text-gray-400 tabular-nums">
                 {item.unitPrice.toFixed(2)} × {item.qty}
                 {item.discountAmount > 0 && (
@@ -39,14 +39,14 @@ export function CartPanel({ items, selfCheckout, onQtyChange, onRemove, onDiscou
             <div className="flex items-center gap-1 shrink-0">
               <button
                 onClick={() => onQtyChange(idx, item.qty - 1)}
-                className="h-6 w-6 flex items-center justify-center rounded-sm border border-teal-200 text-gray-500 hover:bg-teal-50 transition"
+                className="h-6 w-6 flex items-center justify-center rounded-sm border border-brand-border text-gray-500 hover:bg-brand-50 transition"
               >
                 <Minus size={11} />
               </button>
               <span className="w-6 text-center text-xs font-medium tabular-nums">{item.qty}</span>
               <button
                 onClick={() => onQtyChange(idx, item.qty + 1)}
-                className="h-6 w-6 flex items-center justify-center rounded-sm border border-teal-200 text-gray-500 hover:bg-teal-50 transition"
+                className="h-6 w-6 flex items-center justify-center rounded-sm border border-brand-border text-gray-500 hover:bg-brand-50 transition"
               >
                 <Plus size={11} />
               </button>
@@ -82,7 +82,7 @@ export function CartPanel({ items, selfCheckout, onQtyChange, onRemove, onDiscou
             </div>
           )}
 
-          <p className="mt-1 text-right text-sm font-semibold text-gray-900 tabular-nums">
+          <p className="mt-1 text-right text-sm font-semibold text-gray-600 tabular-nums">
             {item.lineTotal.toFixed(2)}
           </p>
         </div>

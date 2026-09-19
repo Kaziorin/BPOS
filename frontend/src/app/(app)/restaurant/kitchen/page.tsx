@@ -363,7 +363,7 @@ export default function KitchenManagementPage() {
   return (
     <div
       ref={containerRef}
-      className={`w-full bg-[#f4f5f8] text-slate-800 font-sans select-none pb-12 overflow-y-auto ${
+      className={`w-full bg-[#f4f5f8] text-gray-600 font-sans select-none pb-12 overflow-y-auto ${
         isFullscreen ? "h-screen max-h-screen overflow-y-auto" : "min-h-screen"
       }`}
     >
@@ -374,7 +374,7 @@ export default function KitchenManagementPage() {
           <div className="flex items-center gap-4 flex-1 min-w-[280px]">
             <Link
               href="/restaurant"
-              className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-700 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition"
+              className="rounded-sm border border-slate-200 bg-slate-50 p-2 text-gray-600 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition"
               title="Back to Restaurant Hub"
             >
               <ArrowLeft size={18} />
@@ -388,7 +388,7 @@ export default function KitchenManagementPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products, orders, tokens..."
-                className="w-full rounded-sm border border-slate-200 bg-slate-50/70 py-2 pl-9 pr-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition"
+                className="w-full rounded-sm border border-slate-200 bg-slate-50/70 py-2 pl-9 pr-4 text-xs font-semibold text-gray-600 placeholder-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition"
               />
             </div>
           </div>
@@ -400,10 +400,10 @@ export default function KitchenManagementPage() {
               <button
                 id="btn-switch-operator-mode"
                 onClick={() => setViewMode("OPERATOR")}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black transition ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm text-xs font-black transition ${
                   viewMode === "OPERATOR"
                     ? "bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md"
-                    : "text-slate-500 hover:text-slate-900"
+                    : "text-slate-500 hover:text-gray-600"
                 }`}
               >
                 <ChefHat size={15} />
@@ -412,10 +412,10 @@ export default function KitchenManagementPage() {
               <button
                 id="btn-switch-facing-mode"
                 onClick={() => setViewMode("FACING")}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black transition ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm text-xs font-black transition ${
                   viewMode === "FACING"
                     ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md"
-                    : "text-slate-500 hover:text-slate-900"
+                    : "text-slate-500 hover:text-gray-600"
                 }`}
               >
                 <Tv size={15} />
@@ -426,7 +426,7 @@ export default function KitchenManagementPage() {
             {/* Chime Sound Toggle */}
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className={`rounded-xl border p-2 transition ${
+              className={`rounded-sm border p-2 transition ${
                 soundEnabled
                   ? "border-orange-500/40 bg-orange-50 text-orange-600"
                   : "border-slate-200 bg-slate-100 text-slate-400"
@@ -441,7 +441,7 @@ export default function KitchenManagementPage() {
             {/* Manual Sync */}
             <button
               onClick={fetchTickets}
-              className="rounded-xl border border-slate-200 bg-white p-2 text-slate-700 hover:bg-slate-50 transition"
+              className="rounded-sm border border-slate-200 bg-white p-2 text-gray-600 hover:bg-slate-50 transition"
               title="Refresh KDS"
             >
               <RefreshCw size={16} className={loading ? "animate-spin text-orange-500" : ""} />
@@ -450,7 +450,7 @@ export default function KitchenManagementPage() {
             {/* Fullscreen Button */}
             <button
               onClick={toggleFullscreen}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-sm bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition"
               title={isFullscreen ? "Exit Fullscreen (F)" : "Toggle Fullscreen (F)"}
             >
               {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
@@ -459,7 +459,7 @@ export default function KitchenManagementPage() {
 
             {/* Notification & User Profile Badge */}
             <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-              <button className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100 transition relative">
+              <button className="rounded-sm border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100 transition relative">
                 <Bell size={16} />
                 <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-orange-500" />
               </button>
@@ -469,7 +469,7 @@ export default function KitchenManagementPage() {
                   EG
                 </div>
                 <div className="text-left hidden md:block">
-                  <p className="text-xs font-bold text-slate-800 leading-tight">Elina Gilbert</p>
+                  <p className="text-xs font-bold text-gray-600 leading-tight">Elina Gilbert</p>
                   <p className="text-[10px] text-slate-500 font-semibold">Cashier / Chef</p>
                 </div>
               </div>
@@ -488,7 +488,7 @@ export default function KitchenManagementPage() {
           <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
               <p className="text-xs font-bold text-slate-500">New Orders</p>
-              <h3 className="text-3xl font-black text-slate-900 mt-1">{newOrdersCount.toString().padStart(2, "0")}</h3>
+              <h3 className="text-3xl font-black text-gray-600 mt-1">{newOrdersCount.toString().padStart(2, "0")}</h3>
             </div>
             <div className="rounded-sm bg-orange-50 p-3 text-orange-500 border border-orange-100">
               <FileText size={22} />
@@ -499,7 +499,7 @@ export default function KitchenManagementPage() {
           <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
               <p className="text-xs font-bold text-slate-500">Preparing</p>
-              <h3 className="text-3xl font-black text-slate-900 mt-1">{preparingCount.toString().padStart(2, "0")}</h3>
+              <h3 className="text-3xl font-black text-gray-600 mt-1">{preparingCount.toString().padStart(2, "0")}</h3>
             </div>
             <div className="rounded-sm bg-amber-50 p-3 text-amber-500 border border-amber-100">
               <Flame size={22} />
@@ -510,7 +510,7 @@ export default function KitchenManagementPage() {
           <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
               <p className="text-xs font-bold text-slate-500">Completed Orders</p>
-              <h3 className="text-3xl font-black text-slate-900 mt-1">{completedCount.toString().padStart(2, "0")}</h3>
+              <h3 className="text-3xl font-black text-gray-600 mt-1">{completedCount.toString().padStart(2, "0")}</h3>
             </div>
             <div className="rounded-sm bg-emerald-50 p-3 text-emerald-500 border border-emerald-100">
               <CheckCircle2 size={22} />
@@ -521,7 +521,7 @@ export default function KitchenManagementPage() {
           <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
               <p className="text-xs font-bold text-slate-500">Cancelled Orders</p>
-              <h3 className="text-3xl font-black text-slate-900 mt-1">{cancelledCount.toString().padStart(2, "0")}</h3>
+              <h3 className="text-3xl font-black text-gray-600 mt-1">{cancelledCount.toString().padStart(2, "0")}</h3>
             </div>
             <div className="rounded-sm bg-rose-50 p-3 text-rose-500 border border-rose-100">
               <Ban size={22} />
@@ -537,7 +537,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "ALL"
                   ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-500 shadow-md shadow-orange-500/20"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
               <UtensilsCrossed size={14} />
@@ -549,7 +549,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "QUEUED"
                   ? "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-600/20"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
               <FileText size={14} className="text-purple-600" />
@@ -561,7 +561,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "PREPARING"
                   ? "bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
               <Flame size={14} className="text-amber-600" />
@@ -573,7 +573,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "READY"
                   ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
               <Bell size={14} className="text-emerald-600" />
@@ -585,7 +585,7 @@ export default function KitchenManagementPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "SERVED"
                   ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
               <BadgeCheck size={14} className="text-blue-600" />
@@ -623,7 +623,7 @@ export default function KitchenManagementPage() {
                       <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <h4 className="font-mono font-bold text-slate-900 text-xs sm:text-sm truncate max-w-[130px]" title={`Order # ${t.orderNo}`}>
+                            <h4 className="font-mono font-bold text-gray-600 text-xs sm:text-sm truncate max-w-[130px]" title={`Order # ${t.orderNo}`}>
                               Order # {t.orderNo}
                             </h4>
                             <span
@@ -640,7 +640,7 @@ export default function KitchenManagementPage() {
                         </div>
 
                         <div className="text-right shrink-0">
-                          <span className="font-bold text-xs text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md inline-block">
+                          <span className="font-bold text-xs text-gray-600 bg-slate-100 px-2 py-0.5 rounded-sm inline-block">
                             {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "01"}`}
                           </span>
                           <div className="flex items-center justify-end gap-1 text-[11px] text-slate-400 font-semibold mt-0.5">
@@ -655,7 +655,7 @@ export default function KitchenManagementPage() {
                         <select
                           value={t.chefRole || "Sous chef"}
                           onChange={(e) => changeChefRole(t.id, e.target.value)}
-                          className="w-full rounded-sm border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:outline-none cursor-pointer"
+                          className="w-full rounded-sm border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-gray-600 focus:bg-white focus:outline-none cursor-pointer"
                         >
                           {CHEF_ROLES.map((role) => (
                             <option key={role} value={role}>
@@ -667,7 +667,7 @@ export default function KitchenManagementPage() {
 
                       {/* Order Level Note */}
                       {t.notes && (
-                        <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
+                        <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-sm px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
                           <FileText size={13} className="text-amber-600 shrink-0" />
                           <span className="truncate">Note: {t.notes}</span>
                         </div>
@@ -677,7 +677,7 @@ export default function KitchenManagementPage() {
                       <div className="space-y-2 pt-1 border-t border-slate-100">
                         {t.items.map((item) => (
                           <div key={item.id} className="space-y-1">
-                            <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            <div className="text-xs font-bold text-gray-600 flex items-center gap-1.5">
                               <span className="text-orange-600 font-black">{item.qty}x</span>
                               <span>{item.name}</span>
                             </div>
@@ -689,7 +689,7 @@ export default function KitchenManagementPage() {
                                   const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
                                   const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
                                   return label ? (
-                                    <span key={idx} className="rounded-md bg-orange-100/90 border border-orange-200 text-orange-900 px-1.5 py-0.5 text-[10px] font-bold">
+                                    <span key={idx} className="rounded-sm bg-orange-100/90 border border-orange-200 text-orange-900 px-1.5 py-0.5 text-[10px] font-bold">
                                       +{label}{val}
                                     </span>
                                   ) : null;
@@ -756,7 +756,7 @@ export default function KitchenManagementPage() {
                       <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <h4 className="font-mono font-bold text-slate-900 text-xs sm:text-sm truncate max-w-[130px]" title={`Order # ${t.orderNo}`}>
+                            <h4 className="font-mono font-bold text-gray-600 text-xs sm:text-sm truncate max-w-[130px]" title={`Order # ${t.orderNo}`}>
                               Order # {t.orderNo}
                             </h4>
                             <span
@@ -772,7 +772,7 @@ export default function KitchenManagementPage() {
                         </div>
 
                         <div className="text-right shrink-0">
-                          <span className="font-bold text-xs text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md inline-block">
+                          <span className="font-bold text-xs text-gray-600 bg-slate-100 px-2 py-0.5 rounded-sm inline-block">
                             {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "12"}`}
                           </span>
                           <div className="flex items-center justify-end gap-1 text-[11px] text-orange-600 font-bold mt-0.5 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">
@@ -786,7 +786,7 @@ export default function KitchenManagementPage() {
                       <div>
                         <div className="flex justify-between text-[11px] font-bold text-slate-500 mb-1">
                           <span>Progress</span>
-                          <span className="text-slate-800 font-black">{progressPct}%</span>
+                          <span className="text-gray-600 font-black">{progressPct}%</span>
                         </div>
                         <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                           <div
@@ -801,7 +801,7 @@ export default function KitchenManagementPage() {
                         <select
                           value={t.chefRole || "Head chef"}
                           onChange={(e) => changeChefRole(t.id, e.target.value)}
-                          className="w-full rounded-sm border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:outline-none cursor-pointer"
+                          className="w-full rounded-sm border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-gray-600 focus:bg-white focus:outline-none cursor-pointer"
                         >
                           {CHEF_ROLES.map((role) => (
                             <option key={role} value={role}>
@@ -813,7 +813,7 @@ export default function KitchenManagementPage() {
 
                       {/* Order Level Note */}
                       {t.notes && (
-                        <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
+                        <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-sm px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
                           <FileText size={13} className="text-amber-600 shrink-0" />
                           <span className="truncate">Note: {t.notes}</span>
                         </div>
@@ -825,7 +825,7 @@ export default function KitchenManagementPage() {
                           <div key={item.id} className="space-y-1">
                             <div
                               onClick={() => toggleItemCompleted(t.id, item.id)}
-                              className="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer select-none group"
+                              className="flex items-center gap-2.5 text-xs font-bold text-gray-600 cursor-pointer select-none group"
                             >
                               <span
                                 className={`h-5 w-5 rounded-full flex items-center justify-center transition border ${
@@ -849,7 +849,7 @@ export default function KitchenManagementPage() {
                                   const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
                                   const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
                                   return label ? (
-                                    <span key={idx} className="rounded-md bg-orange-100/90 border border-orange-200 text-orange-900 px-1.5 py-0.5 text-[10px] font-bold">
+                                    <span key={idx} className="rounded-sm bg-orange-100/90 border border-orange-200 text-orange-900 px-1.5 py-0.5 text-[10px] font-bold">
                                       +{label}{val}
                                     </span>
                                   ) : null;
@@ -910,7 +910,7 @@ export default function KitchenManagementPage() {
                     <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <h4 className="font-mono font-bold text-slate-900 text-xs sm:text-sm truncate max-w-[130px]" title={`Order # ${t.orderNo}`}>
+                          <h4 className="font-mono font-bold text-gray-600 text-xs sm:text-sm truncate max-w-[130px]" title={`Order # ${t.orderNo}`}>
                             Order # {t.orderNo}
                           </h4>
                           <span
@@ -926,7 +926,7 @@ export default function KitchenManagementPage() {
                       </div>
 
                       <div className="text-right shrink-0">
-                        <span className="font-bold text-xs text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md inline-block">
+                        <span className="font-bold text-xs text-gray-600 bg-slate-100 px-2 py-0.5 rounded-sm inline-block">
                           {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "07"}`}
                         </span>
                         <div className="mt-0.5">
@@ -939,7 +939,7 @@ export default function KitchenManagementPage() {
 
                     {/* Order Level Note */}
                     {t.notes && (
-                      <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
+                      <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-sm px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
                         <FileText size={13} className="text-emerald-600 shrink-0" />
                         <span className="truncate">Note: {t.notes}</span>
                       </div>
@@ -949,7 +949,7 @@ export default function KitchenManagementPage() {
                     <div className="space-y-2 pt-1 border-t border-slate-100">
                       {t.items.map((item) => (
                         <div key={item.id} className="space-y-1">
-                          <div className="text-xs font-bold text-slate-800 flex items-center gap-2">
+                          <div className="text-xs font-bold text-gray-600 flex items-center gap-2">
                             <div className="h-4 w-4 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
                               <Check size={11} strokeWidth={3} />
                             </div>
@@ -966,7 +966,7 @@ export default function KitchenManagementPage() {
                                 const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
                                 const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
                                 return label ? (
-                                  <span key={idx} className="rounded-md bg-emerald-100/90 border border-emerald-200 text-emerald-900 px-1.5 py-0.5 text-[10px] font-bold">
+                                  <span key={idx} className="rounded-sm bg-emerald-100/90 border border-emerald-200 text-emerald-900 px-1.5 py-0.5 text-[10px] font-bold">
                                     +{label}{val}
                                   </span>
                                 ) : null;
@@ -1032,7 +1032,7 @@ export default function KitchenManagementPage() {
                     <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <h4 className="font-mono font-bold text-slate-900 text-xs sm:text-sm truncate max-w-[130px]" title={`Order # ${t.orderNo}`}>
+                          <h4 className="font-mono font-bold text-gray-600 text-xs sm:text-sm truncate max-w-[130px]" title={`Order # ${t.orderNo}`}>
                             Order # {t.orderNo}
                           </h4>
                           <span
@@ -1048,7 +1048,7 @@ export default function KitchenManagementPage() {
                       </div>
 
                       <div className="text-right shrink-0">
-                        <span className="font-bold text-xs text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md inline-block">
+                        <span className="font-bold text-xs text-gray-600 bg-slate-100 px-2 py-0.5 rounded-sm inline-block">
                           {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "N/A"}`}
                         </span>
                         <div className="mt-0.5">
@@ -1061,7 +1061,7 @@ export default function KitchenManagementPage() {
 
                     {/* Order Level Note */}
                     {t.notes && (
-                      <div className="bg-blue-50 border border-blue-200 text-blue-900 rounded-xl px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
+                      <div className="bg-blue-50 border border-blue-200 text-blue-900 rounded-sm px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
                         <FileText size={13} className="text-blue-600 shrink-0" />
                         <span className="truncate">Note: {t.notes}</span>
                       </div>
@@ -1071,7 +1071,7 @@ export default function KitchenManagementPage() {
                     <div className="space-y-2 pt-1 border-t border-slate-100">
                       {t.items.map((item) => (
                         <div key={item.id} className="space-y-1">
-                          <div className="text-xs font-bold text-slate-800 flex items-center gap-2">
+                          <div className="text-xs font-bold text-gray-600 flex items-center gap-2">
                             <div className="h-4 w-4 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
                               <Check size={11} strokeWidth={3} />
                             </div>
@@ -1088,7 +1088,7 @@ export default function KitchenManagementPage() {
                                 const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
                                 const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
                                 return label ? (
-                                  <span key={idx} className="rounded-md bg-blue-100/90 border border-blue-200 text-blue-900 px-1.5 py-0.5 text-[10px] font-bold">
+                                  <span key={idx} className="rounded-sm bg-blue-100/90 border border-blue-200 text-blue-900 px-1.5 py-0.5 text-[10px] font-bold">
                                     +{label}{val}
                                   </span>
                                 ) : null;
@@ -1130,7 +1130,7 @@ export default function KitchenManagementPage() {
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-sm border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <h2 className="text-2xl font-black text-gray-600 tracking-tight flex items-center gap-2">
                   <Tv className="text-indigo-600" size={24} />
                   KITCHEN FACING DISPLAY
                 </h2>
@@ -1154,7 +1154,7 @@ export default function KitchenManagementPage() {
               <div className="rounded-sm border border-amber-200 bg-white p-5 shadow-md space-y-4">
                 <div className="flex flex-wrap items-center justify-between border-b border-amber-100 pb-3 gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-sm shrink-0">
+                    <div className="h-9 w-9 rounded-sm bg-amber-500 text-white flex items-center justify-center shadow-sm shrink-0">
                       <Flame size={20} />
                     </div>
                     <div>
@@ -1185,20 +1185,20 @@ export default function KitchenManagementPage() {
                           <h4 className="font-mono font-black text-base sm:text-lg text-amber-900 truncate max-w-[70%]" title={`Order # ${t.orderNo}`}>
                             Order # {t.orderNo}
                           </h4>
-                          <span className="rounded-lg bg-amber-600 text-white px-2.5 py-0.5 text-xs font-bold shrink-0">
+                          <span className="rounded-sm bg-amber-600 text-white px-2.5 py-0.5 text-xs font-bold shrink-0">
                             {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "N/A"}`}
                           </span>
                         </div>
 
                         {/* Order Level Note */}
                         {t.notes && (
-                          <div className="bg-amber-100/90 border border-amber-300 text-amber-950 rounded-xl px-2.5 py-1 text-xs font-bold flex items-center gap-1.5">
+                          <div className="bg-amber-100/90 border border-amber-300 text-amber-950 rounded-sm px-2.5 py-1 text-xs font-bold flex items-center gap-1.5">
                             <FileText size={13} className="text-amber-700 shrink-0" />
                             <span className="truncate">Note: {t.notes}</span>
                           </div>
                         )}
 
-                        <div className="text-xs font-semibold text-slate-800 bg-white/80 p-2.5 rounded-xl border border-amber-100 space-y-1">
+                        <div className="text-xs font-semibold text-gray-600 bg-white/80 p-2.5 rounded-sm border border-amber-100 space-y-1">
                           {t.items.map((i) => (
                             <div key={i.id} className="space-y-0.5">
                               <div><strong className="text-orange-600 mr-1">{i.qty}x</strong>{i.name}</div>
@@ -1208,7 +1208,7 @@ export default function KitchenManagementPage() {
                                     const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
                                     const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
                                     return label ? (
-                                      <span key={idx} className="rounded bg-orange-100 text-orange-800 border border-orange-200 px-1 py-0.2 text-[9px] font-bold">
+                                      <span key={idx} className="rounded-sm bg-orange-100 text-orange-800 border border-orange-200 px-1 py-0.2 text-[9px] font-bold">
                                         +{label}{val}
                                       </span>
                                     ) : null;
@@ -1243,7 +1243,7 @@ export default function KitchenManagementPage() {
               <div className="rounded-sm border border-emerald-300 bg-white p-5 shadow-md space-y-4">
                 <div className="flex flex-wrap items-center justify-between border-b border-emerald-100 pb-3 gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                    <div className="h-9 w-9 rounded-sm bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
                       <CheckCircle2 size={20} />
                     </div>
                     <div>
@@ -1269,21 +1269,21 @@ export default function KitchenManagementPage() {
                         <h4 className="font-mono font-black text-base sm:text-lg text-emerald-900 truncate max-w-[70%]" title={`Order # ${t.orderNo}`}>
                           Order # {t.orderNo}
                         </h4>
-                        <span className="rounded-lg bg-emerald-700 text-white px-2.5 py-0.5 text-xs font-bold shrink-0">
+                        <span className="rounded-sm bg-emerald-700 text-white px-2.5 py-0.5 text-xs font-bold shrink-0">
                           {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "N/A"}`}
                         </span>
                       </div>
 
                       {/* Order Level Note */}
                       {t.notes && (
-                        <div className="bg-emerald-100/90 border border-emerald-300 text-emerald-950 rounded-xl px-2.5 py-1 text-xs font-bold flex items-center gap-1.5">
+                        <div className="bg-emerald-100/90 border border-emerald-300 text-emerald-950 rounded-sm px-2.5 py-1 text-xs font-bold flex items-center gap-1.5">
                           <FileText size={13} className="text-emerald-700 shrink-0" />
                           <span className="truncate">Note: {t.notes}</span>
                         </div>
                       )}
 
                       {/* Middle: Items List */}
-                      <div className="text-xs font-bold text-emerald-950 bg-white/80 p-2.5 rounded-xl border border-emerald-200/80 space-y-1">
+                      <div className="text-xs font-bold text-emerald-950 bg-white/80 p-2.5 rounded-sm border border-emerald-200/80 space-y-1">
                         {t.items.map((i) => (
                           <div key={i.id} className="space-y-0.5">
                             <div><strong className="text-emerald-700 mr-1">{i.qty}x</strong>{i.name}</div>
@@ -1293,7 +1293,7 @@ export default function KitchenManagementPage() {
                                   const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
                                   const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
                                   return label ? (
-                                    <span key={idx} className="rounded bg-emerald-100 text-emerald-900 border border-emerald-200 px-1 py-0.2 text-[9px] font-bold">
+                                    <span key={idx} className="rounded-sm bg-emerald-100 text-emerald-900 border border-emerald-200 px-1 py-0.2 text-[9px] font-bold">
                                       +{label}{val}
                                     </span>
                                   ) : null;
@@ -1325,7 +1325,7 @@ export default function KitchenManagementPage() {
               <div className="rounded-sm border border-blue-300 bg-white p-5 shadow-md space-y-4">
                 <div className="flex flex-wrap items-center justify-between border-b border-blue-100 pb-3 gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                    <div className="h-9 w-9 rounded-sm bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
                       <BadgeCheck size={20} />
                     </div>
                     <div>
@@ -1350,20 +1350,20 @@ export default function KitchenManagementPage() {
                         <h4 className="font-mono font-black text-base sm:text-lg text-blue-900 truncate max-w-[70%]" title={`Order # ${t.orderNo}`}>
                           Order # {t.orderNo}
                         </h4>
-                        <span className="rounded-lg bg-blue-600 text-white px-2.5 py-0.5 text-xs font-bold shrink-0">
+                        <span className="rounded-sm bg-blue-600 text-white px-2.5 py-0.5 text-xs font-bold shrink-0">
                           {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "N/A"}`}
                         </span>
                       </div>
 
                       {/* Order Level Note */}
                       {t.notes && (
-                        <div className="bg-blue-100/90 border border-blue-300 text-blue-950 rounded-xl px-2.5 py-1 text-xs font-bold flex items-center gap-1.5">
+                        <div className="bg-blue-100/90 border border-blue-300 text-blue-950 rounded-sm px-2.5 py-1 text-xs font-bold flex items-center gap-1.5">
                           <FileText size={13} className="text-blue-700 shrink-0" />
                           <span className="truncate">Note: {t.notes}</span>
                         </div>
                       )}
 
-                      <div className="text-xs font-semibold text-slate-700 bg-white/80 p-2.5 rounded-xl border border-blue-100 space-y-1">
+                      <div className="text-xs font-semibold text-gray-600 bg-white/80 p-2.5 rounded-sm border border-blue-100 space-y-1">
                         {t.items.map((i) => (
                           <div key={i.id} className="space-y-0.5">
                             <div><strong className="text-blue-700 mr-1">{i.qty}x</strong>{i.name}</div>
@@ -1373,7 +1373,7 @@ export default function KitchenManagementPage() {
                                   const label = typeof mod === "string" ? mod : mod.name || mod.label || mod.title;
                                   const val = typeof mod === "object" && mod.value ? `: ${mod.value}` : "";
                                   return label ? (
-                                    <span key={idx} className="rounded bg-blue-100 text-blue-900 border border-blue-200 px-1 py-0.2 text-[9px] font-bold">
+                                    <span key={idx} className="rounded-sm bg-blue-100 text-blue-900 border border-blue-200 px-1 py-0.2 text-[9px] font-bold">
                                       +{label}{val}
                                     </span>
                                   ) : null;

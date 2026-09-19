@@ -104,12 +104,12 @@ function RetailHubView() {
         title="Retail & Apparel Hub"
         description="Live counter sales, receipt journal, and one-click access to the Retail POS terminal."
         icon={<ShoppingBag size={16} className="text-primary-600" />}
-        iconClassName="flex h-7 w-7 items-center justify-center rounded-md bg-primary-50 text-primary-600 border border-primary-200 shrink-0"
+        iconClassName="flex h-7 w-7 items-center justify-center rounded-sm bg-primary-50 text-primary-600 border border-primary-200 shrink-0"
         items={[{ label: 'Retail', href: '/retail' }]}
         actions={
           <Link
             href="/retail-pos"
-            className="flex items-center justify-center gap-2 rounded-sm bg-teal-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-teal-700 shadow-2xs"
+            className="flex items-center justify-center gap-2 rounded-sm bg-brand-primary px-4 py-2 text-xs font-bold text-white transition hover:bg-brand-dark shadow-2xs"
           >
             <ShoppingCart size={15} />
             Retail POS
@@ -118,14 +118,14 @@ function RetailHubView() {
       />
 
       {/* Summary card — clean flat white with theme accent bar */}
-      <section className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <section className="flex flex-col gap-4 rounded-sm border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary-100 bg-primary-50 text-primary-600">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border border-primary-100 bg-primary-50 text-primary-600">
             <ShoppingBag size={22} />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold tracking-tight text-slate-900">
+              <h1 className="text-lg font-bold tracking-tight text-gray-600">
                 Retail Counter Overview
               </h1>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-700">
@@ -154,17 +154,17 @@ function RetailHubView() {
         {metrics.map((metric) => (
           <div
             key={metric.label}
-            className="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-primary-300"
+            className="rounded-sm border border-slate-200 bg-white p-5 transition hover:border-primary-300"
           >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                 {metric.label}
               </span>
-              <span className="rounded-lg border border-primary-100 bg-primary-50 p-2 text-primary-600">
+              <span className="rounded-sm border border-primary-100 bg-primary-50 p-2 text-primary-600">
                 <metric.icon size={15} />
               </span>
             </div>
-            <p className="mt-3 text-xl font-bold tabular-nums tracking-tight text-slate-900">
+            <p className="mt-3 text-xl font-bold tabular-nums tracking-tight text-gray-600">
               {metric.value}
             </p>
             <p className="mt-1 text-xs text-slate-500">{metric.caption}</p>
@@ -173,10 +173,10 @@ function RetailHubView() {
       </section>
 
       {/* Recent invoices journal */}
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <section className="overflow-hidden rounded-sm border border-slate-200 bg-white">
         <div className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-sm font-bold tracking-tight text-slate-900">
+            <h3 className="text-sm font-bold tracking-tight text-gray-600">
               Recent Counter Invoices
             </h3>
             <p className="mt-0.5 text-xs text-slate-500">
@@ -194,7 +194,7 @@ function RetailHubView() {
               placeholder="Search invoice or customer..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-8 pr-3 text-xs font-semibold text-slate-700 transition focus:border-primary-500 focus:bg-white focus:outline-none"
+              className="w-full rounded-sm border border-slate-200 bg-slate-50 py-2 pl-8 pr-3 text-xs font-semibold text-gray-600 transition focus:border-primary-500 focus:bg-white focus:outline-none"
             />
           </div>
         </div>
@@ -204,16 +204,16 @@ function RetailHubView() {
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className="h-14 animate-pulse rounded-lg border border-slate-100 bg-slate-50"
+                className="h-14 animate-pulse rounded-sm border border-slate-100 bg-slate-50"
               />
             ))}
           </div>
         ) : filteredSales.length === 0 ? (
           <div className="space-y-2 px-5 py-16 text-center">
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-primary-100 bg-primary-50 text-primary-600">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-sm border border-primary-100 bg-primary-50 text-primary-600">
               <Receipt size={22} />
             </span>
-            <p className="text-sm font-semibold text-slate-700">No retail transactions found</p>
+            <p className="text-sm font-semibold text-gray-600">No retail transactions found</p>
             <p className="text-xs text-slate-500">
               Open Retail POS and complete a checkout to populate this journal.
             </p>
@@ -259,19 +259,19 @@ function RetailHubView() {
                         })}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-semibold text-slate-800">
+                    <td className="px-4 py-3 font-semibold text-gray-600">
                       {s.customer?.name || 'Walk-in Customer'}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center gap-1 rounded-md border border-primary-100 bg-primary-50 px-2 py-0.5 text-[11px] font-bold text-primary-700">
+                      <span className="inline-flex items-center gap-1 rounded-sm border border-primary-100 bg-primary-50 px-2 py-0.5 text-[11px] font-bold text-primary-700">
                         <CreditCard size={11} />
                         {s.paymentMethod || 'CASH'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-center font-bold text-slate-700">
+                    <td className="px-4 py-3 text-center font-bold text-gray-600">
                       {(s.items || []).length}
                     </td>
-                    <td className="px-4 py-3 text-right font-bold tabular-nums text-slate-900">
+                    <td className="px-4 py-3 text-right font-bold tabular-nums text-gray-600">
                       {fmt(Number(s.grandTotal || s.totalAmount || s.total || 0))}
                     </td>
                     <td className="px-4 py-3 text-right">

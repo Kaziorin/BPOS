@@ -80,7 +80,7 @@ export function WholesalePOSFooter({
                   else onUtility?.(a.id);
                 }}
                 className={cn(
-                  "flex h-9 flex-1 min-w-0 items-center justify-center gap-2 rounded-xl px-2.5 text-[11px] font-bold transition-all active:scale-95 border cursor-pointer",
+                  "flex h-9 flex-1 min-w-0 items-center justify-center gap-2 rounded-sm px-2.5 text-[11px] font-bold transition-all active:scale-95 border cursor-pointer",
                   darkMode
                     ? "bg-slate-800/80 text-slate-200 border-slate-700 hover:bg-slate-700 hover:text-white"
                     : "group hover:shadow-sm",
@@ -138,14 +138,14 @@ function MetaChip({
   return (
     <div
       className={cn(
-        "flex h-9 flex-1 min-w-0 items-center gap-2 rounded-xl border px-2.5 transition-all cursor-default",
+        "flex h-9 flex-1 min-w-0 items-center gap-2 rounded-sm border px-2.5 transition-all cursor-default",
         darkMode ? "border-slate-700 bg-slate-800/50" : "",
       )}
       style={darkMode ? undefined : { background: "#F5FAFE", border: "1px solid #DCE8F2" }}
     >
       <span
         className={cn(
-          "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border",
+          "flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border",
           darkMode ? "bg-slate-950 border-slate-700 text-blue-400" : "",
         )}
         style={darkMode ? undefined : { background: "#EBF3FE", border: "1px solid #BEDCFD", color: "#146EF5" }}

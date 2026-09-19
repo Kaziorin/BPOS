@@ -130,8 +130,8 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
   }
 
   const inputClass =
-    "w-full rounded-sm border border-brand-border bg-white px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition";
-  const labelClass = "block text-[11px] font-semibold text-slate-700 mb-1";
+    "w-full rounded-sm border border-brand-border bg-white px-3 py-2 text-xs text-gray-600 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary transition";
+  const labelClass = "block text-[11px] font-semibold text-gray-600 mb-1";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-100">
@@ -175,7 +175,7 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
             className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-semibold transition cursor-pointer ${
               activeTab === "basic"
                 ? "border-brand-primary text-brand-primary font-bold"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+                : "border-transparent text-slate-500 hover:text-gray-600"
             }`}
           >
             <Building2 size={14} />
@@ -187,7 +187,7 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
             className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-semibold transition cursor-pointer ${
               activeTab === "financial"
                 ? "border-brand-primary text-brand-primary font-bold"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+                : "border-transparent text-slate-500 hover:text-gray-600"
             }`}
           >
             <DollarSign size={14} />
@@ -199,7 +199,7 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
             className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-semibold transition cursor-pointer ${
               activeTab === "notes"
                 ? "border-brand-primary text-brand-primary font-bold"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+                : "border-transparent text-slate-500 hover:text-gray-600"
             }`}
           >
             <FileText size={14} />
@@ -402,10 +402,10 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-3 text-xs text-gray-600 flex items-start gap-2">
+                <div className="rounded-sm border border-gray-200 bg-gray-50/70 p-3 text-xs text-gray-600 flex items-start gap-2">
                   <DollarSign size={16} className="text-emerald-600 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-gray-800">Automated Due Tracking</p>
+                    <p className="font-semibold text-gray-600">Automated Due Tracking</p>
                     <p className="text-[11px] text-gray-500 mt-0.5">
                       When goods are received (GRN) or purchase orders are completed, payable due balances update automatically. Payments can be settled anytime with receipt tracking.
                     </p>
@@ -452,7 +452,7 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
                 <button
                   type="button"
                   onClick={() => setActiveTab(activeTab === "notes" ? "financial" : "basic")}
-                  className="rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition cursor-pointer"
+                  className="rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-brand-50/50 transition cursor-pointer"
                 >
                   Previous
                 </button>
@@ -461,7 +461,7 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
                 <button
                   type="button"
                   onClick={() => setActiveTab(activeTab === "basic" ? "financial" : "notes")}
-                  className="rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-brand-50/50 transition cursor-pointer"
+                  className="rounded-sm border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-brand-50/50 transition cursor-pointer"
                 >
                   Next Tab &rarr;
                 </button>
@@ -472,7 +472,7 @@ export function SupplierModal({ isOpen, onClose, onSuccess, supplier }: Supplier
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-sm border border-brand-border bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-brand-50 transition cursor-pointer"
+                className="rounded-sm border border-brand-border bg-white px-3.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-brand-50 transition cursor-pointer"
               >
                 Cancel
               </button>

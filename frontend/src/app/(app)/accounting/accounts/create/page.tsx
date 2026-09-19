@@ -47,7 +47,7 @@ export default function CreateAccountPage() {
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><BookOpen size={19} /></div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-900">Add Account</h1>
+            <h1 className="text-xl font-bold tracking-tight text-gray-600">Add Account</h1>
             <p className="text-sm text-gray-500">Create a new account in the chart of accounts</p>
           </div>
         </div>
@@ -62,8 +62,8 @@ export default function CreateAccountPage() {
         </div>
         <CustomInput label="Account Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Bank Account" />
         <CustomInput label="Opening Balance" type="number" step="0.01" value={form.openingBalance} onChange={(e) => setForm({ ...form, openingBalance: e.target.value })} />
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input type="checkbox" checked={form.isGroup} onChange={(e) => setForm({ ...form, isGroup: e.target.checked })} className="h-4 w-4 rounded border-gray-300 text-sky-600" />
+        <label className="flex items-center gap-2 text-sm text-gray-600">
+          <input type="checkbox" checked={form.isGroup} onChange={(e) => setForm({ ...form, isGroup: e.target.checked })} className="h-4 w-4 rounded-sm border-gray-300 text-sky-600" />
           This is a group (parent) account
         </label>
         <div className="flex justify-end gap-3 pt-2">

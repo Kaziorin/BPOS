@@ -568,7 +568,7 @@ export default function SalonPOSPage() {
 
   return (
     <>
-    <div className="h-screen w-screen flex flex-col bg-[#F8F9FE] overflow-hidden text-slate-800" style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}>
+    <div className="h-screen w-screen flex flex-col bg-[#F8F9FE] overflow-hidden text-gray-600" style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}>
       
       {/* Premium Background Elements */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
@@ -600,17 +600,17 @@ export default function SalonPOSPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search premium services or luxury products..."
-            className="w-full h-[46px] rounded-sm bg-white/80 border border-indigo-50/50 px-12 text-sm font-semibold text-slate-700 focus:border-indigo-400 focus:ring-8 focus:ring-indigo-50/50 transition-all outline-none shadow-sm"
+            className="w-full h-[46px] rounded-sm bg-white/80 border border-indigo-50/50 px-12 text-sm font-semibold text-gray-600 focus:border-indigo-400 focus:ring-8 focus:ring-indigo-50/50 transition-all outline-none shadow-sm"
           />
         </div>
 
         <div className="flex items-center gap-5">
           <div className="hidden xl:flex items-center gap-4 bg-white/80 px-5 py-2.5 rounded-sm shadow-sm border border-indigo-50/50">
-            <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+            <div className="w-9 h-9 rounded-sm bg-indigo-50 flex items-center justify-center text-indigo-600">
               <Calendar size={18} />
             </div>
             <div className="text-right leading-tight">
-              <p className="text-xs font-black text-slate-900 tracking-tight">20 May, 2025</p>
+              <p className="text-xs font-black text-gray-600 tracking-tight">20 May, 2025</p>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Tue, 10:30 AM</p>
             </div>
           </div>
@@ -694,13 +694,13 @@ export default function SalonPOSPage() {
               <div className="flex items-center gap-3 bg-white/60 p-1 rounded-sm border border-indigo-50/50">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={cn("p-2 rounded-xl transition-all duration-300", viewMode === "grid" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-400 hover:text-indigo-600")}
+                  className={cn("p-2 rounded-sm transition-all duration-300", viewMode === "grid" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-400 hover:text-indigo-600")}
                 >
                   <LayoutGrid size={16} strokeWidth={2.5} />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={cn("p-2 rounded-xl transition-all duration-300", viewMode === "list" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-400 hover:text-indigo-600")}
+                  className={cn("p-2 rounded-sm transition-all duration-300", viewMode === "list" ? "bg-white text-indigo-600 shadow-md ring-1 ring-indigo-50" : "text-slate-400 hover:text-indigo-600")}
                 >
                   <List size={16} strokeWidth={2.5} />
                 </button>
@@ -811,7 +811,7 @@ export default function SalonPOSPage() {
                         <h3 className="font-black text-xs text-indigo-950 line-clamp-1 mb-4 uppercase tracking-wider leading-tight">{p.name}</h3>
                         <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-50 w-full">
                           <p className="font-black text-lg text-indigo-600 tabular-nums">৳{p.price.toLocaleString()}</p>
-                          <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center group-hover:bg-violet-600 group-hover:text-white transition-all duration-500 shadow-sm active:scale-90">
+                          <div className="w-9 h-9 rounded-sm bg-violet-50 text-violet-600 flex items-center justify-center group-hover:bg-violet-600 group-hover:text-white transition-all duration-500 shadow-sm active:scale-90">
                             <Plus size={18} strokeWidth={3.5} />
                           </div>
                         </div>
@@ -830,7 +830,7 @@ export default function SalonPOSPage() {
           <div className="p-3 px-6 border-b border-indigo-50/50 bg-slate-50/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-xs ring-1 ring-indigo-100">
+                <div className="w-8 h-8 rounded-sm bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-xs ring-1 ring-indigo-100">
                   <ShoppingCart size={16} strokeWidth={2.5} />
                 </div>
                 <div>
@@ -843,7 +843,7 @@ export default function SalonPOSPage() {
               </div>
               <button
                 onClick={onClearCart}
-                className="w-7 h-7 flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all duration-300 active:scale-90 shadow-xs"
+                className="w-7 h-7 flex items-center justify-center rounded-sm bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all duration-300 active:scale-90 shadow-xs"
               >
                 <Trash2 size={14} />
               </button>
@@ -875,7 +875,7 @@ export default function SalonPOSPage() {
                        {item.type === "service" && (
                           <button
                             onClick={() => { setSelectedCartIdx(idx); setStaffOpen(true); }}
-                            className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-xs"
+                            className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-xs"
                           >
                             <User size={8} strokeWidth={3} />
                             <span className="text-[7px] font-black uppercase tracking-widest truncate max-w-[60px]">{item.stylistName || "Staff"}</span>
@@ -886,12 +886,12 @@ export default function SalonPOSPage() {
                   </div>
 
                   <div className="flex items-center gap-4 shrink-0">
-                      <div className="flex items-center bg-slate-50 rounded-xl p-0.5 border border-slate-100 shadow-inner scale-90">
-                        <button onClick={() => updateQty(item.id, -1)} className="w-6 h-6 rounded-lg flex items-center justify-center text-indigo-600 hover:bg-white transition-all active:scale-75">
+                      <div className="flex items-center bg-slate-50 rounded-sm p-0.5 border border-slate-100 shadow-inner scale-90">
+                        <button onClick={() => updateQty(item.id, -1)} className="w-6 h-6 rounded-sm flex items-center justify-center text-indigo-600 hover:bg-white transition-all active:scale-75">
                           <Minus size={12} strokeWidth={3.5} />
                         </button>
                         <span className="w-6 text-center text-[10px] font-black text-indigo-950 tabular-nums">{item.qty}</span>
-                        <button onClick={() => updateQty(item.id, 1)} className="w-6 h-6 rounded-lg flex items-center justify-center text-indigo-600 hover:bg-white transition-all active:scale-75">
+                        <button onClick={() => updateQty(item.id, 1)} className="w-6 h-6 rounded-sm flex items-center justify-center text-indigo-600 hover:bg-white transition-all active:scale-75">
                           <Plus size={12} strokeWidth={3.5} />
                         </button>
                       </div>
@@ -912,7 +912,7 @@ export default function SalonPOSPage() {
             <div className="pt-2">
               <div className="flex items-center justify-between mb-4 bg-gradient-to-br from-indigo-600 to-violet-50 p-4 rounded-sm text-white shadow-xl shadow-indigo-100 group cursor-pointer hover:shadow-indigo-200 transition-all duration-500">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner group-hover:rotate-12 transition-transform duration-700">
+                  <div className="w-9 h-9 rounded-sm bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner group-hover:rotate-12 transition-transform duration-700">
                     <Sparkles size={18} strokeWidth={2.5} className="text-white" />
                   </div>
                   <div>
@@ -937,16 +937,16 @@ export default function SalonPOSPage() {
                       )}
                     >
                       <div className={cn(
-                        "w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-500",
+                        "w-5 h-5 rounded-sm border-2 flex items-center justify-center transition-all duration-500",
                         isSelected ? "bg-indigo-600 border-indigo-600 shadow-md" : "border-slate-100 bg-slate-50"
                       )}>
                         {isSelected && <CheckCircle2 size={12} strokeWidth={3.5} className="text-white" />}
                       </div>
-                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 flex-none shadow-xs">
+                      <div className="w-10 h-10 rounded-sm overflow-hidden bg-slate-100 flex-none shadow-xs">
                         <img src={ao.image} alt={ao.name} className="w-full h-full object-cover group-hover/ao:scale-125 transition-transform duration-700" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-black text-slate-800 truncate uppercase tracking-tight">{ao.name}</p>
+                        <p className="text-[11px] font-black text-gray-600 truncate uppercase tracking-tight">{ao.name}</p>
                         <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{ao.duration}</p>
                       </div>
                       <span className="text-[12px] font-black text-indigo-600 tabular-nums">+৳{ao.price}</span>
@@ -965,7 +965,7 @@ export default function SalonPOSPage() {
                   <button
                     onClick={() => setIsAppointment(!isAppointment)}
                     className={cn(
-                      "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                      "flex items-center gap-2 px-3 py-1.5 rounded-sm text-[9px] font-black uppercase tracking-widest transition-all",
                       isAppointment ? "bg-indigo-600 text-white shadow-md" : "bg-slate-50 text-slate-400 hover:bg-slate-100"
                     )}
                   >
@@ -975,7 +975,7 @@ export default function SalonPOSPage() {
                     <button
                       onClick={() => setUseLoyaltyPoints(!useLoyaltyPoints)}
                       className={cn(
-                        "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                        "flex items-center gap-2 px-3 py-1.5 rounded-sm text-[9px] font-black uppercase tracking-widest transition-all",
                         useLoyaltyPoints ? "bg-emerald-600 text-white shadow-md" : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
                       )}
                     >
@@ -1012,7 +1012,7 @@ export default function SalonPOSPage() {
                           value={tipInput}
                           onChange={(e) => setTipInput(e.target.value)}
                           placeholder="Amount..."
-                          className="w-full h-8 pl-8 pr-3 rounded-xl bg-slate-50/50 border border-transparent text-[10px] font-black text-slate-700 outline-none focus:bg-white focus:border-indigo-400 transition-all placeholder:text-slate-300 shadow-inner"
+                          className="w-full h-8 pl-8 pr-3 rounded-sm bg-slate-50/50 border border-transparent text-[10px] font-black text-gray-600 outline-none focus:bg-white focus:border-indigo-400 transition-all placeholder:text-slate-300 shadow-inner"
                        />
                     </div>
                  </div>
@@ -1031,7 +1031,7 @@ export default function SalonPOSPage() {
                           value={discountInput}
                           onChange={(e) => setDiscountInput(e.target.value)}
                           placeholder="Value..."
-                          className="w-full h-8 px-3 pr-8 rounded-xl bg-slate-50/50 border border-transparent text-[10px] font-black text-slate-700 outline-none focus:bg-white focus:border-rose-300 transition-all placeholder:text-slate-300 shadow-inner"
+                          className="w-full h-8 px-3 pr-8 rounded-sm bg-slate-50/50 border border-transparent text-[10px] font-black text-gray-600 outline-none focus:bg-white focus:border-rose-300 transition-all placeholder:text-slate-300 shadow-inner"
                        />
                     </div>
                  </div>
@@ -1048,7 +1048,7 @@ export default function SalonPOSPage() {
               disabled={cart.length === 0 || submitting}
               className="w-full h-14 rounded-sm bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-xl shadow-indigo-100 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-4 group disabled:opacity-50 disabled:pointer-events-none"
             >
-              <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:rotate-12 transition-transform duration-500 shadow-inner">
+              <div className="w-9 h-9 rounded-sm bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:rotate-12 transition-transform duration-500 shadow-inner">
                 <CreditCard size={20} strokeWidth={2.5} />
               </div>
               <span className="uppercase tracking-widest text-xs">Finalize Session</span>
@@ -1136,7 +1136,7 @@ export default function SalonPOSPage() {
             >
               <div className="w-16 h-16 rounded-sm bg-gradient-to-br from-indigo-600 to-violet-500 text-white flex items-center justify-center text-xl font-black uppercase shadow-xl shadow-indigo-100 group-hover:rotate-6 transition-transform">{s.name.charAt(0)}</div>
               <div className="text-left">
-                <p className="text-base font-black text-slate-800 uppercase tracking-tight">{s.name}</p>
+                <p className="text-base font-black text-gray-600 uppercase tracking-tight">{s.name}</p>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">{s.role}</p>
               </div>
             </button>
@@ -1189,7 +1189,7 @@ export default function SalonPOSPage() {
                     <div className="flex items-center gap-5">
                       <div className="w-14 h-14 rounded-sm bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-lg uppercase border-2 border-white shadow-md">{c.name.charAt(0)}</div>
                       <div className="text-left">
-                        <p className="text-base font-black text-slate-800 uppercase tracking-tight">{c.name}</p>
+                        <p className="text-base font-black text-gray-600 uppercase tracking-tight">{c.name}</p>
                         <p className="text-[10px] text-indigo-400 font-black uppercase tracking-widest mt-1">{c.phone || "Privacy Shielded"}</p>
                       </div>
                     </div>
@@ -1209,7 +1209,7 @@ export default function SalonPOSPage() {
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] px-1">Residency Address</label>
                 <textarea
                   placeholder="Street details, Landmark, City..."
-                  className="w-full h-28 p-5 rounded-sm bg-slate-50 border border-transparent text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-400 focus:ring-8 focus:ring-indigo-50 transition-all resize-none shadow-inner"
+                  className="w-full h-28 p-5 rounded-sm bg-slate-50 border border-transparent text-sm font-bold text-gray-600 outline-none focus:bg-white focus:border-indigo-400 focus:ring-8 focus:ring-indigo-50 transition-all resize-none shadow-inner"
                   value={newCustomer.address}
                   onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value }))}
                 />
@@ -1317,7 +1317,7 @@ export default function SalonPOSPage() {
                         const cur = parseFloat(cashTenderedInput) || 0;
                         setCashTenderedInput((cur + d).toString());
                       }}
-                      className="rounded-xl border-2 border-slate-50 py-2.5 text-[11px] font-black text-slate-600 hover:border-indigo-200 hover:bg-indigo-50/50 hover:text-indigo-600 transition-all duration-300"
+                      className="rounded-sm border-2 border-slate-50 py-2.5 text-[11px] font-black text-slate-600 hover:border-indigo-200 hover:bg-indigo-50/50 hover:text-indigo-600 transition-all duration-300"
                     >
                       +৳{d >= 1000 ? `${d / 1000}k` : d}
                     </button>
@@ -1337,11 +1337,11 @@ export default function SalonPOSPage() {
             {/* PRINT TOGGLE */}
             <div className="flex items-center justify-between p-4 rounded-sm border-2 border-slate-50 bg-white">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                <div className="w-9 h-9 rounded-sm bg-slate-50 flex items-center justify-center text-slate-400">
                   <Printer size={16} strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="text-[11px] font-black text-slate-700 uppercase tracking-tight">Print Receipt</p>
+                  <p className="text-[11px] font-black text-gray-600 uppercase tracking-tight">Print Receipt</p>
                   <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Thermal printer</p>
                 </div>
               </div>
@@ -1440,7 +1440,7 @@ export default function SalonPOSPage() {
                     return (
                     <tr key={sale.id || sale._id || `sale-${idx}`} className="text-xs hover:bg-indigo-50/30 transition-all duration-500 group">
                       <td className="px-5 py-4 font-mono font-black text-indigo-600 tracking-[0.1em]">{invNo}</td>
-                      <td className="px-5 py-4 font-black uppercase tracking-tight text-slate-700">{custName}</td>
+                      <td className="px-5 py-4 font-black uppercase tracking-tight text-gray-600">{custName}</td>
                       <td className="px-5 py-4 font-bold uppercase tracking-tight text-slate-600">{cashierName}</td>
                       <td className="px-5 py-4 text-right font-black text-indigo-600 tabular-nums text-sm">৳{amount.toFixed(0)}</td>
                       <td className="px-5 py-4 text-center">
@@ -1454,7 +1454,7 @@ export default function SalonPOSPage() {
                               customerName: custName,
                             });
                           }}
-                          className="w-9 h-9 mx-auto flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 active:scale-75 shadow-sm"
+                          className="w-9 h-9 mx-auto flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-sm group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 active:scale-75 shadow-sm"
                         >
                           <Printer size={16} strokeWidth={2.5} />
                         </button>
@@ -1476,7 +1476,7 @@ export default function SalonPOSPage() {
             value={orderNote}
             onChange={(e) => setOrderNote(e.target.value)}
             placeholder="Document special instructions, allergies, or stylistic requests..."
-            className="w-full h-48 p-7 rounded-sm bg-slate-50/50 border border-transparent text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-400 focus:ring-[12px] focus:ring-indigo-50/50 transition-all resize-none placeholder:text-slate-300 shadow-inner leading-relaxed"
+            className="w-full h-48 p-7 rounded-sm bg-slate-50/50 border border-transparent text-sm font-bold text-gray-600 outline-none focus:bg-white focus:border-indigo-400 focus:ring-[12px] focus:ring-indigo-50/50 transition-all resize-none placeholder:text-slate-300 shadow-inner leading-relaxed"
           />
           <CustomButton fullWidth themeColor="indigo" onClick={() => setNotesOpen(false)} className="!rounded-sm !h-16 font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo-100">Save Directive</CustomButton>
         </div>
@@ -1488,7 +1488,7 @@ export default function SalonPOSPage() {
           {/* Header Banner */}
           <div className="flex items-center justify-between p-6 px-8 border-b border-indigo-50 bg-gradient-to-r from-indigo-50 to-violet-50">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200">
+              <div className="w-12 h-12 rounded-sm bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200">
                 <SlidersHorizontal size={22} strokeWidth={2.5} />
               </div>
               <div>
@@ -1498,7 +1498,7 @@ export default function SalonPOSPage() {
             </div>
             <button
               onClick={openCashDrawerManually}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-700 transition-all shadow-md active:scale-95 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 rounded-sm bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-700 transition-all shadow-md active:scale-95 cursor-pointer"
             >
               <Banknote size={16} /> Open Drawer
             </button>
@@ -1506,13 +1506,13 @@ export default function SalonPOSPage() {
 
           <div className="p-8 space-y-4 max-h-[60vh] overflow-y-auto no-scrollbar bg-white">
             {/* 1. Thermal Receipt Printer */}
-            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
+            <div className="flex items-center justify-between p-4 rounded-sm border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-sm bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
                   <Printer size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">🖨️ Thermal Receipt Printer</p>
+                  <p className="text-xs font-black text-gray-600 uppercase tracking-tight">🖨️ Thermal Receipt Printer</p>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">ESC/POS 80mm / 58mm Voucher Printer • {hardwareSettings.thermalPrinter ? "Active" : "Disabled"}</p>
                 </div>
               </div>
@@ -1526,13 +1526,13 @@ export default function SalonPOSPage() {
             </div>
 
             {/* 2. Cash Drawer */}
-            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
+            <div className="flex items-center justify-between p-4 rounded-sm border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-sm bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
                   <Banknote size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">💵 Electric Cash Drawer</p>
+                  <p className="text-xs font-black text-gray-600 uppercase tracking-tight">💵 Electric Cash Drawer</p>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Kick-out RJ11 Signal on Cash Sale • {hardwareSettings.cashDrawer ? "Active" : "Disabled"}</p>
                 </div>
               </div>
@@ -1546,13 +1546,13 @@ export default function SalonPOSPage() {
             </div>
 
             {/* 3. Barcode & SKU Scanner */}
-            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
+            <div className="flex items-center justify-between p-4 rounded-sm border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-sm bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
                   <Search size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">🔍 Barcode & Product Scanner</p>
+                  <p className="text-xs font-black text-gray-600 uppercase tracking-tight">🔍 Barcode & Product Scanner</p>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Retail Boutique SKU Auto-Scan • {hardwareSettings.barcodeScanner ? "Active" : "Disabled"}</p>
                 </div>
               </div>
@@ -1566,13 +1566,13 @@ export default function SalonPOSPage() {
             </div>
 
             {/* 4. Card & MFS Terminal */}
-            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
+            <div className="flex items-center justify-between p-4 rounded-sm border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-sm bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
                   <CreditCard size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">💳 Card & Digital Pay Terminal</p>
+                  <p className="text-xs font-black text-gray-600 uppercase tracking-tight">💳 Card & Digital Pay Terminal</p>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">EDC POS / Bank Card / Mobile Banking • {hardwareSettings.cardTerminal ? "Active" : "Disabled"}</p>
                 </div>
               </div>
@@ -1586,13 +1586,13 @@ export default function SalonPOSPage() {
             </div>
 
             {/* 5. Customer Display */}
-            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
+            <div className="flex items-center justify-between p-4 rounded-sm border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-sm bg-violet-50 text-violet-600 flex items-center justify-center font-bold">
                   <Tv size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">📺 Customer Facing Display</p>
+                  <p className="text-xs font-black text-gray-600 uppercase tracking-tight">📺 Customer Facing Display</p>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Live Salon Cart Totals on 2nd Screen • {hardwareSettings.customerDisplay ? "Active" : "Disabled"}</p>
                 </div>
               </div>
@@ -1606,13 +1606,13 @@ export default function SalonPOSPage() {
             </div>
 
             {/* 6. Sound Effects / Chime */}
-            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
+            <div className="flex items-center justify-between p-4 rounded-sm border-2 border-slate-50 hover:border-indigo-100 transition-all duration-300">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-sm bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
                   <Volume2 size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">🔔 Audio Scanner & System Chimes</p>
+                  <p className="text-xs font-black text-gray-600 uppercase tracking-tight">🔔 Audio Scanner & System Chimes</p>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Beep sound on item scan & checkout • {hardwareSettings.soundChime ? "Active" : "Disabled"}</p>
                 </div>
               </div>
@@ -1626,28 +1626,28 @@ export default function SalonPOSPage() {
             </div>
 
             {/* 7. Paper Format Option */}
-            <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-50">
+            <div className="flex items-center justify-between p-4 rounded-sm border-2 border-slate-50">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-sm bg-slate-100 text-slate-600 flex items-center justify-center font-bold">
                   <Printer size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-slate-800 uppercase tracking-tight">📜 Thermal Paper Specification</p>
+                  <p className="text-xs font-black text-gray-600 uppercase tracking-tight">📜 Thermal Paper Specification</p>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Standard Roll Width Selection</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
+              <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-sm">
                 <button
                   type="button"
                   onClick={() => setHardwareSettings((prev: any) => ({ ...prev, paperWidth: "80mm" }))}
-                  className={cn("px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all", hardwareSettings.paperWidth === "80mm" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-500 hover:text-indigo-600")}
+                  className={cn("px-3 py-1.5 rounded-sm text-[10px] font-black uppercase transition-all", hardwareSettings.paperWidth === "80mm" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-500 hover:text-indigo-600")}
                 >
                   80mm Standard
                 </button>
                 <button
                   type="button"
                   onClick={() => setHardwareSettings((prev: any) => ({ ...prev, paperWidth: "58mm" }))}
-                  className={cn("px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all", hardwareSettings.paperWidth === "58mm" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-500 hover:text-indigo-600")}
+                  className={cn("px-3 py-1.5 rounded-sm text-[10px] font-black uppercase transition-all", hardwareSettings.paperWidth === "58mm" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-500 hover:text-indigo-600")}
                 >
                   58mm Mini
                 </button>
@@ -1655,7 +1655,7 @@ export default function SalonPOSPage() {
             </div>
 
             {/* Hardware Note */}
-            <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 flex items-start gap-3 text-indigo-900">
+            <div className="p-4 rounded-sm bg-indigo-50/50 border border-indigo-100 flex items-start gap-3 text-indigo-900">
               <Info size={18} className="text-indigo-600 shrink-0 mt-0.5" />
               <p className="text-[11px] font-bold leading-relaxed">
                 Hardware integration supports WebUSB, ESC/POS Serial, Bluetooth printers, and RJ11 cash drawers. Preferences are saved automatically to station profile.
@@ -1677,7 +1677,7 @@ export default function SalonPOSPage() {
                 toast.success("Hardware settings saved!");
                 setSettingsOpen(false);
               }}
-              className="!rounded-xl !h-12 font-black uppercase tracking-widest px-8 shadow-xl shadow-indigo-100"
+              className="!rounded-sm !h-12 font-black uppercase tracking-widest px-8 shadow-xl shadow-indigo-100"
             >
               Save & Apply
             </CustomButton>

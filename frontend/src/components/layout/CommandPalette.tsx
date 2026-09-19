@@ -135,7 +135,7 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
           <input
             autoFocus
             type="text"
-            className="w-full bg-transparent text-sm font-medium text-slate-800 placeholder:text-slate-400 outline-none"
+            className="w-full bg-transparent text-sm font-medium text-gray-600 placeholder:text-slate-400 outline-none"
             placeholder="Search pages, items, actions... (e.g. 'pos', 'bakery', 'stock', 'tax')"
             value={query}
             onChange={(e) => {
@@ -186,7 +186,7 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
                     "group flex items-center justify-between p-2.5 rounded-sm border cursor-pointer transition-all duration-150 shadow-2xs",
                     isSelected
                       ? "bg-brand-gradient border-brand-primary text-white shadow-md"
-                      : "bg-white hover:bg-brand-50 border-brand-border text-slate-700"
+                      : "bg-white hover:bg-brand-50 border-brand-border text-gray-600"
                   )}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -203,7 +203,7 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
                     <span
                       className={cn(
                         "font-semibold text-xs sm:text-sm truncate min-w-0 flex-1",
-                        isSelected ? "text-white font-bold" : "text-slate-700 group-hover:text-brand-dark"
+                        isSelected ? "text-white font-bold" : "text-gray-600 group-hover:text-brand-dark"
                       )}
                     >
                       {cmd.title}

@@ -63,7 +63,7 @@ const FLOW: Record<string, { next: string; label: string; color: string }> = {
   ESTIMATE: { next: "APPROVED", label: "Customer approved", color: "hover:bg-emerald-50 hover:text-emerald-600" },
   APPROVED: { next: "REPAIRING", label: "Start repair", color: "hover:bg-indigo-50 hover:text-indigo-600" },
   REPAIRING: { next: "QUALITY_CHECK", label: "Send to QC", color: "hover:bg-purple-50 hover:text-purple-600" },
-  QUALITY_CHECK: { next: "READY", label: "Mark ready", color: "hover:bg-teal-50 hover:text-teal-600" },
+  QUALITY_CHECK: { next: "READY", label: "Mark ready", color: "hover:bg-brand-50 hover:text-brand-primary" },
   READY: { next: "DELIVERED", label: "Deliver & bill", color: "hover:bg-emerald-50 hover:text-emerald-600" },
 };
 
@@ -74,7 +74,7 @@ const STATUS_BADGES: Record<string, string> = {
   APPROVED: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
   REPAIRING: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
   QUALITY_CHECK: "bg-purple-500/20 text-purple-300 border-purple-500/30",
-  READY: "bg-teal-500/20 text-teal-300 border-teal-500/30",
+  READY: "bg-brand-primary/20 text-brand-primary/60 border-brand-primary/30",
   DELIVERED: "bg-gray-500/20 text-gray-300 border-gray-500/30",
   CANCELLED: "bg-rose-500/20 text-rose-300 border-rose-500/30",
 };
@@ -268,17 +268,17 @@ export default function RepairPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Repair & Service Center</h1>
+        <h1 className="text-2xl font-bold text-gray-600">Repair & Service Center</h1>
         <p className="mt-1 text-sm text-gray-500">Ticket lifecycle with spare parts, labour & warranty linkage (§11.8)</p>
       </div>
 
-      {message && <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">{message}</div>}
+      {message && <div className="rounded-sm border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">{message}</div>}
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px]">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search ticket no, serial, device, problem…"
-            className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-primary-500 focus:outline-none" />
+            className="w-full rounded-sm border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-primary-500 focus:outline-none" />
         </div>
         <CustomSelect value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
           options={[{ label: "All statuses", value: "" }, ...pipeline.map((s) => ({ label: s, value: s })), { label: "Cancelled", value: "CANCELLED" }]}
@@ -293,23 +293,23 @@ export default function RepairPage() {
       ) : (
         <div className="grid gap-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-8">
           {pipeline.map((st) => (
-            <div key={st} className="min-h-[150px] rounded-xl border border-gray-100 bg-gray-50/40">
-              <div className="flex items-center justify-between rounded-t-xl border-b border-gray-100 bg-white px-3 py-2">
+            <div key={st} className="min-h-[150px] rounded-sm border border-gray-100 bg-gray-50/40">
+              <div className="flex items-center justify-between rounded-t-sm border-b border-gray-100 bg-white px-3 py-2">
                 <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${STATUS_BADGES[st] ?? ""}`}>{st}</span>
                 <span className="text-xs font-semibold text-gray-400">{counts[st] ?? 0}</span>
               </div>
               <div className="space-y-2 p-2">
                 {byStatus(st).map((t) => (
                   <button key={t.id} onClick={() => openDetail(t)}
-                    className="w-full rounded-lg border border-gray-100 bg-white p-2.5 text-left shadow-sm transition hover:border-primary-200 hover:shadow">
+                    className="w-full rounded-sm border border-gray-100 bg-white p-2.5 text-left shadow-sm transition hover:border-primary-200 hover:shadow">
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[10px] font-semibold text-gray-500">{t.ticketNo}</span>
                       {t.warrantyEligible ? <span title="Under warranty"><ShieldCheck size={11} className="text-emerald-500" /></span> : null}
                     </div>
-                    <p className="mt-1 truncate text-xs font-semibold text-gray-800">{t.customerName || "Customer"}</p>
+                    <p className="mt-1 truncate text-xs font-semibold text-gray-600">{t.customerName || "Customer"}</p>
                     <p className="truncate text-[10px] text-gray-400">{t.deviceInfo || t.productName || t.serialNo || ""}</p>
                     <div className="mt-1.5 flex items-center justify-between">
-                      <span className={`rounded px-1.5 py-px text-[9px] font-semibold ${PRIORITY_STYLE[t.priority] ?? ""}`}>{t.priority}</span>
+                      <span className={`rounded-sm px-1.5 py-px text-[9px] font-semibold ${PRIORITY_STYLE[t.priority] ?? ""}`}>{t.priority}</span>
                       <span className="text-[10px] text-gray-400 tabular-nums">{currency(Number(t.estimatedCost || t.actualCost))}</span>
                     </div>
                   </button>
@@ -344,7 +344,7 @@ export default function RepairPage() {
             <CustomInput label="Due date" type="date" value={ticketForm.dueAt} onChange={(e) => setTicketForm({ ...ticketForm, dueAt: e.target.value })} />
           </div>
           <CustomInput label="Notes" value={ticketForm.notes} onChange={(e) => setTicketForm({ ...ticketForm, notes: e.target.value })} />
-          <div className="flex items-center gap-2 rounded-lg bg-blue-50 p-3 text-xs text-blue-700">
+          <div className="flex items-center gap-2 rounded-sm bg-blue-50 p-3 text-xs text-blue-700">
             <AlertTriangle size={13} /> Enter the serial number to auto-detect warranty coverage on receipt.
           </div>
           <div className="flex justify-end gap-2">
@@ -364,7 +364,7 @@ export default function RepairPage() {
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 <span className={`rounded-full border px-2 py-0.5 text-xs ${STATUS_BADGES[detail.status] ?? ""}`}>{detail.status}</span>
-                <span className={`rounded px-1.5 py-px text-[10px] font-semibold ${PRIORITY_STYLE[detail.priority] ?? ""}`}>{detail.priority}</span>
+                <span className={`rounded-sm px-1.5 py-px text-[10px] font-semibold ${PRIORITY_STYLE[detail.priority] ?? ""}`}>{detail.priority}</span>
                 {detail.warrantyEligible && (
                   <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600">
                     <ShieldCheck size={12} /> Under warranty{detail.warrantyType ? ` (${detail.warrantyType})` : ""}
@@ -385,12 +385,12 @@ export default function RepairPage() {
                 <div><p className="text-xs text-gray-400">Problem</p><p className="font-medium">{detail.reportedProblem || "—"}</p></div>
               </div>
               {detail.diagnosis && (
-                <div className="rounded-lg bg-gray-50 p-3 text-sm"><p className="text-xs font-semibold text-gray-500">Diagnosis</p><p className="mt-0.5 text-gray-700">{detail.diagnosis}</p></div>
+                <div className="rounded-sm bg-gray-50 p-3 text-sm"><p className="text-xs font-semibold text-gray-500">Diagnosis</p><p className="mt-0.5 text-gray-600">{detail.diagnosis}</p></div>
               )}
 
               {/* Estimate step */}
               {detail.status === "INSPECTION" && (
-                <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
+                <div className="rounded-sm border border-amber-100 bg-amber-50 p-3">
                   <p className="mb-2 text-xs font-semibold text-amber-700">Move to ESTIMATE — set the estimated cost & diagnosis:</p>
                   <div className="grid grid-cols-2 gap-3">
                     <CustomInput label="Estimated cost (৳)" type="number" min={0} value={estimateAmount} onChange={(e) => setEstimateAmount(e.target.value)} />
@@ -402,7 +402,7 @@ export default function RepairPage() {
               {/* Parts & labour */}
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="text-sm font-semibold text-gray-700">Parts & labour</p>
+                  <p className="text-sm font-semibold text-gray-600">Parts & labour</p>
                   <div className="flex gap-2">
                     {detail.status !== "DELIVERED" && detail.status !== "CANCELLED" && (
                       <CustomButton size="sm" variant="outline" leftIcon={<Plus size={13} />} onClick={() => { setItemForm({ lineType: "PART", productId: "", name: "", qty: "1", unitPrice: "" }); setShowAddItem(true); }}>Add line</CustomButton>
@@ -410,9 +410,9 @@ export default function RepairPage() {
                   </div>
                 </div>
                 {(detail.items ?? []).length === 0 ? (
-                  <p className="rounded-lg border-2 border-dashed border-gray-100 p-6 text-center text-xs text-gray-400">No parts or labour lines yet</p>
+                  <p className="rounded-sm border-2 border-dashed border-gray-100 p-6 text-center text-xs text-gray-400">No parts or labour lines yet</p>
                 ) : (
-                  <div className="overflow-hidden rounded-lg border border-gray-100">
+                  <div className="overflow-hidden rounded-sm border border-gray-100">
                     <table className="w-full text-left text-sm table-auto">
                       <thead className="bg-gray-50 text-xs uppercase text-gray-500">
                         <tr>
@@ -427,7 +427,7 @@ export default function RepairPage() {
                       <tbody className="divide-y divide-gray-50">
                         {(detail.items ?? []).map((i) => (
                           <tr key={i.id}>
-                            <td className="px-3 py-2 whitespace-nowrap"><span className={`rounded px-1.5 py-px text-[10px] font-semibold ${i.lineType === "PART" ? "bg-indigo-50 text-indigo-600" : i.lineType === "LABOR" ? "bg-amber-50 text-amber-600" : "bg-gray-100 text-gray-500"}`}>{i.lineType}</span></td>
+                            <td className="px-3 py-2 whitespace-nowrap"><span className={`rounded-sm px-1.5 py-px text-[10px] font-semibold ${i.lineType === "PART" ? "bg-indigo-50 text-indigo-600" : i.lineType === "LABOR" ? "bg-amber-50 text-amber-600" : "bg-gray-100 text-gray-500"}`}>{i.lineType}</span></td>
                             <td className="px-3 py-2 font-medium break-words max-w-[200px] sm:max-w-none">{i.name}</td>
                             <td className="px-3 py-2 tabular-nums whitespace-nowrap">{i.qty}</td>
                             <td className="px-3 py-2 tabular-nums whitespace-nowrap">{currency(Number(i.unitPrice))}</td>
@@ -444,7 +444,7 @@ export default function RepairPage() {
                 <div className="mt-2 flex justify-end gap-6 text-sm">
                   <span className="text-gray-500">Parts <b className="tabular-nums">{currency(totals.parts)}</b></span>
                   <span className="text-gray-500">Labour <b className="tabular-nums">{currency(totals.labor)}</b></span>
-                  <span className="font-bold text-gray-900">Total <span className="tabular-nums">{currency(totals.parts + totals.labor)}</span></span>
+                  <span className="font-bold text-gray-600">Total <span className="tabular-nums">{currency(totals.parts + totals.labor)}</span></span>
                 </div>
               </div>
 
@@ -511,14 +511,14 @@ export default function RepairPage() {
           const parts = items.filter((i) => i.lineType === "PART").reduce((s, i) => s + Number(i.lineTotal), 0);
           const labor = items.filter((i) => i.lineType === "LABOR").reduce((s, i) => s + Number(i.lineTotal), 0);
           return (<div className="space-y-4">
-            <div className="rounded-lg bg-gray-50 p-3 text-sm">
+            <div className="rounded-sm bg-gray-50 p-3 text-sm">
               <p className="flex justify-between"><span className="text-gray-500">Parts</span><span className="tabular-nums">{currency(parts)}</span></p>
               <p className="mt-1 flex justify-between"><span className="text-gray-500">Labour</span><span className="tabular-nums">{currency(labor)}</span></p>
               <p className="mt-1 flex justify-between font-bold"><span>Total</span><span className="tabular-nums">{currency(parts + labor)}</span></p>
             </div>
             <CustomSelect label="Payment method" value={payMethod} onChange={(e) => setPayMethod(e.target.value)}
               options={[{ label: "Cash", value: "CASH" }, { label: "Card", value: "CARD" }, { label: "bKash", value: "BKASH" }, { label: "Customer credit", value: "CREDIT" }]} />
-            <div className="rounded-lg bg-emerald-50 p-3 text-xs text-emerald-700">
+            <div className="rounded-sm bg-emerald-50 p-3 text-xs text-emerald-700">
               {detail.warrantyEligible && !detail.warrantyClaim
                 ? <>Spare parts leave stock, the repair is billed, and a <b>warranty claim</b> is filed automatically.</>
                 : <>Spare parts leave stock and the repair is billed (sale + invoice + payment + journal).</>}

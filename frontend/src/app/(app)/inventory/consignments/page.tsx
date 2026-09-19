@@ -100,7 +100,7 @@ export default function ConsignmentsPage() {
 
   const columns: CustomTableColumn<Consignment>[] = [
     { key: "no", header: "Consignment #", render: (r) => <span className="font-mono text-sm font-medium">{r.consignmentNo}</span> },
-    { key: "supplier", header: "Supplier", render: (r) => <span className="text-gray-700">{r.supplier.name}</span> },
+    { key: "supplier", header: "Supplier", render: (r) => <span className="text-gray-600">{r.supplier.name}</span> },
     { key: "warehouse", header: "Warehouse", render: (r) => <span className="text-gray-600">{r.warehouse.code}</span> },
     { key: "qty", header: "Total Qty", align: "right", render: (r) => <span>{Number(r.totalQty)}</span> },
     { key: "value", header: "Value", align: "right", render: (r) => <span className="font-medium">{Number(r.totalValue).toFixed(2)}</span> },
@@ -122,21 +122,21 @@ export default function ConsignmentsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Consignment Inventory</h1>
+          <h1 className="text-2xl font-bold text-gray-600">Consignment Inventory</h1>
           <p className="mt-1 text-sm text-gray-500">Supplier-owned stock — track sales, returns, and settlement</p>
         </div>
         <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowCreate(true)}>Receive Consignment</CustomButton>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white">
+      <div className="rounded-sm border border-gray-200 bg-white">
         <CustomTable columns={columns} data={consignments} rowKey={(r) => r.id} loading={loading} emptyIcon={Handshake} emptyMessage="No consignments yet" />
         {totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm text-gray-500">
             <span>{total} records</span>
             <div className="flex gap-2">
-              <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="px-3 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Prev</button>
+              <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="px-3 py-1 rounded-sm border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Prev</button>
               <span className="px-2 py-1">{page} / {totalPages}</span>
-              <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="px-3 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Next</button>
+              <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="px-3 py-1 rounded-sm border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Next</button>
             </div>
           </div>
         )}
@@ -153,7 +153,7 @@ export default function ConsignmentsPage() {
             <CustomInput label="Note" value={form.note} onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))} />
           </div>
           <div>
-            <p className="mb-2 text-sm font-medium text-gray-700">Items</p>
+            <p className="mb-2 text-sm font-medium text-gray-600">Items</p>
             {items.map((item, idx) => (
               <div key={idx} className="mb-2 grid grid-cols-4 gap-2">
                 <CustomInput placeholder="Product ID" value={item.productId} onChange={(e) => { const n = [...items]; n[idx].productId = e.target.value; setItems(n); }} />
@@ -202,7 +202,7 @@ export default function ConsignmentsPage() {
             </table>
 
             {selected.settlement && (
-              <div className="rounded-lg bg-emerald-50 p-3 text-sm space-y-1">
+              <div className="rounded-sm bg-emerald-50 p-3 text-sm space-y-1">
                 <p className="font-medium text-emerald-800">Settlement</p>
                 <div className="grid grid-cols-3 gap-2 text-emerald-700">
                   <div>Sold: <span className="font-medium">{Number(selected.settlement.totalSold)}</span></div>

@@ -388,7 +388,7 @@ export default function PurchaseReturnsPage() {
   }
 
   const fmt = (n: number) => `৳${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const inputCls = "mt-1 block w-full rounded-sm border border-slate-200 px-3.5 py-2.5 text-sm bg-white text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 transition";
+  const inputCls = "mt-1 block w-full rounded-sm border border-slate-200 px-3.5 py-2.5 text-sm bg-white text-gray-600 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 transition";
 
   // KPIs
   const totalCount = returns.length;
@@ -441,9 +441,9 @@ export default function PurchaseReturnsPage() {
           <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
             <Link href="/purchasing" className="hover:text-sky-600 transition">Purchasing Hub</Link>
             <ChevronRight size={13} className="text-gray-400" />
-            <span className="text-gray-900 font-bold">Purchase Returns & Debit Notes</span>
+            <span className="text-gray-600 font-bold">Purchase Returns & Debit Notes</span>
           </div>
-          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">Purchase Returns & Debit Notes</h1>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-600 sm:text-3xl">Purchase Returns & Debit Notes</h1>
           <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
             Return damaged/excess goods to vendor against Purchase Orders or standalone → reverses inventory & reduces AP payable
           </p>
@@ -453,7 +453,7 @@ export default function PurchaseReturnsPage() {
           <button
             onClick={load}
             disabled={loading}
-            className="rounded-sm border border-slate-200 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50"
+            className="rounded-sm border border-slate-200 bg-white p-2.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600 disabled:opacity-50"
             title="Refresh Data"
           >
             <RefreshCw size={17} className={loading ? "animate-spin text-rose-600" : ""} />
@@ -482,7 +482,7 @@ export default function PurchaseReturnsPage() {
             className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition whitespace-nowrap ${
               tab.active
                 ? "bg-brand-gradient text-white shadow-2xs"
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-600"
             }`}
           >
             <tab.icon size={15} />
@@ -513,10 +513,10 @@ export default function PurchaseReturnsPage() {
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-gray-900">{totalCount}</span>
+            <span className="text-2xl font-black text-gray-600">{totalCount}</span>
             <span className="text-xs font-semibold text-gray-500">Records</span>
           </div>
-          <p className="mt-1 text-xs text-gray-400 font-medium">Credit Notes: <strong className="text-gray-700">{creditNotesCount}</strong></p>
+          <p className="mt-1 text-xs text-gray-400 font-medium">Credit Notes: <strong className="text-gray-600">{creditNotesCount}</strong></p>
         </div>
 
         <div className="rounded-sm border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs">
@@ -540,7 +540,7 @@ export default function PurchaseReturnsPage() {
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-gray-900">{totalUnits}</span>
+            <span className="text-2xl font-black text-gray-600">{totalUnits}</span>
             <span className="text-xs font-semibold text-gray-500">Units</span>
           </div>
           <p className="mt-1 text-xs text-gray-400">Defective / Excess</p>
@@ -598,7 +598,7 @@ export default function PurchaseReturnsPage() {
                 key={t.id}
                 onClick={() => setTypeFilter(t.id)}
                 className={`rounded-sm px-2.5 py-1.5 text-xs font-bold transition ${
-                  typeFilter === t.id ? "bg-rose-600 text-white shadow-2xs" : "text-gray-600 hover:text-gray-900"
+                  typeFilter === t.id ? "bg-rose-600 text-white shadow-2xs" : "text-gray-600 hover:text-gray-600"
                 }`}
               >
                 {t.label}
@@ -609,14 +609,14 @@ export default function PurchaseReturnsPage() {
           <div className="flex items-center rounded-sm border border-slate-200 bg-gray-50/70 p-1">
             <button
               onClick={() => setViewMode("table")}
-              className={`rounded-sm p-1.5 transition ${viewMode === "table" ? "bg-white text-rose-600 shadow-2xs" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1.5 transition ${viewMode === "table" ? "bg-white text-rose-600 shadow-2xs" : "text-gray-400 hover:text-gray-600"}`}
               title="Table View"
             >
               <ListFilter size={16} />
             </button>
             <button
               onClick={() => setViewMode("cards")}
-              className={`rounded-sm p-1.5 transition ${viewMode === "cards" ? "bg-white text-rose-600 shadow-2xs" : "text-gray-400 hover:text-gray-700"}`}
+              className={`rounded-sm p-1.5 transition ${viewMode === "cards" ? "bg-white text-rose-600 shadow-2xs" : "text-gray-400 hover:text-gray-600"}`}
               title="Grid Card View"
             >
               <LayoutGrid size={16} />
@@ -633,7 +633,7 @@ export default function PurchaseReturnsPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-sm bg-rose-50 text-rose-600">
             <PackageX size={32} />
           </div>
-          <h3 className="mt-4 text-lg font-bold text-gray-900">No Purchase Returns Found</h3>
+          <h3 className="mt-4 text-lg font-bold text-gray-600">No Purchase Returns Found</h3>
           <p className="mx-auto mt-1 max-w-md text-sm text-gray-500">
             {searchTerm || supplierFilter || typeFilter !== "ALL"
               ? "No returns match your search filters. Try adjusting your query."
@@ -671,13 +671,13 @@ export default function PurchaseReturnsPage() {
                     <tr key={ret.id} className="hover:bg-rose-50/40 transition group">
                       <td className="py-3.5 px-4 text-center font-bold text-gray-400">{index + 1}</td>
                       <td className="py-3.5 px-4">
-                        <span className="font-mono font-black text-gray-900 group-hover:text-rose-600 transition">{ret.returnNo}</span>
+                        <span className="font-mono font-black text-gray-600 group-hover:text-rose-600 transition">{ret.returnNo}</span>
                         <p className="text-[11px] text-gray-400">{new Date(ret.returnDate).toLocaleDateString()}</p>
                       </td>
 
                       <td className="py-3.5 px-4">
                         {ret.purchaseOrder?.poNo ? (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 border border-blue-200/70 px-2 py-0.5 text-[11px] font-mono font-bold text-blue-700">
+                          <span className="inline-flex items-center gap-1 rounded-sm bg-blue-50 border border-blue-200/70 px-2 py-0.5 text-[11px] font-mono font-bold text-blue-700">
                             <ShoppingCart size={11} /> {ret.purchaseOrder.poNo}
                           </span>
                         ) : (
@@ -686,7 +686,7 @@ export default function PurchaseReturnsPage() {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <p className="font-bold text-gray-900">{ret.supplier?.name || "Supplier"}</p>
+                        <p className="font-bold text-gray-600">{ret.supplier?.name || "Supplier"}</p>
                         {ret.warehouse?.name && <p className="text-[11px] text-gray-500 flex items-center gap-1"><Building2 size={11} /> {ret.warehouse.name}</p>}
                       </td>
 
@@ -698,7 +698,7 @@ export default function PurchaseReturnsPage() {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <p className="font-bold text-gray-800">{totalUnits} units returned</p>
+                        <p className="font-bold text-gray-600">{totalUnits} units returned</p>
                         <div className="mt-0.5 flex flex-wrap gap-1">
                           {items.slice(0, 2).map((it, i) => (
                             <span key={i} className="text-[10px] text-gray-500 truncate max-w-[140px]">
@@ -716,7 +716,7 @@ export default function PurchaseReturnsPage() {
                       <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={() => setViewReturn(ret)}
-                          className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900"
+                          className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600"
                         >
                           <Eye size={13} /> View Slip
                         </button>
@@ -743,13 +743,13 @@ export default function PurchaseReturnsPage() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-base font-black text-gray-900">{ret.returnNo}</span>
+                        <span className="font-mono text-base font-black text-gray-600">{ret.returnNo}</span>
                         <span className="rounded-full bg-rose-50 border border-rose-200 px-2 py-0.5 text-[10px] font-bold text-rose-700">
                           {ret.returnType.replace("_", " ")}
                         </span>
                       </div>
                       <p className="mt-0.5 text-xs text-gray-400">
-                        {new Date(ret.returnDate).toLocaleDateString()} · <strong className="text-gray-700">{ret.supplier?.name}</strong>
+                        {new Date(ret.returnDate).toLocaleDateString()} · <strong className="text-gray-600">{ret.supplier?.name}</strong>
                       </p>
                       {ret.purchaseOrder?.poNo && (
                         <p className="mt-1 text-[11px] font-mono text-blue-600 font-bold flex items-center gap-1">
@@ -771,7 +771,7 @@ export default function PurchaseReturnsPage() {
 
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {items.slice(0, 3).map((item, idx) => (
-                      <span key={idx} className="rounded-sm bg-gray-50 border border-slate-200 px-2 py-1 text-[11px] font-medium text-gray-700">
+                      <span key={idx} className="rounded-sm bg-gray-50 border border-slate-200 px-2 py-1 text-[11px] font-medium text-gray-600">
                         {item.productName || item.product?.name || "Item"} × {item.qty}
                       </span>
                     ))}
@@ -805,7 +805,7 @@ export default function PurchaseReturnsPage() {
             {/* Header */}
             <div className="flex flex-none items-center justify-between border-b border-slate-100 bg-rose-50/70 px-5 sm:px-6 py-3.5">
               <div>
-                <h2 className="text-lg font-black tracking-tight text-gray-900">New Purchase Return (Debit Note)</h2>
+                <h2 className="text-lg font-black tracking-tight text-gray-600">New Purchase Return (Debit Note)</h2>
                 <p className="text-xs font-medium text-gray-500">
                   Return goods against a Purchase Order or Direct/Standalone — reverses stock & reduces AP payable
                 </p>
@@ -830,7 +830,7 @@ export default function PurchaseReturnsPage() {
                   <select
                     value={form.supplierId}
                     onChange={(e) => setForm({ ...form, supplierId: e.target.value })}
-                    className="mt-1 block w-full rounded-sm border border-slate-200 px-2.5 py-1.5 text-xs bg-white font-semibold text-gray-900 focus:border-rose-500 focus:outline-none"
+                    className="mt-1 block w-full rounded-sm border border-slate-200 px-2.5 py-1.5 text-xs bg-white font-semibold text-gray-600 focus:border-rose-500 focus:outline-none"
                     required
                   >
                     <option value="">Select Supplier…</option>
@@ -843,7 +843,7 @@ export default function PurchaseReturnsPage() {
                   <select
                     value={form.warehouseId}
                     onChange={(e) => setForm({ ...form, warehouseId: e.target.value })}
-                    className="mt-1 block w-full rounded-sm border border-slate-200 px-2.5 py-1.5 text-xs bg-white font-semibold text-gray-900 focus:border-rose-500 focus:outline-none"
+                    className="mt-1 block w-full rounded-sm border border-slate-200 px-2.5 py-1.5 text-xs bg-white font-semibold text-gray-600 focus:border-rose-500 focus:outline-none"
                     required
                   >
                     <option value="">Select Warehouse…</option>
@@ -860,7 +860,7 @@ export default function PurchaseReturnsPage() {
                   <select
                     value={form.returnType}
                     onChange={(e) => setForm({ ...form, returnType: e.target.value })}
-                    className="mt-1 block w-full rounded-sm border border-slate-200 px-2.5 py-1.5 text-xs bg-white font-semibold text-gray-900 focus:border-rose-500 focus:outline-none"
+                    className="mt-1 block w-full rounded-sm border border-slate-200 px-2.5 py-1.5 text-xs bg-white font-semibold text-gray-600 focus:border-rose-500 focus:outline-none"
                   >
                     <option value="CREDIT_NOTE">Credit Note (Deduct AP)</option>
                     <option value="REFUND">Direct Cash / Bank Refund</option>
@@ -873,7 +873,7 @@ export default function PurchaseReturnsPage() {
                   <select
                     value={form.reason}
                     onChange={(e) => setForm({ ...form, reason: e.target.value })}
-                    className="mt-1 block w-full rounded-sm border border-slate-200 px-2.5 py-1.5 text-xs bg-white font-semibold text-gray-900 focus:border-rose-500 focus:outline-none"
+                    className="mt-1 block w-full rounded-sm border border-slate-200 px-2.5 py-1.5 text-xs bg-white font-semibold text-gray-600 focus:border-rose-500 focus:outline-none"
                   >
                     <option value="DEFECTIVE">Defective / Damaged</option>
                     <option value="EXPIRED">Expired Goods</option>
@@ -891,7 +891,7 @@ export default function PurchaseReturnsPage() {
                     value={form.customReason}
                     onChange={(e) => setForm({ ...form, customReason: e.target.value })}
                     placeholder="Provide specific reason details for audit…"
-                    className="w-full rounded-sm border border-slate-200 px-3 py-1.5 text-xs text-gray-900 focus:border-rose-500 focus:outline-none"
+                    className="w-full rounded-sm border border-slate-200 px-3 py-1.5 text-xs text-gray-600 focus:border-rose-500 focus:outline-none"
                     required
                   />
                 </div>
@@ -909,7 +909,7 @@ export default function PurchaseReturnsPage() {
                         1. Pull from Purchase Order
                       </span>
                       {selectedPo && (
-                        <span className="rounded-md bg-indigo-100 px-1.5 py-0.2 text-[10px] font-mono font-bold text-indigo-800">
+                        <span className="rounded-sm bg-indigo-100 px-1.5 py-0.2 text-[10px] font-mono font-bold text-indigo-800">
                           {selectedPo.poNo}
                         </span>
                       )}
@@ -920,7 +920,7 @@ export default function PurchaseReturnsPage() {
                           <button
                             type="button"
                             onClick={() => handleAddAllPoItems(selectedPo)}
-                            className="text-[10px] font-black text-indigo-700 hover:text-indigo-900 bg-indigo-100 px-2 py-0.5 rounded transition"
+                            className="text-[10px] font-black text-indigo-700 hover:text-indigo-900 bg-indigo-100 px-2 py-0.5 rounded-sm transition"
                           >
                             + Add All ({(selectedPo.items || []).length})
                           </button>
@@ -953,7 +953,7 @@ export default function PurchaseReturnsPage() {
                           }
                         }}
                         placeholder="Search PO # / Supplier..."
-                        className="w-full rounded-sm border border-indigo-200 bg-white py-1.5 pl-7 pr-2 text-xs font-medium text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none"
+                        className="w-full rounded-sm border border-indigo-200 bg-white py-1.5 pl-7 pr-2 text-xs font-medium text-gray-600 placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none"
                       />
                     </div>
 
@@ -963,7 +963,7 @@ export default function PurchaseReturnsPage() {
                         const po = purchaseOrders.find((p) => p.id === e.target.value);
                         if (po) handleSelectPO(po);
                       }}
-                      className="w-full rounded-sm border border-indigo-200 bg-white py-1.5 px-2 text-xs font-bold text-gray-800 focus:border-indigo-500 focus:outline-none"
+                      className="w-full rounded-sm border border-indigo-200 bg-white py-1.5 px-2 text-xs font-bold text-gray-600 focus:border-indigo-500 focus:outline-none"
                     >
                       <option value="">-- Select PO ({filteredPosForModal.length}) --</option>
                       {filteredPosForModal.map((po) => (
@@ -989,7 +989,7 @@ export default function PurchaseReturnsPage() {
                             className={`flex-none rounded-sm border px-2 py-1 text-[10px] font-semibold text-left transition ${
                               isAdded
                                 ? "bg-emerald-50 border-emerald-300 text-emerald-800"
-                                : "bg-white border-indigo-200 text-gray-800 hover:bg-indigo-100"
+                                : "bg-white border-indigo-200 text-gray-600 hover:bg-indigo-100"
                             }`}
                           >
                             <span className="font-bold truncate max-w-[130px] inline-block align-bottom">{pName}</span>
@@ -1039,7 +1039,7 @@ export default function PurchaseReturnsPage() {
                         onChange={(e) => setScanInput(e.target.value)}
                         onKeyDown={handleScanAdd}
                         placeholder="Scan Barcode / SKU & Enter..."
-                        className="w-full rounded-sm border border-rose-200 bg-white py-1.5 pl-7 pr-2 text-xs font-semibold text-gray-900 placeholder:text-gray-400 focus:border-rose-500 focus:outline-none"
+                        className="w-full rounded-sm border border-rose-200 bg-white py-1.5 pl-7 pr-2 text-xs font-semibold text-gray-600 placeholder:text-gray-400 focus:border-rose-500 focus:outline-none"
                       />
                     </div>
 
@@ -1051,7 +1051,7 @@ export default function PurchaseReturnsPage() {
                           e.target.value = "";
                         }
                       }}
-                      className="w-full rounded-sm border border-slate-200 bg-white px-2 py-1.5 text-xs font-bold text-gray-700 shadow-2xs focus:border-rose-500 focus:outline-none"
+                      className="w-full rounded-sm border border-slate-200 bg-white px-2 py-1.5 text-xs font-bold text-gray-600 shadow-2xs focus:border-rose-500 focus:outline-none"
                     >
                       <option value="">+ Quick Pick Item…</option>
                       {products.map((p) => (
@@ -1068,7 +1068,7 @@ export default function PurchaseReturnsPage() {
               <div className="flex-1 min-h-[200px] flex flex-col rounded-sm border border-slate-200 bg-white shadow-2xs overflow-hidden">
                 <div className="flex-none bg-gray-50/90 px-4 py-2 border-b border-slate-200 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-gray-800">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">
                       Returned Product Items
                     </h4>
                     <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-black text-rose-700">
@@ -1128,11 +1128,11 @@ export default function PurchaseReturnsPage() {
                               <td className="py-2.5 px-3">
                                 {line.productId && displayName ? (
                                   <div className="space-y-0.5">
-                                    <p className="font-bold text-gray-900">{displayName}</p>
+                                    <p className="font-bold text-gray-600">{displayName}</p>
                                     <div className="flex items-center gap-1.5 flex-wrap">
                                       {displaySku && <span className="text-[10px] font-mono text-gray-400">SKU: {displaySku}</span>}
                                       {line.fromPo && (
-                                        <span className="inline-block rounded bg-indigo-50 border border-indigo-200 px-1.5 py-0.2 text-[10px] font-mono font-bold text-indigo-700">
+                                        <span className="inline-block rounded-sm bg-indigo-50 border border-indigo-200 px-1.5 py-0.2 text-[10px] font-mono font-bold text-indigo-700">
                                           Ref: {line.fromPo}
                                         </span>
                                       )}
@@ -1142,7 +1142,7 @@ export default function PurchaseReturnsPage() {
                                   <select
                                     value={line.productId}
                                     onChange={(e) => updateLine(idx, "productId", e.target.value)}
-                                    className="w-full rounded-sm border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-900 focus:border-rose-500 focus:outline-none"
+                                    className="w-full rounded-sm border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-600 focus:border-rose-500 focus:outline-none"
                                     required
                                   >
                                     <option value="">Select Product…</option>
@@ -1163,7 +1163,7 @@ export default function PurchaseReturnsPage() {
                                       const cur = Number(line.qty) || 1;
                                       if (cur > 1) updateLine(idx, "qty", String(cur - 1));
                                     }}
-                                    className="px-2 py-0.5 text-gray-500 hover:text-gray-900 font-bold"
+                                    className="px-2 py-0.5 text-gray-500 hover:text-gray-600 font-bold"
                                   >
                                     −
                                   </button>
@@ -1173,7 +1173,7 @@ export default function PurchaseReturnsPage() {
                                     max={line.maxQty}
                                     value={line.qty}
                                     onChange={(e) => updateLine(idx, "qty", e.target.value)}
-                                    className="w-12 text-center text-xs font-black text-gray-900 focus:outline-none border-x border-slate-100"
+                                    className="w-12 text-center text-xs font-black text-gray-600 focus:outline-none border-x border-slate-100"
                                     required
                                   />
                                   <button
@@ -1184,7 +1184,7 @@ export default function PurchaseReturnsPage() {
                                         updateLine(idx, "qty", String(cur + 1));
                                       }
                                     }}
-                                    className="px-2 py-0.5 text-gray-500 hover:text-gray-900 font-bold"
+                                    className="px-2 py-0.5 text-gray-500 hover:text-gray-600 font-bold"
                                   >
                                     +
                                   </button>
@@ -1199,7 +1199,7 @@ export default function PurchaseReturnsPage() {
                                   step="0.01"
                                   value={line.unitPrice}
                                   onChange={(e) => updateLine(idx, "unitPrice", e.target.value)}
-                                  className="w-24 rounded-sm border border-slate-200 bg-white px-2 py-1 text-right text-xs font-semibold text-gray-900 focus:border-rose-500 focus:outline-none"
+                                  className="w-24 rounded-sm border border-slate-200 bg-white px-2 py-1 text-right text-xs font-semibold text-gray-600 focus:border-rose-500 focus:outline-none"
                                   required
                                 />
                               </td>
@@ -1232,11 +1232,11 @@ export default function PurchaseReturnsPage() {
                 <div className="flex items-center gap-5">
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Total Lines</span>
-                    <p className="text-base font-black text-gray-900">{totalLinesCount}</p>
+                    <p className="text-base font-black text-gray-600">{totalLinesCount}</p>
                   </div>
                   <div className="border-l border-slate-200 pl-4">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Total Units</span>
-                    <p className="text-base font-black text-gray-900">{totalUnitsCount}</p>
+                    <p className="text-base font-black text-gray-600">{totalUnitsCount}</p>
                   </div>
                   <div className="border-l border-slate-200 pl-4">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 block">Total Debit Note</span>
@@ -1248,7 +1248,7 @@ export default function PurchaseReturnsPage() {
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="rounded-sm border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50"
+                    className="rounded-sm border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50"
                   >
                     Cancel
                   </button>
@@ -1280,8 +1280,8 @@ export default function PurchaseReturnsPage() {
                   <span className="rounded-full bg-rose-50 border border-rose-200 px-3 py-1 text-xs font-black uppercase tracking-wider text-rose-700">
                     {viewReturn.status}
                   </span>
-                  <span className="font-mono text-xl sm:text-2xl font-black text-gray-900">{viewReturn.returnNo}</span>
-                  <span className="rounded-sm bg-gray-100 border border-slate-200 px-2.5 py-0.5 text-xs font-bold text-gray-700">
+                  <span className="font-mono text-xl sm:text-2xl font-black text-gray-600">{viewReturn.returnNo}</span>
+                  <span className="rounded-sm bg-gray-100 border border-slate-200 px-2.5 py-0.5 text-xs font-bold text-gray-600">
                     {viewReturn.returnType.replace("_", " ")}
                   </span>
                 </div>
@@ -1296,7 +1296,7 @@ export default function PurchaseReturnsPage() {
               <div className="flex items-center gap-2 no-print">
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 shadow-2xs transition hover:bg-gray-50 hover:text-gray-900"
+                  className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600"
                 >
                   <Printer size={15} /> Print Debit Note
                 </button>
@@ -1314,18 +1314,18 @@ export default function PurchaseReturnsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Supplier & Accounting Impact</p>
-                  <div className="mt-2.5 space-y-2 text-xs text-gray-700">
+                  <div className="mt-2.5 space-y-2 text-xs text-gray-600">
                     <div className="flex justify-between py-1 border-b border-slate-100">
                       <span className="text-gray-500">Supplier Name:</span>
-                      <strong className="text-gray-900">{viewReturn.supplier?.name || "Supplier"}</strong>
+                      <strong className="text-gray-600">{viewReturn.supplier?.name || "Supplier"}</strong>
                     </div>
                     <div className="flex justify-between py-1 border-b border-slate-100">
                       <span className="text-gray-500">Warehouse:</span>
-                      <strong className="text-gray-900">{viewReturn.warehouse?.name || "Default Warehouse"}</strong>
+                      <strong className="text-gray-600">{viewReturn.warehouse?.name || "Default Warehouse"}</strong>
                     </div>
                     <div className="flex justify-between py-1 border-b border-slate-100">
                       <span className="text-gray-500">Settlement Method:</span>
-                      <strong className="text-gray-900">{viewReturn.returnType.replace("_", " ")}</strong>
+                      <strong className="text-gray-600">{viewReturn.returnType.replace("_", " ")}</strong>
                     </div>
                     <div className="flex justify-between py-1">
                       <span className="text-gray-500">AP Balance Effect:</span>
@@ -1336,14 +1336,14 @@ export default function PurchaseReturnsPage() {
 
                 <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Return Reason & Reference</p>
-                  <div className="mt-2.5 space-y-2 text-xs text-gray-700">
+                  <div className="mt-2.5 space-y-2 text-xs text-gray-600">
                     <div className="flex justify-between py-1 border-b border-slate-100">
                       <span className="text-gray-500">Reference PO:</span>
                       <strong className="text-blue-600 font-mono">{viewReturn.purchaseOrder?.poNo || "Direct Return"}</strong>
                     </div>
                     <div className="flex justify-between py-1">
                       <span className="text-gray-500">Remarks / Reason:</span>
-                      <span className="text-gray-900 italic">{viewReturn.reason || "No remarks"}</span>
+                      <span className="text-gray-600 italic">{viewReturn.reason || "No remarks"}</span>
                     </div>
                   </div>
                 </div>
@@ -1352,7 +1352,7 @@ export default function PurchaseReturnsPage() {
               {/* Returned Items Table */}
               <div className="rounded-sm border border-slate-200 bg-white overflow-hidden shadow-2xs">
                 <div className="bg-gray-50/80 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700">Returned Product Items ({(viewReturn.items || []).length})</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">Returned Product Items ({(viewReturn.items || []).length})</h4>
                   <span className="text-xs font-semibold text-gray-500">
                     Total Units: {(viewReturn.items || []).reduce((s, i) => s + Number(i.qty), 0)}
                   </span>
@@ -1375,7 +1375,7 @@ export default function PurchaseReturnsPage() {
                           <tr key={idx} className="hover:bg-gray-50/60 transition">
                             <td className="py-3 px-4 text-center font-bold text-gray-400">{idx + 1}</td>
                             <td className="py-3 px-4">
-                              <p className="font-bold text-gray-900">{it.productName || it.product?.name || "Product Item"}</p>
+                              <p className="font-bold text-gray-600">{it.productName || it.product?.name || "Product Item"}</p>
                               <p className="text-[11px] font-mono text-gray-400">{it.productSku || it.product?.sku || "—"}</p>
                             </td>
                             <td className="py-3 px-4 text-center">
@@ -1383,7 +1383,7 @@ export default function PurchaseReturnsPage() {
                                 {Number(it.qty)} Units
                               </span>
                             </td>
-                            <td className="py-3 px-4 text-right font-medium text-gray-700">
+                            <td className="py-3 px-4 text-right font-medium text-gray-600">
                               {fmt(Number(it.unitPrice))}
                             </td>
                             <td className="py-3 px-4 text-right font-black tabular-nums text-rose-600">
@@ -1395,7 +1395,7 @@ export default function PurchaseReturnsPage() {
                     </tbody>
                     <tfoot className="bg-gray-50/80 border-t-2 border-slate-200">
                       <tr>
-                        <td colSpan={4} className="py-3.5 px-4 text-right font-bold text-gray-700 uppercase tracking-wider">
+                        <td colSpan={4} className="py-3.5 px-4 text-right font-bold text-gray-600 uppercase tracking-wider">
                           Total Debit Note Credit
                         </td>
                         <td className="py-3.5 px-4 text-right font-black text-base text-rose-600 tabular-nums">
@@ -1409,7 +1409,7 @@ export default function PurchaseReturnsPage() {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-end border-t border-slate-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-3xl no-print">
+            <div className="flex items-center justify-end border-t border-slate-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-sm no-print">
               <button
                 onClick={() => setViewReturn(null)}
                 className="rounded-sm bg-gray-900 px-6 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-gray-800 transition"

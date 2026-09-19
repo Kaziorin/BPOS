@@ -114,11 +114,11 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
           {/* 80mm Thermal Receipt */}
           <div
             id="thermal-receipt-view"
-            className="w-full rounded-sm border border-slate-200 bg-white p-6 shadow-2xs font-mono text-xs text-gray-800 space-y-3"
+            className="w-full rounded-sm border border-slate-200 bg-white p-6 shadow-2xs font-mono text-xs text-gray-600 space-y-3"
           >
             {/* Header */}
             <div className="text-center">
-              <h2 className="text-base font-extrabold tracking-wider text-gray-950 uppercase">
+              <h2 className="text-base font-extrabold tracking-wider text-gray-600 uppercase">
                 {siteConfig.name || "BLUE OCEANS POS"}
               </h2>
               <p className="text-[11px] text-gray-500 mt-1">
@@ -136,23 +136,23 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
               <div className="flex justify-between items-baseline gap-2">
                 <div className="truncate">
                   <span className="text-gray-400">Invoice: </span>
-                  <span className="font-bold text-gray-900">{data.invoiceNo}</span>
+                  <span className="font-bold text-gray-600">{data.invoiceNo}</span>
                 </div>
                 <div className="shrink-0 text-right">
                   <span className="text-gray-400">Date: </span>
-                  <span className="text-gray-800">{invoiceDate}</span>
+                  <span className="text-gray-600">{invoiceDate}</span>
                 </div>
               </div>
               <div className="flex justify-between items-baseline gap-2">
                 <div className="truncate">
                   <span className="text-gray-400">Customer: </span>
-                  <span className="text-gray-800 font-medium">
+                  <span className="text-gray-600 font-medium">
                     {data.customerName || "Walk-in Customer"}
                   </span>
                 </div>
                 <div className="shrink-0 text-right">
                   <span className="text-gray-400">Cashier: </span>
-                  <span className="text-gray-800 font-medium">
+                  <span className="text-gray-600 font-medium">
                     {data.cashierName || "Admin"}
                   </span>
                 </div>
@@ -182,14 +182,14 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
                     return (
                       <div key={idx} className="grid grid-cols-12 items-baseline text-xs leading-tight">
                         <div className="col-span-5 pr-1">
-                          <div className="font-bold text-gray-900 leading-tight">{item.name}</div>
+                          <div className="font-bold text-gray-600 leading-tight">{item.name}</div>
                           <div className="text-[10px] text-gray-400 font-mono">SKU: {skuCode}</div>
                         </div>
-                        <div className="col-span-1 text-center text-gray-700 font-mono">{item.qty}</div>
-                        <div className="col-span-3 text-right text-gray-700 font-mono">
+                        <div className="col-span-1 text-center text-gray-600 font-mono">{item.qty}</div>
+                        <div className="col-span-3 text-right text-gray-600 font-mono">
                           ৳{Number(item.unitPrice).toFixed(2)}
                         </div>
-                        <div className="col-span-3 text-right font-bold text-gray-900 font-mono">
+                        <div className="col-span-3 text-right font-bold text-gray-600 font-mono">
                           ৳{lineTotal.toFixed(2)}
                         </div>
                       </div>
@@ -202,29 +202,29 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
             <div className="border-t border-dashed border-gray-300" />
 
             {/* Financial Breakdown */}
-            <div className="space-y-1.5 text-xs text-gray-700">
+            <div className="space-y-1.5 text-xs text-gray-600">
               <div className="flex justify-between">
                 <span className="text-gray-500">Subtotal:</span>
-                <span className="font-mono text-gray-900">৳{subtotal.toFixed(2)}</span>
+                <span className="font-mono text-gray-600">৳{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-gray-500">
                 <span>VAT (Mushak 6.3 - {vatRatePct}%):</span>
                 <span className="font-mono">৳{vatAmount.toFixed(2)}</span>
               </div>
 
-              <div className="flex justify-between font-bold text-sm text-gray-950 border-t border-b border-gray-300 py-1.5 my-1">
+              <div className="flex justify-between font-bold text-sm text-gray-600 border-t border-b border-gray-300 py-1.5 my-1">
                 <span>Net Payable:</span>
                 <span className="font-mono text-base">৳{netPayable.toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between items-baseline gap-2">
                 <span className="text-gray-500 shrink-0">Tender Method:</span>
-                <span className="font-bold text-gray-900 text-right font-mono">{primaryMethod}</span>
+                <span className="font-bold text-gray-600 text-right font-mono">{primaryMethod}</span>
               </div>
 
               <div className="flex justify-between items-baseline gap-2">
                 <span className="text-gray-500 shrink-0">Paid Amount:</span>
-                <span className="font-bold text-gray-900 text-right font-mono">৳{paidTotal.toFixed(2)}</span>
+                <span className="font-bold text-gray-600 text-right font-mono">৳{paidTotal.toFixed(2)}</span>
               </div>
 
               {Number(data.dueTotal || 0) > 0 && (
@@ -245,7 +245,7 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
             {/* Barcode & Footer */}
             <div className="text-center space-y-1">
               <div className="flex justify-center py-1">
-                <div className="flex items-center gap-[2px] h-8 px-3 bg-gray-50 rounded">
+                <div className="flex items-center gap-[2px] h-8 px-3 bg-gray-50 rounded-sm">
                   <div className="w-0.5 h-7 bg-black" />
                   <div className="w-1.5 h-7 bg-black" />
                   <div className="w-0.5 h-7 bg-black" />
@@ -261,7 +261,7 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
                 </div>
               </div>
               <p className="text-[10px] text-gray-400 font-mono">*{data.invoiceNo}*</p>
-              <p className="text-xs font-bold text-gray-700 text-center max-w-[260px] mx-auto mt-2 leading-tight">
+              <p className="text-xs font-bold text-gray-600 text-center max-w-[260px] mx-auto mt-2 leading-tight">
                 Items can be exchanged within 7 days with original receipt.
               </p>
               <p className="text-[10px] text-gray-400 text-center font-mono mt-2">
@@ -275,7 +275,7 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
             <button
               type="button"
               onClick={() => window.print()}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-sm border border-slate-300 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-sm border border-slate-300 bg-white px-3 py-2.5 text-xs font-bold text-gray-600 shadow-2xs hover:bg-slate-50 transition"
             >
               <Printer size={15} />
               Print Thermal (80mm)

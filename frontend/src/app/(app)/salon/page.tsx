@@ -296,16 +296,16 @@ export default function SalonPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Salon & Spa</h1>
+        <h1 className="text-2xl font-bold text-gray-600">Salon & Spa</h1>
         <p className="mt-1 text-sm text-gray-500">Services, packages, bookings & staff commission (§11.7)</p>
       </div>
 
-      {message && <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">{message}</div>}
+      {message && <div className="rounded-sm border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">{message}</div>}
 
-      <div className="flex gap-1 rounded-xl bg-gray-100 p-1">
+      <div className="flex gap-1 rounded-sm bg-gray-100 p-1">
         {([["services", "Services", Scissors], ["packages", "Packages", Package], ["bookings", "Bookings", CalendarDays], ["staff", "Staff Schedule", Users]] as const).map(([key, label, Icon]) => (
           <button key={key} onClick={() => setTab(key)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${tab === key ? "bg-white text-primary-700 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+            className={`flex flex-1 items-center justify-center gap-2 rounded-sm px-3 py-2 text-sm font-medium transition ${tab === key ? "bg-white text-primary-700 shadow-sm" : "text-gray-500 hover:text-gray-600"}`}>
             <Icon size={15} />{label}
           </button>
         ))}
@@ -317,7 +317,7 @@ export default function SalonPage() {
             <p className="text-sm text-gray-500">{services.length} services</p>
             <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowService(true)}>Add Service</CustomButton>
           </div>
-          <div className="overflow-hidden rounded-xl border border-gray-100">
+          <div className="overflow-hidden rounded-sm border border-gray-100">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-gray-100 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
                 <tr>
@@ -334,7 +334,7 @@ export default function SalonPage() {
                   <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No services yet — add haircuts, facials, spa treatments…</td></tr>
                 ) : services.map((s) => (
                   <tr key={s.id} className="hover:bg-gray-50/50">
-                    <td className="px-4 py-3 font-medium text-gray-800">{s.name}</td>
+                    <td className="px-4 py-3 font-medium text-gray-600">{s.name}</td>
                     <td className="px-4 py-3"><span className="rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-600">{s.category}</span></td>
                     <td className="px-4 py-3 text-xs text-gray-500">{s.durationMin} min</td>
                     <td className="px-4 py-3 font-semibold tabular-nums">{currency(Number(s.price))}</td>
@@ -344,8 +344,8 @@ export default function SalonPage() {
                     <td className="px-4 py-3"><span className={`rounded-full border px-2 py-0.5 text-xs ${s.isActive ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" : "bg-slate-500/20 text-slate-300"}`}>{s.isActive ? "ACTIVE" : "INACTIVE"}</span></td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1">
-                        <button onClick={() => toggleService(s)} className="rounded p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600" title={s.isActive ? "Deactivate" : "Activate"}><Sparkles size={14} /></button>
-                        <button onClick={() => deleteService(s)} className="rounded p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600" title="Delete"><Trash2 size={14} /></button>
+                        <button onClick={() => toggleService(s)} className="rounded-sm p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600" title={s.isActive ? "Deactivate" : "Activate"}><Sparkles size={14} /></button>
+                        <button onClick={() => deleteService(s)} className="rounded-sm p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600" title="Delete"><Trash2 size={14} /></button>
                       </div>
                     </td>
                   </tr>
@@ -366,14 +366,14 @@ export default function SalonPage() {
             {pkgLoading ? (
               <div className="col-span-full py-12 text-center"><Loader2 size={22} className="mx-auto animate-spin text-gray-300" /></div>
             ) : packages.length === 0 ? (
-              <div className="col-span-full rounded-xl border-2 border-dashed border-gray-200 p-12 text-center text-gray-400">No packages yet</div>
+              <div className="col-span-full rounded-sm border-2 border-dashed border-gray-200 p-12 text-center text-gray-400">No packages yet</div>
             ) : packages.map((p) => {
               const saving = p.regularTotal > 0 ? Math.round(((p.regularTotal - Number(p.price)) / p.regularTotal) * 100) : 0;
               return (
-                <div key={p.id} className="rounded-xl border border-gray-100 p-4">
+                <div key={p.id} className="rounded-sm border border-gray-100 p-4">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-gray-800">{p.name}</p>
+                      <p className="text-sm font-semibold text-gray-600">{p.name}</p>
                       {p.description && <p className="mt-0.5 text-xs text-gray-400">{p.description}</p>}
                     </div>
                     <button onClick={() => deletePackage(p)} className="text-gray-300 hover:text-rose-500"><Trash2 size={14} /></button>
@@ -409,7 +409,7 @@ export default function SalonPage() {
             <p className="text-sm text-gray-500">Complete a service to bill the customer (sale + invoice + staff commission)</p>
             <CustomButton leftIcon={<Plus size={15} />} onClick={openBookModal}>Book Appointment</CustomButton>
           </div>
-          <div className="overflow-hidden rounded-xl border border-gray-100">
+          <div className="overflow-hidden rounded-sm border border-gray-100">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-gray-100 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
                 <tr>
@@ -426,7 +426,7 @@ export default function SalonPage() {
                 ) : appointments.map((a) => (
                   <tr key={a.id} className="hover:bg-gray-50/50">
                     <td className="px-4 py-3 font-mono text-xs">{a.appointmentNo}</td>
-                    <td className="px-4 py-3 font-medium text-gray-800">{a.customerName || "Walk-in"}</td>
+                    <td className="px-4 py-3 font-medium text-gray-600">{a.customerName || "Walk-in"}</td>
                     <td className="px-4 py-3 text-xs text-gray-600">{a.serviceName || "—"}</td>
                     <td className="px-4 py-3 text-xs text-gray-500">{a.staffName || "—"}</td>
                     <td className="px-4 py-3 text-xs text-gray-500">{new Date(a.startAt.replace(" ", "T")).toLocaleString("en-BD", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
@@ -435,10 +435,10 @@ export default function SalonPage() {
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1">
                         {["CHECKED_IN", "IN_SERVICE", "CONFIRMED"].includes(a.status) && (
-                          <button onClick={() => openCheckout(a)} className="rounded bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-100">Complete & Bill</button>
+                          <button onClick={() => openCheckout(a)} className="rounded-sm bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-100">Complete & Bill</button>
                         )}
-                        {a.status === "BOOKED" && <button onClick={() => setApptStatus(a, "CONFIRMED")} className="rounded bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100">Confirm</button>}
-                        {["BOOKED", "CONFIRMED"].includes(a.status) && <button onClick={() => setApptStatus(a, "CANCELLED")} className="rounded p-1 text-gray-400 hover:text-rose-500" title="Cancel">✕</button>}
+                        {a.status === "BOOKED" && <button onClick={() => setApptStatus(a, "CONFIRMED")} className="rounded-sm bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100">Confirm</button>}
+                        {["BOOKED", "CONFIRMED"].includes(a.status) && <button onClick={() => setApptStatus(a, "CANCELLED")} className="rounded-sm p-1 text-gray-400 hover:text-rose-500" title="Cancel">✕</button>}
                       </div>
                     </td>
                   </tr>
@@ -461,18 +461,18 @@ export default function SalonPage() {
           {staffLoading ? (
             <div className="py-12 text-center"><Loader2 size={22} className="mx-auto animate-spin text-gray-300" /></div>
           ) : staff.length === 0 ? (
-            <div className="rounded-xl border-2 border-dashed border-gray-200 p-12 text-center text-gray-400">No staff found — add employees under HRM first</div>
+            <div className="rounded-sm border-2 border-dashed border-gray-200 p-12 text-center text-gray-400">No staff found — add employees under HRM first</div>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {staff.map((s) => {
                 const dayAppts = schedule.filter((a) => a.staffId === s.id);
                 const busyMins = dayAppts.reduce((sum, a) => sum + (a.status === "CANCELLED" ? 0 : 30), 0);
                 return (
-                  <div key={s.id} className="rounded-xl border border-gray-100 p-4">
+                  <div key={s.id} className="rounded-sm border border-gray-100 p-4">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-700">{s.name[0]}</div>
                       <div>
-                        <p className="text-sm font-semibold text-gray-800">{s.name}</p>
+                        <p className="text-sm font-semibold text-gray-600">{s.name}</p>
                         <p className="text-xs text-gray-400">{s.designationName || s.departmentName || "Staff"}</p>
                       </div>
                     </div>
@@ -530,17 +530,17 @@ export default function SalonPage() {
           <CustomInput label="Package name" value={pkgForm.name} onChange={(e) => setPkgForm({ ...pkgForm, name: e.target.value })} placeholder="e.g. Bridal Package" />
           <CustomInput label="Description" value={pkgForm.description} onChange={(e) => setPkgForm({ ...pkgForm, description: e.target.value })} />
           <div>
-            <p className="mb-2 text-sm font-medium text-gray-700">Services in package</p>
+            <p className="mb-2 text-sm font-medium text-gray-600">Services in package</p>
             <div className="mb-2 flex gap-2">
               <CustomSelect value={pkgService} onChange={(e) => setPkgService(e.target.value)} placeholder="Add a service"
                 options={services.filter((s) => s.isActive && !pkgForm.serviceIds.includes(s.id)).map((s) => ({ label: `${s.name} — ${currency(Number(s.price))}`, value: s.id }))} />
               <CustomButton size="sm" variant="secondary" onClick={addPkgService} disabled={!pkgService}>Add</CustomButton>
             </div>
             {pkgSelection.length > 0 && (
-              <div className="space-y-1 rounded-lg border border-gray-100 p-2">
+              <div className="space-y-1 rounded-sm border border-gray-100 p-2">
                 {pkgSelection.map((s) => (
                   <div key={s.id} className="flex items-center justify-between px-2 py-1 text-sm">
-                    <span className="text-gray-700">{s.name}</span>
+                    <span className="text-gray-600">{s.name}</span>
                     <span className="flex items-center gap-2">
                       <span className="tabular-nums text-gray-500">{currency(Number(s.price))}</span>
                       <button onClick={() => setPkgForm({ ...pkgForm, serviceIds: pkgForm.serviceIds.filter((x) => x !== s.id) })} className="text-gray-300 hover:text-rose-500">✕</button>
@@ -567,14 +567,14 @@ export default function SalonPage() {
           <CustomSelect label="Service" value={bookForm.serviceId} onChange={(e) => setBookForm({ ...bookForm, serviceId: e.target.value })} placeholder="Select service"
             options={services.filter((s) => s.isActive).map((s) => ({ label: `${s.name} — ${currency(Number(s.price))} (${s.durationMin} min)`, value: s.id }))} />
           {selectedServiceForBook && (
-            <p className="rounded-lg bg-purple-50 px-3 py-2 text-xs text-purple-700">
+            <p className="rounded-sm bg-purple-50 px-3 py-2 text-xs text-purple-700">
               {selectedServiceForBook.name} · {selectedServiceForBook.durationMin} min · {currency(Number(selectedServiceForBook.price))}
             </p>
           )}
           <CustomSelect label="Stylist" value={bookForm.staffId} onChange={(e) => setBookForm({ ...bookForm, staffId: e.target.value })} placeholder="Any stylist"
             options={staff.map((s) => ({ label: s.name, value: s.id }))} />
           <CustomInput label="Start time" type="datetime-local" value={bookForm.startAt} onChange={(e) => setBookForm({ ...bookForm, startAt: e.target.value })} />
-          <div className="flex items-center gap-2 rounded-lg bg-amber-50 p-3 text-xs text-amber-700">
+          <div className="flex items-center gap-2 rounded-sm bg-amber-50 p-3 text-xs text-amber-700">
             <Clock size={13} /> Booking conflicts with the stylist's other appointments are rejected automatically.
           </div>
           <div className="flex justify-end gap-2">
@@ -588,7 +588,7 @@ export default function SalonPage() {
       <CustomModal open={!!checkout} onClose={() => setCheckout(null)} title={`Complete & Bill — ${checkout?.customerName ?? ""}`}>
         {checkout && (
           <div className="space-y-4">
-            <div className="rounded-lg bg-gray-50 p-3 text-sm">
+            <div className="rounded-sm bg-gray-50 p-3 text-sm">
               <p className="flex justify-between"><span className="text-gray-500">Service</span><span className="font-medium">{checkout.serviceName || "—"}</span></p>
               <p className="mt-1 flex justify-between"><span className="text-gray-500">Stylist</span><span>{checkout.staffName || "—"}</span></p>
               <p className="mt-1 flex justify-between font-bold"><span>Amount</span><span className="tabular-nums">{currency(Number(checkout.price))}</span></p>
@@ -599,7 +599,7 @@ export default function SalonPage() {
                 { label: "bKash", value: "BKASH" }, { label: "Nagad", value: "NAGAD" },
                 { label: "Customer credit", value: "CREDIT" },
               ]} />
-            <div className="rounded-lg bg-emerald-50 p-3 text-xs text-emerald-700">
+            <div className="rounded-sm bg-emerald-50 p-3 text-xs text-emerald-700">
               Completing creates the sale + invoice + payment + accounting journal, records the stylist commission, and marks the appointment done.
             </div>
             <div className="flex justify-end gap-2">
@@ -615,11 +615,11 @@ export default function SalonPage() {
 
 function Stat({ label, value, icon, color }: { label: string; value: string; icon: React.ReactNode; color: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-gray-100 p-4">
-      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>{icon}</div>
+    <div className="flex items-center gap-3 rounded-sm border border-gray-100 p-4">
+      <div className={`flex h-10 w-10 items-center justify-center rounded-sm ${color}`}>{icon}</div>
       <div>
         <p className="text-xs text-gray-400">{label}</p>
-        <p className="text-lg font-bold text-gray-900 tabular-nums">{value}</p>
+        <p className="text-lg font-bold text-gray-600 tabular-nums">{value}</p>
       </div>
     </div>
   );

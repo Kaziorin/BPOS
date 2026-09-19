@@ -154,12 +154,12 @@ function LiveClockCapsule() {
     .toUpperCase();
 
   return (
-    <div className="flex items-center gap-2.5 px-4 py-1.5 rounded-xl border bg-orange-50/80 border-orange-200/90 text-gray-800 shadow-2xs">
-      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-100 text-orange-600 text-sm">
+    <div className="flex items-center gap-2.5 px-4 py-1.5 rounded-sm border bg-orange-50/80 border-orange-200/90 text-gray-600 shadow-2xs">
+      <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-orange-100 text-orange-600 text-sm">
         <Scale size={15} />
       </div>
       <div className="text-left leading-tight">
-        <div className="text-[13px] font-black tracking-tight text-gray-800">
+        <div className="text-[13px] font-black tracking-tight text-gray-600">
           {hh}:{mm}:{ss} <span className="text-xs font-bold text-orange-600">{ap}</span>
         </div>
         <div className="text-[9px] text-gray-500 font-bold uppercase tracking-wider">{day}</div>
@@ -330,20 +330,20 @@ export default function RestaurantCustomerDisplayPage() {
         }}
       >
         <div className="flex flex-col gap-3 flex-1 min-h-0 max-w-[1700px] w-full mx-auto">
-          {/* ══ 1. TOP HEADER (White rounded floating card matching reference layout) ══ */}
+          {/* ══ 1. TOP HEADER (White rounded-sm floating card matching reference layout) ══ */}
           <header className="rounded-sm border border-orange-200/80 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
             {/* Left: Brand Icon + Title + Table/Lane + Subtitle */}
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl border shrink-0 bg-orange-50 border-orange-200 text-orange-600 shadow-2xs">
+              <div className="flex h-11 w-11 items-center justify-center rounded-sm border shrink-0 bg-orange-50 border-orange-200 text-orange-600 shadow-2xs">
                 <Utensils size={22} />
               </div>
 
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-gray-900 text-lg leading-tight tracking-tight">
+                  <span className="font-extrabold text-gray-600 text-lg leading-tight tracking-tight">
                     {merchantName}
                   </span>
-                  <span className="px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-wider text-white bg-orange-600 shadow-2xs">
+                  <span className="px-2 py-0.5 rounded-sm text-[11px] font-black uppercase tracking-wider text-white bg-orange-600 shadow-2xs">
                     {tableNo}
                   </span>
                 </div>
@@ -375,7 +375,7 @@ export default function RestaurantCustomerDisplayPage() {
               {hasItems ? (
                 <button
                   onClick={handleClearCart}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition shadow-2xs cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition shadow-2xs cursor-pointer"
                   title="Clear Cart"
                 >
                   <Trash2 size={13} />
@@ -384,7 +384,7 @@ export default function RestaurantCustomerDisplayPage() {
               ) : (
                 <button
                   onClick={handleQuickDemo}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 text-xs font-bold transition shadow-2xs cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 text-xs font-bold transition shadow-2xs cursor-pointer"
                   title="Load sample restaurant order"
                 >
                   <PlusCircle size={13} className="text-orange-600" />
@@ -395,7 +395,7 @@ export default function RestaurantCustomerDisplayPage() {
               <button
                 id="cdisp-sound"
                 onClick={() => setSoundOn((v) => !v)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-gray-600 hover:text-orange-600 hover:border-orange-300 transition shadow-2xs cursor-pointer"
+                className="flex h-10 w-10 items-center justify-center rounded-sm border border-slate-200 bg-white text-gray-600 hover:text-orange-600 hover:border-orange-300 transition shadow-2xs cursor-pointer"
                 title={soundOn ? "Mute" : "Enable sound"}
               >
                 {soundOn ? <Volume2 size={17} /> : <VolumeX size={17} />}
@@ -404,7 +404,7 @@ export default function RestaurantCustomerDisplayPage() {
               <button
                 id="cdisp-fullscreen"
                 onClick={toggleFs}
-                className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-600 hover:bg-orange-700 text-white transition shadow-2xs cursor-pointer"
+                className="flex h-10 w-10 items-center justify-center rounded-sm bg-orange-600 hover:bg-orange-700 text-white transition shadow-2xs cursor-pointer"
                 title="Toggle fullscreen"
               >
                 {fullscreen ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
@@ -412,7 +412,7 @@ export default function RestaurantCustomerDisplayPage() {
             </div>
           </header>
 
-          {/* ══ 2. WELCOME BANNER (White rounded card with Restaurant Orange Accent) ══ */}
+          {/* ══ 2. WELCOME BANNER (White rounded-sm card with Restaurant Orange Accent) ══ */}
           <div className="rounded-sm border border-orange-100 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3.5">
               <div className="flex h-11 w-11 items-center justify-center rounded-full font-black text-lg shadow-2xs shrink-0 bg-orange-100 text-orange-700 border border-orange-200">
@@ -421,7 +421,7 @@ export default function RestaurantCustomerDisplayPage() {
 
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-gray-900 text-base">
+                  <span className="font-extrabold text-gray-600 text-base">
                     {customerName ? `Welcome back, ${customerName}!` : `Welcome to ${tableNo}!`}
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-50 text-orange-700 border border-orange-200">
@@ -454,11 +454,11 @@ export default function RestaurantCustomerDisplayPage() {
               {/* Header */}
               <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 shrink-0">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border shrink-0 bg-orange-50 border-orange-200 text-orange-600 shadow-2xs">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-sm border shrink-0 bg-orange-50 border-orange-200 text-orange-600 shadow-2xs">
                     <ShoppingBag size={18} />
                   </div>
                   <div>
-                    <h2 className="font-extrabold text-gray-900 text-base leading-none">
+                    <h2 className="font-extrabold text-gray-600 text-base leading-none">
                       Basket Items
                     </h2>
                     <p className="text-xs text-gray-400 font-medium mt-1">Live scan itemization</p>
@@ -486,20 +486,20 @@ export default function RestaurantCustomerDisplayPage() {
                             <img
                               src={line.image}
                               alt={line.name}
-                              className="h-14 w-14 rounded-xl object-cover border border-slate-200 shrink-0"
+                              className="h-14 w-14 rounded-sm object-cover border border-slate-200 shrink-0"
                             />
                           ) : (
-                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-orange-200 bg-orange-50 text-2xl shadow-2xs">
+                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-sm border border-orange-200 bg-orange-50 text-2xl shadow-2xs">
                               {getFoodEmoji(line.name, idx)}
                             </div>
                           )}
 
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 rounded-md bg-slate-900 text-white font-black text-xs shrink-0">
+                              <span className="px-2 py-0.5 rounded-sm bg-slate-900 text-white font-black text-xs shrink-0">
                                 {line.qty}x
                               </span>
-                              <h3 className="font-bold text-gray-900 text-sm leading-tight truncate">
+                              <h3 className="font-bold text-gray-600 text-sm leading-tight truncate">
                                 {line.name}
                               </h3>
                             </div>
@@ -508,12 +508,12 @@ export default function RestaurantCustomerDisplayPage() {
                                 {fmt(line.unitPrice)} / unit
                               </span>
                               {line.category && (
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-orange-50 text-orange-700 font-semibold border border-orange-100">
+                                <span className="text-[10px] px-2 py-0.5 rounded-sm bg-orange-50 text-orange-700 font-semibold border border-orange-100">
                                   {line.category}
                                 </span>
                               )}
                               {line.notes && (
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-gray-600 font-medium truncate max-w-[200px]">
+                                <span className="text-[10px] px-2 py-0.5 rounded-sm bg-slate-100 text-gray-600 font-medium truncate max-w-[200px]">
                                   {line.notes}
                                 </span>
                               )}
@@ -523,7 +523,7 @@ export default function RestaurantCustomerDisplayPage() {
 
                         {/* Right: Line Total + TOTAL caption */}
                         <div className="flex flex-col items-end shrink-0">
-                          <span className="font-black text-base text-gray-900 tracking-tight">
+                          <span className="font-black text-base text-gray-600 tracking-tight">
                             {fmt(lineTotal)}
                           </span>
                           <span className="text-[9px] font-black text-gray-400 tracking-widest uppercase mt-0.5">
@@ -539,7 +539,7 @@ export default function RestaurantCustomerDisplayPage() {
                     <div className="flex h-16 w-16 items-center justify-center rounded-sm bg-orange-50 border border-orange-200 text-orange-500 mb-3 shadow-2xs">
                       <Utensils size={30} />
                     </div>
-                    <h3 className="font-extrabold text-gray-800 text-base">Your Basket is Empty</h3>
+                    <h3 className="font-extrabold text-gray-600 text-base">Your Basket is Empty</h3>
                     <p className="text-xs text-gray-400 mt-1 max-w-xs leading-relaxed">
                       Please wait for the server to take your order. Items added in POS will appear here live in real time.
                     </p>
@@ -567,18 +567,18 @@ export default function RestaurantCustomerDisplayPage() {
                 <div className="py-3.5 space-y-2.5">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500 font-medium">Subtotal</span>
-                    <span className="font-bold text-gray-800">{fmt(subtotal)}</span>
+                    <span className="font-bold text-gray-600">{fmt(subtotal)}</span>
                   </div>
 
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500 font-medium">VAT / Tax (15%)</span>
-                    <span className="font-bold text-gray-800">{fmt(tax)}</span>
+                    <span className="font-bold text-gray-600">{fmt(tax)}</span>
                   </div>
 
                   {serviceCharge > 0 && (
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-gray-500 font-medium">Service Charge (4%)</span>
-                      <span className="font-bold text-gray-800">{fmt(serviceCharge)}</span>
+                      <span className="font-bold text-gray-600">{fmt(serviceCharge)}</span>
                     </div>
                   )}
 
@@ -616,7 +616,7 @@ export default function RestaurantCustomerDisplayPage() {
                     <span className="text-xs font-black text-gray-500 uppercase tracking-wider">
                       PAYMENT OPTIONS
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 border border-orange-200">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-sm bg-orange-50 text-orange-700 border border-orange-200">
                       POS Checkout
                     </span>
                   </div>
@@ -639,7 +639,7 @@ export default function RestaurantCustomerDisplayPage() {
                           id={`cdisp-tab-${m.key}`}
                           onClick={() => setSelectedPayment(m.key)}
                           className={cn(
-                            "py-2 rounded-xl text-xs font-bold transition-all text-center cursor-pointer border",
+                            "py-2 rounded-sm text-xs font-bold transition-all text-center cursor-pointer border",
                             isActive
                               ? "bg-orange-600 text-white border-transparent shadow-xs"
                               : "bg-slate-50 text-gray-600 border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200"
@@ -657,7 +657,7 @@ export default function RestaurantCustomerDisplayPage() {
                       className="rounded-sm border border-slate-200/90 bg-white p-3 shadow-xs"
                       dangerouslySetInnerHTML={{ __html: qrSvg(qrPayload, 155) }}
                     />
-                    <p className="text-xs font-bold text-gray-700 mt-2.5">Scan to Pay with bKash / Nagad</p>
+                    <p className="text-xs font-bold text-gray-600 mt-2.5">Scan to Pay with bKash / Nagad</p>
                     <p className="text-[10px] text-gray-400 font-medium">Instant & Secure Payment</p>
                   </div>
                 </div>

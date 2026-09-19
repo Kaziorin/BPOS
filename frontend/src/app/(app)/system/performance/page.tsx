@@ -6,10 +6,10 @@ const TABS = ["Observability", "Background Jobs", "Cache", "Performance", "Backu
 
 function Stat({ label, value, sub, tone = "default" }: { label: string; value: any; sub?: string; tone?: string }) {
   const tones: Record<string, string> = {
-    default: "text-gray-900", ok: "text-green-600", warn: "text-yellow-600", bad: "text-red-600",
+    default: "text-gray-600", ok: "text-green-600", warn: "text-yellow-600", bad: "text-red-600",
   };
   return (
-    <div className="bg-white rounded-lg shadow p-4">
+    <div className="bg-white rounded-sm shadow p-4">
       <div className="text-xs text-gray-500 uppercase tracking-wide">{label}</div>
       <div className={`text-2xl font-bold mt-1 ${tones[tone] ?? tones.default}`}>{value ?? "-"}</div>
       {sub && <div className="text-xs text-gray-400 mt-1">{sub}</div>}
@@ -20,7 +20,7 @@ function Stat({ label, value, sub, tone = "default" }: { label: string; value: a
 function Indicator({ ind, name }: { ind: any; name: string }) {
   const color = ind?.ok ? "bg-green-500" : "bg-red-500";
   return (
-    <div className="bg-white rounded-lg shadow p-4 flex items-start gap-3">
+    <div className="bg-white rounded-sm shadow p-4 flex items-start gap-3">
       <span className={`mt-1 h-3 w-3 rounded-full shrink-0 ${color} ${ind?.ok ? "" : "animate-pulse"}`} />
       <div className="min-w-0">
         <div className="text-xs text-gray-500 uppercase tracking-wide">{ind?.label ?? name}</div>
@@ -42,7 +42,7 @@ function StatusChip({ s }: { s: string }) {
     RESTORED: "bg-indigo-100 text-indigo-700", RUNNING: "bg-yellow-100 text-yellow-700",
     FAILED: "bg-red-100 text-red-700",
   };
-  return <span className={`px-2 py-0.5 rounded text-xs font-medium ${map[s] ?? "bg-gray-100 text-gray-600"}`}>{s}</span>;
+  return <span className={`px-2 py-0.5 rounded-sm text-xs font-medium ${map[s] ?? "bg-gray-100 text-gray-600"}`}>{s}</span>;
 }
 
 export default function SystemPerformancePage() {
@@ -132,7 +132,7 @@ export default function SystemPerformancePage() {
         <div className="flex gap-2">
           {TABS.map((t, i) => (
             <button key={i} onClick={() => setTab(i)}
-              className={`px-4 py-2 rounded-t-lg text-sm font-medium ${tab === i ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+              className={`px-4 py-2 rounded-t-sm text-sm font-medium ${tab === i ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
               {t}
             </button>
           ))}
@@ -142,7 +142,7 @@ export default function SystemPerformancePage() {
         </label>
       </div>
 
-      {notice && <div className="mb-4 text-xs bg-blue-50 text-blue-700 rounded px-3 py-2">{notice}</div>}
+      {notice && <div className="mb-4 text-xs bg-blue-50 text-blue-700 rounded-sm px-3 py-2">{notice}</div>}
       {loading && <div className="text-gray-500 py-2 text-sm">Loading...</div>}
 
       {/* ═══════════ OBSERVABILITY ═══════════ */}
@@ -178,7 +178,7 @@ export default function SystemPerformancePage() {
               </div>
 
               {metrics.sync?.deviceRows?.length > 0 && (
-                <div className="bg-white rounded-lg shadow overflow-hidden mb-4">
+                <div className="bg-white rounded-sm shadow overflow-hidden mb-4">
                   <div className="px-4 pt-4 pb-2 text-sm font-semibold">Devices</div>
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50"><tr>
@@ -218,16 +218,16 @@ export default function SystemPerformancePage() {
           <div className="flex gap-3 mb-4">
             <button disabled={loading} onClick={() => action(() =>
               api.post("/v1/system/jobs/enqueue", { type: "notification", payload: { title: "Demo job", body: "Triggered from the dashboard", eventType: "QUEUE_NOTIFICATION", userId: null } }), "Enqueued demo notification job")}
-              className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50">Enqueue demo job</button>
-            <button onClick={load} className="bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-200">Refresh</button>
+              className="bg-blue-600 text-white px-4 py-2 rounded-sm text-sm hover:bg-blue-700 disabled:opacity-50">Enqueue demo job</button>
+            <button onClick={load} className="bg-gray-100 text-gray-600 px-4 py-2 rounded-sm text-sm hover:bg-gray-200">Refresh</button>
           </div>
 
           {jobStats.byType?.length > 0 && (
-            <div className="bg-white rounded-lg shadow p-4 mb-6">
+            <div className="bg-white rounded-sm shadow p-4 mb-6">
               <h3 className="font-semibold text-sm mb-3">By type</h3>
               <div className="flex flex-wrap gap-2">
                 {jobStats.byType.map((t: any, i: number) => (
-                  <span key={i} className="text-xs bg-gray-100 rounded px-2 py-1">
+                  <span key={i} className="text-xs bg-gray-100 rounded-sm px-2 py-1">
                     <b>{t.type}</b>: {t.count} ({t.succeeded} ok / {t.failed} failed)
                   </span>
                 ))}
@@ -235,7 +235,7 @@ export default function SystemPerformancePage() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-white rounded-sm shadow overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-gray-50"><tr>
                 <th className="px-3 py-2 text-left">Type</th><th className="px-3 py-2 text-left">Status</th>
@@ -284,7 +284,7 @@ export default function SystemPerformancePage() {
             <Stat label="Invalidations" value={cache.invalidations} />
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="bg-white rounded-sm shadow p-6 mb-6">
             <h3 className="font-semibold mb-2">Never-cache financial data ✓</h3>
             <p className="text-sm text-gray-500 mb-3">
               Financial source-of-truth (sales, invoices, payments, GL, ledgers) is never stored in the cache — the namespace whitelist refuses it.
@@ -294,20 +294,20 @@ export default function SystemPerformancePage() {
             </p>
             <div className="flex flex-wrap gap-2">
               {Object.entries((cache.namespaces ?? {}) as Record<string, number>).map(([ns, n]) => (
-                <span key={ns} className="text-xs bg-blue-50 text-blue-700 rounded px-2 py-1 font-mono">{ns}: {n}</span>
+                <span key={ns} className="text-xs bg-blue-50 text-blue-700 rounded-sm px-2 py-1 font-mono">{ns}: {n}</span>
               ))}
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-sm shadow p-6">
             <h3 className="font-semibold mb-3">TTL by namespace</h3>
             <div className="flex flex-wrap gap-2 mb-5">
               {Object.entries((cache.ttlSecondsByNamespace ?? {}) as Record<string, number>).map(([ns, ttl]) => (
-                <span key={ns} className="text-xs bg-gray-100 rounded px-2 py-1 font-mono">{ns}: {ttl}s</span>
+                <span key={ns} className="text-xs bg-gray-100 rounded-sm px-2 py-1 font-mono">{ns}: {ttl}s</span>
               ))}
             </div>
             <button disabled={loading} onClick={() => action(() => api.post("/v1/system/cache/clear"), "Cache cleared")}
-              className="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700 disabled:opacity-50">Clear entire cache</button>
+              className="bg-red-600 text-white px-4 py-2 rounded-sm text-sm hover:bg-red-700 disabled:opacity-50">Clear entire cache</button>
           </div>
         </div>
       )}
@@ -322,7 +322,7 @@ export default function SystemPerformancePage() {
             <Stat label="Samples" value={perf.latency?.samples ?? 0} sub={`worker processed ${perf.worker?.processed ?? 0}`} />
           </div>
 
-          <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <div className="bg-white rounded-sm shadow p-4 mb-6">
             <h3 className="font-semibold text-sm mb-3">§25 targets under current load</h3>
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div className="flex items-center justify-between"><span className="text-gray-500">Product search</span><Badge ok={(perf.latency?.p95Ms ?? 0) <= (perf.targets?.productSearchMs ?? 300)} /></div>
@@ -331,7 +331,7 @@ export default function SystemPerformancePage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-white rounded-sm shadow overflow-hidden">
             <h3 className="font-semibold text-sm px-4 pt-4 pb-2">Slowest routes (by total time)</h3>
             <table className="w-full text-sm">
               <thead className="bg-gray-50"><tr>
@@ -362,13 +362,13 @@ export default function SystemPerformancePage() {
         <div>
           <div className="flex flex-wrap items-center gap-3 mb-6">
             <button disabled={loading} onClick={() => action(() => api.post("/v1/system/backups", {}), "Backup created")}
-              className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50">🛡 Create FULL backup now</button>
+              className="bg-blue-600 text-white px-4 py-2 rounded-sm text-sm hover:bg-blue-700 disabled:opacity-50">🛡 Create FULL backup now</button>
             <button disabled={loading} onClick={() => action(() => api.post("/v1/system/backups/retention"), "Retention enforced")}
-              className="bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-200 disabled:opacity-50">Enforce retention</button>
-            <button onClick={load} className="bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-200">Refresh</button>
+              className="bg-gray-100 text-gray-600 px-4 py-2 rounded-sm text-sm hover:bg-gray-200 disabled:opacity-50">Enforce retention</button>
+            <button onClick={load} className="bg-gray-100 text-gray-600 px-4 py-2 rounded-sm text-sm hover:bg-gray-200">Refresh</button>
           </div>
 
-          <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
+          <div className="bg-white rounded-sm shadow overflow-hidden mb-6">
             <table className="w-full text-sm">
               <thead className="bg-gray-50"><tr>
                 <th className="px-3 py-2 text-left">File</th><th className="px-3 py-2 text-left">Status</th>
@@ -404,14 +404,14 @@ export default function SystemPerformancePage() {
             </table>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6 mb-4">
+          <div className="bg-white rounded-sm shadow p-6 mb-4">
             <h3 className="font-semibold mb-2">Restore drill target database</h3>
             <input value={restoreDb} onChange={(e) => setRestoreDb(e.target.value)} placeholder="restored_xxxx (default)"
-              className="border rounded px-3 py-2 text-sm w-full max-w-md" />
+              className="border rounded-sm px-3 py-2 text-sm w-full max-w-md" />
             <p className="text-xs text-gray-400 mt-2">Restores into a NEW DB (never overwrites the live one). Verify restores to a scratch DB and compares every table with live, then drops it.</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-sm shadow p-6">
             <h3 className="font-semibold mb-3">Disaster recovery at a glance (§26)</h3>
             <ul className="space-y-2 text-sm text-gray-600 list-disc list-inside">
               <li><b>Automated:</b> one FULL mysqldump per 24 h via the job queue (backup_full), SHA-256 recorded, newest 30 kept.</li>

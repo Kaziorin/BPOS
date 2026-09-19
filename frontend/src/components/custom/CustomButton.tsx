@@ -40,7 +40,7 @@ const VARIANT_CLASSES = (darkMode: boolean): Record<ButtonVariant, string> => ({
     : "bg-brand-50 text-brand-dark hover:bg-brand-100 hover:text-brand-dark border border-brand-border focus-visible:ring-brand-border font-bold",
   outline: darkMode
     ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 focus-visible:ring-slate-700 font-bold"
-    : "border border-brand-border bg-white text-slate-700 hover:bg-brand-50 hover:border-brand-primary focus-visible:ring-brand-border font-bold shadow-2xs",
+    : "border border-brand-border bg-white text-gray-600 hover:bg-brand-50 hover:border-brand-primary focus-visible:ring-brand-border font-bold shadow-2xs",
   ghost: darkMode
     ? "text-slate-400 hover:bg-slate-800 focus-visible:ring-slate-700 font-bold"
     : "text-brand-primary hover:bg-brand-50 focus-visible:ring-brand-border font-bold",
@@ -97,18 +97,18 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
       if (themeColor === "teal") {
         if (variant === "secondary") {
           return darkMode
-            ? "bg-slate-800 text-teal-300 hover:bg-slate-700 focus-visible:ring-teal-400 font-bold"
-            : "bg-teal-50 text-teal-700 hover:bg-teal-100 hover:text-teal-800 border border-teal-200/80 focus-visible:ring-teal-300 font-bold";
+            ? "bg-slate-800 text-brand-primary/60 hover:bg-slate-700 focus-visible:ring-teal-400 font-bold"
+            : "bg-brand-50 text-brand-dark hover:bg-brand-50 hover:text-brand-dark border border-brand-border focus-visible:ring-teal-300 font-bold";
         }
         if (variant === "outline") {
           return darkMode
-            ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:border-teal-500 hover:text-teal-300 focus-visible:ring-teal-400 font-bold"
-            : "border border-slate-200 bg-white text-slate-700 hover:bg-teal-50/70 hover:border-teal-400 hover:text-[#00796b] focus-visible:ring-teal-300 font-bold shadow-2xs";
+            ? "border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:border-brand-primary hover:text-brand-primary/60 focus-visible:ring-teal-400 font-bold"
+            : "border border-slate-200 bg-white text-gray-600 hover:bg-brand-50/70 hover:border-brand-border hover:text-[#00796b] focus-visible:ring-teal-300 font-bold shadow-2xs";
         }
         if (variant === "ghost") {
           return darkMode
-            ? "text-slate-400 hover:bg-slate-800 hover:text-teal-300 focus-visible:ring-teal-400 font-bold"
-            : "text-[#00796b] hover:bg-teal-50 focus-visible:ring-teal-300 font-bold";
+            ? "text-slate-400 hover:bg-slate-800 hover:text-brand-primary/60 focus-visible:ring-teal-400 font-bold"
+            : "text-[#00796b] hover:bg-brand-50 focus-visible:ring-teal-300 font-bold";
         }
       }
       return VARIANT_CLASSES(darkMode)[variant];

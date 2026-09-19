@@ -380,7 +380,7 @@ export default function CollectionPage() {
       key: "collectedAt",
       header: "Date & Time",
       render: (e) => (
-        <span className="text-gray-700 text-xs font-semibold">
+        <span className="text-gray-600 text-xs font-semibold">
           {new Date(e.collectedAt).toLocaleString("en-US", {
             month: "short",
             day: "numeric",
@@ -439,7 +439,7 @@ export default function CollectionPage() {
       key: "scheduledAt",
       header: "Scheduled Date & Time",
       render: (s) => (
-        <span className="text-gray-700 text-xs font-semibold">
+        <span className="text-gray-600 text-xs font-semibold">
           {new Date(s.scheduledAt).toLocaleString("en-US", {
             month: "short",
             day: "numeric",
@@ -654,7 +654,7 @@ export default function CollectionPage() {
                       <button
                         type="button"
                         onClick={() => setSearchQuery("")}
-                        className="text-gray-400 hover:text-gray-700 cursor-pointer"
+                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
                       >
                         <X size={14} />
                       </button>
@@ -664,7 +664,7 @@ export default function CollectionPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   containerClassName="w-full"
-                  className="h-[38px] text-xs font-medium text-gray-700 placeholder:text-gray-500 shadow-2xs"
+                  className="h-[38px] text-xs font-medium text-gray-600 placeholder:text-gray-500 shadow-2xs"
                 />
               </div>
 
@@ -759,7 +759,7 @@ export default function CollectionPage() {
                   ]).map((p, idx) => (
                     <div key={idx} className="space-y-1.5">
                       <div className="flex justify-between text-xs font-semibold">
-                        <span className="text-gray-700">{p.collectorName || p.collectorId}</span>
+                        <span className="text-gray-600">{p.collectorName || p.collectorId}</span>
                         <span className="text-emerald-700 font-bold">
                           ৳{Number(p.collectedAmount).toLocaleString()} / ৳{Number(p.targetAmount).toLocaleString()} ({p.achievementPct || Math.round((p.collectedAmount/p.targetAmount)*100)}%)
                         </span>
@@ -893,7 +893,7 @@ export default function CollectionPage() {
                 id="offlineCheck"
                 checked={entryForm.isOffline}
                 onChange={(e) => setEntryForm({ ...entryForm, isOffline: e.target.checked })}
-                className="rounded text-brand-primary focus:ring-brand-border cursor-pointer"
+                className="rounded-sm text-brand-primary focus:ring-brand-border cursor-pointer"
               />
               <label htmlFor="offlineCheck" className="text-gray-600 text-xs font-medium cursor-pointer">
                 Offline field collection (auto-sync with financial ledger)

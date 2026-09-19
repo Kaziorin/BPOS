@@ -321,7 +321,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
       {/* Toast alert */}
       {message && (
         <div
-          className={`flex items-center justify-between rounded-xl border p-4 text-sm font-medium shadow-xs transition-all ${
+          className={`flex items-center justify-between rounded-sm border p-4 text-sm font-medium shadow-xs transition-all ${
             message.type === "success"
               ? "border-emerald-200 bg-emerald-50 text-emerald-800"
               : message.type === "error"
@@ -346,11 +346,11 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 ring-1 ring-purple-500/20 shadow-xs">
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-purple-50 text-purple-600 ring-1 ring-purple-500/20 shadow-xs">
             <Zap size={20} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Business Rule Automation Engine</h1>
+            <h1 className="text-2xl font-bold text-gray-600 tracking-tight">Business Rule Automation Engine</h1>
             <p className="text-xs text-slate-500 sm:text-sm">
               Event-driven policy automation (§10.27) managing real-time inventory reorders, pricing limits, and risk gates.
             </p>
@@ -384,7 +384,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
         <button
           onClick={() => setTab("rules")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+          className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition ${
             tab === "rules"
               ? "bg-primary-600 text-white shadow-xs"
               : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
@@ -397,7 +397,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
 
         <button
           onClick={() => setTab("recommendations")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+          className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition ${
             tab === "recommendations"
               ? "bg-primary-600 text-white shadow-xs"
               : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
@@ -414,7 +414,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
 
         <button
           onClick={() => setTab("test")}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+          className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition ${
             tab === "test"
               ? "bg-primary-600 text-white shadow-xs"
               : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
@@ -434,13 +434,13 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
               <button
                 key={t.type}
                 onClick={() => openNew(t.type)}
-                className="group flex flex-col justify-between rounded-xl border border-dashed border-slate-200 bg-white p-3.5 text-left shadow-xs transition hover:border-primary-400 hover:bg-primary-50/20 hover:shadow-sm"
+                className="group flex flex-col justify-between rounded-sm border border-dashed border-slate-200 bg-white p-3.5 text-left shadow-xs transition hover:border-primary-400 hover:bg-primary-50/20 hover:shadow-sm"
               >
                 <div>
-                  <span className={`inline-flex rounded-md border px-2 py-0.5 text-[10px] font-bold ${t.tagColor}`}>
+                  <span className={`inline-flex rounded-sm border px-2 py-0.5 text-[10px] font-bold ${t.tagColor}`}>
                     {t.type}
                   </span>
-                  <p className="mt-2 text-xs font-bold text-slate-800 group-hover:text-primary-700">{t.label}</p>
+                  <p className="mt-2 text-xs font-bold text-gray-600 group-hover:text-primary-700">{t.label}</p>
                   <p className="mt-1 text-[11px] text-slate-500 line-clamp-2">{t.desc}</p>
                 </div>
                 <div className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-primary-600">
@@ -455,7 +455,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
             {rules.length === 0 ? (
               <div className="rounded-sm border-2 border-dashed border-slate-200 bg-white p-12 text-center">
                 <Zap size={24} className="mx-auto text-slate-300" />
-                <p className="mt-2 text-sm font-semibold text-slate-700">No active business automation rules</p>
+                <p className="mt-2 text-sm font-semibold text-gray-600">No active business automation rules</p>
                 <p className="text-xs text-slate-400 mt-1">Configure automated triggers above to enforce commercial logic.</p>
               </div>
             ) : (
@@ -466,13 +466,13 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-100">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-purple-50 text-purple-600 border border-purple-100">
                         <Zap size={16} />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-slate-900 text-sm">{r.name}</span>
-                          <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+                          <span className="font-bold text-gray-600 text-sm">{r.name}</span>
+                          <span className="rounded-sm bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
                             {r.triggerType}
                           </span>
                           <span
@@ -484,8 +484,8 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
                           </span>
                         </div>
                         <p className="mt-0.5 text-xs text-slate-500">
-                          Priority: <span className="font-semibold text-slate-700">{r.priority}</span> · Fired:{" "}
-                          <span className="font-semibold text-slate-700">{r.lastFiredAt ? fmtDt(r.lastFiredAt) : "Never"}</span>
+                          Priority: <span className="font-semibold text-gray-600">{r.priority}</span> · Fired:{" "}
+                          <span className="font-semibold text-gray-600">{r.lastFiredAt ? fmtDt(r.lastFiredAt) : "Never"}</span>
                         </p>
                       </div>
                     </div>
@@ -493,19 +493,19 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => toggleActive(r)}
-                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        className="rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-slate-50"
                       >
                         {r.isActive ? "Pause" : "Activate"}
                       </button>
                       <button
                         onClick={() => openEdit(r)}
-                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        className="rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-slate-50"
                       >
                         <Edit3 size={12} className="inline mr-1" /> Edit
                       </button>
                       <button
                         onClick={() => removeRule(r)}
-                        className="rounded-lg border border-rose-200 bg-rose-50 p-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100"
+                        className="rounded-sm border border-rose-200 bg-rose-50 p-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100"
                       >
                         <Trash2 size={13} />
                       </button>
@@ -513,10 +513,10 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
                   </div>
 
                   {/* Conditions & Actions Strip */}
-                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 p-3 text-xs border border-slate-100">
+                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-sm bg-slate-50 p-3 text-xs border border-slate-100">
                     <span className="font-bold text-slate-400 uppercase text-[10px]">Conditions:</span>
                     {Object.entries(r.conditions || {}).map(([k, v]: [string, any]) => (
-                      <span key={k} className="rounded bg-white px-2 py-0.5 font-mono text-[11px] font-bold text-slate-700 border border-slate-200">
+                      <span key={k} className="rounded-sm bg-white px-2 py-0.5 font-mono text-[11px] font-bold text-gray-600 border border-slate-200">
                         {k} {typeof v === "object" ? `${v.op} ${v.value}` : `= ${v}`}
                       </span>
                     ))}
@@ -525,7 +525,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
 
                     <span className="font-bold text-slate-400 uppercase text-[10px]">Actions:</span>
                     {(r.actions || []).map((a, i) => (
-                      <span key={i} className="rounded bg-primary-50 px-2 py-0.5 font-bold text-primary-700 border border-primary-100">
+                      <span key={i} className="rounded-sm bg-primary-50 px-2 py-0.5 font-bold text-primary-700 border border-primary-100">
                         {a.type}
                       </span>
                     ))}
@@ -543,12 +543,12 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
           <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-xs">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h3 className="text-sm font-bold text-slate-900">Inventory Reorder Queue</h3>
+                <h3 className="text-sm font-bold text-gray-600">Inventory Reorder Queue</h3>
                 <p className="text-xs text-slate-500">
                   Automated procurement suggestions fired by low-stock rules. Convert directly into draft Purchase Requisitions.
                 </p>
               </div>
-              <span className="text-xs font-bold text-slate-600 bg-slate-100 rounded-lg px-2.5 py-1">
+              <span className="text-xs font-bold text-slate-600 bg-slate-100 rounded-sm px-2.5 py-1">
                 {recs.length} Pending Actions
               </span>
             </div>
@@ -575,7 +575,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
                   ) : (
                     recs.map((rec) => (
                       <tr key={rec.id} className="hover:bg-slate-50/50">
-                        <td className="py-3 px-3 font-bold text-slate-800">{rec.productName || rec.productId}</td>
+                        <td className="py-3 px-3 font-bold text-gray-600">{rec.productName || rec.productId}</td>
                         <td className="py-3 px-3 text-rose-600 font-bold">{rec.currentStock} units</td>
                         <td className="py-3 px-3 text-slate-600">{rec.reorderPoint} units</td>
                         <td className="py-3 px-3 font-bold text-primary-700">+{rec.suggestedQty} units</td>
@@ -584,13 +584,13 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => convertRec(rec)}
-                              className="inline-flex items-center gap-1 rounded-lg bg-primary-600 px-2.5 py-1 text-xs font-bold text-white hover:opacity-90 shadow-xs"
+                              className="inline-flex items-center gap-1 rounded-sm bg-primary-600 px-2.5 py-1 text-xs font-bold text-white hover:opacity-90 shadow-xs"
                             >
                               <Check size={12} /> Convert to PR
                             </button>
                             <button
                               onClick={() => dismissRec(rec)}
-                              className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-100"
+                              className="rounded-sm border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-100"
                             >
                               Dismiss
                             </button>
@@ -612,11 +612,11 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
           {/* Simulator Input Box */}
           <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs space-y-4">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+              <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary-50 text-primary-600">
                 <TestTube2 size={16} />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900">Rule Simulator & Testbench</h3>
+                <h3 className="text-sm font-bold text-gray-600">Rule Simulator & Testbench</h3>
                 <p className="text-xs text-slate-500">Simulate incoming module payloads against registered rules.</p>
               </div>
             </div>
@@ -628,7 +628,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
               options={TRIGGERS.map((t) => ({ value: t.type, label: t.label }))}
             />
 
-            <div className="space-y-3 rounded-xl border border-slate-100 bg-slate-50/70 p-3.5">
+            <div className="space-y-3 rounded-sm border border-slate-100 bg-slate-50/70 p-3.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Test Context Attributes</span>
 
               {simTrigger === "SALE_DISCOUNT" && (
@@ -704,12 +704,12 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
           {/* Simulator Output Box */}
           <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex flex-col justify-between">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 mb-1">Evaluation Verdict & Action Output</h3>
+              <h3 className="text-sm font-bold text-gray-600 mb-1">Evaluation Verdict & Action Output</h3>
               <p className="text-xs text-slate-500 mb-3">Live trace of rule matches and executed actions.</p>
 
               {simResult ? (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800">
+                  <div className="flex items-center gap-2 rounded-sm bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800">
                     <CheckCircle2 size={16} className="text-emerald-600" />
                     <span>
                       Trigger evaluated: <span className="font-bold">{simResult.trigger}</span> —{" "}
@@ -717,7 +717,7 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
                     </span>
                   </div>
 
-                  <div className="overflow-x-auto rounded-xl bg-slate-900 p-3 text-slate-100">
+                  <div className="overflow-x-auto rounded-sm bg-slate-900 p-3 text-slate-100">
                     <pre className="font-mono text-[11px] leading-relaxed">
                       {JSON.stringify(simResult.results, null, 2)}
                     </pre>
@@ -760,8 +760,8 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
             />
 
             {/* Conditions */}
-            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
-              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Trigger Conditions</span>
+            <div className="rounded-sm border border-slate-200 bg-slate-50/50 p-3 space-y-2">
+              <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Trigger Conditions</span>
               {(form.conds || []).map((c: any, i: number) => (
                 <div key={i} className="grid grid-cols-3 gap-2">
                   <CustomInput
@@ -796,8 +796,8 @@ export default function BusinessRules({ autoCreate = false }: { autoCreate?: boo
             </div>
 
             {/* Actions */}
-            <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
-              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Executed Actions</span>
+            <div className="rounded-sm border border-slate-200 bg-white p-3 space-y-2">
+              <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Executed Actions</span>
               {(form.actions || []).map((a: any, i: number) => (
                 <div key={i} className="space-y-2">
                   <CustomSelect

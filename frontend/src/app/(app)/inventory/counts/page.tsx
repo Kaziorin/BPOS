@@ -121,13 +121,13 @@ export default function StockCountsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Stock Counts</h1>
+          <h1 className="text-2xl font-bold text-gray-600">Stock Counts</h1>
           <p className="mt-1 text-sm text-gray-500">Physical count and reconciliation</p>
         </div>
         <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowCreate(true)}>New Count</CustomButton>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white">
+      <div className="rounded-sm border border-gray-200 bg-white">
         <CustomTable columns={columns} data={counts} rowKey={(r) => r.id} loading={loading} emptyIcon={ClipboardList} emptyMessage="No stock counts yet" />
       </div>
 
@@ -173,7 +173,7 @@ export default function StockCountsPage() {
                               value={counted}
                               onChange={(e) => setCountedValues((prev) => ({ ...prev, [item.id]: Number(e.target.value) }))}
                               onBlur={() => submitItem(selected.id, item.productId, item.id, counted)}
-                              className="w-20 rounded border border-gray-200 px-2 py-1 text-right text-sm focus:border-primary-400 focus:outline-none"
+                              className="w-20 rounded-sm border border-gray-200 px-2 py-1 text-right text-sm focus:border-brand-primary focus:outline-none"
                             />
                           ) : (
                             <span>{counted}</span>

@@ -4,7 +4,7 @@
 
 :root {
   --background: #f8fafc;
-  --foreground: #0f172a;
+  --foreground: #4b5563;
 
   /* Default Global Theme Variables (Blue Ocean POS - #0284C7 / #0EA5E9 / #38BDF8 Design Spec) */
   --theme-primary-50: #f0f9ff;
@@ -563,7 +563,7 @@ input[type="button"]:not(:disabled),
     box-shadow: none !important;
     border: none !important;
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #4b5563 !important;
     overflow: visible !important;
     max-height: none !important;
     height: auto !important;
@@ -592,7 +592,7 @@ input[type="button"]:not(:disabled),
     margin: 0 !important;
     padding: 16px !important;
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #4b5563 !important;
     box-shadow: none !important;
     border: none !important;
     overflow: visible !important;

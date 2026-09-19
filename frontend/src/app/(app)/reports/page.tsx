@@ -443,20 +443,20 @@ function ReportsContent() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           {/* Date Range Inputs */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <div className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-brand-50/40 px-3 py-1.5 text-xs text-slate-700">
+            <div className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-brand-50/40 px-3 py-1.5 text-xs text-gray-600">
               <CalendarRange size={14} className="text-slate-400" />
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="bg-transparent text-xs text-slate-800 outline-none"
+                className="bg-transparent text-xs text-gray-600 outline-none"
               />
               <span className="text-slate-400">to</span>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="bg-transparent text-xs text-slate-800 outline-none"
+                className="bg-transparent text-xs text-gray-600 outline-none"
               />
             </div>
 
@@ -582,7 +582,7 @@ function ReportsContent() {
                     </span>
                   </div>
                   <div className="mt-2.5 flex items-baseline gap-2">
-                    <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{salesTotals.totalCount}</span>
+                    <span className="text-3xl font-extrabold text-gray-600 tracking-tight">{salesTotals.totalCount}</span>
                     <span className="text-xs text-slate-400 font-medium">sales invoices</span>
                   </div>
                   <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
@@ -593,12 +593,12 @@ function ReportsContent() {
                 <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Settled & Paid</span>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-teal-100 text-teal-700">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-50 text-brand-dark">
                       <CheckCircle2 size={16} />
                     </span>
                   </div>
                   <div className="mt-2.5 flex items-baseline gap-2">
-                    <span className="text-3xl font-extrabold text-teal-600 tracking-tight">
+                    <span className="text-3xl font-extrabold text-brand-primary tracking-tight">
                       {currencyShort(salesTotals.totalPaid)}
                     </span>
                   </div>
@@ -631,7 +631,7 @@ function ReportsContent() {
                 <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900">Top Performing Products</h3>
+                      <h3 className="text-sm font-bold text-gray-600">Top Performing Products</h3>
                       <p className="text-xs text-slate-500">Revenue ranking by item SKU</p>
                     </div>
                     <button
@@ -657,9 +657,9 @@ function ReportsContent() {
                         ) : (
                           salesByProduct.slice(0, 10).map((r: any, i: number) => (
                             <tr key={i} className="hover:bg-brand-50/50/60">
-                              <td className="py-2.5 px-3 font-semibold text-slate-800">{r.productName}</td>
+                              <td className="py-2.5 px-3 font-semibold text-gray-600">{r.productName}</td>
                               <td className="py-2.5 px-3 text-right font-mono text-slate-600">{r.totalQty}</td>
-                              <td className="py-2.5 px-3 text-right font-bold text-slate-900">{currency(r.totalRevenue)}</td>
+                              <td className="py-2.5 px-3 text-right font-bold text-gray-600">{currency(r.totalRevenue)}</td>
                             </tr>
                           ))
                         )}
@@ -672,7 +672,7 @@ function ReportsContent() {
                 <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900">Sales by Category</h3>
+                      <h3 className="text-sm font-bold text-gray-600">Sales by Category</h3>
                       <p className="text-xs text-slate-500">Departmental breakdown</p>
                     </div>
                     <button
@@ -698,9 +698,9 @@ function ReportsContent() {
                         ) : (
                           salesByCategory.map((r: any, i: number) => (
                             <tr key={i} className="hover:bg-brand-50/50/60">
-                              <td className="py-2.5 px-3 font-semibold text-slate-800">{r.categoryName}</td>
+                              <td className="py-2.5 px-3 font-semibold text-gray-600">{r.categoryName}</td>
                               <td className="py-2.5 px-3 text-right font-mono text-slate-600">{r.totalQty}</td>
-                              <td className="py-2.5 px-3 text-right font-bold text-slate-900">{currency(r.totalRevenue)}</td>
+                              <td className="py-2.5 px-3 text-right font-bold text-gray-600">{currency(r.totalRevenue)}</td>
                             </tr>
                           ))
                         )}
@@ -714,7 +714,7 @@ function ReportsContent() {
               <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">Tender & Payment Method Breakdown</h3>
+                    <h3 className="text-sm font-bold text-gray-600">Tender & Payment Method Breakdown</h3>
                     <p className="text-xs text-slate-500">Cash, card, mobile banking, and credit splits</p>
                   </div>
                 </div>
@@ -723,7 +723,7 @@ function ReportsContent() {
                   {salesByPayment.map((p: any, i: number) => (
                     <div key={i} className="rounded-sm border border-slate-100 bg-brand-50/40 p-4">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{p.method}</span>
-                      <p className="mt-1 text-lg font-bold text-slate-900">{currency(p.totalAmount)}</p>
+                      <p className="mt-1 text-lg font-bold text-gray-600">{currency(p.totalAmount)}</p>
                       <p className="mt-1 text-xs text-slate-500">{p.saleCount} transactions</p>
                     </div>
                   ))}
@@ -748,7 +748,7 @@ function ReportsContent() {
                     </span>
                   </div>
                   <div className="mt-2.5 flex items-baseline gap-2">
-                    <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                    <span className="text-3xl font-extrabold text-gray-600 tracking-tight">
                       {currencyShort(aging.totalStockValue || stockValuation.reduce((s, r) => s + Number(r.costValue || 0), 0))}
                     </span>
                   </div>
@@ -813,7 +813,7 @@ function ReportsContent() {
               <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">Stock Valuation Ledger</h3>
+                    <h3 className="text-sm font-bold text-gray-600">Stock Valuation Ledger</h3>
                     <p className="text-xs text-slate-500">Cost vs Retail realization by warehouse</p>
                   </div>
                   <button
@@ -841,10 +841,10 @@ function ReportsContent() {
                       ) : (
                         stockValuation.slice(0, 15).map((r: any, i: number) => (
                           <tr key={i} className="hover:bg-brand-50/50/60">
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">{r.productName}</td>
+                            <td className="py-2.5 px-3 font-semibold text-gray-600">{r.productName}</td>
                             <td className="py-2.5 px-3 text-slate-600">{r.warehouseName || "Main HQ"}</td>
-                            <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-700">{r.qtyOnHand}</td>
-                            <td className="py-2.5 px-3 text-right font-semibold text-slate-800">{currency(r.costValue)}</td>
+                            <td className="py-2.5 px-3 text-right font-mono font-bold text-gray-600">{r.qtyOnHand}</td>
+                            <td className="py-2.5 px-3 text-right font-semibold text-gray-600">{currency(r.costValue)}</td>
                             <td className="py-2.5 px-3 text-right font-bold text-emerald-700">{currency(r.retailValue)}</td>
                           </tr>
                         ))
@@ -864,7 +864,7 @@ function ReportsContent() {
                 <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
                   <div className="rounded-sm border border-slate-200 bg-white p-4.5 shadow-2xs">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Gross Revenue</span>
-                    <p className="mt-2 text-3xl font-extrabold text-slate-900 tracking-tight">{currency(pnl.revenue)}</p>
+                    <p className="mt-2 text-3xl font-extrabold text-gray-600 tracking-tight">{currency(pnl.revenue)}</p>
                     <p className="mt-1 text-xs text-slate-500">Total earned sales turnover</p>
                   </div>
 
@@ -899,7 +899,7 @@ function ReportsContent() {
                     </div>
                     <div className="space-y-1.5 text-xs">
                       {(balanceSheet.assets || []).map((a: any) => (
-                        <div key={a.code} className="flex justify-between py-1 border-b border-slate-50 text-slate-700">
+                        <div key={a.code} className="flex justify-between py-1 border-b border-slate-50 text-gray-600">
                           <span>{a.name}</span>
                           <span className="font-semibold">{currency(a.balance)}</span>
                         </div>
@@ -915,7 +915,7 @@ function ReportsContent() {
                     </div>
                     <div className="space-y-1.5 text-xs">
                       {(balanceSheet.liabilities || []).map((l: any) => (
-                        <div key={l.code} className="flex justify-between py-1 border-b border-slate-50 text-slate-700">
+                        <div key={l.code} className="flex justify-between py-1 border-b border-slate-50 text-gray-600">
                           <span>{l.name}</span>
                           <span className="font-semibold">{currency(l.balance)}</span>
                         </div>
@@ -931,7 +931,7 @@ function ReportsContent() {
                     </div>
                     <div className="space-y-1.5 text-xs">
                       {(balanceSheet.equity || []).map((e: any) => (
-                        <div key={e.code} className="flex justify-between py-1 border-b border-slate-50 text-slate-700">
+                        <div key={e.code} className="flex justify-between py-1 border-b border-slate-50 text-gray-600">
                           <span>{e.name}</span>
                           <span className="font-semibold">{currency(e.balance)}</span>
                         </div>
@@ -962,7 +962,7 @@ function ReportsContent() {
               </div>
 
               <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
-                <h3 className="text-sm font-bold text-slate-900">Commission by Sales Agent</h3>
+                <h3 className="text-sm font-bold text-gray-600">Commission by Sales Agent</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
@@ -977,9 +977,9 @@ function ReportsContent() {
                     <tbody className="divide-y divide-slate-100">
                       {(commissions.agents || []).map((r: any, i: number) => (
                         <tr key={i} className="hover:bg-brand-50/50/60">
-                          <td className="py-2.5 px-3 font-semibold text-slate-800">{r.agentName}</td>
+                          <td className="py-2.5 px-3 font-semibold text-gray-600">{r.agentName}</td>
                           <td className="py-2.5 px-3 text-right font-mono text-slate-600">{r.saleCount}</td>
-                          <td className="py-2.5 px-3 text-right font-semibold text-slate-800">{currency(r.totalSales)}</td>
+                          <td className="py-2.5 px-3 text-right font-semibold text-gray-600">{currency(r.totalSales)}</td>
                           <td className="py-2.5 px-3 text-right font-bold text-emerald-600">{currency(r.totalCommission)}</td>
                           <td className="py-2.5 px-3 text-right font-bold text-amber-600">{currency(r.pendingCommission)}</td>
                         </tr>
@@ -1035,9 +1035,9 @@ function ReportsContent() {
                       <tbody className="divide-y divide-slate-100">
                         {overdueInstallments.map((r: any, i: number) => (
                           <tr key={i} className="hover:bg-brand-50/50/60">
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">{r.customerName}</td>
+                            <td className="py-2.5 px-3 font-semibold text-gray-600">{r.customerName}</td>
                             <td className="py-2.5 px-3 font-mono text-slate-600">{r.customerPhone}</td>
-                            <td className="py-2.5 px-3 font-mono font-bold text-slate-700">{r.planNo}</td>
+                            <td className="py-2.5 px-3 font-mono font-bold text-gray-600">{r.planNo}</td>
                             <td className="py-2.5 px-3 text-slate-600">{r.dueDate?.split("T")[0] || ""}</td>
                             <td className="py-2.5 px-3 text-right font-bold text-rose-600">{currency(r.amount)}</td>
                             <td className="py-2.5 px-3 text-right font-bold text-rose-700">{r.daysOverdue} days</td>
@@ -1056,7 +1056,7 @@ function ReportsContent() {
             <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Saved Report Views</h3>
+                  <h3 className="text-sm font-bold text-gray-600">Saved Report Views</h3>
                   <p className="text-xs text-slate-500">Custom filter presets for instant 1-click execution</p>
                 </div>
                 <CustomButton size="sm" onClick={() => setShowSaveDialog(true)} className="bg-brand-gradient text-white">
@@ -1077,7 +1077,7 @@ function ReportsContent() {
                       className="flex items-center justify-between rounded-sm border border-slate-100 bg-brand-50/40 p-3.5 hover:bg-brand-50/50 transition"
                     >
                       <div>
-                        <p className="text-sm font-bold text-slate-800">{r.name}</p>
+                        <p className="text-sm font-bold text-gray-600">{r.name}</p>
                         <p className="text-xs text-slate-500">
                           {r.reportType} · {r.config?.startDate || "All time"} to {r.config?.endDate || "Now"}
                         </p>
@@ -1102,7 +1102,7 @@ function ReportsContent() {
             <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Automated Scheduled Reports</h3>
+                  <h3 className="text-sm font-bold text-gray-600">Automated Scheduled Reports</h3>
                   <p className="text-xs text-slate-500">Scheduled email and in-app executive summary deliveries</p>
                 </div>
               </div>
@@ -1120,7 +1120,7 @@ function ReportsContent() {
                       className="flex items-center justify-between rounded-sm border border-slate-100 bg-brand-50/40 p-3.5 hover:bg-brand-50/50 transition"
                     >
                       <div>
-                        <p className="text-sm font-bold text-slate-800">{r.name}</p>
+                        <p className="text-sm font-bold text-gray-600">{r.name}</p>
                         <p className="text-xs text-slate-500">
                           {r.reportType} · Frequency: <span className="font-bold">{r.frequency}</span> via {r.deliveryChannel}
                         </p>

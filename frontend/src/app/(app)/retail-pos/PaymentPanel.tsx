@@ -20,7 +20,7 @@ const METHOD_PRESETS = [
   { id: "CASH", label: "Cash", icon: Banknote, color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
   { id: "BKASH", label: "bKash", icon: Smartphone, color: "text-pink-600 bg-pink-50 border-pink-200" },
   { id: "NAGAD", label: "Nagad", icon: Smartphone, color: "text-orange-600 bg-orange-50 border-orange-200" },
-  { id: "CARD", label: "Card", icon: CreditCard, color: "text-teal-600 bg-teal-50 border-teal-200" },
+  { id: "CARD", label: "Card", icon: CreditCard, color: "text-brand-primary bg-brand-50 border-brand-border" },
   { id: "CREDIT", label: "Due", icon: Clock, color: "text-purple-600 bg-purple-50 border-purple-200" },
 ];
 
@@ -78,10 +78,10 @@ export function PaymentPanel({ total, payments, onChange }: Props) {
               onClick={() => setSingleMethod(m.id)}
               className={cn(
                 "flex-col items-center justify-center p-1.5 rounded-sm border text-center h-auto",
-                !isSelected && "bg-teal-50/50 text-slate-700 border-teal-100 hover:bg-teal-50"
+                !isSelected && "bg-brand-50 text-gray-600 border-brand-border hover:bg-brand-50"
               )}
             >
-              <Icon size={14} className={isSelected ? "text-white" : "text-teal-600"} />
+              <Icon size={14} className={isSelected ? "text-white" : "text-brand-primary"} />
               <span className="text-[11px] mt-0.5">{m.label}</span>
             </CustomButton>
           );
@@ -104,7 +104,7 @@ export function PaymentPanel({ total, payments, onChange }: Props) {
             variant="outline"
             size="xs"
             onClick={() => addCashAmount(amt)}
-            className="rounded-sm bg-teal-50 border-teal-200/80 text-xs font-semibold text-slate-700 hover:bg-teal-100/70 tabular-nums"
+            className="rounded-sm bg-brand-50 border-brand-border text-xs font-semibold text-gray-600 hover:bg-brand-50 tabular-nums"
           >
             ৳{amt}
           </CustomButton>
@@ -135,7 +135,7 @@ export function PaymentPanel({ total, payments, onChange }: Props) {
                 variant="ghost"
                 size="xs"
                 onClick={() => removeLine(idx)}
-                className="h-8 w-8 !p-0 text-gray-400 hover:text-red-500 rounded flex items-center justify-center shrink-0"
+                className="h-8 w-8 !p-0 text-gray-400 hover:text-red-500 rounded-sm flex items-center justify-center shrink-0"
                 title="Remove line"
               >
                 <Trash2 size={14} />
@@ -150,21 +150,21 @@ export function PaymentPanel({ total, payments, onChange }: Props) {
           variant="ghost"
           size="xs"
           onClick={() => addLine("CASH", remaining)}
-          className="gap-1 text-xs font-medium text-teal-700 hover:text-teal-800 p-0 h-auto"
+          className="gap-1 text-xs font-medium text-brand-dark hover:text-brand-dark p-0 h-auto"
         >
           <Plus size={12} /> Split with another method
         </CustomButton>
       </div>
 
       {/* Totals Summary */}
-      <div className="rounded-sm border border-teal-100/90 bg-teal-50/40 p-3 space-y-1.5 text-xs">
+      <div className="rounded-sm border border-slate-200 bg-brand-50 p-3 space-y-1.5 text-xs">
         <div className="flex justify-between text-gray-600 font-medium">
           <span>Net Payable:</span>
-          <span className="tabular-nums font-bold text-gray-900 text-sm">৳{total.toFixed(2)}</span>
+          <span className="tabular-nums font-bold text-gray-600 text-sm">৳{total.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-gray-600">
           <span>Tendered / Paid:</span>
-          <span className="tabular-nums font-semibold text-gray-800">৳{paid.toFixed(2)}</span>
+          <span className="tabular-nums font-semibold text-gray-600">৳{paid.toFixed(2)}</span>
         </div>
         {remaining > 0 && (
           <div className="flex justify-between font-bold text-amber-700 bg-amber-50/80 p-1.5 rounded-sm border border-amber-200">

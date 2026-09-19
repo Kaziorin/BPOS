@@ -43,7 +43,7 @@ export default function AccountsPage() {
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-50 text-sky-700"><BookOpen size={19} /></div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-gray-900">Chart of Accounts</h1>
+            <h1 className="text-xl font-bold tracking-tight text-gray-600">Chart of Accounts</h1>
             <p className="text-sm text-gray-500">{accounts.length} accounts · auto-seeded COA (§10.20)</p>
           </div>
         </div>
@@ -57,16 +57,16 @@ export default function AccountsPage() {
       <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-2xs">
         <CustomTable
           columns={[
-            { key: "code", header: "Code", render: (a) => <span className="font-mono text-xs font-semibold text-gray-700">{a.code}</span> },
+            { key: "code", header: "Code", render: (a) => <span className="font-mono text-xs font-semibold text-gray-600">{a.code}</span> },
             { key: "name", header: "Account", render: (a) => (
               <div>
-                <p className="font-medium text-gray-800">{a.name}</p>
+                <p className="font-medium text-gray-600">{a.name}</p>
                 {a.parent && <p className="text-[11px] text-gray-400">parent: {a.parent.name}</p>}
               </div>
             ) },
             { key: "type", header: "Type", render: (a) => <CustomBadge tone={TYPE_TONE[a.accountType] ?? "gray"}>{a.accountType}</CustomBadge> },
             { key: "group", header: "Group", render: (a) => (a.isGroup ? <CustomBadge tone="gray">Group</CustomBadge> : <span className="text-gray-300">—</span>) },
-            { key: "balance", header: "Balance", align: "right", render: (a) => <span className="font-semibold tabular-nums text-gray-900">{money(a.balance)}</span> },
+            { key: "balance", header: "Balance", align: "right", render: (a) => <span className="font-semibold tabular-nums text-gray-600">{money(a.balance)}</span> },
           ]}
           data={accounts}
           rowKey={(a) => a.id}

@@ -313,7 +313,7 @@ export default function DeliveryPage() {
   return (
     <div className="space-y-6">
       {message && (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+        <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
           {message}
         </div>
       )}
@@ -321,7 +321,7 @@ export default function DeliveryPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-900">
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-600">
             <Bike size={22} className="text-primary-600" /> Delivery & Logistics
           </h1>
           <p className="mt-1 text-sm text-gray-500">Dispatch, track and settle deliveries across every sales channel</p>
@@ -332,22 +332,22 @@ export default function DeliveryPage() {
       {/* KPI cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {([["PENDING", "Pending"], ["PACKED", "Packed"], ["ASSIGNED", "Assigned"], ["OUT_FOR_DELIVERY", "On Route"], ["DELIVERED", "Delivered"]] as const).map(([key, label]) => (
-          <div key={key} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+          <div key={key} className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-400">{label}</p>
-            <p className="mt-1 text-2xl font-bold text-gray-900">{counts[key] ?? 0}</p>
+            <p className="mt-1 text-2xl font-bold text-gray-600">{counts[key] ?? 0}</p>
           </div>
         ))}
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
           <p className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><Wallet size={13} /> Today's delivered value</p>
           <p className="mt-1 text-lg font-bold text-emerald-600">{currency(dashExtra.todayDeliveredValue)}</p>
         </div>
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
           <p className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><Users size={13} /> Available riders</p>
           <p className="mt-1 text-lg font-bold text-indigo-600">{dashExtra.availableRiders}</p>
         </div>
-        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="rounded-sm border border-gray-100 bg-white p-4 shadow-sm">
           <p className="flex items-center gap-1.5 text-xs font-medium text-gray-400"><Wallet size={13} /> COD to collect (open)</p>
           <p className="mt-1 text-lg font-bold text-amber-600">{currency(dashExtra.pendingCodValue)}</p>
         </div>
@@ -364,7 +364,7 @@ export default function DeliveryPage() {
           <button
             key={id}
             onClick={() => setTab(id)}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium transition ${tab === id ? "bg-primary-50 text-primary-700" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
+            className={`flex items-center gap-1.5 rounded-sm px-3.5 py-2 text-sm font-medium transition ${tab === id ? "bg-primary-50 text-primary-700" : "text-gray-500 hover:bg-gray-50 hover:text-gray-600"}`}
           >
             <Icon size={15} /> {label}
           </button>
@@ -375,13 +375,13 @@ export default function DeliveryPage() {
       {tab === "orders" && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
-            <button onClick={() => setStatusFilter("")} className={`rounded-lg px-3 py-1.5 text-xs font-medium ${!statusFilter ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>All</button>
+            <button onClick={() => setStatusFilter("")} className={`rounded-sm px-3 py-1.5 text-xs font-medium ${!statusFilter ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>All</button>
             {Object.entries(STATUS_META).map(([k, m]) => (
-              <button key={k} onClick={() => setStatusFilter(k === statusFilter ? "" : k)} className={`rounded-lg px-3 py-1.5 text-xs font-medium ${statusFilter === k ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+              <button key={k} onClick={() => setStatusFilter(k === statusFilter ? "" : k)} className={`rounded-sm px-3 py-1.5 text-xs font-medium ${statusFilter === k ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
                 {m.label}
               </button>
             ))}
-            <button onClick={() => { loadOrders(); loadDashboard(); }} className="ml-auto flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50">
+            <button onClick={() => { loadOrders(); loadDashboard(); }} className="ml-auto flex items-center gap-1.5 rounded-sm border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50">
               <RefreshCw size={13} /> Refresh
             </button>
           </div>
@@ -389,13 +389,13 @@ export default function DeliveryPage() {
           {ordersLoading ? (
             <div className="flex items-center justify-center py-16"><Loader2 size={22} className="animate-spin text-gray-400" /></div>
           ) : orders.length === 0 ? (
-            <div className="rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
+            <div className="rounded-sm border-2 border-dashed border-gray-200 p-12 text-center">
               <Package size={28} className="mx-auto text-gray-300" />
               <p className="mt-3 text-sm font-medium text-gray-500">No delivery orders{statusFilter ? ` in ${STATUS_META[statusFilter]?.label}` : ""}</p>
               <p className="mt-1 text-xs text-gray-400">Create a delivery to dispatch a sale or restaurant order</p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
+            <div className="overflow-x-auto rounded-sm border border-gray-100 bg-white shadow-sm">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 text-left text-xs uppercase tracking-wide text-gray-400">
@@ -414,27 +414,27 @@ export default function DeliveryPage() {
                     return (
                       <tr key={o.id} className="border-b border-gray-50 hover:bg-gray-50/60">
                         <td className="px-4 py-3">
-                          <p className="font-semibold text-gray-900">{o.deliveryNo}</p>
+                          <p className="font-semibold text-gray-600">{o.deliveryNo}</p>
                           <p className="text-[11px] text-gray-400">{o.sourceType} · {o.priority}</p>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="font-medium text-gray-800">{o.customerName || "—"}</p>
+                          <p className="font-medium text-gray-600">{o.customerName || "—"}</p>
                           <p className="text-xs text-gray-400">{o.customerPhone || ""}</p>
                           <p className="max-w-[220px] truncate text-[11px] text-gray-500">{o.deliveryAddress}</p>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-xs font-medium text-gray-700">{o.riderName || "Unassigned"}</p>
+                          <p className="text-xs font-medium text-gray-600">{o.riderName || "Unassigned"}</p>
                           {o.vehicleName && <p className="text-[11px] text-gray-400">{o.vehicleName}</p>}
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`rounded-md px-2 py-0.5 text-[11px] font-semibold ${o.paymentType === "COD" ? "bg-amber-500/10 text-amber-600" : "bg-emerald-500/10 text-emerald-600"}`}>
+                          <span className={`rounded-sm px-2 py-0.5 text-[11px] font-semibold ${o.paymentType === "COD" ? "bg-amber-500/10 text-amber-600" : "bg-emerald-500/10 text-emerald-600"}`}>
                             {o.paymentType === "COD" ? "COD" : "Prepaid"}
                           </span>
                           {o.paymentType === "COD" && <p className="mt-0.5 text-[11px] text-gray-500">collect {currency(o.codAmount)}</p>}
                         </td>
                         <td className="px-4 py-3">
                           <p className="text-xs text-gray-500">Fee {currency(o.deliveryFee)}</p>
-                          <p className="text-sm font-bold text-gray-900">{currency(o.totalAmount)}</p>
+                          <p className="text-sm font-bold text-gray-600">{currency(o.totalAmount)}</p>
                         </td>
                         <td className="px-4 py-3">
                           <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium ${meta.badge}`}>
@@ -444,30 +444,30 @@ export default function DeliveryPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex justify-end gap-1.5">
-                            <button onClick={() => openDetail(o)} title="View" className="rounded-lg border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50"><FileText size={14} /></button>
+                            <button onClick={() => openDetail(o)} title="View" className="rounded-sm border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50"><FileText size={14} /></button>
                             {o.status === "PENDING" && (
-                              <button onClick={() => transition(o, "PACKED")} className="rounded-lg border border-amber-200 p-1.5 text-amber-600 hover:bg-amber-50"><Box size={14} /></button>
+                              <button onClick={() => transition(o, "PACKED")} className="rounded-sm border border-amber-200 p-1.5 text-amber-600 hover:bg-amber-50"><Box size={14} /></button>
                             )}
                             {(o.status === "PENDING" || o.status === "PACKED" || o.status === "RESCHEDULED") && (
-                              <button onClick={() => openAssign(o)} className="rounded-lg border border-indigo-200 p-1.5 text-indigo-600 hover:bg-indigo-50"><Users size={14} /></button>
+                              <button onClick={() => openAssign(o)} className="rounded-sm border border-indigo-200 p-1.5 text-indigo-600 hover:bg-indigo-50"><Users size={14} /></button>
                             )}
                             {(o.status === "ASSIGNED") && (
-                              <button onClick={() => transition(o, "OUT_FOR_DELIVERY")} className="rounded-lg border border-brand-border p-1.5 text-sky-600 hover:bg-brand-50/50"><Truck size={14} /></button>
+                              <button onClick={() => transition(o, "OUT_FOR_DELIVERY")} className="rounded-sm border border-brand-border p-1.5 text-sky-600 hover:bg-brand-50/50"><Truck size={14} /></button>
                             )}
                             {(o.status === "OUT_FOR_DELIVERY") && (
-                              <button onClick={() => openDeliver(o)} className="rounded-lg border border-emerald-200 p-1.5 text-emerald-600 hover:bg-emerald-50"><CheckCircle2 size={14} /></button>
+                              <button onClick={() => openDeliver(o)} className="rounded-sm border border-emerald-200 p-1.5 text-emerald-600 hover:bg-emerald-50"><CheckCircle2 size={14} /></button>
                             )}
                             {(o.status === "ASSIGNED" || o.status === "OUT_FOR_DELIVERY") && (
-                              <button onClick={() => { setFailReason(""); setFailModal(o); }} className="rounded-lg border border-rose-200 p-1.5 text-rose-600 hover:bg-rose-50"><XCircle size={14} /></button>
+                              <button onClick={() => { setFailReason(""); setFailModal(o); }} className="rounded-sm border border-rose-200 p-1.5 text-rose-600 hover:bg-rose-50"><XCircle size={14} /></button>
                             )}
                             {(o.status === "FAILED") && (
                               <>
-                                <button onClick={() => transition(o, "RESCHEDULED", { reason: "Retry" })} className="rounded-lg border border-orange-200 p-1.5 text-orange-600 hover:bg-orange-50"><RotateCcw size={14} /></button>
-                                <button onClick={() => transition(o, "RETURNED", { reason: "Undeliverable" })} className="rounded-lg border border-red-200 p-1.5 text-red-600 hover:bg-red-50"><Package size={14} /></button>
+                                <button onClick={() => transition(o, "RESCHEDULED", { reason: "Retry" })} className="rounded-sm border border-orange-200 p-1.5 text-orange-600 hover:bg-orange-50"><RotateCcw size={14} /></button>
+                                <button onClick={() => transition(o, "RETURNED", { reason: "Undeliverable" })} className="rounded-sm border border-red-200 p-1.5 text-red-600 hover:bg-red-50"><Package size={14} /></button>
                               </>
                             )}
                             {o.status === "PENDING" && (
-                              <button onClick={() => transition(o, "CANCELLED")} className="rounded-lg border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50"><XCircle size={14} /></button>
+                              <button onClick={() => transition(o, "CANCELLED")} className="rounded-sm border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50"><XCircle size={14} /></button>
                             )}
                           </div>
                         </td>
@@ -490,12 +490,12 @@ export default function DeliveryPage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {riders.map((r) => (
-              <div key={r.id} className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+              <div key={r.id} className="rounded-sm border border-gray-100 bg-white p-5 shadow-sm">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-50 text-primary-600"><Users size={19} /></div>
                     <div>
-                      <p className="font-semibold text-gray-900">{r.name}</p>
+                      <p className="font-semibold text-gray-600">{r.name}</p>
                       <p className="text-xs text-gray-400">{r.phone || "—"} · {r.deliveryCount} deliveries</p>
                     </div>
                   </div>
@@ -507,18 +507,18 @@ export default function DeliveryPage() {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-1.5">
                   {r.status === "AVAILABLE" ? (
-                    <button onClick={() => setRiderStatus(r, "OFFLINE")} className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50">Go offline</button>
+                    <button onClick={() => setRiderStatus(r, "OFFLINE")} className="rounded-sm border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50">Go offline</button>
                   ) : r.status === "OFFLINE" ? (
-                    <button onClick={() => setRiderStatus(r, "AVAILABLE")} className="rounded-lg border border-emerald-200 px-2.5 py-1 text-xs font-medium text-emerald-600 hover:bg-emerald-50">Go online</button>
+                    <button onClick={() => setRiderStatus(r, "AVAILABLE")} className="rounded-sm border border-emerald-200 px-2.5 py-1 text-xs font-medium text-emerald-600 hover:bg-emerald-50">Go online</button>
                   ) : (
-                    <button onClick={() => setRiderStatus(r, "AVAILABLE")} className="rounded-lg border border-emerald-200 px-2.5 py-1 text-xs font-medium text-emerald-600 hover:bg-emerald-50">Free up</button>
+                    <button onClick={() => setRiderStatus(r, "AVAILABLE")} className="rounded-sm border border-emerald-200 px-2.5 py-1 text-xs font-medium text-emerald-600 hover:bg-emerald-50">Free up</button>
                   )}
-                  <button onClick={() => toggleRider(r)} className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50">{r.isActive ? "Deactivate" : "Activate"}</button>
+                  <button onClick={() => toggleRider(r)} className="rounded-sm border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50">{r.isActive ? "Deactivate" : "Activate"}</button>
                 </div>
               </div>
             ))}
             {riders.length === 0 && (
-              <div className="rounded-xl border-2 border-dashed border-gray-200 p-10 text-center sm:col-span-3">
+              <div className="rounded-sm border-2 border-dashed border-gray-200 p-10 text-center sm:col-span-3">
                 <Users size={26} className="mx-auto text-gray-300" />
                 <p className="mt-3 text-sm text-gray-500">No riders yet — add your delivery team</p>
               </div>
@@ -533,7 +533,7 @@ export default function DeliveryPage() {
           <div className="flex justify-end">
             <CustomButton onClick={() => setShowVehicle(true)}><Plus size={15} /> Add Vehicle</CustomButton>
           </div>
-          <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
+          <div className="overflow-x-auto rounded-sm border border-gray-100 bg-white shadow-sm">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 text-left text-xs uppercase tracking-wide text-gray-400">
@@ -543,14 +543,14 @@ export default function DeliveryPage() {
               <tbody>
                 {vehicles.map((v) => (
                   <tr key={v.id} className="border-b border-gray-50 hover:bg-gray-50/60">
-                    <td className="px-4 py-3 font-medium text-gray-900">{v.name}</td>
-                    <td className="px-4 py-3"><span className="rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">{v.type}</span></td>
+                    <td className="px-4 py-3 font-medium text-gray-600">{v.name}</td>
+                    <td className="px-4 py-3"><span className="rounded-sm bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">{v.type}</span></td>
                     <td className="px-4 py-3 text-gray-500">{v.plateNo || "—"}</td>
                     <td className="px-4 py-3">
                       <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${v.isActive ? "bg-emerald-500/10 text-emerald-600" : "bg-gray-500/10 text-gray-500"}`}>{v.isActive ? "Active" : "Inactive"}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => toggleVehicle(v)} className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50">{v.isActive ? "Deactivate" : "Activate"}</button>
+                      <button onClick={() => toggleVehicle(v)} className="rounded-sm border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50">{v.isActive ? "Deactivate" : "Activate"}</button>
                     </td>
                   </tr>
                 ))}
@@ -571,26 +571,26 @@ export default function DeliveryPage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {zones.map((z) => (
-              <div key={z.id} className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+              <div key={z.id} className="rounded-sm border border-gray-100 bg-white p-5 shadow-sm">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-semibold text-gray-900">{z.name}</p>
+                    <p className="font-semibold text-gray-600">{z.name}</p>
                     <p className="text-xs text-gray-400">{[z.city, z.area].filter(Boolean).join(", ") || "—"}</p>
                   </div>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${z.isActive ? "bg-emerald-500/10 text-emerald-600" : "bg-gray-500/10 text-gray-500"}`}>{z.isActive ? "Active" : "Inactive"}</span>
                 </div>
                 <div className="mt-3 space-y-1 text-xs text-gray-600">
-                  <p className="flex justify-between"><span>Delivery fee</span><span className="font-semibold text-gray-900">{currency(z.deliveryFee)}</span></p>
+                  <p className="flex justify-between"><span>Delivery fee</span><span className="font-semibold text-gray-600">{currency(z.deliveryFee)}</span></p>
                   <p className="flex justify-between"><span>Min order</span><span>{currency(z.minOrderAmount)}</span></p>
                   <p className="flex justify-between"><span>Free delivery above</span><span>{z.freeDeliveryAbove > 0 ? currency(z.freeDeliveryAbove) : "—"}</span></p>
                 </div>
                 <div className="mt-4">
-                  <button onClick={() => toggleZone(z)} className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50">{z.isActive ? "Deactivate" : "Activate"}</button>
+                  <button onClick={() => toggleZone(z)} className="rounded-sm border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50">{z.isActive ? "Deactivate" : "Activate"}</button>
                 </div>
               </div>
             ))}
             {zones.length === 0 && (
-              <div className="rounded-xl border-2 border-dashed border-gray-200 p-10 text-center sm:col-span-3">
+              <div className="rounded-sm border-2 border-dashed border-gray-200 p-10 text-center sm:col-span-3">
                 <MapPin size={26} className="mx-auto text-gray-300" />
                 <p className="mt-3 text-sm text-gray-500">No delivery zones — zone fees drive auto fee calculation</p>
               </div>
@@ -636,7 +636,7 @@ export default function DeliveryPage() {
             <CustomInput label="Notes" value={createForm.notes} onChange={(e) => setCreateForm({ ...createForm, notes: e.target.value })} placeholder="Optional" />
           </div>
           {pickedSale && (
-            <div className="rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-500">
+            <div className="rounded-sm bg-gray-50 px-3 py-2 text-xs text-gray-500">
               Sale {pickedSale.invoiceNo}: total {currency(pickedSale.total)} · paid {currency(pickedSale.paidTotal)} · due {currency(dueAmount)} · COD collect {currency(codShown)}
             </div>
           )}
@@ -656,7 +656,7 @@ export default function DeliveryPage() {
             <CustomSelect value={assignRider} onChange={(e) => setAssignRider(e.target.value)} options={[{ value: "", label: "— Auto-assign (round-robin) —" }, ...riders.filter((r) => r.status === "AVAILABLE" && r.isActive).map((r) => ({ value: r.id, label: `${r.name} (${r.deliveryCount} done)` }))]} />
           </div>
           {riders.filter((r) => r.status === "AVAILABLE").length === 0 && (
-            <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-600">No available riders — add one in the Riders tab or free one up first.</p>
+            <p className="rounded-sm bg-rose-50 px-3 py-2 text-xs text-rose-600">No available riders — add one in the Riders tab or free one up first.</p>
           )}
           <div className="flex justify-end gap-2">
             <CustomButton variant="outline" onClick={() => setAssignModal(null)}>Cancel</CustomButton>
@@ -668,7 +668,7 @@ export default function DeliveryPage() {
       {/* ══════════ DELIVER MODAL (POD + COD) ══════════ */}
       <CustomModal open={!!deliverModal} onClose={() => setDeliverModal(null)} title={`Mark Delivered — ${deliverModal?.deliveryNo ?? ""}`}>
         <div className="space-y-4">
-          <div className="rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-700">
+          <div className="rounded-sm bg-amber-500/10 px-3 py-2 text-xs text-amber-700">
             {deliverModal?.paymentType === "COD" ? (
               <>COD delivery — collecting <b>{currency(deliverModal?.codAmount ?? 0)}</b> will record a COD payment, mark the sale/invoice paid and settle the customer's balance.</>
             ) : (
@@ -706,12 +706,12 @@ export default function DeliveryPage() {
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2 text-xs">
               {detail.items?.length > 0 && (
-                <span className="rounded-md bg-gray-100 px-2 py-1 font-medium text-gray-600">{detail.items.length} item(s) from sale</span>
+                <span className="rounded-sm bg-gray-100 px-2 py-1 font-medium text-gray-600">{detail.items.length} item(s) from sale</span>
               )}
               <span className={`rounded-full px-2.5 py-1 font-medium ${STATUS_META[detail.status]?.badge ?? ""}`}>{STATUS_META[detail.status]?.label ?? detail.status}</span>
-              <span className="rounded-md bg-amber-500/10 px-2 py-1 font-medium text-amber-600">{detail.paymentType === "COD" ? `COD ${currency(detail.codAmount)}` : "Prepaid"}</span>
+              <span className="rounded-sm bg-amber-500/10 px-2 py-1 font-medium text-amber-600">{detail.paymentType === "COD" ? `COD ${currency(detail.codAmount)}` : "Prepaid"}</span>
             </div>
-            <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
+            <div className="rounded-sm bg-gray-50 p-3 text-xs text-gray-600">
               <p><b>Customer:</b> {detail.customerName || "—"} {detail.customerPhone ? `(${detail.customerPhone})` : ""}</p>
               <p><b>Address:</b> {detail.deliveryAddress || "—"}</p>
               <p><b>Zone:</b> {detail.zoneName || "—"} · <b>Rider:</b> {detail.riderName || "—"} · <b>Vehicle:</b> {detail.vehicleName || "—"}</p>
@@ -727,7 +727,7 @@ export default function DeliveryPage() {
                   <li key={i} className="flex items-start gap-2 text-xs">
                     <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${STATUS_META[t.status]?.dot ?? "bg-gray-300"}`} />
                     <div>
-                      <p className="font-medium text-gray-700">{STATUS_META[t.status]?.label ?? t.status}</p>
+                      <p className="font-medium text-gray-600">{STATUS_META[t.status]?.label ?? t.status}</p>
                       {t.note && <p className="text-gray-400">{t.note}</p>}
                       <p className="text-[10px] text-gray-300">{t.createdAt}</p>
                     </div>

@@ -17,7 +17,7 @@ function DefaultModulePage({ moduleCode, items }: { moduleCode: string; items: M
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 capitalize">{moduleCode.replace(/-/g, " ")}</h1>
+        <h1 className="text-2xl font-bold text-gray-600 capitalize">{moduleCode.replace(/-/g, " ")}</h1>
         <p className="mt-1 text-sm text-gray-500">Manage {moduleCode.replace(/-/g, " ")} settings and data</p>
       </div>
 
@@ -26,15 +26,15 @@ function DefaultModulePage({ moduleCode, items }: { moduleCode: string; items: M
           <a
             key={item.id}
             href={item.route}
-            className="group rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-primary-300 hover:shadow-md"
+            className="group rounded-sm border border-gray-200 bg-white p-6 shadow-sm transition hover:border-primary-300 hover:shadow-md"
           >
-            <h3 className="text-lg font-medium text-gray-900 group-hover:text-primary-600">{item.label}</h3>
+            <h3 className="text-lg font-medium text-gray-600 group-hover:text-primary-600">{item.label}</h3>
           </a>
         ))}
       </div>
 
       {items.length === 0 && (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
+        <div className="rounded-sm border-2 border-dashed border-gray-200 p-12 text-center">
           <p className="text-gray-500">No menu items available for this module</p>
         </div>
       )}
@@ -56,7 +56,7 @@ export default function ModulePage({ params }: { params: Promise<{ module: strin
 
   if (error) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
+      <div className="rounded-sm border border-red-200 bg-red-50 p-6 text-center">
         <p className="text-red-600">Error loading module: {error}</p>
       </div>
     );

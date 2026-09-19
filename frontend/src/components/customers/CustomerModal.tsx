@@ -150,7 +150,7 @@ export function CustomerModal({ isOpen, onClose, onSuccess, customer, groups = [
   }
 
   const inputClass =
-    "w-full rounded-sm border border-brand-border bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 transition shadow-2xs";
+    "w-full rounded-sm border border-brand-border bg-white px-3.5 py-2 text-xs font-semibold text-gray-600 placeholder-slate-400 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 transition shadow-2xs";
   const labelClass = "block text-xs font-semibold text-brand-dark mb-1.5";
 
   return (

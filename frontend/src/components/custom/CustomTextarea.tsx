@@ -31,7 +31,7 @@ export const CustomTextarea = forwardRef<HTMLTextAreaElement, CustomTextareaProp
             "w-full resize-y rounded-sm border px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 shadow-2xs",
             darkMode
               ? "bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20"
-              : "bg-white border-brand-border text-slate-700 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20",
+              : "bg-white border-brand-border text-gray-600 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20",
             error ? "border-red-400 focus:border-red-500" : "",
             className
           )}

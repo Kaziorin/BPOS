@@ -66,7 +66,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
     WHOLESALE: "bg-primary-50 text-primary-700 border-primary-200/60",
     CORPORATE: "bg-purple-50 text-purple-700 border-purple-200/60",
     NEW: "bg-brand-50 text-brand-dark border-brand-border",
-    REGULAR: "bg-gray-50 text-gray-700 border-gray-200",
+    REGULAR: "bg-gray-50 text-gray-600 border-gray-200",
     AT_RISK: "bg-rose-50 text-rose-700 border-rose-200/60",
     INACTIVE: "bg-gray-100 text-gray-500 border-gray-200",
   };
@@ -235,23 +235,23 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                       <div className="grid grid-cols-2 gap-2 text-gray-600">
                         <div>
                           <p className="text-[10px] text-gray-400">Phone</p>
-                          <p className="font-medium text-gray-800">{customer.phone || "—"}</p>
+                          <p className="font-medium text-gray-600">{customer.phone || "—"}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-gray-400">Email</p>
-                          <p className="font-medium text-gray-800 truncate">{customer.email || "—"}</p>
+                          <p className="font-medium text-gray-600 truncate">{customer.email || "—"}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-gray-400">City</p>
-                          <p className="font-medium text-gray-800">{customer.city || "—"}</p>
+                          <p className="font-medium text-gray-600">{customer.city || "—"}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-gray-400">BIN / Tax ID</p>
-                          <p className="font-medium text-gray-800">{customer.taxRegNo || "—"}</p>
+                          <p className="font-medium text-gray-600">{customer.taxRegNo || "—"}</p>
                         </div>
                         <div className="col-span-2">
                           <p className="text-[10px] text-gray-400">Address</p>
-                          <p className="font-medium text-gray-800">{customer.address || "—"}</p>
+                          <p className="font-medium text-gray-600">{customer.address || "—"}</p>
                         </div>
                       </div>
                     </div>
@@ -262,15 +262,15 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                       <div className="grid grid-cols-2 gap-2 text-gray-600">
                         <div>
                           <p className="text-[10px] text-gray-400">Credit Limit</p>
-                          <p className="font-medium text-gray-800">৳{Number(customer.creditLimit || 0).toLocaleString()}</p>
+                          <p className="font-medium text-gray-600">৳{Number(customer.creditLimit || 0).toLocaleString()}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-gray-400">Credit Period</p>
-                          <p className="font-medium text-gray-800">{customer.creditPeriodDays ? `${customer.creditPeriodDays} Days` : "—"}</p>
+                          <p className="font-medium text-gray-600">{customer.creditPeriodDays ? `${customer.creditPeriodDays} Days` : "—"}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-gray-400">Total Spent</p>
-                          <p className="font-medium text-gray-800">৳{Number(customer.purchaseHistory?.totalSpent || 0).toLocaleString()}</p>
+                          <p className="font-medium text-gray-600">৳{Number(customer.purchaseHistory?.totalSpent || 0).toLocaleString()}</p>
                         </div>
                         <div>
                           <p className="text-[10px] text-gray-400">Status</p>
@@ -328,7 +328,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                         placeholder="Add interaction note or reminder..."
                         value={newNote}
                         onChange={(e) => setNewNote(e.target.value)}
-                        className="w-full rounded-sm border border-brand-border p-2.5 text-xs text-gray-800 placeholder-gray-400 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none"
+                        className="w-full rounded-sm border border-brand-border p-2.5 text-xs text-gray-600 placeholder-gray-400 focus:border-brand-primary focus:ring-1 focus:ring-brand-border focus:outline-none"
                       />
                       <div className="flex justify-end">
                         <button
@@ -346,7 +346,7 @@ export function CustomerDrawer({ customerId, isOpen, onClose, onEdit, onCollectD
                       {customer.customerNotes && customer.customerNotes.length > 0 ? (
                         customer.customerNotes.map((note: any) => (
                           <div key={note.id} className="rounded-sm border border-slate-200 bg-brand-50/30 p-3 text-xs space-y-1">
-                            <p className="text-gray-800 leading-relaxed">{note.note}</p>
+                            <p className="text-gray-600 leading-relaxed">{note.note}</p>
                             <p className="text-[10px] text-gray-400 flex items-center gap-1 pt-0.5">
                               <Clock size={10} />
                               {note.createdAt ? new Date(note.createdAt).toLocaleString() : "Just now"}

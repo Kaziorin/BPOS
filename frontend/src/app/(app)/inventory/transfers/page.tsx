@@ -119,13 +119,13 @@ export default function TransfersPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Stock Transfers</h1>
+          <h1 className="text-2xl font-bold text-gray-600">Stock Transfers</h1>
           <p className="mt-1 text-sm text-gray-500">Request → Approve → Ship → Receive</p>
         </div>
         <CustomButton leftIcon={<Plus size={15} />} onClick={() => setShowCreate(true)}>New Transfer</CustomButton>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white">
+      <div className="rounded-sm border border-gray-200 bg-white">
         <CustomTable columns={columns} data={transfers} rowKey={(r) => r.id} loading={loading} emptyIcon={ArrowRightLeft} emptyMessage="No transfers yet" />
       </div>
 
@@ -138,7 +138,7 @@ export default function TransfersPage() {
           </div>
           <CustomInput label="Note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Optional note" />
           <div>
-            <p className="mb-2 text-sm font-medium text-gray-700">Items</p>
+            <p className="mb-2 text-sm font-medium text-gray-600">Items</p>
             {items.map((item, idx) => (
               <div key={idx} className="mb-2 flex gap-2">
                 <CustomInput containerClassName="flex-1" placeholder="Product ID" value={item.productId} onChange={(e) => { const n = [...items]; n[idx].productId = e.target.value; setItems(n); }} />
@@ -176,7 +176,7 @@ export default function TransfersPage() {
               <div><span className="text-gray-400">To:</span> <span className="font-medium">{selected.toWarehouse.name}</span></div>
             </div>
 
-            <div className="rounded-lg border border-gray-100 overflow-hidden">
+            <div className="rounded-sm border border-gray-100 overflow-hidden">
               <table className="w-full text-sm">
                 <thead><tr className="bg-gray-50 text-xs text-gray-400"><th className="px-3 py-2 text-left">Product</th><th className="px-3 py-2 text-right">Qty</th></tr></thead>
                 <tbody>

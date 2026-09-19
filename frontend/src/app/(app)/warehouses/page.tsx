@@ -376,7 +376,7 @@ export default function WarehousesPage() {
             <WhIcon size={15} />
           </div>
           <div className="min-w-0">
-            <div className="font-semibold text-xs text-slate-900 truncate">{w.name}</div>
+            <div className="font-semibold text-xs text-gray-600 truncate">{w.name}</div>
             {w.isLocationBased ? (
               <span className="inline-flex items-center gap-1 text-[11px] text-brand-primary font-medium">
                 <Layers size={11} /> 4-Tier Bin Enabled
@@ -406,7 +406,7 @@ export default function WarehousesPage() {
       align: "center",
       width: "10%",
       render: (w) => (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-[11px] font-medium bg-slate-100 text-gray-600 border border-slate-200">
           {w.type || "BRANCH"}
         </span>
       ),
@@ -436,7 +436,7 @@ export default function WarehousesPage() {
       render: (w) => (
         <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600">
           <Package size={13} className="text-slate-400" />
-          <span className="font-mono font-bold text-slate-800">{w._count?.stockRows || 0}</span> SKUs
+          <span className="font-mono font-bold text-gray-600">{w._count?.stockRows || 0}</span> SKUs
         </span>
       ),
     },
@@ -504,7 +504,7 @@ export default function WarehousesPage() {
       header: "Product Name",
       align: "left",
       render: (st) => (
-        <span className="font-semibold text-xs text-slate-900">{st.productName}</span>
+        <span className="font-semibold text-xs text-gray-600">{st.productName}</span>
       ),
     },
     {
@@ -672,7 +672,7 @@ export default function WarehousesPage() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-slate-700">
+              <label className="block text-xs font-semibold text-gray-600">
                 Branch Outlet <span className="text-red-500">*</span>
               </label>
               <CustomDropdownSelect
@@ -683,7 +683,7 @@ export default function WarehousesPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-slate-700">
+              <label className="block text-xs font-semibold text-gray-600">
                 Warehouse Type
               </label>
               <CustomDropdownSelect
@@ -702,10 +702,10 @@ export default function WarehousesPage() {
                 type="checkbox"
                 checked={isLocationBased}
                 onChange={(e) => setIsLocationBased(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-primary focus:ring-brand-border accent-brand-primary"
+                className="mt-0.5 h-4 w-4 rounded-sm border-gray-300 text-brand-primary focus:ring-brand-border accent-brand-primary"
               />
               <div className="space-y-0.5 text-left">
-                <span className="text-xs font-semibold text-slate-900">
+                <span className="text-xs font-semibold text-gray-600">
                   Enable Location-Based Warehouse (Row, Col, Rack, Bin)
                 </span>
                 <p className="text-[11px] text-slate-500">
@@ -749,7 +749,7 @@ export default function WarehousesPage() {
                 className={`flex items-center gap-2 rounded-sm px-3.5 py-2 text-xs transition-all ${
                   locTab === "grid"
                     ? "bg-brand-50 text-brand-primary font-bold border border-brand-border shadow-2xs"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent font-medium"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-gray-600 border border-transparent font-medium"
                 }`}
               >
                 <Grid3X3 size={15} className={locTab === "grid" ? "text-brand-primary" : "text-slate-400"} />
@@ -764,12 +764,12 @@ export default function WarehousesPage() {
                 className={`flex items-center gap-2 rounded-sm px-3.5 py-2 text-xs transition-all ${
                   locTab === "inventory"
                     ? "bg-brand-50 text-brand-primary font-bold border border-brand-border shadow-2xs"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent font-medium"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-gray-600 border border-transparent font-medium"
                 }`}
               >
                 <Boxes size={15} className={locTab === "inventory" ? "text-brand-primary" : "text-slate-400"} />
                 <span>Bin Product Inventory</span>
-                <span className="rounded-sm bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-700">
+                <span className="rounded-sm bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-gray-600">
                   {binStocks.length}
                 </span>
               </button>
@@ -779,7 +779,7 @@ export default function WarehousesPage() {
                 className={`flex items-center gap-2 rounded-sm px-3.5 py-2 text-xs transition-all ${
                   locTab === "generator"
                     ? "bg-brand-50 text-brand-primary font-bold border border-brand-border shadow-2xs"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent font-medium"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-gray-600 border border-transparent font-medium"
                 }`}
               >
                 <Sparkles size={15} className={locTab === "generator" ? "text-brand-primary" : "text-slate-400"} />
@@ -791,7 +791,7 @@ export default function WarehousesPage() {
                 className={`flex items-center gap-2 rounded-sm px-3.5 py-2 text-xs transition-all ${
                   locTab === "single"
                     ? "bg-brand-50 text-brand-primary font-bold border border-brand-border shadow-2xs"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent font-medium"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-gray-600 border border-transparent font-medium"
                 }`}
               >
                 <Plus size={15} className={locTab === "single" ? "text-brand-primary" : "text-slate-400"} />
@@ -823,7 +823,7 @@ export default function WarehousesPage() {
                                 {row.cols.length} Column{row.cols.length > 1 ? "s" : ""}
                               </span>
                             </div>
-                            <span className="rounded-sm bg-white px-2.5 py-1 text-xs font-bold text-slate-700 border border-slate-200 shadow-2xs">
+                            <span className="rounded-sm bg-white px-2.5 py-1 text-xs font-bold text-gray-600 border border-slate-200 shadow-2xs">
                               {row.cols.reduce((acc, c) => acc + c.racks.reduce((rAcc, rk) => rAcc + rk.bins.length, 0), 0)} Bins in Row
                             </span>
                           </div>
@@ -835,7 +835,7 @@ export default function WarehousesPage() {
                                 <div>
                                   {/* Column Header */}
                                   <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-100">
-                                    <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                    <div className="text-xs font-bold text-gray-600 flex items-center gap-1.5">
                                       <span className="h-2 w-2 rounded-full bg-brand-primary" />
                                       Column / Bay: <span className="font-mono text-brand-primary font-extrabold">{col.colCode}</span>
                                     </div>
@@ -850,7 +850,7 @@ export default function WarehousesPage() {
                                       <div key={rack.rackCode} className="rounded-sm bg-slate-50/80 p-2.5 border border-slate-200">
                                         <div className="text-[11px] font-bold text-slate-600 mb-2 flex items-center justify-between">
                                           <div className="flex items-center gap-1.5">
-                                            <span className="rounded-sm bg-slate-200 px-1.5 py-0.5 font-mono text-[10px] text-slate-700 font-semibold">
+                                            <span className="rounded-sm bg-slate-200 px-1.5 py-0.5 font-mono text-[10px] text-gray-600 font-semibold">
                                               Rack: {rack.rackCode}
                                             </span>
                                           </div>
@@ -874,7 +874,7 @@ export default function WarehousesPage() {
                                                 }`}
                                               >
                                                 <div className="flex items-start justify-between">
-                                                  <div className="font-mono text-xs font-bold text-slate-900">
+                                                  <div className="font-mono text-xs font-bold text-gray-600">
                                                     {bin.binCode}
                                                   </div>
                                                   <button
@@ -919,7 +919,7 @@ export default function WarehousesPage() {
                     ) : (
                       <div className="rounded-sm border-2 border-dashed border-slate-200 py-16 text-center bg-slate-50/50">
                         <Layers size={36} className="mx-auto text-slate-300 mb-2.5" />
-                        <h3 className="text-sm font-bold text-slate-800">No Bin Locations Configured Yet</h3>
+                        <h3 className="text-sm font-bold text-gray-600">No Bin Locations Configured Yet</h3>
                         <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 mb-4">
                           This location-based warehouse needs bins setup. You can generate all Rows, Columns, Racks, and Bins in 1 click!
                         </p>
@@ -973,7 +973,7 @@ export default function WarehousesPage() {
                   <div className="space-y-4 rounded-sm border border-slate-200 bg-slate-50/40 p-5">
                     <div className="flex items-center gap-2">
                       <Sparkles size={18} className="text-brand-primary" />
-                      <h3 className="text-sm font-bold text-slate-900">4-Tier Grid Location Generator</h3>
+                      <h3 className="text-sm font-bold text-gray-600">4-Tier Grid Location Generator</h3>
                     </div>
                     <p className="text-xs text-slate-500">
                       Configure your grid dimensions. The generator will create all Row × Column × Rack × Bin combinations automatically.
@@ -1019,7 +1019,7 @@ export default function WarehousesPage() {
                     </div>
 
                     <div className="rounded-sm bg-white p-3 border border-brand-border text-xs">
-                      <div className="flex items-center justify-between font-medium text-slate-700">
+                      <div className="flex items-center justify-between font-medium text-gray-600">
                         <span>Total Bins to Generate:</span>
                         <span className="font-bold text-brand-primary text-sm">
                           {genRows * genCols * genRacks * genBins} Bins
@@ -1047,7 +1047,7 @@ export default function WarehousesPage() {
                 {/* TAB 4: ADD SINGLE BIN */}
                 {locTab === "single" && (
                   <div className="space-y-4 rounded-sm border border-slate-200 bg-white p-5">
-                    <h3 className="text-sm font-bold text-slate-900">Add Single Custom Bin</h3>
+                    <h3 className="text-sm font-bold text-gray-600">Add Single Custom Bin</h3>
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                       <CustomInput
                         label="Row Code"
@@ -1106,7 +1106,7 @@ export default function WarehousesPage() {
         >
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-slate-700">
+              <label className="block text-xs font-semibold text-gray-600">
                 Stock Item to Move <span className="text-red-500">*</span>
               </label>
               <CustomDropdownSelect
@@ -1126,7 +1126,7 @@ export default function WarehousesPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-700">
+                <label className="block text-xs font-semibold text-gray-600">
                   From Source Bin <span className="text-red-500">*</span>
                 </label>
                 <CustomDropdownSelect
@@ -1140,7 +1140,7 @@ export default function WarehousesPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-700">
+                <label className="block text-xs font-semibold text-gray-600">
                   To Destination Bin <span className="text-red-500">*</span>
                 </label>
                 <CustomDropdownSelect

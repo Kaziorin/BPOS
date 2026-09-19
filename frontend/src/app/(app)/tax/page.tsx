@@ -306,7 +306,7 @@ export default function TaxPage() {
               size="sm"
               leftIcon={<Plus size={14} />}
               onClick={() => { setEditRate(null); setShowRateForm(true); }}
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-md text-xs font-semibold"
+              className="bg-brand-primary hover:bg-brand-dark text-white rounded-sm text-xs font-semibold"
             >
               Add Tax Rate
             </CustomButton>
@@ -315,13 +315,13 @@ export default function TaxPage() {
               variant="outline"
               leftIcon={<Layers size={14} />}
               onClick={() => { setEditRule(null); setShowRuleForm(true); }}
-              className="border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold"
+              className="border-slate-200 text-gray-600 hover:bg-slate-50 text-xs font-semibold"
             >
               Add Rule
             </CustomButton>
             <button
               onClick={() => loadData()}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition shadow-2xs"
+              className="flex h-7 w-7 items-center justify-center rounded-sm border border-slate-200 bg-slate-50 text-gray-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-border transition shadow-2xs"
               title="Refresh Data"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
@@ -359,20 +359,20 @@ export default function TaxPage() {
       </div>
 
       {/* Compliance Notice */}
-      <div className="rounded-md border border-teal-200/80 bg-teal-50/50 p-3.5 text-xs text-teal-900 flex items-start gap-2.5 shadow-2xs">
-        <Info size={16} className="mt-0.5 shrink-0 text-teal-600" />
+      <div className="rounded-sm border border-brand-border bg-brand-50 p-3.5 text-xs text-brand-dark flex items-start gap-2.5 shadow-2xs">
+        <Info size={16} className="mt-0.5 shrink-0 text-brand-primary" />
         <div className="flex-1">
-          <p className="font-bold text-teal-950">
+          <p className="font-bold text-brand-dark">
             National Board of Revenue (NBR) Compliance & Bangladesh VAT Act 2012
           </p>
-          <p className="mt-0.5 text-[11px] text-teal-800 leading-relaxed">
+          <p className="mt-0.5 text-[11px] text-brand-dark leading-relaxed">
             All tax rates, input tax credits, and Mushak forms (e.g. Mushak 6.3 Tax Invoice, Mushak 9.1 VAT Return) are fully customizable. Ensure rates comply with your statutory jurisdiction requirements before issuing fiscal documents.
           </p>
         </div>
       </div>
 
       {/* Tab Selector Bar */}
-      <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-md border border-slate-200 shadow-2xs overflow-x-auto">
+      <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-sm border border-slate-200 shadow-2xs overflow-x-auto">
         {[
           { id: "rates", label: "Tax Rates", icon: DollarSign, badge: rates.length },
           { id: "rules", label: "Tax Rules & Hierarchy", icon: Shield, badge: rules.length },
@@ -386,19 +386,19 @@ export default function TaxPage() {
             <button
               key={t.id}
               onClick={() => setTab(t.id as any)}
-              className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
+              className={`flex items-center gap-2 rounded-sm px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
                 isActive
-                  ? "bg-teal-50 text-teal-700 border border-teal-200 font-bold"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
+                  ? "bg-brand-50 text-brand-dark border border-brand-border font-bold"
+                  : "text-slate-600 hover:text-gray-600 hover:bg-slate-50 border border-transparent"
               }`}
             >
-              <Icon size={14} className={isActive ? "text-teal-600" : "text-slate-400"} />
+              <Icon size={14} className={isActive ? "text-brand-primary" : "text-slate-400"} />
               <span>{t.label}</span>
               {t.badge !== undefined && (
                 <span
                   className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
                     isActive
-                      ? "bg-teal-200/80 text-teal-900"
+                      ? "bg-brand-50 text-brand-dark"
                       : "bg-slate-200/80 text-slate-600"
                   }`}
                 >
@@ -416,7 +416,7 @@ export default function TaxPage() {
           {/* Action and Filter Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Configured Tax Rates</h2>
+              <h2 className="text-lg font-bold text-gray-600">Configured Tax Rates</h2>
               <p className="text-xs text-slate-500">
                 Tenant-level VAT and tax percentages applied across catalog items and services.
               </p>
@@ -439,7 +439,7 @@ export default function TaxPage() {
               <select
                 value={rateStatusFilter}
                 onChange={(e) => setRateStatusFilter(e.target.value)}
-                className="rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 focus:border-indigo-500 focus:outline-none"
+                className="rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="ALL">All Rates</option>
                 <option value="ACTIVE">Active Only</option>
@@ -481,7 +481,7 @@ export default function TaxPage() {
                   header: "Rate Name & Description",
                   render: (r: TaxRate) => (
                     <div>
-                      <p className="text-sm font-semibold text-slate-800">{r.name}</p>
+                      <p className="text-sm font-semibold text-gray-600">{r.name}</p>
                       {r.description && (
                         <p className="text-xs text-slate-400 line-clamp-1 max-w-xs">{r.description}</p>
                       )}
@@ -494,7 +494,7 @@ export default function TaxPage() {
                   align: "right",
                   render: (r: TaxRate) => (
                     <div className="text-right">
-                      <span className="font-bold text-base text-slate-900 tabular-nums">
+                      <span className="font-bold text-base text-gray-600 tabular-nums">
                         {r.rateType === "FIXED" ? money(r.rate) : `${r.rate}%`}
                       </span>
                       <span className="block text-[11px] text-slate-400 capitalize">{r.rateType.toLowerCase()}</span>
@@ -606,7 +606,7 @@ export default function TaxPage() {
           {/* Action and Filter Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Configured Tax Rules</h2>
+              <h2 className="text-lg font-bold text-gray-600">Configured Tax Rules</h2>
               <p className="text-xs text-slate-500">
                 Automated assignment rules for transaction context, zero-rating, exemptions, and priorities.
               </p>
@@ -627,7 +627,7 @@ export default function TaxPage() {
               <select
                 value={ruleTypeFilter}
                 onChange={(e) => setRuleTypeFilter(e.target.value)}
-                className="rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 focus:border-indigo-500 focus:outline-none"
+                className="rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="ALL">All Rule Types</option>
                 {RULE_TYPES.map((t) => (
@@ -652,7 +652,7 @@ export default function TaxPage() {
                   key: "priority",
                   header: "Priority",
                   render: (r: TaxRule) => (
-                    <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-slate-100 font-bold text-xs text-slate-800 border border-slate-200">
+                    <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-slate-100 font-bold text-xs text-gray-600 border border-slate-200">
                       {r.priority}
                     </span>
                   ),
@@ -662,7 +662,7 @@ export default function TaxPage() {
                   header: "Rule Name & Scope",
                   render: (r: TaxRule) => (
                     <div>
-                      <p className="text-sm font-semibold text-slate-800">{r.name}</p>
+                      <p className="text-sm font-semibold text-gray-600">{r.name}</p>
                       {r.description && (
                         <p className="text-xs text-slate-400 line-clamp-1">{r.description}</p>
                       )}
@@ -681,7 +681,7 @@ export default function TaxPage() {
                       SPECIAL: "bg-amber-50 text-amber-700 border-amber-200",
                     };
                     return (
-                      <span className={`inline-flex rounded-sm px-2.5 py-0.5 text-xs font-semibold border ${badgeColors[r.ruleType] || "bg-gray-50 text-gray-700"}`}>
+                      <span className={`inline-flex rounded-sm px-2.5 py-0.5 text-xs font-semibold border ${badgeColors[r.ruleType] || "bg-gray-50 text-gray-600"}`}>
                         {r.ruleType.replace("_", " ")}
                       </span>
                     );
@@ -692,10 +692,10 @@ export default function TaxPage() {
                   header: "Assigned Rate",
                   render: (r: TaxRule) => (
                     <div className="flex items-center gap-1.5">
-                      <span className="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">
+                      <span className="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded-sm">
                         {r.rate?.code || "N/A"}
                       </span>
-                      <span className="text-xs font-semibold text-slate-800">
+                      <span className="text-xs font-semibold text-gray-600">
                         {r.rate?.rate !== undefined ? `${r.rate.rate}%` : "—"}
                       </span>
                     </div>
@@ -705,7 +705,7 @@ export default function TaxPage() {
                   key: "appliesTo",
                   header: "Applies To",
                   render: (r: TaxRule) => (
-                    <span className="text-xs font-medium text-slate-600 uppercase bg-slate-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-medium text-slate-600 uppercase bg-slate-100 px-2 py-0.5 rounded-sm">
                       {r.appliesTo}
                     </span>
                   ),
@@ -928,7 +928,7 @@ function RateFormModal({
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div>
-            <h3 className="text-xl font-bold text-slate-900">
+            <h3 className="text-xl font-bold text-gray-600">
               {rate ? "Edit Tax Rate" : "New Tax Rate"}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -969,7 +969,7 @@ function RateFormModal({
         <form onSubmit={submit} className="mt-5 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Rate Name *
               </label>
               <input
@@ -982,7 +982,7 @@ function RateFormModal({
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Rate Code *
               </label>
               <input
@@ -998,7 +998,7 @@ function RateFormModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Rate Value *
               </label>
               <div className="relative">
@@ -1017,7 +1017,7 @@ function RateFormModal({
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Rate Type
               </label>
               <select
@@ -1033,7 +1033,7 @@ function RateFormModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Effective From
               </label>
               <input
@@ -1044,7 +1044,7 @@ function RateFormModal({
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Effective To (Optional)
               </label>
               <input
@@ -1063,10 +1063,10 @@ function RateFormModal({
                 type="checkbox"
                 checked={form.taxInclusive}
                 onChange={(e) => setForm({ ...form, taxInclusive: e.target.checked })}
-                className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="mt-1 h-4 w-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
               <div>
-                <span className="text-sm font-semibold text-slate-800">
+                <span className="text-sm font-semibold text-gray-600">
                   Tax-Inclusive Pricing (MRP includes Tax)
                 </span>
                 <p className="text-xs text-slate-500">
@@ -1080,10 +1080,10 @@ function RateFormModal({
                 type="checkbox"
                 checked={form.isDefault}
                 onChange={(e) => setForm({ ...form, isDefault: e.target.checked })}
-                className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="mt-1 h-4 w-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
               <div>
-                <span className="text-sm font-semibold text-slate-800">
+                <span className="text-sm font-semibold text-gray-600">
                   Set as Default Rate
                 </span>
                 <p className="text-xs text-slate-500">
@@ -1094,7 +1094,7 @@ function RateFormModal({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
               Description / Statutory Notes
             </label>
             <textarea
@@ -1201,7 +1201,7 @@ function RuleFormModal({
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div>
-            <h3 className="text-xl font-bold text-slate-900">
+            <h3 className="text-xl font-bold text-gray-600">
               {rule ? "Edit Tax Rule" : "New Tax Rule"}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -1221,7 +1221,7 @@ function RuleFormModal({
         <form onSubmit={submit} className="mt-5 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Rule Name *
               </label>
               <input
@@ -1234,7 +1234,7 @@ function RuleFormModal({
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Rule Scheme Type
               </label>
               <select
@@ -1251,7 +1251,7 @@ function RuleFormModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Assigned Tax Rate *
               </label>
               <select
@@ -1269,7 +1269,7 @@ function RuleFormModal({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Applies To Scope
               </label>
               <select
@@ -1286,7 +1286,7 @@ function RuleFormModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Resolution Priority (Higher = Evaluated First)
               </label>
               <input
@@ -1298,7 +1298,7 @@ function RuleFormModal({
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Effective From
               </label>
               <input
@@ -1311,7 +1311,7 @@ function RuleFormModal({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
               Description & Notes
             </label>
             <textarea
@@ -1329,9 +1329,9 @@ function RuleFormModal({
                 type="checkbox"
                 checked={form.isActive}
                 onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-                className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="h-4 w-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
-              <span className="text-sm font-semibold text-slate-800">
+              <span className="text-sm font-semibold text-gray-600">
                 Active Rule (Available for resolution)
               </span>
             </label>
@@ -1399,7 +1399,7 @@ function RuleVersionHistoryModal({
               <History size={20} />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-900">
+              <h3 className="text-xl font-bold text-gray-600">
                 Rule Version History: {rule.name}
               </h3>
               <p className="text-xs text-slate-500">
@@ -1433,7 +1433,7 @@ function RuleVersionHistoryModal({
                       <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-bold text-indigo-900">
                         Version {v.version}
                       </span>
-                      <span className="text-sm font-semibold text-slate-800">{v.name}</span>
+                      <span className="text-sm font-semibold text-gray-600">{v.name}</span>
                     </div>
                     <span className="text-xs font-medium text-slate-500">
                       Effective: {v.effectiveFrom}
@@ -1443,15 +1443,15 @@ function RuleVersionHistoryModal({
                   <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
                     <div className="rounded-sm bg-white p-2 border border-slate-200/60">
                       <span className="text-slate-400 block">Rule Type</span>
-                      <span className="font-semibold text-slate-700">{v.ruleType}</span>
+                      <span className="font-semibold text-gray-600">{v.ruleType}</span>
                     </div>
                     <div className="rounded-sm bg-white p-2 border border-slate-200/60">
                       <span className="text-slate-400 block">Applies To</span>
-                      <span className="font-semibold text-slate-700">{v.appliesTo}</span>
+                      <span className="font-semibold text-gray-600">{v.appliesTo}</span>
                     </div>
                     <div className="rounded-sm bg-white p-2 border border-slate-200/60">
                       <span className="text-slate-400 block">Snapshot Time</span>
-                      <span className="font-semibold text-slate-700">{v.createdAt ? v.createdAt.split("T")[0] : "Recorded"}</span>
+                      <span className="font-semibold text-gray-600">{v.createdAt ? v.createdAt.split("T")[0] : "Recorded"}</span>
                     </div>
                   </div>
                 </div>
@@ -1461,7 +1461,7 @@ function RuleVersionHistoryModal({
         </div>
 
         <div className="mt-6 flex justify-end border-t border-slate-100 pt-4">
-          <button onClick={onClose} className="rounded-sm bg-slate-100 px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">
+          <button onClick={onClose} className="rounded-sm bg-slate-100 px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-slate-200">
             Close
           </button>
         </div>
@@ -1564,7 +1564,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
             <Calculator size={22} />
           </div>
           <div>
-            <h3 className="font-bold text-slate-900">Tax Engine Sandbox & Simulator</h3>
+            <h3 className="font-bold text-gray-600">Tax Engine Sandbox & Simulator</h3>
             <p className="text-xs text-slate-500">
               Simulate live POS and Invoice calculations with custom rates or rules.
             </p>
@@ -1573,7 +1573,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
 
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
               Transaction Base Amount (৳)
             </label>
             <div className="relative">
@@ -1583,7 +1583,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
                 min="0"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full rounded-sm border border-slate-300 pl-4 pr-12 py-3 text-lg font-bold text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 tabular-nums"
+                className="w-full rounded-sm border border-slate-300 pl-4 pr-12 py-3 text-lg font-bold text-gray-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 tabular-nums"
                 placeholder="1000"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
@@ -1594,13 +1594,13 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Transaction Context
               </label>
               <select
                 value={appliesTo}
                 onChange={(e) => setAppliesTo(e.target.value)}
-                className="w-full rounded-sm border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-gray-600 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="SALE">POS / Customer Sale</option>
                 <option value="PURCHASE">GRN / Supplier Purchase</option>
@@ -1609,7 +1609,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Evaluation Rule
               </label>
               <select
@@ -1618,7 +1618,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
                   setSelectedRuleId(e.target.value);
                   setSelectedRateId("");
                 }}
-                className="w-full rounded-sm border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-gray-600 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="">Auto-resolve highest priority rule</option>
                 {rules.map((r) => (
@@ -1632,7 +1632,7 @@ function TaxCalculatorSandbox({ rates, rules }: { rates: TaxRate[]; rules: TaxRu
 
           {/* Pricing Mode Toggle */}
           <div className="rounded-sm bg-slate-50 p-4 border border-slate-200">
-            <p className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+            <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
               Tax Inclusiveness Mode
             </p>
             <div className="grid grid-cols-2 gap-2">
@@ -1837,7 +1837,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
       {/* Filter and Export Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-sm border border-slate-200 shadow-2xs">
         <div>
-          <h3 className="font-bold text-slate-900">VAT & Mushak Filing Reports</h3>
+          <h3 className="font-bold text-gray-600">VAT & Mushak Filing Reports</h3>
           <p className="text-xs text-slate-500">
             Output VAT vs Input VAT credit matching for monthly NBR filing (§10.21).
           </p>
@@ -1849,7 +1849,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
             <select
               value={branchId}
               onChange={(e) => setBranchId(e.target.value)}
-              className="rounded-sm border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-indigo-500 focus:outline-none"
+              className="rounded-sm border border-slate-300 px-3 py-1.5 text-xs font-semibold text-gray-600 focus:border-indigo-500 focus:outline-none"
             >
               <option value="">All Branches</option>
               {branches.map((b) => (
@@ -1862,7 +1862,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
           <select
             value={month}
             onChange={(e) => setMonth(parseInt(e.target.value))}
-            className="rounded-sm border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-indigo-500 focus:outline-none"
+            className="rounded-sm border border-slate-300 px-3 py-1.5 text-xs font-semibold text-gray-600 focus:border-indigo-500 focus:outline-none"
           >
             {MONTHS.map((m, i) => (
               <option key={i} value={i + 1}>{m}</option>
@@ -1873,7 +1873,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
           <select
             value={year}
             onChange={(e) => setYear(parseInt(e.target.value))}
-            className="rounded-sm border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 focus:border-indigo-500 focus:outline-none"
+            className="rounded-sm border border-slate-300 px-3 py-1.5 text-xs font-semibold text-gray-600 focus:border-indigo-500 focus:outline-none"
           >
             {[year - 2, year - 1, year, year + 1].map((y) => (
               <option key={y} value={y}>{y}</option>
@@ -1882,7 +1882,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
 
           <button
             onClick={exportCSV}
-            className="inline-flex items-center gap-1.5 rounded-sm bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"
+            className="inline-flex items-center gap-1.5 rounded-sm bg-slate-100 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-slate-200 transition"
             title="Export to CSV"
           >
             <FileSpreadsheet size={14} className="text-emerald-600" /> Export CSV
@@ -1890,7 +1890,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
 
           <button
             onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 rounded-sm bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"
+            className="inline-flex items-center gap-1.5 rounded-sm bg-slate-100 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-slate-200 transition"
             title="Print Summary"
           >
             <Printer size={14} /> Print
@@ -1970,7 +1970,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
                     <BarChart3 size={22} />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-900">
+                    <h3 className="text-base font-bold text-gray-600">
                       Consolidated VAT Position — {MONTHS[month - 1]} {year}
                     </h3>
                     <p className="text-xs text-slate-500">
@@ -2003,7 +2003,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
                   <div className="space-y-2 pt-2 text-xs">
                     <div className="flex justify-between text-slate-600">
                       <span>Total Taxable Sales Turnover:</span>
-                      <span className="font-semibold text-slate-900">{money(data.sales?.totalTaxableSales || 0)}</span>
+                      <span className="font-semibold text-gray-600">{money(data.sales?.totalTaxableSales || 0)}</span>
                     </div>
                     <div className="flex justify-between text-slate-600">
                       <span>Output VAT Collected:</span>
@@ -2023,7 +2023,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
                   <div className="space-y-2 pt-2 text-xs">
                     <div className="flex justify-between text-slate-600">
                       <span>Total Taxable Purchases:</span>
-                      <span className="font-semibold text-slate-900">{money(data.purchases?.totalTaxablePurchases || 0)}</span>
+                      <span className="font-semibold text-gray-600">{money(data.purchases?.totalTaxablePurchases || 0)}</span>
                     </div>
                     <div className="flex justify-between text-slate-600">
                       <span>Input VAT Paid:</span>
@@ -2037,7 +2037,7 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
               <div className="mt-8 rounded-sm bg-brand-50 border border-primary-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <p className="text-xs text-sky-700 font-bold uppercase tracking-wider">Final Net Balance for Period</p>
-                  <p className="text-xl font-black text-slate-900 mt-0.5">
+                  <p className="text-xl font-black text-gray-600 mt-0.5">
                     {data.status === "PAYABLE" ? "Payable to Treasury / NBR" : data.status === "REFUNDABLE" ? "Refundable Credit Balance" : "Zero Net Liability"}
                   </p>
                 </div>
@@ -2053,15 +2053,15 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
           {reportTab === "sales" && (
             <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-2xs">
               <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                <h4 className="font-bold text-slate-900 text-sm">Sales VAT by Tax Rate</h4>
+                <h4 className="font-bold text-gray-600 text-sm">Sales VAT by Tax Rate</h4>
                 <span className="text-xs text-slate-500 font-semibold">{data.sales?.byRate?.length || 0} rate categories</span>
               </div>
               <CustomTable
                 columns={[
-                  { key: "rateName", header: "Rate Name", render: (r: any) => <span className="font-semibold text-slate-800">{r.rateName}</span> },
-                  { key: "rateCode", header: "Code", render: (r: any) => <span className="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">{r.rateCode}</span> },
-                  { key: "rate", header: "Rate (%)", align: "right", render: (r: any) => <span className="font-bold text-slate-900">{r.rate}%</span> },
-                  { key: "taxableAmount", header: "Taxable Sales", align: "right", render: (r: any) => <span className="font-semibold text-slate-800">{money(r.taxableAmount)}</span> },
+                  { key: "rateName", header: "Rate Name", render: (r: any) => <span className="font-semibold text-gray-600">{r.rateName}</span> },
+                  { key: "rateCode", header: "Code", render: (r: any) => <span className="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-sm">{r.rateCode}</span> },
+                  { key: "rate", header: "Rate (%)", align: "right", render: (r: any) => <span className="font-bold text-gray-600">{r.rate}%</span> },
+                  { key: "taxableAmount", header: "Taxable Sales", align: "right", render: (r: any) => <span className="font-semibold text-gray-600">{money(r.taxableAmount)}</span> },
                   { key: "taxAmount", header: "VAT Collected", align: "right", render: (r: any) => <span className="font-bold text-emerald-700">{money(r.taxAmount)}</span> },
                   { key: "txCount", header: "Transactions", align: "right", render: (r: any) => <span className="text-slate-600">{r.transactionCount}</span> },
                 ]}
@@ -2075,15 +2075,15 @@ function VATReportsSection({ branches }: { branches: Branch[] }) {
           {reportTab === "purchases" && (
             <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-2xs">
               <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                <h4 className="font-bold text-slate-900 text-sm">Purchase Input VAT by Tax Rate</h4>
+                <h4 className="font-bold text-gray-600 text-sm">Purchase Input VAT by Tax Rate</h4>
                 <span className="text-xs text-slate-500 font-semibold">{data.purchases?.byRate?.length || 0} rate categories</span>
               </div>
               <CustomTable
                 columns={[
-                  { key: "rateName", header: "Rate Name", render: (r: any) => <span className="font-semibold text-slate-800">{r.rateName}</span> },
-                  { key: "rateCode", header: "Code", render: (r: any) => <span className="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">{r.rateCode}</span> },
-                  { key: "rate", header: "Rate (%)", align: "right", render: (r: any) => <span className="font-bold text-slate-900">{r.rate}%</span> },
-                  { key: "taxableAmount", header: "Taxable Purchases", align: "right", render: (r: any) => <span className="font-semibold text-slate-800">{money(r.taxableAmount)}</span> },
+                  { key: "rateName", header: "Rate Name", render: (r: any) => <span className="font-semibold text-gray-600">{r.rateName}</span> },
+                  { key: "rateCode", header: "Code", render: (r: any) => <span className="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-sm">{r.rateCode}</span> },
+                  { key: "rate", header: "Rate (%)", align: "right", render: (r: any) => <span className="font-bold text-gray-600">{r.rate}%</span> },
+                  { key: "taxableAmount", header: "Taxable Purchases", align: "right", render: (r: any) => <span className="font-semibold text-gray-600">{money(r.taxableAmount)}</span> },
                   { key: "taxAmount", header: "Input VAT Paid", align: "right", render: (r: any) => <span className="font-bold text-amber-700">{money(r.taxAmount)}</span> },
                   { key: "txCount", header: "Transactions", align: "right", render: (r: any) => <span className="text-slate-600">{r.transactionCount}</span> },
                 ]}
@@ -2142,7 +2142,7 @@ function B2BVatDirectory({ rules }: { rules: TaxRule[] }) {
       {/* Sub tabs & header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-sm border border-slate-200 shadow-2xs">
         <div>
-          <h3 className="font-bold text-slate-900">B2B VAT Registration & BIN Directory</h3>
+          <h3 className="font-bold text-gray-600">B2B VAT Registration & BIN Directory</h3>
           <p className="text-xs text-slate-500">
             Manage 9-digit or 13-digit Business Identification Numbers (BIN) and TIN for Mushak 6.3 Invoicing.
           </p>
@@ -2153,7 +2153,7 @@ function B2BVatDirectory({ rules }: { rules: TaxRule[] }) {
             <button
               onClick={() => setB2bTab("customers")}
               className={`rounded-sm px-3 py-1.5 text-xs font-bold transition ${
-                b2bTab === "customers" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600"
+                b2bTab === "customers" ? "bg-white text-gray-600 shadow-2xs" : "text-slate-600"
               }`}
             >
               Customers (Buyers)
@@ -2161,7 +2161,7 @@ function B2BVatDirectory({ rules }: { rules: TaxRule[] }) {
             <button
               onClick={() => setB2bTab("suppliers")}
               className={`rounded-sm px-3 py-1.5 text-xs font-bold transition ${
-                b2bTab === "suppliers" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600"
+                b2bTab === "suppliers" ? "bg-white text-gray-600 shadow-2xs" : "text-slate-600"
               }`}
             >
               Suppliers (Vendors)
@@ -2190,7 +2190,7 @@ function B2BVatDirectory({ rules }: { rules: TaxRule[] }) {
               header: "Entity Name",
               render: (r: any) => (
                 <div>
-                  <p className="font-semibold text-slate-800 text-sm">{r.name}</p>
+                  <p className="font-semibold text-gray-600 text-sm">{r.name}</p>
                   <p className="text-xs text-slate-400">{r.phone || r.email || "No contact info"}</p>
                 </div>
               ),
@@ -2200,7 +2200,7 @@ function B2BVatDirectory({ rules }: { rules: TaxRule[] }) {
               header: "VAT / BIN No.",
               render: (r: any) =>
                 r.vatRegNo ? (
-                  <span className="font-mono text-xs font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-100">
+                  <span className="font-mono text-xs font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-sm border border-indigo-100">
                     {r.vatRegNo}
                   </span>
                 ) : (
@@ -2211,7 +2211,7 @@ function B2BVatDirectory({ rules }: { rules: TaxRule[] }) {
               key: "tin",
               header: "TIN",
               render: (r: any) => (
-                <span className="text-xs font-mono text-slate-700">{r.tin || "—"}</span>
+                <span className="text-xs font-mono text-gray-600">{r.tin || "—"}</span>
               ),
             },
             {
@@ -2236,7 +2236,7 @@ function B2BVatDirectory({ rules }: { rules: TaxRule[] }) {
               render: (r: any) => (
                 <button
                   onClick={() => setEditingItem({ id: r.id, name: r.name, type: b2bTab === "customers" ? "customer" : "supplier" })}
-                  className="inline-flex items-center gap-1.5 rounded-sm bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition"
+                  className="inline-flex items-center gap-1.5 rounded-sm bg-slate-100 px-2.5 py-1 text-xs font-semibold text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition"
                 >
                   <Edit3 size={13} /> Edit VAT / BIN
                 </button>
@@ -2341,7 +2341,7 @@ function EditB2BVatModal({
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div>
-            <h3 className="text-xl font-bold text-slate-900">
+            <h3 className="text-xl font-bold text-gray-600">
               VAT & BIN Info: {item.name}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -2370,9 +2370,9 @@ function EditB2BVatModal({
                   type="checkbox"
                   checked={form.isVATRegistered}
                   onChange={(e) => setForm({ ...form, isVATRegistered: e.target.checked })}
-                  className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  className="h-4 w-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500"
                 />
-                <span className="text-sm font-semibold text-slate-800">
+                <span className="text-sm font-semibold text-gray-600">
                   Is Formally VAT Registered in Bangladesh (BIN Holder)
                 </span>
               </label>
@@ -2380,7 +2380,7 @@ function EditB2BVatModal({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                   VAT Registration / BIN
                 </label>
                 <input
@@ -2392,7 +2392,7 @@ function EditB2BVatModal({
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                   e-TIN
                 </label>
                 <input
@@ -2406,7 +2406,7 @@ function EditB2BVatModal({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Registered Business / Trade Name
               </label>
               <input
@@ -2419,7 +2419,7 @@ function EditB2BVatModal({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Registered VAT Address
               </label>
               <textarea
@@ -2432,7 +2432,7 @@ function EditB2BVatModal({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                 Custom Tax Rule Override (Optional)
               </label>
               <select
