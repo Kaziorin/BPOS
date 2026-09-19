@@ -72,47 +72,84 @@ export function Header() {
   return (
     <>
       <header className="relative flex h-16 shrink-0 items-center justify-between px-3 sm:px-4 md:px-6 z-30 select-none bg-transparent">
-        {/* Dual Side Ocean Wave Curves Background */}
+        {/* Dual Side 3-Layer Ocean Wave Curves Background */}
         <div className="pointer-events-none absolute inset-0 w-full h-full z-0 overflow-hidden">
-          {/* Top-Left Ocean Blue Wave Curve (Behind Logo) */}
+          {/* Top-Left 3-Layer Ocean Blue Wave Curves (Behind Logo) */}
           <svg
-            className="absolute left-0 top-0 h-full w-[320px] sm:w-[380px] md:w-[420px] lg:w-[450px]"
-            viewBox="0 0 450 64"
+            className="absolute left-0 top-0 h-full w-[340px] sm:w-[400px] md:w-[450px] lg:w-[480px]"
+            viewBox="0 0 480 64"
             preserveAspectRatio="none"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
             <defs>
-              <linearGradient id="headerLeftWave" x1="0%" y1="0%" x2="100%" y2="80%">
+              <linearGradient id="headerLeftL1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#bae6fd" stopOpacity="0.55" />
+                <stop offset="100%" stopColor="#7dd3fc" stopOpacity="0.35" />
+              </linearGradient>
+              <linearGradient id="headerLeftL2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.75" />
+                <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.8" />
+              </linearGradient>
+              <linearGradient id="headerLeftL3" x1="0%" y1="0%" x2="100%" y2="80%">
                 <stop offset="0%" stopColor="#0284c7" />
                 <stop offset="70%" stopColor="#0284c7" />
-                <stop offset="100%" stopColor="#0ea5e9" />
+                <stop offset="100%" stopColor="#0369a1" />
               </linearGradient>
             </defs>
+            {/* Layer 1: Soft Cyan Back Wave */}
             <path
-              d="M 0,0 L 450,0 C 370,10 290,52 200,56 C 110,60 50,63 0,64 Z"
-              fill="url(#headerLeftWave)"
+              d="M 0,0 L 480,0 C 400,12 320,58 220,62 C 120,64 50,64 0,64 Z"
+              fill="url(#headerLeftL1)"
+            />
+            {/* Layer 2: Medium Ocean Blue Mid Wave */}
+            <path
+              d="M 0,0 L 440,0 C 370,10 290,54 200,58 C 110,62 45,63 0,64 Z"
+              fill="url(#headerLeftL2)"
+            />
+            {/* Layer 3: Deep Ocean Blue Front Wave */}
+            <path
+              d="M 0,0 L 400,0 C 330,8 260,50 175,54 C 95,58 35,62 0,64 Z"
+              fill="url(#headerLeftL3)"
             />
           </svg>
 
-          {/* Top-Right Soft Sky/Ocean Blue Wave Curve */}
+          {/* Top-Right 3-Layer Soft Sky/Ocean Blue Wave Curves */}
           <svg
-            className="absolute right-0 top-0 h-full w-[240px] sm:w-[300px] md:w-[360px] lg:w-[400px]"
-            viewBox="0 0 400 64"
+            className="absolute right-0 top-0 h-full w-[260px] sm:w-[320px] md:w-[380px] lg:w-[420px]"
+            viewBox="0 0 420 64"
             preserveAspectRatio="none"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
             <defs>
-              <linearGradient id="headerRightWave" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.4" />
-                <stop offset="50%" stopColor="#0ea5e9" stopOpacity="0.75" />
-                <stop offset="100%" stopColor="#0284c7" stopOpacity="0.9" />
+              <linearGradient id="headerRightL1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#bae6fd" stopOpacity="0.45" />
+                <stop offset="100%" stopColor="#7dd3fc" stopOpacity="0.3" />
+              </linearGradient>
+              <linearGradient id="headerRightL2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.65" />
+                <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.75" />
+              </linearGradient>
+              <linearGradient id="headerRightL3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.85" />
+                <stop offset="100%" stopColor="#0284c7" stopOpacity="0.95" />
               </linearGradient>
             </defs>
+            {/* Layer 1: Soft Cyan Back Wave */}
             <path
-              d="M 400,0 L 30,0 C 90,22 160,54 250,54 C 310,54 360,35 400,15 Z"
-              fill="url(#headerRightWave)"
+              d="M 420,0 L 10,0 C 80,24 160,60 260,60 C 320,60 380,38 420,12 Z"
+              fill="url(#headerRightL1)"
+            />
+            {/* Layer 2: Medium Ocean Blue Mid Wave */}
+            <path
+              d="M 420,0 L 40,0 C 110,22 190,56 280,56 C 340,56 390,34 420,15 Z"
+              fill="url(#headerRightL2)"
+            />
+            {/* Layer 3: Solid Ocean Blue Front Wave */}
+            <path
+              d="M 420,0 L 80,0 C 140,20 220,52 300,52 C 360,52 400,30 420,18 Z"
+              fill="url(#headerRightL3)"
             />
           </svg>
         </div>
