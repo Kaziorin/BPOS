@@ -21,7 +21,7 @@ export interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
-  primary: "bg-brand-gradient text-white shadow-md hover:brightness-110 active:scale-98 focus-visible:ring-brand-border font-bold",
+  primary: "bg-brand-gradient text-white shadow-brand-button hover:brightness-110 active:scale-98 focus-visible:ring-brand-border font-bold",
   blue: "bg-gradient-to-r from-blue-600 via-sky-500 to-sky-400 text-white shadow-md shadow-blue-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-blue-300 font-bold",
   teal: "bg-gradient-to-r from-[#00796b] via-[#00897b] to-[#26a69a] text-white shadow-md shadow-teal-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-teal-300 font-bold",
   orange: "bg-gradient-to-r from-orange-500 via-amber-500 to-amber-400 text-white shadow-md shadow-orange-950/25 hover:brightness-110 active:scale-98 focus-visible:ring-orange-300 font-bold",
@@ -34,7 +34,7 @@ const THEME_PRIMARY_CLASSES: Record<ThemeColor, string> = {
 
 const VARIANT_CLASSES = (darkMode: boolean): Record<ButtonVariant, string> => ({
   primary:
-    "bg-brand-gradient text-white shadow-md hover:brightness-110 active:scale-98 focus-visible:ring-brand-border font-bold",
+    "bg-brand-gradient text-white shadow-brand-button hover:brightness-110 active:scale-98 focus-visible:ring-brand-border font-bold",
   secondary: darkMode
     ? "bg-slate-800 text-slate-200 hover:bg-slate-700 focus-visible:ring-slate-700 font-bold"
     : "bg-brand-50 text-brand-dark hover:bg-brand-100 hover:text-brand-dark border border-brand-border focus-visible:ring-brand-border font-bold",

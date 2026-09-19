@@ -99,10 +99,10 @@ function WorkflowContent() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => switchTab("inbox")}
-              className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition-all cursor-pointer select-none active:scale-98 ${
                 activeTab === "inbox"
-                  ? "bg-brand-gradient text-white shadow-2xs ring-2 ring-brand-border"
-                  : "bg-white/10 text-slate-200 hover:bg-white/20 backdrop-blur-md"
+                  ? "bg-brand-gradient text-white shadow-brand-button hover:brightness-110"
+                  : "bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700"
               }`}
             >
               <Inbox size={15} />
@@ -111,10 +111,10 @@ function WorkflowContent() {
 
             <button
               onClick={() => switchTab("rules")}
-              className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition-all cursor-pointer select-none active:scale-98 ${
                 activeTab === "rules"
-                  ? "bg-brand-gradient text-white shadow-2xs ring-2 ring-brand-border"
-                  : "bg-white/10 text-slate-200 hover:bg-white/20 backdrop-blur-md"
+                  ? "bg-brand-gradient text-white shadow-brand-button hover:brightness-110"
+                  : "bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700"
               }`}
             >
               <GitBranch size={15} />
@@ -123,10 +123,10 @@ function WorkflowContent() {
 
             <button
               onClick={() => switchTab("business-rules")}
-              className={`flex items-center gap-2 rounded-sm px-4 py-2.5 text-xs font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition-all cursor-pointer select-none active:scale-98 ${
                 activeTab === "business-rules"
-                  ? "bg-brand-gradient text-white shadow-2xs ring-2 ring-brand-border"
-                  : "bg-white/10 text-slate-200 hover:bg-white/20 backdrop-blur-md"
+                  ? "bg-brand-gradient text-white shadow-brand-button hover:brightness-110"
+                  : "bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700"
               }`}
             >
               <Zap size={15} />

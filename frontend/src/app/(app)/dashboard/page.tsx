@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/custom/CustomBadge";
 import { SalesTrendChart } from "@/components/dashboard/SalesTrendChart";
 import { PosTerminalModal } from "@/components/layout/PosTerminalModal";
 import { money, dateTime } from "@/lib/format";
+import CustomButton from "@/components/custom/CustomButton";
 
 function useGreeting() {
   const hour = new Date().getHours();
@@ -123,30 +124,35 @@ export default function DashboardPage() {
           </h1>
         </div>
 
-        {/* Action buttons: Elegant translucent glass cards matching any brand theme perfectly */}
+        {/* Action buttons: Exact tactile gradient button pattern matching Dashboard Builder */}
         <div className="relative z-10 flex items-center gap-2 sm:gap-2.5 self-start sm:self-center flex-wrap">
-          <Link
-            href="/dashboard/builder"
-            className="inline-flex shrink-0 items-center gap-2 rounded-sm bg-white/20 hover:bg-white/30 backdrop-blur-xs border border-white/30 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-sm transition hover:brightness-110 active:scale-98 cursor-pointer select-none"
-          >
-            <BarChart3 size={15} className="shrink-0 text-white" />
-            <span>Dashboard Builder</span>
+          <Link href="/dashboard/builder">
+            <CustomButton
+              variant="primary"
+              size="md"
+              leftIcon={<BarChart3 size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
+            >
+              Dashboard Builder
+            </CustomButton>
           </Link>
-          <Link
-            href="/reports"
-            className="inline-flex shrink-0 items-center gap-2 rounded-sm bg-white/20 hover:bg-white/30 backdrop-blur-xs border border-white/30 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-sm transition hover:brightness-110 active:scale-98 cursor-pointer select-none"
-          >
-            <TrendingUp size={15} className="shrink-0 text-white" />
-            <span>Reports & Analytics</span>
+          <Link href="/reports">
+            <CustomButton
+              variant="primary"
+              size="md"
+              leftIcon={<TrendingUp size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
+            >
+              Reports & Analytics
+            </CustomButton>
           </Link>
-          <button
+          <CustomButton
+            variant="primary"
+            size="md"
             onClick={() => setPosModalOpen(true)}
-            className="inline-flex shrink-0 items-center gap-2 rounded-sm bg-white/20 hover:bg-white/30 backdrop-blur-xs border border-white/30 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-sm transition hover:brightness-110 active:scale-98 cursor-pointer select-none"
+            leftIcon={<ShoppingCart size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
+            rightIcon={<ChevronDown size={14} className="opacity-90 shrink-0 text-white" />}
           >
-            <ShoppingCart size={15} className="shrink-0 text-white" />
-            <span>POS Terminals</span>
-            <ChevronDown size={14} className="opacity-80 shrink-0" />
-          </button>
+            POS Terminals
+          </CustomButton>
         </div>
       </div>
 
