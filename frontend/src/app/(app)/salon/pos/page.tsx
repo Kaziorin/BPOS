@@ -55,8 +55,9 @@ import { useAuth } from "@/lib/auth";
 import { CustomModal, CustomInput, CustomButton, CustomSelect } from "@/components/custom";
 import { toast } from "react-toastify";
 import { ReceiptModal } from "../../retail-pos/ReceiptModal";
-import type { SaleResult, PaymentLine } from "../../retail-pos/pos-types";
+import type { SaleResult } from "../../retail-pos/pos-types";
 import { fetchAllProducts } from "@/lib/catalog";
+import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
 
 // --- Types ---
 interface SalonItem {
@@ -68,6 +69,8 @@ interface SalonItem {
   image: string;
   badge?: string;
   type: "service" | "product";
+  sku?: string;
+  barcode?: string;
 }
 
 interface AddOn {
@@ -314,7 +317,9 @@ export default function SalonPOSPage() {
         price: Number(p.sellingPrice),
         duration: p.unit || "unit",
         image: p.imageUrl || "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?q=80&w=200&auto=format&fit=crop",
-        type: "product" as const
+        type: "product" as const,
+        sku: p.sku || "",
+        barcode: p.barcode || ""
       })));
     }).catch(() => {});
 
@@ -450,6 +455,27 @@ export default function SalonPOSPage() {
     setTipInput("");
     toast.info("Cart cleared");
   };
+
+  useBarcodeScanner({
+    onScan: (code) => {
+      const trimmed = code.trim().toLowerCase();
+      const allItems = [...productsList, ...servicesList];
+      const match = allItems.find(
+        item =>
+          (item.barcode && item.barcode.toLowerCase() === trimmed) ||
+          (item.sku && item.sku.toLowerCase() === trimmed) ||
+          item.id.toLowerCase() === trimmed ||
+          item.name.toLowerCase() === trimmed
+      );
+      if (match) {
+        addToCart(match);
+        toast.success(`Scanned: ${match.name}`);
+      } else {
+        toast.error(`Item not found for barcode: ${code}`);
+      }
+    },
+    enabled: true
+  });
 
   const holdOrder = () => {
     if (cart.length === 0) return;

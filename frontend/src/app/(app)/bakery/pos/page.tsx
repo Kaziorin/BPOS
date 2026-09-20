@@ -12,6 +12,7 @@ import {
 import { CustomModal, CustomButton, CustomInput, CustomSelect } from "@/components/custom";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
 
 // ─── DATA TYPES & SCHEMAS ──────────────────────────────────────────────────
 export interface Product {
@@ -28,6 +29,7 @@ export interface Product {
   emoji: string;
   bgGradient: string;
   sku: string;
+  barcode?: string;
 }
 
 export interface Category {
@@ -153,6 +155,7 @@ export default function BakeryTerminalPage() {
             emoji: attr.emoji || "🧁",
             bgGradient: attr.bgGradient || "from-amber-100/80 via-orange-50/60 to-yellow-100/40",
             sku: p.sku || "",
+            barcode: p.barcode || "",
           };
         });
         setProducts(mapped);
@@ -321,6 +324,53 @@ export default function BakeryTerminalPage() {
     });
     triggerToast(`Added ${p.name} to cart`);
   }
+
+  useBarcodeScanner({
+    enabled: !showHoldModal && !showCustModal && !showReceiptModal,
+    onScan: async (code) => {
+      const norm = code.trim().toLowerCase();
+      const match = products.find(
+        (p) =>
+          p.barcode?.toLowerCase() === norm ||
+          p.sku?.toLowerCase() === norm ||
+          p.name.toLowerCase() === norm ||
+          p.id.toLowerCase() === norm
+      );
+      if (match) {
+        addToCart(match);
+      } else {
+        try {
+          const res: any = await api.get("/products", { params: { search: code, limit: 1 } });
+          const raw = res?.data || res;
+          const found = Array.isArray(raw) ? raw[0] : null;
+          if (found) {
+            addToCart({
+              id: String(found.id),
+              name: found.name || "Product",
+              unit: found.unit?.name || "pcs",
+              price: Number(found.sellingPrice || 0),
+              cost: Number(found.costPrice || 0),
+              stock: Number(found.totalStock ?? found.stockQty ?? 100),
+              maxStock: 150,
+              cat: found.category?.id || "bread",
+              badge: "",
+              badgeColor: "",
+              emoji: "🧁",
+              bgGradient: "from-amber-100/80 via-orange-50/60 to-yellow-100/40",
+              sku: found.sku || "",
+              barcode: found.barcode || "",
+            });
+          } else {
+            playScanErrorBeep();
+            triggerToast(`Barcode "${code}" not found`);
+          }
+        } catch {
+          playScanErrorBeep();
+          triggerToast(`Barcode "${code}" not found`);
+        }
+      }
+    },
+  });
 
   function updQty(id: string, d: number) {
     setCart(prev => prev.map(c => c.id === id ? { ...c, qty: Math.max(1, c.qty + d) } : c));

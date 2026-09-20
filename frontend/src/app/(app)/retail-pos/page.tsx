@@ -35,6 +35,7 @@ import {
 } from "@/lib/offline/db";
 import type { CachedProduct, CachedCustomer, CachedShift } from "@/lib/offline/types";
 import { fetchAllProducts, fetchBatches, applyBatchStock, toRegisterProduct } from "@/lib/catalog";
+import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
 
 // ── Interfaces ──────────────────────────────────────────────────────
 interface TenantInfo {
@@ -601,6 +602,39 @@ export default function PosPage() {
       if (match) { addProduct(match); setSearch(""); searchRef.current?.focus(); }
     }
   }
+
+  useBarcodeScanner({
+    enabled: !showCheckoutModal && !showCustomerModal && !showHolds && !showReturn,
+    onScan: async (code) => {
+      const norm = code.trim().toLowerCase();
+      const match = products.find(
+        (p) =>
+          p.barcode?.trim().toLowerCase() === norm ||
+          p.sku?.trim().toLowerCase() === norm ||
+          p.id?.trim().toLowerCase() === norm
+      );
+      if (match) {
+        addProduct(match);
+        toast.success(`Scanned: ${match.name}`);
+      } else {
+        try {
+          const res: any = await api.get("/products", { params: { search: code, limit: 1 } });
+          const raw = res?.data || res;
+          const found = Array.isArray(raw) ? raw[0] : null;
+          if (found) {
+            addProduct(found);
+            toast.success(`Scanned: ${found.name}`);
+          } else {
+            playScanErrorBeep();
+            toast.error(`Barcode "${code}" not found`);
+          }
+        } catch {
+          playScanErrorBeep();
+          toast.error(`Barcode "${code}" not found`);
+        }
+      }
+    },
+  });
 
   // ── Checkout ──
   function openCheckoutModal() {

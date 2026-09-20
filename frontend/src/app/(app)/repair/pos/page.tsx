@@ -49,6 +49,7 @@ import { api } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { toast } from "react-toastify";
 import { CustomModal, CustomInput, CustomButton } from "@/components/custom";
+import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -63,6 +64,7 @@ interface SparePart {
   id: string;
   name: string;
   sku: string;
+  barcode?: string;
   sellingPrice: number;
   stockQty?: number;
   categoryName?: string;
@@ -175,6 +177,7 @@ export default function RepairPOSPage() {
                 id: p.id,
                 name: p.name,
                 sku: p.sku || "PART",
+                barcode: p.barcode || "",
                 sellingPrice: Number(p.sellingPrice || 0),
                 stockQty: Number(p.totalStock ?? p._count?.stockRows ?? 0),
                 categoryName: p.category?.name || p.categoryName || "",
@@ -296,6 +299,45 @@ export default function RepairPOSPage() {
     });
     toast.success(`${part.name} added`, { autoClose: 1200, position: "bottom-right" });
   };
+
+  useBarcodeScanner({
+    onScan: async (code) => {
+      const trimmed = code.trim().toLowerCase();
+      const match = parts.find(
+        (p) =>
+          (p.barcode && p.barcode.toLowerCase() === trimmed) ||
+          (p.sku && p.sku.toLowerCase() === trimmed) ||
+          p.id.toLowerCase() === trimmed ||
+          p.name.toLowerCase() === trimmed
+      );
+      if (match) {
+        addPart(match);
+        return;
+      }
+
+      try {
+        const res: any = await api.get(`/api/v1/products?search=${encodeURIComponent(code.trim())}&limit=1`);
+        const p = res?.data?.data?.[0] || res?.data?.[0];
+        if (p) {
+          const mapped: SparePart = {
+            id: p.id,
+            name: p.name,
+            sku: p.sku || "PART",
+            barcode: p.barcode || "",
+            sellingPrice: Number(p.sellingPrice || 0),
+            stockQty: Number(p.totalStock ?? p._count?.stockRows ?? 0),
+            categoryName: p.category?.name || p.categoryName || "",
+          };
+          addPart(mapped);
+          return;
+        }
+      } catch {}
+
+      playScanErrorBeep();
+      toast.error(`No part found for barcode: ${code}`);
+    },
+    enabled: true,
+  });
 
   const addLabor = () => {
     if (!laborName.trim() || !laborPrice) return;

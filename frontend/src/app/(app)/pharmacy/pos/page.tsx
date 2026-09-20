@@ -29,6 +29,7 @@ import {
   CustomBadge,
 } from "@/components/custom";
 import { cn } from "@/lib/cn";
+import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
 
 import {
   PharmacyPOSLeftPanel,
@@ -548,6 +549,38 @@ export default function PharmacyPOSPage() {
     // Track for generic banner
     setLastAddedProduct(p);
   }
+
+  useBarcodeScanner({
+    enabled: hardwareConfig.barcodeScanner && !checkoutOpen && !prescriptionOpen && !pickerFor,
+    onScan: async (code) => {
+      const norm = code.trim().toLowerCase();
+      const match = products.find(
+        (p) =>
+          p.barcode?.toLowerCase() === norm ||
+          p.sku?.toLowerCase() === norm ||
+          p.name.toLowerCase() === norm ||
+          p.id.toLowerCase() === norm
+      );
+      if (match) {
+        tapProduct(match);
+      } else {
+        try {
+          const res: any = await api.get("/products", { params: { search: code, limit: 1 } });
+          const raw = res?.data || res;
+          const fetched = Array.isArray(raw) ? raw[0] : null;
+          if (fetched) {
+            tapProduct(fetched);
+          } else {
+            playScanErrorBeep();
+            alert(`Medicine barcode "${code}" not found.`);
+          }
+        } catch {
+          playScanErrorBeep();
+          alert(`Medicine barcode "${code}" not found.`);
+        }
+      }
+    },
+  });
 
   function addToCart(p: RegisterProduct, batch: BatchRow | null) {
     setCart((prev) => {

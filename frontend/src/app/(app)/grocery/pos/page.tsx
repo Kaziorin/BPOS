@@ -17,8 +17,8 @@ import { fetchAllProducts, fetchBatches, applyBatchStock, fetchRegisterContext }
 import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomButton } from "@/components/custom/CustomButton";
-import { CustomSelect } from "@/components/custom/CustomSelect";
 import { publishCart } from "@/lib/customer-display";
+import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
 
 interface TenantInfo {
   branch: { id: string; name: string } | null;
@@ -461,6 +461,41 @@ export default function GroceryPOSPage() {
   const confirmScale = () => { if (!scaleProd) return; const net = Math.max(0.001, parseFloat(grossKg) || 0); addToCart(scaleProd, net, true, net); setScaleOpen(false); setScaleProd(null); };
 
   const handleScanKey = (e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key !== "Enter") return; e.preventDefault(); const code = scanInput.trim().toLowerCase(); if (!code) return; const found = products.find(p => (p.barcode?.toLowerCase() === code) || (p.sku?.toLowerCase() === code) || p.name.toLowerCase() === code); if (found) { const isKg = found.uom?.toLowerCase().includes("kg") || found.uom?.toLowerCase().includes("gm"); if (isKg) openScale(found); else addToCart(found); } else alert(`Barcode "${scanInput}" not found.`); setScanInput(""); };
+
+  useBarcodeScanner({
+    enabled: hardwareSettings.barcodeScanner && !scaleOpen && !customerModalOpen && !settingsOpen,
+    soundEnabled: hardwareSettings.scannerBeep,
+    onScan: async (code) => {
+      const norm = code.trim().toLowerCase();
+      const found = products.find(
+        (p) =>
+          p.barcode?.toLowerCase() === norm ||
+          p.sku?.toLowerCase() === norm ||
+          p.name.toLowerCase() === norm ||
+          p.id.toLowerCase() === norm
+      );
+      if (found) {
+        const isKg = found.uom?.toLowerCase().includes("kg") || found.uom?.toLowerCase().includes("gm");
+        if (isKg) openScale(found);
+        else addToCart(found);
+      } else {
+        try {
+          const res: any = await api.get("/products", { params: { search: code, limit: 1 } });
+          const raw = res?.data || res;
+          const fetched = Array.isArray(raw) ? raw[0] : null;
+          if (fetched) {
+            addToCart(fetched);
+          } else {
+            playScanErrorBeep();
+            alert(`Barcode "${code}" not found.`);
+          }
+        } catch {
+          playScanErrorBeep();
+          alert(`Barcode "${code}" not found.`);
+        }
+      }
+    },
+  });
 
   const subTotal = cart.reduce((a, i) => a + i.lineTotal, 0);
   const discAmt = subTotal * (parseFloat(discountPct) / 100 || 0);

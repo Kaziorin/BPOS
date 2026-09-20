@@ -29,6 +29,8 @@ import {
   type WsCategory,
   type WsSortBy,
 } from "@/components/wholesale/wholesale-pos-types";
+import { toast } from "react-toastify";
+import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
 
 /** Placeholder for empty product state. */
 const EMPTY_PRODUCTS: RegisterProduct[] = [];
@@ -375,6 +377,57 @@ function WholesalePOSInner() {
     },
     [ctx.warehouse?.name],
   );
+
+  useBarcodeScanner({
+    onScan: async (code) => {
+      const trimmed = code.trim().toLowerCase();
+      const match = products.find(
+        (p) =>
+          (p.barcode && p.barcode.toLowerCase() === trimmed) ||
+          (p.sku && p.sku.toLowerCase() === trimmed) ||
+          p.id.toLowerCase() === trimmed ||
+          p.name.toLowerCase() === trimmed
+      );
+      if (match) {
+        if ((match.stockQty ?? 0) <= 0) {
+          playScanErrorBeep();
+          toast.warning(`Out of stock: ${match.name}`);
+          return;
+        }
+        addProduct(match);
+        toast.success(`Scanned: ${match.name}`);
+        return;
+      }
+
+      try {
+        const res: any = await api.get(`/api/v1/products?search=${encodeURIComponent(code.trim())}&limit=1`);
+        const item = res?.data?.data?.[0] || res?.data?.[0];
+        if (item) {
+          const mapped: RegisterProduct = {
+            id: item.id,
+            name: item.name,
+            sku: item.sku || "",
+            barcode: item.barcode || "",
+            sellingPrice: Number(item.selling_price || item.price || 0),
+            costPrice: Number(item.cost_price || item.costPrice || 0),
+            productType: item.product_type || item.productType || "STANDARD",
+            unit: item.unit || "unit",
+            status: item.status || "ACTIVE",
+            stockQty: Number(item.stock_qty ?? item.stock ?? 999),
+            imageUrl: item.image_url || item.image || "",
+            categoryName: item.category_name || item.categoryName || "",
+          };
+          addProduct(mapped);
+          toast.success(`Scanned: ${mapped.name}`);
+          return;
+        }
+      } catch {}
+
+      playScanErrorBeep();
+      toast.error(`No product found for barcode: ${code}`);
+    },
+    enabled: true,
+  });
 
   function onQty(idx: number, qty: number) {
     setCart((prev) => {

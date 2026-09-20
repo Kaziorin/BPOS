@@ -44,6 +44,7 @@ import { CustomModal } from "@/components/custom/CustomModal";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomSelect } from "@/components/custom/CustomSelect";
+import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
 
 // ── Types & Interfaces ──────────────────────────────────────────────
 export interface FranchiseOutlet {
@@ -63,6 +64,7 @@ export interface FranchiseCatalogItem {
   id: string;
   name: string;
   sku: string;
+  barcode?: string;
   category: string;
   franchisePrice: number;
   mrp: number;
@@ -282,6 +284,7 @@ export default function FranchisePOSPage() {
               id: p.id,
               name: typeof p.name === "object" && p.name !== null ? p.name?.name || String(p.id) : String(p.name || "Item"),
               sku: typeof p.sku === "object" && p.sku !== null ? p.sku?.name || "FR-ITEM" : String(p.sku || "FR-ITEM"),
+              barcode: p.barcode || "",
               category: String(catName),
               franchisePrice,
               mrp: Number(p.sellingPrice || 100),
@@ -376,6 +379,52 @@ export default function FranchisePOSPage() {
     });
     addToast("success", `Added "${item.name}" to cart.`);
   };
+
+  useBarcodeScanner({
+    onScan: async (code) => {
+      const trimmed = code.trim().toLowerCase();
+      const match = catalog.find(
+        (i) =>
+          (i.barcode && i.barcode.toLowerCase() === trimmed) ||
+          (i.sku && i.sku.toLowerCase() === trimmed) ||
+          i.id.toLowerCase() === trimmed ||
+          i.name.toLowerCase() === trimmed
+      );
+      if (match) {
+        addToCart(match);
+        return;
+      }
+
+      try {
+        const res: any = await api.get(`/api/v1/products?search=${encodeURIComponent(code.trim())}&limit=1`);
+        const p = res?.data?.data?.[0] || res?.data?.[0];
+        if (p) {
+          const franchisePrice = Number(
+            p.wholesalePrice || p.costPrice
+              ? (p.costPrice * 1.15).toFixed(2)
+              : ((p.sellingPrice || 100) * 0.75).toFixed(2)
+          );
+          const mapped: FranchiseCatalogItem = {
+            id: p.id,
+            name: p.name || "Item",
+            sku: p.sku || "FR-ITEM",
+            barcode: p.barcode || "",
+            category: p.categoryName || "General",
+            franchisePrice,
+            mrp: Number(p.sellingPrice || 100),
+            stockQty: Number(p.stockQty ?? p.currentStock ?? 50),
+            unit: p.unit || "unit",
+          };
+          addToCart(mapped);
+          return;
+        }
+      } catch {}
+
+      playScanErrorBeep();
+      addToast("error", `No franchise product found for barcode: ${code}`);
+    },
+    enabled: true,
+  });
 
   const updateQty = (id: string, delta: number) => {
     setCart((prev) =>

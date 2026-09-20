@@ -9,6 +9,8 @@ import { CartPanel } from "../CartPanel";
 import { PaymentPanel } from "../PaymentPanel";
 import { ReceiptModal } from "../ReceiptModal";
 import type { CartItem, PaymentLine, SaleResult } from "../pos-types";
+import { toast } from "react-toastify";
+import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
 
 interface Product {
   id: string;
@@ -86,6 +88,46 @@ export default function SelfCheckoutPage() {
       if (match) addProduct(match);
     }
   }
+
+  useBarcodeScanner({
+    onScan: async (code) => {
+      const trimmed = code.trim().toLowerCase();
+      const match = products.find(
+        (p) =>
+          (p.barcode && p.barcode.toLowerCase() === trimmed) ||
+          (p.sku && p.sku.toLowerCase() === trimmed) ||
+          p.id.toLowerCase() === trimmed ||
+          p.name.toLowerCase() === trimmed
+      );
+      if (match) {
+        addProduct(match);
+        toast.success(`Scanned: ${match.name}`);
+        return;
+      }
+
+      try {
+        const res: any = await api.get(`/api/v1/products?search=${encodeURIComponent(code.trim())}&limit=1`);
+        const item = res?.data?.data?.[0] || res?.data?.[0] || (Array.isArray(res) ? res[0] : null);
+        if (item) {
+          const mapped: Product = {
+            id: item.id,
+            name: item.name,
+            sku: item.sku || "",
+            barcode: item.barcode || null,
+            sellingPrice: String(item.sellingPrice || item.selling_price || item.price || 0),
+            unit: item.unit || "pcs",
+          };
+          addProduct(mapped);
+          toast.success(`Scanned: ${mapped.name}`);
+          return;
+        }
+      } catch {}
+
+      playScanErrorBeep();
+      toast.error(`No product found for barcode: ${code}`);
+    },
+    enabled: true,
+  });
 
   async function confirmSale() {
     if (cart.length === 0) return;

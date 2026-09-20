@@ -5,6 +5,7 @@ import { Search, Tag, Package } from "lucide-react";
 import { api } from "@/lib/api";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomButton } from "@/components/custom/CustomButton";
+import { useBarcodeScanner } from "@/lib/useBarcodeScanner";
 
 interface ProductResult {
   id: string;
@@ -24,14 +25,15 @@ export default function PriceCheckerPage() {
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  async function lookup() {
-    if (!query.trim()) return;
+  async function lookup(searchCode?: string) {
+    const q = (searchCode || query).trim();
+    if (!q) return;
     setLoading(true);
     setNotFound(false);
     setProduct(null);
     try {
       const res = await api.get<ProductResult>(
-        `/api/v1/pos/price-check?q=${encodeURIComponent(query.trim())}`,
+        `/api/v1/pos/price-check?q=${encodeURIComponent(q)}`,
       );
       setProduct(res);
     } catch {
@@ -40,6 +42,14 @@ export default function PriceCheckerPage() {
       setLoading(false);
     }
   }
+
+  useBarcodeScanner({
+    onScan: (code) => {
+      setQuery(code);
+      lookup(code);
+    },
+    enabled: true,
+  });
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
@@ -60,8 +70,8 @@ export default function PriceCheckerPage() {
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && lookup()}
         />
-        <CustomButton loading={loading} onClick={lookup}>
-          Check
+        <CustomButton loading={loading} onClick={() => lookup()}>
+          Check Price
         </CustomButton>
       </div>
 

@@ -15,6 +15,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { PaymentCheckoutModal, type CheckoutPayMethod } from "@/components/pharmacy/PharmacyPOSModals";
 import { ReceiptModal } from "../../retail-pos/ReceiptModal";
+import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
 
 // ─── DATA TYPES & SCHEMAS ──────────────────────────────────────────────────
 export interface Product {
@@ -31,6 +32,7 @@ export interface Product {
   emoji: string;
   bgGradient: string;
   sku: string;
+  barcode?: string;
   image?: string;
   imageUrl?: string;
 }
@@ -259,6 +261,7 @@ export default function BakeryPOSPage() {
             emoji: attr.emoji || "🧁",
             bgGradient: attr.bgGradient || "from-amber-100/80 via-orange-50/60 to-yellow-100/40",
             sku: p.sku || "",
+            barcode: p.barcode || "",
             imageUrl: rawImg || undefined,
             image: rawImg || undefined,
           };
@@ -434,6 +437,60 @@ export default function BakeryPOSPage() {
     });
     triggerToast(`Added ${p.name} to cart`);
   }
+
+  useBarcodeScanner({
+    onScan: async (code) => {
+      const trimmed = code.trim().toLowerCase();
+      const match = products.find(
+        (p) =>
+          (p.barcode && p.barcode.toLowerCase() === trimmed) ||
+          (p.sku && p.sku.toLowerCase() === trimmed) ||
+          p.id.toLowerCase() === trimmed ||
+          p.name.toLowerCase() === trimmed
+      );
+      if (match) {
+        addToCart(match);
+        return;
+      }
+
+      try {
+        const res: any = await api.get(`/api/v1/products?search=${encodeURIComponent(code.trim())}&limit=1`);
+        const item = res?.data?.data?.[0] || res?.data?.[0] || (Array.isArray(res) ? res[0] : null);
+        if (item) {
+          const stockVal = Number(item.totalStock ?? item.stockQty ?? 100);
+          const rawImg =
+            item.imageUrl ||
+            item.image ||
+            (Array.isArray(item.images) && item.images.length > 0 ? (item.images[0]?.url || item.images[0]) : "") ||
+            "";
+          const mapped: Product = {
+            id: String(item.id),
+            name: item.name || "Product",
+            unit: item.unit?.name || "pcs",
+            price: Number(item.sellingPrice || item.selling_price || item.price || 0),
+            cost: Number(item.costPrice || item.cost_price || 0),
+            stock: stockVal,
+            maxStock: Math.max(stockVal, 150),
+            cat: item.category?.id || (item.category?.name ? item.category.name.toLowerCase() : "general"),
+            badge: "",
+            badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+            emoji: "📦",
+            bgGradient: "from-amber-100/80 via-orange-50/60 to-yellow-100/40",
+            sku: item.sku || "",
+            barcode: item.barcode || "",
+            imageUrl: rawImg || undefined,
+            image: rawImg || undefined,
+          };
+          addToCart(mapped);
+          return;
+        }
+      } catch {}
+
+      playScanErrorBeep();
+      triggerToast(`Product not found for barcode: ${code}`);
+    },
+    enabled: true,
+  });
 
   function updQty(id: string, d: number) {
     setCart(prev => prev.map(c => c.id === id ? { ...c, qty: Math.max(1, c.qty + d) } : c));

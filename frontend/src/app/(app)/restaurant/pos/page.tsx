@@ -65,6 +65,7 @@ import { ConfirmModal, CustomModal, CustomPromptModal, CustomInput, CustomButton
 import { getCategoryIcon } from "@/lib/categoryIcons";
 import { DEFAULT_FLOORS } from "@/components/restaurant/FloorPlanView";
 import { publishRestaurantCart } from "@/lib/customer-display";
+import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
 
 interface TableOption {
   id: string;
@@ -97,6 +98,8 @@ interface MenuItem {
   category: string;
   sellingPrice: number;
   image: string;
+  sku?: string;
+  barcode?: string;
   isPopular?: boolean;
   isVeg?: boolean;
   isKitchenProduct?: boolean;
@@ -245,6 +248,8 @@ function mapApiProductToMenuItem(p: any): MenuItem {
     description: p.description || "",
     taxRate,
     taxMethod,
+    sku: p.sku || "",
+    barcode: p.barcode || "",
   };
 }
 
@@ -386,7 +391,7 @@ export default function RestaurantPOSPage() {
   const [hwThermalPrinter, setHwThermalPrinter] = useState(false);
   const [hwKDS, setHwKDS] = useState(false);
   const [hwCashDrawer, setHwCashDrawer] = useState(false);
-  const [hwBarcodeScanner, setHwBarcodeScanner] = useState(false);
+  const [hwBarcodeScanner, setHwBarcodeScanner] = useState(true);
   const [hwKitchenPrinter, setHwKitchenPrinter] = useState(false);
   const [hwCardTerminal, setHwCardTerminal] = useState(false);
   const [hwCustomerDisplay, setHwCustomerDisplay] = useState(false);
@@ -1224,6 +1229,38 @@ export default function RestaurantPOSPage() {
     setCustomPrice(250);
   };
 
+  useBarcodeScanner({
+    enabled: hwBarcodeScanner && !showCheckoutModal && !showSelectTableModal && !showSelectStaffModal && !showCustomItemModal,
+    onScan: async (code) => {
+      const norm = code.trim().toLowerCase();
+      const match = products.find(
+        (p) =>
+          p.barcode?.trim().toLowerCase() === norm ||
+          p.sku?.trim().toLowerCase() === norm ||
+          p.id?.trim().toLowerCase() === norm
+      );
+      if (match) {
+        addToCart(match);
+      } else {
+        try {
+          const res: any = await api.get("/products", { params: { search: code, limit: 1 } });
+          const pData = res?.data || res;
+          const raw = Array.isArray(pData) ? pData[0] : null;
+          if (raw) {
+            const mapped = mapApiProductToMenuItem(raw);
+            addToCart(mapped);
+          } else {
+            playScanErrorBeep();
+            toast.error(`Barcode "${code}" not found`);
+          }
+        } catch {
+          playScanErrorBeep();
+          toast.error(`Barcode "${code}" not found`);
+        }
+      }
+    },
+  });
+
   const handleHoldOrder = () => {
     if (cart.length === 0) return;
     setHeldOrders((prev) => [
@@ -1515,7 +1552,11 @@ export default function RestaurantPOSPage() {
           ? p.isPopular
           : pCat.toLowerCase() === selectedCategory.toLowerCase();
     const matchesSearch =
-      !searchQ || p.name.toLowerCase().includes(searchQ) || pCat.toLowerCase().includes(searchQ);
+      !searchQ ||
+      p.name.toLowerCase().includes(searchQ) ||
+      pCat.toLowerCase().includes(searchQ) ||
+      (p.barcode && p.barcode.toLowerCase().includes(searchQ)) ||
+      (p.sku && p.sku.toLowerCase().includes(searchQ));
     return matchesCategory && matchesSearch;
   });
 
@@ -1586,7 +1627,23 @@ export default function RestaurantPOSPage() {
               type="text"
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
-              placeholder="Search food & drinks..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchFilter.trim()) {
+                  const q = searchFilter.trim().toLowerCase();
+                  const match = sourceProducts.find(
+                    (p) =>
+                      p.barcode?.trim().toLowerCase() === q ||
+                      p.sku?.trim().toLowerCase() === q ||
+                      p.name.toLowerCase() === q ||
+                      p.id.toLowerCase() === q
+                  );
+                  if (match) {
+                    addToCart(match);
+                    setSearchFilter("");
+                  }
+                }
+              }}
+              placeholder="Search food & drinks or scan..."
               className="w-full rounded-sm bg-white/15 border border-white/20 py-1.5 pl-8 pr-8 text-xs font-medium text-white placeholder-orange-100/70 focus:bg-white focus:text-gray-600 focus:placeholder-gray-400 focus:outline-none transition"
             />
             {searching && (
