@@ -1483,7 +1483,7 @@ export default function PosPage() {
 
               {/* Right Column: Total Payable Card (Ultra-Premium 3D Glass Card with Light Violet Gradient & VFX Radial Glow) */}
               <div className="payable-card-3d flex flex-col justify-between p-3.5 rounded-sm bg-gradient-to-br from-violet-100/95 via-purple-50/80 to-indigo-50/90 border border-violet-200/90 shadow-sm">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">Total Payable</span>
+                <span className="text-[11px] font-bold text-slate-600">Total Payable</span>
                 <span className="text-2xl font-black text-violet-700 tracking-tight">{fmt(total)}</span>
                 <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600">
                   <Tag size={10} className="shrink-0" />
@@ -1909,7 +1909,7 @@ export default function PosPage() {
         <div className="rounded-sm border border-violet-200/80 bg-gradient-to-br from-violet-50/80 to-indigo-50/40 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Payable</p>
+              <p className="text-[10px] font-bold text-slate-500">Total Payable</p>
               <p className="text-3xl font-black tabular-nums text-violet-600 leading-tight">
                 {fmt(total)}
               </p>

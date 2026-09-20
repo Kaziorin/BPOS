@@ -527,6 +527,19 @@ export default function RestaurantPOSPage() {
         if (Array.isArray(pData) && pData.length > 0) {
           loadedProducts = pData.map((p: any) => mapApiProductToMenuItem(p));
           setProducts(loadedProducts);
+          setCart((prev) =>
+            prev.map((cItem) => {
+              const matched = loadedProducts.find((p) => p.id === cItem.productId);
+              if (matched) {
+                return {
+                  ...cItem,
+                  taxRate: matched.taxRate !== undefined ? matched.taxRate : cItem.taxRate,
+                  taxMethod: matched.taxMethod || cItem.taxMethod,
+                };
+              }
+              return cItem;
+            })
+          );
         } else {
           setProducts([]);
           loadedProducts = [];
@@ -2395,8 +2408,8 @@ export default function RestaurantPOSPage() {
               {estimateInclusiveTax > 0 ? (
                 <>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Base Price (Net)</span>
-                    <span className="font-bold text-gray-600">{fmt(taxableBase)}</span>
+                    <span className="text-gray-500">Base Price</span>
+                    <span className="font-bold text-gray-600">{fmt(subTotal)}</span>
                   </div>
 
                   {discountPercent > 0 && (
@@ -2406,18 +2419,18 @@ export default function RestaurantPOSPage() {
                     </div>
                   )}
 
-                  <div className="flex justify-between text-emerald-700">
-                    <span className="text-gray-500">
-                      + VAT / Tax {nominalTaxPercent > 0 ? `(${Number(nominalTaxPercent.toFixed(1))}%)` : ""}{" "}
-                      <span className="text-[10px] text-emerald-600 font-semibold">(Incl.)</span>
+                  <div className="flex justify-between text-gray-500">
+                    <span>
+                      VAT / Tax {nominalTaxPercent > 0 ? `(${Number(nominalTaxPercent.toFixed(1))}%)` : ""}{" "}
+                      <span className="text-[10px] text-gray-400 font-semibold">(Incl.)</span>
                     </span>
-                    <span className="font-bold">+{fmt(estimateTax)}</span>
+                    <span className="font-medium text-gray-600">{fmt(estimateTax)}</span>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Subtotal</span>
+                    <span className="text-gray-500">Base Price</span>
                     <span className="font-bold text-gray-600">{fmt(subTotal)}</span>
                   </div>
 
@@ -2432,7 +2445,7 @@ export default function RestaurantPOSPage() {
                     <span>
                       + VAT / Tax {nominalTaxPercent > 0 ? `(${Number(nominalTaxPercent.toFixed(1))}%)` : ""}
                     </span>
-                    <span className="font-medium">+{fmt(estimateTax)}</span>
+                    <span className="font-medium text-gray-600">+{fmt(estimateTax)}</span>
                   </div>
                 </>
               )}
@@ -2455,23 +2468,18 @@ export default function RestaurantPOSPage() {
                   className="hover:underline flex items-center gap-1 text-left cursor-pointer text-gray-500 hover:text-orange-600 transition"
                   title="Click to change Service Charge %"
                 >
-                  <span>Service Charge {effectiveServicePercent > 0 ? `(${effectiveServicePercent}%)` : "(0%)"}</span>
+                  <span>
+                    + Service Charge {effectiveServicePercent > 0 ? `(${effectiveServicePercent}%)` : "(0%)"}
+                  </span>
                   <Edit3 size={11} className="text-gray-400" />
                 </button>
                 <span className="font-medium">{estimateService > 0 ? `+${fmt(estimateService)}` : fmt(estimateService)}</span>
               </div>
 
-              <div className="flex justify-between items-baseline pt-2 mt-1 border-t border-dashed border-slate-300">
-                <div>
-                  <span className="text-xs uppercase font-black text-gray-500 tracking-wider block">
-                    Total Payable
-                  </span>
-                  {estimateInclusiveTax > 0 && (
-                    <span className="text-[10px] font-semibold text-emerald-600 block">
-                      (Includes ৳{roundedInclusiveTax.toFixed(2)} VAT)
-                    </span>
-                  )}
-                </div>
+              <div className="flex justify-between items-center pt-2 mt-1 border-t border-dashed border-slate-300">
+                <span className="text-xs font-bold text-gray-600">
+                  Total Payable
+                </span>
                 <span className="text-2xl font-black text-orange-600 tabular-nums tracking-tight">
                   {fmt(estimateGrandTotal)}
                 </span>
@@ -2725,14 +2733,8 @@ export default function RestaurantPOSPage() {
             {(completedBill?.inclusiveTax ?? 0) > 0 ? (
               <>
                 <div className="flex justify-between text-slate-500">
-                  <span>Base Price (Net)</span>
-                  <span>
-                    {fmt(
-                      completedBill?.taxableBase !== undefined
-                        ? completedBill.taxableBase
-                        : Math.max(0, (completedBill?.subTotal || 0) - completedBill.inclusiveTax)
-                    )}
-                  </span>
+                  <span>Base Price</span>
+                  <span>{fmt(completedBill?.subTotal || 0)}</span>
                 </div>
                 {(completedBill?.discountAmount ?? 0) > 0 && (
                   <div className="flex justify-between text-emerald-600">
@@ -2742,20 +2744,20 @@ export default function RestaurantPOSPage() {
                 )}
                 <div className="flex justify-between text-slate-500">
                   <span>
-                    + VAT / Tax {completedBill?.taxRatePercent !== undefined && completedBill.taxRatePercent > 0
+                    VAT / Tax {completedBill?.taxRatePercent !== undefined && completedBill.taxRatePercent > 0
                       ? `(${Number(completedBill.taxRatePercent.toFixed(1))}%)`
                       : (completedBill?.taxAmount || 0) > 0 && (completedBill?.subTotal || 0) > 0
                         ? `(${Number(((completedBill.taxAmount / completedBill.subTotal) * 100).toFixed(1))}%)`
                         : ""}{" "}
-                    <span className="text-xs text-emerald-600 font-semibold">(Included)</span>
+                    <span className="text-xs text-slate-400 font-semibold">(Included)</span>
                   </span>
-                  <span>+{fmt(completedBill?.taxAmount || 0)}</span>
+                  <span>{fmt(completedBill?.taxAmount || 0)}</span>
                 </div>
               </>
             ) : (
               <>
                 <div className="flex justify-between text-slate-500">
-                  <span>Subtotal</span>
+                  <span>Base Price</span>
                   <span>{fmt(completedBill?.rawSubtotal || completedBill?.subTotal || 0)}</span>
                 </div>
                 {(completedBill?.discountAmount ?? 0) > 0 && (
@@ -2857,7 +2859,7 @@ export default function RestaurantPOSPage() {
         {/* ── Total Due Strip ── */}
         <div className="rounded-sm border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50/50 px-5 py-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-gray-600">
+            <span className="text-xs sm:text-sm font-bold text-gray-600">
               Total Payable
             </span>
             <span className="text-2xl sm:text-3xl font-black tabular-nums text-orange-600 leading-none">
@@ -2869,7 +2871,7 @@ export default function RestaurantPOSPage() {
         {/* ── Payment Options ── */}
         <div className="space-y-4 pt-3">
           <div>
-            <label className="block text-[11px] font-black uppercase tracking-wider text-gray-500 mb-2">
+            <label className="block text-[11px] font-bold text-gray-500 mb-2">
               Payment Method
             </label>
             <div className="grid grid-cols-4 gap-2">
@@ -2902,7 +2904,7 @@ export default function RestaurantPOSPage() {
           {checkoutPayMethod === "CASH" && (
             <div className="rounded-sm border border-slate-200 bg-slate-50/70 p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-[11px] font-black uppercase tracking-wider text-gray-500">
+                <label className="text-[11px] font-bold text-gray-500">
                   Cash Tendered (৳)
                 </label>
                 <button
