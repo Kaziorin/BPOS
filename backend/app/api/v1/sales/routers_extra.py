@@ -618,7 +618,7 @@ async def list_sales_orders(
         rows = rows_to_dicts((await db.execute(text(f"""
             SELECT * FROM (
                 SELECT so.id, so.orderNo, 'B2B' AS source, so.status, so.subtotal, so.total,
-                       so.discountTotal, so.taxTotal,
+                       so.discountTotal, so.taxTotal, 0.00 AS serviceCharge,
                        0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                        b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName,
@@ -631,7 +631,7 @@ async def list_sales_orders(
                 UNION ALL
 
                 SELECT s.id, s.invoiceNo AS orderNo, COALESCE(s.source, 'B2B') AS source, s.status, s.subtotal, s.total,
-                       s.discountTotal, s.taxTotal,
+                       s.discountTotal, s.taxTotal, COALESCE(s.serviceCharge, 0.00) AS serviceCharge,
                        s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                        b.name AS branchName, s.paymentStatus, s.userId AS cashierId, u.name AS cashierName,
@@ -653,7 +653,7 @@ async def list_sales_orders(
         total_vol = (await db.execute(text(f"SELECT COALESCE(SUM(s.total), 0) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_where}"), params)).scalar() or 0
         rows = rows_to_dicts((await db.execute(text(f"""
             SELECT s.id, s.invoiceNo AS orderNo, COALESCE(s.source, 'POS') AS source, s.status, s.subtotal, s.total,
-                   s.discountTotal, s.taxTotal,
+                   s.discountTotal, s.taxTotal, COALESCE(s.serviceCharge, 0.00) AS serviceCharge,
                    s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                    s.paymentStatus, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                    b.name AS branchName,
@@ -678,7 +678,7 @@ async def list_sales_orders(
         rows = rows_to_dicts((await db.execute(text(f"""
             SELECT * FROM (
                 SELECT so.id, so.orderNo, 'B2B' AS source, so.status, so.subtotal, so.total,
-                       so.discountTotal, so.taxTotal,
+                       so.discountTotal, so.taxTotal, 0.00 AS serviceCharge,
                        0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                        b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName,
@@ -691,7 +691,7 @@ async def list_sales_orders(
                 UNION ALL
 
                 SELECT s.id, s.invoiceNo AS orderNo, COALESCE(s.source, 'POS') AS source, s.status, s.subtotal, s.total,
-                       s.discountTotal, s.taxTotal,
+                       s.discountTotal, s.taxTotal, COALESCE(s.serviceCharge, 0.00) AS serviceCharge,
                        s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                        b.name AS branchName, s.paymentStatus, s.userId AS cashierId, u.name AS cashierName,
@@ -707,6 +707,10 @@ async def list_sales_orders(
 
     for r in rows:
         r["total"] = round(float(r.get("total", 0) or 0), 2)
+        r["subtotal"] = round(float(r.get("subtotal", 0) or 0), 2)
+        r["discountTotal"] = round(float(r.get("discountTotal", 0) or 0), 2)
+        r["taxTotal"] = round(float(r.get("taxTotal", 0) or 0), 2)
+        r["serviceCharge"] = round(float(r.get("serviceCharge", 0) or 0), 2)
         r["paidTotal"] = round(float(r.get("paidTotal", 0) or 0), 2)
         r["dueTotal"] = round(float(r.get("dueTotal", 0) or 0), 2)
         r["changeReturn"] = max(round(r["paidTotal"] - r["total"], 2), 0.0)

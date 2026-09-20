@@ -72,6 +72,9 @@ interface SalesOrder {
   source: string;
   status: string;
   subtotal?: number;
+  discountTotal?: number;
+  taxTotal?: number;
+  serviceCharge?: number;
   total: number;
   paidTotal: number;
   dueTotal: number;
@@ -229,6 +232,10 @@ export default function SalesOrdersPage() {
             unitPrice: Number(order.total || 0),
             lineTotal: Number(order.total || 0),
           }],
+      subtotal: order.subtotal !== undefined ? Number(order.subtotal) : undefined,
+      discountTotal: order.discountTotal !== undefined ? Number(order.discountTotal) : Number((order as any).discount || 0),
+      taxTotal: order.taxTotal !== undefined ? Number(order.taxTotal) : Number((order as any).tax || 0),
+      serviceCharge: order.serviceCharge !== undefined ? Number(order.serviceCharge) : Number((order as any).service_charge || 0),
       total: orderTotal,
       paidTotal: rawPaid,
       dueTotal: Number(order.dueTotal || 0),

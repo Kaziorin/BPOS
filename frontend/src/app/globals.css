@@ -554,24 +554,29 @@ input[type="button"]:not(:disabled),
 
   /* 1. Thermal POS Receipt (80mm & 58mm) */
   #thermal-receipt,
-  #thermal-receipt * {
+  #thermal-receipt *,
+  #thermal-receipt-view,
+  #thermal-receipt-view * {
     visibility: visible;
   }
   
-  #thermal-receipt {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 80mm;
-    max-width: 80mm;
-    padding: 2mm 3mm;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 11px;
-    line-height: 1.25;
+  #thermal-receipt,
+  #thermal-receipt-view {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    padding: 2mm 3mm !important;
+    margin: 0 !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
     color: #000 !important;
     background: #fff !important;
     box-shadow: none !important;
     border: none !important;
+    z-index: 9999999 !important;
   }
 
   /* 2. Enterprise Documents, A4 Invoices & Purchasing Voucher Slips */
