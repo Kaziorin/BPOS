@@ -154,6 +154,7 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
 
     # §10.21 — Server-side VAT calculation (replace client-submitted taxTotal)
     tax_rule = await tax_engine.resolve_tax_rate(db, tenant, appliesTo="SALE")
+    exclusive_tax_total = 0.0
     if tax_rule and tax_rule["rate"] > 0:
         tax_calc = tax_engine.calculate_tax(
             subtotal - discountTotal,
@@ -162,6 +163,8 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
             rate_type=tax_rule["rateType"],
         )
         taxTotal = tax_calc["taxAmount"]
+        if not tax_rule["taxInclusive"]:
+            exclusive_tax_total = tax_calc["taxAmount"]
     else:
         # Fallback: sum per-product taxRate
         taxTotal = 0.0
@@ -171,13 +174,16 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
             if tr and tr["rate"] > 0:
                 tc = tax_engine.calculate_tax(line_amt, tr["rate"], tax_inclusive=tr["taxInclusive"])
                 taxTotal += tc["taxAmount"]
+                if not tr["taxInclusive"]:
+                    exclusive_tax_total += tc["taxAmount"]
         taxTotal = round(taxTotal, 2)
+        exclusive_tax_total = round(exclusive_tax_total, 2)
 
     service = float(body.get("serviceCharge", 0) or 0)
     delivery = float(body.get("deliveryFee", 0) or 0)
     tips = float(body.get("tips", 0) or 0)
     roundOff = float(body.get("roundOff", 0) or 0)
-    total = round(max(subtotal - discountTotal + taxTotal + service + delivery + tips + roundOff, 0), 2)
+    total = round(max(subtotal - discountTotal + exclusive_tax_total + service + delivery + tips + roundOff, 0), 2)
     paid = round(sum(float(p.get("amount", 0)) for p in payments), 2)
     credit_amt = sum(float(p.get("amount", 0)) for p in payments if p.get("method") == "CREDIT")
     due = max(round(total - paid, 2), 0)

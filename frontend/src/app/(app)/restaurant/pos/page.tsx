@@ -106,6 +106,8 @@ interface MenuItem {
   portionSizes?: PortionSizeOption[];
   addons?: { name: string; price: number }[];
   description?: string;
+  taxRate?: number;
+  taxMethod?: string;
 }
 
 interface CartModifier {
@@ -127,6 +129,8 @@ interface RestaurantCartItem {
   addons?: any[];
   isKitchenProduct?: boolean;
   kotStatus: "PENDING" | "SENT_TO_KITCHEN" | "PREPARING" | "SERVED" | "READY_TO_SERVE";
+  taxRate?: number;
+  taxMethod?: string;
 }
 
 interface StaffOption {
@@ -170,6 +174,12 @@ function mapApiProductToMenuItem(p: any): MenuItem {
   let allTimeSlots = true;
   let portionSizes: PortionSizeOption[] = [];
   let addons: { name: string; price: number }[] = [];
+  let taxRate: number = 0;
+  let taxMethod: string = "Exclusive";
+
+  if (p.taxRate !== undefined && p.taxRate !== null && p.taxRate !== "") {
+    taxRate = Number(p.taxRate) || 0;
+  }
 
   try {
     const rawAttrs =
@@ -206,6 +216,13 @@ function mapApiProductToMenuItem(p: any): MenuItem {
         price: Number(a.price || 0),
       }));
     }
+
+    if (rawAttrs?.taxMethod) {
+      taxMethod = rawAttrs.taxMethod;
+    }
+    if (rawAttrs?.taxRate !== undefined && !taxRate) {
+      taxRate = Number(rawAttrs.taxRate) || 0;
+    }
   } catch (e) { }
 
   return {
@@ -226,6 +243,8 @@ function mapApiProductToMenuItem(p: any): MenuItem {
     portionSizes,
     addons,
     description: p.description || "",
+    taxRate,
+    taxMethod,
   };
 }
 
@@ -358,7 +377,8 @@ export default function RestaurantPOSPage() {
   const [showShiftDetailsModal, setShowShiftDetailsModal] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [checkoutPayMethod, setCheckoutPayMethod] = useState<"CASH" | "CARD" | "MFS" | "DUE">("CASH");
-  const [cashTenderedInput, setCashTenderedInput] = useState("");
+  const [cashTenderedInput, setCashTenderedInput] = useState("0");
+  const [serviceChargePercent, setServiceChargePercent] = useState<number>(0);
   const [submittingCheckout, setSubmittingCheckout] = useState(false);
   const [showThreeDotMenu, setShowThreeDotMenu] = useState(false);
   const [showHardwareModal, setShowHardwareModal] = useState(false);
@@ -418,7 +438,7 @@ export default function RestaurantPOSPage() {
 
   const handleOpenCheckoutModal = () => {
     if (cart.length === 0) return;
-    setCashTenderedInput(estimateGrandTotal.toFixed(0));
+    setCashTenderedInput("0");
     setShowCheckoutModal(true);
   };
 
@@ -825,9 +845,32 @@ export default function RestaurantPOSPage() {
     const rawSub = cart.reduce((acc, i) => acc + i.qty * i.unitPrice, 0);
     const discAmt = (rawSub * discountPercent) / 100;
     const sTotal = Math.max(0, rawSub - discAmt);
-    const estTax = sTotal * 0.15;
-    const estService = sTotal * 0.04;
-    const estTotal = sTotal + estTax + estService;
+    
+    let estTax = 0;
+    let estExclusiveTax = 0;
+    let totalTaxableGross = 0;
+    let weightedTaxRateSum = 0;
+
+    cart.forEach((item) => {
+      const rate = Number(item.taxRate) || 0;
+      if (rate <= 0) return;
+      const lineGross = item.qty * item.unitPrice;
+      const lineDisc = rawSub > 0 ? (lineGross / rawSub) * discAmt : 0;
+      const lineNet = Math.max(0, lineGross - lineDisc);
+      totalTaxableGross += lineNet;
+      weightedTaxRateSum += rate * lineNet;
+      if (item.taxMethod === "Inclusive") {
+        estTax += (lineNet * rate) / (100 + rate);
+      } else {
+        const t = (lineNet * rate) / 100;
+        estTax += t;
+        estExclusiveTax += t;
+      }
+    });
+
+    const effServPct = orderType === "DINE_IN" ? serviceChargePercent : 0;
+    const estService = (sTotal * effServPct) / 100;
+    const estTotal = sTotal + estExclusiveTax + estService;
 
     publishRestaurantCart({
       updatedAt: Date.now(),
@@ -1023,6 +1066,8 @@ export default function RestaurantPOSPage() {
               unitPrice: finalUnitPrice,
               modifiers: modifiersList,
               notes: itemNote,
+              taxRate: selectedProductForAddons.taxRate ?? 0,
+              taxMethod: selectedProductForAddons.taxMethod || "Exclusive",
             }
             : i
         )
@@ -1043,6 +1088,8 @@ export default function RestaurantPOSPage() {
           notes: itemNote,
           isKitchenProduct: isKitchen,
           kotStatus: isKitchen ? "PENDING" : "READY_TO_SERVE",
+          taxRate: selectedProductForAddons.taxRate ?? 0,
+          taxMethod: selectedProductForAddons.taxMethod || "Exclusive",
         },
       ]);
       reserveSelectedTable();
@@ -1100,6 +1147,8 @@ export default function RestaurantPOSPage() {
           image: item.image || "",
           qty: 1,
           unitPrice: item.sellingPrice,
+          taxRate: item.taxRate ?? 0,
+          taxMethod: item.taxMethod || "Exclusive",
           isKitchenProduct: isKitchen,
           kotStatus: isKitchen ? "PENDING" : "READY_TO_SERVE",
         },
@@ -1212,9 +1261,39 @@ export default function RestaurantPOSPage() {
   const rawSubtotal = cart.reduce((acc, i) => acc + i.qty * i.unitPrice, 0);
   const discountAmount = (rawSubtotal * discountPercent) / 100;
   const subTotal = Math.max(0, rawSubtotal - discountAmount);
-  const estimateTax = subTotal * 0.15;
-  const estimateService = subTotal * 0.04;
-  const estimateGrandTotal = subTotal + estimateTax + estimateService;
+
+  // Per-item tax calculation based on each product's configured taxRate
+  let estimateTax = 0;
+  let estimateExclusiveTax = 0;
+  let totalTaxableGross = 0;
+  let weightedTaxRateSum = 0;
+
+  cart.forEach((item) => {
+    const rate = Number(item.taxRate) || 0;
+    if (rate <= 0) return;
+    const lineGross = item.qty * item.unitPrice;
+    const lineDiscount = rawSubtotal > 0 ? (lineGross / rawSubtotal) * discountAmount : 0;
+    const lineNet = Math.max(0, lineGross - lineDiscount);
+    totalTaxableGross += lineNet;
+    weightedTaxRateSum += rate * lineNet;
+    if (item.taxMethod === "Inclusive") {
+      estimateTax += (lineNet * rate) / (100 + rate);
+    } else {
+      const t = (lineNet * rate) / 100;
+      estimateTax += t;
+      estimateExclusiveTax += t;
+    }
+  });
+
+  // Nominal configured tax percentage across taxable items (e.g. 5% instead of 4.8%)
+  const nominalTaxPercent = totalTaxableGross > 0 ? weightedTaxRateSum / totalTaxableGross : 0;
+
+  // Service charge:
+  // Dine-in applies service charge (default 0%), Takeaway/Delivery defaults to 0%
+  const effectiveServicePercent = orderType === "DINE_IN" ? serviceChargePercent : 0;
+  const estimateService = (subTotal * effectiveServicePercent) / 100;
+  // If items have inclusive tax, that tax is already included in subTotal. Only add exclusive tax:
+  const estimateGrandTotal = subTotal + estimateExclusiveTax + estimateService;
 
   const handlePlaceOrder = async (payMethod: string = "CASH", tenderedAmount?: number) => {
     if (cart.length === 0 || submittingCheckout) return;
@@ -1270,9 +1349,12 @@ export default function RestaurantPOSPage() {
         items: cart,
         rawSubtotal,
         discountAmount,
+        discountPercent,
         subTotal: saleResult.subtotal || subTotal,
-        taxAmount: saleResult.taxTotal || estimateTax,
-        serviceCharge: saleResult.serviceCharge || estimateService,
+        taxAmount: saleResult.taxTotal !== undefined ? saleResult.taxTotal : estimateTax,
+        taxRatePercent: nominalTaxPercent,
+        serviceCharge: saleResult.serviceCharge !== undefined ? saleResult.serviceCharge : estimateService,
+        serviceChargePercent: effectiveServicePercent,
         grandTotal: saleResult.total || estimateGrandTotal,
         tenderedAmount: finalTendered,
         changeAmount: Math.max(finalTendered - (saleResult.total || estimateGrandTotal), 0),
@@ -2011,6 +2093,24 @@ export default function RestaurantPOSPage() {
             </button>
 
             <button
+              onClick={() => {
+                setPromptModalState({
+                  isOpen: true,
+                  title: "Enter Service Charge (%)",
+                  placeholder: "0",
+                  defaultValue: String(serviceChargePercent || 0),
+                  inputType: "number",
+                  onSubmit: (pct) => {
+                    if (pct !== undefined && pct !== "") setServiceChargePercent(Math.max(0, Number(pct)));
+                  },
+                });
+              }}
+              className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-sm bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
+            >
+              <Receipt size={13} className="text-orange-600" /> Service ({serviceChargePercent}%)
+            </button>
+
+            <button
               onClick={() => toast.info("Promo Campaign applied")}
               className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-sm bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
@@ -2268,12 +2368,31 @@ export default function RestaurantPOSPage() {
               )}
 
               <div className="flex justify-between text-gray-500">
-                <span>Tax (15%)</span>
+                <span>VAT / Tax {nominalTaxPercent > 0 ? `(${Number(nominalTaxPercent.toFixed(1))}%)` : ""}</span>
                 <span className="font-medium">{fmt(estimateTax)}</span>
               </div>
 
               <div className="flex justify-between text-gray-500">
-                <span>Service Charge</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPromptModalState({
+                      isOpen: true,
+                      title: "Enter Service Charge (%)",
+                      placeholder: "0",
+                      defaultValue: String(serviceChargePercent || 0),
+                      inputType: "number",
+                      onSubmit: (pct) => {
+                        if (pct !== undefined && pct !== "") setServiceChargePercent(Math.max(0, Number(pct)));
+                      },
+                    });
+                  }}
+                  className="hover:underline flex items-center gap-1 text-left cursor-pointer text-gray-500 hover:text-orange-600 transition"
+                  title="Click to change Service Charge %"
+                >
+                  <span>Service Charge {effectiveServicePercent > 0 ? `(${effectiveServicePercent}%)` : "(0%)"}</span>
+                  <Edit3 size={11} className="text-gray-400" />
+                </button>
                 <span className="font-medium">{fmt(estimateService)}</span>
               </div>
 
@@ -2406,16 +2525,22 @@ export default function RestaurantPOSPage() {
         open={!!completedBill}
         onClose={() => setCompletedBill(null)}
         title=""
-        size="md"
+        size="lg"
+        maxWidth="max-w-xl"
       >
         {/* ── Custom Orange Header ── */}
-        <div className="bg-gradient-to-r from-orange-500 to-amber-500 -mx-6 -mt-5 mb-5 px-6 py-4 flex items-center gap-2.5 rounded-t-sm">
-          <FileText size={20} className="text-white" />
-          <h2 className="text-lg font-bold text-white tracking-wide">Bill Print</h2>
+        <div className="bg-gradient-to-r from-orange-500 to-amber-500 -mx-6 -mt-5 mb-5 px-6 py-4 flex items-center justify-between rounded-t-sm shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <FileText size={20} className="text-white" />
+            <h2 className="text-lg font-bold text-white tracking-wide">Bill Print / Receipt</h2>
+          </div>
+          <span className="text-xs font-bold bg-white/20 text-white px-2.5 py-1 rounded-sm">
+            #{completedBill?.invoiceNo || "N/A"}
+          </span>
         </div>
 
         {/* ── Printable Receipt (wrapped for CSS print) ── */}
-        <div id="restaurant-receipt" className="bg-white rounded-sm border border-slate-200 p-5 space-y-4">
+        <div id="restaurant-receipt" className="bg-white rounded-sm border border-slate-200 p-5 space-y-4 shadow-2xs">
 
           {/* Store Name */}
           <div className="text-center space-y-1">
@@ -2474,8 +2599,13 @@ export default function RestaurantPOSPage() {
             {(completedBill?.items || []).map((item: any, idx: number) => (
               <div key={idx} className="text-sm">
                 <div className="grid grid-cols-12 gap-2 items-start">
-                  <div className="col-span-6 font-semibold text-gray-600 capitalize">{item.name}</div>
-                  <div className="col-span-2 text-center text-slate-600">{item.qty}</div>
+                  <div className="col-span-6 font-semibold text-gray-600 capitalize">
+                    {item.name}
+                    {item.qty > 1 && (
+                      <span className="block text-[11px] font-normal text-slate-400">@ {fmt(item.unitPrice)} each</span>
+                    )}
+                  </div>
+                  <div className="col-span-2 text-center text-slate-600 font-medium">{item.qty}</div>
                   <div className="col-span-4 text-right font-semibold text-gray-600">{fmt(item.qty * item.unitPrice)}</div>
                 </div>
                 {/* Modifiers */}
@@ -2503,21 +2633,31 @@ export default function RestaurantPOSPage() {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between text-slate-500">
               <span>Subtotal</span>
-              <span>{fmt(completedBill?.subTotal || 0)}</span>
+              <span>{fmt(completedBill?.rawSubtotal || completedBill?.subTotal || 0)}</span>
             </div>
             {(completedBill?.discountAmount ?? 0) > 0 && (
               <div className="flex justify-between text-emerald-600">
-                <span>Discount</span>
+                <span>Discount {completedBill?.discountPercent ? `(${completedBill.discountPercent}%)` : ""}</span>
                 <span>−{fmt(completedBill.discountAmount)}</span>
               </div>
             )}
             <div className="flex justify-between text-slate-500">
-              <span>Tax (15%)</span>
+              <span>
+                VAT / Tax {completedBill?.taxRatePercent !== undefined && completedBill.taxRatePercent > 0
+                  ? `(${Number(completedBill.taxRatePercent.toFixed(1))}%)`
+                  : (completedBill?.taxAmount || 0) > 0 && (completedBill?.subTotal || 0) > 0
+                    ? `(${Number(((completedBill.taxAmount / completedBill.subTotal) * 100).toFixed(1))}%)`
+                    : ""}
+              </span>
               <span>{fmt(completedBill?.taxAmount || 0)}</span>
             </div>
             {(completedBill?.serviceCharge ?? 0) > 0 && (
               <div className="flex justify-between text-slate-500">
-                <span>Service Charge</span>
+                <span>
+                  Service Charge {completedBill?.serviceChargePercent !== undefined && completedBill.serviceChargePercent > 0
+                    ? `(${Number(completedBill.serviceChargePercent.toFixed(1))}%)`
+                    : ""}
+                </span>
                 <span>{fmt(completedBill?.serviceCharge || 0)}</span>
               </div>
             )}
@@ -2537,7 +2677,7 @@ export default function RestaurantPOSPage() {
                 <span className="font-bold text-gray-600">{fmt(completedBill?.tenderedAmount || completedBill?.grandTotal || 0)}</span>
               </div>
               {(completedBill?.changeAmount ?? 0) >= 0 && (
-                <div className="flex justify-between text-emerald-700 font-bold bg-emerald-50/80 px-2 py-1 rounded-sm border border-emerald-200 mt-1">
+                <div className="flex justify-between text-emerald-700 font-bold bg-emerald-50/80 px-2.5 py-1.5 rounded-sm border border-emerald-200 mt-1">
                   <span>Return Amount (Change)</span>
                   <span className="text-sm font-black tabular-nums">{fmt(completedBill?.changeAmount || 0)}</span>
                 </div>
@@ -2556,14 +2696,14 @@ export default function RestaurantPOSPage() {
           <p className="text-center text-sm italic text-slate-400">Thank you for visiting!</p>
         </div>
 
-        {/* ── Action Buttons ── */}
-        <div className="flex gap-3 mt-5 no-print">
+        {/* ── Action Buttons (Sticky at bottom, prevents overflow) ── */}
+        <div className="sticky bottom-0 bg-white/95 backdrop-blur-xs pt-3 pb-1 mt-4 border-t border-slate-200 flex gap-3 no-print z-10">
           <CustomButton
             fullWidth
             variant="outline"
             onClick={() => setCompletedBill(null)}
           >
-            Cancel
+            Close / New Order
           </CustomButton>
           <CustomButton
             fullWidth
@@ -2581,7 +2721,8 @@ export default function RestaurantPOSPage() {
         open={showCheckoutModal}
         onClose={() => !submittingCheckout && setShowCheckoutModal(false)}
         title=""
-        size="md"
+        size="lg"
+        maxWidth="max-w-xl"
       >
         {/* ── Orange Header ── */}
         <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 -mx-6 -mt-5 mb-4 px-6 py-4 flex items-center justify-between rounded-t-sm shadow-md">
@@ -2626,9 +2767,15 @@ export default function RestaurantPOSPage() {
                 </div>
               )}
               <div className="flex justify-between gap-4">
-                <span className="text-gray-400">Tax & Service:</span>
-                <span>{fmt(estimateTax + estimateService)}</span>
+                <span className="text-gray-400">VAT / Tax {nominalTaxPercent > 0 ? `(${Number(nominalTaxPercent.toFixed(1))}%)` : ""}:</span>
+                <span>{fmt(estimateTax)}</span>
               </div>
+              {estimateService > 0 && (
+                <div className="flex justify-between gap-4">
+                  <span className="text-gray-400">Service Charge {effectiveServicePercent > 0 ? `(${effectiveServicePercent}%)` : ""}:</span>
+                  <span>{fmt(estimateService)}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -2675,9 +2822,9 @@ export default function RestaurantPOSPage() {
                 <button
                   type="button"
                   onClick={() => setCashTenderedInput(estimateGrandTotal.toFixed(0))}
-                  className="text-xs font-bold text-orange-600 hover:underline cursor-pointer"
+                  className="px-2.5 py-1 text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-sm border border-orange-200 transition cursor-pointer"
                 >
-                  Exact Amount
+                  Exact (৳{fmt(estimateGrandTotal)})
                 </button>
               </div>
 
@@ -2686,10 +2833,16 @@ export default function RestaurantPOSPage() {
                 <input
                   type="number"
                   min="0"
-                  step="1"
+                  step="any"
                   value={cashTenderedInput}
                   onChange={(e) => setCashTenderedInput(e.target.value)}
-                  placeholder={estimateGrandTotal.toFixed(0)}
+                  onFocus={(e) => {
+                    if (e.target.value === "0") setCashTenderedInput("");
+                  }}
+                  onBlur={(e) => {
+                    if (!e.target.value) setCashTenderedInput("0");
+                  }}
+                  placeholder="0"
                   className="w-full rounded-sm border border-slate-300 bg-white py-2.5 pl-9 pr-4 text-2xl font-black text-right tabular-nums text-gray-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 focus:outline-none transition"
                 />
               </div>
@@ -2712,14 +2865,14 @@ export default function RestaurantPOSPage() {
               </div>
 
               {/* Return Change calculation */}
-              {parseFloat(cashTenderedInput) >= estimateGrandTotal ? (
+              {(parseFloat(cashTenderedInput) || 0) >= estimateGrandTotal ? (
                 <div className="flex items-center justify-between rounded-sm bg-emerald-50 border border-emerald-200 p-3 text-emerald-800">
                   <span className="text-xs font-bold">Change to Return</span>
                   <span className="text-lg font-black tabular-nums">
                     {fmt(Math.max((parseFloat(cashTenderedInput) || 0) - estimateGrandTotal, 0))}
                   </span>
                 </div>
-              ) : parseFloat(cashTenderedInput) > 0 ? (
+              ) : (parseFloat(cashTenderedInput) || 0) > 0 ? (
                 <div className="flex items-center justify-between rounded-sm bg-amber-50 border border-amber-200 p-3 text-amber-800">
                   <span className="text-xs font-bold">Remaining Due</span>
                   <span className="text-lg font-black tabular-nums">
@@ -2737,8 +2890,7 @@ export default function RestaurantPOSPage() {
               disabled={
                 submittingCheckout ||
                 (checkoutPayMethod === "CASH" &&
-                  parseFloat(cashTenderedInput) > 0 &&
-                  parseFloat(cashTenderedInput) < estimateGrandTotal)
+                  (parseFloat(cashTenderedInput) || 0) < estimateGrandTotal)
               }
               onClick={() => {
                 const tendered = parseFloat(cashTenderedInput) || estimateGrandTotal;
@@ -2749,6 +2901,10 @@ export default function RestaurantPOSPage() {
               {submittingCheckout ? (
                 <>
                   <RefreshCw size={18} className="animate-spin" /> Processing Order...
+                </>
+              ) : checkoutPayMethod === "CASH" && (parseFloat(cashTenderedInput) || 0) < estimateGrandTotal ? (
+                <>
+                  <Banknote size={18} /> Enter Tendered Cash ({fmt(estimateGrandTotal)})
                 </>
               ) : (
                 <>

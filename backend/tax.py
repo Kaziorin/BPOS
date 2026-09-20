@@ -136,11 +136,19 @@ async def get_product_tax_rate(
     # Fallback to product-level taxRate
     row = (
         await db.execute(
-            text("SELECT taxRate FROM products WHERE id = :pid AND tenantId = :t"),
+            text("SELECT taxRate, attributes FROM products WHERE id = :pid AND tenantId = :t"),
             {"pid": productId, "t": tenantId},
         )
     ).first()
     if row and float(row[0] or 0) > 0:
+        is_inclusive = False
+        if len(row) > 1 and row[1]:
+            try:
+                import json
+                attrs = json.loads(row[1]) if isinstance(row[1], str) else (row[1] if isinstance(row[1], dict) else {})
+                is_inclusive = str(attrs.get("taxMethod") or "").strip().lower() == "inclusive"
+            except Exception:
+                pass
         return {
             "ruleId": None,
             "ruleName": "Product Rate",
@@ -153,7 +161,7 @@ async def get_product_tax_rate(
             "code": "PRODUCT",
             "rate": float(row[0]),
             "rateType": "PERCENTAGE",
-            "taxInclusive": False,
+            "taxInclusive": is_inclusive,
             "effectiveFrom": None,
             "effectiveTo": None,
         }
