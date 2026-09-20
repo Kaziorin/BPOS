@@ -685,46 +685,6 @@ export default function GroceryPOSPage() {
 
       {/* ══ ORGANIC CURVED WAVE BACKDROP — EXACT RGBA(187, 238, 100) GRADIENT ══ */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        
-        {/* ── TOP HEADER ORGANIC CURVED WAVES (rgba(187, 238, 100) Gradient Theme) ── */}
-        {/* Top Upper Soft Mint-Lime Wave */}
-        <svg className="absolute top-0 left-0 w-full h-[140px] opacity-100" viewBox="0 0 1200 140" fill="none" preserveAspectRatio="none">
-          <path d="M 0 0 L 1200 0 L 1200 65 C 920 135, 580 30, 280 115 C 140 135, 40 70, 0 85 Z" fill="url(#top-mint-wave-rgba)" />
-          <defs>
-            <linearGradient id="top-mint-wave-rgba" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(187, 238, 100, 0.95)" />
-              <stop offset="50%" stopColor="rgba(187, 238, 100, 0.75)" />
-              <stop offset="85%" stopColor="rgba(220, 252, 231, 0.5)" />
-              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
-            </linearGradient>
-          </defs>
-        </svg>
-
-        {/* Top Main Vivid Front Wave — Clear Organic Curved Line Sweeping Across Header */}
-        <svg className="absolute top-0 left-0 w-[78%] h-[115px] opacity-100 drop-shadow-xs" viewBox="0 0 1000 115" fill="none" preserveAspectRatio="none">
-          <path d="M 0 0 L 1000 0 L 1000 35 C 760 110, 480 20, 220 95 C 100 110, 30 45, 0 60 Z" fill="url(#top-lime-vivid-rgba)" />
-          <defs>
-            <linearGradient id="top-lime-vivid-rgba" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(187, 238, 100, 1)" />
-              <stop offset="40%" stopColor="rgba(163, 230, 53, 0.85)" />
-              <stop offset="75%" stopColor="rgba(187, 238, 100, 0.5)" />
-              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
-            </linearGradient>
-          </defs>
-        </svg>
-
-        {/* Top-Left Deep Yellow-Green Glow Wave */}
-        <svg className="absolute top-0 left-0 w-[52%] h-[85px] opacity-95" viewBox="0 0 700 85" fill="none" preserveAspectRatio="none">
-          <path d="M 0 0 L 700 0 L 700 25 C 500 80, 300 15, 120 70 C 50 80, 10 30, 0 40 Z" fill="url(#top-lime-glow-rgba)" />
-          <defs>
-            <linearGradient id="top-lime-glow-rgba" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgba(163, 230, 53, 0.95)" />
-              <stop offset="45%" stopColor="rgba(187, 238, 100, 0.7)" />
-              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
-            </linearGradient>
-          </defs>
-        </svg>
-
         {/* ── BOTTOM FOOTER ORGANIC CURVED WAVES (rgba(187, 238, 100) Theme) ── */}
         {/* Upper Soft Mint Wave */}
         <svg className="absolute bottom-0 left-0 w-[70%] h-[280px] opacity-95" viewBox="0 0 1000 280" fill="none" preserveAspectRatio="none">
@@ -765,11 +725,55 @@ export default function GroceryPOSPage() {
       </div>
 
       {/* ══ HEADER — Glassmorphic Elegant rgba(187, 238, 100) Curved Theme Header ══ */}
-      <header className="relative z-20 flex-none flex items-center justify-between gap-4 px-6 py-2.5 bg-white/70 backdrop-blur-xs border-b border-emerald-300/60 shadow-2xs relative overflow-hidden" style={{ minHeight: 64 }}>
+      <header className="relative z-20 flex-none flex items-center justify-between gap-4 px-6 py-2.5 bg-white/95 backdrop-blur-md border-b border-emerald-300/50 shadow-2xs relative overflow-hidden" style={{ minHeight: 64 }}>
+
+        {/* ══ LEFT BRANDING ORGANIC CURVED WAVES (Soft, Light Pastel Lime & Mint — ending before search box) ══ */}
+        <div className="absolute top-0 left-0 bottom-0 pointer-events-none overflow-hidden z-0 w-[360px] sm:w-[430px]">
+          {/* Layer 1: Softest Pastel Mint-Lime Upper Wave */}
+          <svg className="absolute inset-0 w-full h-full opacity-90" viewBox="0 0 430 64" fill="none" preserveAspectRatio="none">
+            <path d="M 0 0 L 430 0 C 400 15, 380 38, 345 48 C 290 60, 230 42, 160 56 C 90 66, 35 52, 0 54 Z" fill="url(#header-soft-lime-wave)" />
+            <path d="M 0 54 C 35 52, 90 66, 160 56 C 230 42, 290 60, 345 48 C 380 38, 400 15, 430 0" stroke="rgba(163, 230, 53, 0.45)" strokeWidth="1.5" strokeLinecap="round" />
+            <defs>
+              <linearGradient id="header-soft-lime-wave" x1="0%" y1="0%" x2="100%" y2="85%">
+                <stop offset="0%" stopColor="rgba(217, 249, 157, 0.5)" />
+                <stop offset="45%" stopColor="rgba(236, 252, 203, 0.4)" />
+                <stop offset="80%" stopColor="rgba(240, 253, 244, 0.25)" />
+                <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          {/* Layer 2: Gentle Light Lime Front Wave */}
+          <svg className="absolute inset-0 w-[88%] h-full opacity-90" viewBox="0 0 375 64" fill="none" preserveAspectRatio="none">
+            <path d="M 0 0 L 375 0 C 350 18, 335 40, 305 48 C 255 58, 200 40, 135 54 C 75 64, 25 50, 0 52 Z" fill="url(#header-gentle-lime-wave)" />
+            <path d="M 0 52 C 25 50, 75 64, 135 54 C 200 40, 255 58, 305 48 C 335 40, 350 18, 375 0" stroke="rgba(132, 204, 22, 0.4)" strokeWidth="1.5" strokeLinecap="round" />
+            <defs>
+              <linearGradient id="header-gentle-lime-wave" x1="0%" y1="0%" x2="100%" y2="85%">
+                <stop offset="0%" stopColor="rgba(187, 238, 100, 0.55)" />
+                <stop offset="40%" stopColor="rgba(217, 249, 157, 0.4)" />
+                <stop offset="80%" stopColor="rgba(236, 252, 203, 0.2)" />
+                <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          {/* Layer 3: Delicate Inner Mint Accent Wave */}
+          <svg className="absolute inset-0 w-[74%] h-full opacity-85" viewBox="0 0 315 64" fill="none" preserveAspectRatio="none">
+            <path d="M 0 0 L 315 0 C 295 16, 280 36, 255 44 C 210 52, 165 36, 105 48 C 55 56, 15 44, 0 46 Z" fill="url(#header-delicate-mint-glow)" />
+            <path d="M 0 46 C 15 44, 55 56, 105 48 C 165 36, 210 52, 255 44 C 280 36, 295 16, 315 0" stroke="rgba(101, 163, 13, 0.3)" strokeWidth="1.2" strokeLinecap="round" />
+            <defs>
+              <linearGradient id="header-delicate-mint-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="rgba(163, 230, 53, 0.4)" />
+                <stop offset="50%" stopColor="rgba(187, 238, 100, 0.25)" />
+                <stop offset="100%" stopColor="rgba(236, 252, 203, 0)" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
 
         {/* Brand Logo: BPOS */}
-        <div className="relative z-10 flex items-center gap-3">
-          <Link href="/grocery" className="flex items-center text-gray-600 hover:text-gray-600 transition mr-1 bg-white/90 hover:bg-white p-1.5 rounded-sm border border-emerald-300/80 shadow-2xs">
+        <div className="relative z-10 flex items-center gap-3 shrink-0">
+          <Link href="/grocery" className="flex items-center text-slate-700 hover:text-slate-900 transition mr-1 bg-white/95 hover:bg-white p-1.5 rounded-xl border border-emerald-300/80 shadow-2xs hover:scale-105 active:scale-95">
             <ChevronLeft size={18} />
           </Link>
           <div className="flex items-center gap-2.5">
