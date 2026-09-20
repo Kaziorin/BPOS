@@ -408,6 +408,23 @@ export default function RestaurantPOSPage() {
   }, []);
 
   useEffect(() => {
+    let active = true;
+    api
+      .get<any>("/pos/settings")
+      .then((res) => {
+        if (!active) return;
+        const d = res?.data ?? res ?? {};
+        if (d.serviceChargePercent !== undefined && d.serviceChargePercent !== null) {
+          setServiceChargePercent(Number(d.serviceChargePercent) || 0);
+        }
+      })
+      .catch((err) => console.warn("Failed to load POS settings in restaurant POS:", err));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };

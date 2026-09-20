@@ -919,3 +919,63 @@ async def pos_stats_today(
         "branchesCount": branches_count,
         "employeesCount": employees_count
     })
+
+
+# ─────────────────────────── POS SETTINGS ───────────────────────────
+
+@router.get("/api/v1/pos/settings")
+async def get_pos_settings(
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    rows = (await db.execute(
+        text("SELECT settingKey, value FROM tenant_settings WHERE tenantId = :t AND settingKey LIKE 'pos_%'"),
+        {"t": tenantId},
+    )).fetchall()
+    settings = {r[0]: r[1] for r in rows}
+    
+    service_charge = float(settings.get("pos_service_charge_percent") or 0.0)
+    return ok({
+        "serviceChargePercent": service_charge,
+        "defaultWarehouseId": settings.get("pos_default_warehouse_id") or "",
+        "paperWidth": settings.get("pos_paper_width") or "80mm",
+        "autoPrint": settings.get("pos_auto_print") != "false",
+        "soundEffects": settings.get("pos_sound_effects") != "false",
+        "allowPriceOverride": settings.get("pos_allow_price_override") == "true",
+        "requireCustomer": settings.get("pos_require_customer") == "true",
+        "quickCashTender": settings.get("pos_quick_cash_tender") != "false",
+    })
+
+
+@router.put("/api/v1/pos/settings")
+async def update_pos_settings(
+    body: dict,
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    keys_map = {
+        "serviceChargePercent": "pos_service_charge_percent",
+        "defaultWarehouseId": "pos_default_warehouse_id",
+        "paperWidth": "pos_paper_width",
+        "autoPrint": "pos_auto_print",
+        "soundEffects": "pos_sound_effects",
+        "allowPriceOverride": "pos_allow_price_override",
+        "requireCustomer": "pos_require_customer",
+        "quickCashTender": "pos_quick_cash_tender",
+    }
+    async with txn(db):
+        for k, db_key in keys_map.items():
+            if k in body:
+                val = str(body[k])
+                await db.execute(
+                    text(
+                        "INSERT INTO tenant_settings (id, tenantId, settingKey, value) "
+                        "VALUES (UUID(), :t, :k, :v) "
+                        "ON DUPLICATE KEY UPDATE value = :v, updatedAt = CURRENT_TIMESTAMP"
+                    ),
+                    {"t": tenantId, "k": db_key, "v": val}
+                )
+    return ok({"updated": True})
+

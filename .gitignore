@@ -46,4 +46,5 @@ coverage/
 
 # File uploads (Prompt 29)
 backend/uploads/
+backend/image_storage/
 

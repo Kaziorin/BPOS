@@ -1171,12 +1171,59 @@ function POSSettingsTab({
   onSave: () => void;
 }) {
   const [selectedWarehouse, setSelectedWarehouse] = useState(warehouses[0]?.id || "main");
+  const [serviceChargePercent, setServiceChargePercent] = useState<number | string>(0);
   const [allowPriceOverride, setAllowPriceOverride] = useState(false);
   const [requireCustomer, setRequireCustomer] = useState(false);
   const [autoPrint, setAutoPrint] = useState(true);
   const [soundEffects, setSoundEffects] = useState(true);
   const [paperWidth, setPaperWidth] = useState("80mm");
   const [quickCashTender, setQuickCashTender] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    api
+      .get<any>("/pos/settings")
+      .then((res) => {
+        if (!active) return;
+        const d = res?.data ?? res ?? {};
+        if (d.serviceChargePercent !== undefined && d.serviceChargePercent !== null) {
+          setServiceChargePercent(d.serviceChargePercent);
+        }
+        if (d.defaultWarehouseId) setSelectedWarehouse(d.defaultWarehouseId);
+        if (d.paperWidth) setPaperWidth(d.paperWidth);
+        if (d.autoPrint !== undefined) setAutoPrint(Boolean(d.autoPrint));
+        if (d.soundEffects !== undefined) setSoundEffects(Boolean(d.soundEffects));
+        if (d.allowPriceOverride !== undefined) setAllowPriceOverride(Boolean(d.allowPriceOverride));
+        if (d.requireCustomer !== undefined) setRequireCustomer(Boolean(d.requireCustomer));
+        if (d.quickCashTender !== undefined) setQuickCashTender(Boolean(d.quickCashTender));
+      })
+      .catch((err) => console.warn("Failed to load POS settings:", err));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await api.put("/pos/settings", {
+        serviceChargePercent: Number(serviceChargePercent) || 0,
+        defaultWarehouseId: selectedWarehouse,
+        paperWidth,
+        autoPrint,
+        soundEffects,
+        allowPriceOverride,
+        requireCustomer,
+        quickCashTender,
+      });
+      onSave();
+    } catch (err: any) {
+      console.error("Failed to save POS settings:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const testBeep = () => {
     try {
@@ -1197,7 +1244,7 @@ function POSSettingsTab({
 
   return (
     <div className="space-y-6 text-xs">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <CustomSelect
           label="Default POS Warehouse / Stock Location"
           value={selectedWarehouse}
@@ -1218,6 +1265,18 @@ function POSSettingsTab({
             { value: "58mm", label: "58mm Compact Mobile POS Thermal Slip (2-Inch)" },
             { value: "A4", label: "A4 Full Sheet Commercial Challan Invoice" },
           ]}
+        />
+
+        <CustomInput
+          label="Default Service Charge (%)"
+          type="number"
+          min="0"
+          max="100"
+          step="0.1"
+          value={serviceChargePercent}
+          onChange={(e) => setServiceChargePercent(e.target.value)}
+          placeholder="0"
+          helperText="Auto-applied as default in POS terminal (can be adjusted during sale)"
         />
       </div>
 
@@ -1318,8 +1377,8 @@ function POSSettingsTab({
       </div>
 
       <div className="pt-4 border-t border-slate-100 flex justify-end">
-        <CustomButton variant="primary" onClick={onSave} icon={Save}>
-          Save POS Settings
+        <CustomButton variant="primary" onClick={handleSave} icon={Save} disabled={saving}>
+          {saving ? "Saving Settings..." : "Save POS Settings"}
         </CustomButton>
       </div>
     </div>
