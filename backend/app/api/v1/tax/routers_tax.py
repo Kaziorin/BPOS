@@ -33,7 +33,7 @@ def _uuid():
 @router.get("/api/v1/tax/rates")
 async def list_tax_rates(
     status: str = "",
-    user: AuthUser = Depends(require_permission("settings.view")),
+    user: AuthUser = Depends(require_auth),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
@@ -146,6 +146,8 @@ async def update_tax_rate(
 
     if not sets:
         return err("Nothing to update", 400)
+    if body.get("isDefault"):
+        await db.execute(text("UPDATE tax_rates SET isDefault = 0 WHERE tenantId = :t"), {"t": tenantId})
     sets.append("updatedBy = :u")
     await db.execute(text(f"UPDATE tax_rates SET {', '.join(sets)} WHERE id = :id AND tenantId = :t"), params)
     await db.commit()
@@ -183,7 +185,7 @@ async def delete_tax_rate(
 
 @router.get("/api/v1/tax/rules")
 async def list_tax_rules(
-    user: AuthUser = Depends(require_permission("settings.view")),
+    user: AuthUser = Depends(require_auth),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):

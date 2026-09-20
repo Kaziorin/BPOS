@@ -265,14 +265,22 @@ export default function CreateProductPage() {
     isEmbeddedBarcode: false,
     hasPromoPrice: false,
     hasVariants: false,
-    hasInitialStock: false,
+    hasInitialStock: true,
+    openingStock: "100",
+    warehouseId: "",
     hasDiffPriceWarehouse: false,
     hasBatchExpiry: false,
     hasSerial: false,
   });
 
+  const [warehouses, setWarehouses] = useState<any[]>([]);
   const [fetchedProductTypes, setFetchedProductTypes] = useState<any[]>([]);
   const [variants, setVariants] = useState<VariantForm[]>([]);
+  const [configuredTaxRates, setConfiguredTaxRates] = useState<any[]>([]);
+  const [defaultTaxRateConfig, setDefaultTaxRateConfig] = useState<{ rate: string; method: string }>({
+    rate: "0",
+    method: "Inclusive",
+  });
 
   const defaultTypeOptions: SearchableSelectOption[] = [
     { value: "Standard", label: "Standard Product (Physical item)" },
@@ -299,12 +307,14 @@ export default function CreateProductPage() {
 
   async function loadFormData() {
     try {
-      const [catRes, brandRes, unitRes, supRes, typeRes] = await Promise.all([
+      const [catRes, brandRes, unitRes, supRes, typeRes, taxRes, whRes] = await Promise.all([
         api.get<any>("/v1/products/categories").catch(() => ({ data: [] })),
         api.get<any>("/v1/brands").catch(() => ({ data: [] })),
         api.get<any>("/v1/units").catch(() => ({ data: [] })),
         api.get<any>("/v1/suppliers").catch(() => ({ data: [] })),
         api.get<any>("/v1/product-types").catch(() => ({ data: [] })),
+        api.get<any>("/tax/rates").catch(() => ({ data: [] })),
+        api.get<any>("/api/v1/warehouses").catch(() => ({ data: [] })),
       ]);
 
       setCategories(Array.isArray(catRes.data || catRes) ? catRes.data || catRes : []);
@@ -312,6 +322,34 @@ export default function CreateProductPage() {
       setUnits(Array.isArray(unitRes.data || unitRes) ? unitRes.data || unitRes : []);
       setSuppliers(Array.isArray(supRes.data || supRes) ? supRes.data || supRes : []);
       setFetchedProductTypes(Array.isArray(typeRes.data || typeRes) ? typeRes.data || typeRes : []);
+
+      const rawWh = Array.isArray(whRes?.data) ? whRes.data : Array.isArray(whRes) ? whRes : [];
+      setWarehouses(rawWh);
+      if (rawWh.length > 0) {
+        setForm((prev) => ({
+          ...prev,
+          warehouseId: prev.warehouseId || rawWh[0].id,
+        }));
+      }
+
+      // Resolve default VAT / Tax configured in /tax settings
+      const rawRates = Array.isArray(taxRes?.data) ? taxRes.data : Array.isArray(taxRes) ? taxRes : [];
+      const activeRates = rawRates.filter((r: any) => r.isActive !== false && r.status !== "INACTIVE");
+      setConfiguredTaxRates(activeRates);
+
+      const defaultRateObj = activeRates.find((r: any) => Boolean(r.isDefault || r.is_default)) || activeRates[0];
+      if (defaultRateObj) {
+        const rateVal = defaultRateObj.rate !== undefined && defaultRateObj.rate !== null ? String(Number(defaultRateObj.rate)) : "0";
+        const methodVal = defaultRateObj.taxInclusive ? "Inclusive" : "Exclusive";
+        setDefaultTaxRateConfig({ rate: rateVal, method: methodVal });
+        if (!editId) {
+          setForm((prev) => ({
+            ...prev,
+            taxRate: prev.taxRate === "0" || prev.taxRate === "" ? rateVal : prev.taxRate,
+            taxMethod: prev.taxMethod || methodVal,
+          }));
+        }
+      }
 
       generateSku();
     } catch (err) {
@@ -583,6 +621,8 @@ export default function CreateProductPage() {
         sellingPrice: form.sellingPrice ? parseFloat(form.sellingPrice) : 0,
         wholesalePrice: form.wholesalePrice ? parseFloat(form.wholesalePrice) : undefined,
         taxRate: form.taxRate ? parseFloat(form.taxRate) : undefined,
+        openingStock: form.hasInitialStock && form.openingStock !== "" ? parseFloat(form.openingStock) : undefined,
+        warehouseId: form.hasInitialStock && form.warehouseId ? form.warehouseId : undefined,
         warrantyDays: form.warrantyValue ? parseInt(form.warrantyValue) * 30 : undefined,
         reorderPoint: form.alertQuantity ? parseFloat(form.alertQuantity) : undefined,
         description: form.description || undefined,
@@ -650,8 +690,8 @@ export default function CreateProductPage() {
           costPrice: "",
           sellingPrice: "",
           wholesalePrice: "",
-          taxRate: "0",
-          taxMethod: "Inclusive",
+          taxRate: defaultTaxRateConfig.rate,
+          taxMethod: defaultTaxRateConfig.method,
           warrantyValue: "",
           warrantyUnit: "Months",
           guaranteeValue: "",
@@ -664,7 +704,9 @@ export default function CreateProductPage() {
           isEmbeddedBarcode: false,
           hasPromoPrice: false,
           hasVariants: false,
-          hasInitialStock: false,
+          hasInitialStock: true,
+          openingStock: "100",
+          warehouseId: warehouses[0]?.id || "",
           hasDiffPriceWarehouse: false,
           hasBatchExpiry: false,
           hasSerial: false,
@@ -1088,7 +1130,40 @@ export default function CreateProductPage() {
                   value={form.taxRate}
                   onChange={(e) => updateForm("taxRate", e.target.value)}
                   placeholder="0"
+                  helperText={
+                    defaultTaxRateConfig.rate !== "0"
+                      ? `Default: ${defaultTaxRateConfig.rate}% (from Tax Settings)`
+                      : undefined
+                  }
                 />
+                {configuredTaxRates.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                    <span className="text-[10px] text-gray-400 font-medium">Presets:</span>
+                    {configuredTaxRates.map((tr: any) => {
+                      const trVal = String(Number(tr.rate));
+                      const isSel = form.taxRate === trVal;
+                      return (
+                        <button
+                          key={tr.id || tr.code || tr.name}
+                          type="button"
+                          onClick={() => {
+                            updateForm("taxRate", trVal);
+                            if (tr.taxInclusive !== undefined) {
+                              updateForm("taxMethod", tr.taxInclusive ? "Inclusive" : "Exclusive");
+                            }
+                          }}
+                          className={`px-1.5 py-0.5 text-[10px] font-semibold rounded-sm transition cursor-pointer border ${
+                            isSel
+                              ? "bg-brand-primary/10 border-brand-primary text-brand-primary font-bold"
+                              : "bg-slate-50 border-slate-200 text-gray-500 hover:bg-slate-100"
+                          }`}
+                        >
+                          {tr.name ? `${tr.name} (${trVal}%)` : `${trVal}%`}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Tax Method */}
@@ -1264,16 +1339,50 @@ export default function CreateProductPage() {
             <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-3.5">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                 <Package className="h-4 w-4 text-brand-primary" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">Inventory Controls</h2>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">Inventory & Stock Controls</h2>
               </div>
 
               <div className="space-y-3">
                 <CustomCheckbox
-                  label="Initial Stock"
-                  description="Initial stock addition is available for single non-variant products"
+                  label="Initial Stock / Opening Quantity"
+                  description="Add opening inventory quantity for this product upon creation"
                   checked={form.hasInitialStock}
                   onChange={(e) => updateForm("hasInitialStock", e.target.checked)}
                 />
+
+                {form.hasInitialStock && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-3.5 bg-slate-50 border border-slate-200 rounded-sm">
+                    <CustomInput
+                      label="Opening Quantity (Stock)"
+                      type="number"
+                      min="0"
+                      step="any"
+                      placeholder="e.g. 100"
+                      value={form.openingStock}
+                      onChange={(e) => updateForm("openingStock", e.target.value)}
+                      helperText="Initial inventory quantity added to stock"
+                    />
+
+                    {warehouses.length > 0 ? (
+                      <CustomDropdownSelect
+                        label="Warehouse / Storage Outlet"
+                        value={form.warehouseId || warehouses[0]?.id || ""}
+                        onChange={(val) => updateForm("warehouseId", val)}
+                        options={warehouses.map((w: any) => ({
+                          label: `${w.name} (${w.code || "WH"})`,
+                          value: w.id,
+                        }))}
+                      />
+                    ) : (
+                      <CustomInput
+                        label="Warehouse / Storage Outlet"
+                        disabled
+                        value="Main Warehouse (Default)"
+                        helperText="Allocated to primary warehouse"
+                      />
+                    )}
+                  </div>
+                )}
 
                 <CustomCheckbox
                   label="Warehouse / Branch Specific Pricing"
