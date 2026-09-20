@@ -2599,6 +2599,25 @@ export default function RestaurantPOSPage() {
         title=""
         size="lg"
         maxWidth="max-w-xl"
+        footer={
+          <div className="grid grid-cols-2 gap-3 w-full no-print">
+            <CustomButton
+              fullWidth
+              variant="outline"
+              onClick={() => setCompletedBill(null)}
+            >
+              Close
+            </CustomButton>
+            <CustomButton
+              fullWidth
+              themeColor="orange"
+              onClick={() => window.print()}
+              leftIcon={<Printer size={16} />}
+            >
+              Print Now
+            </CustomButton>
+          </div>
+        }
       >
         {/* ── Custom Orange Header ── */}
         <div className="bg-gradient-to-r from-orange-500 to-amber-500 -mx-6 -mt-5 mb-5 px-6 py-4 flex items-center justify-between rounded-t-sm shadow-sm">
@@ -2769,14 +2788,7 @@ export default function RestaurantPOSPage() {
               </div>
             )}
             <div className="flex justify-between font-bold text-base text-orange-600 pt-2 border-t border-orange-200">
-              <div>
-                <span>Total Payable</span>
-                {(completedBill?.inclusiveTax ?? 0) > 0 && (
-                  <span className="block text-[11px] font-normal text-emerald-600">
-                    (Includes {fmt(completedBill?.inclusiveTax || 0)} VAT)
-                  </span>
-                )}
-              </div>
+              <span>Total Payable</span>
               <span>{fmt(completedBill?.grandTotal || 0)}</span>
             </div>
 
@@ -2810,24 +2822,6 @@ export default function RestaurantPOSPage() {
           <p className="text-center text-sm italic text-slate-400">Thank you for visiting!</p>
         </div>
 
-        {/* ── Action Buttons (Sticky at bottom, prevents overflow) ── */}
-        <div className="sticky bottom-0 bg-white/95 backdrop-blur-xs pt-3 pb-1 mt-4 border-t border-slate-200 flex gap-3 no-print z-10">
-          <CustomButton
-            fullWidth
-            variant="outline"
-            onClick={() => setCompletedBill(null)}
-          >
-            Close / New Order
-          </CustomButton>
-          <CustomButton
-            fullWidth
-            themeColor="orange"
-            onClick={() => window.print()}
-            leftIcon={<Printer size={16} />}
-          >
-            Print Now
-          </CustomButton>
-        </div>
       </CustomModal>
 
       {/* ── RESTAURANT PAYMENT CHECKOUT MODAL ── */}

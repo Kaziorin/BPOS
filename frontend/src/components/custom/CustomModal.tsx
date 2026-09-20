@@ -24,6 +24,7 @@ export interface CustomModalProps {
   subtitle?: string;
   icon?: ReactNode;
   children: ReactNode;
+  footer?: ReactNode;
   size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "full";
   maxWidth?: string;
   className?: string;
@@ -53,6 +54,7 @@ export function CustomModal({
   subtitle,
   icon,
   children,
+  footer,
   size = "xl",
   maxWidth,
   className,
@@ -151,6 +153,18 @@ export function CustomModal({
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
           {children}
         </div>
+
+        {/* Modal Footer */}
+        {footer && (
+          <div
+            className={cn(
+              "px-6 py-3.5 border-t shrink-0 transition-colors",
+              isDark ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white"
+            )}
+          >
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );
