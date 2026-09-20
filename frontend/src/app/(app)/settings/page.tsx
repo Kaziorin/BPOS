@@ -65,6 +65,8 @@ import {
   CustomInput,
   CustomSelect,
   CustomModal,
+  CustomCheckbox,
+  CustomTextarea,
 } from "@/components/custom";
 
 // ───────────────────────────────────────────────────────────────────────
@@ -425,16 +427,69 @@ function SettingsContent() {
         }
       />
 
-      {/* ── Executive Hero Glow Banner ── */}
-      <div className="relative overflow-hidden rounded-sm bg-brand-gradient border border-white/20 text-white p-6 sm:p-7 shadow-xl">
-        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-sky-400/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 -mb-8 w-64 h-64 bg-sky-300/15 rounded-full blur-3xl pointer-events-none" />
+      {/* ── Executive Hero Glow Banner ── Dynamic Theme Gradient & Silky Ribbon Highlights ── */}
+      <div className="relative overflow-hidden rounded-sm bg-brand-gradient border border-white/20 text-white p-6 sm:p-7 shadow-md select-none">
+        {/* Ambient luminous glow on the left & top-right */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse at 12% 25%, rgba(255, 255, 255, 0.25) 0%, transparent 55%), radial-gradient(ellipse at 88% 30%, rgba(255, 255, 255, 0.35) 0%, transparent 60%)",
+          }}
+        />
+
+        {/* Silky Wave Ribbons Flowing from Center to Right */}
+        <svg
+          className="pointer-events-none absolute inset-0 h-full w-full opacity-60"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+          viewBox="0 0 1000 200"
+        >
+          <defs>
+            <linearGradient id="settingsWaveCenterRight1" x1="30%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.25" />
+              <stop offset="35%" stopColor="#ffffff" stopOpacity="0.20" />
+              <stop offset="70%" stopColor="#ffffff" stopOpacity="0.10" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
+            </linearGradient>
+            <linearGradient id="settingsWaveCenterRight2" x1="45%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.30" />
+              <stop offset="50%" stopColor="#ffffff" stopOpacity="0.15" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
+            </linearGradient>
+          </defs>
+          {/* Wave 1: Flowing smooth organic wave rising from center toward right */}
+          <path
+            d="M 380,200 C 440,160 480,95 560,95 C 660,95 720,150 820,120 C 900,95 950,55 1020,45 L 1020,200 L 380,200 Z"
+            fill="url(#settingsWaveCenterRight1)"
+          />
+          {/* Wave 2: Overlapping silky layer flowing across center-right */}
+          <path
+            d="M 430,200 C 490,140 540,75 620,80 C 720,85 780,140 880,105 C 940,85 980,60 1020,75 L 1020,200 L 430,200 Z"
+            fill="url(#settingsWaveCenterRight2)"
+          />
+          {/* Crest shimmer curve */}
+          <path
+            d="M 490,115 C 540,82 590,80 640,85 C 720,95 790,135 870,110"
+            stroke="rgba(255,255,255,0.45)"
+            strokeWidth="2"
+            fill="none"
+          />
+        </svg>
+
+        {/* Specular shimmer highlight near center wave peak */}
+        <div
+          className="pointer-events-none absolute left-[51%] top-[40%] h-1.5 w-1.5 rounded-full bg-white opacity-85"
+          style={{
+            boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.95)",
+          }}
+        />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-[11px] font-bold bg-white/15 text-sky-100 border border-white/20 shadow-2xs">
-                <Sparkles size={13} className="text-sky-200" /> Enterprise POS Engine 2.0
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-[11px] font-bold bg-white/20 text-white border border-white/25 shadow-2xs">
+                <Sparkles size={13} className="text-white" /> Enterprise POS Engine 2.0
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-sm text-[11px] font-bold bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
                 {isOnline ? <Wifi size={13} /> : <WifiOff size={13} />}
@@ -447,35 +502,56 @@ function SettingsContent() {
 
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2.5">
               <span>{tenantObj.name || "Blue Ocean Enterprises"}</span>
-              <span className="text-xs font-bold px-2.5 py-1 rounded-sm bg-white/10 text-sky-100 border border-white/15 font-mono">
+              <span className="text-xs font-bold px-2.5 py-1 rounded-sm bg-white/15 text-white border border-white/20 font-mono">
                 {verticalDef.label}
               </span>
             </h1>
 
-            <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-white/90 max-w-2xl leading-relaxed">
               Managing company legal identity, multi-outlet fulfillment routing, offline-first IndexedDB resilience (§13),
               and automated AI stock intelligence.
             </p>
           </div>
 
-          {/* Quick Stats in Banner */}
+          {/* Quick Stats in Banner - Crisp High-Contrast Cards (Zero Blurriness) */}
           <div className="flex flex-wrap sm:flex-nowrap gap-3 shrink-0">
-            <div className="px-4 py-3 rounded-sm bg-white/10 border border-white/15 backdrop-blur-md min-w-[130px] shadow-2xs">
-              <span className="text-[10px] font-bold text-sky-200 uppercase tracking-wider block">Outlets</span>
-              <div className="text-lg font-black text-white mt-0.5">{branches.length || 1} Registered</div>
-              <span className="text-[10px] text-sky-200 font-medium">All Linked</span>
+            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-sm bg-white border border-slate-100 shadow-md min-w-[140px]">
+              <div className="w-8 h-8 rounded-sm bg-brand-50 text-brand-primary flex items-center justify-center shrink-0 border border-brand-border/40">
+                <Store size={15} />
+              </div>
+              <div>
+                <span className="text-[11px] font-semibold text-gray-500 block leading-tight">Outlets</span>
+                <div className="text-sm font-bold text-gray-600 mt-0.5 leading-tight">{branches.length || 1} Registered</div>
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> All Linked
+                </span>
+              </div>
             </div>
 
-            <div className="px-4 py-3 rounded-sm bg-white/10 border border-white/15 backdrop-blur-md min-w-[130px] shadow-2xs">
-              <span className="text-[10px] font-bold text-sky-200 uppercase tracking-wider block">Offline Cache</span>
-              <div className="text-lg font-black text-emerald-300 mt-0.5">2,480 SKUs</div>
-              <span className="text-[10px] text-sky-200 font-medium">IndexedDB Ready</span>
+            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-sm bg-white border border-slate-100 shadow-md min-w-[140px]">
+              <div className="w-8 h-8 rounded-sm bg-brand-50 text-brand-primary flex items-center justify-center shrink-0 border border-brand-border/40">
+                <HardDrive size={15} />
+              </div>
+              <div>
+                <span className="text-[11px] font-semibold text-gray-500 block leading-tight">Offline Cache</span>
+                <div className="text-sm font-bold text-gray-600 mt-0.5 leading-tight">2,480 SKUs</div>
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-sky-600 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 inline-block" /> IndexedDB
+                </span>
+              </div>
             </div>
 
-            <div className="px-4 py-3 rounded-sm bg-white/10 border border-white/15 backdrop-blur-md min-w-[130px] shadow-2xs">
-              <span className="text-[10px] font-bold text-sky-200 uppercase tracking-wider block">Base Currency</span>
-              <div className="text-lg font-black text-amber-200 mt-0.5">BDT (৳)</div>
-              <span className="text-[10px] text-sky-200 font-medium">Asia/Dhaka</span>
+            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-sm bg-white border border-slate-100 shadow-md min-w-[140px]">
+              <div className="w-8 h-8 rounded-sm bg-brand-50 text-brand-primary flex items-center justify-center shrink-0 border border-brand-border/40">
+                <Coins size={15} />
+              </div>
+              <div>
+                <span className="text-[11px] font-semibold text-gray-500 block leading-tight">Base Currency</span>
+                <div className="text-sm font-bold text-gray-600 mt-0.5 leading-tight">BDT (৳)</div>
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-600 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" /> Asia/Dhaka
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -611,12 +687,6 @@ function SettingsContent() {
                 </div>
                 <p className="text-xs text-slate-500">{currentTabDef.description}</p>
               </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold text-slate-400">
-                Tab: <strong className="text-gray-600 font-mono">?tab={activeTab}</strong>
-              </span>
             </div>
           </div>
 
@@ -892,13 +962,10 @@ function CompanySettingsTab({
         />
 
         <div className="md:col-span-2">
-          <label className="block font-bold text-gray-600 mb-1">
-            Registered Head Office Address <span className="text-rose-500">*</span>
-          </label>
-          <textarea
+          <CustomTextarea
+            label="Registered Head Office Address *"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="w-full rounded-sm border border-slate-200 px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60"
             rows={2}
             required
           />
@@ -1003,23 +1070,15 @@ function CompanySettingsTab({
 
       {businessType === "RESTAURANT" && (
         <div className="p-4 rounded-sm bg-amber-50/70 border border-amber-200">
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={restaurantPosShiftVisible}
-              onChange={(e) => setRestaurantPosShiftVisible(e.target.checked)}
-              disabled={restaurantSettingLoading}
-              className="mt-0.5 w-4 h-4 rounded-sm text-amber-600 focus:ring-0"
-            />
-            <div>
-              <span className="font-bold text-gray-600 block">
-                Show Restaurant POS Shift Control
-              </span>
-              <p className="text-slate-500 text-[11px] mt-0.5">
-                When enabled, Restaurant POS shows the shift control and opens the shift schedule modal on click. When disabled, the shift control is hidden.
-              </p>
-            </div>
-          </label>
+          <CustomCheckbox
+            checked={restaurantPosShiftVisible}
+            onChange={(e) => setRestaurantPosShiftVisible(e.target.checked)}
+            disabled={restaurantSettingLoading}
+            themeColor="amber"
+            label={<span className="font-bold text-gray-700">Show Restaurant POS Shift Control</span>}
+            description="When enabled, Restaurant POS shows the shift control and opens the shift schedule modal on click. When disabled, the shift control is hidden."
+            containerClassName="w-full"
+          />
         </div>
       )}
 
@@ -1244,6 +1303,101 @@ function POSSettingsTab({
 
   return (
     <div className="space-y-6 text-xs">
+      {/* ── POS Terminal Hardware & Engine Banner ── Dynamic Gradient & Silky Ribbon Highlights ── */}
+      <div className="relative overflow-hidden rounded-sm bg-brand-gradient border border-white/20 text-white p-5 shadow-md select-none">
+        {/* Ambient luminous glow */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse at 12% 25%, rgba(255, 255, 255, 0.25) 0%, transparent 55%), radial-gradient(ellipse at 88% 30%, rgba(255, 255, 255, 0.35) 0%, transparent 60%)",
+          }}
+        />
+
+        {/* Silky Wave Ribbons Flowing from Center to Right */}
+        <svg
+          className="pointer-events-none absolute inset-0 h-full w-full opacity-60"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+          viewBox="0 0 1000 200"
+        >
+          <defs>
+            <linearGradient id="posWaveCenterRight1" x1="30%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.25" />
+              <stop offset="35%" stopColor="#ffffff" stopOpacity="0.20" />
+              <stop offset="70%" stopColor="#ffffff" stopOpacity="0.10" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
+            </linearGradient>
+            <linearGradient id="posWaveCenterRight2" x1="45%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.30" />
+              <stop offset="50%" stopColor="#ffffff" stopOpacity="0.15" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M 380,200 C 440,160 480,95 560,95 C 660,95 720,150 820,120 C 900,95 950,55 1020,45 L 1020,200 L 380,200 Z"
+            fill="url(#posWaveCenterRight1)"
+          />
+          <path
+            d="M 430,200 C 490,140 540,75 620,80 C 720,85 780,140 880,105 C 940,85 980,60 1020,75 L 1020,200 L 430,200 Z"
+            fill="url(#posWaveCenterRight2)"
+          />
+          <path
+            d="M 490,115 C 540,82 590,80 640,85 C 720,95 790,135 870,110"
+            stroke="rgba(255,255,255,0.45)"
+            strokeWidth="2"
+            fill="none"
+          />
+        </svg>
+
+        {/* Specular shimmer highlight */}
+        <div
+          className="pointer-events-none absolute left-[51%] top-[40%] h-1.5 w-1.5 rounded-full bg-white opacity-85"
+          style={{
+            boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.95)",
+          }}
+        />
+
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm text-[10px] font-bold bg-white/20 text-white border border-white/25 shadow-2xs">
+                <Printer size={12} /> POS Hardware Controller
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[10px] font-bold bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
+                <Check size={11} /> ESC/POS Connected
+              </span>
+            </div>
+            <h3 className="text-lg font-black text-white tracking-tight">Point of Sale (POS) Hardware & Cashier Engine</h3>
+            <p className="text-xs text-white/90 max-w-xl">
+              Configure thermal receipt roll dimensions, barcode scanner chime verification, service charge automation, and rapid checkout tolerances.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-sm bg-white border border-slate-100 shadow-md min-w-[125px]">
+              <div className="w-8 h-8 rounded-sm bg-brand-50 text-brand-primary flex items-center justify-center shrink-0 border border-brand-border/40">
+                <Printer size={15} />
+              </div>
+              <div>
+                <span className="text-[10px] font-semibold text-gray-500 block leading-tight">Paper Width</span>
+                <span className="text-sm font-bold text-gray-600 mt-0.5 block leading-tight">{paperWidth}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-sm bg-white border border-slate-100 shadow-md min-w-[125px]">
+              <div className="w-8 h-8 rounded-sm bg-brand-50 text-brand-primary flex items-center justify-center shrink-0 border border-brand-border/40">
+                <DollarSign size={15} />
+              </div>
+              <div>
+                <span className="text-[10px] font-semibold text-gray-500 block leading-tight">Service Charge</span>
+                <span className="text-sm font-bold text-gray-600 mt-0.5 block leading-tight">{serviceChargePercent || 0}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <CustomSelect
           label="Default POS Warehouse / Stock Location"
@@ -1282,97 +1436,72 @@ function POSSettingsTab({
 
       {/* Feature Toggles */}
       <div className="space-y-3">
-        <p className="font-bold text-gray-600 text-[11px] uppercase tracking-wider">
+        <p className="font-bold text-gray-700 text-xs">
           Cashier Lane Policies & Hardware Rules
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <label className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
-            <input
-              type="checkbox"
+          <div className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition">
+            <CustomCheckbox
               checked={autoPrint}
               onChange={(e) => setAutoPrint(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
+              label={<span className="font-bold text-gray-700">Auto-Print Thermal Receipt</span>}
+              description="Automatically dispatches ESC/POS print job immediately on payment tender completion"
+              containerClassName="w-full"
             />
-            <div>
-              <span className="font-bold text-gray-600 block">Auto-Print Thermal Receipt</span>
-              <p className="text-slate-400 text-[11px] mt-0.5">
-                Automatically dispatches ESC/POS print job immediately on payment tender completion
-              </p>
-            </div>
-          </label>
+          </div>
 
-          <label className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
-            <input
-              type="checkbox"
-              checked={soundEffects}
-              onChange={(e) => setSoundEffects(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
-            />
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-gray-600">Scanner Audio Beep</span>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    testBeep();
-                  }}
-                  className="px-2 py-0.5 rounded-sm bg-slate-200 hover:bg-slate-300 text-gray-600 text-[10px] font-bold flex items-center gap-1"
-                >
-                  <Volume2 size={11} /> Test Sound
-                </button>
-              </div>
-              <p className="text-slate-400 text-[11px] mt-0.5">
-                Plays high-frequency chime on optical barcode scan verification
-              </p>
+          <div className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition">
+            <div className="flex items-start justify-between gap-3">
+              <CustomCheckbox
+                checked={soundEffects}
+                onChange={(e) => setSoundEffects(e.target.checked)}
+                label={<span className="font-bold text-gray-700">Scanner Audio Beep</span>}
+                description="Plays high-frequency chime on optical barcode scan verification"
+                containerClassName="flex-1"
+              />
+              <CustomButton
+                type="button"
+                size="sm"
+                variant="secondary"
+                onClick={testBeep}
+                leftIcon={<Volume2 size={12} />}
+                className="text-[10px] py-1 px-2.5 shrink-0"
+              >
+                Test Sound
+              </CustomButton>
             </div>
-          </label>
+          </div>
 
-          <label className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
-            <input
-              type="checkbox"
+          <div className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition">
+            <CustomCheckbox
               checked={allowPriceOverride}
               onChange={(e) => setAllowPriceOverride(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
+              label={<span className="font-bold text-gray-700">Cashier Price Override</span>}
+              description="Permits line item price adjustments without supervisor override PIN"
+              containerClassName="w-full"
             />
-            <div>
-              <span className="font-bold text-gray-600 block">Cashier Price Override</span>
-              <p className="text-slate-400 text-[11px] mt-0.5">
-                Permits line item price adjustments without supervisor override PIN
-              </p>
-            </div>
-          </label>
+          </div>
 
-          <label className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
-            <input
-              type="checkbox"
+          <div className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition">
+            <CustomCheckbox
               checked={requireCustomer}
               onChange={(e) => setRequireCustomer(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
+              label={<span className="font-bold text-gray-700">Require Customer Selection</span>}
+              description="Disallows anonymous Walk-in checkouts to maintain CRM loyalty profiles"
+              containerClassName="w-full"
             />
-            <div>
-              <span className="font-bold text-gray-600 block">Require Customer Selection</span>
-              <p className="text-slate-400 text-[11px] mt-0.5">
-                Disallows anonymous Walk-in checkouts to maintain CRM loyalty profiles
-              </p>
-            </div>
-          </label>
+          </div>
 
-          <label className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3 sm:col-span-2">
-            <input
-              type="checkbox"
+          <div className="p-4 rounded-sm border border-slate-200 bg-slate-50/40 hover:bg-slate-50 transition sm:col-span-2">
+            <CustomCheckbox
               checked={quickCashTender}
               onChange={(e) => setQuickCashTender(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
+              label={<span className="font-bold text-gray-700">Quick Taka Bill Buttons (৳50, ৳100, ৳500, ৳1000)</span>}
+              description="Renders fast currency denomination presets in POS payment drawer for rapid change computation"
+              containerClassName="w-full"
             />
-            <div>
-              <span className="font-bold text-gray-600 block">Quick Taka Bill Buttons (৳50, ৳100, ৳500, ৳1000)</span>
-              <p className="text-slate-400 text-[11px] mt-0.5">
-                Renders fast currency denomination presets in POS payment drawer for rapid change computation
-              </p>
-            </div>
-          </label>
+          </div>
         </div>
       </div>
 
@@ -1570,22 +1699,13 @@ function TaxSettingsTab({
 
       {/* Mushak 6.3 Toggle */}
       <div className="p-4 rounded-sm bg-slate-50/70 border border-slate-200">
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={mushakCompliance}
-            onChange={(e) => setMushakCompliance(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
-          />
-          <div>
-            <span className="font-bold text-gray-600 block">
-              Enable Mushak-6.3 Statutory Tax Invoice Format
-            </span>
-            <p className="text-slate-400 text-[11px] mt-0.5">
-              Renders official NBR header, BIN numbers, buyer registration, and breakdown of Base Value + VAT + SD on receipts
-            </p>
-          </div>
-        </label>
+        <CustomCheckbox
+          checked={mushakCompliance}
+          onChange={(e) => setMushakCompliance(e.target.checked)}
+          label={<span className="font-bold text-gray-700">Enable Mushak-6.3 Statutory Tax Invoice Format</span>}
+          description="Renders official NBR header, BIN numbers, buyer registration, and breakdown of Base Value + VAT + SD on receipts"
+          containerClassName="w-full"
+        />
       </div>
 
       {/* Live Tax Computation Simulator */}
@@ -1595,12 +1715,12 @@ function TaxSettingsTab({
         </span>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
           <div>
-            <label className="block text-slate-500 text-[10px] mb-1">Sample Item Price (৳)</label>
-            <input
+            <CustomInput
+              label="Sample Item Price (৳)"
               type="number"
               value={samplePrice}
               onChange={(e) => setSamplePrice(e.target.value)}
-              className="w-full rounded-sm border border-slate-200 px-3 py-1.5 font-bold font-mono bg-white"
+              className="font-bold font-mono"
             />
           </div>
           <div className="p-2.5 rounded-sm bg-white border border-slate-200">
@@ -1673,42 +1793,29 @@ function InvoiceSettingsTab({
             placeholder="e.g. BLUE OCEAN STORE"
           />
 
-          <div>
-            <label className="block font-bold text-gray-600 mb-1">Receipt Footer Note & Return Policy</label>
-            <textarea
-              value={footerMsg}
-              onChange={(e) => setFooterMsg(e.target.value)}
-              className="w-full rounded-sm border border-slate-200 px-3.5 py-2.5 font-semibold focus:outline-none focus:border-primary-500 bg-slate-50/60 text-xs"
-              rows={3}
+          <CustomTextarea
+            label="Receipt Footer Note & Return Policy"
+            value={footerMsg}
+            onChange={(e) => setFooterMsg(e.target.value)}
+            rows={3}
+          />
+
+          <div className="space-y-3 p-4 rounded-sm bg-slate-50/70 border border-slate-200">
+            <CustomCheckbox
+              checked={showBarcode}
+              onChange={(e) => setShowBarcode(e.target.checked)}
+              label={<span className="font-bold text-gray-700">Render Barcode on Thermal Receipt</span>}
+              description="Enables 1-second optical scanner lookup at customer returns desk"
+              containerClassName="w-full"
             />
-          </div>
 
-          <div className="space-y-2.5 p-4 rounded-sm bg-slate-50/70 border border-slate-200">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showBarcode}
-                onChange={(e) => setShowBarcode(e.target.checked)}
-                className="w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
-              />
-              <div>
-                <span className="font-bold text-gray-600 block">Render Barcode on Thermal Receipt</span>
-                <p className="text-slate-400 text-[11px]">Enables 1-second optical scanner lookup at customer returns desk</p>
-              </div>
-            </label>
-
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showQR}
-                onChange={(e) => setShowQR(e.target.checked)}
-                className="w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
-              />
-              <div>
-                <span className="font-bold text-gray-600 block">Render Digital Verification QR Code</span>
-                <p className="text-slate-400 text-[11px]">Allows customers to view digital e-receipt on mobile smartphone</p>
-              </div>
-            </label>
+            <CustomCheckbox
+              checked={showQR}
+              onChange={(e) => setShowQR(e.target.checked)}
+              label={<span className="font-bold text-gray-700">Render Digital Verification QR Code</span>}
+              description="Allows customers to view digital e-receipt on mobile smartphone"
+              containerClassName="w-full"
+            />
           </div>
 
           <div className="pt-2">
@@ -1911,21 +2018,14 @@ function InventorySettingsTab({ onSave }: { onSave: () => void }) {
         />
       </div>
 
-      <div className="p-4 rounded-sm bg-slate-50/70 border border-slate-200 space-y-3">
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={allowNegative}
-            onChange={(e) => setAllowNegative(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
-          />
-          <div>
-            <span className="font-bold text-gray-600 block">Allow Negative Stock Checkout</span>
-            <p className="text-slate-400 text-[11px] mt-0.5">
-              Allows cashier to complete sale when physical item is on shelf but GRN entry is pending (reconciles on next PO)
-            </p>
-          </div>
-        </label>
+      <div className="p-4 rounded-sm bg-slate-50/70 border border-slate-200">
+        <CustomCheckbox
+          checked={allowNegative}
+          onChange={(e) => setAllowNegative(e.target.checked)}
+          label={<span className="font-bold text-gray-700">Allow Negative Stock Checkout</span>}
+          description="Allows cashier to complete sale when physical item is on shelf but GRN entry is pending (reconciles on next PO)"
+          containerClassName="w-full"
+        />
       </div>
 
       <div className="pt-4 border-t border-slate-100 flex justify-end">
@@ -2027,51 +2127,30 @@ function NotificationSettingsTab({ onSave }: { onSave: () => void }) {
 
   return (
     <div className="space-y-6 text-xs">
-      <div className="p-4 rounded-sm bg-slate-50/70 border border-slate-200 space-y-3">
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={lowStock}
-            onChange={(e) => setLowStock(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
-          />
-          <div>
-            <span className="font-bold text-gray-600 block">Low Stock Reorder Triggers</span>
-            <p className="text-slate-400 text-[11px] mt-0.5">
-              Notifies store manager email & mobile when product stock breaches safety reorder threshold
-            </p>
-          </div>
-        </label>
+      <div className="p-4 rounded-sm bg-slate-50/70 border border-slate-200 space-y-4">
+        <CustomCheckbox
+          checked={lowStock}
+          onChange={(e) => setLowStock(e.target.checked)}
+          label={<span className="font-bold text-gray-700">Low Stock Reorder Triggers</span>}
+          description="Notifies store manager email & mobile when product stock breaches safety reorder threshold"
+          containerClassName="w-full"
+        />
 
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={shiftClose}
-            onChange={(e) => setShiftClose(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
-          />
-          <div>
-            <span className="font-bold text-gray-600 block">Daily Register Shift Close Summary</span>
-            <p className="text-slate-400 text-[11px] mt-0.5">
-              Sends automated email breakdown with cash drawer reconciliation and discrepancy audits
-            </p>
-          </div>
-        </label>
+        <CustomCheckbox
+          checked={shiftClose}
+          onChange={(e) => setShiftClose(e.target.checked)}
+          label={<span className="font-bold text-gray-700">Daily Register Shift Close Summary</span>}
+          description="Sends automated email breakdown with cash drawer reconciliation and discrepancy audits"
+          containerClassName="w-full"
+        />
 
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={smsAlerts}
-            onChange={(e) => setSmsAlerts(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded-sm text-primary-600 focus:ring-0"
-          />
-          <div>
-            <span className="font-bold text-gray-600 block">Customer SMS Digital Receipt Link</span>
-            <p className="text-slate-400 text-[11px] mt-0.5">
-              Dispatches thank-you SMS containing invoice link directly to buyer phone number
-            </p>
-          </div>
-        </label>
+        <CustomCheckbox
+          checked={smsAlerts}
+          onChange={(e) => setSmsAlerts(e.target.checked)}
+          label={<span className="font-bold text-gray-700">Customer SMS Digital Receipt Link</span>}
+          description="Dispatches thank-you SMS containing invoice link directly to buyer phone number"
+          containerClassName="w-full"
+        />
       </div>
 
       <div className="pt-4 border-t border-slate-100 flex justify-end">
@@ -2282,36 +2361,24 @@ function AISettingsTab({ onSave }: { onSave: () => void }) {
         </p>
       </div>
 
-      <div className="p-4 rounded-sm bg-violet-50/40 border border-violet-200 space-y-3">
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={demandForecasting}
-            onChange={(e) => setDemandForecasting(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded-sm text-violet-600 focus:ring-0"
-          />
-          <div>
-            <span className="font-bold text-gray-600 block">AI Demand & Seasonality Forecasting</span>
-            <p className="text-slate-500 text-[11px] mt-0.5">
-              Analyzes historical POS sales velocity to predict inventory requirements for upcoming peak periods
-            </p>
-          </div>
-        </label>
+      <div className="p-4 rounded-sm bg-violet-50/40 border border-violet-200 space-y-4">
+        <CustomCheckbox
+          checked={demandForecasting}
+          onChange={(e) => setDemandForecasting(e.target.checked)}
+          themeColor="indigo"
+          label={<span className="font-bold text-gray-700">AI Demand & Seasonality Forecasting</span>}
+          description="Analyzes historical POS sales velocity to predict inventory requirements for upcoming peak periods"
+          containerClassName="w-full"
+        />
 
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={smartReordering}
-            onChange={(e) => setSmartReordering(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded-sm text-violet-600 focus:ring-0"
-          />
-          <div>
-            <span className="font-bold text-gray-600 block">Smart Purchase Requisition (PR) Drafts</span>
-            <p className="text-slate-500 text-[11px] mt-0.5">
-              Automatically creates supplier purchase order drafts when safety stock thresholds are breached
-            </p>
-          </div>
-        </label>
+        <CustomCheckbox
+          checked={smartReordering}
+          onChange={(e) => setSmartReordering(e.target.checked)}
+          themeColor="indigo"
+          label={<span className="font-bold text-gray-700">Smart Purchase Requisition (PR) Drafts</span>}
+          description="Automatically creates supplier purchase order drafts when safety stock thresholds are breached"
+          containerClassName="w-full"
+        />
       </div>
 
       <div className="pt-4 border-t border-slate-100 flex justify-end">
