@@ -4,6 +4,7 @@ import { CheckCircle2, Printer, RotateCcw } from "lucide-react";
 import type { SaleResult } from "./pos-types";
 import { siteConfig } from "@/config/site";
 import { CustomButton } from "@/components/custom";
+import { getInvoiceSettings } from "@/lib/invoiceSettings";
 
 interface CartItem {
   id?: string;
@@ -30,6 +31,15 @@ interface Props {
 }
 
 export function ReceiptModal({ result, cart, payments, cashierName, customerName, onNewSale }: Props) {
+  const settings = getInvoiceSettings();
+  const isRestaurant = settings.businessType === "restaurant";
+  const showReturnPolicy = !isRestaurant && settings.showReturnPolicy && Boolean(settings.returnPolicyText?.trim());
+  const footerMessage =
+    settings.footerMessage?.trim() ||
+    (isRestaurant
+      ? "Thank you for dining with us! Please visit us again."
+      : "Thank you for shopping with us! Please visit us again.");
+
   const currentDate = new Date().toLocaleString("en-GB", {
     day: "2-digit",
     month: "short",
@@ -202,12 +212,21 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
             </div>
           </div>
           <p className="text-[10px] text-gray-400 font-mono">*{result.invoiceNo}*</p>
-          <p className="text-xs font-bold text-gray-600 text-center max-w-[260px] mx-auto mt-2 leading-tight">
-            Items can be exchanged within 7 days with original receipt.
-          </p>
-          <p className="text-[10px] text-gray-400 text-center font-mono mt-2">
-            Software by Blue Oceans POS
-          </p>
+          {showReturnPolicy && (
+            <p className="text-xs font-semibold text-gray-700 text-center max-w-[260px] mx-auto mt-2 leading-tight">
+              {settings.returnPolicyText}
+            </p>
+          )}
+          {settings.showFooterNote && (
+            <p className="text-xs font-semibold text-gray-600 text-center max-w-[260px] mx-auto mt-1 leading-tight">
+              {footerMessage}
+            </p>
+          )}
+          {settings.showWatermark && (
+            <p className="text-[10px] text-gray-400 text-center font-mono mt-2">
+              Software by Blue Oceans POS
+            </p>
+          )}
         </div>
       </div>
 

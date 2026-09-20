@@ -27,6 +27,7 @@ import {
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/cn";
 import { CustomButton, CustomSelect } from "@/components/custom";
+import { getInvoiceSettings, type InvoiceSettings } from "@/lib/invoiceSettings";
 
 export type InvoiceVerticalType =
   | "retail"
@@ -174,10 +175,20 @@ export function UniversalInvoiceModal({
 
   const [activeVertical, setActiveVertical] = useState<InvoiceVerticalType>(detectedVertical);
   const [printPaperSize, setPrintPaperSize] = useState<"thermal" | "a4">("thermal");
+  const [invoiceSettings, setInvoiceSettings] = useState<InvoiceSettings>(getInvoiceSettings());
 
   useEffect(() => {
     setActiveVertical(detectedVertical);
   }, [detectedVertical]);
+
+  useEffect(() => {
+    setInvoiceSettings(getInvoiceSettings());
+    const onSettingsChange = (e: any) => {
+      if (e?.detail) setInvoiceSettings(e.detail);
+    };
+    window.addEventListener("invoice-settings-changed", onSettingsChange);
+    return () => window.removeEventListener("invoice-settings-changed", onSettingsChange);
+  }, []);
 
   useEffect(() => {
     if (!open || !onNewSale) return;
@@ -309,12 +320,12 @@ export function UniversalInvoiceModal({
           >
             {/* 1. RETAIL POS TEMPLATE */}
             {activeVertical === "retail" && (
-              <RetailInvoiceTemplate data={data} fmt={fmt} invoiceDate={invoiceDate} />
+              <RetailInvoiceTemplate data={data} fmt={fmt} invoiceDate={invoiceDate} invoiceSettings={invoiceSettings} />
             )}
 
             {/* 2. GROCERY / SUPERMARKET TEMPLATE */}
             {activeVertical === "grocery" && (
-              <GroceryInvoiceTemplate data={data} fmt={fmt} invoiceDate={invoiceDate} />
+              <GroceryInvoiceTemplate data={data} fmt={fmt} invoiceDate={invoiceDate} invoiceSettings={invoiceSettings} />
             )}
 
             {/* 3. WHOLESALE & B2B COMMERCIAL CHALLAN TEMPLATE */}
@@ -357,7 +368,11 @@ export function UniversalInvoiceModal({
 // TEMPLATE 1: RETAIL POS STANDARD INVOICE
 // ───────────────────────────────────────────────────────────────────────
 
-function RetailInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; fmt: (n: number) => string; invoiceDate: string }) {
+function RetailInvoiceTemplate({ data, fmt, invoiceDate, invoiceSettings }: { data: InvoiceData; fmt: (n: number) => string; invoiceDate: string; invoiceSettings?: InvoiceSettings }) {
+  const returnPolicy =
+    invoiceSettings?.showReturnPolicy && invoiceSettings?.returnPolicyText?.trim()
+      ? invoiceSettings.returnPolicyText
+      : undefined;
   return (
     <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-slate-300 pb-3 space-y-1">
@@ -436,7 +451,7 @@ function RetailInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; 
         )}
       </div>
 
-      <BarcodeFooter invoiceNo={data.invoiceNo} footerText="Items can be exchanged within 7 days with original receipt." />
+      <BarcodeFooter invoiceNo={data.invoiceNo} footerText={returnPolicy} />
     </div>
   );
 }
@@ -445,7 +460,7 @@ function RetailInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; 
 // TEMPLATE 2: GROCERY & SUPERMARKET SCALE LANE RECEIPT
 // ───────────────────────────────────────────────────────────────────────
 
-function GroceryInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; fmt: (n: number) => string; invoiceDate: string }) {
+function GroceryInvoiceTemplate({ data, fmt, invoiceDate, invoiceSettings }: { data: InvoiceData; fmt: (n: number) => string; invoiceDate: string; invoiceSettings?: InvoiceSettings }) {
   return (
     <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-emerald-300 pb-3 space-y-1">

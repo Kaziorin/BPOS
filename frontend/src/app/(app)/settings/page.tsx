@@ -68,6 +68,7 @@ import {
   CustomCheckbox,
   CustomTextarea,
 } from "@/components/custom";
+import { InvoicePrintSettingsManager } from "@/components/invoices/InvoicePrintSettingsManager";
 
 // ───────────────────────────────────────────────────────────────────────
 // SETTINGS CATEGORIES & TABS DEFINITION
@@ -1761,157 +1762,9 @@ function InvoiceSettingsTab({
   tenantData: any;
   onSave: () => void;
 }) {
-  const company = tenantData?.company || {};
-  const [template, setTemplate] = useState("retail");
-  const [headerTitle, setHeaderTitle] = useState(company.name || "BLUE OCEAN POS");
-  const [footerMsg, setFooterMsg] = useState("Thank you for shopping with us! Items can be exchanged within 7 days with invoice slip.");
-  const [showBarcode, setShowBarcode] = useState(true);
-  const [showQR, setShowQR] = useState(true);
-
   return (
-    <div className="space-y-6 text-xs">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Form (7 cols) */}
-        <div className="lg:col-span-7 space-y-4">
-          <CustomSelect
-            label="Default Vertical Receipt Template"
-            value={template}
-            onChange={(e) => setTemplate(e.target.value)}
-            options={[
-              { value: "retail", label: "Retail Standard 80mm Thermal Receipt" },
-              { value: "grocery", label: "Grocery Lane Slip (Weight / Tare / PLU)" },
-              { value: "wholesale", label: "Wholesale B2B Commercial Challan" },
-              { value: "restaurant", label: "Restaurant Dining Guest Check & KOT" },
-              { value: "pharmacy", label: "Pharmacy DGDA Batch Prescription Slip" },
-            ]}
-          />
-
-          <CustomInput
-            label="Printed Store Header Title"
-            value={headerTitle}
-            onChange={(e) => setHeaderTitle(e.target.value)}
-            placeholder="e.g. BLUE OCEAN STORE"
-          />
-
-          <CustomTextarea
-            label="Receipt Footer Note & Return Policy"
-            value={footerMsg}
-            onChange={(e) => setFooterMsg(e.target.value)}
-            rows={3}
-          />
-
-          <div className="space-y-3 p-4 rounded-sm bg-slate-50/70 border border-slate-200">
-            <CustomCheckbox
-              checked={showBarcode}
-              onChange={(e) => setShowBarcode(e.target.checked)}
-              label={<span className="font-bold text-gray-700">Render Barcode on Thermal Receipt</span>}
-              description="Enables 1-second optical scanner lookup at customer returns desk"
-              containerClassName="w-full"
-            />
-
-            <CustomCheckbox
-              checked={showQR}
-              onChange={(e) => setShowQR(e.target.checked)}
-              label={<span className="font-bold text-gray-700">Render Digital Verification QR Code</span>}
-              description="Allows customers to view digital e-receipt on mobile smartphone"
-              containerClassName="w-full"
-            />
-          </div>
-
-          <div className="pt-2">
-            <CustomButton variant="primary" onClick={onSave} icon={Save}>
-              Save Print Layout
-            </CustomButton>
-          </div>
-        </div>
-
-        {/* Right Live Thermal Receipt Preview (5 cols) */}
-        <div className="lg:col-span-5 space-y-2">
-          <div className="flex items-center justify-between px-1">
-            <span className="font-bold text-gray-600 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
-              <Printer size={13} className="text-slate-500" />
-              80mm Thermal WYSIWYG Slip
-            </span>
-            <span className="text-[10px] font-mono text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-sm">
-              Live Preview
-            </span>
-          </div>
-
-          <div className="p-6 rounded-sm bg-amber-50/30 border border-dashed border-slate-300 font-mono text-[11px] text-gray-600 shadow-sm space-y-3 max-w-xs mx-auto bg-white">
-            <div className="text-center space-y-0.5 border-b border-dashed border-slate-300 pb-2">
-              <p className="font-black text-xs text-gray-600 uppercase">{headerTitle || "BLUE OCEAN POS"}</p>
-              <p className="text-[10px] text-slate-500">Gulshan-1, Dhaka-1212</p>
-              <p className="text-[10px] text-slate-500">BIN: 002938194-0101 · Mushak 6.3</p>
-              <p className="text-[10px] text-slate-400">Tel: +880 1711-000000</p>
-            </div>
-
-            <div className="text-[10px] space-y-0.5 border-b border-dashed border-slate-300 pb-2">
-              <div className="flex justify-between">
-                <span>Inv: #INV-202609-0042</span>
-                <span>POS-01</span>
-              </div>
-              <div className="flex justify-between text-slate-500">
-                <span>Date: 12-Sep-2026 18:05</span>
-                <span>Cashier: Admin</span>
-              </div>
-            </div>
-
-            <div className="space-y-1.5 border-b border-dashed border-slate-300 pb-2 text-[10px]">
-              <div className="flex justify-between font-bold">
-                <span>Item</span>
-                <span>Qty x Rate</span>
-                <span>Total</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Pran Mustard Oil 1L</span>
-                <span>1 x ৳240.00</span>
-                <span>৳240.00</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Aarong Dairy Butter 200g</span>
-                <span>2 x ৳190.00</span>
-                <span>৳380.00</span>
-              </div>
-            </div>
-
-            <div className="space-y-1 text-[10px] border-b border-dashed border-slate-300 pb-2">
-              <div className="flex justify-between">
-                <span>Subtotal:</span>
-                <span>৳620.00</span>
-              </div>
-              <div className="flex justify-between text-slate-500">
-                <span>VAT (5%):</span>
-                <span>৳31.00</span>
-              </div>
-              <div className="flex justify-between font-black text-xs pt-1 text-gray-600 border-t border-dotted border-slate-200">
-                <span>GRAND TOTAL:</span>
-                <span>৳651.00</span>
-              </div>
-              <div className="flex justify-between text-[10px] text-slate-500 pt-0.5">
-                <span>Paid (Cash):</span>
-                <span>৳700.00</span>
-              </div>
-              <div className="flex justify-between text-[10px] font-bold text-emerald-700">
-                <span>Change Due:</span>
-                <span>৳49.00</span>
-              </div>
-            </div>
-
-            {showBarcode && (
-              <div className="text-center pt-1">
-                <div className="h-8 bg-slate-900/10 rounded-sm flex items-center justify-center font-mono tracking-widest text-[9px] text-slate-600">
-                  ||| | | |||| | ||| || ||| |
-                </div>
-                <span className="text-[9px] text-slate-400 font-mono mt-0.5 block">INV-202609-0042</span>
-              </div>
-            )}
-
-            <div className="text-center text-[9px] text-slate-500 pt-1 leading-tight">
-              {footerMsg}
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <InvoicePrintSettingsManager onSaved={onSave} />
     </div>
   );
 }
