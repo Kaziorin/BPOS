@@ -26,6 +26,8 @@ export interface DisplayCart {
   invoiceNo?: string;
   lines: DisplayLine[];
   subtotal: number;
+  taxableBase?: number;
+  inclusiveTax?: number;
   discountTotal: number;
   taxTotal: number;
   serviceCharge?: number;

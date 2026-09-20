@@ -865,6 +865,7 @@ export default function RestaurantPOSPage() {
     
     let estTax = 0;
     let estExclusiveTax = 0;
+    let estInclusiveTax = 0;
     let totalTaxableGross = 0;
     let weightedTaxRateSum = 0;
 
@@ -877,7 +878,9 @@ export default function RestaurantPOSPage() {
       totalTaxableGross += lineNet;
       weightedTaxRateSum += rate * lineNet;
       if (item.taxMethod === "Inclusive") {
-        estTax += (lineNet * rate) / (100 + rate);
+        const inc = (lineNet * rate) / (100 + rate);
+        estTax += inc;
+        estInclusiveTax += inc;
       } else {
         const t = (lineNet * rate) / 100;
         estTax += t;
@@ -888,6 +891,8 @@ export default function RestaurantPOSPage() {
     const effServPct = orderType === "DINE_IN" ? serviceChargePercent : 0;
     const estService = (sTotal * effServPct) / 100;
     const estTotal = sTotal + estExclusiveTax + estService;
+    const roundedEstInclusiveTax = Math.round(estInclusiveTax * 100) / 100;
+    const estTaxableBase = Math.max(0, sTotal - roundedEstInclusiveTax);
 
     publishRestaurantCart({
       updatedAt: Date.now(),
@@ -909,6 +914,8 @@ export default function RestaurantPOSPage() {
         ].join(", ") || undefined,
       })),
       subtotal: rawSub,
+      taxableBase: estTaxableBase,
+      inclusiveTax: roundedEstInclusiveTax,
       discountTotal: discAmt,
       taxTotal: estTax,
       serviceCharge: estService,
@@ -1282,6 +1289,7 @@ export default function RestaurantPOSPage() {
   // Per-item tax calculation based on each product's configured taxRate
   let estimateTax = 0;
   let estimateExclusiveTax = 0;
+  let estimateInclusiveTax = 0;
   let totalTaxableGross = 0;
   let weightedTaxRateSum = 0;
 
@@ -1294,7 +1302,9 @@ export default function RestaurantPOSPage() {
     totalTaxableGross += lineNet;
     weightedTaxRateSum += rate * lineNet;
     if (item.taxMethod === "Inclusive") {
-      estimateTax += (lineNet * rate) / (100 + rate);
+      const inc = (lineNet * rate) / (100 + rate);
+      estimateTax += inc;
+      estimateInclusiveTax += inc;
     } else {
       const t = (lineNet * rate) / 100;
       estimateTax += t;
@@ -1304,6 +1314,10 @@ export default function RestaurantPOSPage() {
 
   // Nominal configured tax percentage across taxable items (e.g. 5% instead of 4.8%)
   const nominalTaxPercent = totalTaxableGross > 0 ? weightedTaxRateSum / totalTaxableGross : 0;
+
+  // Round inclusive tax to 2 decimal places so taxableBase + tax = total with zero rounding errors
+  const roundedInclusiveTax = Math.round(estimateInclusiveTax * 100) / 100;
+  const taxableBase = Math.max(0, subTotal - roundedInclusiveTax);
 
   // Service charge:
   // Dine-in applies service charge (default 0%), Takeaway/Delivery defaults to 0%
@@ -1368,6 +1382,8 @@ export default function RestaurantPOSPage() {
         discountAmount,
         discountPercent,
         subTotal: saleResult.subtotal || subTotal,
+        taxableBase: taxableBase,
+        inclusiveTax: roundedInclusiveTax,
         taxAmount: saleResult.taxTotal !== undefined ? saleResult.taxTotal : estimateTax,
         taxRatePercent: nominalTaxPercent,
         serviceCharge: saleResult.serviceCharge !== undefined ? saleResult.serviceCharge : estimateService,
@@ -1396,6 +1412,8 @@ export default function RestaurantPOSPage() {
           image: i.image,
         })),
         subtotal: rawSubtotal,
+        taxableBase: taxableBase,
+        inclusiveTax: roundedInclusiveTax,
         discountTotal: discountAmount,
         taxTotal: saleResult.taxTotal || estimateTax,
         serviceCharge: saleResult.serviceCharge || estimateService,
@@ -2369,25 +2387,55 @@ export default function RestaurantPOSPage() {
               />
               <FileText size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
-          </div>{/* ── Summary + Actions ── */}
+          </div>
+
+          {/* ── Summary + Actions ── */}
           <div className="flex-none p-4 bg-gradient-to-b from-slate-50 to-slate-100 border-t border-slate-200 space-y-3">
             <div className="space-y-1.5 text-xs text-gray-600">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Subtotal</span>
-                <span className="font-bold text-gray-600">{fmt(subTotal)}</span>
-              </div>
+              {estimateInclusiveTax > 0 ? (
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Base Price (Net)</span>
+                    <span className="font-bold text-gray-600">{fmt(taxableBase)}</span>
+                  </div>
 
-              {discountPercent > 0 && (
-                <div className="flex justify-between text-emerald-600">
-                  <span>Discount ({discountPercent}%)</span>
-                  <span className="font-bold">−{fmt(discountAmount)}</span>
-                </div>
+                  {discountPercent > 0 && (
+                    <div className="flex justify-between text-emerald-600">
+                      <span>Discount ({discountPercent}%)</span>
+                      <span className="font-bold">−{fmt(discountAmount)}</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between text-emerald-700">
+                    <span className="text-gray-500">
+                      + VAT / Tax {nominalTaxPercent > 0 ? `(${Number(nominalTaxPercent.toFixed(1))}%)` : ""}{" "}
+                      <span className="text-[10px] text-emerald-600 font-semibold">(Incl.)</span>
+                    </span>
+                    <span className="font-bold">+{fmt(estimateTax)}</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Subtotal</span>
+                    <span className="font-bold text-gray-600">{fmt(subTotal)}</span>
+                  </div>
+
+                  {discountPercent > 0 && (
+                    <div className="flex justify-between text-emerald-600">
+                      <span>Discount ({discountPercent}%)</span>
+                      <span className="font-bold">−{fmt(discountAmount)}</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between text-gray-500">
+                    <span>
+                      + VAT / Tax {nominalTaxPercent > 0 ? `(${Number(nominalTaxPercent.toFixed(1))}%)` : ""}
+                    </span>
+                    <span className="font-medium">+{fmt(estimateTax)}</span>
+                  </div>
+                </>
               )}
-
-              <div className="flex justify-between text-gray-500">
-                <span>VAT / Tax {nominalTaxPercent > 0 ? `(${Number(nominalTaxPercent.toFixed(1))}%)` : ""}</span>
-                <span className="font-medium">{fmt(estimateTax)}</span>
-              </div>
 
               <div className="flex justify-between text-gray-500">
                 <button
@@ -2410,13 +2458,20 @@ export default function RestaurantPOSPage() {
                   <span>Service Charge {effectiveServicePercent > 0 ? `(${effectiveServicePercent}%)` : "(0%)"}</span>
                   <Edit3 size={11} className="text-gray-400" />
                 </button>
-                <span className="font-medium">{fmt(estimateService)}</span>
+                <span className="font-medium">{estimateService > 0 ? `+${fmt(estimateService)}` : fmt(estimateService)}</span>
               </div>
 
               <div className="flex justify-between items-baseline pt-2 mt-1 border-t border-dashed border-slate-300">
-                <span className="text-xs uppercase font-black text-gray-500 tracking-wider">
-                  Total Payable
-                </span>
+                <div>
+                  <span className="text-xs uppercase font-black text-gray-500 tracking-wider block">
+                    Total Payable
+                  </span>
+                  {estimateInclusiveTax > 0 && (
+                    <span className="text-[10px] font-semibold text-emerald-600 block">
+                      (Includes ৳{roundedInclusiveTax.toFixed(2)} VAT)
+                    </span>
+                  )}
+                </div>
                 <span className="text-2xl font-black text-orange-600 tabular-nums tracking-tight">
                   {fmt(estimateGrandTotal)}
                 </span>
@@ -2648,38 +2703,80 @@ export default function RestaurantPOSPage() {
 
           {/* Financial Summary */}
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between text-slate-500">
-              <span>Subtotal</span>
-              <span>{fmt(completedBill?.rawSubtotal || completedBill?.subTotal || 0)}</span>
-            </div>
-            {(completedBill?.discountAmount ?? 0) > 0 && (
-              <div className="flex justify-between text-emerald-600">
-                <span>Discount {completedBill?.discountPercent ? `(${completedBill.discountPercent}%)` : ""}</span>
-                <span>−{fmt(completedBill.discountAmount)}</span>
-              </div>
+            {(completedBill?.inclusiveTax ?? 0) > 0 ? (
+              <>
+                <div className="flex justify-between text-slate-500">
+                  <span>Base Price (Net)</span>
+                  <span>
+                    {fmt(
+                      completedBill?.taxableBase !== undefined
+                        ? completedBill.taxableBase
+                        : Math.max(0, (completedBill?.subTotal || 0) - completedBill.inclusiveTax)
+                    )}
+                  </span>
+                </div>
+                {(completedBill?.discountAmount ?? 0) > 0 && (
+                  <div className="flex justify-between text-emerald-600">
+                    <span>Discount {completedBill?.discountPercent ? `(${completedBill.discountPercent}%)` : ""}</span>
+                    <span>−{fmt(completedBill.discountAmount)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-slate-500">
+                  <span>
+                    + VAT / Tax {completedBill?.taxRatePercent !== undefined && completedBill.taxRatePercent > 0
+                      ? `(${Number(completedBill.taxRatePercent.toFixed(1))}%)`
+                      : (completedBill?.taxAmount || 0) > 0 && (completedBill?.subTotal || 0) > 0
+                        ? `(${Number(((completedBill.taxAmount / completedBill.subTotal) * 100).toFixed(1))}%)`
+                        : ""}{" "}
+                    <span className="text-xs text-emerald-600 font-semibold">(Included)</span>
+                  </span>
+                  <span>+{fmt(completedBill?.taxAmount || 0)}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between text-slate-500">
+                  <span>Subtotal</span>
+                  <span>{fmt(completedBill?.rawSubtotal || completedBill?.subTotal || 0)}</span>
+                </div>
+                {(completedBill?.discountAmount ?? 0) > 0 && (
+                  <div className="flex justify-between text-emerald-600">
+                    <span>Discount {completedBill?.discountPercent ? `(${completedBill.discountPercent}%)` : ""}</span>
+                    <span>−{fmt(completedBill.discountAmount)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-slate-500">
+                  <span>
+                    + VAT / Tax {completedBill?.taxRatePercent !== undefined && completedBill.taxRatePercent > 0
+                      ? `(${Number(completedBill.taxRatePercent.toFixed(1))}%)`
+                      : (completedBill?.taxAmount || 0) > 0 && (completedBill?.subTotal || 0) > 0
+                        ? `(${Number(((completedBill.taxAmount / completedBill.subTotal) * 100).toFixed(1))}%)`
+                        : ""}
+                  </span>
+                  <span>+{fmt(completedBill?.taxAmount || 0)}</span>
+                </div>
+              </>
             )}
-            <div className="flex justify-between text-slate-500">
-              <span>
-                VAT / Tax {completedBill?.taxRatePercent !== undefined && completedBill.taxRatePercent > 0
-                  ? `(${Number(completedBill.taxRatePercent.toFixed(1))}%)`
-                  : (completedBill?.taxAmount || 0) > 0 && (completedBill?.subTotal || 0) > 0
-                    ? `(${Number(((completedBill.taxAmount / completedBill.subTotal) * 100).toFixed(1))}%)`
-                    : ""}
-              </span>
-              <span>{fmt(completedBill?.taxAmount || 0)}</span>
-            </div>
+
             {(completedBill?.serviceCharge ?? 0) > 0 && (
               <div className="flex justify-between text-slate-500">
                 <span>
-                  Service Charge {completedBill?.serviceChargePercent !== undefined && completedBill.serviceChargePercent > 0
+                  + Service Charge {completedBill?.serviceChargePercent !== undefined && completedBill.serviceChargePercent > 0
                     ? `(${Number(completedBill.serviceChargePercent.toFixed(1))}%)`
                     : ""}
                 </span>
-                <span>{fmt(completedBill?.serviceCharge || 0)}</span>
+                <span>+{fmt(completedBill?.serviceCharge || 0)}</span>
               </div>
             )}
             <div className="flex justify-between font-bold text-base text-orange-600 pt-2 border-t border-orange-200">
-              <span>Total Payable</span>
+              <div>
+                <span>Total Payable</span>
+                {(completedBill?.inclusiveTax ?? 0) > 0 && (
+                  <span className="block text-[11px] font-normal text-emerald-600">
+                    (Includes {fmt(completedBill?.inclusiveTax || 0)} VAT)
+                  </span>
+                )}
+              </div>
               <span>{fmt(completedBill?.grandTotal || 0)}</span>
             </div>
 
@@ -2764,36 +2861,14 @@ export default function RestaurantPOSPage() {
         </div>
 
         {/* ── Total Due Strip ── */}
-        <div className="rounded-sm border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50/50 p-4 space-y-3">
+        <div className="rounded-sm border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50/50 px-5 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Total Payable</p>
-              <p className="text-3xl font-black tabular-nums text-orange-600 leading-tight">
-                {fmt(estimateGrandTotal)}
-              </p>
-            </div>
-            <div className="text-xs font-bold text-gray-600 space-y-1 text-right">
-              <div className="flex justify-between gap-4">
-                <span className="text-gray-400">Subtotal:</span>
-                <span>{fmt(subTotal)}</span>
-              </div>
-              {discountPercent > 0 && (
-                <div className="flex justify-between gap-4 text-emerald-600">
-                  <span>Discount ({discountPercent}%):</span>
-                  <span>−{fmt(discountAmount)}</span>
-                </div>
-              )}
-              <div className="flex justify-between gap-4">
-                <span className="text-gray-400">VAT / Tax {nominalTaxPercent > 0 ? `(${Number(nominalTaxPercent.toFixed(1))}%)` : ""}:</span>
-                <span>{fmt(estimateTax)}</span>
-              </div>
-              {estimateService > 0 && (
-                <div className="flex justify-between gap-4">
-                  <span className="text-gray-400">Service Charge {effectiveServicePercent > 0 ? `(${effectiveServicePercent}%)` : ""}:</span>
-                  <span>{fmt(estimateService)}</span>
-                </div>
-              )}
-            </div>
+            <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-gray-600">
+              Total Payable
+            </span>
+            <span className="text-2xl sm:text-3xl font-black tabular-nums text-orange-600 leading-none">
+              {fmt(estimateGrandTotal)}
+            </span>
           </div>
         </div>
 

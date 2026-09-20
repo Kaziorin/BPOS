@@ -228,9 +228,11 @@ export default function RestaurantCustomerDisplayPage() {
   const lines = cart?.lines || [];
   const hasItems = lines.length > 0;
   const subtotal = cart?.subtotal || (hasItems ? lines.reduce((s, l) => s + l.unitPrice * l.qty, 0) : 0);
-  const tax = cart?.taxTotal || (hasItems ? subtotal * 0.15 : 0);
+  const tax = cart?.taxTotal || 0;
+  const taxableBase = cart?.taxableBase;
+  const inclusiveTax = cart?.inclusiveTax || 0;
   const discount = cart?.discountTotal || 0;
-  const serviceCharge = cart?.serviceCharge || (hasItems ? subtotal * 0.04 : 0);
+  const serviceCharge = cart?.serviceCharge || 0;
   const total = cart?.total || (hasItems ? subtotal - discount + tax + serviceCharge : 0);
 
   const customerName = cart?.customerName;
@@ -565,27 +567,50 @@ export default function RestaurantCustomerDisplayPage() {
 
                 {/* Subtotal / Tax rows */}
                 <div className="py-3.5 space-y-2.5">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500 font-medium">Subtotal</span>
-                    <span className="font-bold text-gray-600">{fmt(subtotal)}</span>
-                  </div>
-
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500 font-medium">VAT / Tax (15%)</span>
-                    <span className="font-bold text-gray-600">{fmt(tax)}</span>
-                  </div>
+                  {inclusiveTax > 0 ? (
+                    <>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-500 font-medium">Base Price (Net)</span>
+                        <span className="font-bold text-gray-600">
+                          {fmt(taxableBase !== undefined ? taxableBase : Math.max(0, subtotal - inclusiveTax))}
+                        </span>
+                      </div>
+                      {discount > 0 && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-emerald-600 font-semibold">🎁 Discount</span>
+                          <span className="font-bold text-emerald-600">−{fmt(discount)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-500 font-medium">
+                          VAT / Tax <span className="text-xs text-emerald-600 font-semibold">(Incl.)</span>
+                        </span>
+                        <span className="font-bold text-emerald-600">+{fmt(tax)}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-500 font-medium">Subtotal</span>
+                        <span className="font-bold text-gray-600">{fmt(subtotal)}</span>
+                      </div>
+                      {discount > 0 && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-emerald-600 font-semibold">🎁 Discount</span>
+                          <span className="font-bold text-emerald-600">−{fmt(discount)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-500 font-medium">VAT / Tax</span>
+                        <span className="font-bold text-gray-600">+{fmt(tax)}</span>
+                      </div>
+                    </>
+                  )}
 
                   {serviceCharge > 0 && (
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-500 font-medium">Service Charge (4%)</span>
-                      <span className="font-bold text-gray-600">{fmt(serviceCharge)}</span>
-                    </div>
-                  )}
-
-                  {discount > 0 && (
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-emerald-600 font-semibold">🎁 Discount</span>
-                      <span className="font-bold text-emerald-600">-{fmt(discount)}</span>
+                      <span className="text-gray-500 font-medium">Service Charge</span>
+                      <span className="font-bold text-gray-600">+{fmt(serviceCharge)}</span>
                     </div>
                   )}
                 </div>
@@ -598,9 +623,16 @@ export default function RestaurantCustomerDisplayPage() {
                   }}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-black uppercase tracking-widest text-orange-100">
-                      AMOUNT DUE
-                    </span>
+                    <div>
+                      <span className="text-xs font-black uppercase tracking-widest text-orange-100 block">
+                        AMOUNT DUE
+                      </span>
+                      {inclusiveTax > 0 && (
+                        <span className="text-[11px] font-medium text-white/90">
+                          (Includes {fmt(inclusiveTax)} VAT)
+                        </span>
+                      )}
+                    </div>
                     <span className="text-xs font-bold text-orange-100">
                       BDT (৳)
                     </span>
