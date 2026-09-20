@@ -206,7 +206,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
             Items can be exchanged within 7 days with original receipt.
           </p>
           <p className="text-[10px] text-gray-400 text-center font-mono mt-2">
-            Software by Blue Oceans OmniPOS Cloud • Spec §33
+            Software by Blue Oceans POS
           </p>
         </div>
       </div>
