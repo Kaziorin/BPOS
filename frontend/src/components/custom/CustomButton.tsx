@@ -48,10 +48,10 @@ const VARIANT_CLASSES = (darkMode: boolean): Record<ButtonVariant, string> => ({
 });
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
-  xs: "px-2.5 py-1 text-[11px] font-bold gap-1.5",
-  sm: "px-4 py-2 text-xs sm:text-sm font-bold gap-2",
-  md: "px-4 py-2 text-xs sm:text-sm font-bold gap-2",
-  lg: "px-5 py-2.5 text-sm font-bold gap-2",
+  xs: "h-7 px-2.5 text-[11px] font-bold gap-1.5",
+  sm: "h-9 px-3.5 text-xs font-bold gap-1.5",
+  md: "h-9 px-4 text-xs sm:text-sm font-bold gap-2",
+  lg: "h-10 px-5 text-sm font-bold gap-2",
 };
 
 export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(

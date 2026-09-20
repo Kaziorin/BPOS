@@ -131,7 +131,7 @@ export const CustomSelect = forwardRef<HTMLSelectElement, CustomSelectProps>(
             ref={ref}
             id={selectId}
             className={cn(
-              "w-full appearance-none rounded-sm border px-3 py-2 pr-9 text-sm outline-none transition cursor-pointer shadow-2xs",
+              "w-full h-9 appearance-none rounded-sm border px-3 pr-9 text-xs sm:text-sm outline-none transition cursor-pointer shadow-2xs",
               darkMode ? themeStyle.dark : themeStyle.light,
               error ? "border-red-300" : "",
               className

@@ -24,7 +24,14 @@ import {
   Moon,
   Coffee,
 } from "lucide-react";
-import { CustomCheckbox, CustomTabs, TabItem } from "@/components/custom";
+import {
+  CustomCheckbox,
+  CustomTabs,
+  TabItem,
+  CustomInput,
+  CustomDropdownSelect,
+  CustomButton,
+} from "@/components/custom";
 import { api } from "@/lib/api";
 
 export interface RestaurantAddon {
@@ -427,56 +434,34 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
             {/* Kitchen Routing Station */}
             <div>
-              <label className={labelClass}>
-                <Printer size={13} className="text-brand-primary" />
-                Kitchen Station / KDS Display *
-              </label>
-              <select
+              <CustomDropdownSelect
+                label="Kitchen Station / KDS Display *"
                 value={formData.kitchenStation || KITCHEN_STATIONS[0]}
-                onChange={(e) => onChange("kitchenStation", e.target.value)}
-                className={inputClass}
-              >
-                {KITCHEN_STATIONS.map((station) => (
-                  <option key={station} value={station}>
-                    {station}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => onChange("kitchenStation", val)}
+                options={KITCHEN_STATIONS.map((station) => ({ label: station, value: station }))}
+              />
             </div>
 
             {/* Preparation Time */}
             <div>
-              <label className={labelClass}>
-                <Clock size={13} className="text-brand-primary" />
-                Prep Time (Minutes)
-              </label>
-              <input
+              <CustomInput
+                label="Prep Time (Minutes)"
                 type="number"
                 min="1"
                 value={formData.prepTimeMinutes || "15"}
                 onChange={(e) => onChange("prepTimeMinutes", e.target.value)}
                 placeholder="e.g. 15"
-                className={inputClass}
               />
             </div>
 
             {/* Spice Level */}
             <div>
-              <label className={labelClass}>
-                <Flame size={13} className="text-brand-primary" />
-                Default Spice Level
-              </label>
-              <select
+              <CustomDropdownSelect
+                label="Default Spice Level"
                 value={formData.spiceLevel || SPICE_LEVELS[0]}
-                onChange={(e) => onChange("spiceLevel", e.target.value)}
-                className={inputClass}
-              >
-                {SPICE_LEVELS.map((lvl) => (
-                  <option key={lvl} value={lvl}>
-                    {lvl}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => onChange("spiceLevel", val)}
+                options={SPICE_LEVELS.map((lvl) => ({ label: lvl, value: lvl }))}
+              />
             </div>
           </div>
 
@@ -684,30 +669,27 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
 
                   {size.isEnabled ? (
                     <div className="flex items-center gap-2 flex-1 sm:flex-initial justify-end min-w-0">
-                      <div className="flex items-center gap-1.5 min-w-0 flex-1 sm:w-36">
+                      <div className="flex items-center gap-1.5 min-w-0 flex-1 sm:w-44">
                         <span className="text-[11px] font-bold text-slate-500 whitespace-nowrap shrink-0">Price (৳):</span>
-                        <input
+                        <CustomInput
                           type="number"
                           min="0"
                           step="any"
                           value={size.price}
                           onChange={(e) => handleUpdatePortionSizePrice(size.id, e.target.value)}
                           placeholder="0.00"
-                          className="w-full rounded-sm border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-gray-600 focus:border-brand-primary focus:outline-none"
                         />
                       </div>
 
-                      <button
+                      <CustomButton
                         type="button"
                         onClick={() => handleSetDefaultPortionSize(size.id)}
-                        className={`px-2 py-1 rounded-sm text-[10px] font-bold transition cursor-pointer shrink-0 ${
-                          size.isDefault
-                            ? "bg-brand-primary text-white shadow-2xs"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
+                        variant={size.isDefault ? "primary" : "secondary"}
+                        size="sm"
+                        className="text-[10px] px-2.5 h-9 shrink-0"
                       >
                         {size.isDefault ? "✓ Default" : "Set Default"}
-                      </button>
+                      </CustomButton>
 
                       {size.isCustom && (
                         <button
@@ -743,27 +725,27 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
               Add Custom Size (e.g. Medium, Half Pack, Family Pack)
             </label>
             <div className="flex items-center gap-2">
-              <input
-                type="text"
+              <CustomInput
                 placeholder="Size Name (e.g. Medium / 1 Litre / Family Pack)"
                 value={newCustomSizeName}
                 onChange={(e) => setNewCustomSizeName(e.target.value)}
-                className="flex-1 rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium focus:border-brand-primary focus:outline-none"
+                containerClassName="flex-1"
               />
-              <input
+              <CustomInput
                 type="number"
                 placeholder="Price (৳)"
                 value={newCustomSizePrice}
                 onChange={(e) => setNewCustomSizePrice(e.target.value)}
-                className="w-32 rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium focus:border-brand-primary focus:outline-none"
+                containerClassName="w-32"
               />
-              <button
+              <CustomButton
                 type="button"
                 onClick={handleAddCustomSize}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-sm bg-brand-primary text-white text-xs font-bold hover:opacity-90 transition cursor-pointer shrink-0"
+                size="sm"
+                leftIcon={<Plus size={14} />}
               >
-                <Plus size={14} /> Add Size
-              </button>
+                Add Size
+              </CustomButton>
             </div>
           </div>
         </div>
@@ -786,33 +768,32 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
               <div className="sm:col-span-6">
-                <input
-                  type="text"
+                <CustomInput
                   placeholder="e.g. Extra Cheese Slice / Garlic Mayo Sauce / Extra Beef Patty"
                   value={newAddonName}
                   onChange={(e) => setNewAddonName(e.target.value)}
-                  className={inputClass}
                 />
               </div>
-              <div className="sm:col-span-4 relative">
-                <input
+              <div className="sm:col-span-4">
+                <CustomInput
                   type="number"
                   step="0.01"
                   placeholder="Extra Price (৳ e.g. 30.00)"
                   value={newAddonPrice}
                   onChange={(e) => setNewAddonPrice(e.target.value)}
-                  className={`${inputClass} pr-8`}
+                  rightIcon={<span className="text-xs text-slate-400 font-bold">৳</span>}
                 />
-                <span className="absolute right-3 top-2.5 text-xs text-slate-400 font-bold">৳</span>
               </div>
               <div className="sm:col-span-2">
-                <button
+                <CustomButton
                   type="button"
                   onClick={handleAddAddon}
-                  className="w-full h-full py-2 bg-brand-primary hover:opacity-90 text-white rounded-sm text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer transition"
+                  size="sm"
+                  fullWidth
+                  leftIcon={<Plus size={14} />}
                 >
-                  <Plus size={14} /> Add
-                </button>
+                  Add
+                </CustomButton>
               </div>
             </div>
 
@@ -918,42 +899,39 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
               <div className="sm:col-span-5">
-                <input
-                  type="text"
+                <CustomInput
                   placeholder="e.g. French Fries / Coca-Cola / Chocolate Lava Cake"
                   value={newRelatedName}
                   onChange={(e) => setNewRelatedName(e.target.value)}
-                  className={inputClass}
                 />
               </div>
               <div className="sm:col-span-3">
-                <input
-                  type="text"
+                <CustomInput
                   placeholder="Category (e.g. Beverage / Sides)"
                   value={newRelatedCat}
                   onChange={(e) => setNewRelatedCat(e.target.value)}
-                  className={inputClass}
                 />
               </div>
-              <div className="sm:col-span-2 relative">
-                <input
+              <div className="sm:col-span-2">
+                <CustomInput
                   type="number"
                   step="0.01"
                   placeholder="Price ৳"
                   value={newRelatedPrice}
                   onChange={(e) => setNewRelatedPrice(e.target.value)}
-                  className={`${inputClass} pr-6`}
+                  rightIcon={<span className="text-xs text-slate-400 font-bold">৳</span>}
                 />
-                <span className="absolute right-2 top-2.5 text-xs text-slate-400 font-bold">৳</span>
               </div>
               <div className="sm:col-span-2">
-                <button
+                <CustomButton
                   type="button"
                   onClick={handleAddRelated}
-                  className="w-full h-full py-2 bg-brand-primary hover:opacity-90 text-white rounded-sm text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer transition"
+                  size="sm"
+                  fullWidth
+                  leftIcon={<Plus size={14} />}
                 >
-                  <Plus size={14} /> Link
-                </button>
+                  Link
+                </CustomButton>
               </div>
             </div>
 
@@ -1059,59 +1037,55 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
                   <div className="sm:col-span-5">
-                    <input
-                      type="text"
+                    <CustomInput
                       placeholder="Ingredient Name (e.g. Chicken Patty, Burger Bun, Mozzarella Cheese)"
                       value={newIngName}
                       onChange={(e) => setNewIngName(e.target.value)}
-                      className={inputClass}
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <input
+                    <CustomInput
                       type="number"
                       step="0.01"
                       placeholder="Qty (e.g. 1 / 0.25 / 100)"
                       value={newIngQty}
                       onChange={(e) => setNewIngQty(e.target.value)}
-                      className={inputClass}
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <select
+                    <CustomDropdownSelect
                       value={newIngUnit}
-                      onChange={(e) => setNewIngUnit(e.target.value)}
-                      className={inputClass}
-                    >
-                      <option value="pcs">Pcs / Item</option>
-                      <option value="gm">Gram (gm)</option>
-                      <option value="kg">Kilogram (kg)</option>
-                      <option value="ml">Milliliter (ml)</option>
-                      <option value="liter">Liter (L)</option>
-                      <option value="slice">Slice</option>
-                      <option value="tbsp">Tablespoon (tbsp)</option>
-                    </select>
+                      onChange={(val) => setNewIngUnit(val)}
+                      options={[
+                        { label: "Pcs / Item", value: "pcs" },
+                        { label: "Gram (gm)", value: "gm" },
+                        { label: "Kilogram (kg)", value: "kg" },
+                        { label: "Milliliter (ml)", value: "ml" },
+                        { label: "Liter (L)", value: "liter" },
+                        { label: "Slice", value: "slice" },
+                        { label: "Tablespoon (tbsp)", value: "tbsp" },
+                      ]}
+                    />
                   </div>
-                  <div className="sm:col-span-2 relative">
-                    <input
+                  <div className="sm:col-span-2">
+                    <CustomInput
                       type="number"
                       step="0.01"
                       placeholder="Unit Cost ৳"
                       value={newIngCost}
                       onChange={(e) => setNewIngCost(e.target.value)}
-                      className={`${inputClass} pr-6`}
+                      rightIcon={<span className="text-xs text-slate-400 font-bold">৳</span>}
                     />
-                    <span className="absolute right-2 top-2.5 text-xs text-slate-400 font-bold">৳</span>
                   </div>
                   <div className="sm:col-span-1">
-                    <button
+                    <CustomButton
                       type="button"
                       onClick={handleAddRecipeIngredient}
-                      className="w-full h-full py-2 bg-brand-primary hover:opacity-90 text-white rounded-sm text-xs font-semibold flex items-center justify-center cursor-pointer transition"
+                      size="sm"
+                      fullWidth
+                      leftIcon={<Plus size={14} />}
                       title="Add Ingredient"
-                    >
-                      <Plus size={14} />
-                    </button>
+                    />
                   </div>
                 </div>
               </div>

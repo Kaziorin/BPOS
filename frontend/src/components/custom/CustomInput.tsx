@@ -151,7 +151,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              "w-full border px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 shadow-2xs",
+              "w-full h-9 border px-3 text-xs sm:text-sm outline-none transition placeholder:text-slate-400 shadow-2xs",
               ROUNDED_CLASSES[rounded] || "rounded-sm",
               darkMode ? themeStyle.dark : themeStyle.light,
               error ? "border-red-400 focus:border-red-500" : "",

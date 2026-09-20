@@ -193,12 +193,13 @@ export function SearchableSelect({
           onClick={handleToggle}
           title={disabled ? disabledHint || "Select Category first to unlock subcategories" : undefined}
           className={cn(
-            "flex w-full items-center justify-between rounded-sm border px-3 py-2 text-xs font-medium transition focus:outline-none focus:ring-1 shadow-2xs",
+            "flex w-full h-9 items-center justify-between rounded-sm border px-3 text-xs font-medium transition focus:outline-none focus:ring-1 shadow-2xs",
             themeStyles.focus,
             disabled
               ? "cursor-not-allowed bg-slate-100/90 text-slate-400 border-slate-300 border-dashed shadow-none select-none"
               : "border-brand-border bg-white text-gray-600 cursor-pointer hover:border-brand-primary",
-            !selectedOption && !disabled && "text-slate-400"
+            !selectedOption && !disabled && "text-slate-400",
+            className
           )}
         >
           <span className={cn("truncate flex items-center gap-1.5", disabled && "italic text-slate-500")}>
@@ -235,7 +236,7 @@ export function SearchableSelect({
               onAddClick();
             }}
             className={cn(
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border transition cursor-pointer",
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border transition cursor-pointer",
               disabled
                 ? "cursor-not-allowed bg-slate-100 text-slate-300 border-slate-200 opacity-40 pointer-events-none shadow-none"
                 : themeStyles.addBtn

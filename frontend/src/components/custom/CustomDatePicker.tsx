@@ -126,7 +126,7 @@ export function CustomDatePicker({
           onClick={handleContainerClick}
           onChange={(e) => onChange?.(e.target.value)}
           className={cn(
-            "h-[38px] w-full rounded-sm border border-brand-border bg-white text-xs sm:text-[13px] font-semibold text-gray-600 shadow-2xs transition-colors cursor-pointer",
+            "h-9 w-full rounded-sm border border-brand-border bg-white text-xs sm:text-[13px] font-semibold text-gray-600 shadow-2xs transition-colors cursor-pointer",
             "focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/20",
             "[&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-inner-spin-button]:hidden",
             "[&::-webkit-datetime-edit]:text-xs [&::-webkit-datetime-edit]:sm:text-[13px] [&::-webkit-datetime-edit]:font-semibold [&::-webkit-datetime-edit]:text-gray-600",
