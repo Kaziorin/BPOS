@@ -24,7 +24,7 @@ import {
   Moon,
   Coffee,
 } from "lucide-react";
-import { CustomCheckbox } from "@/components/custom/CustomCheckbox";
+import { CustomCheckbox, CustomTabs, TabItem } from "@/components/custom";
 import { api } from "@/lib/api";
 
 export interface RestaurantAddon {
@@ -322,111 +322,66 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
     return sum + q * c;
   }, 0);
 
-  return (
-    <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
-        <div className="flex items-center gap-2">
-          <div className="p-2 rounded-sm bg-brand-50 text-brand-primary border border-slate-200">
-            <Utensils className="h-5 w-5" />
-          </div>
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center gap-1.5">
-              Restaurant & Food Operations
-              <span className="px-1.5 py-0.5 rounded-sm text-[10px] bg-brand-50 text-brand-dark font-semibold uppercase">
-                Food Menu Setup
-              </span>
-            </h3>
-            <p className="text-[11px] text-slate-500 font-normal">
-              Configure Kitchen Routing, Add-ons / Modifiers, Upsell Suggestions, and Recipe BOM.
-            </p>
-          </div>
-        </div>
+  const restaurantTabs: TabItem[] = [
+    {
+      id: "KITCHEN",
+      label: "Kitchen & Station",
+      icon: <Printer size={14} />,
+    },
+    {
+      id: "SIZES",
+      label: "Variation & Size",
+      icon: <Scale size={14} />,
+    },
+    {
+      id: "ADDONS",
+      label: "Add-ons / Modifiers",
+      icon: <Sparkles size={14} />,
+      badge: formData.addons?.length ? formData.addons.length : undefined,
+    },
+    {
+      id: "RELATED",
+      label: "Related / Upsell",
+      icon: <Share2 size={14} />,
+      badge: formData.relatedProducts?.length ? formData.relatedProducts.length : undefined,
+    },
+    {
+      id: "RECIPE",
+      label: "Recipe BOM",
+      icon: <Layers size={14} />,
+      badge: formData.recipeBom?.length ? formData.recipeBom.length : undefined,
+    },
+  ];
 
-        {/* Modular Navigation Tabs */}
-        <div className="flex items-center bg-slate-100/90 p-1 rounded-sm border border-slate-200 gap-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab("KITCHEN")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-sm transition cursor-pointer flex items-center gap-1 ${
-              activeTab === "KITCHEN"
-                ? "bg-white text-brand-dark shadow-2xs font-bold"
-                : "text-slate-600 hover:text-gray-600"
-            }`}
-          >
-            <Printer size={13} />
-            Kitchen & Station
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("SIZES")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-sm transition cursor-pointer flex items-center gap-1 ${
-              activeTab === "SIZES"
-                ? "bg-white text-brand-dark shadow-2xs font-bold"
-                : "text-slate-600 hover:text-gray-600"
-            }`}
-          >
-            <Scale size={13} />
-            Variation & Size
-            {portionSizes.filter((s) => s.isEnabled).length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-brand-primary text-white text-[10px]">
-                {portionSizes.filter((s) => s.isEnabled).length}
-              </span>
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("ADDONS")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-sm transition cursor-pointer flex items-center gap-1 ${
-              activeTab === "ADDONS"
-                ? "bg-white text-brand-dark shadow-2xs font-bold"
-                : "text-slate-600 hover:text-gray-600"
-            }`}
-          >
-            <Sparkles size={13} />
-            Add-ons / Modifiers
-            {(formData.addons || []).length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-brand-primary text-white text-[10px]">
-                {(formData.addons || []).length}
-              </span>
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("RELATED")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-sm transition cursor-pointer flex items-center gap-1 ${
-              activeTab === "RELATED"
-                ? "bg-white text-brand-dark shadow-2xs font-bold"
-                : "text-slate-600 hover:text-gray-600"
-            }`}
-          >
-            <Share2 size={13} />
-            Related / Upsell
-            {(formData.relatedProducts || []).length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-brand-primary text-white text-[10px]">
-                {(formData.relatedProducts || []).length}
-              </span>
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("RECIPE")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-sm transition cursor-pointer flex items-center gap-1 ${
-              activeTab === "RECIPE"
-                ? "bg-white text-brand-dark shadow-2xs font-bold"
-                : "text-slate-600 hover:text-gray-600"
-            }`}
-          >
-            <Layers size={13} />
-            Recipe BOM
-            {(formData.recipeBom || []).length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-brand-primary text-white text-[10px]">
-                {(formData.recipeBom || []).length}
-              </span>
-            )}
-          </button>
+  return (
+    <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-4">
+      {/* Header */}
+      <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+        <div className="p-2.5 rounded-lg bg-orange-50/90 text-brand-primary border border-orange-200/60 shrink-0 flex items-center justify-center">
+          <Utensils className="h-5 w-5 text-brand-primary" />
+        </div>
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
+              Restaurant & Food Operations
+            </h3>
+            <span className="px-2 py-0.5 rounded-md text-[10px] bg-orange-50 border border-orange-200/60 text-brand-primary font-bold uppercase tracking-wide whitespace-nowrap">
+              Food Menu Setup
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-500 font-normal mt-0.5">
+            Configure Kitchen Routing, Add-ons / Modifiers, Upsell Suggestions, and Recipe BOM.
+          </p>
         </div>
       </div>
+
+      {/* Modular Navigation Tabs (Reusable CustomTabs) */}
+      <CustomTabs
+        tabs={restaurantTabs}
+        activeTab={activeTab}
+        onChange={(tabId) => setActiveTab(tabId as any)}
+        themeColor="primary"
+      />
 
       {/* TAB 1: Kitchen & Operations */}
       {activeTab === "KITCHEN" && (

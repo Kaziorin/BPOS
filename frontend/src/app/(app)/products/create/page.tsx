@@ -28,6 +28,7 @@ import {
   Building2,
   Lock,
   Scale,
+  ChevronDown,
 } from "lucide-react";
 import { api, axiosClient } from "@/lib/api";
 import { SearchableSelect, SearchableSelectOption } from "@/components/custom/SearchableSelect";
@@ -206,101 +207,7 @@ export default function CreateProductPage() {
     }));
   };
 
-  // Portion sizes state & handlers for Restaurant vertical
-  const [createCustomSizeName, setCreateCustomSizeName] = useState("");
-  const [createCustomSizePrice, setCreateCustomSizePrice] = useState("");
-
   const isRestaurant = selectedVertical === "RESTAURANT" || selectedVertical === "FOOD";
-
-  const DEFAULT_SIZES_LIST = [
-    { id: "small", name: "Small", price: "", isDefault: false, isEnabled: false },
-    { id: "regular", name: "Regular", price: "", isDefault: false, isEnabled: false },
-    { id: "large", name: "Large", price: "", isDefault: false, isEnabled: false },
-    { id: "xlarge", name: "Extra Large", price: "", isDefault: false, isEnabled: false },
-  ];
-
-  const ensureSingleDefault = (sizes: any[]) => {
-    const enabled = sizes.filter((s: any) => s.isEnabled);
-    if (enabled.length === 0) {
-      return sizes.map((s: any) => ({ ...s, isDefault: false }));
-    }
-    const firstDefault = enabled.find((s: any) => s.isDefault)?.id || enabled[0].id;
-    return sizes.map((s: any) => ({
-      ...s,
-      isDefault: s.isEnabled && s.id === firstDefault,
-    }));
-  };
-
-  const rawPortionSizes =
-    verticalFormState.restaurant?.portionSizes && verticalFormState.restaurant.portionSizes.length > 0
-      ? verticalFormState.restaurant.portionSizes
-      : DEFAULT_SIZES_LIST;
-
-  const currentPortionSizes = ensureSingleDefault(rawPortionSizes);
-
-  const enabledPortionSizesCount = currentPortionSizes.filter((s: any) => s.isEnabled).length;
-
-  const togglePortionSizeInCreate = (id: string) => {
-    const updated = currentPortionSizes.map((s: any) => {
-      if (s.id === id) {
-        const nextEnabled = !s.isEnabled;
-        const nextPrice = nextEnabled && (!s.price || s.price === "0") ? form.sellingPrice || "" : s.price;
-        return { ...s, isEnabled: nextEnabled, price: nextPrice };
-      }
-      return s;
-    });
-
-    const cleaned = ensureSingleDefault(updated);
-    handleUpdateVertical("restaurant", "portionSizes", cleaned);
-  };
-
-  const updatePortionSizePriceInCreate = (id: string, price: string) => {
-    const updated = currentPortionSizes.map((s: any) => (s.id === id ? { ...s, price } : s));
-    const cleaned = ensureSingleDefault(updated);
-    handleUpdateVertical("restaurant", "portionSizes", cleaned);
-
-    const target = cleaned.find((s: any) => s.id === id);
-    if (target?.isDefault && target.isEnabled && price) {
-      updateForm("sellingPrice", price);
-    }
-  };
-
-  const setDefaultPortionSizeInCreate = (id: string) => {
-    const updated = currentPortionSizes.map((s: any) => ({
-      ...s,
-      isDefault: s.id === id,
-    }));
-    const cleaned = ensureSingleDefault(updated);
-    handleUpdateVertical("restaurant", "portionSizes", cleaned);
-
-    const target = cleaned.find((s: any) => s.id === id);
-    if (target?.isEnabled && target.price) {
-      updateForm("sellingPrice", target.price);
-    }
-  };
-
-  const addCustomPortionSizeInCreate = () => {
-    if (!createCustomSizeName.trim()) return;
-    const newSize = {
-      id: `custom-${Date.now()}`,
-      name: createCustomSizeName.trim(),
-      price: createCustomSizePrice || form.sellingPrice || "",
-      isDefault: false,
-      isEnabled: true,
-      isCustom: true,
-    };
-    const updated = [...currentPortionSizes, newSize];
-    const cleaned = ensureSingleDefault(updated);
-    handleUpdateVertical("restaurant", "portionSizes", cleaned);
-    setCreateCustomSizeName("");
-    setCreateCustomSizePrice("");
-  };
-
-  const removePortionSizeInCreate = (id: string) => {
-    const updated = currentPortionSizes.filter((s: any) => s.id !== id);
-    const cleaned = ensureSingleDefault(updated);
-    handleUpdateVertical("restaurant", "portionSizes", cleaned);
-  };
 
   // Quick Create Modal state
   const [activeModal, setActiveModal] = useState<"BRAND" | "CATEGORY" | "SUBCATEGORY" | "UNIT" | "SUPPLIER" | null>(null);
@@ -836,8 +743,8 @@ export default function CreateProductPage() {
   }));
 
   const inputClass =
-    "w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border placeholder:text-slate-400";
-  const labelClass = "block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize";
+    "w-full rounded-md border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/20 placeholder:text-slate-400";
+  const labelClass = "block text-xs font-bold text-slate-700 mb-1.5 capitalize";
 
   return (
     <div
@@ -937,10 +844,10 @@ export default function CreateProductPage() {
         <div className="lg:col-span-8 space-y-4">
 
           {/* BOX 1: Basic Information */}
-          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <Package className="h-4 w-4 text-brand-primary" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 {isRestaurant ? "Dish / Food Information" : isPharmacy ? "Medicine Information" : "Basic Information"}
               </h2>
             </div>
@@ -1017,7 +924,7 @@ export default function CreateProductPage() {
 
               <div className="sm:col-span-2">
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[15px] font-semibold text-gray-600 capitalize">Barcode Value</label>
+                  <label className="text-xs font-bold text-slate-700 capitalize">Barcode Value</label>
                   <button
                     type="button"
                     onClick={generateBarcode}
@@ -1055,10 +962,10 @@ export default function CreateProductPage() {
           </div>
 
           {/* BOX 2: Media */}
-          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <ImageIcon className="h-4 w-4 text-brand-primary" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 {isRestaurant ? "Dish Photo & POS Thumbnail" : "Product Media & Image"}
               </h2>
             </div>
@@ -1071,44 +978,48 @@ export default function CreateProductPage() {
           </div>
 
           {/* BOX 3: Pricing */}
-          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-2 text-slate-700">
                 <DollarSign className="h-4 w-4 text-brand-primary" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
-                  {isRestaurant ? "Menu Pricing & Cost" : "Pricing"}
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  {isRestaurant ? "MENU PRICING & COST" : "PRICING"}
                 </h2>
               </div>
             </div>
 
-            <div className="grid gap-3.5 sm:grid-cols-3">
-              <div>
-                <label className={labelClass}>
-                  {isRestaurant ? "Recipe / Base Cost (৳)" : "Product Cost (৳)"} <span className="text-red-500">*</span>
-                </label>
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+              {/* Recipe / Base Cost */}
+              <div className="sm:col-span-4 flex flex-col justify-end">
+                <div className="flex items-center h-8 mb-1.5">
+                  <label className="text-xs font-bold text-slate-700">
+                    {isRestaurant ? "Recipe / Base Cost (৳)" : "Product Cost (৳)"} <span className="text-red-500">*</span>
+                  </label>
+                </div>
                 <input
                   type="number"
                   step="0.01"
                   value={form.costPrice}
                   onChange={(e) => handleCostChange(e.target.value)}
-                  className={inputClass}
+                  className={`${inputClass} h-9`}
                   placeholder="0.00"
                 />
               </div>
 
-              <div className="sm:col-span-2">
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[15px] font-semibold text-gray-600 capitalize">Profit Margin Mode & Value</label>
+              {/* Profit Margin Mode & Value */}
+              <div className="sm:col-span-8 flex flex-col justify-end">
+                <div className="flex items-center justify-between h-8 mb-1.5">
+                  <label className="text-xs font-bold text-slate-700">Profit Margin Mode & Value</label>
 
                   {/* Compact Sleek Toggle Button */}
-                  <div className="inline-flex rounded-xs border border-slate-200 bg-slate-100/90 p-0.5 shadow-2xs">
+                  <div className="inline-flex rounded-md border border-slate-200 bg-slate-100/90 p-0.5 shadow-2xs">
                     <button
                       type="button"
                       onClick={() => handleMarginTypeChange("PERCENTAGE")}
-                      className={`px-3 py-1 text-[11px] rounded-xs font-bold transition-all duration-150 cursor-pointer flex items-center gap-1 ${
+                      className={`px-3 py-1 text-xs rounded font-bold transition-all duration-150 cursor-pointer flex items-center gap-1 ${
                         marginType === "PERCENTAGE"
-                          ? "bg-brand-primary text-white shadow-2xs scale-[1.02]"
-                          : "text-slate-600 hover:text-gray-600 hover:bg-slate-200/60"
+                          ? "bg-brand-primary text-white shadow-xs"
+                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
                       }`}
                     >
                       % Percentage
@@ -1116,10 +1027,10 @@ export default function CreateProductPage() {
                     <button
                       type="button"
                       onClick={() => handleMarginTypeChange("FLAT")}
-                      className={`px-3 py-1 text-[11px] rounded-xs font-bold transition-all duration-150 cursor-pointer flex items-center gap-1 ${
+                      className={`px-3 py-1 text-xs rounded font-bold transition-all duration-150 cursor-pointer flex items-center gap-1 ${
                         marginType === "FLAT"
-                          ? "bg-brand-primary text-white shadow-2xs scale-[1.02]"
-                          : "text-slate-600 hover:text-gray-600 hover:bg-slate-200/60"
+                          ? "bg-brand-primary text-white shadow-xs"
+                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
                       }`}
                     >
                       Flat (৳)
@@ -1132,67 +1043,84 @@ export default function CreateProductPage() {
                     step="0.01"
                     value={marginValue}
                     onChange={(e) => handleMarginValueChange(e.target.value)}
-                    className={`${inputClass} pr-8`}
+                    className={`${inputClass} h-9 pr-8`}
                     placeholder={marginType === "PERCENTAGE" ? "25.00" : "50.00"}
                   />
-                  <span className="absolute right-3 top-2.5 text-xs text-slate-400 font-bold">
+                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">
                     {marginType === "PERCENTAGE" ? "%" : "৳"}
                   </span>
                 </div>
               </div>
 
-              <div>
-                <label className={labelClass}>
-                  {isRestaurant ? "Menu Price (৳)" : "Selling Price (৳)"} <span className="text-red-500">*</span>
-                </label>
+              {/* Menu Price */}
+              <div className={isRestaurant ? "sm:col-span-4 flex flex-col justify-end" : "sm:col-span-3 flex flex-col justify-end"}>
+                <div className="flex items-center h-5 mb-1.5">
+                  <label className="text-xs font-bold text-slate-700">
+                    {isRestaurant ? "Menu Price (৳)" : "Selling Price (৳)"} <span className="text-red-500">*</span>
+                  </label>
+                </div>
                 <input
                   type="number"
                   step="0.01"
                   value={form.sellingPrice}
                   onChange={(e) => updateForm("sellingPrice", e.target.value)}
-                  className={`${inputClass} font-bold text-brand-dark bg-brand-50/50`}
+                  className={`${inputClass} h-9`}
                   placeholder="0.00"
                   required
                 />
               </div>
 
               {!isRestaurant && (
-                <div>
-                  <label className={labelClass}>Wholesale Price (৳)</label>
+                <div className="sm:col-span-3 flex flex-col justify-end">
+                  <div className="flex items-center h-5 mb-1.5">
+                    <label className="text-xs font-bold text-slate-700">Wholesale Price (৳)</label>
+                  </div>
                   <input
                     type="number"
                     step="0.01"
                     value={form.wholesalePrice}
                     onChange={(e) => updateForm("wholesalePrice", e.target.value)}
-                    className={inputClass}
+                    className={`${inputClass} h-9`}
                     placeholder="0.00"
                   />
                 </div>
               )}
 
-              <div>
-                <label className={labelClass}>VAT / Tax (%)</label>
+              {/* VAT / Tax */}
+              <div className={isRestaurant ? "sm:col-span-4 flex flex-col justify-end" : "sm:col-span-3 flex flex-col justify-end"}>
+                <div className="flex items-center h-5 mb-1.5">
+                  <label className="text-xs font-bold text-slate-700">VAT / Tax (%)</label>
+                </div>
                 <input
                   type="number"
                   step="0.01"
                   value={form.taxRate}
                   onChange={(e) => updateForm("taxRate", e.target.value)}
-                  className={inputClass}
-                  placeholder="e.g. 5"
+                  className={`${inputClass} h-9`}
+                  placeholder="0"
                 />
               </div>
 
-              <div>
-                <SearchableSelect
-                  label="Tax Method"
-                  options={taxMethodOptions}
-                  value={form.taxMethod}
-                  onChange={(val) => updateForm("taxMethod", val)}
-                  placeholder="Select Method..."
-                />
+              {/* Tax Method */}
+              <div className={isRestaurant ? "sm:col-span-4 flex flex-col justify-end" : "sm:col-span-3 flex flex-col justify-end"}>
+                <div className="flex items-center h-5 mb-1.5">
+                  <label className="text-xs font-bold text-brand-primary">Tax Method</label>
+                </div>
+                <div className="relative">
+                  <select
+                    value={form.taxMethod || "Inclusive"}
+                    onChange={(e) => updateForm("taxMethod", e.target.value)}
+                    className="w-full h-9 rounded-md border border-orange-300 bg-white px-3.5 text-xs font-medium text-slate-700 transition focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/20 appearance-none pr-8 cursor-pointer shadow-2xs"
+                  >
+                    <option value="Inclusive">Inclusive</option>
+                    <option value="Exclusive">Exclusive</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-orange-500 pointer-events-none" />
+                </div>
               </div>
 
-              <div className="sm:col-span-2 flex items-center mt-1">
+              {/* Promo Discount Checkbox */}
+              <div className="sm:col-span-12 flex items-center mt-0.5">
                 <CustomCheckbox
                   label="Add Promotional / Special Discount Price"
                   checked={form.hasPromoPrice}
@@ -1202,146 +1130,18 @@ export default function CreateProductPage() {
             </div>
           </div>
 
-          {/* DEDICATED RESTAURANT PORTION SIZES & PRICING CARD */}
+          {/* DYNAMIC BUSINESS VERTICAL FORM FIELDS FOR RESTAURANT (Food Menu Setup) */}
           {isRestaurant && (
-            <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
-                <div className="flex items-center gap-2">
-                  <Scale className="h-4 w-4 text-brand-primary" />
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
-                    Variation &amp; Size (Optional)
-                  </h2>
-                </div>
-                <span className="px-2 py-0.5 rounded-full bg-brand-50 border border-brand-border text-brand-dark text-[11px] font-bold shrink-0">
-                  {enabledPortionSizesCount > 0
-                    ? `${enabledPortionSizesCount} ${enabledPortionSizesCount === 1 ? "Size" : "Sizes"} Active`
-                    : "Single Price Mode (Menu Price)"}
-                </span>
-              </div>
-
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                Check available sizes for this dish (e.g. Small ৳150, Regular ৳200, Large ৳280). If no size is checked, this dish sells at the single Menu Price (৳) above.
-              </p>
-
-              {/* Portion Sizes Checkbox Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                {currentPortionSizes.map((size: any) => {
-                  return (
-                    <div
-                      key={size.id}
-                      className={`px-3 py-2.5 rounded-sm border transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 ${
-                        size.isEnabled
-                          ? "bg-white border-brand-border shadow-2xs ring-1 ring-brand-border"
-                          : "bg-slate-50/70 border-slate-200 opacity-70 hover:opacity-100"
-                      }`}
-                    >
-                      <label className="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer select-none shrink-0 min-w-0">
-                        <input
-                          type="checkbox"
-                          checked={size.isEnabled}
-                          onChange={() => togglePortionSizeInCreate(size.id)}
-                          className="h-4 w-4 rounded-sm border-slate-300 text-brand-primary focus:ring-brand-border accent-brand-primary cursor-pointer"
-                        />
-                        <span className="text-xs font-bold text-gray-600 truncate">{size.name}</span>
-                        {size.isDefault && size.isEnabled && (
-                          <span className="px-1.5 py-0.2 rounded-full bg-brand-primary text-white text-[9px] font-black uppercase tracking-wide shrink-0">
-                            Default
-                          </span>
-                        )}
-                      </label>
-
-                      {size.isEnabled ? (
-                        <div className="flex items-center gap-2 flex-1 sm:flex-initial justify-end min-w-0">
-                          <div className="flex items-center gap-1.5 min-w-0 flex-1 sm:w-36">
-                            <span className="text-[11px] font-bold text-slate-500 whitespace-nowrap shrink-0">Price (৳):</span>
-                            <input
-                              type="number"
-                              min="0"
-                              step="any"
-                              value={size.price}
-                              onChange={(e) => updatePortionSizePriceInCreate(size.id, e.target.value)}
-                              placeholder="0.00"
-                              className="w-full rounded-sm border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-gray-600 focus:border-brand-primary focus:outline-none"
-                            />
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => setDefaultPortionSizeInCreate(size.id)}
-                            className={`px-2 py-1 rounded-sm text-[10px] font-bold transition cursor-pointer shrink-0 ${
-                              size.isDefault
-                                ? "bg-brand-primary text-white shadow-2xs"
-                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                            }`}
-                          >
-                            {size.isDefault ? "✓ Default" : "Set Default"}
-                          </button>
-
-                          {size.isCustom && (
-                            <button
-                              type="button"
-                              onClick={() => removePortionSizeInCreate(size.id)}
-                              className="p-1 rounded-sm text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
-                              title="Remove size"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        size.isCustom && (
-                          <button
-                            type="button"
-                            onClick={() => removePortionSizeInCreate(size.id)}
-                            className="p-1 rounded-sm text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer shrink-0"
-                            title="Remove size"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        )
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Custom Size Addition */}
-              <div className="pt-2 border-t border-slate-100 space-y-1.5">
-                <div className="text-[11px] font-bold text-slate-600 uppercase tracking-wide">
-                  Add Custom Size
-                </div>
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                  <input
-                    type="text"
-                    placeholder="Size Name (e.g. Medium, Half, 1 Litre, Family Pack)"
-                    value={createCustomSizeName}
-                    onChange={(e) => setCreateCustomSizeName(e.target.value)}
-                    className="flex-1 rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium focus:border-brand-primary focus:outline-none"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Price (৳)"
-                    value={createCustomSizePrice}
-                    onChange={(e) => setCreateCustomSizePrice(e.target.value)}
-                    className="w-full sm:w-28 rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium focus:border-brand-primary focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={addCustomPortionSizeInCreate}
-                    className="px-3.5 py-1.5 rounded-sm bg-brand-primary text-white text-xs font-bold hover:opacity-90 transition cursor-pointer shrink-0 flex items-center justify-center gap-1 shadow-2xs"
-                  >
-                    <Plus size={13} /> Add Size
-                  </button>
-                </div>
-              </div>
+            <div>
+              {renderVerticalProductFields(selectedVertical, verticalFormState, handleUpdateVertical)}
             </div>
           )}
 
           {/* BOX 4: Units */}
-          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-3.5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <Layers className="h-4 w-4 text-brand-primary" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 {isRestaurant ? "Serving Unit" : "Units & Measurement"}
               </h2>
             </div>
@@ -1385,13 +1185,13 @@ export default function CreateProductPage() {
             </div>
           </div>
 
-          {/* BOX 5: Variant-wise Price (RESTAURANT business only — hidden for Grocery, Retail, etc.) */}
-          {isRestaurant && (
-            <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          {/* BOX 5: Variants (Size, Color, Model - for Retail, Apparel, Wholesale) */}
+          {!isRestaurant && (
+            <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-3.5">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-slate-700">
                   <Tag className="h-4 w-4 text-brand-primary" />
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Variants (Size, Color, Model)</h2>
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">Variants (Size, Color, Model)</h2>
                 </div>
               </div>
 
@@ -1483,10 +1283,10 @@ export default function CreateProductPage() {
 
           {/* BOX 6: Inventory Controls */}
           {!isServiceOnly && (
-            <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-3.5">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                 <Package className="h-4 w-4 text-brand-primary" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Inventory Controls</h2>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">Inventory Controls</h2>
               </div>
 
               <div className="space-y-3">
@@ -1525,19 +1325,21 @@ export default function CreateProductPage() {
             </div>
           )}
 
-          {/* DYNAMIC BUSINESS VERTICAL FORM FIELDS */}
-          <div>
-            {renderVerticalProductFields(selectedVertical, verticalFormState, handleUpdateVertical)}
-          </div>
+          {/* DYNAMIC BUSINESS VERTICAL FORM FIELDS FOR NON-RESTAURANT */}
+          {!isRestaurant && (
+            <div>
+              {renderVerticalProductFields(selectedVertical, verticalFormState, handleUpdateVertical)}
+            </div>
+          )}
         </div>
 
         {/* RIGHT COLUMN SIDEBAR (30%) */}
         <div className="lg:col-span-4 space-y-4">
           {/* SIDEBAR 1: Organization */}
-          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <Layers className="h-4 w-4 text-brand-primary" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 {isRestaurant ? "Menu Category" : "Organization"}
               </h2>
             </div>
@@ -1603,16 +1405,16 @@ export default function CreateProductPage() {
           </div>
 
           {/* SIDEBAR 2: Status & Badges */}
-          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <ShieldCheck className="h-4 w-4 text-brand-primary" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">Status & Badges</h2>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">Status & Badges</h2>
             </div>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-semibold text-gray-600">Featured Item</div>
+                  <div className="text-xs font-semibold text-slate-700">Featured Item</div>
                   <div className="text-[10px] text-slate-400">Featured product will be displayed in POS grid</div>
                 </div>
                 <button
@@ -1633,7 +1435,7 @@ export default function CreateProductPage() {
               {showEmbeddedBarcode && (
                 <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                   <div>
-                    <div className="text-xs font-semibold text-gray-600">Embedded Barcode</div>
+                    <div className="text-xs font-semibold text-slate-700">Embedded Barcode</div>
                     <div className="text-[10px] text-slate-400">Check for weight scale barcode scanning</div>
                   </div>
                   <button
@@ -1656,10 +1458,10 @@ export default function CreateProductPage() {
 
           {/* SIDEBAR 3: Warranty & Guarantee (Only for Retail, Repair, Wholesale, Mfg) */}
           {showWarranty && (
-            <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+            <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-4">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                 <ShieldCheck className="h-4 w-4 text-brand-primary" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
                   Warranty & Guarantee
                 </h2>
               </div>
@@ -1705,10 +1507,10 @@ export default function CreateProductPage() {
           )}
 
           {/* SIDEBAR 4: Inventory Settings */}
-          <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <Info className="h-4 w-4 text-brand-primary" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-600">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 Inventory Settings
               </h2>
             </div>
@@ -1743,9 +1545,9 @@ export default function CreateProductPage() {
       {/* QUICK CREATE POPUP MODAL */}
       {activeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-sm rounded-sm border border-slate-200 bg-white p-5 shadow-xl space-y-4">
+          <div className="w-full max-w-sm rounded-md border border-slate-200 bg-white p-5 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="text-sm font-bold text-gray-600">
+              <h3 className="text-sm font-bold text-slate-700">
                 Quick Add {activeModal === "BRAND" ? "Brand" : activeModal === "CATEGORY" ? "Main Category" : activeModal === "SUBCATEGORY" ? "Sub Category" : activeModal === "UNIT" ? "Unit" : "Supplier"}
               </h3>
               <button
@@ -1759,7 +1561,7 @@ export default function CreateProductPage() {
 
             <form onSubmit={handleQuickCreate} className="space-y-3">
               <div>
-                <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 capitalize">
                   Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -1775,7 +1577,7 @@ export default function CreateProductPage() {
 
               {(activeModal === "UNIT" || activeModal === "SUPPLIER") && (
                 <div>
-                  <label className="block text-[15px] font-semibold text-gray-600 mb-1.5 capitalize">
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 capitalize">
                     {activeModal === "UNIT" ? "Unit Abbreviation / Code" : "Company Name (Optional)"}
                   </label>
                   <input
