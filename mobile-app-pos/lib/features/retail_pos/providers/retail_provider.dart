@@ -269,7 +269,7 @@ class RetailProvider extends ChangeNotifier {
       category: 'Bread & Bakery',
       sku: 'BAK-BRD-001',
       barcode: '8941100112411',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
     ),
     RetailProduct(
       id: 'prod-20',
@@ -283,7 +283,7 @@ class RetailProvider extends ChangeNotifier {
       category: 'Bread & Bakery',
       sku: 'BAK-BRD-002',
       barcode: '8941100112422',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=400&q=80',
     ),
     RetailProduct(
       id: 'prod-21',
@@ -297,7 +297,7 @@ class RetailProvider extends ChangeNotifier {
       category: 'Bread & Bakery',
       sku: 'BAK-BRD-003',
       barcode: '8941100112433',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400&q=80',
     ),
     RetailProduct(
       id: 'prod-22',
@@ -311,7 +311,7 @@ class RetailProvider extends ChangeNotifier {
       category: 'Bread & Bakery',
       sku: 'BAK-BRD-004',
       barcode: '8941100112444',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&q=80',
     ),
     RetailProduct(
       id: 'prod-23',
@@ -325,7 +325,7 @@ class RetailProvider extends ChangeNotifier {
       category: 'Cake & Pastry',
       sku: 'BAK-CKE-001',
       barcode: '8941100112455',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80',
     ),
     RetailProduct(
       id: 'prod-24',
@@ -339,7 +339,7 @@ class RetailProvider extends ChangeNotifier {
       category: 'Cake & Pastry',
       sku: 'BAK-CKE-002',
       barcode: '8941100112466',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=400&q=80',
     ),
     RetailProduct(
       id: 'prod-25',
@@ -353,7 +353,7 @@ class RetailProvider extends ChangeNotifier {
       category: 'Cake & Pastry',
       sku: 'BAK-CKE-003',
       barcode: '8941100112477',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
     ),
     RetailProduct(
       id: 'prod-26',
@@ -367,7 +367,7 @@ class RetailProvider extends ChangeNotifier {
       category: 'Cake & Pastry',
       sku: 'BAK-CKE-004',
       barcode: '8941100112488',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=400&q=80',
     ),
     RetailProduct(
       id: 'prod-27',
@@ -381,7 +381,7 @@ class RetailProvider extends ChangeNotifier {
       category: 'Cookies & Biscuits',
       sku: 'BAK-CKI-001',
       barcode: '8941100112499',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&q=80',
     ),
     RetailProduct(
       id: 'prod-28',
@@ -395,7 +395,7 @@ class RetailProvider extends ChangeNotifier {
       category: 'Cookies & Biscuits',
       sku: 'BAK-CKI-002',
       barcode: '8941100112500',
-      imageUrl: '',
+      imageUrl: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80',
     ),
   ];
 
