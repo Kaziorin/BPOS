@@ -42,10 +42,10 @@ class AppStrings {
       'en': 'Bulk orders, Customer credit, B2B pricing',
       'bn': 'বাল্ক অর্ডার, ক্রেডিট, B2B মূল্য',
     },
-    'fashion_retail': {'en': 'Fashion & Retail', 'bn': 'ফ্যাশন ও খুচরা'},
+    'fashion_retail': {'en': 'Retail & Superstore', 'bn': 'রিটেইল ও সুপারস্টোর'},
     'fashion_retail_desc': {
-      'en': 'Variants, Sizes, Colors, Returns',
-      'bn': 'ভ্যারিয়েন্ট, সাইজ, রঙ, রিটার্ন',
+      'en': 'Daily essentials, General store, Quick checkout & Stock',
+      'bn': 'নিত্যপণ্য, মুদি দোকান, দ্রুত বিলিং ও স্টক',
     },
     'dashboard': {'en': 'Dashboard & Reports', 'bn': 'ড্যাশবোর্ড ও রিপোর্ট'},
     'dashboard_desc': {

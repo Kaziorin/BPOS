@@ -213,12 +213,12 @@ class HomeScreen extends StatelessWidget {
                         _ModuleCard(
                           title: AppStrings.get('fashion_retail', locale),
                           description: AppStrings.get('fashion_retail_desc', locale),
-                          icon: Icons.checkroom_rounded,
+                          icon: Icons.shopping_bag_rounded,
                           color: const Color(0xFFC62828),
                           isActive: false,
                           isDark: isDark,
                           comingSoonLabel: AppStrings.get('coming_soon', locale),
-                          onTap: () => _snack(context, '👗 ${AppStrings.get('fashion_retail', locale)} ${AppStrings.get('coming_soon_msg', locale)}'),
+                          onTap: () => _snack(context, '🛍️ ${AppStrings.get('fashion_retail', locale)} ${AppStrings.get('coming_soon_msg', locale)}'),
                         ),
                         _ModuleCard(
                           title: AppStrings.get('dashboard', locale),
