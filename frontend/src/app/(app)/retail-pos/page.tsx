@@ -98,10 +98,284 @@ function getCategories(products: CachedProduct[], apiCats: { id: string; name: s
 }
 
 // ── Demo Products matching retail database seed ────────────────────
-const DEMO_PRODUCTS: CachedProduct[] = [];
+const DEMO_PRODUCTS: CachedProduct[] = [
+  {
+    id: "prod-1",
+    name: "Coca-Cola 500ml",
+    sku: "BEV-001",
+    barcode: "8941100112233",
+    sellingPrice: "45",
+    costPrice: "35",
+    stockQty: "85",
+    unit: "Pcs",
+    productType: "STANDARD",
+    category: "Beverages",
+    imageUrl: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-2",
+    name: "Pran Mango Juice 1L",
+    sku: "BEV-002",
+    barcode: "8941100112244",
+    sellingPrice: "95",
+    costPrice: "75",
+    stockQty: "42",
+    unit: "Pcs",
+    productType: "STANDARD",
+    category: "Beverages",
+    imageUrl: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-3",
+    name: "Lays Classic Potato Chips 50g",
+    sku: "SNK-001",
+    barcode: "8941100112255",
+    sellingPrice: "50",
+    costPrice: "38",
+    stockQty: "60",
+    unit: "Pcs",
+    productType: "STANDARD",
+    category: "Snacks",
+    imageUrl: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-4",
+    name: "Kurkure Masala Munch 100g",
+    sku: "SNK-002",
+    barcode: "8941100112266",
+    sellingPrice: "40",
+    costPrice: "30",
+    stockQty: "75",
+    unit: "Pcs",
+    productType: "STANDARD",
+    category: "Snacks",
+    imageUrl: "https://images.unsplash.com/photo-1621447504864-d8686e12698c?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-5",
+    name: "Teer Fortified Soyabean Oil 1L",
+    sku: "GRO-001",
+    barcode: "8941100112277",
+    sellingPrice: "175",
+    costPrice: "155",
+    stockQty: "30",
+    unit: "Bottle",
+    productType: "STANDARD",
+    category: "Grocery",
+    imageUrl: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-6",
+    name: "ACI Pure Iodized Salt 1kg",
+    sku: "GRO-002",
+    barcode: "8941100112288",
+    sellingPrice: "42",
+    costPrice: "32",
+    stockQty: "110",
+    unit: "Pkt",
+    productType: "STANDARD",
+    category: "Grocery",
+    imageUrl: "https://images.unsplash.com/photo-1518110168401-f2877ee2c088?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-7",
+    name: "Miniket Premium Rice 5kg",
+    sku: "GRO-003",
+    barcode: "8941100112299",
+    sellingPrice: "385",
+    costPrice: "340",
+    stockQty: "25",
+    unit: "Bag",
+    productType: "STANDARD",
+    category: "Grocery",
+    imageUrl: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-8",
+    name: "Dano Full Cream Milk Powder 500g",
+    sku: "DAI-001",
+    barcode: "8941100112300",
+    sellingPrice: "440",
+    costPrice: "390",
+    stockQty: "18",
+    unit: "Can",
+    productType: "STANDARD",
+    category: "Dairy",
+    imageUrl: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-9",
+    name: "Milk Vita Pasteurized Milk 1L",
+    sku: "DAI-002",
+    barcode: "8941100112311",
+    sellingPrice: "90",
+    costPrice: "75",
+    stockQty: "40",
+    unit: "Pkt",
+    productType: "STANDARD",
+    category: "Dairy",
+    imageUrl: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-10",
+    name: "Dove Cream Beauty Bar 100g",
+    sku: "PER-001",
+    barcode: "8941100112322",
+    sellingPrice: "120",
+    costPrice: "95",
+    stockQty: "55",
+    unit: "Pcs",
+    productType: "STANDARD",
+    category: "Personal Care",
+    imageUrl: "https://images.unsplash.com/photo-1607006482172-3ba59d9dd838?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-11",
+    name: "Sunsilk Black Shine Shampoo 180ml",
+    sku: "PER-002",
+    barcode: "8941100112333",
+    sellingPrice: "220",
+    costPrice: "180",
+    stockQty: "32",
+    unit: "Bottle",
+    productType: "STANDARD",
+    category: "Personal Care",
+    imageUrl: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-12",
+    name: "Pepsodent Cavity Protection 150g",
+    sku: "PER-003",
+    barcode: "8941100112344",
+    sellingPrice: "110",
+    costPrice: "85",
+    stockQty: "48",
+    unit: "Tube",
+    productType: "STANDARD",
+    category: "Personal Care",
+    imageUrl: "https://images.unsplash.com/photo-1559598467-f8b76c8155d0?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-13",
+    name: "Wheel Washing Powder 1kg",
+    sku: "HOU-001",
+    barcode: "8941100112355",
+    sellingPrice: "140",
+    costPrice: "115",
+    stockQty: "50",
+    unit: "Pkt",
+    productType: "STANDARD",
+    category: "Household",
+    imageUrl: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-14",
+    name: "Harpic Liquid Cleaner 500ml",
+    sku: "HOU-002",
+    barcode: "8941100112366",
+    sellingPrice: "165",
+    costPrice: "135",
+    stockQty: "28",
+    unit: "Bottle",
+    productType: "STANDARD",
+    category: "Household",
+    imageUrl: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-15",
+    name: "Igloo Chocolate Ice Cream 500ml",
+    sku: "FRZ-001",
+    barcode: "8941100112377",
+    sellingPrice: "260",
+    costPrice: "210",
+    stockQty: "20",
+    unit: "Box",
+    productType: "STANDARD",
+    category: "Frozen",
+    imageUrl: "https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-16",
+    name: "Kazi Farms Chicken Nuggets 250g",
+    sku: "FRZ-002",
+    barcode: "8941100112388",
+    sellingPrice: "210",
+    costPrice: "170",
+    stockQty: "15",
+    unit: "Pkt",
+    productType: "STANDARD",
+    category: "Frozen",
+    imageUrl: "https://images.unsplash.com/photo-1562967914-608f82629710?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-17",
+    name: "All Time Family Bread 350g",
+    sku: "BAK-001",
+    barcode: "8941100112399",
+    sellingPrice: "65",
+    costPrice: "50",
+    stockQty: "24",
+    unit: "Pkt",
+    productType: "STANDARD",
+    category: "Bakery",
+    imageUrl: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80",
+    status: "ACTIVE",
+  },
+  {
+    id: "prod-18",
+    name: "Nescafé Classic Coffee 50g",
+    sku: "BEV-003",
+    barcode: "8941100112400",
+    sellingPrice: "280",
+    costPrice: "235",
+    stockQty: "35",
+    unit: "Jar",
+    productType: "STANDARD",
+    category: "Beverages",
+    imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&q=80",
+    status: "ACTIVE",
+  },
+];
 
 // Initial demo cart items with full image URLs
-const INITIAL_DEMO_CART: CartItem[] = [];
+const INITIAL_DEMO_CART: CartItem[] = [
+  {
+    productId: "prod-1",
+    variantId: null,
+    name: "Coca-Cola 500ml",
+    qty: 2,
+    unitPrice: 45,
+    discountAmount: 0,
+    lineTotal: 90,
+    image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80",
+  },
+  {
+    productId: "prod-3",
+    variantId: null,
+    name: "Lays Classic Potato Chips 50g",
+    qty: 1,
+    unitPrice: 50,
+    discountAmount: 0,
+    lineTotal: 50,
+    image: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&q=80",
+  },
+];
 
 // ── Payment Methods ────────────────────────────────────────────────
 const PAYMENT_METHODS = [
@@ -210,6 +484,9 @@ export default function PosPage() {
   // AI Assistant & Insights Modal state
   const [showAiModal, setShowAiModal] = useState(false);
   const [aiModalTab, setAiModalTab] = useState<"recommendations" | "predictions" | "summary">("recommendations");
+
+  // Mobile Cart Sheet state
+  const [showMobileCartModal, setShowMobileCartModal] = useState(false);
 
   // Fullscreen state & toggle
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -1397,8 +1674,8 @@ export default function PosPage() {
           </div>
         </div>
 
-        {/* ── RIGHT: Current Order Panel ──────────────────────────── */}
-        <div className="w-[440px] xl:w-[480px] shrink-0 flex flex-col bg-white rounded-sm border border-slate-200 shadow-sm overflow-hidden">
+        {/* ── RIGHT: Current Order Panel (Desktop >= lg) ──────────── */}
+        <div className="hidden lg:flex w-[420px] xl:w-[480px] shrink-0 flex-col bg-white rounded-sm border border-slate-200 shadow-sm overflow-hidden">
 
           {/* Cart Header */}
           <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-slate-200 shrink-0 bg-slate-50/50">
@@ -1584,6 +1861,123 @@ export default function PosPage() {
           </div>
         </div>
       </div>
+
+      {/* ── MOBILE BOTTOM FLOATING CART BAR (< lg) ── */}
+      <div className="lg:hidden shrink-0 bg-white border-t border-slate-200 px-4 py-2.5 flex items-center justify-between shadow-lg z-30">
+        <div className="flex flex-col cursor-pointer" onClick={() => setShowMobileCartModal(true)}>
+          <span className="text-[10px] font-extrabold text-violet-600 uppercase tracking-wider">
+            {cart.reduce((s, i) => s + i.qty, 0)} Items in Order
+          </span>
+          <span className="text-base font-black text-gray-800">{fmt(total)}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowMobileCartModal(true)}
+            className="h-10 px-3.5 rounded-full border border-violet-200 bg-violet-50 text-violet-700 text-xs font-bold flex items-center gap-1.5 active:scale-95 transition cursor-pointer"
+          >
+            <ShoppingCart size={15} />
+            <span>View Cart</span>
+          </button>
+          <button
+            onClick={openCheckoutModal}
+            disabled={cart.length === 0}
+            className="h-10 px-4 rounded-full bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-600 text-white text-xs font-black flex items-center gap-1.5 shadow-md shadow-violet-300 active:scale-95 transition cursor-pointer disabled:opacity-40"
+          >
+            <span>Pay Now</span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
+      </div>
+
+      {/* ── MOBILE CART MODAL SHEET (< lg) ── */}
+      {showMobileCartModal && (
+        <CustomModal
+          isOpen={showMobileCartModal}
+          onClose={() => setShowMobileCartModal(false)}
+          title={`Current Order (${cart.length} items)`}
+          size="lg"
+        >
+          <div className="flex flex-col max-h-[75vh] overflow-hidden">
+            {/* Cart Items */}
+            <div className="flex-1 overflow-y-auto divide-y divide-slate-100 p-3 max-h-[45vh]">
+              {cart.length === 0 ? (
+                <div className="py-8 text-center text-slate-400 text-xs">No items in order</div>
+              ) : (
+                cart.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between py-2 gap-2">
+                    <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                      <div className="w-8 h-8 rounded-sm bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden">
+                        {(item as any).image || (item as any).imageUrl ? (
+                          <img src={(item as any).image || (item as any).imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <Package size={14} className="text-slate-400" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-gray-700 truncate">{item.name}</p>
+                        <p className="text-[10px] text-slate-400">{fmt(item.unitPrice)} each</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleQtyChange(idx, item.qty - 1)}
+                        className="w-6 h-6 rounded-sm bg-slate-100 text-gray-600 flex items-center justify-center text-xs font-bold active:scale-90"
+                      >
+                        <Minus size={11} />
+                      </button>
+                      <span className="w-5 text-center text-xs font-bold">{item.qty}</span>
+                      <button
+                        onClick={() => handleQtyChange(idx, item.qty + 1)}
+                        className="w-6 h-6 rounded-sm bg-slate-100 text-gray-600 flex items-center justify-center text-xs font-bold active:scale-90"
+                      >
+                        <Plus size={11} />
+                      </button>
+                    </div>
+
+                    <span className="text-xs font-extrabold text-gray-800 w-16 text-right">{fmt(item.lineTotal)}</span>
+
+                    <button onClick={() => removeItem(idx)} className="text-slate-300 hover:text-rose-500">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Totals & Pay */}
+            <div className="p-3 bg-slate-50 border-t border-slate-200 space-y-2">
+              <div className="flex justify-between text-xs font-semibold text-gray-600">
+                <span>Subtotal</span>
+                <span>{fmt(subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-xs font-bold text-violet-700 text-sm">
+                <span>Total Payable</span>
+                <span>{fmt(total)}</span>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  onClick={() => setShowMobileCartModal(false)}
+                  className="flex-1 h-10 rounded-full border border-slate-200 text-xs font-bold text-slate-600"
+                >
+                  Back to Menu
+                </button>
+                <button
+                  onClick={() => {
+                    setShowMobileCartModal(false);
+                    openCheckoutModal();
+                  }}
+                  disabled={cart.length === 0}
+                  className="flex-1 h-10 rounded-full bg-gradient-to-r from-violet-500 to-indigo-600 text-white text-xs font-bold shadow-md disabled:opacity-40"
+                >
+                  Proceed to Pay
+                </button>
+              </div>
+            </div>
+          </div>
+        </CustomModal>
+      )}
 
       {/* ── 4. FOOTER ─────────────────────────────────────────────── */}
       <div className="px-3 py-2 bg-white border-t border-slate-200 shrink-0 flex items-stretch gap-2.5">

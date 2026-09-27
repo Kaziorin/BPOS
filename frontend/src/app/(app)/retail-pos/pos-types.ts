@@ -6,6 +6,9 @@ export interface CartItem {
   unitPrice: number;
   discountAmount: number;
   lineTotal: number;
+  image?: string;
+  imageUrl?: string;
+  sku?: string;
 }
 
 export interface PaymentLine {

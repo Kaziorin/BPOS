@@ -49,6 +49,10 @@ export interface CachedProduct {
   unit: string;
   productType: string;
   categoryId?: string;
+  categoryName?: string;
+  category?: any;
+  imageUrl?: string;
+  image?: string;
   brandId?: string;
   status: string;
   stockQty?: string;
