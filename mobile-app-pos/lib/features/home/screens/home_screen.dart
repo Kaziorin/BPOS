@@ -6,6 +6,7 @@ import '../../restaurant_pos/screens/pos_screen.dart';
 import '../../pharmacy_pos/screens/pharmacy_pos_screen.dart';
 import '../../grocery_pos/screens/grocery_pos_screen.dart';
 import '../../wholesaler_pos/screens/wholesaler_pos_screen.dart';
+import '../../retail_pos/screens/retail_pos_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -215,10 +216,12 @@ class HomeScreen extends StatelessWidget {
                           description: AppStrings.get('fashion_retail_desc', locale),
                           icon: Icons.shopping_bag_rounded,
                           color: const Color(0xFFC62828),
-                          isActive: false,
+                          isActive: true,
                           isDark: isDark,
-                          comingSoonLabel: AppStrings.get('coming_soon', locale),
-                          onTap: () => _snack(context, '🛍️ ${AppStrings.get('fashion_retail', locale)} ${AppStrings.get('coming_soon_msg', locale)}'),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const RetailPOSScreen()),
+                          ),
                         ),
                         _ModuleCard(
                           title: AppStrings.get('dashboard', locale),

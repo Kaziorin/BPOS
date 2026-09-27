@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/app_provider.dart';
 import 'core/providers/pos_provider.dart';
+import 'features/retail_pos/providers/retail_provider.dart';
 import 'features/home/screens/home_screen.dart';
 
 void main() {
@@ -19,6 +20,7 @@ class ZestBiteApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AppProvider()),
         ChangeNotifierProvider(create: (_) => POSProvider()),
+        ChangeNotifierProvider(create: (_) => RetailProvider()),
       ],
       child: Consumer<AppProvider>(
         builder: (context, appProvider, _) {
