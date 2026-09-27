@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { CartItem } from "@/lib/api";
+import { CartItem, getTenantSlug } from "@/lib/api";
 import toast from "react-hot-toast";
 
 interface CartContextType {
@@ -11,9 +11,10 @@ interface CartContextType {
   isDrawerOpen: boolean;
   setIsDrawerOpen: (open: boolean) => void;
   addToCart: (item: CartItem) => void;
-  updateQty: (productId: string, qty: number) => void;
-  removeFromCart: (productId: string) => void;
+  updateQty: (productId: string, qty: number, variant?: string) => void;
+  removeFromCart: (productId: string, variant?: string) => void;
   clearCart: () => void;
+  getItemQty: (productId: string) => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -22,11 +23,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [cartKey, setCartKey] = useState("storefront_cart");
 
-  // Load from localStorage
+  // Load tenant-scoped cart from localStorage
   useEffect(() => {
+    const slug = getTenantSlug();
+    const key = `storefront_cart_${slug || "default"}`;
+    setCartKey(key);
+
     try {
-      const stored = localStorage.getItem("storefront_cart");
+      const stored = localStorage.getItem(key);
       if (stored) {
         setCart(JSON.parse(stored));
       }
@@ -36,16 +42,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsHydrated(true);
   }, []);
 
-  // Save to localStorage
+  // Save to tenant-scoped localStorage
   useEffect(() => {
-    if (isHydrated) {
-      localStorage.setItem("storefront_cart", JSON.stringify(cart));
+    if (isHydrated && cartKey) {
+      localStorage.setItem(cartKey, JSON.stringify(cart));
     }
-  }, [cart, isHydrated]);
+  }, [cart, isHydrated, cartKey]);
 
   const addToCart = (item: CartItem) => {
     setCart((prev) => {
-      const index = prev.findIndex((i) => i.productId === item.productId && i.variant === item.variant);
+      const index = prev.findIndex(
+        (i) => i.productId === item.productId && i.variant === item.variant && i.selectedSize === item.selectedSize
+      );
       if (index > -1) {
         const updated = [...prev];
         const newQty = updated[index].qty + item.qty;
@@ -57,21 +65,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         toast.success(`Updated quantity for ${item.name}`);
         return updated;
       } else {
-        toast.success(`Added ${item.name} to cart`);
+        toast.success(`Added ${item.name} to bag`);
         return [...prev, item];
       }
     });
     setIsDrawerOpen(true);
   };
 
-  const updateQty = (productId: string, qty: number) => {
+  const updateQty = (productId: string, qty: number, variant?: string) => {
     if (qty <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productId, variant);
       return;
     }
     setCart((prev) =>
       prev.map((i) => {
-        if (i.productId === productId) {
+        if (i.productId === productId && (variant === undefined || i.variant === variant)) {
           if (i.maxStock && qty > i.maxStock) {
             toast.error(`Only ${i.maxStock} in stock`);
             return i;
@@ -83,13 +91,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart((prev) => prev.filter((i) => i.productId !== productId));
-    toast.success("Item removed from cart");
+  const removeFromCart = (productId: string, variant?: string) => {
+    setCart((prev) =>
+      prev.filter((i) => !(i.productId === productId && (variant === undefined || i.variant === variant)))
+    );
+    toast.success("Item removed from bag");
   };
 
   const clearCart = () => {
     setCart([]);
+  };
+
+  const getItemQty = (productId: string): number => {
+    const item = cart.find((i) => i.productId === productId);
+    return item ? item.qty : 0;
   };
 
   const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
@@ -107,6 +122,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         updateQty,
         removeFromCart,
         clearCart,
+        getItemQty,
       }}
     >
       {children}

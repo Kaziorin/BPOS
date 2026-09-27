@@ -9,28 +9,16 @@ import {
   ChevronDown,
   X,
   ShoppingBag,
-  Sparkles,
-  Layers,
-  ArrowUpDown
+  ArrowUpDown,
 } from "lucide-react";
-import { StorefrontAPI, ProductItem, CategoryItem, StoreConfig } from "@/lib/api";
-import ProductCard from "@/components/products/ProductCard";
-
-const BUSINESS_TYPES = [
-  { id: "ALL", label: "All Items" },
-  { id: "FASHION", label: "Fashion" },
-  { id: "GROCERY", label: "Grocery" },
-  { id: "PHARMACY", label: "Pharmacy" },
-  { id: "RESTAURANT", label: "Restaurant" },
-  { id: "ELECTRONICS", label: "Electronics" },
-  { id: "FOOTWEAR", label: "Footwear" },
-  { id: "COSMETICS", label: "Cosmetics" },
-  { id: "HARDWARE", label: "Hardware" },
-];
+import { StorefrontAPI, ProductItem, CategoryItem } from "@/lib/api";
+import DynamicProductCard from "@/components/products/DynamicProductCard";
+import { useStoreConfig } from "@/context/StoreConfigContext";
 
 function ProductsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { storeName, businessType } = useStoreConfig();
 
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
@@ -42,7 +30,6 @@ function ProductsContent() {
   // Filter States
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("categoryId") || "");
-  const [selectedBusinessType, setSelectedBusinessType] = useState(searchParams.get("businessType") || "ALL");
   const [selectedBrand, setSelectedBrand] = useState(searchParams.get("brandId") || "");
   const [sort, setSort] = useState("newest");
   const [inStockOnly, setInStockOnly] = useState(false);
@@ -57,49 +44,47 @@ function ProductsContent() {
   useEffect(() => {
     const qSearch = searchParams.get("search") || "";
     const qCat = searchParams.get("categoryId") || "";
-    const qBt = searchParams.get("businessType") || "ALL";
+    const qBrand = searchParams.get("brandId") || "";
 
     setSearch(qSearch);
     setSelectedCategory(qCat);
-    setSelectedBusinessType(qBt);
+    setSelectedBrand(qBrand);
   }, [searchParams]);
 
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const res = await StorefrontAPI.getProducts({
-        search: search.trim() || undefined,
-        categoryId: selectedCategory || undefined,
-        brandId: selectedBrand || undefined,
-        businessType: selectedBusinessType !== "ALL" ? selectedBusinessType : undefined,
-        sort,
-        page,
-        limit: 24,
-      });
-
-      let items = res.items || [];
-      if (inStockOnly) {
-        items = items.filter((p) => (p.totalStock ?? 0) > 0);
-      }
-
-      setProducts(items);
-      setTotalCount(res.total || 0);
-      setTotalPages(res.totalPages || 1);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    async function fetchProducts() {
+      setLoading(true);
+      try {
+        const res = await StorefrontAPI.getProducts({
+          search: search || undefined,
+          categoryId: selectedCategory || undefined,
+          brandId: selectedBrand || undefined,
+          sort,
+          page,
+          limit: 18,
+        });
+
+        let items = res.items || [];
+        if (inStockOnly) {
+          items = items.filter((p) => (p.totalStock ?? 0) > 0 || p.inStock);
+        }
+
+        setProducts(items);
+        setTotalCount(res.total || items.length);
+        setTotalPages(res.totalPages || 1);
+      } catch (err) {
+        console.error("Failed to load products", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     fetchProducts();
-  }, [search, selectedCategory, selectedBrand, selectedBusinessType, sort, inStockOnly, page]);
+  }, [search, selectedCategory, selectedBrand, sort, inStockOnly, page]);
 
   const clearAllFilters = () => {
     setSearch("");
     setSelectedCategory("");
-    setSelectedBusinessType("ALL");
     setSelectedBrand("");
     setSort("newest");
     setInStockOnly(false);
@@ -107,55 +92,41 @@ function ProductsContent() {
     router.push("/products");
   };
 
-  const hasActiveFilters = search || selectedCategory || selectedBusinessType !== "ALL" || selectedBrand || inStockOnly;
+  const hasActiveFilters = search || selectedCategory || selectedBrand || inStockOnly;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Product Catalog
+            {storeName} Catalog
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Showing {products.length} of {totalCount} authentic store items
+            Showing {products.length} of {totalCount} authentic items in stock
           </p>
         </div>
 
-        {/* Business Type Quick Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
-          {BUSINESS_TYPES.map((bt) => (
-            <button
-              key={bt.id}
-              onClick={() => {
-                setSelectedBusinessType(bt.id);
-                setPage(1);
-              }}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
-                selectedBusinessType === bt.id
-                  ? "bg-sky-600 text-white shadow-xs"
-                  : "bg-slate-100 hover:bg-slate-200 text-slate-600"
-              }`}
-            >
-              {bt.label}
-            </button>
-          ))}
+        {/* Store Business Badge */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-sky-50 border border-sky-200 text-sky-700 text-xs font-bold rounded-full w-fit">
+          <span>Official Store Catalogue</span>
+          <span>•</span>
+          <span>{businessType}</span>
         </div>
       </div>
 
       {/* ── Main Layout: Sidebar Filters + Product Grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
         {/* Desktop Filter Sidebar */}
         <div className="hidden lg:block space-y-6 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs h-fit sticky top-24">
           <div className="flex items-center justify-between pb-4 border-b border-slate-100">
             <div className="flex items-center gap-2 font-bold text-slate-800 text-sm">
               <SlidersHorizontal className="w-4 h-4 text-sky-600" />
-              <span>Filters</span>
+              <span>Filter Catalogue</span>
             </div>
             {hasActiveFilters && (
               <button
+                type="button"
                 onClick={clearAllFilters}
                 className="text-xs text-rose-500 hover:text-rose-600 font-semibold"
               >
@@ -176,7 +147,7 @@ function ProductsContent() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500"
               />
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
             </div>
@@ -187,6 +158,7 @@ function ProductsContent() {
             <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Category</label>
             <div className="space-y-1 max-h-52 overflow-y-auto pr-1">
               <button
+                type="button"
                 onClick={() => {
                   setSelectedCategory("");
                   setPage(1);
@@ -199,6 +171,7 @@ function ProductsContent() {
               </button>
               {categories.map((cat) => (
                 <button
+                  type="button"
                   key={cat.id}
                   onClick={() => {
                     setSelectedCategory(cat.id);
@@ -223,6 +196,7 @@ function ProductsContent() {
               <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Brand</label>
               <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
                 <button
+                  type="button"
                   onClick={() => {
                     setSelectedBrand("");
                     setPage(1);
@@ -235,6 +209,7 @@ function ProductsContent() {
                 </button>
                 {brands.map((b) => (
                   <button
+                    type="button"
                     key={b.id}
                     onClick={() => {
                       setSelectedBrand(b.id);
@@ -258,18 +233,18 @@ function ProductsContent() {
               type="checkbox"
               checked={inStockOnly}
               onChange={(e) => setInStockOnly(e.target.checked)}
-              className="w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500"
+              className="w-4 h-4 text-sky-600 rounded-sm border-slate-300 focus:ring-sky-500"
             />
           </div>
         </div>
 
         {/* Product Grid Area */}
         <div className="lg:col-span-3 space-y-6">
-          
           {/* Top Sort & Filter Bar */}
           <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
             {/* Mobile Filter Toggle */}
             <button
+              type="button"
               onClick={() => setIsMobileFilterOpen(true)}
               className="lg:hidden flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 text-xs font-semibold text-slate-700"
             >
@@ -278,25 +253,10 @@ function ProductsContent() {
             </button>
 
             {/* Active Filters summary pills */}
-            <div className="hidden sm:flex items-center gap-2 flex-wrap">
-              {hasActiveFilters && (
-                <span className="text-xs text-slate-400 font-medium">Active:</span>
-              )}
-              {selectedBusinessType !== "ALL" && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-sky-50 text-sky-700 rounded-full text-[11px] font-semibold">
-                  Type: {selectedBusinessType}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedBusinessType("ALL")} />
-                </span>
-              )}
-              {selectedCategory && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-sky-50 text-sky-700 rounded-full text-[11px] font-semibold">
-                  Category Filter
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCategory("")} />
-                </span>
-              )}
+            <div className="hidden sm:flex items-center gap-2 flex-wrap text-xs">
               {search && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-sky-50 text-sky-700 rounded-full text-[11px] font-semibold">
-                  &quot;{search}&quot;
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-medium">
+                  Search: {search}
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setSearch("")} />
                 </span>
               )}
@@ -308,7 +268,7 @@ function ProductsContent() {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-sky-500"
               >
                 <option value="newest">Newest Arrivals</option>
                 <option value="price_asc">Price: Low to High</option>
@@ -335,40 +295,18 @@ function ProductsContent() {
                 </p>
               </div>
               <button
+                type="button"
                 onClick={clearAllFilters}
-                className="px-5 py-2.5 bg-sky-600 text-white rounded-xl text-xs font-semibold hover:bg-sky-700 transition-colors"
+                className="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-sky-600 transition-colors"
               >
-                Reset All Filters
+                Reset Filters
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
-              {products.map((p) => (
-                <ProductCard key={p.id} product={p} />
+              {products.map((product) => (
+                <DynamicProductCard key={product.id} product={product} />
               ))}
-            </div>
-          )}
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 pt-6">
-              <button
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-              <span className="text-xs font-semibold text-slate-600 px-3">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
             </div>
           )}
         </div>
@@ -379,7 +317,7 @@ function ProductsContent() {
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-sm text-slate-500">Loading catalog...</div>}>
+    <Suspense fallback={<div className="max-w-7xl mx-auto p-12 text-center text-slate-400">Loading catalog...</div>}>
       <ProductsContent />
     </Suspense>
   );
