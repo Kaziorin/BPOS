@@ -487,7 +487,7 @@ class RetailFooterBar extends StatelessWidget {
 
   Widget _buildSummaryItem(String title, String value, bool isDark) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
