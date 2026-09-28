@@ -18,7 +18,6 @@ class RetailPOSScreen extends StatefulWidget {
 class _RetailPOSScreenState extends State<RetailPOSScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isGridView = true;
-  int _currentPage = 1;
 
   @override
   void dispose() {
@@ -45,8 +44,8 @@ class _RetailPOSScreenState extends State<RetailPOSScreen> {
                 // ── 1. TOP HEADER BAR ─────────────────────────────────────
                 RetailHeader(searchController: _searchController),
 
-                // ── 2. METRICS & INSIGHTS BAR ─────────────────────────────
-                const RetailMetricsBar(),
+                // ── 2. METRICS & INSIGHTS BAR (Desktop/Web only) ─────────
+                if (!isMobile) const RetailMetricsBar(),
 
                 // ── 3. MAIN CONTENT BODY ──────────────────────────────────
                 Expanded(
@@ -78,15 +77,12 @@ class _RetailPOSScreenState extends State<RetailPOSScreen> {
                                 RetailCategoryBar(
                                   isGridView: _isGridView,
                                   onViewModeChanged: (val) => setState(() => _isGridView = val),
-                                  onCategorySelected: () => setState(() => _currentPage = 1),
                                 ),
 
-                                // Product Grid / List View & Pagination Footer
+                                // Product Grid / List View (Full scrollable catalog, no pagination)
                                 Expanded(
                                   child: RetailProductCatalog(
                                     isGridView: _isGridView,
-                                    currentPage: _currentPage,
-                                    onPageChanged: (page) => setState(() => _currentPage = page),
                                   ),
                                 ),
                               ],
@@ -123,8 +119,8 @@ class _RetailPOSScreenState extends State<RetailPOSScreen> {
                   ),
                 ),
 
-                // ── 4. BOTTOM FOOTER BAR ──────────────────────────────────
-                RetailFooterBar(screenWidth: constraints.maxWidth),
+                // ── 4. BOTTOM FOOTER BAR (Desktop/Web only) ──────────────
+                if (!isMobile) RetailFooterBar(screenWidth: constraints.maxWidth),
 
                 // ── 5. MOBILE BOTTOM FLOATING CART BAR (< 900px) ──────────
                 if (isMobile) const RetailMobileBottomBar(),

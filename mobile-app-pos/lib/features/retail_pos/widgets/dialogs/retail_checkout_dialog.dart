@@ -18,7 +18,8 @@ void showRetailCheckoutDialog(BuildContext context, RetailProvider retailProvide
       retailProvider: retailProvider,
       isDark: isDark,
       onPaymentComplete: (sale) {
-        showRetailReceiptDialog(context, sale, isDark);
+        // Use the dialog's own context (ctx) which is still valid after pop
+        showRetailReceiptDialog(ctx, sale, isDark);
       },
     ),
   );
@@ -1005,10 +1006,14 @@ class RetailReceiptModal extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Invoice: $invoiceDisplay',
-                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                      Flexible(
+                        child: Text(
+                          'Invoice: $invoiceDisplay',
+                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
+                      const SizedBox(width: 4),
                       Text(
                         'Date: ${_formatDate(sale.createdAt)}',
                         style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
@@ -1019,12 +1024,16 @@ class RetailReceiptModal extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Customer: $custShort',
-                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                      Flexible(
+                        child: Text(
+                          'Customer: $custShort',
+                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
+                      const SizedBox(width: 4),
                       Text(
-                        'Cashier: Super Administrator',
+                        'Cashier: Admin',
                         style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
                       ),
                     ],

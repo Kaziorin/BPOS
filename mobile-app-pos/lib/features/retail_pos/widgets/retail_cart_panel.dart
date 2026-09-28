@@ -642,146 +642,321 @@ class RetailCartPanel extends StatelessWidget {
                 const SizedBox(height: 8),
 
                 // ── 6. BOTTOM ACTION BUTTONS (Save & Hold F8, Pay Now F12) ─────
-                Row(
-                  children: [
-                    // Save & Hold Button
-                    Expanded(
-                      flex: 38,
-                      child: InkWell(
-                        onTap: retailProvider.cart.isEmpty
-                            ? null
-                            : () {
-                                retailProvider.holdSale();
-                                if (isMobile) Navigator.pop(context);
-                              },
-                        borderRadius: BorderRadius.circular(4),
-                        child: Container(
-                          height: 42,
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF242424) : Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                              color: isDark ? const Color(0xFF333333) : const Color(0xFFCBD5E1),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.03),
-                                blurRadius: 4,
-                                offset: const Offset(0, 1),
+                if (isMobile) ...[
+                  Row(
+                    children: [
+                      // Recall Button (Mobile only)
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => showRetailHoldsDialog(context, retailProvider, isDark),
+                          borderRadius: BorderRadius.circular(4),
+                          child: Container(
+                            height: 42,
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF242424) : Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: retailProvider.heldSales.isNotEmpty
+                                    ? const Color(0xFF8B5CF6)
+                                    : (isDark ? const Color(0xFF333333) : const Color(0xFFCBD5E1)),
+                                width: retailProvider.heldSales.isNotEmpty ? 1.5 : 1.0,
                               ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.pause_circle_outline_rounded, size: 16, color: Color(0xFF8B5CF6)),
-                              const SizedBox(width: 5),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Save & Hold',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                      color: isDark ? Colors.white : const Color(0xFF334155),
-                                      height: 1.1,
-                                    ),
-                                  ),
-                                  const Text(
-                                    'F8',
-                                    style: TextStyle(
-                                      fontSize: 8.5,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF94A3B8),
-                                      height: 1.1,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 8),
-
-                    // Pay Now Main CTA Button
-                    Expanded(
-                      flex: 62,
-                      child: InkWell(
-                        onTap: retailProvider.cart.isEmpty
-                            ? null
-                            : () {
-                                if (isMobile) Navigator.pop(context);
-                                showRetailCheckoutDialog(context, retailProvider, isDark);
-                              },
-                        borderRadius: BorderRadius.circular(4),
-                        child: Container(
-                          height: 42,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)],
-                            ),
-                            borderRadius: BorderRadius.circular(4),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF8B5CF6).withValues(alpha: 0.35),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.check_circle_outline_rounded, size: 16, color: Colors.white),
-                              const SizedBox(width: 6),
-                              const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Pay Now',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                      height: 1.1,
-                                    ),
-                                  ),
-                                  Text(
-                                    'F12',
-                                    style: TextStyle(
-                                      fontSize: 8.5,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white70,
-                                      height: 1.1,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Spacer(),
-                              Text(
-                                '৳${total.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.03),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 1),
                                 ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white),
-                            ],
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.restore_rounded,
+                                  size: 16,
+                                  color: retailProvider.heldSales.isNotEmpty
+                                      ? const Color(0xFF8B5CF6)
+                                      : Colors.grey.shade500,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  'Recall',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : const Color(0xFF334155),
+                                  ),
+                                ),
+                                if (retailProvider.heldSales.isNotEmpty) ...[
+                                  const SizedBox(width: 5),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF8B5CF6),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      '${retailProvider.heldSales.length}',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
+                      const SizedBox(width: 8),
+
+                      // Save & Hold Button (Mobile)
+                      Expanded(
+                        child: InkWell(
+                          onTap: retailProvider.cart.isEmpty
+                              ? null
+                              : () {
+                                  retailProvider.holdSale();
+                                },
+                          borderRadius: BorderRadius.circular(4),
+                          child: Container(
+                            height: 42,
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF242424) : Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF333333) : const Color(0xFFCBD5E1),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.03),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.pause_circle_outline_rounded, size: 16, color: Color(0xFF8B5CF6)),
+                                const SizedBox(width: 5),
+                                Text(
+                                  'Save & Hold',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : const Color(0xFF334155),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Pay Now Main CTA Button (Full width on mobile)
+                  InkWell(
+                    onTap: retailProvider.cart.isEmpty
+                        ? null
+                        : () {
+                            Navigator.pop(context);
+                            showRetailCheckoutDialog(context, retailProvider, isDark);
+                          },
+                    borderRadius: BorderRadius.circular(4),
+                    child: Container(
+                      height: 44,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)],
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF8B5CF6).withValues(alpha: 0.35),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle_outline_rounded, size: 18, color: Colors.white),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Pay Now',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            '৳${total.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.arrow_forward_rounded, size: 16, color: Colors.white),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ] else ...[
+                  // Desktop / Web View (Unchanged!)
+                  Row(
+                    children: [
+                      // Save & Hold Button
+                      Expanded(
+                        flex: 38,
+                        child: InkWell(
+                          onTap: retailProvider.cart.isEmpty
+                              ? null
+                              : () {
+                                  retailProvider.holdSale();
+                                  if (isMobile) Navigator.pop(context);
+                                },
+                          borderRadius: BorderRadius.circular(4),
+                          child: Container(
+                            height: 42,
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF242424) : Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF333333) : const Color(0xFFCBD5E1),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.03),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.pause_circle_outline_rounded, size: 16, color: Color(0xFF8B5CF6)),
+                                const SizedBox(width: 5),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Save & Hold',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: isDark ? Colors.white : const Color(0xFF334155),
+                                        height: 1.1,
+                                      ),
+                                    ),
+                                    const Text(
+                                      'F8',
+                                      style: TextStyle(
+                                        fontSize: 8.5,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF94A3B8),
+                                        height: 1.1,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      // Pay Now Main CTA Button
+                      Expanded(
+                        flex: 62,
+                        child: InkWell(
+                          onTap: retailProvider.cart.isEmpty
+                              ? null
+                              : () {
+                                  if (isMobile) Navigator.pop(context);
+                                  showRetailCheckoutDialog(context, retailProvider, isDark);
+                                },
+                          borderRadius: BorderRadius.circular(4),
+                          child: Container(
+                            height: 42,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)],
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.35),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.check_circle_outline_rounded, size: 16, color: Colors.white),
+                                const SizedBox(width: 6),
+                                const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Pay Now',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                        height: 1.1,
+                                      ),
+                                    ),
+                                    Text(
+                                      'F12',
+                                      style: TextStyle(
+                                        fontSize: 8.5,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white70,
+                                        height: 1.1,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                Text(
+                                  '৳${total.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -879,87 +1054,273 @@ class RetailMobileBottomBar extends StatelessWidget {
     final appProvider = context.watch<AppProvider>();
     final retailProvider = context.watch<RetailProvider>();
     final isDark = appProvider.isDarkMode;
+    final isCartEmpty = retailProvider.cart.isEmpty;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         border: Border(
           top: BorderSide(
-            color: isDark ? const Color(0xFF2C2C2C) : Colors.grey.shade200,
+            color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFE2E8F0),
           ),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 10,
-            offset: const Offset(0, -4),
+            offset: const Offset(0, -3),
           ),
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '${retailProvider.totalItemCount} ITEMS IN ORDER',
-                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF7C3AED)),
-              ),
-              Text(
-                '৳${retailProvider.total.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  color: isDark ? Colors.white : Colors.black87,
+          children: [
+            // Left: Order total info
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${retailProvider.totalItemCount} ${retailProvider.totalItemCount == 1 ? 'ITEM' : 'ITEMS'} IN ORDER',
+                  style: const TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF7C3AED),
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '৳${retailProvider.total.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 8),
+
+            // Right: Actions (Hold, View Cart, Pay Now)
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 1. Hold Button
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: isCartEmpty
+                              ? null
+                              : () {
+                                  retailProvider.holdSale();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Row(
+                                        children: [
+                                          Icon(Icons.pause_circle_filled_rounded, color: Colors.white, size: 18),
+                                          SizedBox(width: 8),
+                                          Text('Order placed on hold!'),
+                                        ],
+                                      ),
+                                      backgroundColor: const Color(0xFFD97706),
+                                      behavior: SnackBarBehavior.floating,
+                                      duration: const Duration(seconds: 2),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                  );
+                                },
+                          borderRadius: BorderRadius.circular(6),
+                          child: Opacity(
+                            opacity: isCartEmpty ? 0.45 : 1.0,
+                            child: Container(
+                              height: 38,
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF262115) : const Color(0xFFFFFBEB),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: isDark ? const Color(0xFF543E19) : const Color(0xFFFDE68A),
+                                  width: 1.2,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.pause_circle_outline_rounded,
+                                    size: 16,
+                                    color: Color(0xFFD97706),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Hold',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? const Color(0xFFFBBF24) : const Color(0xFFB45309),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+
+                      // 2. View Cart Button (Refined & Modern)
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                              ),
+                              builder: (ctx) => SizedBox(
+                                height: MediaQuery.of(ctx).size.height * 0.75,
+                                child: const RetailCartPanel(isMobile: true),
+                              ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            height: 38,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF251F36) : const Color(0xFFF5F3FF),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF4C3A6E) : const Color(0xFFDDD6FE),
+                                width: 1.2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF7C3AED).withValues(alpha: 0.06),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.shopping_bag_outlined,
+                                  size: 16,
+                                  color: Color(0xFF7C3AED),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  'View Cart',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark ? const Color(0xFFA78BFA) : const Color(0xFF7C3AED),
+                                  ),
+                                ),
+                                if (retailProvider.totalItemCount > 0) ...[
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF7C3AED),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      '${retailProvider.totalItemCount}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+
+                      // 3. Pay Now Button
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: isCartEmpty
+                              ? null
+                              : () => showRetailCheckoutDialog(context, retailProvider, isDark),
+                          borderRadius: BorderRadius.circular(6),
+                          child: Opacity(
+                            opacity: isCartEmpty ? 0.45 : 1.0,
+                            child: Container(
+                              height: 38,
+                              padding: const EdgeInsets.symmetric(horizontal: 14),
+                              decoration: BoxDecoration(
+                                gradient: isCartEmpty
+                                    ? null
+                                    : const LinearGradient(
+                                        colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                color: isCartEmpty
+                                    ? (isDark ? const Color(0xFF333333) : const Color(0xFFCBD5E1))
+                                    : null,
+                                borderRadius: BorderRadius.circular(6),
+                                boxShadow: isCartEmpty
+                                    ? []
+                                    : [
+                                        BoxShadow(
+                                          color: const Color(0xFF7C3AED).withValues(alpha: 0.35),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Pay Now',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Icon(
+                                    Icons.arrow_forward_rounded,
+                                    size: 15,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
-          Row(
-            children: [
-              OutlinedButton.icon(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    builder: (ctx) => SizedBox(
-                      height: MediaQuery.of(ctx).size.height * 0.75,
-                      child: const RetailCartPanel(isMobile: true),
-                    ),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                ),
-                icon: const Icon(Icons.shopping_cart_outlined, size: 16),
-                label: const Text('View Cart', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: retailProvider.cart.isEmpty
-                    ? null
-                    : () => showRetailCheckoutDialog(context, retailProvider, isDark),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7C3AED),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                ),
-                icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                label: const Text('Pay Now', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
     );
   }
 }

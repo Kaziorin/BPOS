@@ -6,13 +6,13 @@ import '../providers/retail_provider.dart';
 class RetailCategoryBar extends StatelessWidget {
   final bool isGridView;
   final ValueChanged<bool> onViewModeChanged;
-  final VoidCallback onCategorySelected;
+  final VoidCallback? onCategorySelected;
 
   const RetailCategoryBar({
     super.key,
     required this.isGridView,
     required this.onViewModeChanged,
-    required this.onCategorySelected,
+    this.onCategorySelected,
   });
 
   @override
@@ -20,9 +20,14 @@ class RetailCategoryBar extends StatelessWidget {
     final appProvider = context.watch<AppProvider>();
     final retailProvider = context.watch<RetailProvider>();
     final isDark = appProvider.isDarkMode;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 900;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 6 : 10,
+        vertical: isMobile ? 5 : 7,
+      ),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
@@ -40,15 +45,18 @@ class RetailCategoryBar extends StatelessWidget {
                 children: retailProvider.categories.map((cat) {
                   final selected = retailProvider.selectedCategory == cat;
                   return Padding(
-                    padding: const EdgeInsets.only(right: 6.0),
+                    padding: EdgeInsets.only(right: isMobile ? 4.0 : 6.0),
                     child: InkWell(
                       onTap: () {
                         retailProvider.setSelectedCategory(cat);
-                        onCategorySelected();
+                        onCategorySelected?.call();
                       },
                       borderRadius: BorderRadius.circular(4),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isMobile ? 8 : 14,
+                          vertical: isMobile ? 5 : 6,
+                        ),
                         decoration: BoxDecoration(
                           color: selected
                               ? const Color(0xFF8B5CF6)
@@ -72,7 +80,7 @@ class RetailCategoryBar extends StatelessWidget {
                         child: Text(
                           cat,
                           style: TextStyle(
-                            fontSize: 11.5,
+                            fontSize: isMobile ? 11 : 11.5,
                             fontWeight: FontWeight.bold,
                             color: selected
                                 ? Colors.white
@@ -86,7 +94,7 @@ class RetailCategoryBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: isMobile ? 4 : 8),
 
           // Grid / List Toggle
           Container(
@@ -98,71 +106,91 @@ class RetailCategoryBar extends StatelessWidget {
             ),
             child: Row(
               children: [
-                InkWell(
-                  onTap: () => onViewModeChanged(true),
-                  borderRadius: BorderRadius.circular(4),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: isGridView
-                          ? (isDark ? const Color(0xFF3A3A3A) : Colors.white)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(4),
-                      boxShadow: isGridView && !isDark
-                          ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)]
-                          : null,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.grid_view_rounded,
-                          size: 14,
-                          color: isGridView ? const Color(0xFF8B5CF6) : Colors.grey.shade500,
-                        ),
-                        const SizedBox(width: 3),
-                        Text(
-                          'Grid',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: isGridView ? const Color(0xFF8B5CF6) : Colors.grey.shade600,
+                // Grid Toggle Button
+                Tooltip(
+                  message: 'Grid View',
+                  child: InkWell(
+                    onTap: () => onViewModeChanged(true),
+                    borderRadius: BorderRadius.circular(4),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 6 : 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isGridView
+                            ? (isDark ? const Color(0xFF3A3A3A) : Colors.white)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(4),
+                        boxShadow: isGridView && !isDark
+                            ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)]
+                            : null,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.grid_view_rounded,
+                            size: 14,
+                            color: isGridView ? const Color(0xFF8B5CF6) : Colors.grey.shade500,
                           ),
-                        ),
-                      ],
+                          if (!isMobile) ...[
+                            const SizedBox(width: 3),
+                            Text(
+                              'Grid',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: isGridView ? const Color(0xFF8B5CF6) : Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-                InkWell(
-                  onTap: () => onViewModeChanged(false),
-                  borderRadius: BorderRadius.circular(4),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: !isGridView
-                          ? (isDark ? const Color(0xFF3A3A3A) : Colors.white)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(4),
-                      boxShadow: !isGridView && !isDark
-                          ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)]
-                          : null,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.format_list_bulleted_rounded,
-                          size: 14,
-                          color: !isGridView ? const Color(0xFF8B5CF6) : Colors.grey.shade500,
-                        ),
-                        const SizedBox(width: 3),
-                        Text(
-                          'List',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: !isGridView ? const Color(0xFF8B5CF6) : Colors.grey.shade600,
+                // List Toggle Button
+                Tooltip(
+                  message: 'List View',
+                  child: InkWell(
+                    onTap: () => onViewModeChanged(false),
+                    borderRadius: BorderRadius.circular(4),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 6 : 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: !isGridView
+                            ? (isDark ? const Color(0xFF3A3A3A) : Colors.white)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(4),
+                        boxShadow: !isGridView && !isDark
+                            ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)]
+                            : null,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.format_list_bulleted_rounded,
+                            size: 14,
+                            color: !isGridView ? const Color(0xFF8B5CF6) : Colors.grey.shade500,
                           ),
-                        ),
-                      ],
+                          if (!isMobile) ...[
+                            const SizedBox(width: 3),
+                            Text(
+                              'List',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: !isGridView ? const Color(0xFF8B5CF6) : Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

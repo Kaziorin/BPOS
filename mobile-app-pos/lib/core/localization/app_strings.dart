@@ -207,6 +207,10 @@ class AppStrings {
     'payment_cash': {'en': 'Cash', 'bn': 'নগদ'},
     'payment_card': {'en': 'Card', 'bn': 'কার্ড'},
     'payment_qr': {'en': 'QR Pay', 'bn': 'QR পে'},
+    'cash_tendered': {'en': 'Cash Tendered', 'bn': 'নগদ গ্রহণ / টেন্ডার'},
+    'change_return': {'en': 'Change Return', 'bn': 'ফেরত / চেঞ্জ'},
+    'remaining_due': {'en': 'Remaining Due', 'bn': 'অবশিষ্ট বাকি'},
+    'exact_amount': {'en': 'Exact Amount', 'bn': 'পুরো টাকা'},
 
     // ── Waiter Names ─────────────────────────────────────
     'waiter_1': {'en': 'Rahim Uddin', 'bn': 'রহিম উদ্দিন'},

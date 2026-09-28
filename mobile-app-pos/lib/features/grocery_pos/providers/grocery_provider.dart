@@ -322,6 +322,25 @@ class GroceryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  double get tenderedAmount => double.tryParse(_numpadValue) ?? 0.0;
+  double get changeAmount =>
+      tenderedAmount >= grandTotal ? (tenderedAmount - grandTotal) : 0.0;
+  double get remainingDue =>
+      (grandTotal > tenderedAmount && tenderedAmount > 0) ? (grandTotal - tenderedAmount) : 0.0;
+
+  void setTenderedAmount(double amount) {
+    if (amount <= 0) {
+      _numpadValue = '';
+    } else {
+      _numpadValue = amount % 1 == 0 ? amount.toInt().toString() : amount.toStringAsFixed(2);
+    }
+    notifyListeners();
+  }
+
+  void setExactTender() {
+    setTenderedAmount(grandTotal);
+  }
+
   void numpadPress(String key) {
     if (key == 'C') {
       _numpadValue = '';
@@ -329,8 +348,16 @@ class GroceryProvider extends ChangeNotifier {
       if (_numpadValue.isNotEmpty) {
         _numpadValue = _numpadValue.substring(0, _numpadValue.length - 1);
       }
+    } else if (key == '.') {
+      if (!_numpadValue.contains('.')) {
+        _numpadValue = _numpadValue.isEmpty ? '0.' : '$_numpadValue.';
+      }
     } else {
-      if (_numpadValue.length < 10) _numpadValue += key;
+      if (_numpadValue == '0' && key != '.') {
+        _numpadValue = key == '00' ? '0' : key;
+      } else if (_numpadValue.length < 10) {
+        _numpadValue += key;
+      }
     }
     notifyListeners();
   }
@@ -340,7 +367,7 @@ class GroceryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Apply numpad value as quantity to the last cart item.
+  /// Kept for backward compatibility if ever needed.
   bool applyNumpadAsQty() {
     if (_cart.isEmpty || _numpadValue.isEmpty) return false;
     final qty = int.tryParse(_numpadValue);

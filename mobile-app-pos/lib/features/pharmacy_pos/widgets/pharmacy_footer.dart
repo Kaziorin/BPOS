@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/theme_extensions.dart';
 import 'package:intl/intl.dart';
+import '../providers/pharmacy_provider.dart';
+import 'dialogs/pharmacy_dialogs.dart';
 
 class PharmacyFooter extends StatelessWidget {
   const PharmacyFooter({super.key});
@@ -10,10 +13,11 @@ class PharmacyFooter extends StatelessWidget {
     final now = DateTime.now();
     final timeStr = DateFormat('hh:mm a').format(now);
     final dateStr = DateFormat('dd MMM yyyy, EEEE').format(now);
+    final provider = context.watch<PharmacyProvider>();
 
     return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       decoration: BoxDecoration(
         color: context.isDark ? context.cardBg : Colors.white,
         border: Border(
@@ -31,7 +35,7 @@ class PharmacyFooter extends StatelessWidget {
               Text(
                 timeStr,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF009688),
                 ),
@@ -39,14 +43,14 @@ class PharmacyFooter extends StatelessWidget {
               Text(
                 dateStr,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   color: context.textSecondary,
                 ),
               ),
             ],
           ),
           
-          // Dividers between items
+          // Status items
           Row(
             children: [
               _buildVerticalDivider(context),
@@ -89,29 +93,27 @@ class PharmacyFooter extends StatelessWidget {
             ],
           ),
           
-          // Shortcuts
+          // Clickable Shortcuts
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                'Shortcuts',
-                style: TextStyle(fontSize: 10, color: context.textSecondary),
+                'Shortcuts (Clickable)',
+                style: TextStyle(fontSize: 9, color: context.textSecondary, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 2),
               Row(
                 children: [
-                  _shortcutText('F1', 'Pay', context),
+                  _clickableShortcut('F1', 'Pay', context, () => showPharmacyCheckoutDialog(context, provider)),
                   _shortcutDivider(context),
-                  _shortcutText('F2', 'Add Item', context),
+                  _clickableShortcut('F2', 'Add Item', context, () => showPharmacyAddMedicineDialog(context, provider)),
                   _shortcutDivider(context),
-                  _shortcutText('F3', 'Search', context),
+                  _clickableShortcut('F3', 'Scan', context, () => showPharmacyBarcodeScanDialog(context, provider)),
                   _shortcutDivider(context),
-                  _shortcutText('F4', 'Hold', context),
+                  _clickableShortcut('F4', 'Rx', context, () => showPharmacyScanRxDialog(context, provider)),
                   _shortcutDivider(context),
-                  _shortcutText('F5', 'Print', context),
-                  _shortcutDivider(context),
-                  _shortcutText('F6', 'Hold Bill', context),
+                  _clickableShortcut('F6', 'Hold (${provider.heldBills.length})', context, () => showPharmacyHeldBillsDialog(context, provider)),
                 ],
               ),
             ],
@@ -124,8 +126,8 @@ class PharmacyFooter extends StatelessWidget {
   Widget _buildVerticalDivider(BuildContext context) {
     return Container(
       width: 1,
-      height: 24,
-      margin: const EdgeInsets.symmetric(horizontal: 24),
+      height: 20,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       color: context.isDark ? context.dividerColor : Colors.grey.withValues(alpha: 0.2),
     );
   }
@@ -141,26 +143,26 @@ class PharmacyFooter extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
             color: iconBg,
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, size: 16, color: iconColor),
+          child: Icon(icon, size: 14, color: iconColor),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               label,
-              style: TextStyle(fontSize: 10, color: context.textSecondary),
+              style: TextStyle(fontSize: 9, color: context.textSecondary),
             ),
             Text(
               value,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.bold,
                 color: valueColor ?? context.textPrimary,
               ),
@@ -171,20 +173,34 @@ class PharmacyFooter extends StatelessWidget {
     );
   }
 
-  Widget _shortcutText(String key, String action, BuildContext context) {
-    return Row(
-      children: [
-        Text(key, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: context.textPrimary)),
-        const SizedBox(width: 2),
-        Text(': $action', style: TextStyle(fontSize: 11, color: context.textSecondary)),
-      ],
+  Widget _clickableShortcut(String key, String action, BuildContext context, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(4),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 1.0),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              decoration: BoxDecoration(
+                color: const Color(0xFF009688).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: Text(key, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF009688))),
+            ),
+            const SizedBox(width: 3),
+            Text(action, style: TextStyle(fontSize: 10.5, color: context.textSecondary, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _shortcutDivider(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6.0),
-      child: Text('|', style: TextStyle(fontSize: 11, color: context.textSecondary)),
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: Text('|', style: TextStyle(fontSize: 10, color: context.textSecondary.withValues(alpha: 0.5))),
     );
   }
 }

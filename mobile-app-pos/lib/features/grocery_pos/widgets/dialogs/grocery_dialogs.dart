@@ -82,6 +82,11 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
   void initState() {
     super.initState();
     _method = context.read<GroceryProvider>().selectedPayment;
+    final tender = context.read<GroceryProvider>().tenderedAmount;
+    if (tender > 0) {
+      _cashTendered = tender;
+      _cashCtrl.text = tender.toStringAsFixed(2);
+    }
   }
 
   @override

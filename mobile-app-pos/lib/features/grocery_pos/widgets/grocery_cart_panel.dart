@@ -706,25 +706,66 @@ class _NumpadAndTools extends StatelessWidget {
         Expanded(
           child: Column(
             children: [
-              if (provider.numpadValue.isNotEmpty)
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 6),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: GroceryColors.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    NumberUtils.toLocalized(provider.numpadValue, locale),
-                    textAlign: TextAlign.right,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: GroceryColors.primaryDark,
-                    ),
+              // Tender input display
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                decoration: BoxDecoration(
+                  color: isDark ? GroceryColors.inputBg(true) : GroceryColors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: provider.numpadValue.isNotEmpty
+                        ? GroceryColors.primary.withValues(alpha: 0.3)
+                        : (isDark ? GroceryColors.border(true) : Colors.grey.shade200),
                   ),
                 ),
+                child: Row(
+                  children: [
+                    Text(
+                      AppStrings.get('cash_tendered', locale),
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        color: GroceryColors.textSecondary(isDark),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      AppStrings.currency,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: GroceryColors.primaryDark,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        provider.numpadValue.isEmpty
+                            ? '0.00'
+                            : NumberUtils.toLocalized(provider.numpadValue, locale),
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: GroceryColors.primaryDark,
+                        ),
+                      ),
+                    ),
+                    if (provider.numpadValue.isNotEmpty) ...[
+                      const SizedBox(width: 6),
+                      InkWell(
+                        onTap: () => context.read<GroceryProvider>().clearNumpad(),
+                        borderRadius: BorderRadius.circular(10),
+                        child: const Padding(
+                          padding: EdgeInsets.all(2),
+                          child: Icon(Icons.close_rounded, size: 14, color: Colors.grey),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -746,52 +787,74 @@ class _NumpadAndTools extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 6),
-              // Enter button — apply numpad as qty on last item
-              SizedBox(
-                width: double.infinity,
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      final ok = context.read<GroceryProvider>().applyNumpadAsQty();
-                      if (ok) {
-                        gSnack(context, AppStrings.get('g_qty_applied', locale));
-                      } else if (provider.numpadValue.isNotEmpty) {
-                        // Try barcode lookup
-                        final product = provider.findByBarcodeOrId(provider.numpadValue);
-                        if (product != null) {
-                          provider.addToCart(product);
-                          provider.clearNumpad();
-                          gSnack(context, '${product.localizedName(locale)} ${locale == 'bn' ? 'যোগ হয়েছে' : 'added'}');
-                        } else {
-                          gSnack(context, locale == 'bn' ? 'অবৈধ ইনপুট' : 'Invalid input', color: Colors.orange.shade800);
-                        }
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(10),
-                    child: Ink(
+              // Clear & Exact Amount Action Buttons
+              Row(
+                children: [
+                  // Clear button
+                  InkWell(
+                    onTap: () => context.read<GroceryProvider>().clearNumpad(),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
                       decoration: BoxDecoration(
-                        gradient: GroceryColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: GroceryColors.primary.withValues(alpha: 0.35),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                        color: isDark ? GroceryColors.inputBg(true) : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: isDark ? GroceryColors.border(true) : Colors.grey.shade300),
                       ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Text(
-                          AppStrings.get('enter', locale),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.white),
+                      child: Text(
+                        'C',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: GroceryColors.textSecondary(isDark),
                         ),
                       ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 6),
+                  // Exact Amount button
+                  Expanded(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => context.read<GroceryProvider>().setExactTender(),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient: GroceryColors.primaryGradient,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: GroceryColors.primary.withValues(alpha: 0.3),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 9),
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.done_all_rounded, size: 15, color: Colors.white),
+                                const SizedBox(width: 5),
+                                Text(
+                                  '${AppStrings.get('exact_amount', locale)} (${AppStrings.currency}${NumberUtils.toLocalized(provider.grandTotal.toStringAsFixed(2), locale)})',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -924,6 +987,29 @@ class _PaymentSummary extends StatelessWidget {
             '${AppStrings.currency} ${NumberUtils.toLocalized(p.grandTotal.toStringAsFixed(2), locale)}',
             bold: true,
             valueColor: GroceryColors.primaryDark,
+          ),
+          Divider(color: GroceryColors.border(isDark), height: 12),
+          // Cash Tendered Row
+          row(
+            AppStrings.get('cash_tendered', locale),
+            '${AppStrings.currency} ${NumberUtils.toLocalized(p.tenderedAmount.toStringAsFixed(2), locale)}',
+            bold: p.tenderedAmount > 0,
+            valueColor: p.tenderedAmount > 0
+                ? (isDark ? Colors.white : const Color(0xFF1E293B))
+                : GroceryColors.textSecondary(isDark),
+          ),
+          // Change Return Row
+          row(
+            AppStrings.get('change_return', locale),
+            p.tenderedAmount >= p.grandTotal
+                ? '${AppStrings.currency} ${NumberUtils.toLocalized(p.changeAmount.toStringAsFixed(2), locale)}'
+                : (p.tenderedAmount > 0
+                    ? '- ${AppStrings.currency} ${NumberUtils.toLocalized(p.remainingDue.toStringAsFixed(2), locale)} (${locale == 'bn' ? 'বাকি' : 'Due'})'
+                    : '${AppStrings.currency} ${NumberUtils.toLocalized('0.00', locale)}'),
+            bold: p.tenderedAmount > 0,
+            valueColor: p.tenderedAmount >= p.grandTotal
+                ? const Color(0xFF10B981)
+                : (p.tenderedAmount > 0 ? const Color(0xFFEF4444) : GroceryColors.textSecondary(isDark)),
           ),
           if (p.totalSavings > 0) ...[
             const SizedBox(height: 6),

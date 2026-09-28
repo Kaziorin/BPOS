@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/theme_extensions.dart';
 import '../providers/pharmacy_provider.dart';
+import 'dialogs/pharmacy_dialogs.dart';
 
 class CategorySidebar extends StatefulWidget {
   const CategorySidebar({super.key});
@@ -153,47 +154,64 @@ class _CategorySidebarState extends State<CategorySidebar> {
           ),
 
           // ── Customer Button (Bottom) ──
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blue.withValues(alpha: 0.12)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.person_add_rounded, color: Colors.blue, size: 22),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+          Consumer<PharmacyProvider>(
+            builder: (context, provider, _) {
+              final cust = provider.selectedCustomer;
+              final custName = cust?['name'] ?? 'Customer';
+              final custSub = cust != null ? (cust['phone'] ?? 'Selected Patient') : 'Add / View Customer';
+
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
+                child: InkWell(
+                  onTap: () => showPharmacyCustomerDialog(context, provider),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
                       children: [
-                        Text(
-                          'Customer',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 13,
-                            color: context.textPrimary,
-                            height: 1.1,
+                        const Icon(Icons.person_add_rounded, color: Colors.blue, size: 22),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                custName,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 13,
+                                  color: context.textPrimary,
+                                  height: 1.1,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                custSub,
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  color: context.textSecondary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
                         ),
-                        Text(
-                          'Add / View Customer',
-                          style: TextStyle(
-                            fontSize: 9,
-                            color: context.textSecondary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        const Icon(Icons.chevron_right, size: 16, color: Colors.blue),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ],
       ),

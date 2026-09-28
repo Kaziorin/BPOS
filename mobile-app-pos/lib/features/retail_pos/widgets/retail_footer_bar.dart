@@ -67,7 +67,7 @@ class RetailFooterBar extends StatelessWidget {
               child: Row(
                 children: moduleCards.map((card) => Padding(
                   padding: const EdgeInsets.only(right: 6.0),
-                  child: SizedBox(width: 135, height: 42, child: card),
+                  child: SizedBox(width: 140, height: 52, child: card),
                 )).toList(),
               ),
             ),

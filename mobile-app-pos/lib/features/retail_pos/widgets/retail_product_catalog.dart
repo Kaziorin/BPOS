@@ -7,15 +7,14 @@ import '../providers/retail_provider.dart';
 
 class RetailProductCatalog extends StatelessWidget {
   final bool isGridView;
-  final int currentPage;
-  final ValueChanged<int> onPageChanged;
-  static const int itemsPerPage = 10;
+  final int? currentPage;
+  final ValueChanged<int>? onPageChanged;
 
   const RetailProductCatalog({
     super.key,
     required this.isGridView,
-    required this.currentPage,
-    required this.onPageChanged,
+    this.currentPage,
+    this.onPageChanged,
   });
 
   @override
@@ -25,47 +24,25 @@ class RetailProductCatalog extends StatelessWidget {
     final isDark = appProvider.isDarkMode;
     final products = retailProvider.filteredProducts;
 
-    final totalPages = (products.length / itemsPerPage).ceil().clamp(1, 9999);
-    final validCurrentPage = currentPage.clamp(1, totalPages);
-    final startIndex = (validCurrentPage - 1) * itemsPerPage;
-    final endIndex = (startIndex + itemsPerPage).clamp(0, products.length);
-    final paginatedProducts = startIndex < products.length
-        ? products.sublist(startIndex, endIndex)
-        : <RetailProduct>[];
-
-    return Column(
-      children: [
-        // Product Grid / List
-        Expanded(
-          child: products.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey.shade400),
-                      const SizedBox(height: 10),
-                      Text(
-                        'No products found',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
-                      ),
-                    ],
-                  ),
-                )
-              : isGridView
-                  ? _buildGridView(context, retailProvider, paginatedProducts, isDark)
-                  : _buildListView(context, retailProvider, paginatedProducts, isDark),
+    if (products.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey.shade400),
+            const SizedBox(height: 10),
+            Text(
+              'No products found',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+            ),
+          ],
         ),
+      );
+    }
 
-        // Pagination Footer Bar
-        _buildPaginationFooter(
-          context,
-          products.length,
-          validCurrentPage,
-          totalPages,
-          isDark,
-        ),
-      ],
-    );
+    return isGridView
+        ? _buildGridView(context, retailProvider, products, isDark)
+        : _buildListView(context, retailProvider, products, isDark);
   }
 
   Widget _buildListView(
@@ -183,7 +160,9 @@ class RetailProductCatalog extends StatelessWidget {
       builder: (context, catalogConstraints) {
         final catalogWidth = catalogConstraints.maxWidth;
         int crossAxisCount = 2;
-        if (catalogWidth >= 1100) {
+        if (catalogWidth >= 1400) {
+          crossAxisCount = 6;
+        } else if (catalogWidth >= 1100) {
           crossAxisCount = 5;
         } else if (catalogWidth >= 800) {
           crossAxisCount = 4;
@@ -192,12 +171,12 @@ class RetailProductCatalog extends StatelessWidget {
         }
 
         return GridView.builder(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(6),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            childAspectRatio: 0.88,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
+            childAspectRatio: 1.0,
+            crossAxisSpacing: 6,
+            mainAxisSpacing: 6,
           ),
           itemCount: paginatedProducts.length,
           itemBuilder: (context, index) {
@@ -343,41 +322,35 @@ class RetailProductCatalog extends StatelessWidget {
                       ),
                     ),
 
-                    // 2. Bottom Content Container (37% Height)
-                    Expanded(
-                      flex: 37,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                    // 2. Bottom Content Container
+                    Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 3, 4, 3),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  p.name,
-                                  style: TextStyle(
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.white : const Color(0xFF1E293B),
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 1),
-                                Text(
-                                  'SKU: ${p.sku}',
-                                  style: const TextStyle(
-                                    fontSize: 9,
-                                    color: Color(0xFF94A3B8),
-                                    fontFamily: 'monospace',
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
+                            Text(
+                              p.name,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : const Color(0xFF1E293B),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
+                            Text(
+                              'SKU: ${p.sku}',
+                              style: const TextStyle(
+                                fontSize: 9,
+                                color: Color(0xFF94A3B8),
+                                fontFamily: 'monospace',
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -398,7 +371,6 @@ class RetailProductCatalog extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(height: 1),
                                       Row(
                                         children: [
                                           Container(
@@ -423,7 +395,7 @@ class RetailProductCatalog extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(width: 4),
+                                const SizedBox(width: 2),
                                 InkWell(
                                   onTap: () => retailProvider.addToCart(p),
                                   borderRadius: BorderRadius.circular(4),
@@ -448,7 +420,6 @@ class RetailProductCatalog extends StatelessWidget {
                             ),
                           ],
                         ),
-                      ),
                     ),
                   ],
                 ),
@@ -457,164 +428,6 @@ class RetailProductCatalog extends StatelessWidget {
           },
         );
       },
-    );
-  }
-
-  Widget _buildPaginationFooter(
-    BuildContext context,
-    int totalProducts,
-    int currentPage,
-    int totalPages,
-    bool isDark,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        border: Border(
-          top: BorderSide(
-            color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFE2E8F0),
-          ),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Text(
-              'Showing ${totalProducts < itemsPerPage ? totalProducts : itemsPerPage} of $totalProducts products (Page $currentPage of $totalPages)',
-              style: TextStyle(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: 8),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                // Prev Button
-                InkWell(
-                  onTap: currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
-                  borderRadius: BorderRadius.circular(4),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: isDark ? const Color(0xFF3A3A3A) : const Color(0xFFCBD5E1),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.chevron_left_rounded,
-                          size: 14,
-                          color: currentPage > 1
-                              ? (isDark ? Colors.white : const Color(0xFF475569))
-                              : Colors.grey.shade400,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          'Prev',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: currentPage > 1
-                                ? (isDark ? Colors.white : const Color(0xFF475569))
-                                : Colors.grey.shade400,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 4),
-
-                // Page Numbers
-                ...List.generate(totalPages, (index) {
-                  final pageNum = index + 1;
-                  final isActive = pageNum == currentPage;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 4.0),
-                    child: InkWell(
-                      onTap: () => onPageChanged(pageNum),
-                      borderRadius: BorderRadius.circular(4),
-                      child: Container(
-                        width: 26,
-                        height: 26,
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? const Color(0xFF8B5CF6)
-                              : (isDark ? const Color(0xFF2A2A2A) : Colors.white),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            color: isActive
-                                ? const Color(0xFF8B5CF6)
-                                : (isDark ? const Color(0xFF3A3A3A) : const Color(0xFFCBD5E1)),
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '$pageNum',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: isActive ? Colors.white : (isDark ? Colors.white : const Color(0xFF475569)),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-
-                // Next Button
-                InkWell(
-                  onTap: currentPage < totalPages ? () => onPageChanged(currentPage + 1) : null,
-                  borderRadius: BorderRadius.circular(4),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: isDark ? const Color(0xFF3A3A3A) : const Color(0xFFCBD5E1),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Next',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: currentPage < totalPages
-                                ? (isDark ? Colors.white : const Color(0xFF475569))
-                                : Colors.grey.shade400,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          size: 14,
-                          color: currentPage < totalPages
-                              ? (isDark ? Colors.white : const Color(0xFF475569))
-                              : Colors.grey.shade400,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
