@@ -352,6 +352,19 @@ class WholesalerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setQty(String productId, int newQty) {
+    if (newQty <= 0) {
+      _items.removeWhere((i) => i.product.id == productId);
+    } else {
+      final index = _items.indexWhere((i) => i.product.id == productId);
+      if (index != -1) {
+        _items[index].qty = newQty;
+        _items[index].unitPrice = _items[index].effectivePrice(_isBulkPricing);
+      }
+    }
+    notifyListeners();
+  }
+
   void removeItem(String productId) {
     _items.removeWhere((i) => i.product.id == productId);
     notifyListeners();
@@ -388,6 +401,10 @@ class WholesalerProvider extends ChangeNotifier {
   int get customersCount => 86;
   int get pendingOrdersCount => 15;
   int get lowStockAlerts => 24;
+  double get totalReceivables => 34850.0;
+  double get collectedCash => 9750.0;
+  int get returnsCount => 3;
+  int get activeWarehouses => 4;
 
   // ── Hold Order ────────────────────────────────────────────────
   final List<WHeldOrder> _heldOrders = [];

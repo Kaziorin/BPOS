@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/app_provider.dart';
+import '../../../core/providers/pos_provider.dart';
+import '../../../core/models/menu_item.dart';
 import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/theme_extensions.dart';
 import 'dialogs/pos_dialogs.dart';
@@ -102,8 +104,39 @@ class BottomActionBar extends StatelessWidget {
         dialog = NoteDialog(isKitchenNote: true);
         break;
       case 'Bill Print':
-        dialog = BillPrintDialog();
-        break;
+        final posProvider = context.read<POSProvider>();
+        if (posProvider.cartItems.isEmpty && posProvider.completedOrders.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppStrings.get('cart_empty', context.read<AppProvider>().locale)),
+              backgroundColor: const Color(0xFFFF6D00),
+            ),
+          );
+          return;
+        }
+        if (posProvider.cartItems.isNotEmpty) {
+          final billOrder = CompletedOrder(
+            id: 'BILL-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+            orderType: posProvider.selectedOrderType,
+            tableNumber: posProvider.tableNumber,
+            waiter: posProvider.waiterKey,
+            items: List.from(posProvider.cartItems),
+            subtotal: posProvider.subtotal,
+            discount: posProvider.discountValue,
+            tax: posProvider.tax,
+            serviceCharge: posProvider.serviceCharge,
+            total: posProvider.totalPayable,
+            paymentMethod: 'Pending / Bill Print',
+            timestamp: DateTime.now(),
+            paidAmount: 0.0,
+            changeAmount: 0.0,
+          );
+          showRestaurantReceiptDialog(context, billOrder, context.isDark);
+          return;
+        } else {
+          showRestaurantReceiptDialog(context, posProvider.completedOrders.first, context.isDark);
+          return;
+        }
       default:
         return;
     }

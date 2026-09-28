@@ -48,33 +48,23 @@ class WholesalerColors {
   static Color divider(bool isDark) =>
       isDark ? const Color(0xFF252262) : const Color(0xFFF1F5F9);
 
-  // Shadows
+  // Shadows (GPU / WebGL friendly, integer-cached to prevent shader compilation overflow)
   static List<BoxShadow> softShadow(bool isDark, {double elevation = 1}) {
-    if (isDark) {
-      return [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.4 * elevation),
-          blurRadius: 12 * elevation,
-          offset: Offset(0, 4 * elevation),
-        ),
-      ];
-    }
+    final alpha = isDark ? 0.3 : 0.05;
+    final blur = (6.0 * elevation).clamp(2.0, 16.0).roundToDouble();
+    final offsetY = (2.0 * elevation).clamp(1.0, 6.0).roundToDouble();
+
     return [
       BoxShadow(
-        color: const Color(0xFF4F46E5).withValues(alpha: 0.07 * elevation),
-        blurRadius: 10 * elevation,
-        offset: Offset(0, 3 * elevation),
-      ),
-      BoxShadow(
-        color: Colors.black.withValues(alpha: 0.04 * elevation),
-        blurRadius: 20 * elevation,
-        offset: Offset(0, 6 * elevation),
+        color: Colors.black.withValues(alpha: alpha),
+        blurRadius: blur,
+        offset: Offset(0, offsetY),
       ),
     ];
   }
 
   static List<BoxShadow> elevatedShadow(bool isDark) =>
-      softShadow(isDark, elevation: 1.8);
+      softShadow(isDark, elevation: 1.5);
 
   // Gradients
   static LinearGradient get primaryGradient => const LinearGradient(

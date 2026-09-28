@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/app_provider.dart';
 import '../providers/retail_provider.dart';
@@ -352,9 +353,13 @@ class RetailCartPanel extends StatelessWidget {
                         // QTY COLUMN (- [qty] +)
                         Expanded(
                           flex: 3,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
                               InkWell(
                                 onTap: () => retailProvider.updateQty(index, item.qty - 1),
                                 borderRadius: BorderRadius.circular(4),
@@ -376,14 +381,36 @@ class RetailCartPanel extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                child: Text(
-                                  '${item.qty}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                              Tooltip(
+                                message: 'Click to type quantity or select presets',
+                                child: InkWell(
+                                  onTap: () => _showRetailQtyDialog(
+                                    context,
+                                    retailProvider,
+                                    index,
+                                    item.product.name,
+                                    item.qty,
+                                  ),
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: Container(
+                                    constraints: const BoxConstraints(minWidth: 28),
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: isDark ? const Color(0xFF1E1B4B) : const Color(0xFFEEF2FF),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: isDark ? const Color(0xFF4F46E5).withValues(alpha: 0.5) : const Color(0xFFCBD5E1),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      '${item.qty}',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w800,
+                                        color: isDark ? Colors.white : const Color(0xFF4F46E5),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -411,6 +438,7 @@ class RetailCartPanel extends StatelessWidget {
                             ],
                           ),
                         ),
+                      ),
 
                         // TOTAL & REMOVE COLUMN
                         Expanded(
@@ -1323,4 +1351,175 @@ class RetailMobileBottomBar extends StatelessWidget {
         ),
     );
   }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// QUICK RETAIL QUANTITY PRESET MODAL
+// ─────────────────────────────────────────────────────────────────
+Future<void> _showRetailQtyDialog(
+  BuildContext context,
+  RetailProvider retailProvider,
+  int index,
+  String productName,
+  int currentQty,
+) async {
+  final dialogCtrl = TextEditingController(text: '$currentQty');
+  dialogCtrl.selection = TextSelection(baseOffset: 0, extentOffset: dialogCtrl.text.length);
+
+  await showDialog<void>(
+    context: context,
+    builder: (ctx) {
+      final isDark = ctx.watch<AppProvider>().isDarkMode;
+      return StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          void updateVal(int val) {
+            if (val > 0) {
+              setDialogState(() {
+                dialogCtrl.text = '$val';
+                dialogCtrl.selection = TextSelection(baseOffset: 0, extentOffset: dialogCtrl.text.length);
+              });
+            }
+          }
+
+          void addVal(int add) {
+            final curr = int.tryParse(dialogCtrl.text) ?? currentQty;
+            updateVal(curr + add);
+          }
+
+          return AlertDialog(
+            backgroundColor: isDark ? const Color(0xFF1E1B4B) : Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4F46E5).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.edit_note_rounded, color: Color(0xFF4F46E5), size: 20),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Set Quantity', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+                      Text(productName, maxLines: 1, overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 11, color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B))),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: 320,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: dialogCtrl,
+                    autofocus: true,
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF4F46E5)),
+                    decoration: InputDecoration(
+                      hintText: 'Enter Qty (e.g. 100)',
+                      filled: true,
+                      fillColor: isDark ? const Color(0xFF2E2B6B) : const Color(0xFFF1F5F9),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onSubmitted: (v) {
+                      final val = int.tryParse(v);
+                      if (val != null && val > 0) {
+                        retailProvider.updateQty(index, val);
+                        Navigator.pop(ctx);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 14),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Quick Presets:', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B))),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [5, 10, 25, 50, 100].map((preset) {
+                      return InkWell(
+                        onTap: () => updateVal(preset),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF4F46E5).withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFF4F46E5).withValues(alpha: 0.25)),
+                          ),
+                          child: Text('$preset', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFF4F46E5))),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Quick Add (+):', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B))),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [1, 5, 10, 50, 100].map((add) {
+                      return InkWell(
+                        onTap: () => addVal(add),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                          ),
+                          child: Text('+$add', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFF10B981))),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text('Cancel', style: TextStyle(color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B))),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final val = int.tryParse(dialogCtrl.text);
+                  if (val != null && val > 0) {
+                    retailProvider.updateQty(index, val);
+                    Navigator.pop(ctx);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4F46E5),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                ),
+                child: const Text('Update Qty', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }

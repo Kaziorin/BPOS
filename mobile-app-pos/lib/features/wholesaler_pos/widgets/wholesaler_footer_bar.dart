@@ -35,9 +35,14 @@ class WholesalerFooterBar extends StatelessWidget {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Row 1: Quick Actions
           _QuickActionsRow(isDark: isDark, w: w, isMobile: isMobile),
+          Container(
+            height: 1,
+            color: WholesalerColors.divider(isDark).withValues(alpha: 0.5),
+          ),
           // Row 2: Order Metadata
           _OrderMetaRow(isDark: isDark, w: w),
         ],
@@ -151,20 +156,44 @@ class _QuickActionsRow extends StatelessWidget {
       ),
     ];
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 7, 12, 5),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        child: Row(
-          children: [
-            for (int i = 0; i < actions.length; i++) ...[
-              if (i > 0) const SizedBox(width: 7),
-              _FooterBtn(action: actions[i], isDark: isDark),
-            ],
-          ],
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final useExpanded = constraints.maxWidth >= 700;
+        if (useExpanded) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
+            child: Row(
+              children: [
+                for (int i = 0; i < actions.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 5),
+                  Expanded(
+                    child: _FooterBtn(action: actions[i], isDark: isDark),
+                  ),
+                ],
+              ],
+            ),
+          );
+        }
+        return Container(
+          width: double.infinity,
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                for (int i = 0; i < actions.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 6),
+                  _FooterBtn(action: actions[i], isDark: isDark),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -220,50 +249,63 @@ class _FooterBtnState extends State<_FooterBtn> {
         scale: _pressed ? 0.94 : 1.0,
         duration: const Duration(milliseconds: 100),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           decoration: BoxDecoration(
             color: a.color.withValues(alpha: isDark ? 0.12 : 0.07),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: a.color.withValues(alpha: 0.2)),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: a.color.withValues(alpha: 0.22), width: 0.8),
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
             children: [
               Container(
-                width: 24,
-                height: 24,
+                width: 22,
+                height: 22,
                 decoration: BoxDecoration(
-                  color: a.color.withValues(alpha: isDark ? 0.2 : 0.12),
+                  color: a.color.withValues(alpha: isDark ? 0.22 : 0.14),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Center(
-                  child: Icon(a.icon, size: 13, color: a.color),
+                  child: Icon(a.icon, size: 12.5, color: a.color),
                 ),
               ),
-              const SizedBox(width: 7),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    a.label,
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w700,
-                      color: WholesalerColors.textPrimary(isDark),
-                      letterSpacing: -0.1,
-                    ),
-                  ),
-                  if (a.sublabel.isNotEmpty)
-                    Text(
-                      a.sublabel,
-                      style: TextStyle(
-                        fontSize: 8,
-                        fontWeight: FontWeight.w500,
-                        color: WholesalerColors.textSecondary(isDark),
+              const SizedBox(width: 5),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        a.label,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: WholesalerColors.textPrimary(isDark),
+                          letterSpacing: -0.1,
+                        ),
                       ),
                     ),
-                ],
+                    if (a.sublabel.isNotEmpty)
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          a.sublabel,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 7.5,
+                            fontWeight: FontWeight.w500,
+                            color: WholesalerColors.textSecondary(isDark),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -287,61 +329,292 @@ class _OrderMetaRow extends StatelessWidget {
         'Warehouse',
         w.selectedWarehouse,
         WholesalerColors.primary,
+        onTap: () => _pickWarehouse(context, w, isDark),
       ),
       _MetaItem(
         Icons.person_rounded,
         'Sales Rep',
         w.salesRep,
         const Color(0xFF3B82F6),
+        onTap: () => _pickSalesRep(context, w, isDark),
       ),
       _MetaItem(
         Icons.calendar_today_rounded,
         'Delivery Date',
         '20 May, 2025 • 10:00 AM',
         const Color(0xFFEA580C),
+        onTap: () => _pickDeliveryDate(context, isDark),
       ),
       _MetaItem(
         Icons.local_shipping_rounded,
         'Delivery Method',
         w.deliveryMethod,
         const Color(0xFF10B981),
+        onTap: () => _pickDeliveryMethod(context, w, isDark),
       ),
       _MetaItem(
         Icons.credit_card_rounded,
         'Payment Term',
         w.paymentTerm,
         const Color(0xFF8B5CF6),
+        onTap: () => _pickPaymentTerm(context, w, isDark),
       ),
       _MetaItem(
         Icons.percent_rounded,
         'Commission',
         '${w.commission}% (৳${w.commissionAmount.toStringAsFixed(0)})',
         const Color(0xFF0EA5E9),
+        onTap: () => _snack(context, '📊 Commission: ${w.commission}% on this order'),
       ),
       _MetaItem(
         Icons.note_alt_rounded,
         'Note',
         w.note.isEmpty ? 'Add Note' : w.note,
         WholesalerColors.textSecondary(isDark),
+        onTap: () => _editNote(context, w, isDark),
       ),
       _MetaItem(
         Icons.attach_file_rounded,
         'Attachments',
         '0 Files',
         WholesalerColors.textSecondary(isDark),
+        onTap: () => _snack(context, '📎 Attachments (Challan, PO, Tax Documents)'),
       ),
     ];
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 7),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        child: Row(
-          children: metaItems
-              .map((m) => _MetaChip(item: m, isDark: isDark))
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final useExpanded = constraints.maxWidth >= 700;
+        if (useExpanded) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(10, 4, 10, 6),
+            child: Row(
+              children: [
+                for (int i = 0; i < metaItems.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 5),
+                  Expanded(
+                    flex: i == 2 ? 14 : 10,
+                    child: _MetaChip(item: metaItems[i], isDark: isDark),
+                  ),
+                ],
+              ],
+            ),
+          );
+        }
+        return Container(
+          width: double.infinity,
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.fromLTRB(10, 4, 10, 6),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                for (int i = 0; i < metaItems.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 6),
+                  _MetaChip(item: metaItems[i], isDark: isDark),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _snack(BuildContext ctx, String msg) {
+    ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+      content: Text(msg),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: WholesalerColors.primary,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      duration: const Duration(seconds: 2),
+    ));
+  }
+
+  void _pickWarehouse(BuildContext context, WholesalerProvider w, bool isDark) {
+    const warehouses = ['All Warehouses', 'WH-01 Main', 'WH-02 Annex', 'WH-03 Cold Store'];
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: WholesalerColors.cardBg(isDark),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Select Warehouse',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: WholesalerColors.textPrimary(isDark))),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: warehouses
+              .map((wh) => ListTile(
+                    dense: true,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    leading: Icon(Icons.warehouse_rounded,
+                        color: w.selectedWarehouse == wh ? WholesalerColors.primary : WholesalerColors.textSecondary(isDark)),
+                    title: Text(wh,
+                        style: TextStyle(
+                            fontWeight: w.selectedWarehouse == wh ? FontWeight.w700 : FontWeight.w500,
+                            color: w.selectedWarehouse == wh ? WholesalerColors.primary : WholesalerColors.textPrimary(isDark))),
+                    trailing: w.selectedWarehouse == wh
+                        ? Icon(Icons.check_circle_rounded, color: WholesalerColors.primary, size: 18)
+                        : null,
+                    onTap: () {
+                      w.setWarehouse(wh);
+                      Navigator.pop(context);
+                    },
+                  ))
               .toList(),
         ),
+      ),
+    );
+  }
+
+  void _pickSalesRep(BuildContext context, WholesalerProvider w, bool isDark) {
+    const reps = ['John Smith', 'Sarah Connor', 'Michael Scott', 'David Miller'];
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: WholesalerColors.cardBg(isDark),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Select Sales Representative',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: WholesalerColors.textPrimary(isDark))),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: reps
+              .map((rep) => ListTile(
+                    dense: true,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    leading: Icon(Icons.person_rounded,
+                        color: w.salesRep == rep ? const Color(0xFF3B82F6) : WholesalerColors.textSecondary(isDark)),
+                    title: Text(rep,
+                        style: TextStyle(
+                            fontWeight: w.salesRep == rep ? FontWeight.w700 : FontWeight.w500,
+                            color: w.salesRep == rep ? const Color(0xFF3B82F6) : WholesalerColors.textPrimary(isDark))),
+                    trailing: w.salesRep == rep
+                        ? const Icon(Icons.check_circle_rounded, color: Color(0xFF3B82F6), size: 18)
+                        : null,
+                    onTap: () {
+                      w.setSalesRep(rep);
+                      Navigator.pop(context);
+                    },
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickDeliveryDate(BuildContext context, bool isDark) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 90)),
+    );
+    if (picked != null && context.mounted) {
+      _snack(context, 'Delivery Date set to ${picked.day}/${picked.month}/${picked.year}');
+    }
+  }
+
+  void _pickDeliveryMethod(BuildContext context, WholesalerProvider w, bool isDark) {
+    const methods = ['Our Delivery', 'Customer Pickup', 'Courier / Freight', 'Express Cargo'];
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: WholesalerColors.cardBg(isDark),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Delivery Method',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: WholesalerColors.textPrimary(isDark))),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: methods
+              .map((m) => ListTile(
+                    dense: true,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    leading: Icon(Icons.local_shipping_rounded,
+                        color: w.deliveryMethod == m ? const Color(0xFF10B981) : WholesalerColors.textSecondary(isDark)),
+                    title: Text(m,
+                        style: TextStyle(
+                            fontWeight: w.deliveryMethod == m ? FontWeight.w700 : FontWeight.w500,
+                            color: w.deliveryMethod == m ? const Color(0xFF10B981) : WholesalerColors.textPrimary(isDark))),
+                    trailing: w.deliveryMethod == m
+                        ? const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 18)
+                        : null,
+                    onTap: () {
+                      w.setDeliveryMethod(m);
+                      Navigator.pop(context);
+                    },
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  void _pickPaymentTerm(BuildContext context, WholesalerProvider w, bool isDark) {
+    const terms = ['Immediate Cash', '15 Days', '30 Days', '45 Days', '60 Days'];
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: WholesalerColors.cardBg(isDark),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Payment Term',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: WholesalerColors.textPrimary(isDark))),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: terms
+              .map((t) => ListTile(
+                    dense: true,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    leading: Icon(Icons.credit_card_rounded,
+                        color: w.paymentTerm == t ? const Color(0xFF8B5CF6) : WholesalerColors.textSecondary(isDark)),
+                    title: Text(t,
+                        style: TextStyle(
+                            fontWeight: w.paymentTerm == t ? FontWeight.w700 : FontWeight.w500,
+                            color: w.paymentTerm == t ? const Color(0xFF8B5CF6) : WholesalerColors.textPrimary(isDark))),
+                    trailing: w.paymentTerm == t
+                        ? const Icon(Icons.check_circle_rounded, color: Color(0xFF8B5CF6), size: 18)
+                        : null,
+                    onTap: () {
+                      w.setPaymentTerm(t);
+                      Navigator.pop(context);
+                    },
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  void _editNote(BuildContext context, WholesalerProvider w, bool isDark) {
+    final ctrl = TextEditingController(text: w.note);
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: WholesalerColors.cardBg(isDark),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Order Note',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: WholesalerColors.textPrimary(isDark))),
+        content: TextField(
+          controller: ctrl,
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: 'Enter order instructions or notes...',
+            hintStyle: TextStyle(color: WholesalerColors.textSecondary(isDark)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              w.setNote(ctrl.text.trim());
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: WholesalerColors.primary),
+            child: const Text('Save Note', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }
@@ -352,67 +625,102 @@ class _MetaItem {
   final String label;
   final String value;
   final Color color;
-  const _MetaItem(this.icon, this.label, this.value, this.color);
+  final VoidCallback? onTap;
+  const _MetaItem(this.icon, this.label, this.value, this.color, {this.onTap});
 }
 
-class _MetaChip extends StatelessWidget {
+class _MetaChip extends StatefulWidget {
   final _MetaItem item;
   final bool isDark;
   const _MetaChip({required this.item, required this.isDark});
 
   @override
+  State<_MetaChip> createState() => _MetaChipState();
+}
+
+class _MetaChipState extends State<_MetaChip> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(right: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: isDark
-            ? const Color(0xFF1C1947)
-            : const Color(0xFFF1F5F9).withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(7),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.06)
-              : const Color(0xFFE2E8F0),
-          width: 0.8,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 1),
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: item.color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(6),
+    final item = widget.item;
+    final isDark = widget.isDark;
+
+    return MouseRegion(
+      cursor: item.onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: item.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
+          decoration: BoxDecoration(
+            color: _hovered
+                ? item.color.withValues(alpha: isDark ? 0.2 : 0.12)
+                : (isDark
+                    ? const Color(0xFF1E1B4B).withValues(alpha: 0.6)
+                    : const Color(0xFFF8FAFC)),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: _hovered
+                  ? item.color.withValues(alpha: 0.5)
+                  : (isDark
+                      ? const Color(0xFF312E81)
+                      : const Color(0xFFE2E8F0)),
+              width: 0.8,
             ),
-            child: Icon(item.icon, size: 11, color: item.color),
           ),
-          const SizedBox(width: 7),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
             children: [
-              Text(
-                item.label,
-                style: TextStyle(
-                  fontSize: 7.5,
-                  fontWeight: FontWeight.w600,
-                  color: WholesalerColors.textSecondary(isDark),
+              Container(
+                padding: const EdgeInsets.all(3.5),
+                decoration: BoxDecoration(
+                  color: item.color.withValues(alpha: isDark ? 0.22 : 0.12),
+                  borderRadius: BorderRadius.circular(5),
                 ),
+                child: Icon(item.icon, size: 11, color: item.color),
               ),
-              Text(
-                item.value,
-                style: TextStyle(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w700,
-                  color: WholesalerColors.textPrimary(isDark),
+              const SizedBox(width: 5),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        item.label,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 7.5,
+                          fontWeight: FontWeight.w600,
+                          color: WholesalerColors.textSecondary(isDark),
+                        ),
+                      ),
+                    ),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        item.value,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: WholesalerColors.textPrimary(isDark),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

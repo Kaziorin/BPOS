@@ -480,6 +480,16 @@ class WholesalerStatsBar extends StatelessWidget {
           w.pendingOrdersCount.toString(), WholesalerColors.primary, false),
       _Stat(Icons.warning_amber_rounded, 'Low Stock Alerts',
           w.lowStockAlerts.toString(), WholesalerColors.accentRed, false),
+      _Stat(Icons.account_balance_wallet_rounded, 'Due / Rec.',
+          '৳${NumberFormat('#,##0.00').format(w.totalReceivables)}',
+          const Color(0xFFF59E0B), true),
+      _Stat(Icons.payments_rounded, 'Collected Cash',
+          '৳${NumberFormat('#,##0.00').format(w.collectedCash)}',
+          const Color(0xFF10B981), false),
+      _Stat(Icons.assignment_return_rounded, 'Returns',
+          '${w.returnsCount} Req', const Color(0xFFEC4899), false),
+      _Stat(Icons.warehouse_rounded, 'Warehouses',
+          '${w.activeWarehouses} Active', const Color(0xFF06B6D4), false),
     ];
 
     return Container(
@@ -491,17 +501,40 @@ class WholesalerStatsBar extends StatelessWidget {
             : WholesalerColors.panelBg(false),
         border: Border(bottom: BorderSide(color: WholesalerColors.border(isDark))),
       ),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: stats.length,
-        separatorBuilder: (_, _) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          child: VerticalDivider(
-            color: WholesalerColors.border(isDark),
-            width: 1,
-          ),
-        ),
-        itemBuilder: (_, i) => _StatItem(s: stats[i], isDark: isDark),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 700;
+          if (isWide) {
+            return Row(
+              children: [
+                for (int i = 0; i < stats.length; i++) ...[
+                  if (i > 0)
+                    Container(
+                      width: 1,
+                      height: 28,
+                      color: WholesalerColors.border(isDark),
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                    ),
+                  Expanded(
+                    child: _StatItem(s: stats[i], isDark: isDark),
+                  ),
+                ],
+              ],
+            );
+          }
+          return ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: stats.length,
+            separatorBuilder: (_, _) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: VerticalDivider(
+                color: WholesalerColors.border(isDark),
+                width: 1,
+              ),
+            ),
+            itemBuilder: (_, i) => _StatItem(s: stats[i], isDark: isDark),
+          );
+        },
       ),
     );
   }
@@ -524,9 +557,10 @@ class _StatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(6),
@@ -537,28 +571,34 @@ class _StatItem extends StatelessWidget {
             child: Icon(s.icon, size: 14, color: s.color),
           ),
           const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                s.value,
-                style: TextStyle(
-                  fontSize: s.large ? 14 : 13,
-                  fontWeight: FontWeight.w900,
-                  color: s.large ? s.color : WholesalerColors.textPrimary(isDark),
-                  height: 1.1,
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  s.value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: s.large ? 13 : 12,
+                    fontWeight: FontWeight.w900,
+                    color: s.large ? s.color : WholesalerColors.textPrimary(isDark),
+                    height: 1.1,
+                  ),
                 ),
-              ),
-              Text(
-                s.label,
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w500,
-                  color: WholesalerColors.textSecondary(isDark),
+                Text(
+                  s.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w500,
+                    color: WholesalerColors.textSecondary(isDark),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

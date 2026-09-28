@@ -136,8 +136,8 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
       ),
       content: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: 440,
-          maxHeight: MediaQuery.of(context).size.height * 0.7,
+          maxWidth: 480,
+          maxHeight: MediaQuery.of(context).size.height * 0.75,
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -175,16 +175,27 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
                 style: TextStyle(fontWeight: FontWeight.w800, color: GroceryColors.textPrimary(isDark)),
               ),
               const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _methodChip('Cash', AppStrings.get('payment_cash', locale), Icons.payments_outlined),
-                  _methodChip('Card', AppStrings.get('payment_card', locale), Icons.credit_card_rounded),
-                  _methodChip('UPI / QR', AppStrings.get('payment_upi', locale), Icons.qr_code_2_rounded),
-                  _methodChip('Wallet', AppStrings.get('payment_wallet', locale), Icons.account_balance_wallet_outlined),
-                  _methodChip('Split', AppStrings.get('payment_split', locale), Icons.call_split_rounded),
-                ],
+              Builder(
+                builder: (context) {
+                  final methods = [
+                    ('Cash', AppStrings.get('payment_cash', locale), Icons.payments_outlined),
+                    ('Card', AppStrings.get('payment_card', locale), Icons.credit_card_rounded),
+                    ('UPI / QR', AppStrings.get('payment_upi', locale), Icons.qr_code_2_rounded),
+                    ('Wallet', AppStrings.get('payment_wallet', locale), Icons.account_balance_wallet_outlined),
+                    ('Split', isBn ? 'স্প্লিট' : 'Split', Icons.call_split_rounded),
+                  ];
+
+                  return Row(
+                    children: [
+                      for (int i = 0; i < methods.length; i++) ...[
+                        if (i > 0) const SizedBox(width: 5),
+                        Expanded(
+                          child: _methodGridItem(methods[i].$1, methods[i].$2, methods[i].$3, isDark),
+                        ),
+                      ],
+                    ],
+                  );
+                },
               ),
               if (_method == 'Cash') ...[
                 const SizedBox(height: 18),
@@ -344,9 +355,10 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
                         Navigator.pop(context);
                         showDialog(
                           context: context,
+                          barrierColor: Colors.black.withValues(alpha: 0.55),
                           builder: (_) => ChangeNotifierProvider.value(
                             value: provider,
-                            child: GroceryPaymentSuccessDialog(sale: sale),
+                            child: GroceryBillPrintDialog(sale: sale),
                           ),
                         );
                       },
@@ -369,25 +381,53 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
     );
   }
 
-  Widget _methodChip(String key, String label, IconData icon) {
+  Widget _methodGridItem(String key, String label, IconData icon, bool isDark) {
     final sel = _method == key;
     return GestureDetector(
       onTap: () => setState(() => _method = key),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 7),
         decoration: BoxDecoration(
           gradient: sel ? GroceryColors.primaryGradient : null,
-          color: sel ? null : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: sel ? Colors.transparent : GroceryColors.primary.withValues(alpha: 0.3)),
+          color: sel ? null : (isDark ? GroceryColors.inputBg(true) : Colors.white),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: sel ? Colors.transparent : GroceryColors.primary.withValues(alpha: 0.35),
+            width: sel ? 1.5 : 1,
+          ),
+          boxShadow: sel
+              ? [
+                  BoxShadow(
+                    color: GroceryColors.primary.withValues(alpha: 0.25),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
-        child: Row(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: sel ? Colors.white : GroceryColors.primary),
-            const SizedBox(width: 6),
-            Text(label, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: sel ? Colors.white : null)),
+            Icon(
+              icon,
+              size: 16,
+              color: sel ? Colors.white : GroceryColors.primary,
+            ),
+            const SizedBox(height: 3),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 10,
+                color: sel ? Colors.white : GroceryColors.textPrimary(isDark),
+                height: 1.1,
+              ),
+            ),
           ],
         ),
       ),
@@ -477,23 +517,80 @@ class GroceryBillPrintDialog extends StatelessWidget {
   final CompletedSale? sale;
   const GroceryBillPrintDialog({super.key, this.sale});
 
+  String _formatDate(DateTime dt) {
+    const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+    final m = months[dt.month];
+    final hr = dt.hour.toString().padLeft(2, '0');
+    final min = dt.minute.toString().padLeft(2, '0');
+    return '${dt.day} $m ${dt.year}, $hr:$min';
+  }
+
+  Widget _buildDashedDivider() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final boxWidth = constraints.constrainWidth();
+        const dashWidth = 4.0;
+        const dashSpace = 3.0;
+        final dashCount = (boxWidth / (dashWidth + dashSpace)).floor();
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(dashCount, (_) {
+            return const SizedBox(
+              width: dashWidth,
+              height: 1,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: Color(0xFFCBD5E1)),
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
+
+  Widget _buildBarcode(bool isDark) {
+    final barPattern = [3, 1, 2, 2, 1, 3, 1, 2, 3, 1, 1, 2, 2, 1, 3, 2, 1, 1, 3, 2, 1, 2, 3, 1, 2, 1, 3, 1, 2, 2, 1, 3];
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: barPattern.asMap().entries.map((entry) {
+        final isBlack = entry.key % 2 == 0;
+        final width = entry.value.toDouble() * 1.5;
+        return Container(
+          width: width,
+          height: 38,
+          color: isBlack ? (isDark ? Colors.grey.shade300 : const Color(0xFF1E293B)) : Colors.transparent,
+        );
+      }).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
     final isDark = context.watch<AppProvider>().isDarkMode;
-    final isBn = locale == 'bn';
     final provider = context.watch<GroceryProvider>();
+
+    final receiptBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final textDark = isDark ? Colors.white : const Color(0xFF0F172A);
+    final textMuted = isDark ? Colors.grey.shade400 : const Color(0xFF475569);
+    final borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFBFDBFE);
 
     final items = sale?.items ?? provider.cart;
     final subtotal = sale?.subtotal ?? provider.subtotal;
     final discount = sale?.discount ?? provider.totalDiscount;
     final vat = sale?.vat ?? provider.vat;
     final total = sale?.total ?? provider.grandTotal;
-    final invoice = sale?.invoiceNo ?? provider.invoiceNo;
+    final invoiceDisplay = sale?.invoiceNo ??
+        (provider.invoiceNo.isNotEmpty ? provider.invoiceNo : 'INV-${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}');
     final customer = sale?.customerName ?? provider.customerName;
+    final custShort = customer.length > 20 ? '${customer.substring(0, 18)}...' : customer;
     final note = sale?.salesNote ?? provider.salesNote;
     final payMethod = sale?.paymentMethod ?? provider.selectedPayment;
-    final dateStr = DateFormat('dd MMM yyyy, hh:mm a').format(sale?.timestamp ?? DateTime.now());
+    final timestamp = sale?.timestamp ?? DateTime.now();
+    final tendered = sale?.cashTendered ??
+        (provider.tenderedAmount > 0 ? provider.tenderedAmount : total);
+    final change = sale?.change ??
+        (tendered >= total ? tendered - total : 0.0);
 
     if (items.isEmpty) {
       return AlertDialog(
@@ -505,141 +602,554 @@ class GroceryBillPrintDialog extends StatelessWidget {
 
     return Dialog(
       backgroundColor: Colors.transparent,
-      child: Container(
-        width: 400,
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.85),
-        decoration: BoxDecoration(
-          color: GroceryColors.cardBg(isDark),
-          borderRadius: BorderRadius.circular(20),
-        ),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // ── Top Success Pill Badge ─────────────────────────────────────
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
-                color: GroceryColors.primary.withValues(alpha: 0.1),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                color: const Color(0xFFECFDF5),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFA7F3D0)),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.receipt_long_rounded, color: GroceryColors.primary),
-                  const SizedBox(width: 8),
-                  Text(AppStrings.get('bill_print', locale),
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: GroceryColors.primaryDark)),
+                  Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF10B981)),
+                  SizedBox(width: 6),
+                  Text(
+                    'SALE COMPLETED SUCCESSFULLY',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF059669),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
                 ],
               ),
             ),
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
-                    borderRadius: BorderRadius.circular(6),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 10)],
+            const SizedBox(height: 12),
+
+            // ── Thermal Receipt Card ───────────────────────────────────────
+            Container(
+              width: 380,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+              decoration: BoxDecoration(
+                color: receiptBg,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: borderColor, width: 1.2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
                   ),
-                  child: Column(
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 1. Store Header
+                  Center(
+                    child: Text(
+                      'FRESHMART GROCERY',
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.8,
+                        color: textDark,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Center(
+                    child: Text(
+                      'Dhaka Flagship Outlet • Counter #POS-01',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        color: textMuted,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Center(
+                    child: Text(
+                      'BIN / VAT Reg No: 002938194-0101 • Mushak-6.3',
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: textMuted,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Divider
+                  _buildDashedDivider(),
+                  const SizedBox(height: 8),
+
+                  // 2. Invoice & Cashier details
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(AppStrings.get('freshmart', locale),
-                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: GroceryColors.primaryDark)),
-                      Text(isBn ? 'মুদিখানা · ঢাকা' : 'Grocery Store · Dhaka', style: const TextStyle(fontSize: 11)),
-                      const SizedBox(height: 6),
-                      const Text('--------------------------------', style: TextStyle(color: Colors.grey, letterSpacing: 1)),
-                      _row(isBn ? 'ইনভয়েস' : 'Invoice', invoice),
-                      _row(isBn ? 'কাস্টমার' : 'Customer', customer),
-                      _row(isBn ? 'তারিখ' : 'Date', NumberUtils.toLocalized(dateStr, locale)),
-                      _row(isBn ? 'পেমেন্ট' : 'Payment', payMethod),
-                      const Text('--------------------------------', style: TextStyle(color: Colors.grey, letterSpacing: 1)),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Expanded(child: Text(isBn ? 'আইটেম' : 'Item', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11))),
-                          Text(isBn ? 'পরিমাণ' : 'Qty', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-                          const SizedBox(width: 16),
-                          Text(isBn ? 'মূল্য' : 'Price', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      ...items.map((i) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 3),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    '${i.product.localizedName(locale)} (${i.product.localizedUnit(locale)})',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                                Text(NumberUtils.toLocalized(i.quantity, locale), style: const TextStyle(fontSize: 11)),
-                                const SizedBox(width: 16),
-                                Text('${AppStrings.currency}${NumberUtils.toLocalized(i.lineTotal.toStringAsFixed(2), locale)}',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                          )),
-                      const SizedBox(height: 6),
-                      const Text('--------------------------------', style: TextStyle(color: Colors.grey, letterSpacing: 1)),
-                      _row(AppStrings.get('subtotal', locale),
-                          '${AppStrings.currency}${NumberUtils.toLocalized(subtotal.toStringAsFixed(2), locale)}'),
-                      _row(AppStrings.get('discount_label', locale),
-                          '-${AppStrings.currency}${NumberUtils.toLocalized(discount.toStringAsFixed(2), locale)}'),
-                      _row(AppStrings.get('vat_label', locale),
-                          '${AppStrings.currency}${NumberUtils.toLocalized(vat.toStringAsFixed(2), locale)}'),
-                      const SizedBox(height: 4),
-                      _row(AppStrings.get('total', locale),
-                          '${AppStrings.currency}${NumberUtils.toLocalized(total.toStringAsFixed(2), locale)}',
-                          bold: true),
-                      if (note.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text('${isBn ? 'নোট' : 'Note'}: $note', style: const TextStyle(fontSize: 10, fontStyle: FontStyle.italic)),
+                      Flexible(
+                        child: Text(
+                          'Invoice: $invoiceDisplay',
+                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                      const SizedBox(height: 14),
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Icons.qr_code_2, size: 52),
                       ),
-                      const SizedBox(height: 8),
-                      Text(isBn ? 'কেনাকাটার জন্য ধন্যবাদ!' : 'Thank you for shopping!',
-                          style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic)),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Date: ${_formatDate(timestamp)}',
+                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                      ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 3),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          'Customer: $custShort',
+                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Cashier: Admin',
+                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  if (note.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            'Note: $note',
+                            style: TextStyle(fontSize: 9.5, color: textMuted, fontFamily: 'monospace', fontStyle: FontStyle.italic),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 8),
+
+                  // Divider
+                  _buildDashedDivider(),
+                  const SizedBox(height: 8),
+
+                  // 3. Table Headers
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: Text(
+                          'ITEM / UNIT',
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          'QTY',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          'RATE',
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          'TOTAL',
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+
+                  // 4. Item Rows
+                  ...items.map((i) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  i.product.localizedName(locale),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: textDark,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                                Text(
+                                  'Unit: ${i.product.localizedUnit(locale)} • ${i.product.category}',
+                                  style: const TextStyle(
+                                    fontSize: 8.5,
+                                    color: Color(0xFF94A3B8),
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                '${i.quantity}',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: textDark,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                '৳${i.product.price.toStringAsFixed(2)}',
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: textMuted,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                '৳${i.lineTotal.toStringAsFixed(2)}',
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: textDark,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                  const SizedBox(height: 6),
+
+                  // Divider
+                  _buildDashedDivider(),
+                  const SizedBox(height: 8),
+
+                  // 5. Subtotal & VAT
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Subtotal:',
+                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '৳${subtotal.toStringAsFixed(2)}',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  if (discount > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Discount:',
+                          style: const TextStyle(fontSize: 11, color: Color(0xFF059669), fontFamily: 'monospace'),
+                        ),
+                        Text(
+                          '-৳${discount.toStringAsFixed(2)}',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF059669), fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'VAT (Mushak 6.3 - 5%):',
+                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '৳${vat.toStringAsFixed(2)}',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+
+                  // Solid Line
+                  const Divider(color: Color(0xFFCBD5E1), height: 1, thickness: 1),
+                  const SizedBox(height: 6),
+
+                  // Net Payable
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Net Payable:',
+                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: textDark, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '৳${total.toStringAsFixed(2)}',
+                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900, color: textDark, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+
+                  // Solid Line
+                  const Divider(color: Color(0xFFCBD5E1), height: 1, thickness: 1),
+                  const SizedBox(height: 6),
+
+                  // Tender Details
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Tender Method:',
+                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        payMethod,
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Paid Amount:',
+                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '৳${tendered.toStringAsFixed(2)}',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Return Amount:',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '৳${change.toStringAsFixed(2)}',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Divider
+                  _buildDashedDivider(),
+                  const SizedBox(height: 12),
+
+                  // 6. Barcode Section
+                  Center(child: _buildBarcode(isDark)),
+                  const SizedBox(height: 4),
+                  const Center(
+                    child: Text(
+                      '** FRESHMART POS **',
+                      style: TextStyle(fontSize: 10, color: Color(0xFF64748B), letterSpacing: 3),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // 7. Footer Greetings
+                  Center(
+                    child: Text(
+                      'Thank you for shopping with us! Please\nvisit us again.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w600,
+                        color: textMuted,
+                        fontFamily: 'monospace',
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Center(
+                    child: Text(
+                      'Software by Blue Oceans POS',
+                      style: TextStyle(
+                        fontSize: 8.5,
+                        color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8),
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            const SizedBox(height: 12),
+
+            // ── Bottom Action Buttons ──────────────────────────────────────
+            SizedBox(
+              width: 380,
               child: Row(
                 children: [
+                  // Print Thermal (80mm)
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(AppStrings.get('cancel', locale)),
+                    child: InkWell(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Printing Thermal Receipt (80mm) for $invoiceDisplay...'),
+                            duration: const Duration(seconds: 2),
+                            backgroundColor: GroceryColors.primaryDark,
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF242424) : Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: const Color(0xFF93C5FD)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.print_outlined, size: 16, color: isDark ? Colors.white : const Color(0xFF334155)),
+                            const SizedBox(width: 8),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Print Thermal',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                    height: 1.1,
+                                  ),
+                                ),
+                                Text(
+                                  '(80mm)',
+                                  style: TextStyle(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                                    height: 1.1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 10),
+
+                  // New Sale Button
                   Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        gSnack(context, isBn ? 'রসিদ প্রিন্ট হচ্ছে...' : 'Printing receipt...',
-                            color: GroceryColors.primaryDark);
-                      },
-                      icon: const Icon(Icons.print, size: 16),
-                      label: Text(isBn ? 'প্রিন্ট করুন' : 'Print Now'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: GroceryColors.primary,
-                        foregroundColor: Colors.white,
+                    child: InkWell(
+                      onTap: () => Navigator.of(context).pop(),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: GroceryColors.primary,
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: [
+                            BoxShadow(
+                              color: GroceryColors.primary.withValues(alpha: 0.35),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.refresh_rounded, size: 18, color: Colors.white),
+                            SizedBox(width: 6),
+                            Text(
+                              'New Sale',
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -648,19 +1158,6 @@ class GroceryBillPrintDialog extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _row(String label, String value, {bool bold = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(fontSize: bold ? 13 : 11, fontWeight: bold ? FontWeight.w900 : FontWeight.w600, color: Colors.grey.shade700)),
-          Text(value, style: TextStyle(fontSize: bold ? 15 : 11, fontWeight: FontWeight.w900)),
-        ],
       ),
     );
   }

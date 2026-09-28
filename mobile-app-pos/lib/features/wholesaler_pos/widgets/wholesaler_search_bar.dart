@@ -25,28 +25,22 @@ class WholesalerSearchBar extends StatelessWidget {
     final isMobile = width < 700;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-      child: Column(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
+      child: Row(
         children: [
-          Row(
-            children: [
-              // Search Box
-              Expanded(
-                child: _SearchInput(isDark: isDark, w: w),
-              ),
-              if (!isMobile) ...[
-                const SizedBox(width: 12),
-                // Nav Tabs
-                Expanded(
-                  child: _NavTabs(isDark: isDark, tabs: _tabs),
-                ),
-              ],
-            ],
+          // Search Box (flex: 42)
+          Expanded(
+            flex: 42,
+            child: _SearchInput(isDark: isDark, w: w),
           ),
-          const SizedBox(height: 10),
-          // Filter row
-          _FilterRow(isDark: isDark, w: w),
-          const SizedBox(height: 8),
+          if (!isMobile) ...[
+            const SizedBox(width: 10),
+            // Nav Tabs (flex: 58 - stretches across all remaining width)
+            Expanded(
+              flex: 58,
+              child: _NavTabs(isDark: isDark, tabs: _tabs),
+            ),
+          ],
         ],
       ),
     );
@@ -126,85 +120,141 @@ class _NavTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 42,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: tabs.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 6),
-        itemBuilder: (_, i) {
-          final isFirst = i == 0;
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              gradient: isFirst ? WholesalerColors.primaryGradient : null,
-              color: isFirst ? null : (isDark ? WholesalerColors.inputBg(true) : Colors.white),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: isFirst
-                    ? Colors.transparent
-                    : WholesalerColors.border(isDark),
+      child: Row(
+        children: [
+          for (int i = 0; i < tabs.length; i++) ...[
+            if (i > 0) const SizedBox(width: 6),
+            Expanded(
+              child: _NavTabItem(
+                tab: tabs[i],
+                isFirst: i == 0,
+                isDark: isDark,
               ),
-              boxShadow: isFirst
-                  ? [BoxShadow(color: WholesalerColors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))]
-                  : WholesalerColors.softShadow(isDark),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  tabs[i].$2,
-                  size: 14,
-                  color: isFirst ? Colors.white : WholesalerColors.textSecondary(isDark),
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  tabs[i].$1,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: isFirst ? Colors.white : WholesalerColors.textSecondary(isDark),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+          ],
+        ],
       ),
     );
   }
 }
 
-class _FilterRow extends StatelessWidget {
+class _NavTabItem extends StatelessWidget {
+  final (String, IconData) tab;
+  final bool isFirst;
   final bool isDark;
-  final WholesalerProvider w;
-  const _FilterRow({required this.isDark, required this.w});
+  const _NavTabItem({required this.tab, required this.isFirst, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
+    return Container(
+      height: 42,
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: isFirst ? WholesalerColors.primaryGradient : null,
+        color: isFirst ? null : (isDark ? WholesalerColors.inputBg(true) : Colors.white),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isFirst
+              ? Colors.transparent
+              : WholesalerColors.border(isDark),
+        ),
+        boxShadow: isFirst
+            ? [BoxShadow(color: WholesalerColors.primary.withValues(alpha: 0.3), blurRadius: 6, offset: const Offset(0, 2))]
+            : WholesalerColors.softShadow(isDark),
+      ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Filters button
-          _FilterBtn(isDark: isDark),
-          const SizedBox(width: 8),
-          // Warehouse dropdown
-          _DropBtn(
-            label: w.selectedWarehouse,
-            isDark: isDark,
-            onTap: () => _showWarehousePicker(context, w, isDark),
+          Icon(
+            tab.$2,
+            size: 13.5,
+            color: isFirst ? Colors.white : WholesalerColors.textSecondary(isDark),
           ),
-          const SizedBox(width: 8),
-          // Low Stock toggle
-          _LowStockToggle(isDark: isDark, w: w),
-          const SizedBox(width: 12),
-          // Sort
-          _DropBtn(label: 'Sort by: Popular', isDark: isDark, onTap: () {}),
-          const SizedBox(width: 8),
-          // Grid / List toggle
-          _ViewToggle(isDark: isDark, w: w),
+          const SizedBox(width: 4),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                tab.$1,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: isFirst ? Colors.white : WholesalerColors.textSecondary(isDark),
+                ),
+              ),
+            ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// FILTER & ACTION TOOLBAR (Below Categories)
+// ─────────────────────────────────────────────────────────────────
+class WholesalerFilterToolbar extends StatelessWidget {
+  const WholesalerFilterToolbar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = context.watch<AppProvider>().isDarkMode;
+    final w = context.watch<WholesalerProvider>();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 620;
+          if (isNarrow) {
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: [
+                  // Left side
+                  _DropBtn(
+                    label: w.selectedWarehouse,
+                    isDark: isDark,
+                    onTap: () => _showWarehousePicker(context, w, isDark),
+                  ),
+                  const SizedBox(width: 8),
+                  _LowStockToggle(isDark: isDark, w: w),
+                  const SizedBox(width: 16),
+                  // Right side
+                  _DropBtn(label: 'Sort by: Popular', isDark: isDark, onTap: () {}),
+                  const SizedBox(width: 8),
+                  _FilterBtn(isDark: isDark),
+                  const SizedBox(width: 8),
+                  _ViewToggle(isDark: isDark, w: w),
+                ],
+              ),
+            );
+          }
+
+          return Row(
+            children: [
+              // ── Left side: All Warehouses & Low stock ───────────
+              _DropBtn(
+                label: w.selectedWarehouse,
+                isDark: isDark,
+                onTap: () => _showWarehousePicker(context, w, isDark),
+              ),
+              const SizedBox(width: 8),
+              _LowStockToggle(isDark: isDark, w: w),
+
+              const Spacer(),
+
+              // ── Right side: Sort by Popular, Filter & Grid/List ──
+              _DropBtn(label: 'Sort by: Popular', isDark: isDark, onTap: () {}),
+              const SizedBox(width: 8),
+              _FilterBtn(isDark: isDark),
+              const SizedBox(width: 8),
+              _ViewToggle(isDark: isDark, w: w),
+            ],
+          );
+        },
       ),
     );
   }
@@ -468,6 +518,13 @@ class WholesalerCategoryChips extends StatelessWidget {
     ('Home Appliances', Icons.home_rounded),
     ('Accessories', Icons.cable_rounded),
     ('Office Supplies', Icons.business_center_rounded),
+    ('Networking', Icons.router_rounded),
+    ('Audio & Sound', Icons.headphones_rounded),
+    ('Security & CCTV', Icons.videocam_rounded),
+    ('Storage & Memory', Icons.sd_storage_rounded),
+    ('Smart Devices', Icons.watch_rounded),
+    ('Cables & Power', Icons.power_rounded),
+    ('Gaming Gear', Icons.sports_esports_rounded),
   ];
 
   @override

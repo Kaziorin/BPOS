@@ -384,7 +384,13 @@ class POSProvider extends ChangeNotifier {
   }
 
   // Complete / Place Order
-  CompletedOrder placeOrder({required String paymentMethod}) {
+  CompletedOrder placeOrder({
+    required String paymentMethod,
+    double? paidAmount,
+    double? changeAmount,
+    String? customerName,
+    String? trxId,
+  }) {
     final orderId = 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}';
     final completed = CompletedOrder(
       id: orderId,
@@ -399,6 +405,10 @@ class POSProvider extends ChangeNotifier {
       total: totalPayable,
       paymentMethod: paymentMethod,
       timestamp: DateTime.now(),
+      paidAmount: paidAmount ?? totalPayable,
+      changeAmount: changeAmount ?? 0.0,
+      customerName: customerName,
+      trxId: trxId,
     );
 
     _completedOrders.insert(0, completed);

@@ -109,13 +109,13 @@ class _DesktopTabletLayout extends StatelessWidget {
               children: [
                 // ── Left: Catalog + Footer ─────────────────────────────
                 Expanded(
-                  flex: isTablet ? 58 : 63,
+                  flex: isTablet ? 65 : 70,
                   child: _CatalogPanel(isDark: isDark),
                 ),
                 SizedBox(width: isTablet ? 8 : 12),
                 // ── Right: Order Panel (Spans full height) ─────────────
                 Expanded(
-                  flex: isTablet ? 42 : 37,
+                  flex: isTablet ? 35 : 30,
                   child: const WholesalerOrderPanel(),
                 ),
               ],
@@ -147,10 +147,13 @@ class _CatalogPanel extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         child: Column(
           children: [
-            // Search + tabs + filter
+            // Search + tabs
             const WholesalerSearchBar(),
             // Category chips
             const WholesalerCategoryChips(),
+            const SizedBox(height: 6),
+            // Filter Toolbar (All Warehouses & Low stock on left; Sort, Filters & Grid/List on right)
+            const WholesalerFilterToolbar(),
             const SizedBox(height: 6),
             // Product grid / list
             const Expanded(child: WholesalerProductGrid()),
@@ -229,6 +232,8 @@ class _MobileLayout extends StatelessWidget {
                 children: [
                   WholesalerSearchBar(),
                   WholesalerCategoryChips(),
+                  SizedBox(height: 6),
+                  WholesalerFilterToolbar(),
                   SizedBox(height: 6),
                   Expanded(child: WholesalerProductGrid()),
                   WholesalerPaginationDots(),

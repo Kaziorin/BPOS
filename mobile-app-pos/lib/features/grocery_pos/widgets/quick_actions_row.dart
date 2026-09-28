@@ -48,24 +48,15 @@ class QuickActionsRow extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final spacing = 10.0;
-          final count = actions.length;
-          final itemWidth = (constraints.maxWidth - spacing * (count - 1)) / count;
-
-          return Row(
-            children: [
-              for (int i = 0; i < actions.length; i++) ...[
-                if (i > 0) SizedBox(width: spacing),
-                SizedBox(
-                  width: itemWidth,
-                  child: _QuickActionCard(action: actions[i], locale: locale, isDark: isDark),
-                ),
-              ],
-            ],
-          );
-        },
+      child: Row(
+        children: [
+          for (int i = 0; i < actions.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Expanded(
+              child: _QuickActionCard(action: actions[i], locale: locale, isDark: isDark),
+            ),
+          ],
+        ],
       ),
     );
   }

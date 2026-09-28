@@ -6,6 +6,9 @@ import '../../../../core/providers/app_provider.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/utils/number_utils.dart';
+import 'restaurant_checkout_dialog.dart';
+
+export 'restaurant_checkout_dialog.dart';
 
 // ─────────────────────────────────────────────────────────────────
 // TABLE SELECTION DIALOG
@@ -487,24 +490,30 @@ class _CheckoutPaymentDialogState extends State<CheckoutPaymentDialog> {
                 ),
                 const SizedBox(height: 16),
                 
-                // Quick Presets - Use Wrap for better layout
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                // Quick Presets - Fill full row evenly without gap
+                Row(
                   children: [20, 50, 100, 200, 500, 1000].map<Widget>((amt) {
-                    return InkWell(
-                      onTap: () => _updateCash(_cashTendered + amt.toDouble()),
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: context.cardBg,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: context.borderColor, width: 1.5),
-                        ),
-                        child: Text(
-                          '+৳${NumberUtils.toLocalized(amt, locale)}',
-                          style: TextStyle(fontWeight: FontWeight.w700, color: context.textPrimary),
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                        child: InkWell(
+                          onTap: () => _updateCash(_cashTendered + amt.toDouble()),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: context.cardBg,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: context.borderColor, width: 1.5),
+                            ),
+                            child: Text(
+                              '+৳${NumberUtils.toLocalized(amt, locale)}',
+                              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11, color: context.textPrimary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ),
                       ),
                     );
@@ -567,9 +576,17 @@ class _CheckoutPaymentDialogState extends State<CheckoutPaymentDialog> {
                 onPressed: (_selectedMethod == 'Cash' && _cashTendered < total)
                     ? null
                     : () {
-                        final completedOrder = provider.placeOrder(paymentMethod: _selectedMethod);
+                        final paid = _selectedMethod == 'Cash'
+                            ? (_cashTendered > 0 ? _cashTendered : total)
+                            : total;
+                        final change = (_selectedMethod == 'Cash' && paid > total) ? paid - total : 0.0;
+                        final completedOrder = provider.placeOrder(
+                          paymentMethod: _selectedMethod,
+                          paidAmount: paid,
+                          changeAmount: change,
+                        );
                         Navigator.of(context).pop();
-                        _showSuccessDialog(context, completedOrder, locale);
+                        showRestaurantReceiptDialog(context, completedOrder, context.isDark);
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryOrange,
@@ -625,56 +642,6 @@ class _CheckoutPaymentDialogState extends State<CheckoutPaymentDialog> {
     );
   }
 
-  void _showSuccessDialog(BuildContext context, CompletedOrder order, String locale) {
-    final isBn = locale == 'bn';
-    String translatedMethod = order.paymentMethod;
-    if (order.paymentMethod == 'Cash') translatedMethod = AppStrings.get('payment_cash', locale);
-    if (order.paymentMethod == 'Card') translatedMethod = AppStrings.get('payment_card', locale);
-    if (order.paymentMethod == 'QR Pay') translatedMethod = AppStrings.get('payment_qr', locale);
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: ctx.cardBg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 72, height: 72,
-              decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.12), shape: BoxShape.circle),
-              child: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 48),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              isBn ? 'অর্ডার সফলভাবে সম্পন্ন!' : 'Order Placed Successfully!',
-              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: ctx.textPrimary),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 6),
-            Text('${isBn ? 'অর্ডার ID' : 'Order ID'}: ${order.id}',
-              style: TextStyle(color: ctx.textSecondary, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Text(
-              '${isBn ? 'পেমেন্ট' : 'Total Paid'}: ৳${NumberUtils.toLocalized(order.total.toStringAsFixed(2), locale)} ${isBn ? 'এর মাধ্যমে' : 'via'} $translatedMethod',
-              style: TextStyle(fontWeight: FontWeight.w600, color: ctx.textPrimary),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF6D00),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              child: Text(isBn ? 'নতুন অর্ডার শুরু করুন' : 'Start New Order'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 

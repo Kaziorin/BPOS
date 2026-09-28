@@ -48,15 +48,20 @@ void showPharmacyCustomerDialog(BuildContext context, PharmacyProvider provider)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.person_pin_rounded, color: primaryTeal, size: 24),
-                        SizedBox(width: 10),
-                        Text(
-                          'Select or Add Patient/Customer',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                    const Expanded(
+                      child: Row(
+                        children: [
+                          Icon(Icons.person_pin_rounded, color: primaryTeal, size: 22),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Select or Add Patient/Customer',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close_rounded),
@@ -242,12 +247,20 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.camera_alt_outlined, color: primaryTeal, size: 24),
-                    SizedBox(width: 10),
-                    Text('Scan / Attach Prescription (Rx)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  ],
+                const Expanded(
+                  child: Row(
+                    children: [
+                      Icon(Icons.camera_alt_outlined, color: primaryTeal, size: 22),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Scan / Attach Prescription (Rx)',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(ctx)),
               ],
@@ -407,12 +420,20 @@ void showPharmacyBarcodeScanDialog(BuildContext context, PharmacyProvider provid
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.barcode_reader, color: primaryTeal, size: 24),
-                      SizedBox(width: 8),
-                      Text('Barcode Scanner', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    ],
+                  const Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.barcode_reader, color: primaryTeal, size: 22),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Barcode Scanner',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
                 ],
@@ -550,12 +571,20 @@ void showPharmacyQuickRefillDialog(BuildContext context, PharmacyProvider provid
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.refresh_rounded, color: Colors.orange, size: 24),
-                    SizedBox(width: 8),
-                    Text('Patient Quick Refill', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  ],
+                const Expanded(
+                  child: Row(
+                    children: [
+                      Icon(Icons.refresh_rounded, color: Colors.orange, size: 22),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Patient Quick Refill',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
               ],
@@ -644,12 +673,20 @@ void showPharmacyAddMedicineDialog(BuildContext context, PharmacyProvider provid
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.add_circle_outline, color: primaryTeal, size: 24),
-                      SizedBox(width: 8),
-                      Text('Add New Medicine to Stock', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    ],
+                  const Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.add_circle_outline, color: primaryTeal, size: 22),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Add New Medicine to Stock',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
                 ],
@@ -770,12 +807,20 @@ void showPharmacyGenericAlternativesDialog(BuildContext context, PharmacyProvide
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.swap_horiz_rounded, color: primaryTeal, size: 26),
-                    SizedBox(width: 8),
-                    Text('Generic Alternatives Finder', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  ],
+                const Expanded(
+                  child: Row(
+                    children: [
+                      Icon(Icons.swap_horiz_rounded, color: primaryTeal, size: 24),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Generic Alternatives Finder',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
               ],
@@ -919,8 +964,14 @@ void showPharmacyMedicineDetailsDialog(BuildContext context, PharmacyProvider pr
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                    ),
                     icon: const Icon(Icons.swap_horiz, size: 16),
-                    label: const Text('Alternatives'),
+                    label: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text('Alternatives'),
+                    ),
                     onPressed: () {
                       provider.setFocusedMedicine(medicine);
                       Navigator.pop(ctx);
@@ -928,12 +979,19 @@ void showPharmacyMedicineDetailsDialog(BuildContext context, PharmacyProvider pr
                     },
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryTeal,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                    ),
                     icon: const Icon(Icons.add_shopping_cart, size: 16),
-                    label: const Text('Add to Cart'),
+                    label: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text('Add to Cart'),
+                    ),
                     onPressed: () {
                       provider.addToCart(medicine);
                       Navigator.pop(ctx);
@@ -956,16 +1014,22 @@ Widget _detailTile(String label, String value, Color color) {
   return Expanded(
     child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 2),
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         children: [
-          Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey), maxLines: 1),
+          ),
           const SizedBox(height: 2),
-          Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
+          ),
         ],
       ),
     ),
@@ -977,9 +1041,17 @@ Widget _infoRow(String label, String value) {
     padding: const EdgeInsets.symmetric(vertical: 3),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-        Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          ),
+        ),
       ],
     ),
   );
@@ -1016,12 +1088,20 @@ void showPharmacyDoctorDialog(BuildContext context, PharmacyProvider provider) {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.person_outline_rounded, color: Colors.indigo, size: 24),
-                      SizedBox(width: 8),
-                      Text('Prescribing Doctor', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    ],
+                  const Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.person_outline_rounded, color: Colors.indigo, size: 22),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Prescribing Doctor',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
                 ],
@@ -1102,12 +1182,20 @@ void showPharmacyNoteDialog(BuildContext context, PharmacyProvider provider) {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.note_alt_rounded, color: primaryTeal, size: 24),
-                    SizedBox(width: 8),
-                    Text('Order & Dispensing Note', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  ],
+                const Expanded(
+                  child: Row(
+                    children: [
+                      Icon(Icons.note_alt_rounded, color: primaryTeal, size: 22),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Order & Dispensing Note',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
               ],
@@ -1175,12 +1263,20 @@ void showPharmacyHeldBillsDialog(BuildContext context, PharmacyProvider provider
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.pause_circle_outline_rounded, color: primaryTeal, size: 24),
-                      const SizedBox(width: 8),
-                      Text('Held Bills (${provider.heldBills.length})', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        const Icon(Icons.pause_circle_outline_rounded, color: primaryTeal, size: 22),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Held Bills (${provider.heldBills.length})',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
                 ],

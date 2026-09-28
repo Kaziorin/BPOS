@@ -493,7 +493,7 @@ class _PlaceOrderButton extends StatelessWidget {
             onTap: provider.cartItems.isEmpty
                 ? null
                 : () {
-                    showDialog(context: context, builder: (_) => const CheckoutPaymentDialog());
+                    showRestaurantCheckoutDialog(context, provider, context.isDark);
                   },
             child: Container(
               height: 56,

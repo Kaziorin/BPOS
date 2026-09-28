@@ -63,7 +63,8 @@ class CartItem {
     this.extraPricePerUnit = 0.0,
   });
 
-  double get totalPrice => (menuItem.price + extraPricePerUnit) * quantity;
+  double get unitPrice => menuItem.price + extraPricePerUnit;
+  double get totalPrice => unitPrice * quantity;
 }
 
 
@@ -130,6 +131,10 @@ class CompletedOrder {
   final double total;
   final String paymentMethod;
   final DateTime timestamp;
+  final double paidAmount;
+  final double changeAmount;
+  final String? customerName;
+  final String? trxId;
 
   CompletedOrder({
     required this.id,
@@ -144,6 +149,10 @@ class CompletedOrder {
     required this.total,
     required this.paymentMethod,
     required this.timestamp,
+    this.paidAmount = 0.0,
+    this.changeAmount = 0.0,
+    this.customerName,
+    this.trxId,
   });
 }
 

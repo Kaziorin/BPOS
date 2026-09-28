@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/app_provider.dart';
 import '../providers/wholesaler_provider.dart';
 import '../theme/wholesaler_colors.dart';
 import 'wholesaler_dialogs.dart';
+import 'wholesaler_checkout_dialog.dart';
 
 // ─────────────────────────────────────────────────────────────────
 // RIGHT PANEL: ORDER ITEMS + PRICING SUMMARY
@@ -21,11 +23,91 @@ class WholesalerOrderPanel extends StatelessWidget {
         children: [
           const _OrderPanelHeader(),
           const Divider(height: 1),
+          const _OrderColumnHeaders(),
+          const Divider(height: 1),
           const Expanded(child: _OrderItemsList()),
           const Divider(height: 1),
           const _PricingSummary(),
           const SizedBox(height: 2),
           const _ActionButtons(),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Table Column Headers (ITEM, PRICE, QTY, TOTAL) ───────────────
+class _OrderColumnHeaders extends StatelessWidget {
+  const _OrderColumnHeaders();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = context.watch<AppProvider>().isDarkMode;
+    final color = WholesalerColors.textSecondary(isDark);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1B4B) : const Color(0xFFF8FAFF),
+        border: Border(
+          bottom: BorderSide(
+            color: WholesalerColors.divider(isDark),
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 6,
+            child: Text(
+              'ITEM',
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                color: color,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              'PRICE',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                color: color,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Text(
+              'QTY',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                color: color,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Text(
+              'TOTAL',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                color: color,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -191,10 +273,10 @@ class _OrderItemsList extends StatelessWidget {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       itemCount: w.items.length,
       separatorBuilder: (_, _) => Divider(
-          height: 1, color: WholesalerColors.divider(isDark)),
+          height: 12, thickness: 1, color: WholesalerColors.divider(isDark)),
       itemBuilder: (_, i) => _OrderItemRow(
         item: w.items[i],
         isDark: isDark,
@@ -219,6 +301,8 @@ class _OrderItemRowState extends State<_OrderItemRow>
   late AnimationController _ctrl;
   late Animation<double> _opacity;
   late Animation<Offset> _slide;
+  late TextEditingController _qtyCtrl;
+  late FocusNode _qtyFocus;
 
   @override
   void initState() {
@@ -228,10 +312,51 @@ class _OrderItemRowState extends State<_OrderItemRow>
     _slide = Tween<Offset>(begin: const Offset(0.3, 0), end: Offset.zero)
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
     _ctrl.forward();
+
+    _qtyCtrl = TextEditingController(text: '${widget.item.qty}');
+    _qtyFocus = FocusNode();
+    _qtyFocus.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (_qtyFocus.hasFocus) {
+      _qtyCtrl.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: _qtyCtrl.text.length,
+      );
+    } else {
+      _commitQty();
+    }
+  }
+
+  void _commitQty() {
+    final w = context.read<WholesalerProvider>();
+    final parsed = int.tryParse(_qtyCtrl.text.trim());
+    if (parsed != null && parsed > 0) {
+      if (parsed != widget.item.qty) {
+        w.setQty(widget.item.product.id, parsed);
+      }
+    } else {
+      _qtyCtrl.text = '${widget.item.qty}';
+    }
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void didUpdateWidget(covariant _OrderItemRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_qtyFocus.hasFocus && _qtyCtrl.text != '${widget.item.qty}') {
+      _qtyCtrl.text = '${widget.item.qty}';
+    }
+  }
+
+  @override
+  void dispose() {
+    _qtyFocus.removeListener(_onFocusChange);
+    _qtyFocus.dispose();
+    _qtyCtrl.dispose();
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -240,83 +365,247 @@ class _OrderItemRowState extends State<_OrderItemRow>
     final p = item.product;
     final w = context.read<WholesalerProvider>();
 
+    if (!_qtyFocus.hasFocus && _qtyCtrl.text != '${item.qty}') {
+      _qtyCtrl.text = '${item.qty}';
+    }
+
     return FadeTransition(
       opacity: _opacity,
       child: SlideTransition(
         position: _slide,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Thumbnail
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  color: WholesalerColors.primary.withValues(alpha: 0.08),
-                  child: Center(child: Text(p.emoji, style: const TextStyle(fontSize: 20))),
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Name + SKU
+              // 1. ITEM COLUMN (flex 6)
               Expanded(
-                flex: 4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                flex: 6,
+                child: Row(
                   children: [
-                    Text(
-                      p.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: WholesalerColors.textPrimary(isDark),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        color: WholesalerColors.primary.withValues(alpha: 0.08),
+                        child: Center(
+                          child: p.imageUrl.isNotEmpty
+                              ? Image.network(
+                                  p.imageUrl,
+                                  width: 32,
+                                  height: 32,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) => Text(p.emoji, style: const TextStyle(fontSize: 16)),
+                                )
+                              : Text(p.emoji, style: const TextStyle(fontSize: 16)),
+                        ),
                       ),
                     ),
-                    Text(
-                      'SKU: ${p.sku}  •  ${p.warehouseId}',
-                      style: TextStyle(
-                        fontSize: 8.5,
-                        color: WholesalerColors.textSecondary(isDark),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            p.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: WholesalerColors.textPrimary(isDark),
+                            ),
+                          ),
+                          const SizedBox(height: 1),
+                          Text(
+                            'SKU: ${p.sku}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 9,
+                              color: WholesalerColors.textSecondary(isDark),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    // Qty stepper
-                    const SizedBox(height: 4),
-                    _QtyRow(item: item, isDark: isDark, w: w),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              // Price + total
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
+
+              // 2. PRICE COLUMN (flex 3)
+              Expanded(
+                flex: 3,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: Text(
                     '৳${item.unitPrice.toStringAsFixed(2)}',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 11,
-                      color: WholesalerColors.textSecondary(isDark),
-                    ),
-                  ),
-                  Text(
-                    '৳${item.lineTotal.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
                       color: WholesalerColors.textPrimary(isDark),
                     ),
                   ),
-                ],
+                ),
               ),
-              const SizedBox(width: 4),
-              // Remove
-              GestureDetector(
-                onTap: () => w.removeItem(p.id),
-                child: Icon(Icons.close_rounded,
-                    size: 16,
-                    color: WholesalerColors.textSecondary(isDark)),
+
+              // 3. QTY COLUMN (flex 4)
+              Expanded(
+                flex: 4,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          w.decrementQty(p.id);
+                          setState(() {
+                            _qtyCtrl.text = '${item.qty}';
+                          });
+                        },
+                        borderRadius: BorderRadius.circular(4),
+                        child: Container(
+                          width: 19,
+                          height: 19,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF2E2B6B) : Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF3E3A85) : const Color(0xFFE2E8F0),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.remove,
+                            size: 11,
+                            color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 2.5),
+                      // Editable QTY Box (Type directly inline or double-tap for preset numpad dialog)
+                      Tooltip(
+                        message: 'Type quantity or double tap for presets',
+                        child: InkWell(
+                          onDoubleTap: () => _showWholesaleQtyDialog(context, w, p.id, p.name, item.qty),
+                          borderRadius: BorderRadius.circular(4),
+                          child: Container(
+                            width: 32,
+                            height: 19,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF1E1B4B)
+                                  : const Color(0xFFEEF2FF),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: isDark
+                                    ? WholesalerColors.primary.withValues(alpha: 0.6)
+                                    : const Color(0xFFCBD5E1),
+                                width: 1,
+                              ),
+                            ),
+                            child: TextField(
+                              controller: _qtyCtrl,
+                              focusNode: _qtyFocus,
+                              textAlign: TextAlign.center,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: WholesalerColors.primary,
+                                height: 1.1,
+                              ),
+                              cursorColor: WholesalerColors.primary,
+                              cursorWidth: 1.5,
+                              cursorHeight: 11,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                              onSubmitted: (_) {
+                                _commitQty();
+                                _qtyFocus.unfocus();
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 2.5),
+                      InkWell(
+                        onTap: () {
+                          w.incrementQty(p.id);
+                          setState(() {
+                            _qtyCtrl.text = '${item.qty}';
+                          });
+                        },
+                        borderRadius: BorderRadius.circular(4),
+                        child: Container(
+                          width: 19,
+                          height: 19,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF2E2B6B) : Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: isDark ? const Color(0xFF3E3A85) : const Color(0xFFE2E8F0),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.add,
+                            size: 11,
+                            color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // 4. TOTAL COLUMN (flex 4)
+              Expanded(
+                flex: 4,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '৳${item.lineTotal.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w900,
+                            color: WholesalerColors.textPrimary(isDark),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    InkWell(
+                      onTap: () => w.removeItem(p.id),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Icon(
+                          Icons.delete_outline_rounded,
+                          size: 16,
+                          color: isDark ? Colors.grey.shade500 : const Color(0xFFCBD5E1),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -326,82 +615,181 @@ class _OrderItemRowState extends State<_OrderItemRow>
   }
 }
 
-class _QtyRow extends StatelessWidget {
-  final WOrderItem item;
-  final bool isDark;
-  final WholesalerProvider w;
-  const _QtyRow({required this.item, required this.isDark, required this.w});
+// ─────────────────────────────────────────────────────────────────
+// QUICK WHOLESALE QUANTITY PRESET MODAL
+// ─────────────────────────────────────────────────────────────────
+Future<void> _showWholesaleQtyDialog(
+  BuildContext context,
+  WholesalerProvider w,
+  String productId,
+  String productName,
+  int currentQty,
+) async {
+  final dialogCtrl = TextEditingController(text: '$currentQty');
+  dialogCtrl.selection = TextSelection(baseOffset: 0, extentOffset: dialogCtrl.text.length);
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _QtyBtn(
-          icon: Icons.remove_rounded,
-          onTap: () => w.decrementQty(item.product.id),
-          color: WholesalerColors.accentRed,
-          isDark: isDark,
-        ),
-        const SizedBox(width: 6),
-        Text(
-          item.qty.toString(),
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w800,
-            color: WholesalerColors.textPrimary(isDark),
-          ),
-        ),
-        const SizedBox(width: 6),
-        _QtyBtn(
-          icon: Icons.add_rounded,
-          onTap: () => w.incrementQty(item.product.id),
-          color: WholesalerColors.accentGreen,
-          isDark: isDark,
-        ),
-      ],
-    );
-  }
+  await showDialog<void>(
+    context: context,
+    builder: (ctx) {
+      final isDark = ctx.watch<AppProvider>().isDarkMode;
+      return StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          void updateVal(int val) {
+            if (val > 0) {
+              setDialogState(() {
+                dialogCtrl.text = '$val';
+                dialogCtrl.selection = TextSelection(baseOffset: 0, extentOffset: dialogCtrl.text.length);
+              });
+            }
+          }
+
+          void addVal(int add) {
+            final curr = int.tryParse(dialogCtrl.text) ?? currentQty;
+            updateVal(curr + add);
+          }
+
+          return AlertDialog(
+            backgroundColor: isDark ? const Color(0xFF1E1B4B) : Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: WholesalerColors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.edit_note_rounded, color: WholesalerColors.primary, size: 20),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Set Wholesale Quantity', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+                      Text(productName, maxLines: 1, overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 11, color: WholesalerColors.textSecondary(isDark))),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: 320,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 8),
+                  // Large QTY Input Field
+                  TextField(
+                    controller: dialogCtrl,
+                    autofocus: true,
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: WholesalerColors.primary),
+                    decoration: InputDecoration(
+                      hintText: 'Enter Qty (e.g. 100)',
+                      filled: true,
+                      fillColor: isDark ? const Color(0xFF2E2B6B) : const Color(0xFFF1F5F9),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onSubmitted: (v) {
+                      final val = int.tryParse(v);
+                      if (val != null && val > 0) {
+                        w.setQty(productId, val);
+                        Navigator.pop(ctx);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 14),
+                  // Wholesale Presets
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Wholesale Quick Presets:', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: WholesalerColors.textSecondary(isDark))),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [10, 25, 50, 100, 200, 500].map((preset) {
+                      return InkWell(
+                        onTap: () => updateVal(preset),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: WholesalerColors.primary.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: WholesalerColors.primary.withValues(alpha: 0.25)),
+                          ),
+                          child: Text('$preset', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: WholesalerColors.primary)),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  // Quick Increments
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Quick Add (+):', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: WholesalerColors.textSecondary(isDark))),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [5, 10, 50, 100].map((add) {
+                      return InkWell(
+                        onTap: () => addVal(add),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: WholesalerColors.accentGreen.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: WholesalerColors.accentGreen.withValues(alpha: 0.3)),
+                          ),
+                          child: Text('+$add', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: WholesalerColors.accentGreen)),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text('Cancel', style: TextStyle(color: WholesalerColors.textSecondary(isDark))),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final val = int.tryParse(dialogCtrl.text);
+                  if (val != null && val > 0) {
+                    w.setQty(productId, val);
+                    Navigator.pop(ctx);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: WholesalerColors.primary,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                ),
+                child: const Text('Update Qty', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }
 
-class _QtyBtn extends StatefulWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  final Color color;
-  final bool isDark;
-  const _QtyBtn({required this.icon, required this.onTap, required this.color, required this.isDark});
 
-  @override
-  State<_QtyBtn> createState() => _QtyBtnState();
-}
-
-class _QtyBtnState extends State<_QtyBtn> {
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      onTap: widget.onTap,
-      child: AnimatedScale(
-        scale: _pressed ? 0.88 : 1.0,
-        duration: const Duration(milliseconds: 100),
-        child: Container(
-          width: 20,
-          height: 20,
-          decoration: BoxDecoration(
-            color: widget.color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(5),
-            border: Border.all(color: widget.color.withValues(alpha: 0.35)),
-          ),
-          child: Icon(widget.icon, size: 12, color: widget.color),
-        ),
-      ),
-    );
-  }
-}
 
 // ── Pricing Summary ──────────────────────────────────────────────
 class _PricingSummary extends StatelessWidget {
@@ -580,26 +968,25 @@ class _ActionButtonsState extends State<_ActionButtons> {
                     ),
                     boxShadow: WholesalerColors.softShadow(isDark),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: WholesalerColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(7),
-                        ),
-                        child: Icon(Icons.pause_rounded,
-                            size: 14, color: WholesalerColors.primary),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.pause_circle_outline_rounded,
+                              size: 16, color: WholesalerColors.primary),
+                          const SizedBox(width: 5),
+                          Text('Hold Order',
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                                color: WholesalerColors.primary,
+                              )),
+                        ],
                       ),
-                      const SizedBox(width: 7),
-                      Text('Hold Order',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: WholesalerColors.primary,
-                          )),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -614,17 +1001,12 @@ class _ActionButtonsState extends State<_ActionButtons> {
               onTapUp: (_) => setState(() => _deliveryPressed = false),
               onTapCancel: () => setState(() => _deliveryPressed = false),
               onTap: () {
-                if (context.read<WholesalerProvider>().items.isEmpty) {
-                  _snack(context, 'Add items to proceed');
+                final w = context.read<WholesalerProvider>();
+                if (w.items.isEmpty) {
+                  _snack(context, 'Add items to proceed to checkout');
                   return;
                 }
-                showDialog(
-                  context: context,
-                  builder: (_) => ChangeNotifierProvider.value(
-                    value: context.read<WholesalerProvider>(),
-                    child: const WOrderConfirmDialog(),
-                  ),
-                );
+                showWholesalerCheckoutDialog(context, w, isDark);
               },
               child: AnimatedScale(
                 scale: _deliveryPressed ? 0.96 : 1,
@@ -642,22 +1024,28 @@ class _ActionButtonsState extends State<_ActionButtons> {
                       ),
                     ],
                   ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.local_shipping_rounded,
-                          size: 16, color: Colors.white),
-                      SizedBox(width: 7),
-                      Text('Proceed to Delivery',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                          )),
-                      SizedBox(width: 6),
-                      Icon(Icons.arrow_forward_rounded,
-                          size: 14, color: Colors.white),
-                    ],
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.payments_rounded,
+                              size: 16, color: Colors.white),
+                          SizedBox(width: 6),
+                          Text('Checkout & Pay',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              )),
+                          SizedBox(width: 5),
+                          Icon(Icons.arrow_forward_rounded,
+                              size: 14, color: Colors.white),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

@@ -1,69 +1,104 @@
 import 'package:flutter/material.dart';
-import '../../models/retail_sale.dart';
-import '../../providers/retail_provider.dart';
+import 'package:intl/intl.dart';
+import '../providers/wholesaler_provider.dart';
+import '../theme/wholesaler_colors.dart';
 
-void showRetailReceiptDialog(BuildContext context, RetailSale sale, bool isDark) {
+// ─────────────────────────────────────────────────────────────────────────────
+// WHOLESALE SALE DATA HOLDER
+// ─────────────────────────────────────────────────────────────────────────────
+class WholesalerSale {
+  final String orderNo;
+  final WCustomer customer;
+  final List<WOrderItem> items;
+  final double subtotal;
+  final double discount;
+  final double tax;
+  final double shipping;
+  final double total;
+  final String paymentMethod;
+  final double paidAmount;
+  final double changeAmount;
+  final DateTime createdAt;
+  final String? trxId;
+
+  const WholesalerSale({
+    required this.orderNo,
+    required this.customer,
+    required this.items,
+    required this.subtotal,
+    required this.discount,
+    required this.tax,
+    required this.shipping,
+    required this.total,
+    required this.paymentMethod,
+    required this.paidAmount,
+    required this.changeAmount,
+    required this.createdAt,
+    this.trxId,
+  });
+}
+
+void showWholesalerReceiptDialog(BuildContext context, WholesalerSale sale, bool isDark) {
   showDialog(
     context: context,
     barrierColor: Colors.black.withValues(alpha: 0.55),
-    builder: (ctx) => RetailReceiptModal(sale: sale, isDark: isDark),
+    builder: (ctx) => WholesalerReceiptModal(sale: sale, isDark: isDark),
   );
 }
 
-void showRetailCheckoutDialog(BuildContext context, RetailProvider retailProvider, bool isDark) {
+void showWholesalerCheckoutDialog(BuildContext context, WholesalerProvider w, bool isDark) {
   showDialog(
     context: context,
     barrierColor: Colors.black.withValues(alpha: 0.55),
-    builder: (ctx) => RetailCheckoutPaymentModal(
-      retailProvider: retailProvider,
+    builder: (ctx) => WholesalerCheckoutPaymentModal(
+      wholesalerProvider: w,
       isDark: isDark,
       onPaymentComplete: (sale) {
-        // Use the dialog's own context (ctx) which is still valid after pop
-        showRetailReceiptDialog(ctx, sale, isDark);
+        showWholesalerReceiptDialog(ctx, sale, isDark);
       },
     ),
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CHECKOUT & PAYMENT MODAL (Pixel-perfect matching POS reference)
-// ─────────────────────────────────────────────────────────────────────────────
-class RetailCheckoutPaymentModal extends StatefulWidget {
-  final RetailProvider retailProvider;
-  final bool isDark;
-  final void Function(RetailSale sale) onPaymentComplete;
+const Color _primaryIndigo = Color(0xFF4F46E5);
 
-  const RetailCheckoutPaymentModal({
+// ─────────────────────────────────────────────────────────────────────────────
+// WHOLESALER CHECKOUT & PAYMENT MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+class WholesalerCheckoutPaymentModal extends StatefulWidget {
+  final WholesalerProvider wholesalerProvider;
+  final bool isDark;
+  final void Function(WholesalerSale sale) onPaymentComplete;
+
+  const WholesalerCheckoutPaymentModal({
     super.key,
-    required this.retailProvider,
+    required this.wholesalerProvider,
     required this.isDark,
     required this.onPaymentComplete,
   });
 
   @override
-  State<RetailCheckoutPaymentModal> createState() => _RetailCheckoutPaymentModalState();
+  State<WholesalerCheckoutPaymentModal> createState() => _WholesalerCheckoutPaymentModalState();
 }
 
-class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal> {
-  late String _selectedMethod;
+class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPaymentModal> {
+  String _selectedMethod = 'CASH';
   final TextEditingController _tenderedController = TextEditingController();
   double _tenderedAmount = 0.0;
 
   // Non-cash helpers
-  String _cardType = 'Visa';
-  final TextEditingController _cardAuthCtrl = TextEditingController();
+  String _bankName = 'City Bank (Online)';
+  final TextEditingController _bankSlipCtrl = TextEditingController();
   String _mobileProvider = 'bKash';
   final TextEditingController _trxIdCtrl = TextEditingController();
+  final TextEditingController _poNumberCtrl = TextEditingController();
+  final TextEditingController _dueNoteCtrl = TextEditingController();
+
+  static const Color primaryIndigo = Color(0xFF4F46E5);
 
   @override
   void initState() {
     super.initState();
-    final current = widget.retailProvider.paymentMethod;
-    if (current == 'CARD' || current == 'MOBILE_PAY' || current == 'CUSTOMER_DUE') {
-      _selectedMethod = current;
-    } else {
-      _selectedMethod = 'CASH';
-    }
     _tenderedController.text = '0';
     _tenderedAmount = 0.0;
   }
@@ -71,8 +106,10 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
   @override
   void dispose() {
     _tenderedController.dispose();
-    _cardAuthCtrl.dispose();
+    _bankSlipCtrl.dispose();
     _trxIdCtrl.dispose();
+    _poNumberCtrl.dispose();
+    _dueNoteCtrl.dispose();
     super.dispose();
   }
 
@@ -83,7 +120,7 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
   }
 
   void _setExactAmount() {
-    final total = widget.retailProvider.total;
+    final total = widget.wholesalerProvider.grandTotal;
     setState(() {
       _tenderedAmount = total;
       _tenderedController.text = total % 1 == 0 ? total.toInt().toString() : total.toStringAsFixed(2);
@@ -100,16 +137,38 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
   }
 
   void _submitPayment() {
-    final total = widget.retailProvider.total;
+    final w = widget.wholesalerProvider;
+    final total = w.grandTotal;
     final paid = _selectedMethod == 'CASH'
         ? (_tenderedAmount > 0 ? _tenderedAmount : total)
         : total;
+    final change = (_selectedMethod == 'CASH' && paid > total) ? paid - total : 0.0;
 
-    widget.retailProvider.setPaymentMethod(_selectedMethod);
-    final sale = widget.retailProvider.confirmSale(
+    String methodLabel = _selectedMethod;
+    if (_selectedMethod == 'CASH') methodLabel = 'Cash';
+    if (_selectedMethod == 'CARD') methodLabel = 'Bank Transfer ($_bankName)';
+    if (_selectedMethod == 'MOBILE_PAY') methodLabel = '$_mobileProvider (Mobile)';
+    if (_selectedMethod == 'CUSTOMER_DUE') methodLabel = 'B2B Credit / Ledger';
+
+    final sale = WholesalerSale(
+      orderNo: w.orderNo,
+      customer: w.customer,
+      items: List.from(w.items),
+      subtotal: w.subtotal,
+      discount: w.discountFlat,
+      tax: w.taxAmount,
+      shipping: w.shippingCost,
+      total: total,
+      paymentMethod: methodLabel,
       paidAmount: paid,
-      method: _selectedMethod,
+      changeAmount: change,
+      createdAt: DateTime.now(),
+      trxId: _selectedMethod == 'MOBILE_PAY'
+          ? _trxIdCtrl.text.trim()
+          : (_selectedMethod == 'CARD' ? _bankSlipCtrl.text.trim() : null),
     );
+
+    w.clearOrder();
     Navigator.of(context).pop();
     widget.onPaymentComplete(sale);
   }
@@ -117,28 +176,29 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
   @override
   Widget build(BuildContext context) {
     final isDark = widget.isDark;
-    final bg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2E2E2E) : const Color(0xFFE2E8F0);
-    final total = widget.retailProvider.total;
-    final subtotal = widget.retailProvider.subtotal;
-    final tax = widget.retailProvider.taxTotal;
-    final itemCount = widget.retailProvider.cart.fold<int>(0, (sum, i) => sum + i.qty);
-    final customer = widget.retailProvider.selectedCustomer.isNotEmpty
-        ? widget.retailProvider.selectedCustomer
-        : 'Walk-in Retail Customer';
+    final bg = isDark ? const Color(0xFF1E1B4B) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF2E2B6B) : const Color(0xFFE2E8F0);
+    final w = widget.wholesalerProvider;
+    final total = w.grandTotal;
+    final subtotal = w.subtotal;
+    final discount = w.discountFlat;
+    final tax = w.taxAmount;
+    final shipping = w.shippingCost;
+    final itemCount = w.totalItems;
+    final fmt = NumberFormat('#,##0.00');
 
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: Container(
-        width: 500,
-        constraints: const BoxConstraints(maxWidth: 520, maxHeight: 690),
+        width: 520,
+        constraints: const BoxConstraints(maxWidth: 540, maxHeight: 720),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.22),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 28,
               offset: const Offset(0, 8),
             ),
@@ -170,30 +230,30 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
               ),
             ),
 
-            // ── Purple Gradient Banner ─────────────────────────────────────
+            // ── Indigo/Blue Business Gradient Banner ───────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)],
+                    colors: [Color(0xFF4F46E5), Color(0xFF6366F1)],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      width: 38,
-                      height: 38,
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
-                        borderRadius: BorderRadius.circular(4),
+                        color: Colors.white.withValues(alpha: 0.2),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 20),
+                      child: const Icon(Icons.local_shipping_rounded, color: Colors.white, size: 22),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -201,9 +261,9 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Checkout & Payment',
+                            'Wholesale Checkout & Payment',
                             style: TextStyle(
-                              fontSize: 14.5,
+                              fontSize: 15,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
                               letterSpacing: 0.2,
@@ -211,10 +271,10 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '$itemCount items • Customer: $customer • Cashier: Super Administrator',
+                            '$itemCount items • ${w.customer.name} (${w.customer.customerId}) • ${w.customer.tierLabel}',
                             style: const TextStyle(
-                              fontSize: 10.5,
-                              color: Color(0xFFDDD6FE),
+                              fontSize: 11,
+                              color: Color(0xFFE0E7FF),
                               fontWeight: FontWeight.w500,
                             ),
                             maxLines: 1,
@@ -240,13 +300,13 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
                   children: [
                     // ── Total Payable Summary Card ─────────────────────────────────
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF262626) : Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: borderColor),
+                          color: isDark ? const Color(0xFF161337) : const Color(0xFFEEF2FF),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: primaryIndigo.withValues(alpha: 0.25)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -254,21 +314,21 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Total Payable',
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
-                                    color: Color(0xFF64748B),
+                                    color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
                                   ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  '৳${total.toStringAsFixed(2)}',
+                                  '৳${fmt.format(total)}',
                                   style: const TextStyle(
                                     fontSize: 26,
                                     fontWeight: FontWeight.w900,
-                                    color: Color(0xFF7C3AED),
+                                    color: primaryIndigo,
                                     letterSpacing: -0.5,
                                   ),
                                 ),
@@ -279,25 +339,51 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
                               children: [
                                 Row(
                                   children: [
-                                    const Text('Subtotal:   ', style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
+                                    const Text('Subtotal:  ', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
                                     Text(
-                                      '৳${subtotal.toStringAsFixed(2)}',
+                                      '৳${fmt.format(subtotal)}',
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 11.5,
                                         fontWeight: FontWeight.bold,
                                         color: isDark ? Colors.white : const Color(0xFF1E293B),
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 4),
+                                if (discount > 0) ...[
+                                  const SizedBox(height: 2),
+                                  Row(
+                                    children: [
+                                      const Text('Discount:  ', style: TextStyle(fontSize: 11, color: Colors.green)),
+                                      Text(
+                                        '-৳${fmt.format(discount)}',
+                                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.green),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                                const SizedBox(height: 2),
                                 Row(
                                   children: [
-                                    const Text('Tax (5%):   ', style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
+                                    const Text('VAT (6.4%):  ', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
                                     Text(
-                                      '৳${tax.toStringAsFixed(2)}',
+                                      '৳${fmt.format(tax)}',
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.bold,
+                                        color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    const Text('Shipping:  ', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                                    Text(
+                                      '৳${fmt.format(shipping)}',
+                                      style: TextStyle(
+                                        fontSize: 11.5,
                                         fontWeight: FontWeight.bold,
                                         color: isDark ? Colors.white : const Color(0xFF1E293B),
                                       ),
@@ -331,11 +417,11 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
                             children: [
                               _buildMethodItem('CASH', 'Cash', Icons.payments_outlined, isDark, borderColor),
                               const SizedBox(width: 8),
-                              _buildMethodItem('CARD', 'Card / POS', Icons.credit_card_outlined, isDark, borderColor),
+                              _buildMethodItem('CARD', 'Bank / POS', Icons.account_balance_outlined, isDark, borderColor),
                               const SizedBox(width: 8),
                               _buildMethodItem('MOBILE_PAY', 'Mobile\nBanking', Icons.phone_android_outlined, isDark, borderColor),
                               const SizedBox(width: 8),
-                              _buildMethodItem('CUSTOMER_DUE', 'Customer\nDue', Icons.receipt_long_outlined, isDark, borderColor),
+                              _buildMethodItem('CUSTOMER_DUE', 'Customer\nCredit / Due', Icons.receipt_long_outlined, isDark, borderColor),
                             ],
                           ),
                         ],
@@ -344,7 +430,7 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
 
                     // ── Dynamic Payment Detail Area ────────────────────────────────
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+                      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
                       child: _buildSelectedMethodArea(isDark, borderColor, total),
                     ),
                   ],
@@ -363,71 +449,42 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
     );
   }
 
-  Widget _buildMethodItem(String id, String label, IconData icon, bool isDark, Color borderColor) {
-    final isSelected = _selectedMethod == id;
+  Widget _buildMethodItem(String key, String label, IconData icon, bool isDark, Color borderColor) {
+    final isSelected = _selectedMethod == key;
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedMethod = id;
-            if (id == 'CASH' && _tenderedAmount == 0) {
-              _tenderedController.text = '0';
-            }
-          });
-        },
+        onTap: () => setState(() => _selectedMethod = key),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          height: 74,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
           decoration: BoxDecoration(
             color: isSelected
-                ? const Color(0xFF7C3AED)
-                : (isDark ? const Color(0xFF262626) : Colors.white),
-            gradient: isSelected
-                ? const LinearGradient(
-                    colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
-                : null,
-            borderRadius: BorderRadius.circular(4),
+                ? primaryIndigo.withValues(alpha: isDark ? 0.25 : 0.1)
+                : (isDark ? const Color(0xFF161337) : Colors.white),
+            borderRadius: BorderRadius.circular(6),
             border: Border.all(
-              color: isSelected ? const Color(0xFF7C3AED) : borderColor,
-              width: isSelected ? 1.5 : 1.0,
+              color: isSelected ? primaryIndigo : borderColor,
+              width: isSelected ? 1.8 : 1.0,
             ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: const Color(0xFF7C3AED).withValues(alpha: 0.3),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
           ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 icon,
                 size: 20,
-                color: isSelected
-                    ? Colors.white
-                    : (isDark ? Colors.grey.shade400 : const Color(0xFF334155)),
+                color: isSelected ? primaryIndigo : (isDark ? Colors.grey.shade400 : const Color(0xFF64748B)),
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 4),
               Text(
                 label,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                  color: isSelected
-                      ? Colors.white
-                      : (isDark ? Colors.grey.shade300 : const Color(0xFF334155)),
+                  color: isSelected ? primaryIndigo : (isDark ? Colors.white : const Color(0xFF1E293B)),
                   height: 1.1,
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
               ),
             ],
           ),
@@ -437,404 +494,516 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
   }
 
   Widget _buildSelectedMethodArea(bool isDark, Color borderColor, double total) {
-    if (_selectedMethod == 'CASH') {
-      return _buildCashTenderedBox(isDark, borderColor, total);
-    } else if (_selectedMethod == 'CARD') {
-      return _buildCardPaymentBox(isDark, borderColor, total);
-    } else if (_selectedMethod == 'MOBILE_PAY') {
-      return _buildMobileBankingBox(isDark, borderColor, total);
-    } else {
-      return _buildCustomerDueBox(isDark, borderColor, total);
+    switch (_selectedMethod) {
+      case 'CASH':
+        return _buildCashSection(isDark, borderColor, total);
+      case 'CARD':
+        return _buildBankSection(isDark, borderColor);
+      case 'MOBILE_PAY':
+        return _buildMobilePaySection(isDark, borderColor);
+      case 'CUSTOMER_DUE':
+        return _buildCustomerCreditSection(isDark, borderColor);
+      default:
+        return const SizedBox.shrink();
     }
   }
 
-  // ── Cash Tendered Box (Exact Match to Reference Screenshot) ───────────────
-  Widget _buildCashTenderedBox(bool isDark, Color borderColor, double total) {
-    return Container(
-      padding: const EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF222222) : Colors.white,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header Row
-          Row(
+  Widget _buildCashSection(bool isDark, Color borderColor, double total) {
+    final change = _tenderedAmount >= total ? _tenderedAmount - total : 0.0;
+    final isSufficient = _tenderedAmount >= total && total > 0;
+    final fmt = NumberFormat('#,##0.00');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'CASH TENDERED',
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+              ),
+            ),
+            GestureDetector(
+              onTap: _setExactAmount,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                decoration: BoxDecoration(
+                  color: primaryIndigo.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: primaryIndigo.withValues(alpha: 0.3)),
+                ),
+                child: const Text(
+                  'Exact Amount',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    color: primaryIndigo,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+
+        // Tendered Input Field
+        Container(
+          height: 48,
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF161337) : Colors.white,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: borderColor),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF2E2B6B) : const Color(0xFFF1F5F9),
+                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(5)),
+                ),
+                child: Center(
+                  child: Text(
+                    '৳',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white70 : const Color(0xFF475569),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _tenderedController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                  decoration: const InputDecoration(
+                    hintText: '0.00',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                  onChanged: _onTenderedChanged,
+                ),
+              ),
+              if (_tenderedAmount > 0)
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _tenderedAmount = 0.0;
+                      _tenderedController.text = '0';
+                    });
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Icon(Icons.clear_rounded, size: 18, color: Colors.grey),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // Quick Denominations (Fills full width evenly without gap)
+        Row(
+          children: [20.0, 50.0, 100.0, 200.0, 500.0, 1000.0].map((amt) {
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2.5),
+                child: GestureDetector(
+                  onTap: () => _addDenomination(amt),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF161337) : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: borderColor),
+                    ),
+                    child: Text(
+                      '+৳${amt.toInt()}',
+                      style: TextStyle(
+                        fontSize: amt >= 1000 ? 10.5 : 11,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white70 : const Color(0xFF334155),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 12),
+
+        // Return / Change Result Card
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: isSufficient
+                ? const Color(0xFFECFDF5)
+                : (isDark ? const Color(0xFF161337) : const Color(0xFFF8FAFC)),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: isSufficient
+                  ? const Color(0xFFA7F3D0)
+                  : borderColor,
+            ),
+          ),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'CASH TENDERED (৳)',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.grey.shade300 : const Color(0xFF334155),
-                  letterSpacing: 0.3,
-                ),
-              ),
-              InkWell(
-                onTap: _setExactAmount,
-                borderRadius: BorderRadius.circular(3),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  child: Text(
-                    'Exact Amount',
+              Row(
+                children: [
+                  Icon(
+                    isSufficient ? Icons.check_circle_rounded : Icons.info_outline_rounded,
+                    size: 18,
+                    color: isSufficient ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Return Amount (Change)',
                     style: TextStyle(
-                      fontSize: 11.5,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF7C3AED),
+                      color: isSufficient ? const Color(0xFF065F46) : const Color(0xFF64748B),
                     ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          // Large Input Box
-          Container(
-            height: 46,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF181818) : Colors.white,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(
-                color: isDark ? const Color(0xFF3D3D3D) : const Color(0xFFCBD5E1),
-              ),
-            ),
-            child: Row(
-              children: [
-                const Text(
-                  '৳',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF94A3B8),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _tenderedController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    textAlign: TextAlign.end,
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white : const Color(0xFF1E293B),
-                    ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      isDense: true,
-                      hintText: '0',
-                    ),
-                    onChanged: _onTenderedChanged,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Quick Denomination Chips (+৳10, +৳20, +৳50, +৳100, +৳200, +৳500, +৳1000)
-          Row(
-            children: [10, 20, 50, 100, 200, 500, 1000].map((d) {
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1.5),
-                  child: InkWell(
-                    onTap: () => _addDenomination(d.toDouble()),
-                    borderRadius: BorderRadius.circular(4),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: borderColor),
-                      ),
-                      child: Text(
-                        '+৳$d',
-                        style: TextStyle(
-                          fontSize: d >= 1000 ? 9.5 : 10.0,
-                          fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.grey.shade200 : const Color(0xFF334155),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 10),
-
-          // Summary message box
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    _tenderedAmount == 0
-                        ? 'Please enter cash amount received'
-                        : (_tenderedAmount < total
-                            ? 'Remaining due: ৳${(total - _tenderedAmount).toStringAsFixed(2)}'
-                            : 'Change return: ৳${(_tenderedAmount - total).toStringAsFixed(2)}'),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: _tenderedAmount >= total ? FontWeight.w700 : FontWeight.w500,
-                      color: _tenderedAmount >= total
-                          ? const Color(0xFF10B981)
-                          : (_tenderedAmount > 0
-                              ? const Color(0xFFEF4444)
-                              : (isDark ? Colors.grey.shade400 : const Color(0xFF64748B))),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Text(
-                  'Total: ৳${total.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.grey.shade300 : const Color(0xFF334155),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Card Payment Box ──────────────────────────────────────────────────────
-  Widget _buildCardPaymentBox(bool isDark, Color borderColor, double total) {
-    return Container(
-      padding: const EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF222222) : Colors.white,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.credit_card_rounded, size: 16, color: Color(0xFF7C3AED)),
-              const SizedBox(width: 6),
-              Text(
-                'POS Terminal Ready',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF1E293B)),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Text('Terminal Online', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: ['Visa', 'MasterCard', 'Amex', 'Other'].map((b) {
-              final sel = _cardType == b;
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                  child: InkWell(
-                    onTap: () => setState(() => _cardType = b),
-                    borderRadius: BorderRadius.circular(4),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: sel ? const Color(0xFF7C3AED) : (isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF1F5F9)),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        b,
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.bold,
-                          color: sel ? Colors.white : (isDark ? Colors.grey.shade300 : const Color(0xFF334155)),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _cardAuthCtrl,
-            decoration: InputDecoration(
-              isDense: true,
-              hintText: 'Approval / Auth Code (Optional)',
-              hintStyle: const TextStyle(fontSize: 11),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: borderColor)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Mobile Banking Box ────────────────────────────────────────────────────
-  Widget _buildMobileBankingBox(bool isDark, Color borderColor, double total) {
-    return Container(
-      padding: const EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF222222) : Colors.white,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: ['bKash', 'Nagad', 'Rocket', 'Upay'].map((p) {
-              final sel = _mobileProvider == p;
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                  child: InkWell(
-                    onTap: () => setState(() => _mobileProvider = p),
-                    borderRadius: BorderRadius.circular(4),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: sel ? const Color(0xFF7C3AED) : (isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF1F5F9)),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        p,
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.bold,
-                          color: sel ? Colors.white : (isDark ? Colors.grey.shade300 : const Color(0xFF334155)),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _trxIdCtrl,
-            decoration: InputDecoration(
-              isDense: true,
-              hintText: 'Transaction ID (TrxID) / Ref',
-              hintStyle: const TextStyle(fontSize: 11),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: borderColor)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Customer Due Box ──────────────────────────────────────────────────────
-  Widget _buildCustomerDueBox(bool isDark, Color borderColor, double total) {
-    return Container(
-      padding: const EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF222222) : Colors.white,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: borderColor),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.info_outline_rounded, color: Color(0xFFF59E0B), size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Post as Customer Due / Credit',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Total ৳${total.toStringAsFixed(2)} will be debited to customer receivable ledger.',
-                  style: TextStyle(fontSize: 10.5, color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B)),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Bottom Action Button (Exact Match to Screenshot) ─────────────────────
-  Widget _buildBottomActionButton(double total) {
-    final isCashZero = _selectedMethod == 'CASH' && _tenderedAmount == 0;
-
-    return InkWell(
-      onTap: _submitPayment,
-      borderRadius: BorderRadius.circular(4),
-      child: Container(
-        height: 46,
-        decoration: BoxDecoration(
-          color: isCashZero ? const Color(0xFFC4B5FD) : null,
-          gradient: isCashZero
-              ? null
-              : const LinearGradient(
-                  colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)],
-                ),
-          borderRadius: BorderRadius.circular(4),
-          boxShadow: isCashZero
-              ? null
-              : [
-                  BoxShadow(
-                    color: const Color(0xFF7C3AED).withValues(alpha: 0.35),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
                   ),
                 ],
+              ),
+              Text(
+                '৳${fmt.format(change)}',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: isSufficient ? const Color(0xFF059669) : const Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBankSection(bool isDark, Color borderColor) {
+    final banks = ['City Bank (Online)', 'BRAC Bank', 'Islami Bank', 'POS Machine'];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'BANK / PAYMENT CHANNEL',
+          style: TextStyle(
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+            color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: banks.map((b) {
+            final isSel = _bankName == b;
+            return Expanded(
+              child: GestureDetector(
+                onTap: () => setState(() => _bankName = b),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSel
+                        ? primaryIndigo.withValues(alpha: isDark ? 0.25 : 0.1)
+                        : (isDark ? const Color(0xFF161337) : Colors.white),
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                      color: isSel ? primaryIndigo : borderColor,
+                      width: isSel ? 1.6 : 1.0,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      b.split(' ').first,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
+                        color: isSel ? primaryIndigo : (isDark ? Colors.white : const Color(0xFF1E293B)),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'CHEQUE / DEPOSIT SLIP / AUTH CODE (OPTIONAL)',
+          style: TextStyle(
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+            color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF161337) : Colors.white,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: borderColor),
+          ),
+          child: TextField(
+            controller: _bankSlipCtrl,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+            decoration: const InputDecoration(
+              hintText: 'e.g. CHQ-88291 or SLIP-1092',
+              hintStyle: TextStyle(fontSize: 12, color: Colors.grey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 12),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobilePaySection(bool isDark, Color borderColor) {
+    final providers = [
+      {'name': 'bKash', 'color': const Color(0xFFE2136E)},
+      {'name': 'Nagad', 'color': const Color(0xFFF7941D)},
+      {'name': 'Rocket', 'color': const Color(0xFF8C3494)},
+      {'name': 'Upay', 'color': const Color(0xFF0072BC)},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'MOBILE WALLET PROVIDER',
+          style: TextStyle(
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+            color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: providers.map((p) {
+            final name = p['name'] as String;
+            final color = p['color'] as Color;
+            final isSel = _mobileProvider == name;
+            return Expanded(
+              child: GestureDetector(
+                onTap: () => setState(() => _mobileProvider = name),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSel
+                        ? color.withValues(alpha: isDark ? 0.25 : 0.12)
+                        : (isDark ? const Color(0xFF161337) : Colors.white),
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                      color: isSel ? color : borderColor,
+                      width: isSel ? 1.8 : 1.0,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w800,
+                        color: isSel ? color : (isDark ? Colors.white : const Color(0xFF1E293B)),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'TRANSACTION ID (TrxID) / SENDER PHONE',
+          style: TextStyle(
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+            color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF161337) : Colors.white,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: borderColor),
+          ),
+          child: TextField(
+            controller: _trxIdCtrl,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+            decoration: const InputDecoration(
+              hintText: 'e.g. 9J29X4L0A1 or 017XXXXXXXX',
+              hintStyle: TextStyle(fontSize: 12, color: Colors.grey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 12),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCustomerCreditSection(bool isDark, Color borderColor) {
+    final c = widget.wholesalerProvider.customer;
+    final fmt = NumberFormat('#,##0.00');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Credit Summary Card
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF161337) : const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: borderColor),
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Customer Tier:', style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : const Color(0xFF64748B))),
+                  Text(c.tierLabel, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: WholesalerColors.accentOrange)),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Credit Limit:', style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : const Color(0xFF64748B))),
+                  Text('৳${fmt.format(c.creditLimit)}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1E293B))),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Available Credit:', style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : const Color(0xFF64748B))),
+                  Text('৳${fmt.format(c.availableCredit)}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF10B981))),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Current Outstanding:', style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : const Color(0xFF64748B))),
+                  Text('৳${fmt.format(c.outstanding)}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'PURCHASE ORDER (PO) / INVOICE REF',
+          style: TextStyle(
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+            color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF161337) : Colors.white,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: borderColor),
+          ),
+          child: TextField(
+            controller: _poNumberCtrl,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+            decoration: const InputDecoration(
+              hintText: 'e.g. PO-2026-9942',
+              hintStyle: TextStyle(fontSize: 12, color: Colors.grey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 12),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomActionButton(double total) {
+    final fmt = NumberFormat('#,##0.00');
+    final isValidCash = _selectedMethod != 'CASH' || _tenderedAmount >= total || _tenderedAmount == 0;
+
+    return GestureDetector(
+      onTap: isValidCash ? _submitPayment : null,
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4F46E5), Color(0xFF4338CA)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(6),
+          boxShadow: [
+            BoxShadow(
+              color: primaryIndigo.withValues(alpha: 0.35),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              isCashZero
-                  ? Icons.check_circle_outline_rounded
-                  : Icons.check_circle_rounded,
-              size: 18,
-              color: Colors.white,
-            ),
+            const Icon(Icons.print_rounded, size: 20, color: Colors.white),
             const SizedBox(width: 8),
             Text(
-              isCashZero
-                  ? 'Enter Tendered Cash (৳${total.toStringAsFixed(2)})'
-                  : 'Complete Payment (৳${total.toStringAsFixed(2)})',
+              'CONFIRM & PRINT RECEIPT (৳${fmt.format(total)})',
               style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w900,
                 color: Colors.white,
-                letterSpacing: 0.2,
+                letterSpacing: 0.3,
               ),
             ),
           ],
@@ -845,13 +1014,13 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// THERMAL POS RECEIPT MODAL (Pixel-perfect matching reference image)
+// WHOLESALE THERMAL RECEIPT MODAL (80mm)
 // ─────────────────────────────────────────────────────────────────────────────
-class RetailReceiptModal extends StatelessWidget {
-  final RetailSale sale;
+class WholesalerReceiptModal extends StatelessWidget {
+  final WholesalerSale sale;
   final bool isDark;
 
-  const RetailReceiptModal({
+  const WholesalerReceiptModal({
     super.key,
     required this.sale,
     required this.isDark,
@@ -909,14 +1078,11 @@ class RetailReceiptModal extends StatelessWidget {
     final receiptBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
     final textDark = isDark ? Colors.white : const Color(0xFF0F172A);
     final textMuted = isDark ? Colors.grey.shade400 : const Color(0xFF475569);
-    final borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFBFDBFE);
+    final borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFC7D2FE);
+    final fmt = NumberFormat('#,##0.00');
 
-    final invoiceDisplay = sale.invoiceNo.isNotEmpty
-        ? sale.invoiceNo
-        : 'INV-${sale.id.length > 6 ? sale.id.substring(sale.id.length - 6) : sale.id}';
-
-    final cust = sale.customerName.isNotEmpty ? sale.customerName : 'Walk-in Retail Customer';
-    final custShort = cust.length > 20 ? '${cust.substring(0, 18)}...' : cust;
+    final cust = sale.customer.name.isNotEmpty ? sale.customer.name : 'Walk-in Customer';
+    final custShort = cust.length > 22 ? '${cust.substring(0, 20)}...' : cust;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -939,7 +1105,7 @@ class RetailReceiptModal extends StatelessWidget {
                   Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF10B981)),
                   SizedBox(width: 6),
                   Text(
-                    'SALE COMPLETED SUCCESSFULLY',
+                    'WHOLESALE ORDER COMPLETED & DISPATCHED',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
@@ -971,10 +1137,10 @@ class RetailReceiptModal extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // 1. Store Header
+                  // 1. Company Header
                   Center(
                     child: Text(
-                      'BLUE OCEANS POS',
+                      'BPOS WHOLESALE & TRADING',
                       style: TextStyle(
                         fontSize: 14.5,
                         fontWeight: FontWeight.w900,
@@ -987,7 +1153,7 @@ class RetailReceiptModal extends StatelessWidget {
                   const SizedBox(height: 4),
                   Center(
                     child: Text(
-                      'Dhaka Flagship Outlet • Counter #POS-01',
+                      'Central Warehouse Outlet • Terminal #WH-01',
                       style: TextStyle(
                         fontSize: 9.5,
                         color: textMuted,
@@ -1012,13 +1178,13 @@ class RetailReceiptModal extends StatelessWidget {
                   _buildDashedDivider(),
                   const SizedBox(height: 8),
 
-                  // 2. Invoice & Cashier details
+                  // 2. Invoice & Customer details
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Flexible(
                         child: Text(
-                          'Invoice: $invoiceDisplay',
+                          'Order: ${sale.orderNo}',
                           style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1036,14 +1202,14 @@ class RetailReceiptModal extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          'Customer: $custShort',
+                          'Cust: $custShort (${sale.customer.customerId})',
                           style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Cashier: Admin',
+                        'Tier: ${sale.customer.tier.name.toUpperCase()}',
                         style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
                       ),
                     ],
@@ -1114,7 +1280,6 @@ class RetailReceiptModal extends StatelessWidget {
 
                   // 4. Item Rows
                   ...sale.items.map((item) {
-                    final itemTotal = item.product.price * item.qty;
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
@@ -1135,7 +1300,7 @@ class RetailReceiptModal extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  'SKU: ${item.product.sku}',
+                                  'SKU: ${item.product.sku} • ${item.product.warehouseId}',
                                   style: const TextStyle(
                                     fontSize: 8.5,
                                     color: Color(0xFF94A3B8),
@@ -1165,7 +1330,7 @@ class RetailReceiptModal extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.only(top: 2),
                               child: Text(
-                                '৳${item.product.price.toStringAsFixed(2)}',
+                                '৳${fmt.format(item.unitPrice)}',
                                 textAlign: TextAlign.right,
                                 style: TextStyle(
                                   fontSize: 11,
@@ -1180,7 +1345,7 @@ class RetailReceiptModal extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.only(top: 2),
                               child: Text(
-                                '৳${itemTotal.toStringAsFixed(2)}',
+                                '৳${fmt.format(item.lineTotal)}',
                                 textAlign: TextAlign.right,
                                 style: TextStyle(
                                   fontSize: 11,
@@ -1201,7 +1366,7 @@ class RetailReceiptModal extends StatelessWidget {
                   _buildDashedDivider(),
                   const SizedBox(height: 8),
 
-                  // 5. Subtotal & VAT
+                  // 5. Subtotal & Financial Breakdown
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -1210,7 +1375,37 @@ class RetailReceiptModal extends StatelessWidget {
                         style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
                       ),
                       Text(
-                        '৳${sale.subtotal.toStringAsFixed(2)}',
+                        '৳${fmt.format(sale.subtotal)}',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  if (sale.discount > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Special Discount:',
+                          style: TextStyle(fontSize: 11, color: Colors.green, fontFamily: 'monospace'),
+                        ),
+                        Text(
+                          '-৳${fmt.format(sale.discount)}',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green, fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'VAT (Mushak 6.3 - 6.4%):',
+                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '৳${fmt.format(sale.tax)}',
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
                       ),
                     ],
@@ -1220,11 +1415,11 @@ class RetailReceiptModal extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'VAT (Mushak 6.3 - 15%):',
+                        'Shipping / Handling:',
                         style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
                       ),
                       Text(
-                        '৳${sale.taxTotal.toStringAsFixed(2)}',
+                        '৳${fmt.format(sale.shipping)}',
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
                       ),
                     ],
@@ -1244,8 +1439,8 @@ class RetailReceiptModal extends StatelessWidget {
                         style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: textDark, fontFamily: 'monospace'),
                       ),
                       Text(
-                        '৳${sale.total.toStringAsFixed(2)}',
-                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900, color: textDark, fontFamily: 'monospace'),
+                        '৳${fmt.format(sale.total)}',
+                        style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900, color: _primaryIndigo, fontFamily: 'monospace'),
                       ),
                     ],
                   ),
@@ -1278,7 +1473,7 @@ class RetailReceiptModal extends StatelessWidget {
                         style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
                       ),
                       Text(
-                        '৳${sale.paidAmount.toStringAsFixed(2)}',
+                        '৳${fmt.format(sale.paidAmount)}',
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
                       ),
                     ],
@@ -1292,7 +1487,7 @@ class RetailReceiptModal extends StatelessWidget {
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
                       ),
                       Text(
-                        '৳${sale.changeAmount.toStringAsFixed(2)}',
+                        '৳${fmt.format(sale.changeAmount)}',
                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
                       ),
                     ],
@@ -1317,7 +1512,7 @@ class RetailReceiptModal extends StatelessWidget {
                   // 7. Footer Greetings
                   Center(
                     child: Text(
-                      'Thank you for your business! Please\nvisit us again.',
+                      'Thank you for your bulk business!\nPlease visit our distribution center again.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 9.5,
@@ -1331,7 +1526,7 @@ class RetailReceiptModal extends StatelessWidget {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Software by Blue Oceans POS',
+                      'Software by BPOS Wholesale & Trading',
                       style: TextStyle(
                         fontSize: 8.5,
                         color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8),
@@ -1355,9 +1550,9 @@ class RetailReceiptModal extends StatelessWidget {
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Printing Thermal Receipt (80mm) for ${sale.invoiceNo}...'),
+                            content: Text('Printing Wholesale Receipt (80mm) for ${sale.orderNo}...'),
                             duration: const Duration(seconds: 2),
-                            backgroundColor: const Color(0xFF0D9488),
+                            backgroundColor: _primaryIndigo,
                           ),
                         );
                       },
@@ -1367,7 +1562,7 @@ class RetailReceiptModal extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: isDark ? const Color(0xFF242424) : Colors.white,
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: const Color(0xFF93C5FD)),
+                          border: Border.all(color: const Color(0xFFC7D2FE)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -1413,11 +1608,11 @@ class RetailReceiptModal extends StatelessWidget {
                       child: Container(
                         height: 44,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0D9488),
+                          color: _primaryIndigo,
                           borderRadius: BorderRadius.circular(4),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF0D9488).withValues(alpha: 0.35),
+                              color: _primaryIndigo.withValues(alpha: 0.35),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -1429,7 +1624,7 @@ class RetailReceiptModal extends StatelessWidget {
                             Icon(Icons.refresh_rounded, size: 18, color: Colors.white),
                             SizedBox(width: 6),
                             Text(
-                              'New Sale',
+                              'New Order',
                               style: TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w800,
