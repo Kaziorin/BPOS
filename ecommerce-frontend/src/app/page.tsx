@@ -2,13 +2,26 @@
 
 import React, { useEffect, useState } from "react";
 import { StorefrontAPI, ProductItem, CategoryItem, StoreConfig } from "@/lib/api";
-import FashionStore from "@/components/business-templates/FashionStore";
-import PharmacyStore from "@/components/business-templates/PharmacyStore";
-import GroceryStore from "@/components/business-templates/GroceryStore";
-import RestaurantStore from "@/components/business-templates/RestaurantStore";
-import GeneralStore from "@/components/business-templates/GeneralStore";
+import { ThemeConfig, SectionItem, DEFAULT_VIBRANT_THEME } from "@/lib/builderTypes";
+import { fetchActiveTheme } from "@/lib/builderStore";
+
+// Section Components
+import HeroSliderSection from "@/components/sections/HeroSliderSection";
+import FeatureBadgesSection from "@/components/sections/FeatureBadgesSection";
+import CategoryShowcaseSection from "@/components/sections/CategoryShowcaseSection";
+import FlashSaleSection from "@/components/sections/FlashSaleSection";
+import FeaturedCollectionsSection from "@/components/sections/FeaturedCollectionsSection";
+import ProductGridSection from "@/components/sections/ProductGridSection";
+import PromoSplitBannerSection from "@/components/sections/PromoSplitBannerSection";
+import BrandsCarouselSection from "@/components/sections/BrandsCarouselSection";
+import CuratedRecommendationsSection from "@/components/sections/CuratedRecommendationsSection";
+import BlogStoriesSection from "@/components/sections/BlogStoriesSection";
+import NewsletterSection from "@/components/sections/NewsletterSection";
+import SidebarCategoryNav from "@/components/layout/SidebarCategoryNav";
+import AdminBar from "@/components/layout/AdminBar";
 
 export default function HomePage() {
+  const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_VIBRANT_THEME);
   const [featuredProducts, setFeaturedProducts] = useState<ProductItem[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [config, setConfig] = useState<StoreConfig | null>(null);
@@ -17,11 +30,13 @@ export default function HomePage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [featRes, catRes, confRes] = await Promise.all([
-          StorefrontAPI.getProducts({ limit: 12, sort: "newest" }),
+        const [loadedTheme, featRes, catRes, confRes] = await Promise.all([
+          fetchActiveTheme(),
+          StorefrontAPI.getProducts({ limit: 16, sort: "newest" }),
           StorefrontAPI.getCategories(),
           StorefrontAPI.getConfig(),
         ]);
+        setTheme(loadedTheme);
         setFeaturedProducts(featRes.items || []);
         setCategories(catRes || []);
         setConfig(confRes || null);
@@ -37,58 +52,89 @@ export default function HomePage() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 space-y-8 animate-pulse">
-        <div className="h-72 bg-slate-200 rounded-3xl" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-32 bg-slate-200 rounded-2xl" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="h-96 bg-slate-200 dark:bg-zinc-800 rounded-3xl" />
+        <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-80 bg-slate-200 rounded-2xl" />
+            <div key={i} className="h-20 bg-slate-200 dark:bg-zinc-800 rounded-full" />
+          ))}
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-64 bg-slate-200 dark:bg-zinc-800 rounded-2xl" />
           ))}
         </div>
       </div>
     );
   }
 
-  if (!config) {
-    return (
-      <div className="max-w-md mx-auto my-24 p-8 bg-white rounded-3xl border border-slate-200 text-center shadow-lg">
-        <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
-          !
+  const isDark = theme.isDarkMode;
+
+  return (
+    <div className={`min-h-screen ${isDark ? "bg-zinc-950 text-white" : "bg-white text-slate-900"}`}>
+      {/* Admin Floating Bar if logged in as Admin */}
+      <AdminBar />
+
+      {/* Main Content Area: Supports Sidebar Layout vs Standard Full-width */}
+      {theme.headerStyle === "sidebar_integrated" ? (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex gap-6">
+          <SidebarCategoryNav categories={categories} isDarkMode={isDark} />
+          <div className="flex-1 min-w-0 space-y-2">
+            {theme.sections.map((sec) => {
+              if (!sec.enabled) return null;
+              return (
+                <div key={sec.id}>
+                  {renderStoreSection(sec, featuredProducts, categories, isDark)}
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <h2 className="text-xl font-bold text-slate-800">Store Not Found</h2>
-        <p className="text-sm text-slate-500 mt-2">
-          The requested store domain or subdomain could not be resolved. Please verify the URL or contact support.
-        </p>
-      </div>
-    );
-  }
+      ) : (
+        <div className="space-y-2">
+          {theme.sections.map((sec) => {
+            if (!sec.enabled) return null;
+            return (
+              <div key={sec.id}>
+                {renderStoreSection(sec, featuredProducts, categories, isDark)}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
-  // Determine business type for dynamic UI
-  const bType = (config.businessType || config.tenant?.businessType || "RETAIL").toUpperCase();
-
-  switch (bType) {
-    case "FASHION":
-    case "FOOTWEAR":
-    case "COSMETICS":
-      return <FashionStore config={config} products={featuredProducts} categories={categories} />;
-
-    case "PHARMACY":
-    case "HEALTHCARE":
-      return <PharmacyStore config={config} products={featuredProducts} categories={categories} />;
-
-    case "GROCERY":
-    case "SUPERMARKET":
-      return <GroceryStore config={config} products={featuredProducts} categories={categories} />;
-
-    case "RESTAURANT":
-    case "CAFE":
-    case "FOOD":
-      return <RestaurantStore config={config} products={featuredProducts} categories={categories} />;
-
+function renderStoreSection(
+  sec: SectionItem,
+  products: ProductItem[],
+  categories: CategoryItem[],
+  isDarkMode: boolean
+) {
+  switch (sec.type) {
+    case "hero_slider":
+      return <HeroSliderSection section={sec} isDarkMode={isDarkMode} />;
+    case "feature_badges":
+      return <FeatureBadgesSection section={sec} isDarkMode={isDarkMode} />;
+    case "category_showcase":
+      return <CategoryShowcaseSection section={sec} categories={categories} isDarkMode={isDarkMode} />;
+    case "flash_sale":
+      return <FlashSaleSection section={sec} products={products} isDarkMode={isDarkMode} />;
+    case "featured_collections":
+      return <FeaturedCollectionsSection section={sec} isDarkMode={isDarkMode} />;
+    case "product_grid":
+      return <ProductGridSection section={sec} products={products} isDarkMode={isDarkMode} />;
+    case "promo_split_banner":
+      return <PromoSplitBannerSection section={sec} isDarkMode={isDarkMode} />;
+    case "brands_carousel":
+      return <BrandsCarouselSection section={sec} isDarkMode={isDarkMode} />;
+    case "curated_recommendations":
+      return <CuratedRecommendationsSection section={sec} products={products} isDarkMode={isDarkMode} />;
+    case "blog_stories":
+      return <BlogStoriesSection section={sec} isDarkMode={isDarkMode} />;
+    case "newsletter":
+      return <NewsletterSection section={sec} isDarkMode={isDarkMode} />;
     default:
-      return <GeneralStore config={config} products={featuredProducts} categories={categories} />;
+      return null;
   }
 }

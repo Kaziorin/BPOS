@@ -676,3 +676,56 @@ async def customer_login(
         "token": token,
         "customer": {"id": c_id, "name": name, "phone": phone, "email": email}
     })
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 7. PAGE BUILDER & THEME CUSTOMIZER CONFIG
+# ─────────────────────────────────────────────────────────────────────────────
+
+@router.get("/builder-theme")
+async def get_builder_theme(
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve saved visual page builder layout and theme configuration."""
+    row = (await db.execute(
+        text("SELECT value FROM tenant_settings WHERE tenantId=:t AND settingKey='ecommerce_builder_theme'"),
+        {"t": tenantId}
+    )).first()
+    if row and row[0]:
+        try:
+            return ok(json.loads(row[0]))
+        except Exception:
+            return ok({"raw": row[0]})
+    return ok(None)
+
+
+@router.post("/builder-theme")
+async def save_builder_theme(
+    body: dict,
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    """Persist visual page builder layout and custom theme configuration."""
+    theme_data = body.get("theme") or body
+    theme_json = json.dumps(theme_data)
+    
+    # Check if exists
+    exists = (await db.execute(
+        text("SELECT id FROM tenant_settings WHERE tenantId=:t AND settingKey='ecommerce_builder_theme'"),
+        {"t": tenantId}
+    )).first()
+    
+    if exists:
+        await db.execute(
+            text("UPDATE tenant_settings SET value=:v, updatedAt=NOW() WHERE tenantId=:t AND settingKey='ecommerce_builder_theme'"),
+            {"t": tenantId, "v": theme_json}
+        )
+    else:
+        await db.execute(
+            text("INSERT INTO tenant_settings (id, tenantId, settingKey, value, createdAt, updatedAt) VALUES (:id, :t, 'ecommerce_builder_theme', :v, NOW(), NOW())"),
+            {"id": _uid(), "t": tenantId, "v": theme_json}
+        )
+    await db.commit()
+    return ok({"message": "Builder theme saved successfully", "theme": theme_data})
+

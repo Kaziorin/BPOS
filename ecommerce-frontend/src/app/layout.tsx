@@ -4,16 +4,14 @@ import "./globals.css";
 import { StoreConfigProvider } from "@/context/StoreConfigContext";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import CartDrawer from "@/components/cart/CartDrawer";
+import StoreLayoutShell from "@/components/layout/StoreLayoutShell";
 import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Online Storefront | Real-Time Omnichannel Retail",
-  description: "Shop online with real-time stock sync and fast home delivery.",
+  title: "ShopEase | Real-Time Omnichannel Retail & Visual Store Builder",
+  description: "Shop online with real-time stock sync, visual drag-and-drop themes and express delivery.",
 };
 
 export default function RootLayout({
@@ -28,10 +26,7 @@ export default function RootLayout({
           <AuthProvider>
             <CartProvider>
               <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-              <Navbar />
-              <CartDrawer />
-              <main className="flex-1">{children}</main>
-              <Footer />
+              <StoreLayoutShell>{children}</StoreLayoutShell>
             </CartProvider>
           </AuthProvider>
         </StoreConfigProvider>
