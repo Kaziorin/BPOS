@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/pos_provider.dart';
 import '../../../core/providers/app_provider.dart';
@@ -17,47 +18,55 @@ class POSHeader extends StatelessWidget {
     final isMobile = screenWidth < 768;
     final locale = context.watch<AppProvider>().locale;
 
-    return SizedBox(
-      height: isMobile ? 64 : 74,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
       child: CustomPaint(
         painter: _SimpleWavePainter(),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: isMobile ? 14 : 24,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // ── LOGO ──
-              _LogoWidget(isMobile: isMobile),
+        child: SafeArea(
+          bottom: false,
+          child: SizedBox(
+            height: isMobile ? 60 : 74,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 10 : 24,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // ── LOGO ──
+                  _LogoWidget(isMobile: isMobile),
 
-              SizedBox(width: isMobile ? 6 : 24),
+                  SizedBox(width: isMobile ? 4 : 24),
 
-              // ── MIDDLE SECTION & RIGHT ICONS ──
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (!isMobile) ...[
-                          OrderTypeSegmentedControl(locale: locale),
-                          const SizedBox(width: 16),
-                          _SearchBar(locale: locale),
-                          const SizedBox(width: 16),
-                          _RightIcons(isMobile: false, locale: locale),
-                        ] else ...[
-                          _RightIcons(isMobile: true, locale: locale),
-                        ],
-                      ],
+                  // ── MIDDLE SECTION & RIGHT ICONS ──
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: isMobile
+                          ? _RightIcons(isMobile: true, locale: locale)
+                          : SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  OrderTypeSegmentedControl(locale: locale),
+                                  const SizedBox(width: 16),
+                                  _SearchBar(locale: locale),
+                                  const SizedBox(width: 16),
+                                  _RightIcons(isMobile: false, locale: locale),
+                                ],
+                              ),
+                            ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -116,8 +125,8 @@ class _LogoWidget extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.soup_kitchen, color: Colors.white, size: isMobile ? 32 : 40),
-        const SizedBox(width: 8),
+        Icon(Icons.soup_kitchen, color: Colors.white, size: isMobile ? 26 : 40),
+        SizedBox(width: isMobile ? 5 : 8),
         Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,19 +135,19 @@ class _LogoWidget extends StatelessWidget {
               'BPOS Restaurant',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: isMobile ? 18 : 22,
+                fontSize: isMobile ? 15 : 22,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.2,
                 height: 1.1,
               ),
             ),
-            const Text(
+            Text(
               'POS SYSTEM',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 10,
+                fontSize: isMobile ? 9 : 10,
                 fontWeight: FontWeight.w600,
-                letterSpacing: 1.5,
+                letterSpacing: 1.2,
                 height: 1.2,
               ),
             ),
@@ -363,56 +372,62 @@ class _RightIcons extends StatelessWidget {
           const SizedBox(width: 12),
         ],
         if (isMobile) ...[
-
           IconButton(
             icon: Icon(
               provider.isMobileSearchOpen ? Icons.close : Icons.search,
               color: Colors.white,
+              size: 20,
             ),
             onPressed: () => provider.toggleMobileSearch(),
-            splashRadius: 24,
+            constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
+            padding: EdgeInsets.zero,
+            splashRadius: 20,
           ),
           const SizedBox(width: 2),
         ],
         IconButton(
-          icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
+          icon: Icon(Icons.qr_code_scanner, color: Colors.white, size: isMobile ? 20 : 24),
           onPressed: () {
             showDialog(
               context: context,
               builder: (_) => BarcodeScannerDialog(),
             );
           },
-          splashRadius: 24,
+          constraints: isMobile ? const BoxConstraints(minWidth: 34, minHeight: 34) : const BoxConstraints(minWidth: 48, minHeight: 48),
+          padding: isMobile ? EdgeInsets.zero : const EdgeInsets.all(8),
+          splashRadius: isMobile ? 20 : 24,
         ),
-        const SizedBox(width: 2),
+        SizedBox(width: isMobile ? 2 : 4),
         Stack(
           clipBehavior: Clip.none,
           alignment: Alignment.center,
           children: [
             IconButton(
-              icon: const Icon(Icons.notifications_none, color: Colors.white),
+              icon: Icon(Icons.notifications_none, color: Colors.white, size: isMobile ? 20 : 24),
               onPressed: () {
                 showDialog(
                   context: context,
                   builder: (_) => const NotificationListDialog(),
                 );
               },
-              splashRadius: 24,
+              constraints: isMobile ? const BoxConstraints(minWidth: 34, minHeight: 34) : const BoxConstraints(minWidth: 48, minHeight: 48),
+              padding: isMobile ? EdgeInsets.zero : const EdgeInsets.all(8),
+              splashRadius: isMobile ? 20 : 24,
             ),
             Positioned(
-              top: 8,
-              right: 8,
+              top: isMobile ? 4 : 8,
+              right: isMobile ? 4 : 8,
               child: Container(
-                padding: const EdgeInsets.all(3),
+                padding: const EdgeInsets.all(2.5),
                 decoration: const BoxDecoration(
                   color: Colors.red,
                   shape: BoxShape.circle,
                 ),
                 child: Text(
                   NumberUtils.toLocalized(3, locale),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 10,
+                    fontSize: isMobile ? 9 : 10,
                     fontWeight: FontWeight.bold,
                     height: 1,
                   ),
@@ -421,11 +436,13 @@ class _RightIcons extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(width: 4),
+        SizedBox(width: isMobile ? 2 : 4),
         PopupMenuButton<String>(
           color: context.cardBg,
-          offset: Offset(0, isMobile ? 50 : 56),
-          icon: const Icon(Icons.more_vert, color: Colors.white),
+          offset: Offset(0, isMobile ? 44 : 56),
+          constraints: isMobile ? const BoxConstraints(minWidth: 34, minHeight: 34) : null,
+          padding: isMobile ? EdgeInsets.zero : const EdgeInsets.all(8),
+          icon: Icon(Icons.more_vert, color: Colors.white, size: isMobile ? 22 : 24),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           onSelected: (val) {
             final posProvider = Provider.of<POSProvider>(context, listen: false);
