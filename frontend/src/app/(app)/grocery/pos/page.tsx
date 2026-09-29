@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   ShoppingCart, Scale, Search, Plus, Trash2,
   PauseCircle, Play, CheckCircle2, Printer, ChevronLeft,
-  CreditCard, ArrowRight, ShoppingBag, Clock, Users, History,
+  CreditCard, ShoppingBag, Clock, Users, History,
   Settings, Tag, RotateCcw, ScanLine, Gift, Package, Star,
   Apple, Coffee, Home, Wallet, FileText, X,
   Layers, Grid, AlignLeft, Camera, Info, AlertCircle,
@@ -1327,8 +1327,20 @@ export default function GroceryPOSPage() {
                   })}
                 </div>
 
-                {/* 2. Right: Hero Pay CTA Box (Top) + Save & Print Bill (Bottom) */}
+                {/* 2. Right: Hold Button + Hero Pay CTA Box + Save & Print Bill */}
                 <div className="flex-1 flex flex-col gap-2 min-w-0 h-full">
+
+                  {/* Hold Bill Button */}
+                  <button onClick={() => { if (cart.length) holdCart(); else setHeldCartsOpen(true); }}
+                    className="w-full py-2 rounded-sm border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-extrabold flex items-center justify-center gap-2 shadow-2xs hover:shadow-xs transition-all duration-150 transform hover:-translate-y-0.5 active:scale-95 cursor-pointer group shrink-0">
+                    <PauseCircle size={15} className="shrink-0 text-amber-700 group-hover:scale-110 transition-transform" />
+                    <span className="truncate">Hold Bill (F7)</span>
+                    {heldCarts.length > 0 && (
+                      <span className="bg-amber-600 text-white text-[9.5px] font-bold px-1.5 py-0.2 rounded-full font-mono">
+                        {heldCarts.length}
+                      </span>
+                    )}
+                  </button>
 
                   {/* Top: Hero Pay CTA Card */}
                   <button onClick={handleCheckout} disabled={!cart.length || submitting}
@@ -1346,13 +1358,11 @@ export default function GroceryPOSPage() {
                         );
                       })()}
                     </div>
-                    <div className="relative z-10 w-9 h-9 rounded-full bg-white/20 border border-white/30 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-all">
-                      {submitting ? (
+                    {submitting && (
+                      <div className="relative z-10 w-6 h-6 flex items-center justify-center shrink-0">
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <ArrowRight size={19} strokeWidth={2.5} className="group-hover:translate-x-0.5 transition-transform" />
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </button>
 
                   {/* Bottom: Save & Print Bill */}
