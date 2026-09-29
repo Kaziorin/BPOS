@@ -15,10 +15,6 @@ class OrderSummaryPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final panelWidth = isBottomSheet ? double.infinity : 320.0;
-    final width = isBottomSheet ? double.infinity : (screenWidth >= 1024 ? 360.0 : panelWidth);
-
     if (isBottomSheet) {
       return Container(
         width: double.infinity,
@@ -30,6 +26,7 @@ class OrderSummaryPanel extends StatelessWidget {
           children: [
             _OrderSummaryHeader(),
             Divider(height: 1, thickness: 1, color: context.dividerColor),
+            _CartTableHeader(),
             Expanded(child: _OrderItemsList()),
             const BottomActionBar(),
             _OrderNoteField(),
@@ -43,7 +40,7 @@ class OrderSummaryPanel extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 16, top: 0, bottom: 6),
       child: Container(
-        width: width,
+        width: double.infinity,
         decoration: BoxDecoration(
           color: context.cardBg,
           borderRadius: BorderRadius.circular(16),
@@ -61,6 +58,7 @@ class OrderSummaryPanel extends StatelessWidget {
             children: [
               _OrderSummaryHeader(),
               Divider(height: 1, thickness: 1, color: context.dividerColor),
+              _CartTableHeader(),
               Expanded(child: _OrderItemsList()),
               _OrderNoteField(),
               _PriceBreakdown(),
@@ -68,6 +66,79 @@ class OrderSummaryPanel extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TABLE HEADER (ITEM, PRICE, QTY, TOTAL)
+// ─────────────────────────────────────────────────────────────────
+class _CartTableHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: context.inputBg.withValues(alpha: 0.5),
+        border: Border(
+          bottom: BorderSide(color: context.dividerColor),
+        ),
+      ),
+      child: const Row(
+        children: [
+          Expanded(
+            flex: 7,
+            child: Text(
+              'ITEM',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                color: Color(0xFF64748B),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              'PRICE',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                color: Color(0xFF64748B),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              'QTY',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                color: Color(0xFF64748B),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Text(
+              'TOTAL',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                color: Color(0xFF64748B),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -177,11 +248,11 @@ class _OrderItemsList extends StatelessWidget {
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 6),
           itemCount: provider.cartItems.length,
           separatorBuilder: (context, index) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Divider(color: context.dividerColor, height: 24, thickness: 1),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(color: context.dividerColor, height: 12, thickness: 1),
           ),
           itemBuilder: (context, index) {
             return _OrderItemRow(item: provider.cartItems[index], index: index + 1);
@@ -205,86 +276,114 @@ class _OrderItemRow extends StatelessWidget {
     return Consumer<POSProvider>(
       builder: (context, provider, _) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 24, height: 24,
-                    margin: const EdgeInsets.only(top: 2),
-                    decoration: BoxDecoration(
-                      color: primaryOrange.withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        NumberUtils.toLocalized(index, locale),
-                        style: const TextStyle(color: primaryOrange, fontSize: 12, fontWeight: FontWeight.w800),
+              // ITEM COLUMN
+              Expanded(
+                flex: 7,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      margin: const EdgeInsets.only(top: 2, right: 8),
+                      decoration: BoxDecoration(
+                        color: primaryOrange.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          NumberUtils.toLocalized(index, locale),
+                          style: const TextStyle(color: primaryOrange, fontSize: 10, fontWeight: FontWeight.w800),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.menuItem.localizedName(locale),
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.textPrimary),
-                        ),
-                        if (item.modifiers.isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          ...item.modifiers.map(
-                            (mod) => Padding(
-                              padding: const EdgeInsets.only(bottom: 2),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: 4, height: 4,
-                                    margin: const EdgeInsets.only(right: 6, top: 1),
-                                    decoration: BoxDecoration(color: Colors.grey.shade400, shape: BoxShape.circle),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      AppStrings.get(mod, locale),
-                                      style: TextStyle(fontSize: 11, color: context.textSecondary, fontWeight: FontWeight.w500),
-                                    ),
-                                  ),
-                                ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.menuItem.localizedName(locale),
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: context.textPrimary),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (item.modifiers.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            ...item.modifiers.map(
+                              (mod) => Text(
+                                '• ${AppStrings.get(mod, locale)}',
+                                style: TextStyle(fontSize: 10, color: context.textSecondary, fontWeight: FontWeight.w500),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                          ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '৳${NumberUtils.toLocalized(item.menuItem.price.toStringAsFixed(2), locale)}',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: context.textPrimary),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: () => provider.removeFromCart(item),
-                    behavior: HitTestBehavior.opaque,
-                    child: Icon(Icons.delete_outline, size: 20, color: Colors.red.shade500),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  const SizedBox(width: 36),
-                  _QuantityControl(
+
+              // PRICE COLUMN
+              Expanded(
+                flex: 3,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: Text(
+                    '৳${NumberUtils.toLocalized(item.unitPrice.toStringAsFixed(2), locale)}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: context.textPrimary),
+                  ),
+                ),
+              ),
+
+              // QTY COLUMN
+              Expanded(
+                flex: 3,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: _QuantityControl(
                     quantity: item.quantity,
                     onDecrement: () => provider.decrementQuantity(item),
                     onIncrement: () => provider.incrementQuantity(item),
                   ),
-                ],
+                ),
+              ),
+
+              // TOTAL COLUMN
+              Expanded(
+                flex: 4,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '৳${NumberUtils.toLocalized(item.totalPrice.toStringAsFixed(2), locale)}',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: context.textPrimary),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: () => provider.removeFromCart(item),
+                      behavior: HitTestBehavior.opaque,
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Icon(Icons.delete_outline, size: 16, color: Colors.red.shade500),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -302,11 +401,10 @@ class _QuantityControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const darkBrown = Color(0xFF5D4037);
     return Container(
       decoration: BoxDecoration(
         color: context.inputBg,
-        border: Border.all(color: context.borderColor, width: 1.5),
+        border: Border.all(color: context.borderColor, width: 1.0),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -316,21 +414,24 @@ class _QuantityControl extends StatelessWidget {
             onTap: onDecrement,
             behavior: HitTestBehavior.opaque,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              child: const Icon(Icons.remove, size: 14, color: darkBrown),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: Icon(Icons.remove, size: 12, color: context.textPrimary),
             ),
           ),
           Container(
-            width: 24,
+            constraints: const BoxConstraints(minWidth: 18),
             alignment: Alignment.center,
-            child: Text(NumberUtils.toLocalized(quantity, context.watch<AppProvider>().locale), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: context.textPrimary)),
+            child: Text(
+              NumberUtils.toLocalized(quantity, context.watch<AppProvider>().locale),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: context.textPrimary),
+            ),
           ),
           GestureDetector(
             onTap: onIncrement,
             behavior: HitTestBehavior.opaque,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              child: const Icon(Icons.add, size: 14, color: darkBrown),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: Icon(Icons.add, size: 12, color: context.textPrimary),
             ),
           ),
         ],

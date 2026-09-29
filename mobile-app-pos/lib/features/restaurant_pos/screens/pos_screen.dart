@@ -58,6 +58,7 @@ class _POSScreenState extends State<POSScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
+          flex: 75,
           child: Column(
             children: [
               Expanded(
@@ -73,7 +74,10 @@ class _POSScreenState extends State<POSScreen> {
             ],
           ),
         ),
-        OrderSummaryPanel(),
+        Expanded(
+          flex: 25,
+          child: OrderSummaryPanel(),
+        ),
       ],
     );
   }
