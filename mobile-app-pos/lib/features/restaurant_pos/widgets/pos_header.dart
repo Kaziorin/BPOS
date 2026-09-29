@@ -123,7 +123,7 @@ class _LogoWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'ZestBite',
+              'BPOS Restaurant',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: isMobile ? 18 : 22,
@@ -408,9 +408,9 @@ class _RightIcons extends StatelessWidget {
                   color: Colors.red,
                   shape: BoxShape.circle,
                 ),
-                child: const Text(
-                  '৩',
-                  style: TextStyle(
+                child: Text(
+                  NumberUtils.toLocalized(3, locale),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,

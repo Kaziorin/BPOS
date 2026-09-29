@@ -307,7 +307,7 @@ const getCategoryName = (cat: any): string => {
 
 export default function RestaurantPOSPage() {
   const router = useRouter();
-  const [storeName, setStoreName] = useState<string>("BlueOceans POS SYSTEM");
+  const [storeName, setStoreName] = useState<string>("BPOS Restaurant");
   const [branchName, setBranchName] = useState<string>("Main Branch");
   const [branchAddress, setBranchAddress] = useState<string>("Dhaka, Bangladesh");
   const [tables, setTables] = useState<TableOption[]>(DEMO_TABLES);
@@ -1578,7 +1578,7 @@ export default function RestaurantPOSPage() {
             </div>
             <div>
               <h1 className="text-base sm:text-lg font-black tracking-tight leading-none text-white flex items-center gap-1.5">
-                {storeName}{" "}
+                BPOS Restaurant{" "}
                 <span className="text-orange-200 text-[10px] sm:text-xs font-bold capitalize tracking-wider">
                   POS SYSTEM
                 </span>
