@@ -13,6 +13,7 @@ class NumberUtils {
     '8': '৮',
     '9': '৯',
     '.': '.',
+    ',': ',',
   };
 
   /// Converts English numbers in a string to Bengali numbers if locale is 'bn'.
@@ -26,5 +27,21 @@ class NumberUtils {
       buffer.write(_bnNumbers[char] ?? char);
     }
     return buffer.toString();
+  }
+
+  /// Formats a number with Bengali numerals if locale is 'bn'.
+  static String formatNumber(num input, String locale) {
+    final text = input is int
+        ? input.toString()
+        : input.toStringAsFixed(input.truncateToDouble() == input ? 0 : 2);
+    return toLocalized(text, locale);
+  }
+
+  /// Formats an amount as currency with the Taka sign (৳) and localized numerals.
+  static String formatCurrency(num amount, String locale) {
+    final text = amount is int
+        ? amount.toString()
+        : amount.toStringAsFixed(amount.truncateToDouble() == amount ? 0 : 2);
+    return '৳ ${toLocalized(text, locale)}';
   }
 }

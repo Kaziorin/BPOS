@@ -575,16 +575,17 @@ class _CheckoutPaymentDialogState extends State<CheckoutPaymentDialog> {
               child: ElevatedButton(
                 onPressed: (_selectedMethod == 'Cash' && _cashTendered < total)
                     ? null
-                    : () {
+                    : () async {
                         final paid = _selectedMethod == 'Cash'
                             ? (_cashTendered > 0 ? _cashTendered : total)
                             : total;
                         final change = (_selectedMethod == 'Cash' && paid > total) ? paid - total : 0.0;
-                        final completedOrder = provider.placeOrder(
+                        final completedOrder = await provider.placeOrder(
                           paymentMethod: _selectedMethod,
                           paidAmount: paid,
                           changeAmount: change,
                         );
+                        if (!context.mounted) return;
                         Navigator.of(context).pop();
                         showRestaurantReceiptDialog(context, completedOrder, context.isDark);
                       },

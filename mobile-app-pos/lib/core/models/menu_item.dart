@@ -1,21 +1,25 @@
 class MenuItem {
   final int id;
+  final String? productId;
   final String name;
   final String nameBn;
   final double price;
   final String category;
   final String imageUrl;
+  final String sku;
   final bool isPopular;
   final bool isVeg;
   final List<ModifierGroup>? modifierGroups;
 
   const MenuItem({
     required this.id,
+    this.productId,
     required this.name,
     this.nameBn = '',
     required this.price,
     required this.category,
     required this.imageUrl,
+    this.sku = '',
     this.isPopular = false,
     this.isVeg = false,
     this.modifierGroups,
@@ -24,6 +28,62 @@ class MenuItem {
   /// Returns the locale-appropriate name.
   String localizedName(String locale) =>
       (locale == 'bn' && nameBn.isNotEmpty) ? nameBn : name;
+
+  factory MenuItem.fromApiJson(Map<String, dynamic> json, int index) {
+    String catName = 'all';
+    if (json['category'] is Map && json['category']['name'] != null) {
+      catName = json['category']['name'].toString();
+    } else if (json['category'] is String) {
+      catName = json['category'].toString();
+    }
+
+    double parseDouble(dynamic v, [double fallback = 0.0]) {
+      if (v == null) return fallback;
+      if (v is num) return v.toDouble();
+      if (v is String) return double.tryParse(v) ?? fallback;
+      return fallback;
+    }
+
+    final priceVal = parseDouble(json['sellingPrice'] ?? json['price'] ?? 0);
+    final nameStr = (json['name'] ?? 'Product $index').toString();
+    final img = (json['imageUrl'] ?? '').toString();
+    final skuStr = (json['sku'] ?? '').toString();
+    final idStr = (json['id'] ?? '').toString();
+
+    // Map modifiers/addons if available in restaurant attributes
+    List<ModifierGroup>? modGroups;
+    try {
+      if (json['attributes'] is Map &&
+          json['attributes']['restaurant'] is Map &&
+          json['attributes']['restaurant']['addons'] is List) {
+        final addonsList = json['attributes']['restaurant']['addons'] as List;
+        if (addonsList.isNotEmpty) {
+          final options = addonsList.map((a) {
+            final aName = (a['name'] ?? 'Addon').toString();
+            final aPrice = parseDouble(a['price'], 0.0);
+            return ModifierOption(nameKey: aName, extraPrice: aPrice);
+          }).toList();
+          modGroups = [
+            ModifierGroup(titleKey: 'Add-ons / অতিরিক্ত', multiSelect: true, options: options),
+          ];
+        }
+      }
+    } catch (_) {}
+
+    return MenuItem(
+      id: index,
+      productId: idStr,
+      name: nameStr,
+      nameBn: nameStr,
+      price: priceVal,
+      category: catName.toLowerCase().replaceAll(' ', '_'),
+      imageUrl: img.isNotEmpty ? img : 'assets/images/burger.png',
+      sku: skuStr,
+      isPopular: (json['isFeatured'] == true ||
+          (json['attributes'] is Map && json['attributes']['isFeatured'] == true)),
+      modifierGroups: modGroups,
+    );
+  }
 }
 
 class ModifierGroup {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/app_provider.dart';
+import '../providers/retail_provider.dart';
 import '../widgets/retail_header.dart';
 import '../widgets/retail_metrics_bar.dart';
 import '../widgets/retail_category_bar.dart';
@@ -18,6 +19,16 @@ class RetailPOSScreen extends StatefulWidget {
 class _RetailPOSScreenState extends State<RetailPOSScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isGridView = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<RetailProvider>().loadProducts(businessType: 'retail');
+      }
+    });
+  }
 
   @override
   void dispose() {

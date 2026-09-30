@@ -1,11 +1,15 @@
 import 'package:flutter/foundation.dart';
+import '../../../core/services/api_service.dart';
 import '../models/retail_product.dart';
 import '../models/retail_cart_item.dart';
 import '../models/retail_sale.dart';
 
 class RetailProvider extends ChangeNotifier {
-  final List<RetailProduct> _allProducts = const [
-    RetailProduct(
+  bool _isLoadingProducts = false;
+  bool get isLoadingProducts => _isLoadingProducts;
+
+  final List<RetailProduct> _allProducts = [
+    const RetailProduct(
       id: 'prod-1',
       name: 'Coca-Cola 500ml',
       nameBn: 'কোকা-কোলা ৫০০ মি.লি.',
@@ -399,10 +403,11 @@ class RetailProvider extends ChangeNotifier {
     ),
   ];
 
-  late final List<RetailCartItem> _cart = [
-    RetailCartItem(product: _allProducts[0], qty: 2),
-    RetailCartItem(product: _allProducts[2], qty: 1),
-  ];
+  final List<RetailCartItem> _cart = [];
+
+  RetailProvider() {
+    loadProducts(businessType: 'retail');
+  }
 
   final List<HeldRetailSale> _heldSales = [];
   final List<RetailSale> _recentSales = [];
@@ -566,12 +571,86 @@ class RetailProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  RetailSale confirmSale({required double paidAmount, String? method}) {
+  Future<void> loadProducts({String businessType = 'retail'}) async {
+    _isLoadingProducts = true;
+    notifyListeners();
+    try {
+      final apiProducts = await ApiService.instance.fetchProducts(businessType: businessType);
+      if (apiProducts.isNotEmpty) {
+        final List<RetailProduct> loaded = [];
+        for (int i = 0; i < apiProducts.length; i++) {
+          final p = apiProducts[i];
+          final sellingPrice = (p['sellingPrice'] as num?)?.toDouble() ??
+              (p['price'] as num?)?.toDouble() ??
+              100.0;
+          final costPrice = (p['costPrice'] as num?)?.toDouble() ?? (sellingPrice * 0.8);
+          final stock = (p['stock'] as num?)?.toInt() ?? 50;
+          loaded.add(RetailProduct(
+            id: p['id']?.toString() ?? 'prod-$i',
+            name: p['name']?.toString() ?? 'Product $i',
+            nameBn: p['name']?.toString() ?? 'Product $i',
+            unit: p['unit']?.toString() ?? 'pcs',
+            unitBn: p['unit']?.toString() ?? 'পিস',
+            price: sellingPrice,
+            costPrice: costPrice,
+            stock: stock,
+            category: p['categoryName']?.toString() ?? p['category']?.toString() ?? 'General',
+            sku: p['sku']?.toString() ?? 'SKU-$i',
+            barcode: p['barcode']?.toString() ?? '8941100112${i.toString().padLeft(3, '0')}',
+            imageUrl: p['imageUrl']?.toString() ??
+                'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80',
+          ));
+        }
+        _allProducts.clear();
+        _allProducts.addAll(loaded);
+      }
+    } catch (e) {
+      debugPrint('Error loading retail products: $e');
+    } finally {
+      _isLoadingProducts = false;
+      notifyListeners();
+    }
+  }
+
+  Future<RetailSale> confirmSale({required double paidAmount, String? method}) async {
     final finalMethod = method ?? _paymentMethod;
     final changeAmount = paidAmount > total ? paidAmount - total : 0.0;
+
+    String realInvoice = 'INV-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}';
+    try {
+      final itemsPayload = _cart.map((c) => {
+        'productId': c.product.id,
+        'name': c.product.name,
+        'sku': c.product.sku,
+        'qty': c.qty,
+        'unitPrice': c.product.price,
+        'lineTotal': c.lineTotal,
+      }).toList();
+
+      final res = await ApiService.instance.confirmSale(
+        payload: {
+          'items': itemsPayload,
+          'payments': [
+            {'method': finalMethod, 'amount': paidAmount > total ? total : paidAmount}
+          ],
+          'discountTotal': _discountTotal,
+          'serviceCharge': _serviceCharge,
+          'source': 'RETAIL',
+          'customerName': _selectedCustomer,
+          'note': _orderNote,
+        },
+        businessType: 'retail',
+      );
+      if (res['invoiceNo'] != null) {
+        realInvoice = res['invoiceNo'].toString();
+      }
+    } catch (e) {
+      debugPrint('Error confirming retail sale with API: $e');
+    }
+
     final sale = RetailSale(
       id: 'SALE-${DateTime.now().millisecondsSinceEpoch}',
-      invoiceNo: 'INV-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}',
+      invoiceNo: realInvoice,
       items: List.from(_cart),
       subtotal: subtotal,
       discountTotal: _discountTotal,

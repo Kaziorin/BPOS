@@ -58,6 +58,7 @@ class _RestaurantCheckoutPaymentModalState extends State<RestaurantCheckoutPayme
   String _mobileProvider = 'bKash';
   final TextEditingController _trxIdCtrl = TextEditingController();
   final TextEditingController _customerNameCtrl = TextEditingController();
+  final TextEditingController _customerPhoneCtrl = TextEditingController();
   final TextEditingController _dueNoteCtrl = TextEditingController();
 
   static const Color primaryOrange = Color(0xFFFF6D00);
@@ -75,6 +76,7 @@ class _RestaurantCheckoutPaymentModalState extends State<RestaurantCheckoutPayme
     _cardAuthCtrl.dispose();
     _trxIdCtrl.dispose();
     _customerNameCtrl.dispose();
+    _customerPhoneCtrl.dispose();
     _dueNoteCtrl.dispose();
     super.dispose();
   }
@@ -102,7 +104,7 @@ class _RestaurantCheckoutPaymentModalState extends State<RestaurantCheckoutPayme
     });
   }
 
-  void _submitPayment() {
+  Future<void> _submitPayment() async {
     final total = widget.posProvider.totalPayable;
     final paid = _selectedMethod == 'CASH'
         ? (_tenderedAmount > 0 ? _tenderedAmount : total)
@@ -115,18 +117,22 @@ class _RestaurantCheckoutPaymentModalState extends State<RestaurantCheckoutPayme
     if (_selectedMethod == 'MOBILE_PAY') methodLabel = '$_mobileProvider (Mobile)';
     if (_selectedMethod == 'CUSTOMER_DUE') methodLabel = 'Customer Due';
 
-    final order = widget.posProvider.placeOrder(
+    final order = await widget.posProvider.placeOrder(
       paymentMethod: methodLabel,
       paidAmount: paid,
       changeAmount: change,
       customerName: _customerNameCtrl.text.trim().isNotEmpty
           ? _customerNameCtrl.text.trim()
           : (_selectedMethod == 'CUSTOMER_DUE' ? 'Guest (${widget.posProvider.tableNumber})' : null),
+      customerPhone: _customerPhoneCtrl.text.trim().isNotEmpty
+          ? _customerPhoneCtrl.text.trim()
+          : null,
       trxId: _selectedMethod == 'MOBILE_PAY'
           ? _trxIdCtrl.text.trim()
           : (_selectedMethod == 'CARD' ? _cardAuthCtrl.text.trim() : null),
     );
 
+    if (!mounted) return;
     Navigator.of(context).pop();
     widget.onPaymentComplete(order);
   }
@@ -886,6 +892,40 @@ class _RestaurantCheckoutPaymentModalState extends State<RestaurantCheckoutPayme
             ),
             decoration: InputDecoration(
               hintText: isBn ? 'গ্রাহকের নাম বা রুম নম্বর লিখুন' : 'Enter Guest name or Room #',
+              hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          isBn ? 'গ্রাহকের ফোন নম্বর (ঐচ্ছিক)' : 'CUSTOMER PHONE (OPTIONAL)',
+          style: TextStyle(
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+            color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF262626) : Colors.white,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: borderColor),
+          ),
+          child: TextField(
+            controller: _customerPhoneCtrl,
+            keyboardType: TextInputType.phone,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+            decoration: InputDecoration(
+              hintText: isBn ? 'যেমন: 017XXXXXXXX' : 'e.g. 017XXXXXXXX',
               hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/theme_extensions.dart';
 import '../providers/pharmacy_provider.dart';
 import 'dialogs/pharmacy_dialogs.dart';
+import '../../../core/widgets/live_sales_history_dialog.dart';
 
 class QuickActionsBar extends StatelessWidget {
   const QuickActionsBar({super.key});
@@ -75,6 +76,14 @@ class QuickActionsBar extends StatelessWidget {
                 ),
               );
             },
+          ),
+          const SizedBox(width: 12),
+          _ActionButton(
+            icon: Icons.receipt_long_rounded,
+            label: 'Sales History',
+            subtitle: 'Live Database',
+            color: const Color(0xFF009688),
+            onTap: () => showLiveSalesHistoryDialog(context, businessType: 'pharmacy'),
           ),
         ],
       ),

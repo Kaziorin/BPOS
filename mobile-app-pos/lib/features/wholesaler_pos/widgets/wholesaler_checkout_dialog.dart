@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../providers/wholesaler_provider.dart';
 import '../theme/wholesaler_colors.dart';
+import '../../../core/services/api_service.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // WHOLESALE SALE DATA HOLDER
@@ -136,7 +137,7 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
     });
   }
 
-  void _submitPayment() {
+  Future<void> _submitPayment() async {
     final w = widget.wholesalerProvider;
     final total = w.grandTotal;
     final paid = _selectedMethod == 'CASH'
@@ -150,8 +151,38 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
     if (_selectedMethod == 'MOBILE_PAY') methodLabel = '$_mobileProvider (Mobile)';
     if (_selectedMethod == 'CUSTOMER_DUE') methodLabel = 'B2B Credit / Ledger';
 
+    Map<String, dynamic>? res;
+    try {
+      res = await ApiService.instance.confirmSale(
+        businessType: 'wholesaler',
+        payload: {
+          'items': w.items.map((item) => {
+            'productId': item.product.id,
+            'name': item.product.name,
+            'unitPrice': item.unitPrice,
+            'qty': item.qty,
+            'lineTotal': item.lineTotal,
+          }).toList(),
+          'total': total,
+          'subtotal': w.subtotal,
+          'taxTotal': w.taxAmount,
+          'discountTotal': w.discountFlat,
+          'paymentMethod': _selectedMethod,
+          'customerName': w.customer.name,
+          'customerPhone': w.customer.phone,
+          'source': 'WHOLESALE',
+        },
+      );
+    } catch (e) {
+      debugPrint('Wholesale confirmSale error: $e');
+    }
+
+    final finalOrderNo = (res != null && (res['invoiceNo'] != null || res['order_number'] != null))
+        ? (res['invoiceNo'] ?? res['order_number']).toString()
+        : w.orderNo;
+
     final sale = WholesalerSale(
-      orderNo: w.orderNo,
+      orderNo: finalOrderNo,
       customer: w.customer,
       items: List.from(w.items),
       subtotal: w.subtotal,
@@ -169,8 +200,10 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
     );
 
     w.clearOrder();
-    Navigator.of(context).pop();
-    widget.onPaymentComplete(sale);
+    if (mounted) {
+      Navigator.of(context).pop();
+      widget.onPaymentComplete(sale);
+    }
   }
 
   @override

@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../models/retail_product.dart';
 import '../../providers/retail_provider.dart';
+import '../../../../core/widgets/live_sales_history_dialog.dart';
 
 // ── Dialog Helper Functions ──────────────────────────────────────────────────
 
 void showRetailRecentOrdersDialog(BuildContext context, RetailProvider retailProvider, bool isDark) {
-  showDialog(
-    context: context,
-    barrierColor: Colors.black.withValues(alpha: 0.55),
-    builder: (ctx) => RetailRecentOrdersModal(retailProvider: retailProvider, isDark: isDark),
-  );
+  showLiveSalesHistoryDialog(context, businessType: 'retail');
 }
 
 void showRetailPriceCheckDialog(BuildContext context, RetailProvider retailProvider, bool isDark) {

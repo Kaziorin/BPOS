@@ -7,6 +7,7 @@ import '../theme/wholesaler_colors.dart';
 import '../../../core/widgets/fullscreen_button.dart';
 import 'wholesaler_dialogs.dart';
 import 'wholesaler_footer_bar.dart';
+import '../../../core/widgets/live_sales_history_dialog.dart';
 
 // ─────────────────────────────────────────────────────────────────
 // TOP HEADER  (title, order no, customer info, credit, time)
@@ -398,6 +399,12 @@ class _HeaderActions extends StatelessWidget {
             isDark: isDark,
             onTap: toggle,
           ),
+        ),
+        const SizedBox(width: 6),
+        _HeaderBtn(
+          icon: Icons.receipt_long_rounded,
+          isDark: isDark,
+          onTap: () => showLiveSalesHistoryDialog(context, businessType: 'wholesaler'),
         ),
         const SizedBox(width: 6),
         _HeaderBtn(

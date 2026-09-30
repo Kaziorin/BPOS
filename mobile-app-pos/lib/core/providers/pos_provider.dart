@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/menu_item.dart';
+import '../services/api_service.dart';
 
 class POSProvider extends ChangeNotifier {
   String _selectedCategory = 'all';
@@ -20,6 +21,34 @@ class POSProvider extends ChangeNotifier {
   double _discountPercent = 0.0;
   double _discountAmount = 0.0;
   String? _appliedCoupon;
+
+  // Live Backend Products
+  List<MenuItem> _liveMenuItems = [];
+  bool _isLoadingProducts = false;
+  String _currentBusinessType = 'restaurant';
+
+  bool get isLoadingProducts => _isLoadingProducts;
+  List<MenuItem> get liveMenuItems => _liveMenuItems;
+
+  Future<void> loadProducts({String businessType = 'restaurant'}) async {
+    _currentBusinessType = businessType;
+    _isLoadingProducts = true;
+    notifyListeners();
+
+    try {
+      final rawList = await ApiService.instance.fetchProducts(businessType: businessType);
+      if (rawList.isNotEmpty) {
+        _liveMenuItems = rawList.asMap().entries.map((entry) {
+          return MenuItem.fromApiJson(entry.value, entry.key + 1);
+        }).toList();
+      }
+    } catch (e) {
+      debugPrint('Error loading POS products: $e');
+    } finally {
+      _isLoadingProducts = false;
+      notifyListeners();
+    }
+  }
 
   // Held & Completed Orders
   final List<HeldOrder> _heldOrders = [];
@@ -44,11 +73,10 @@ class POSProvider extends ChangeNotifier {
     ),
   ];
 
-  // Initial cart items matching demo design
   POSProvider() {
     _cartItems = [];
+    loadProducts(businessType: 'restaurant');
   }
-
 
   bool _isMobileSearchOpen = false;
 
@@ -92,13 +120,21 @@ class POSProvider extends ChangeNotifier {
   List<CompletedOrder> get completedOrders => List.unmodifiable(_completedOrders);
 
   List<MenuItem> get filteredMenuItems {
-    List<MenuItem> items = AppData.menuItems;
+    List<MenuItem> items = _liveMenuItems.isNotEmpty ? _liveMenuItems : AppData.menuItems;
     
     // ক্যাটাগরি ফিল্টার
     if (_selectedCategory == 'popular') {
-      items = items.where((item) => item.isPopular).toList();
+      final popItems = items.where((item) => item.isPopular).toList();
+      items = popItems.isNotEmpty ? popItems : items;
     } else if (_selectedCategory != 'all') {
-      items = items.where((item) => item.category == _selectedCategory).toList();
+      final catFiltered = items.where((item) =>
+          item.category.toLowerCase() == _selectedCategory.toLowerCase() ||
+          item.category.toLowerCase().contains(_selectedCategory.toLowerCase()) ||
+          _selectedCategory.toLowerCase().contains(item.category.toLowerCase())
+      ).toList();
+      if (catFiltered.isNotEmpty || _liveMenuItems.isEmpty) {
+        items = catFiltered;
+      }
     }
     
     // সার্চ ফিল্টার (ইংরেজি ও বাংলা উভয় নামেই সার্চ হবে)
@@ -106,7 +142,8 @@ class POSProvider extends ChangeNotifier {
       final query = _searchQuery.toLowerCase();
       items = items.where((item) =>
           item.name.toLowerCase().contains(query) ||
-          item.nameBn.toLowerCase().contains(query)
+          item.nameBn.toLowerCase().contains(query) ||
+          item.sku.toLowerCase().contains(query)
       ).toList();
     }
     return items;
@@ -384,16 +421,60 @@ class POSProvider extends ChangeNotifier {
   }
 
   // Complete / Place Order
-  CompletedOrder placeOrder({
+  Future<CompletedOrder> placeOrder({
     required String paymentMethod,
     double? paidAmount,
     double? changeAmount,
     String? customerName,
+    String? customerPhone,
     String? trxId,
-  }) {
+  }) async {
     final orderId = 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}';
+    String finalInvoiceNo = orderId;
+
+    try {
+      final payload = {
+        'items': _cartItems.map((c) => {
+          'productId': c.menuItem.productId ?? '012daf9f-b4c0-11f1-a8d2-30560f11c951',
+          'variantId': null,
+          'name': c.menuItem.name,
+          'qty': c.quantity,
+          'unitPrice': c.menuItem.price,
+          'discountAmount': 0,
+          'lineTotal': c.totalPrice,
+        }).toList(),
+        'payments': [
+          {
+            'method': paymentMethod.toUpperCase().contains('CASH')
+                ? 'CASH'
+                : paymentMethod.toUpperCase().contains('CARD')
+                    ? 'CARD'
+                    : 'BKASH',
+            'amount': paidAmount ?? totalPayable,
+          }
+        ],
+        'discountTotal': discountValue,
+        'serviceCharge': serviceCharge,
+        'source': 'RESTAURANT',
+        'customerName': customerName,
+        'customerPhone': customerPhone,
+        'note': 'Restaurant POS | Table: $_tableNumber | Waiter: $_waiterKey | ${trxId != null ? 'Trx: $trxId' : ''}',
+      };
+
+      final res = await ApiService.instance.confirmSale(
+        payload: payload,
+        businessType: _currentBusinessType,
+      );
+
+      if (res['invoiceNo'] != null) {
+        finalInvoiceNo = res['invoiceNo'].toString();
+      }
+    } catch (e) {
+      debugPrint('Error placing order to backend: $e');
+    }
+
     final completed = CompletedOrder(
-      id: orderId,
+      id: finalInvoiceNo,
       orderType: _selectedOrderType,
       tableNumber: _tableNumber,
       waiter: _waiterKey,
@@ -413,6 +494,7 @@ class POSProvider extends ChangeNotifier {
 
     _completedOrders.insert(0, completed);
     clearCart();
+    notifyListeners();
     return completed;
   }
 }

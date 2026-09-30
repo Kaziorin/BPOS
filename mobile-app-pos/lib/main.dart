@@ -5,7 +5,9 @@ import 'core/theme/app_theme.dart';
 import 'core/providers/app_provider.dart';
 import 'core/providers/pos_provider.dart';
 import 'features/retail_pos/providers/retail_provider.dart';
-import 'features/home/screens/home_screen.dart';
+import 'features/auth/screens/login_screen.dart';
+import 'features/sales_orders/screens/sales_orders_screen.dart';
+import 'features/home/screens/business_selection_screen.dart';
 
 void main() {
   runApp(const ZestBiteApp());
@@ -25,7 +27,7 @@ class ZestBiteApp extends StatelessWidget {
       child: Consumer<AppProvider>(
         builder: (context, appProvider, _) {
           return MaterialApp(
-            title: 'ZestBite Enterprise',
+            title: 'Blue Oceans POS',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
@@ -40,11 +42,28 @@ class ZestBiteApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            home: const HomeScreen(),
+            home: _resolveRootScreen(appProvider),
           );
         },
       ),
     );
   }
-}
 
+  Widget _resolveRootScreen(AppProvider appProvider) {
+    // 1. Not logged in -> Show Login Screen
+    if (!appProvider.isAuthenticated) {
+      return const LoginScreen();
+    }
+
+    // 2. Logged in and has an active selected business (or single business account) ->
+    // Directly lands on that business's Sales Orders & POS view!
+    if (appProvider.selectedBusiness != null) {
+      return BusinessSalesOrdersScreen(
+        businessType: appProvider.activeBusiness,
+      );
+    }
+
+    // 3. Multi-business account without active selection -> Show Business Selector
+    return const BusinessSelectionScreen();
+  }
+}

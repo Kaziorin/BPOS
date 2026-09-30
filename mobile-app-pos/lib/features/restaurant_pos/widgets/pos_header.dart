@@ -7,6 +7,7 @@ import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/theme_extensions.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../core/widgets/fullscreen_button.dart';
+import '../../../core/widgets/live_sales_history_dialog.dart';
 import '../../../core/utils/fullscreen_helper.dart' as fs;
 import 'dialogs/pos_dialogs.dart';
 import 'dialogs/hardware_settings_dialog.dart';
@@ -439,6 +440,17 @@ class _RightIcons extends StatelessWidget {
           ],
         ),
         SizedBox(width: isMobile ? 2 : 4),
+        IconButton(
+          icon: Icon(Icons.receipt_long_rounded, color: Colors.white, size: isMobile ? 20 : 24),
+          tooltip: locale == 'bn' ? 'সেলস হিস্ট্রি' : 'Sales History',
+          onPressed: () {
+            showLiveSalesHistoryDialog(context, businessType: 'restaurant');
+          },
+          constraints: isMobile ? const BoxConstraints(minWidth: 34, minHeight: 34) : const BoxConstraints(minWidth: 48, minHeight: 48),
+          padding: isMobile ? EdgeInsets.zero : const EdgeInsets.all(8),
+          splashRadius: isMobile ? 20 : 24,
+        ),
+        SizedBox(width: isMobile ? 2 : 4),
         FullscreenButton(
           iconColor: Colors.white,
           iconSize: isMobile ? 20 : 24,
@@ -456,7 +468,9 @@ class _RightIcons extends StatelessWidget {
           onSelected: (val) {
             final posProvider = Provider.of<POSProvider>(context, listen: false);
             final appProv = Provider.of<AppProvider>(context, listen: false);
-            if (val == 'waiter') {
+            if (val == 'sales_history') {
+              showLiveSalesHistoryDialog(context, businessType: 'restaurant');
+            } else if (val == 'waiter') {
               showDialog(context: context, builder: (_) => const WaiterSelectionDialog());
             } else if (val == 'custom_item') {
               showDialog(context: context, builder: (_) => CustomItemDialog());
@@ -495,6 +509,16 @@ class _RightIcons extends StatelessWidget {
             final appProvider = Provider.of<AppProvider>(context, listen: false);
             
             return [
+              PopupMenuItem(
+                value: 'sales_history',
+                child: Row(
+                  children: [
+                    const Icon(Icons.receipt_long_rounded, size: 18, color: Color(0xFFFF6D00)),
+                    const SizedBox(width: 8),
+                    Text(locale == 'bn' ? 'সেলস হিস্ট্রি (লাইভ)' : 'Sales History (Live)', style: textStyle),
+                  ],
+                ),
+              ),
               PopupMenuItem(
                 value: 'toggle_fullscreen',
                 child: Row(

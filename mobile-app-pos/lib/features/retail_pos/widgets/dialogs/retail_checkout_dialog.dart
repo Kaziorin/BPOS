@@ -99,17 +99,18 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
     });
   }
 
-  void _submitPayment() {
+  Future<void> _submitPayment() async {
     final total = widget.retailProvider.total;
     final paid = _selectedMethod == 'CASH'
         ? (_tenderedAmount > 0 ? _tenderedAmount : total)
         : total;
 
     widget.retailProvider.setPaymentMethod(_selectedMethod);
-    final sale = widget.retailProvider.confirmSale(
+    final sale = await widget.retailProvider.confirmSale(
       paidAmount: paid,
       method: _selectedMethod,
     );
+    if (!mounted) return;
     Navigator.of(context).pop();
     widget.onPaymentComplete(sale);
   }

@@ -6,6 +6,7 @@ import '../../../core/providers/app_provider.dart';
 import '../providers/retail_provider.dart';
 import 'dialogs/retail_dialogs.dart';
 import '../../../core/widgets/fullscreen_button.dart';
+import '../../../core/widgets/live_sales_history_dialog.dart';
 
 class RetailHeader extends StatefulWidget {
   final TextEditingController searchController;
@@ -474,6 +475,28 @@ class _RetailHeaderState extends State<RetailHeader> {
                       ),
                     ),
                   ),
+                  // Mobile Sales History Button
+                  Tooltip(
+                    message: 'Sales History (Live Orders)',
+                    child: InkWell(
+                      onTap: () => showLiveSalesHistoryDialog(context, businessType: 'retail'),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                        ),
+                        child: Icon(
+                          Icons.receipt_long_rounded,
+                          size: 20,
+                          color: isDark ? const Color(0xFFA78BFA) : const Color(0xFF7C3AED),
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(width: 8),
 
                   // 3-Dot More Menu Button
@@ -566,6 +589,37 @@ class _RetailHeaderState extends State<RetailHeader> {
                     border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
                     constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                     padding: const EdgeInsets.all(8),
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Desktop Sales History Button
+                  Tooltip(
+                    message: 'Sales History (Live Database)',
+                    child: InkWell(
+                      onTap: () => showLiveSalesHistoryDialog(context, businessType: 'retail'),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.receipt_long_rounded,
+                          size: 20,
+                          color: isDark ? const Color(0xFFA78BFA) : const Color(0xFF7C3AED),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
 

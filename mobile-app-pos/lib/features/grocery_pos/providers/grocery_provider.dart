@@ -1,11 +1,15 @@
 import 'package:flutter/foundation.dart';
+import '../../../core/services/api_service.dart';
 import '../models/grocery_product.dart';
 import '../models/grocery_cart_item.dart';
 import '../models/grocery_sale.dart';
 
 class GroceryProvider extends ChangeNotifier {
-  final List<GroceryProduct> _allProducts = const [
-    GroceryProduct(
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  final List<GroceryProduct> _allProducts = [
+    const GroceryProduct(
       id: '1', name: 'Banana', nameBn: 'কলা', unit: '1kg', unitBn: '১ কেজি',
       price: 60.00, category: 'Fruits & Veg', emoji: '🍌',
       imageUrl: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300',
@@ -141,16 +145,46 @@ class GroceryProvider extends ChangeNotifier {
   final List<GroceryProduct> _recentProducts = [];
 
   GroceryProvider() {
-    _cart = [
-      GroceryCartItem(product: _allProducts[6], quantity: 1, discountPercent: 5),
-      GroceryCartItem(product: _allProducts[7], quantity: 1, discountPercent: 2),
-      GroceryCartItem(product: _allProducts[8], quantity: 2),
-      GroceryCartItem(product: _allProducts[9], quantity: 1),
-      GroceryCartItem(product: _allProducts[12], quantity: 1),
-      GroceryCartItem(product: _allProducts[13], quantity: 1),
-      GroceryCartItem(product: _allProducts[15], quantity: 1),
-    ];
-    _customer = customers[1];
+    _cart = [];
+    _customer = customers[0];
+    loadProducts(businessType: 'grocery');
+  }
+
+  Future<void> loadProducts({String businessType = 'grocery'}) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final apiProducts = await ApiService.instance.fetchProducts(businessType: businessType);
+      if (apiProducts.isNotEmpty) {
+        final List<GroceryProduct> loaded = [];
+        for (int i = 0; i < apiProducts.length; i++) {
+          final p = apiProducts[i];
+          final price = (p['sellingPrice'] as num?)?.toDouble() ??
+              (p['price'] as num?)?.toDouble() ??
+              (double.tryParse(p['sellingPrice']?.toString() ?? '') ?? 100.0);
+          final stock = (p['stock'] as num?)?.toInt() ?? 100;
+          loaded.add(GroceryProduct(
+            id: p['id']?.toString() ?? 'g-$i',
+            name: p['name']?.toString() ?? 'Grocery Item $i',
+            nameBn: p['name']?.toString() ?? 'মুদি পণ্য $i',
+            unit: p['unit'] is Map ? (p['unit']['name'] ?? 'pcs').toString() : (p['unit']?.toString() ?? 'pcs'),
+            unitBn: 'পিস',
+            price: price,
+            category: p['category'] is Map ? (p['category']['name'] ?? 'All Items').toString() : (p['category']?.toString() ?? 'All Items'),
+            emoji: '🛒',
+            imageUrl: p['imageUrl']?.toString() ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300',
+            stock: stock,
+          ));
+        }
+        _allProducts.clear();
+        _allProducts.addAll(loaded);
+      }
+    } catch (e) {
+      debugPrint('Error loading grocery products: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   List<GroceryProduct> get allProducts => List.unmodifiable(_allProducts);
@@ -471,6 +505,40 @@ class GroceryProvider extends ChangeNotifier {
     );
 
     _completedSales.insert(0, sale);
+
+    // Sync sale with backend API
+    try {
+      final itemsPayload = _cart.map((c) => {
+        'productId': c.product.id,
+        'name': c.product.name,
+        'qty': c.quantity,
+        'unitPrice': c.product.price,
+        'lineTotal': c.lineTotal,
+      }).toList();
+
+      ApiService.instance.confirmSale(
+        payload: {
+          'items': itemsPayload,
+          'payments': [
+            {'method': paymentMethod, 'amount': grandTotal}
+          ],
+          'discountTotal': totalDiscount,
+          'source': 'GROCERY',
+          'customerName': _customer.name,
+          'note': _salesNote,
+        },
+        businessType: 'grocery',
+      ).then((res) {
+        if (res['invoiceNo'] != null) {
+          debugPrint('Grocery sale confirmed with backend: ${res['invoiceNo']}');
+        }
+      }).catchError((e) {
+        debugPrint('Error confirming grocery sale with API: $e');
+      });
+    } catch (e) {
+      debugPrint('Error preparing grocery sale payload: $e');
+    }
+
     // Award loyalty points (~1 pt per 10 taka)
     if (_customer.id != 'c0') {
       final pts = (sale.total / 10).floor();

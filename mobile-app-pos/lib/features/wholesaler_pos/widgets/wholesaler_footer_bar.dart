@@ -4,6 +4,7 @@ import '../../../core/providers/app_provider.dart';
 import '../providers/wholesaler_provider.dart';
 import '../theme/wholesaler_colors.dart';
 import 'wholesaler_dialogs.dart';
+import '../../../core/widgets/live_sales_history_dialog.dart';
 
 // ─────────────────────────────────────────────────────────────────
 // BOTTOM FOOTER: Quick Actions + Order Meta Info
@@ -98,13 +99,7 @@ class _QuickActionsRow extends StatelessWidget {
         label: 'Recent Orders',
         sublabel: 'View All',
         color: const Color(0xFF3B82F6),
-        onTap: () => showDialog(
-          context: context,
-          builder: (_) => ChangeNotifierProvider.value(
-            value: context.read<WholesalerProvider>(),
-            child: const WRecentOrdersDialog(),
-          ),
-        ),
+        onTap: () => showLiveSalesHistoryDialog(context, businessType: 'wholesaler'),
       ),
       _FooterAction(
         icon: Icons.request_quote_rounded,
@@ -125,13 +120,7 @@ class _QuickActionsRow extends StatelessWidget {
         label: 'Sales History',
         sublabel: 'View Transactions',
         color: const Color(0xFF0EA5E9),
-        onTap: () => showDialog(
-          context: context,
-          builder: (_) => ChangeNotifierProvider.value(
-            value: context.read<WholesalerProvider>(),
-            child: const WRecentOrdersDialog(),
-          ),
-        ),
+        onTap: () => showLiveSalesHistoryDialog(context, businessType: 'wholesaler'),
       ),
       _FooterAction(
         icon: Icons.undo_rounded,

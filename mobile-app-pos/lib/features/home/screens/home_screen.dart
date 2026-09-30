@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/app_provider.dart';
 import '../../../core/localization/app_strings.dart';
-import '../../restaurant_pos/screens/pos_screen.dart';
-import '../../pharmacy_pos/screens/pharmacy_pos_screen.dart';
-import '../../grocery_pos/screens/grocery_pos_screen.dart';
-import '../../wholesaler_pos/screens/wholesaler_pos_screen.dart';
-import '../../retail_pos/screens/retail_pos_screen.dart';
+import '../../sales_orders/screens/sales_orders_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -172,7 +168,9 @@ class HomeScreen extends StatelessWidget {
                           isDark: isDark,
                           onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const POSScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const BusinessSalesOrdersScreen(businessType: 'restaurant'),
+                            ),
                           ),
                         ),
                         _ModuleCard(
@@ -184,7 +182,9 @@ class HomeScreen extends StatelessWidget {
                           isDark: isDark,
                           onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const GroceryPOSScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const BusinessSalesOrdersScreen(businessType: 'grocery'),
+                            ),
                           ),
                         ),
                         _ModuleCard(
@@ -196,7 +196,9 @@ class HomeScreen extends StatelessWidget {
                           isDark: isDark,
                           onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const PharmacyPOSScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const BusinessSalesOrdersScreen(businessType: 'pharmacy'),
+                            ),
                           ),
                         ),
                         _ModuleCard(
@@ -208,7 +210,9 @@ class HomeScreen extends StatelessWidget {
                           isDark: isDark,
                           onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const WholesalerPOSScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const BusinessSalesOrdersScreen(businessType: 'wholesaler'),
+                            ),
                           ),
                         ),
                         _ModuleCard(
@@ -220,7 +224,9 @@ class HomeScreen extends StatelessWidget {
                           isDark: isDark,
                           onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const RetailPOSScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const BusinessSalesOrdersScreen(businessType: 'retail'),
+                            ),
                           ),
                         ),
                         _ModuleCard(

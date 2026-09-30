@@ -8,6 +8,7 @@ import '../../models/grocery_product.dart';
 import '../../models/grocery_sale.dart';
 import '../../providers/grocery_provider.dart';
 import '../../theme/grocery_colors.dart';
+import '../../../../core/widgets/live_sales_history_dialog.dart';
 
 // ─────────────────────────────────────────────────────────────────
 // Helpers
@@ -1272,64 +1273,7 @@ class GrocerySalesHistoryDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = context.watch<AppProvider>().locale;
-    final isDark = context.watch<AppProvider>().isDarkMode;
-    final isBn = locale == 'bn';
-    final sales = context.watch<GroceryProvider>().completedSales;
-
-    return AlertDialog(
-      backgroundColor: GroceryColors.cardBg(isDark),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Row(
-        children: [
-          const Icon(Icons.receipt_long_rounded, color: GroceryColors.primary),
-          const SizedBox(width: 10),
-          Text(AppStrings.get('sales_history', locale), style: const TextStyle(fontWeight: FontWeight.w800)),
-        ],
-      ),
-      content: SizedBox(
-        width: 420,
-        height: 400,
-        child: sales.isEmpty
-            ? Center(child: Text(isBn ? 'কোনো সেল নেই' : 'No sales yet'))
-            : ListView.separated(
-                itemCount: sales.length,
-                separatorBuilder: (_, _) => Divider(color: GroceryColors.border(isDark)),
-                itemBuilder: (context, i) {
-                  final s = sales[i];
-                  return ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: CircleAvatar(
-                      backgroundColor: GroceryColors.primary.withValues(alpha: 0.12),
-                      child: const Icon(Icons.check, color: GroceryColors.primary, size: 18),
-                    ),
-                    title: Text(s.invoiceNo, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
-                    subtitle: Text(
-                      '${s.customerName} · ${s.paymentMethod} · ${DateFormat('dd MMM, hh:mm a').format(s.timestamp)}',
-                      style: const TextStyle(fontSize: 11),
-                    ),
-                    trailing: Text(
-                      '${AppStrings.currency}${NumberUtils.toLocalized(s.total.toStringAsFixed(2), locale)}',
-                      style: const TextStyle(fontWeight: FontWeight.w900, color: GroceryColors.primaryDark),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      showDialog(
-                        context: context,
-                        builder: (_) => ChangeNotifierProvider.value(
-                          value: context.read<GroceryProvider>(),
-                          child: GroceryBillPrintDialog(sale: s),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get('close', locale))),
-      ],
-    );
+    return const LiveSalesHistoryDialog(businessType: 'grocery');
   }
 }
 

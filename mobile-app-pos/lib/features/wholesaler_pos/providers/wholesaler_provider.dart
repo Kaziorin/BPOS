@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../../core/services/api_service.dart';
 
 enum WCustomerTier { regular, silver, gold, platinum }
 
@@ -205,8 +206,55 @@ class WholesalerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  final List<WProduct> _allProducts = const [
-    WProduct(
+  WholesalerProvider() {
+    loadProducts(businessType: 'wholesaler');
+  }
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  Future<void> loadProducts({String businessType = 'wholesaler'}) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final apiProducts = await ApiService.instance.fetchProducts(businessType: businessType);
+      if (apiProducts.isNotEmpty) {
+        final List<WProduct> loaded = [];
+        for (int i = 0; i < apiProducts.length; i++) {
+          final p = apiProducts[i];
+          final price = (p['sellingPrice'] as num?)?.toDouble() ??
+              (p['price'] as num?)?.toDouble() ??
+              (double.tryParse(p['sellingPrice']?.toString() ?? '') ?? 500.0);
+          final stock = (p['stock'] as num?)?.toInt() ?? 50;
+          loaded.add(WProduct(
+            id: p['id']?.toString() ?? 'wp-$i',
+            name: p['name']?.toString() ?? 'Product $i',
+            sku: p['sku']?.toString() ?? 'SKU-$i',
+            warehouseId: 'WH-01',
+            category: p['category'] is Map ? (p['category']['name'] ?? 'General').toString() : (p['category']?.toString() ?? 'General'),
+            price: price,
+            b2bPrice: price * 0.9,
+            bulkPrice: price * 0.8,
+            bulkMinQty: 10,
+            stock: stock,
+            stockStatus: stock > 10 ? WStockStatus.inStock : WStockStatus.lowStock,
+            emoji: '📦',
+            imageUrl: p['imageUrl']?.toString() ?? 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200',
+          ));
+        }
+        _allProducts.clear();
+        _allProducts.addAll(loaded);
+      }
+    } catch (e) {
+      debugPrint('Error loading wholesale products: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  final List<WProduct> _allProducts = [
+    const WProduct(
       id: 'p1', name: 'Noise Cancelling Headphones', sku: 'EL-HP-1001',
       warehouseId: 'WH-01', category: 'Electronics',
       price: 65.0, b2bPrice: 60.0, bulkPrice: 55.0, bulkMinQty: 10,

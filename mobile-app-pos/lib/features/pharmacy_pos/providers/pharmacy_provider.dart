@@ -1,8 +1,55 @@
 import 'package:flutter/foundation.dart';
+import '../../../core/services/api_service.dart';
 import '../models/medicine_model.dart';
 import '../models/pharmacy_cart_item.dart';
 
 class PharmacyProvider extends ChangeNotifier {
+  PharmacyProvider() {
+    loadProducts(businessType: 'pharmacy');
+  }
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  Future<void> loadProducts({String businessType = 'pharmacy'}) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final apiProducts = await ApiService.instance.fetchProducts(businessType: businessType);
+      if (apiProducts.isNotEmpty) {
+        final List<MedicineModel> loaded = [];
+        for (int i = 0; i < apiProducts.length; i++) {
+          final p = apiProducts[i];
+          final price = (p['sellingPrice'] as num?)?.toDouble() ??
+              (p['price'] as num?)?.toDouble() ??
+              (double.tryParse(p['sellingPrice']?.toString() ?? '') ?? 50.0);
+          final stock = (p['stock'] as num?)?.toInt() ?? 100;
+          loaded.add(MedicineModel(
+            id: p['id']?.toString() ?? 'm-$i',
+            name: p['name']?.toString() ?? 'Medicine $i',
+            genericName: p['description']?.toString() ?? 'General Medicine',
+            price: price,
+            category: p['category'] is Map ? (p['category']['name'] ?? 'General').toString() : (p['category']?.toString() ?? 'General'),
+            imagePath: p['imageUrl']?.toString() ?? 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200',
+            stock: stock,
+            isRx: false,
+            manufacturer: 'Blue Oceans Pharma',
+            barcode: p['barcode']?.toString() ?? '8941100${i.toString().padLeft(2, '0')}',
+            batchNumber: 'BAT-${DateTime.now().year}-$i',
+            expiryDate: '12/2027',
+          ));
+        }
+        _allMedicines.clear();
+        _allMedicines.addAll(loaded);
+      }
+    } catch (e) {
+      debugPrint('Error loading pharmacy products: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   final List<MedicineModel> _allMedicines = [
     const MedicineModel(
       id: '1', name: 'Amoxicillin', genericName: 'Capsule • 500mg', price: 6.00, 
@@ -387,6 +434,40 @@ class PharmacyProvider extends ChangeNotifier {
     };
 
     _orderHistory.insert(0, order);
+
+    // Sync sale to backend database
+    try {
+      final itemsPayload = _cart.map((c) => {
+        'productId': c.medicine.id,
+        'name': c.medicine.name,
+        'qty': c.quantity,
+        'unitPrice': c.medicine.price,
+        'lineTotal': c.medicine.price * c.quantity,
+      }).toList();
+
+      ApiService.instance.confirmSale(
+        payload: {
+          'items': itemsPayload,
+          'payments': [
+            {'method': paymentMethod, 'amount': total}
+          ],
+          'discountTotal': totalDiscount,
+          'source': 'PHARMACY',
+          'customerName': _selectedCustomer?['name']?.toString() ?? 'Walk-in Customer',
+          'note': _salesNote,
+        },
+        businessType: 'pharmacy',
+      ).then((res) {
+        if (res['invoiceNo'] != null) {
+          debugPrint('Pharmacy sale saved to DB: ${res['invoiceNo']}');
+        }
+      }).catchError((e) {
+        debugPrint('Error confirming pharmacy sale: $e');
+      });
+    } catch (e) {
+      debugPrint('Error preparing pharmacy sale payload: $e');
+    }
+
     _cart.clear();
     _globalDiscount = 0.0;
     _salesNote = '';

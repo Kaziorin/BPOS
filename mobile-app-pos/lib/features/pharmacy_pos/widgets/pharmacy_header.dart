@@ -6,6 +6,7 @@ import '../../../core/theme/theme_extensions.dart';
 import '../providers/pharmacy_provider.dart';
 import '../../../core/widgets/fullscreen_button.dart';
 import 'dialogs/pharmacy_dialogs.dart';
+import '../../../core/widgets/live_sales_history_dialog.dart';
 
 class PharmacyHeader extends StatelessWidget {
   final bool isMobile;
@@ -132,6 +133,21 @@ class PharmacyHeader extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 ),
+                const SizedBox(width: 2),
+
+                // Sales History Button
+                IconButton(
+                  onPressed: () => showLiveSalesHistoryDialog(context, businessType: 'pharmacy'),
+                  icon: const Icon(
+                    Icons.receipt_long_rounded,
+                    color: primaryTeal,
+                    size: 20,
+                  ),
+                  tooltip: 'Sales History',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                ),
+                const SizedBox(width: 2),
 
                 // Cart Button with badge
                 if (onOpenCart != null)
@@ -279,6 +295,14 @@ class PharmacyHeader extends StatelessWidget {
             color: primaryTeal,
             bgColor: buttonBg,
             onTap: () => showPharmacyAddMedicineDialog(context, context.read<PharmacyProvider>()),
+          ),
+          const SizedBox(width: 8),
+          _HeaderActionButton(
+            icon: Icons.receipt_long_rounded,
+            label: 'Sales History',
+            color: primaryTeal,
+            bgColor: buttonBg,
+            onTap: () => showLiveSalesHistoryDialog(context, businessType: 'pharmacy'),
           ),
           
           const SizedBox(width: 12),
