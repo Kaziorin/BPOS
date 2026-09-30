@@ -102,11 +102,20 @@ class _MedicineCard extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Image.asset(
-                  medicine.imagePath,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) => Icon(Icons.medication_rounded, color: Colors.blue.shade400, size: 32),
-                ),
+                child: medicine.imagePath.startsWith('http')
+                    ? Image.network(
+                        medicine.imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Icon(Icons.medication_rounded, color: Colors.blue.shade400, size: 32),
+                      )
+                    : Image.asset(
+                        medicine.imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Icon(Icons.medication_rounded, color: Colors.blue.shade400, size: 32),
+                      ),
+
               ),
             ),
           ),

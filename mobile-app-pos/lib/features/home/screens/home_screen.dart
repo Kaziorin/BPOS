@@ -634,8 +634,8 @@ class _ModuleCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         width: 280,
-        height: 170,
-        padding: const EdgeInsets.all(20),
+        height: 185,
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(20),
