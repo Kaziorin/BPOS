@@ -6,6 +6,8 @@ import '../../../core/providers/app_provider.dart';
 import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/theme_extensions.dart';
 import '../../../core/utils/number_utils.dart';
+import '../../../core/widgets/fullscreen_button.dart';
+import '../../../core/utils/fullscreen_helper.dart' as fs;
 import 'dialogs/pos_dialogs.dart';
 import 'dialogs/hardware_settings_dialog.dart';
 
@@ -437,6 +439,13 @@ class _RightIcons extends StatelessWidget {
           ],
         ),
         SizedBox(width: isMobile ? 2 : 4),
+        FullscreenButton(
+          iconColor: Colors.white,
+          iconSize: isMobile ? 20 : 24,
+          padding: isMobile ? EdgeInsets.zero : const EdgeInsets.all(8),
+          constraints: isMobile ? const BoxConstraints(minWidth: 34, minHeight: 34) : const BoxConstraints(minWidth: 48, minHeight: 48),
+        ),
+        SizedBox(width: isMobile ? 2 : 4),
         PopupMenuButton<String>(
           color: context.cardBg,
           offset: Offset(0, isMobile ? 44 : 56),
@@ -477,6 +486,8 @@ class _RightIcons extends StatelessWidget {
               appProv.toggleTheme();
             } else if (val == 'toggle_lang') {
               appProv.setLocale(appProv.locale == 'en' ? 'bn' : 'en');
+            } else if (val == 'toggle_fullscreen') {
+              fs.toggleFullscreen();
             }
           },
           itemBuilder: (context) {
@@ -484,6 +495,17 @@ class _RightIcons extends StatelessWidget {
             final appProvider = Provider.of<AppProvider>(context, listen: false);
             
             return [
+              PopupMenuItem(
+                value: 'toggle_fullscreen',
+                child: Row(
+                  children: [
+                    const Icon(Icons.fullscreen_rounded, size: 18, color: Color(0xFFFF6D00)),
+                    const SizedBox(width: 8),
+                    Text(AppStrings.get('fullscreen', locale), style: textStyle),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
               if (isMobile) ...[
                 PopupMenuItem(
                   value: 'toggle_theme',

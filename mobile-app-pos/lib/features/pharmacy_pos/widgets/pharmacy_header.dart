@@ -4,6 +4,7 @@ import '../../../../core/providers/app_provider.dart';
 import '../../../core/theme/theme_extensions.dart';
 
 import '../providers/pharmacy_provider.dart';
+import '../../../core/widgets/fullscreen_button.dart';
 import 'dialogs/pharmacy_dialogs.dart';
 
 class PharmacyHeader extends StatelessWidget {
@@ -109,6 +110,15 @@ class PharmacyHeader extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
+
+                // Fullscreen Toggle
+                FullscreenButton(
+                  iconColor: Colors.grey.shade600,
+                  iconSize: 20,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                ),
+                const SizedBox(width: 2),
 
                 // Theme Toggle
                 IconButton(
@@ -274,6 +284,15 @@ class PharmacyHeader extends StatelessWidget {
           const SizedBox(width: 12),
           const VerticalDivider(width: 1, indent: 15, endIndent: 15),
           const SizedBox(width: 12),
+
+          // ── FULLSCREEN TOGGLE ──
+          FullscreenButton(
+            iconColor: Colors.grey.shade600,
+            iconSize: 22,
+            padding: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          const SizedBox(width: 4),
 
           // ── THEME TOGGLE ──
           IconButton(

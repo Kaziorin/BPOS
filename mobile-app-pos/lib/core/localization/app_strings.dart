@@ -20,6 +20,14 @@ class AppStrings {
       'en': 'Select a point of sale system',
       'bn': 'পয়েন্ট অব সেল সিস্টেম বেছে নিন',
     },
+    'fullscreen': {
+      'en': 'Full Screen (F)',
+      'bn': 'ফুল স্ক্রিন (F)',
+    },
+    'exit_fullscreen': {
+      'en': 'Exit Full Screen (F)',
+      'bn': 'স্বাভাবিক স্ক্রিন (F)',
+    },
 
     // ── Home Screen – Module Names ────────────────────────
     'restaurant_pos': {'en': 'Restaurant POS', 'bn': 'রেস্তোরাঁ POS'},

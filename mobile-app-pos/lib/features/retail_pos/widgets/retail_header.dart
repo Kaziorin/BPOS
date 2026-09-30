@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:provider/provider.dart';
 import '../../../core/providers/app_provider.dart';
 import '../providers/retail_provider.dart';
 import 'dialogs/retail_dialogs.dart';
-import 'fullscreen_helper.dart' as fs;
+import '../../../core/widgets/fullscreen_button.dart';
 
 class RetailHeader extends StatefulWidget {
   final TextEditingController searchController;
@@ -22,7 +22,6 @@ class RetailHeader extends StatefulWidget {
 class _RetailHeaderState extends State<RetailHeader> {
   late Timer _timer;
   late DateTime _now;
-  bool _isFullScreen = false;
   bool _isSearchOpen = false;
 
   @override
@@ -33,29 +32,14 @@ class _RetailHeaderState extends State<RetailHeader> {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() => _now = DateTime.now());
     });
-    // Sync button icon when browser exits fullscreen (e.g. Escape key)
-    fs.onFullscreenChange.listen((isFull) {
-      if (mounted) setState(() => _isFullScreen = isFull);
-    });
-    // F key → toggle fullscreen
-    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
   }
 
   @override
   void dispose() {
     _timer.cancel();
-    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
     super.dispose();
   }
 
-  bool _handleKeyEvent(KeyEvent event) {
-    if (event is KeyDownEvent &&
-        event.logicalKey == LogicalKeyboardKey.keyF) {
-      _toggleFullScreen();
-      return true; // event consumed
-    }
-    return false;
-  }
 
   String _formatDate(DateTime dt) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -105,15 +89,6 @@ class _RetailHeaderState extends State<RetailHeader> {
         ],
       ),
     );
-  }
-
-  void _toggleFullScreen() {
-    if (_isFullScreen) {
-      fs.exitFullscreen();
-    } else {
-      fs.enterFullscreen();
-    }
-    // _isFullScreen state is updated via onFullscreenChange stream listener
   }
 
   void _showNotificationsDialog(BuildContext context, bool isDark) {
@@ -583,30 +558,14 @@ class _RetailHeaderState extends State<RetailHeader> {
                   const SizedBox(width: 8),
 
                   // Fullscreen Button
-                  InkWell(
-                    onTap: _toggleFullScreen,
+                  FullscreenButton(
+                    iconColor: const Color(0xFF8B5CF6),
+                    iconSize: 20,
+                    backgroundColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
                     borderRadius: BorderRadius.circular(4),
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        _isFullScreen ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
-                        size: 20,
-                        color: const Color(0xFF8B5CF6),
-                      ),
-                    ),
+                    border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                    padding: const EdgeInsets.all(8),
                   ),
                   const SizedBox(width: 8),
 

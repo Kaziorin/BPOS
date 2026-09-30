@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/providers/app_provider.dart';
 import '../providers/wholesaler_provider.dart';
 import '../theme/wholesaler_colors.dart';
+import '../../../core/widgets/fullscreen_button.dart';
 import 'wholesaler_dialogs.dart';
 import 'wholesaler_footer_bar.dart';
 
@@ -391,6 +392,14 @@ class _HeaderActions extends StatelessWidget {
           ),
           const SizedBox(width: 6),
         ],
+        FullscreenButton(
+          builder: (context, isFull, toggle) => _HeaderBtn(
+            icon: isFull ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
+            isDark: isDark,
+            onTap: toggle,
+          ),
+        ),
+        const SizedBox(width: 6),
         _HeaderBtn(
           icon: app.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
           isDark: isDark,

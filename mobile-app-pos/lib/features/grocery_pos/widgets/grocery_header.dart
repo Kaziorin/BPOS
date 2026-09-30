@@ -6,6 +6,7 @@ import '../../../core/providers/app_provider.dart';
 import '../../../core/utils/number_utils.dart';
 import '../providers/grocery_provider.dart';
 import '../theme/grocery_colors.dart';
+import '../../../core/widgets/fullscreen_button.dart';
 import 'dialogs/grocery_dialogs.dart';
 
 class GroceryHeader extends StatelessWidget {
@@ -48,6 +49,15 @@ class GroceryHeader extends StatelessWidget {
           ],
 
           const SizedBox(width: 8),
+          // Fullscreen
+          FullscreenButton(
+            builder: (context, isFull, toggle) => _IconChip(
+              icon: isFull ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
+              isDark: isDark,
+              onTap: toggle,
+            ),
+          ),
+          const SizedBox(width: 6),
           // Theme
           _IconChip(
             icon: app.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
