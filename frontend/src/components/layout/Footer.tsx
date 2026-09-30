@@ -71,14 +71,20 @@ export function Footer() {
 
           {/* Middle: Contact Info (Adapts smoothly, only on wider layouts to prevent cramped layout) */}
           <div className="hidden xl:flex items-center gap-4 2xl:gap-6 text-slate-600 text-[11px] font-medium shrink min-w-0 truncate">
-            <div className="flex items-center gap-1.5 shrink-0 hover:text-[#0284c7] transition">
+            <a
+              href="mailto:support.blueoceans@gmail.com"
+              className="flex items-center gap-1.5 shrink-0 hover:text-[#0284c7] transition"
+            >
               <Mail size={12} className="text-[#0284c7] shrink-0" />
-              <span className="truncate">support@blueoceanspos.com</span>
-            </div>
-            <div className="flex items-center gap-1.5 shrink-0 hover:text-[#0284c7] transition">
+              <span className="truncate">support.blueoceans@gmail.com</span>
+            </a>
+            <a
+              href="tel:+8801819426320"
+              className="flex items-center gap-1.5 shrink-0 hover:text-[#0284c7] transition"
+            >
               <Phone size={12} className="text-[#0284c7] shrink-0" />
-              <span>+880 1730 000000</span>
-            </div>
+              <span>+8801819426320</span>
+            </a>
             <div className="hidden 2xl:flex items-center gap-1.5 shrink-0 hover:text-[#0284c7] transition">
               <MapPin size={12} className="text-[#0284c7] shrink-0" />
               <span>Dhaka, Bangladesh</span>
