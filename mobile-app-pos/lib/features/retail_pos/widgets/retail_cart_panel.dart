@@ -24,7 +24,6 @@ class RetailCartPanel extends StatelessWidget {
     final tax = retailProvider.taxTotal;
     final total = retailProvider.total;
     final itemCount = retailProvider.cart.fold(0, (sum, i) => sum + i.qty);
-    final youSave = discount > 0 ? discount : 0.75;
 
     return Column(
       children: [
@@ -628,21 +627,23 @@ class RetailCartPanel extends StatelessWidget {
                                 height: 1.0,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(Icons.local_offer_outlined, size: 10.5, color: Color(0xFF059669)),
-                                const SizedBox(width: 3),
-                                Text(
-                                  'You Save ৳${youSave.toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFF059669),
+                            if (discount > 0) ...[
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Icon(Icons.local_offer_outlined, size: 10.5, color: Color(0xFF059669)),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    'You Save ৳${discount.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF059669),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),

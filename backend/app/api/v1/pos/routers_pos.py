@@ -987,7 +987,13 @@ async def pos_stats_today(
         SELECT COALESCE(SUM(total), 0.0) AS totalSales,
                COUNT(*) AS transactionCount,
                COALESCE(SUM(paidTotal), 0.0) AS paidTotal,
-               COALESCE(SUM(dueTotal), 0.0) AS dueTotal
+               COALESCE(SUM(dueTotal), 0.0) AS dueTotal,
+               COALESCE((
+                   SELECT SUM(si.qty)
+                   FROM sale_items si
+                   JOIN sales s2 ON s2.id = si.saleId
+                   WHERE s2.tenantId = :t AND DATE(s2.createdAt) = CURDATE() AND s2.status != 'CANCELLED'
+               ), 0.0) AS itemsSold
         FROM sales
         WHERE tenantId = :t AND DATE(createdAt) = CURDATE() AND status != 'CANCELLED'
     """), {"t": tenantId})).first()
@@ -999,6 +1005,7 @@ async def pos_stats_today(
     tx_count = int(row[1]) if row and row[1] is not None else 0
     paid_tot = float(row[2]) if row and row[2] is not None else 0.0
     due_tot = float(row[3]) if row and row[3] is not None else 0.0
+    items_sold = int(float(row[4])) if row and row[4] is not None else 0
 
     return ok({
         "totalSales": round(total_sales, 2),
@@ -1007,6 +1014,7 @@ async def pos_stats_today(
         "count": tx_count,
         "paidTotal": round(paid_tot, 2),
         "dueTotal": round(due_tot, 2),
+        "itemsSold": items_sold,
         "branchesCount": branches_count,
         "employeesCount": employees_count
     })

@@ -155,48 +155,110 @@ async def create_product(
     ).first()
     if dup:
         return err("Product with this SKU/barcode already exists", 409)
+
+    # 1. Sanitize nested foreign key objects
+    if "category" in body and isinstance(body["category"], dict):
+        body["categoryId"] = body["category"].get("id") or None
+    if "subCategory" in body and isinstance(body["subCategory"], dict):
+        body["subCategoryId"] = body["subCategory"].get("id") or None
+    if "brand" in body and isinstance(body["brand"], dict):
+        body["brandId"] = body["brand"].get("id") or None
+    if "unit" in body and isinstance(body["unit"], dict):
+        body["unitId"] = body["unit"].get("id") or None
+    if "supplier" in body and isinstance(body["supplier"], dict):
+        body["supplierId"] = body["supplier"].get("id") or None
+
+    fk_configs = [
+        ("categoryId", "categories"),
+        ("subCategoryId", "categories"),
+        ("brandId", "brands"),
+        ("unitId", "units"),
+        ("supplierId", "suppliers"),
+    ]
+    for fk_key, table_name in fk_configs:
+        val = body.get(fk_key)
+        if isinstance(val, dict):
+            val = val.get("id")
+        if not val or val == "" or str(val).strip() == "":
+            body[fk_key] = None
+        else:
+            fk_exists = (await db.execute(
+                text(f"SELECT id FROM {table_name} WHERE id=:fid AND tenantId=:t"),
+                {"fid": str(val).strip(), "t": tenantId}
+            )).first()
+            body[fk_key] = str(val).strip() if fk_exists else None
+
+    # 2. Sanitize numeric fields
+    def _safe_float(v, default=None):
+        if v is None or v == "" or str(v).strip() == "":
+            return default
+        try:
+            return float(v)
+        except (ValueError, TypeError):
+            return default
+
+    def _safe_int(v, default=None):
+        if v is None or v == "" or str(v).strip() == "":
+            return default
+        try:
+            return int(float(v))
+        except (ValueError, TypeError):
+            return default
+
+    cp = _safe_float(body.get("costPrice"), 0.0)
+    sp = _safe_float(body.get("sellingPrice"), 0.0)
+    wp = _safe_float(body.get("wholesalePrice"), None)
+    minp = _safe_float(body.get("minPrice"), None)
+    maxp = _safe_float(body.get("maxPrice"), None)
+    tax = _safe_float(body.get("taxRate"), None)
+    war = _safe_int(body.get("warrantyDays"), None)
+    rp = _safe_float(body.get("reorderPoint"), None)
+
     import json
-    await db.execute(
-        text(
-            "INSERT INTO products (id, tenantId, categoryId, subCategoryId, brandId, unitId, supplierId, name, sku, barcode, "
-            "manufacturer, productType, costPrice, sellingPrice, wholesalePrice, minPrice, maxPrice, taxRate, "
-            "warrantyDays, description, reorderPoint, imageUrl, attributes, createdBy) "
-            "VALUES (UUID(), :t, :c, :subc, :b, :u, :sup, :n, :sku, :bar, :man, :pt, :cp, :sp, :wp, :minp, :maxp, :tax, :war, :d, :rp, :img, :attr, :cb)"
-        ),
-        {
-            "t": tenantId, "c": body.get("categoryId"), "subc": body.get("subCategoryId"), "b": body.get("brandId"), "u": body.get("unitId"),
-            "sup": body.get("supplierId"), "n": name, "sku": sku, "bar": body.get("barcode"),
-            "man": body.get("manufacturer"), "pt": body.get("productType", "Standard"),
-            "cp": body.get("costPrice", 0), "sp": body.get("sellingPrice", 0),
-            "wp": body.get("wholesalePrice"), "minp": body.get("minPrice"), "maxp": body.get("maxPrice"),
-            "tax": body.get("taxRate"), "war": body.get("warrantyDays"), "d": body.get("description"),
-            "rp": body.get("reorderPoint"),
-            "img": body.get("imageUrl"),
-            "attr": json.dumps(body.get("attributes")) if isinstance(body.get("attributes"), (dict, list)) else body.get("attributes"),
-            "cb": user.id,
-        },
-    )
-    row = (
-        await db.execute(text("SELECT id, name, sku FROM products WHERE tenantId=:t AND sku=:s"), {"t": tenantId, "s": sku})
-    ).first()
+    try:
+        await db.execute(
+            text(
+                "INSERT INTO products (id, tenantId, categoryId, subCategoryId, brandId, unitId, supplierId, name, sku, barcode, "
+                "manufacturer, productType, costPrice, sellingPrice, wholesalePrice, minPrice, maxPrice, taxRate, "
+                "warrantyDays, description, reorderPoint, imageUrl, attributes, createdBy) "
+                "VALUES (UUID(), :t, :c, :subc, :b, :u, :sup, :n, :sku, :bar, :man, :pt, :cp, :sp, :wp, :minp, :maxp, :tax, :war, :d, :rp, :img, :attr, :cb)"
+            ),
+            {
+                "t": tenantId, "c": body.get("categoryId"), "subc": body.get("subCategoryId"), "b": body.get("brandId"), "u": body.get("unitId"),
+                "sup": body.get("supplierId"), "n": name, "sku": sku, "bar": body.get("barcode") or None,
+                "man": body.get("manufacturer") or None, "pt": body.get("productType", "Standard") or "Standard",
+                "cp": cp, "sp": sp, "wp": wp, "minp": minp, "maxp": maxp,
+                "tax": tax, "war": war, "d": body.get("description") or None,
+                "rp": rp,
+                "img": body.get("imageUrl") or None,
+                "attr": json.dumps(body.get("attributes")) if isinstance(body.get("attributes"), (dict, list)) else (body.get("attributes") or None),
+                "cb": user.id,
+            },
+        )
+        row = (
+            await db.execute(text("SELECT id, name, sku FROM products WHERE tenantId=:t AND sku=:s"), {"t": tenantId, "s": sku})
+        ).first()
 
-    # Seed stock table for default/selected warehouse so newly created products have stock ready for sale
-    raw_opening = body.get("openingStock") if body.get("openingStock") is not None else (body.get("stock") if body.get("stock") is not None else body.get("stockQty"))
-    opening_stock = float(raw_opening) if raw_opening is not None else 100.0
-    wh_id = body.get("warehouseId")
-    if not wh_id:
-        wh_row = (await db.execute(text("SELECT id FROM warehouses WHERE tenantId = :t ORDER BY createdAt ASC LIMIT 1"), {"t": tenantId})).first()
-        wh_id = wh_row[0] if wh_row else None
-    
-    if wh_id:
-        await db.execute(text(
-            "INSERT INTO stock (id, tenantId, warehouseId, productId, qtyOnHand, qtyReserved, status, createdAt, updatedAt) "
-            "VALUES (UUID(), :t, :w, :p, :q, 0, 'ACTIVE', NOW(), NOW())"
-        ), {"t": tenantId, "w": wh_id, "p": row.id, "q": opening_stock})
+        # Seed stock table for default/selected warehouse so newly created products have stock ready for sale
+        raw_opening = body.get("openingStock") if body.get("openingStock") is not None else (body.get("stock") if body.get("stock") is not None else body.get("stockQty"))
+        opening_stock = _safe_float(raw_opening, 100.0)
+        wh_id = body.get("warehouseId")
+        if not wh_id:
+            wh_row = (await db.execute(text("SELECT id FROM warehouses WHERE tenantId = :t ORDER BY createdAt ASC LIMIT 1"), {"t": tenantId})).first()
+            wh_id = wh_row[0] if wh_row else None
+        
+        if wh_id:
+            await db.execute(text(
+                "INSERT INTO stock (id, tenantId, warehouseId, productId, qtyOnHand, qtyReserved, status, createdAt, updatedAt) "
+                "VALUES (UUID(), :t, :w, :p, :q, 0, 'ACTIVE', NOW(), NOW())"
+            ), {"t": tenantId, "w": wh_id, "p": row.id, "q": opening_stock})
 
-    await db.commit()
-    cache_mod.invalidate_namespace("products", tenantId)
-    return ok({"id": row.id, "name": row.name, "sku": row.sku}, 201)
+        await db.commit()
+        cache_mod.invalidate_namespace("products", tenantId)
+        return ok({"id": row.id, "name": row.name, "sku": row.sku}, 201)
+    except Exception as e:
+        await db.rollback()
+        return err(f"Failed to create product: {str(e)}", 400)
 
 
 # ─────────────────────────── CATEGORIES & UNITS ───────────────────────────
@@ -628,45 +690,128 @@ async def update_product(
     ).first()
     if not exists:
         return err("Product not found", 404)
+
+    # 1. Sanitize nested foreign key objects (e.g. from frontend form state)
+    if "category" in body and isinstance(body["category"], dict):
+        body["categoryId"] = body["category"].get("id") or None
+    if "subCategory" in body and isinstance(body["subCategory"], dict):
+        body["subCategoryId"] = body["subCategory"].get("id") or None
+    if "brand" in body and isinstance(body["brand"], dict):
+        body["brandId"] = body["brand"].get("id") or None
+    if "unit" in body and isinstance(body["unit"], dict):
+        body["unitId"] = body["unit"].get("id") or None
+    if "supplier" in body and isinstance(body["supplier"], dict):
+        body["supplierId"] = body["supplier"].get("id") or None
+
+    # Foreign key fields: empty string or non-existent must become None
+    fk_configs = [
+        ("categoryId", "categories"),
+        ("subCategoryId", "categories"),
+        ("brandId", "brands"),
+        ("unitId", "units"),
+        ("supplierId", "suppliers"),
+    ]
+    for fk_key, table_name in fk_configs:
+        if fk_key in body:
+            val = body[fk_key]
+            if isinstance(val, dict):
+                val = val.get("id")
+            if not val or val == "" or str(val).strip() == "":
+                body[fk_key] = None
+            else:
+                # Verify existence in DB to prevent foreign key integrity errors
+                fk_exists = (await db.execute(
+                    text(f"SELECT id FROM {table_name} WHERE id=:fid AND tenantId=:t"),
+                    {"fid": str(val).strip(), "t": tenantId}
+                )).first()
+                body[fk_key] = str(val).strip() if fk_exists else None
+
+    # 2. Sanitize numeric fields (empty string or invalid string -> None or default)
+    num_fields = ["costPrice", "sellingPrice", "wholesalePrice", "minPrice", "maxPrice", "taxRate", "reorderPoint"]
+    for nf in num_fields:
+        if nf in body:
+            val = body[nf]
+            if val is None or val == "" or str(val).strip() == "":
+                body[nf] = 0.0 if nf in ("costPrice", "sellingPrice") else None
+            else:
+                try:
+                    body[nf] = float(val)
+                except (ValueError, TypeError):
+                    body[nf] = 0.0 if nf in ("costPrice", "sellingPrice") else None
+
+    if "warrantyDays" in body:
+        val = body["warrantyDays"]
+        if val is None or val == "" or str(val).strip() == "":
+            body["warrantyDays"] = None
+        else:
+            try:
+                body["warrantyDays"] = int(float(val))
+            except (ValueError, TypeError):
+                body["warrantyDays"] = None
+
+    # 3. Sanitize attributes JSON
     if "attributes" in body and isinstance(body["attributes"], (dict, list)):
         import json
         body["attributes"] = json.dumps(body["attributes"])
-    allowed = {"name": "name", "categoryId": "categoryId", "subCategoryId": "subCategoryId", "brandId": "brandId", "unitId": "unitId",
-               "supplierId": "supplierId", "barcode": "barcode", "manufacturer": "manufacturer",
-               "productType": "productType", "costPrice": "costPrice", "sellingPrice": "sellingPrice",
-               "wholesalePrice": "wholesalePrice", "minPrice": "minPrice", "maxPrice": "maxPrice",
-               "taxRate": "taxRate", "warrantyDays": "warrantyDays", "description": "description",
-               "imageUrl": "imageUrl", "status": "status", "attributes": "attributes"}
-    sets, params = [], {"id": productId, "t": tenantId, "u": user.id}
-    # ── Prompt 27 price approval: big price moves need manager sign-off (§10.26) ──
+
+    # 4. Prompt 27 price approval: big price moves need manager sign-off (§10.26)
     price_keys = ["sellingPrice", "wholesalePrice", "costPrice"]
-    proposed_prices = {k: body[k] for k in price_keys if k in body and body[k] is not None}
+    proposed_prices = {}
+    for k in price_keys:
+        if k in body and body[k] is not None:
+            try:
+                proposed_prices[k] = float(body[k])
+            except (ValueError, TypeError):
+                pass
     if proposed_prices:
         cur = (await db.execute(text(
             "SELECT name, sku, sellingPrice, wholesalePrice, costPrice FROM products WHERE id=:id AND tenantId=:t"),
             {"id": productId, "t": tenantId})).first()
         if cur:
             delta = 0.0
-            for k in price_keys:
-                if k in proposed_prices:
+            for k, pval in proposed_prices.items():
+                try:
                     old = float(cur[2] if k == "sellingPrice" else cur[3] if k == "wholesalePrice" else cur[4] or 0)
-                    delta = max(delta, abs(float(proposed_prices[k]) - old))
-            apr = await wf.create_approval(
-                db, tenantId, "PRICE_CHANGE", productId, cur[1],
-                f"Price change on {cur[0]} (৳{delta:,.0f})", delta,
-                {"productId": productId, "prices": proposed_prices, "delta": delta}, user.id)
-            if apr:
-                await db.commit()
-                cache_mod.invalidate_namespace("products", tenantId)
-                return ok({"updated": False, "needsApproval": True, "approval": apr}, 202)
+                    delta = max(delta, abs(pval - old))
+                except (ValueError, TypeError):
+                    pass
+            if delta > 0:
+                try:
+                    apr = await wf.create_approval(
+                        db, tenantId, "PRICE_CHANGE", productId, cur[1],
+                        f"Price change on {cur[0]} (৳{delta:,.0f})", delta,
+                        {"productId": productId, "prices": proposed_prices, "delta": delta}, user.id)
+                    if apr:
+                        await db.commit()
+                        cache_mod.invalidate_namespace("products", tenantId)
+                        return ok({"updated": False, "needsApproval": True, "approval": apr}, 202)
+                except Exception:
+                    pass
+
+    allowed = {"name": "name", "categoryId": "categoryId", "subCategoryId": "subCategoryId", "brandId": "brandId", "unitId": "unitId",
+               "supplierId": "supplierId", "barcode": "barcode", "manufacturer": "manufacturer",
+               "productType": "productType", "costPrice": "costPrice", "sellingPrice": "sellingPrice",
+               "wholesalePrice": "wholesalePrice", "minPrice": "minPrice", "maxPrice": "maxPrice",
+               "taxRate": "taxRate", "warrantyDays": "warrantyDays", "reorderPoint": "reorderPoint", "description": "description",
+               "imageUrl": "imageUrl", "status": "status", "attributes": "attributes"}
+    sets, params = [], {"id": productId, "t": tenantId, "u": user.id}
+
     for jk, ck in allowed.items():
         if jk in body:
-            sets.append(f"{ck} = :{ck}"); params[ck] = body[jk]
+            sets.append(f"{ck} = :{ck}")
+            params[ck] = body[jk]
+
     if sets:
+        sets.append("updatedAt = NOW()")
         sets.append("updatedBy = :u")
-        await db.execute(text(f"UPDATE products SET {', '.join(sets)} WHERE id = :id AND tenantId = :t"), params)
-        await db.commit()
-        cache_mod.invalidate_namespace("products", tenantId)
+        try:
+            await db.execute(text(f"UPDATE products SET {', '.join(sets)} WHERE id = :id AND tenantId = :t"), params)
+            await db.commit()
+            cache_mod.invalidate_namespace("products", tenantId)
+        except Exception as e:
+            await db.rollback()
+            return err(f"Failed to update product: {str(e)}", 400)
+
     return ok({"updated": True})
 
 

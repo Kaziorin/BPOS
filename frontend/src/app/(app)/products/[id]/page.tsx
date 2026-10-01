@@ -81,7 +81,21 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   async function handleSave() {
     setSaving(true);
     try {
-      await api.put(`/v1/products/${id}`, form);
+      const payload: Record<string, any> = {
+        name: form.name,
+        barcode: form.barcode || undefined,
+        description: form.description || undefined,
+        costPrice: form.costPrice !== undefined && form.costPrice !== "" ? parseFloat(form.costPrice) : 0,
+        sellingPrice: form.sellingPrice !== undefined && form.sellingPrice !== "" ? parseFloat(form.sellingPrice) : 0,
+        wholesalePrice: form.wholesalePrice !== undefined && form.wholesalePrice !== "" ? parseFloat(form.wholesalePrice) : undefined,
+        taxRate: form.taxRate !== undefined && form.taxRate !== "" ? parseFloat(form.taxRate) : undefined,
+        status: form.status,
+        categoryId: form.categoryId || (typeof form.category === "object" ? form.category?.id : form.category) || undefined,
+        brandId: form.brandId || (typeof form.brand === "object" ? form.brand?.id : form.brand) || undefined,
+        unitId: form.unitId || (typeof form.unit === "object" ? form.unit?.id : form.unit) || undefined,
+        supplierId: form.supplierId || (typeof form.supplier === "object" ? form.supplier?.id : form.supplier) || undefined,
+      };
+      await api.put(`/v1/products/${id}`, payload);
       toast.success("Product updated successfully!");
       setEditing(false);
       await loadProduct();

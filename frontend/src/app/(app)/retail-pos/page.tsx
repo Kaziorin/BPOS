@@ -97,285 +97,6 @@ function getCategories(products: CachedProduct[], apiCats: { id: string; name: s
   return Array.from(cats);
 }
 
-// ── Demo Products matching retail database seed ────────────────────
-const DEMO_PRODUCTS: CachedProduct[] = [
-  {
-    id: "prod-1",
-    name: "Coca-Cola 500ml",
-    sku: "BEV-001",
-    barcode: "8941100112233",
-    sellingPrice: "45",
-    costPrice: "35",
-    stockQty: "85",
-    unit: "Pcs",
-    productType: "STANDARD",
-    category: "Beverages",
-    imageUrl: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-2",
-    name: "Pran Mango Juice 1L",
-    sku: "BEV-002",
-    barcode: "8941100112244",
-    sellingPrice: "95",
-    costPrice: "75",
-    stockQty: "42",
-    unit: "Pcs",
-    productType: "STANDARD",
-    category: "Beverages",
-    imageUrl: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-3",
-    name: "Lays Classic Potato Chips 50g",
-    sku: "SNK-001",
-    barcode: "8941100112255",
-    sellingPrice: "50",
-    costPrice: "38",
-    stockQty: "60",
-    unit: "Pcs",
-    productType: "STANDARD",
-    category: "Snacks",
-    imageUrl: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-4",
-    name: "Kurkure Masala Munch 100g",
-    sku: "SNK-002",
-    barcode: "8941100112266",
-    sellingPrice: "40",
-    costPrice: "30",
-    stockQty: "75",
-    unit: "Pcs",
-    productType: "STANDARD",
-    category: "Snacks",
-    imageUrl: "https://images.unsplash.com/photo-1621447504864-d8686e12698c?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-5",
-    name: "Teer Fortified Soyabean Oil 1L",
-    sku: "GRO-001",
-    barcode: "8941100112277",
-    sellingPrice: "175",
-    costPrice: "155",
-    stockQty: "30",
-    unit: "Bottle",
-    productType: "STANDARD",
-    category: "Grocery",
-    imageUrl: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-6",
-    name: "ACI Pure Iodized Salt 1kg",
-    sku: "GRO-002",
-    barcode: "8941100112288",
-    sellingPrice: "42",
-    costPrice: "32",
-    stockQty: "110",
-    unit: "Pkt",
-    productType: "STANDARD",
-    category: "Grocery",
-    imageUrl: "https://images.unsplash.com/photo-1518110168401-f2877ee2c088?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-7",
-    name: "Miniket Premium Rice 5kg",
-    sku: "GRO-003",
-    barcode: "8941100112299",
-    sellingPrice: "385",
-    costPrice: "340",
-    stockQty: "25",
-    unit: "Bag",
-    productType: "STANDARD",
-    category: "Grocery",
-    imageUrl: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-8",
-    name: "Dano Full Cream Milk Powder 500g",
-    sku: "DAI-001",
-    barcode: "8941100112300",
-    sellingPrice: "440",
-    costPrice: "390",
-    stockQty: "18",
-    unit: "Can",
-    productType: "STANDARD",
-    category: "Dairy",
-    imageUrl: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-9",
-    name: "Milk Vita Pasteurized Milk 1L",
-    sku: "DAI-002",
-    barcode: "8941100112311",
-    sellingPrice: "90",
-    costPrice: "75",
-    stockQty: "40",
-    unit: "Pkt",
-    productType: "STANDARD",
-    category: "Dairy",
-    imageUrl: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-10",
-    name: "Dove Cream Beauty Bar 100g",
-    sku: "PER-001",
-    barcode: "8941100112322",
-    sellingPrice: "120",
-    costPrice: "95",
-    stockQty: "55",
-    unit: "Pcs",
-    productType: "STANDARD",
-    category: "Personal Care",
-    imageUrl: "https://images.unsplash.com/photo-1607006482172-3ba59d9dd838?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-11",
-    name: "Sunsilk Black Shine Shampoo 180ml",
-    sku: "PER-002",
-    barcode: "8941100112333",
-    sellingPrice: "220",
-    costPrice: "180",
-    stockQty: "32",
-    unit: "Bottle",
-    productType: "STANDARD",
-    category: "Personal Care",
-    imageUrl: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-12",
-    name: "Pepsodent Cavity Protection 150g",
-    sku: "PER-003",
-    barcode: "8941100112344",
-    sellingPrice: "110",
-    costPrice: "85",
-    stockQty: "48",
-    unit: "Tube",
-    productType: "STANDARD",
-    category: "Personal Care",
-    imageUrl: "https://images.unsplash.com/photo-1559598467-f8b76c8155d0?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-13",
-    name: "Wheel Washing Powder 1kg",
-    sku: "HOU-001",
-    barcode: "8941100112355",
-    sellingPrice: "140",
-    costPrice: "115",
-    stockQty: "50",
-    unit: "Pkt",
-    productType: "STANDARD",
-    category: "Household",
-    imageUrl: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-14",
-    name: "Harpic Liquid Cleaner 500ml",
-    sku: "HOU-002",
-    barcode: "8941100112366",
-    sellingPrice: "165",
-    costPrice: "135",
-    stockQty: "28",
-    unit: "Bottle",
-    productType: "STANDARD",
-    category: "Household",
-    imageUrl: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-15",
-    name: "Igloo Chocolate Ice Cream 500ml",
-    sku: "FRZ-001",
-    barcode: "8941100112377",
-    sellingPrice: "260",
-    costPrice: "210",
-    stockQty: "20",
-    unit: "Box",
-    productType: "STANDARD",
-    category: "Frozen",
-    imageUrl: "https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-16",
-    name: "Kazi Farms Chicken Nuggets 250g",
-    sku: "FRZ-002",
-    barcode: "8941100112388",
-    sellingPrice: "210",
-    costPrice: "170",
-    stockQty: "15",
-    unit: "Pkt",
-    productType: "STANDARD",
-    category: "Frozen",
-    imageUrl: "https://images.unsplash.com/photo-1562967914-608f82629710?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-17",
-    name: "All Time Family Bread 350g",
-    sku: "BAK-001",
-    barcode: "8941100112399",
-    sellingPrice: "65",
-    costPrice: "50",
-    stockQty: "24",
-    unit: "Pkt",
-    productType: "STANDARD",
-    category: "Bakery",
-    imageUrl: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80",
-    status: "ACTIVE",
-  },
-  {
-    id: "prod-18",
-    name: "Nescafé Classic Coffee 50g",
-    sku: "BEV-003",
-    barcode: "8941100112400",
-    sellingPrice: "280",
-    costPrice: "235",
-    stockQty: "35",
-    unit: "Jar",
-    productType: "STANDARD",
-    category: "Beverages",
-    imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&q=80",
-    status: "ACTIVE",
-  },
-];
-
-// Initial demo cart items with full image URLs
-const INITIAL_DEMO_CART: CartItem[] = [
-  {
-    productId: "prod-1",
-    variantId: null,
-    name: "Coca-Cola 500ml",
-    qty: 2,
-    unitPrice: 45,
-    discountAmount: 0,
-    lineTotal: 90,
-    image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80",
-  },
-  {
-    productId: "prod-3",
-    variantId: null,
-    name: "Lays Classic Potato Chips 50g",
-    qty: 1,
-    unitPrice: 50,
-    discountAmount: 0,
-    lineTotal: 50,
-    image: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&q=80",
-  },
-];
 
 // ── Payment Methods ────────────────────────────────────────────────
 const PAYMENT_METHODS = [
@@ -431,23 +152,24 @@ export default function PosPage() {
 
   // Product search & category view
   const [search, setSearch] = useState("");
-  const [products, setProducts] = useState<CachedProduct[]>(DEMO_PRODUCTS);
+  const [products, setProducts] = useState<CachedProduct[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  // Cart (restored from localStorage if available, otherwise demo cart)
+  // Cart (restored from localStorage if available, otherwise empty)
   const [cart, setCart] = useState<CartItem[]>(() => {
-    if (typeof window === "undefined") return INITIAL_DEMO_CART;
+    if (typeof window === "undefined") return [];
     try {
       const saved = localStorage.getItem("bpos_general_cart");
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
-      return INITIAL_DEMO_CART;
-    } catch { return INITIAL_DEMO_CART; }
+      return [];
+    } catch { return []; }
   });
   const [customerId, setCustomerId] = useState<string>(() => {
     if (typeof window === "undefined") return "";
@@ -585,6 +307,7 @@ export default function PosPage() {
   const [todayCollection, setTodayCollection] = useState(0);
   const [branchesCount, setBranchesCount] = useState(1);
   const [employeesCount, setEmployeesCount] = useState(1);
+  const [todayItemsSold, setTodayItemsSold] = useState(0);
 
   const [saleSnapshot, setSaleSnapshot] = useState<{
     cart: CartItem[];
@@ -657,17 +380,21 @@ export default function PosPage() {
   }, []);
 
   // ── Load data ──
+  // ── Load data ──
   const loadData = useCallback(async () => {
     const onlineNow = isOnline();
     if (onlineNow) {
+      setLoadingProducts(true);
       try {
         const raw = await api.get<{ data: RawTenantInfo }>("/api/v1/tenant");
         const info = pickTenantInfo(raw.data ?? (raw as unknown as RawTenantInfo));
-        setTenantInfo(info.branch && info.warehouse ? info : null);
-      } catch { setTenantInfo(null); }
+        setTenantInfo({ branch: info.branch, warehouse: info.warehouse });
+      } catch {
+        setTenantInfo(null);
+      }
 
       try {
-        const catRes = await api.get<any>("/v1/products/categories").catch(() => api.get<any>("/api/v1/products/categories"));
+        const catRes: any = await api.get("/api/v1/products/categories").catch(() => api.get("/api/v1/categories"));
         const catRows = Array.isArray(catRes?.data?.data)
           ? catRes.data.data
           : Array.isArray(catRes?.data)
@@ -681,20 +408,31 @@ export default function PosPage() {
       }
 
       try {
-        const [prods, batches] = await Promise.all([fetchAllProducts(), fetchBatches()]);
+        const [prods, batches] = await Promise.all([
+          fetchAllProducts().catch(async () => {
+            const res: any = await api.get("/api/v1/products?limit=500");
+            const raw = Array.isArray(res?.data?.data)
+              ? res.data.data
+              : Array.isArray(res?.data)
+              ? res.data
+              : Array.isArray(res)
+              ? res
+              : [];
+            return raw.map(toRegisterProduct);
+          }),
+          fetchBatches().catch(() => [])
+        ]);
         const loaded = applyBatchStock(prods, batches) as unknown as CachedProduct[];
-        if (Array.isArray(loaded) && loaded.length > 0) {
-          setProducts(loaded);
-        } else {
-          setProducts([]);
-        }
+        setProducts(Array.isArray(loaded) ? loaded : []);
       } catch {
         setProducts([]);
+      } finally {
+        setLoadingProducts(false);
       }
 
       try {
-        const res = await api.get<any>("/api/v1/customers?limit=500");
-        const list = res.data ?? (Array.isArray(res) ? res : res?.data || []);
+        const res: any = await api.get("/api/v1/customers?limit=500");
+        const list = res?.data?.data ?? res?.data ?? (Array.isArray(res) ? res : []);
         let localCusts: any[] = [];
         try {
           const raw = localStorage.getItem("bpos_custom_customers");
@@ -714,16 +452,19 @@ export default function PosPage() {
       }
 
       try {
-        const stats = await api.get<any>("/api/v1/pos/stats/today").catch(() => null);
+        const statsRes: any = await api.get("/api/v1/pos/stats/today").catch(() => null);
+        const stats = statsRes?.data || statsRes;
         if (stats) {
-          setTodaySales(stats.totalSales || stats.revenue || 0);
-          setTodayTxCount(stats.transactionCount || stats.count || 0);
-          setTodayCollection(stats.paidTotal || 0);
+          setTodaySales(Number(stats.totalSales || stats.revenue || 0));
+          setTodayTxCount(Number(stats.transactionCount || stats.count || 0));
+          setTodayCollection(Number(stats.paidTotal || 0));
+          if (stats.itemsSold !== undefined) setTodayItemsSold(Number(stats.itemsSold));
           if (stats.branchesCount) setBranchesCount(stats.branchesCount);
           if (stats.employeesCount) setEmployeesCount(stats.employeesCount);
         }
       } catch {}
     } else {
+      setLoadingProducts(false);
       const cache = await getOfflineCache();
       if (cache && cache.products && cache.products.length > 0) {
         setProducts(cache.products);
@@ -740,7 +481,7 @@ export default function PosPage() {
 
   // ── Filtered products by category & search ──
   const filteredProducts = useMemo(() => {
-    let base = products.length > 0 ? products : DEMO_PRODUCTS;
+    let base = products;
     if (search.trim()) {
       const term = search.toLowerCase();
       base = base.filter(
@@ -756,7 +497,7 @@ export default function PosPage() {
     return base;
   }, [products, search, activeCategory]);
 
-  const categories = useMemo(() => getCategories(products.length > 0 ? products : DEMO_PRODUCTS, apiCategories), [products, apiCategories]);
+  const categories = useMemo(() => getCategories(products, apiCategories), [products, apiCategories]);
 
   // Category Tab Items for CustomTabs component
   const categoryTabs: TabItem[] = useMemo(() => {
@@ -776,7 +517,7 @@ export default function PosPage() {
 
   // ── AI Insights & Smart Recommendations Calculation ──
   const aiRecommendations = useMemo(() => {
-    const allProds = products.length > 0 ? products : DEMO_PRODUCTS;
+    const allProds = products;
     const cartIds = new Set(cart.map(c => c.productId || c.name));
 
     // Products not in cart yet, prioritizing in-stock items
@@ -928,75 +669,157 @@ export default function PosPage() {
   }
 
   async function confirmSale(methodOverride?: string, tenderedAmount?: number) {
-    if (cart.length === 0) return;
+    if (cart.length === 0) {
+      toast.warning("Cart is empty");
+      return;
+    }
     setError(null);
     setSubmitting(true);
 
     const onlineNow = isOnline();
     try {
       const cartSnapshot = [...cart];
-      const payMethod = methodOverride || (checkoutPayMethod === "MFS" ? "MOBILE_PAY" : checkoutPayMethod) || activePaymentMethod;
+      const rawPayMethod = methodOverride || checkoutPayMethod || activePaymentMethod;
+      const payMethod =
+        rawPayMethod === "MFS" ? (mfsProvider?.toUpperCase() || "BKASH") :
+        rawPayMethod === "DUE" ? "CREDIT" :
+        rawPayMethod;
+
       const finalTendered =
         payMethod === "CASH" && tenderedAmount !== undefined && tenderedAmount > 0
           ? tenderedAmount
-          : total;
-      const changeAmount = Math.max(finalTendered - total, 0);
+          : (payMethod === "CREDIT" ? 0 : total);
+      const changeAmount = payMethod === "CASH" ? Math.max(finalTendered - total, 0) : 0;
 
       const paymentsSnapshot: PaymentLine[] = [{ method: payMethod, amount: finalTendered }];
       const customerNameSnapshot = selectedCustomer
         ? (selectedCustomer as any).name || (selectedCustomer as any).fullName || "Walk-in Retail Customer"
         : "Walk-in Retail Customer";
 
-      const branchId = tenantInfo?.branch?.id || "default-branch";
-      const warehouseId = tenantInfo?.warehouse?.id || "default-warehouse";
+      const branchId = tenantInfo?.branch?.id || undefined;
+      const warehouseId = tenantInfo?.warehouse?.id || undefined;
 
       let saleRes: SaleResult;
 
-      if (onlineNow && tenantInfo?.branch?.id) {
-        const res = await api.post<SaleResult>("/api/v1/pos/confirm", {
+      if (onlineNow) {
+        const payload = {
           branchId,
           warehouseId,
           customerId: customerId || null,
-          items: cart,
+          customerName: customerNameSnapshot !== "Walk-in Retail Customer" ? customerNameSnapshot : undefined,
+          customerPhone: (selectedCustomer as any)?.phone || undefined,
+          items: cart.map((i) => ({
+            productId: i.productId,
+            variantId: i.variantId || null,
+            name: i.name,
+            qty: i.qty,
+            unitPrice: i.unitPrice,
+            discountAmount: i.discountAmount || 0,
+            lineTotal: i.lineTotal,
+          })),
           payments: paymentsSnapshot,
+          subtotal,
+          total,
           discountTotal,
           taxTotal,
           serviceCharge,
-          note,
+          note: note || `Retail POS · ${payMethod}`,
+          source: "RETAIL",
           heldSaleId: resumingHoldId ?? undefined,
-        }).catch(() => null);
+        };
 
-        saleRes = res || makeOfflineResult(`INV-${Date.now().toString(36).toUpperCase()}`, cartSnapshot, total, paymentsSnapshot);
-        (saleRes as any).change = changeAmount;
-        (saleRes as any).changeAmount = changeAmount;
+        const res: any = await api.post("/api/v1/pos/confirm", payload);
+        const serverData = res?.data ?? res ?? {};
+
+        saleRes = {
+          saleId: serverData.saleId || crypto.randomUUID(),
+          invoiceNo: serverData.invoiceNo || `INV-${Date.now().toString(36).toUpperCase()}`,
+          invoiceId: serverData.invoiceId || serverData.saleId || crypto.randomUUID(),
+          total: Number(serverData.total ?? total),
+          paidTotal: Number(serverData.paidTotal ?? finalTendered),
+          dueTotal: Number(serverData.dueTotal ?? (payMethod === "CREDIT" ? total : 0)),
+          change: Number(serverData.changeReturn ?? serverData.change ?? changeAmount),
+          changeAmount: Number(serverData.changeReturn ?? serverData.change ?? changeAmount),
+          paymentIds: serverData.paymentIds || [],
+        } as any;
+
         setSaleSnapshot({ cart: cartSnapshot, payments: paymentsSnapshot, customerName: customerNameSnapshot });
         setResult(saleRes);
+        toast.success(`Sale completed! Invoice #${saleRes.invoiceNo}`);
       } else {
         const invoiceNo = `INV-${Date.now().toString(36).toUpperCase()}`;
         const saleId = crypto.randomUUID();
         await syncManager.createOfflineTransaction({
-          entityType: "SALE", entityId: saleId,
-          branchId,
-          payload: { saleId, branchId, warehouseId, customerId: customerId || null, items: cart, payments: paymentsSnapshot, discountTotal, taxTotal, serviceCharge, note },
+          entityType: "SALE",
+          entityId: saleId,
+          branchId: branchId || "offline-branch",
+          payload: {
+            saleId,
+            branchId,
+            warehouseId,
+            customerId: customerId || null,
+            items: cart,
+            payments: paymentsSnapshot,
+            discountTotal,
+            taxTotal,
+            serviceCharge,
+            note,
+          },
         }).catch(() => {});
+
         const localResult = makeOfflineResult(invoiceNo, cartSnapshot, total, paymentsSnapshot);
         (localResult as any).change = changeAmount;
         (localResult as any).changeAmount = changeAmount;
+        saleRes = localResult;
         setSaleSnapshot({ cart: cartSnapshot, payments: paymentsSnapshot, customerName: customerNameSnapshot });
-        setResult(localResult);
+        setResult(saleRes);
+        toast.info("Offline: transaction cached locally and will sync when online.");
       }
 
-      setCart([]); setCustomerId(""); setDiscountTotal(0); setServiceCharge(0); setNote("");
+      // Customer display sync
+      publishCart({
+        updatedAt: Date.now(),
+        invoiceNo: saleRes.invoiceNo,
+        lines: cartSnapshot.map((i) => ({
+          name: i.name,
+          qty: i.qty,
+          unitPrice: i.unitPrice,
+          discountAmount: i.discountAmount,
+          image: (i as any).image || (i as any).imageUrl,
+        })),
+        subtotal,
+        discountTotal,
+        taxTotal,
+        total,
+        paidTotal: finalTendered,
+        changeTotal: changeAmount,
+        status: "PAID",
+        source: "RETAIL",
+        customerName: customerNameSnapshot !== "Walk-in Retail Customer" ? customerNameSnapshot : undefined,
+        cashierName: cashierName,
+      });
+
+      // Reset state
+      setCart([]);
+      setCustomerId("");
+      setDiscountTotal(0);
+      setServiceCharge(0);
+      setNote("");
       setPayments([{ method: activePaymentMethod, amount: 0 }]);
       try {
         localStorage.removeItem("bpos_general_cart");
         localStorage.removeItem("bpos_general_customer");
       } catch {}
-      setTodaySales((prev) => prev + total);
-      setTodayTxCount((prev) => prev + 1);
       setShowCheckoutModal(false);
+
+      // Re-sync catalog, stock and stats immediately with backend!
+      await loadData();
+      fetchRecentOrders();
     } catch (err: any) {
-      setError(err.message || "Failed to confirm sale");
+      console.error("Sale confirmation error:", err);
+      const msg = err?.response?.data?.error || err?.message || "Failed to confirm sale. Please try again.";
+      setError(msg);
+      toast.error(`Sale Failed: ${msg}`);
     } finally {
       setSubmitting(false);
     }
@@ -1125,9 +948,18 @@ export default function PosPage() {
     if (!voidSaleId) return;
     setActionSaving(true);
     try {
-      if (isOnline()) await api.post(`/api/v1/pos/sales/${voidSaleId}/void`, { reason: voidReason });
+      if (isOnline()) {
+        await api.post(`/api/v1/pos/sales/${voidSaleId}/void`, { reason: voidReason });
+        toast.success(`Sale #${voidSaleId} voided successfully`);
+        await loadData();
+        fetchRecentOrders();
+      }
       setShowVoid(false); setVoidSaleId(""); setVoidReason("");
-    } catch (err: any) { alert(err.message); } finally { setActionSaving(false); }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to void sale");
+    } finally {
+      setActionSaving(false);
+    }
   }
 
   async function doReturn() {
@@ -1135,10 +967,23 @@ export default function PosPage() {
     setActionSaving(true);
     try {
       if (isOnline()) {
-        await api.post(`/api/v1/pos/sales/${returnSaleId}/return`, { branchId: tenantInfo?.branch?.id, warehouseId: tenantInfo?.warehouse?.id, refundAmount: Number(returnAmount), reason: returnReason, refundMethod: "CASH" });
+        await api.post(`/api/v1/pos/sales/${returnSaleId}/return`, {
+          branchId: tenantInfo?.branch?.id,
+          warehouseId: tenantInfo?.warehouse?.id,
+          refundAmount: Number(returnAmount),
+          reason: returnReason,
+          refundMethod: "CASH"
+        });
+        toast.success("Return processed successfully");
+        await loadData();
+        fetchRecentOrders();
       }
       setShowReturn(false); setReturnSaleId(""); setReturnAmount(""); setReturnReason("");
-    } catch (err: any) { alert(err.message); } finally { setActionSaving(false); }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to process return");
+    } finally {
+      setActionSaving(false);
+    }
   }
 
   // ── Stats ──
@@ -1445,7 +1290,7 @@ export default function PosPage() {
           <div className="leading-tight min-w-0">
             <p className="text-[10px] font-semibold uppercase text-slate-500 tracking-wide truncate">Items Sold</p>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-extrabold text-gray-600 truncate">128</span>
+              <span className="text-sm font-extrabold text-gray-600 truncate">{todayItemsSold}</span>
               <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded-full border border-emerald-200 shrink-0 shadow-2xs">+10.1%</span>
             </div>
           </div>
@@ -1457,7 +1302,9 @@ export default function PosPage() {
           <div className="leading-tight min-w-0">
             <p className="text-[10px] font-semibold uppercase text-rose-600 tracking-wide truncate">Stock Alerts</p>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-extrabold text-rose-600 truncate">8</span>
+              <span className="text-sm font-extrabold text-rose-600 truncate">
+                {products.filter((p) => Number(p.stockQty ?? 0) <= 5).length}
+              </span>
               <span className="text-[9px] font-bold text-rose-500 bg-rose-100 px-1 py-0.5 rounded-full shrink-0 shadow-2xs animate-pulse">View</span>
             </div>
           </div>
@@ -1532,10 +1379,38 @@ export default function PosPage() {
 
           {/* ★ PRODUCT CARDS GRID (COMPACT, FAST, 3D ELEVATION, VFX SHINE) ★ */}
           <div className="flex-1 overflow-y-auto p-3 bg-slate-50/30">
-            {viewMode === "grid" ? (
+            {loadingProducts && products.length === 0 ? (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div key={i} className="flex flex-col bg-white border border-slate-200 rounded-sm p-2 animate-pulse">
+                    <div className="w-full h-24 bg-slate-200 rounded-sm mb-2" />
+                    <div className="h-3 bg-slate-200 rounded w-3/4 mb-1.5" />
+                    <div className="h-2.5 bg-slate-200 rounded w-1/2 mb-2" />
+                    <div className="h-4 bg-slate-200 rounded w-1/3" />
+                  </div>
+                ))}
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full min-h-[260px] text-center py-12">
+                <div className="w-14 h-14 rounded-full bg-violet-50 text-violet-500 flex items-center justify-center mb-3 border border-violet-100 shadow-2xs">
+                  <Package size={26} />
+                </div>
+                <h4 className="text-sm font-bold text-slate-700">No products found</h4>
+                <p className="text-xs text-slate-400 mt-1 max-w-xs">
+                  {search ? `No products match "${search}" in this category.` : "No products available in this category."}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { setSearch(""); setActiveCategory("All"); loadData(); }}
+                  className="mt-3.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-gradient-to-r from-violet-500 to-indigo-500 text-white text-xs font-semibold hover:opacity-90 shadow-2xs cursor-pointer"
+                >
+                  <RefreshCw size={12} /> Refresh Products
+                </button>
+              </div>
+            ) : viewMode === "grid" ? (
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
                 {paginatedProducts.map((p) => {
-                  const stock = p.stockQty !== undefined ? Number(p.stockQty) : 45;
+                  const stock = p.stockQty !== undefined ? Number(p.stockQty) : 0;
                   const outOfStock = stock <= 0;
                   const price = Number(p.sellingPrice);
                   const inCart = cart.find((i) => i.productId === p.id || i.name === p.name);
@@ -1617,7 +1492,7 @@ export default function PosPage() {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-gray-600">{p.name}</p>
-                        <p className="text-[11px] text-gray-500 font-mono">Stock: {p.stockQty ?? 45}</p>
+                        <p className="text-[11px] text-gray-500 font-mono">Stock: {p.stockQty !== undefined ? p.stockQty : 0}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -1796,10 +1671,12 @@ export default function PosPage() {
               <div className="payable-card-3d flex flex-col justify-between p-3.5 rounded-sm bg-gradient-to-br from-violet-100/95 via-purple-50/80 to-indigo-50/90 border border-violet-200/90 shadow-sm">
                 <span className="text-[11px] font-bold text-slate-600">Total Payable</span>
                 <span className="text-2xl font-black text-violet-700 tracking-tight">{fmt(total)}</span>
-                <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600">
-                  <Tag size={10} className="shrink-0" />
-                  <span>You Save {fmt(discountTotal > 0 ? discountTotal : 0.75)}</span>
-                </div>
+                {discountTotal > 0 && (
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600">
+                    <Tag size={10} className="shrink-0" />
+                    <span>You Save {fmt(discountTotal)}</span>
+                  </div>
+                )}
               </div>
             </div>
 
