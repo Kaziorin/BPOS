@@ -19,10 +19,13 @@ class SalesOrderItem {
     final qty = (json['qty'] ?? json['qtyOrdered'] ?? 1) as num;
     final price = (json['unitPrice'] ?? json['price'] ?? 0.0) as num;
     final total = (json['lineTotal'] ?? (qty * price)) as num;
+    final rawName = json['name'] ?? json['productName'];
 
     return SalesOrderItem(
       productId: json['productId']?.toString() ?? 'prod_1',
-      name: json['name']?.toString() ?? 'Item',
+      name: (rawName != null && rawName.toString().trim().isNotEmpty)
+          ? rawName.toString()
+          : 'Item',
       sku: json['sku']?.toString() ?? 'SKU-001',
       qty: qty.toInt(),
       unitPrice: price.toDouble(),
@@ -48,6 +51,8 @@ class SalesOrder {
   final String status;
   final String customerName;
   final String customerPhone;
+  final String customerEmail;
+  final String branchName;
   final DateTime orderDate;
   final List<SalesOrderItem> items;
   final double subtotal;
@@ -70,6 +75,8 @@ class SalesOrder {
     required this.status,
     required this.customerName,
     required this.customerPhone,
+    this.customerEmail = '',
+    this.branchName = '',
     required this.orderDate,
     required this.items,
     required this.subtotal,
@@ -86,6 +93,13 @@ class SalesOrder {
   });
 
   int get itemsCount => items.fold(0, (sum, i) => sum + i.qty);
+
+  bool get isToday {
+    final now = DateTime.now();
+    return orderDate.year == now.year &&
+        orderDate.month == now.month &&
+        orderDate.day == now.day;
+  }
 
   factory SalesOrder.fromJson(Map<String, dynamic> json, {String defaultBiz = 'restaurant'}) {
     final rawItems = json['items'] as List<dynamic>? ?? [];
@@ -111,6 +125,12 @@ class SalesOrder {
         (json['customer'] is Map ? json['customer']['phone'] : null);
     final customerPhone = rawCustPhone?.toString().trim() ?? '';
 
+    final rawCustEmail = json['customerEmail'] ??
+        (json['customer'] is Map ? json['customer']['email'] : null);
+    final customerEmail = rawCustEmail?.toString().trim() ?? '';
+
+    final branchName = json['branchName']?.toString() ?? '';
+
     final totalVal = ((json['total'] ?? 0) as num).toDouble();
     final paidVal = ((json['paidTotal'] ?? totalVal) as num).toDouble();
     final dueVal = ((json['dueTotal'] ?? 0) as num).toDouble();
@@ -124,6 +144,8 @@ class SalesOrder {
       status: (json['status']?.toString() ?? 'CONFIRMED').toUpperCase(),
       customerName: customerName,
       customerPhone: customerPhone,
+      customerEmail: customerEmail,
+      branchName: branchName,
       orderDate: parsedDate,
       items: itemsList,
       subtotal: ((json['subtotal'] ?? json['total'] ?? 0) as num).toDouble(),
@@ -140,3 +162,4 @@ class SalesOrder {
     );
   }
 }
+
