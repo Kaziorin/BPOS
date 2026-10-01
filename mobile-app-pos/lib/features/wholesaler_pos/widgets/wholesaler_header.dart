@@ -7,10 +7,9 @@ import '../theme/wholesaler_colors.dart';
 import '../../../core/widgets/fullscreen_button.dart';
 import 'wholesaler_dialogs.dart';
 import 'wholesaler_footer_bar.dart';
-import '../../../core/widgets/live_sales_history_dialog.dart';
 
 // ─────────────────────────────────────────────────────────────────
-// TOP HEADER  (title, order no, customer info, credit, time)
+// TOP HEADER PANEL (Mobile / Desktop Adaptive)
 // ─────────────────────────────────────────────────────────────────
 class WholesalerHeader extends StatelessWidget {
   const WholesalerHeader({super.key});
@@ -20,30 +19,22 @@ class WholesalerHeader extends StatelessWidget {
     final isDark = context.watch<AppProvider>().isDarkMode;
     final w = context.watch<WholesalerProvider>();
     final width = MediaQuery.of(context).size.width;
-    final isMobile = width < 600;
-    final isTablet = width < 900;
+    final isMobile = width < 700;
+    final isTablet = width >= 700 && width < 1150;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+    if (isMobile) {
+      return _MobileHeader(isDark: isDark, w: w);
+    }
+
+    return Container(
       decoration: BoxDecoration(
-        gradient: isDark
-            ? WholesalerColors.headerGradient
-            : const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Colors.white, Color(0xFFF8FAFF)],
-              ),
-        border: Border(
-          bottom: BorderSide(color: WholesalerColors.border(isDark), width: 1),
-        ),
-        boxShadow: WholesalerColors.softShadow(isDark),
+        color: WholesalerColors.cardBg(isDark),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: WholesalerColors.border(isDark)),
+        boxShadow: WholesalerColors.softShadow(isDark, elevation: 1.2),
       ),
-      child: SafeArea(
-        bottom: false,
-        child: isMobile
-            ? _MobileHeader(isDark: isDark, w: w)
-            : _DesktopHeader(isDark: isDark, w: w, isTablet: isTablet),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: _DesktopHeader(isDark: isDark, w: w, isTablet: isTablet),
     );
   }
 }
@@ -52,60 +43,56 @@ class _DesktopHeader extends StatelessWidget {
   final bool isDark;
   final WholesalerProvider w;
   final bool isTablet;
-  const _DesktopHeader({required this.isDark, required this.w, required this.isTablet});
+  const _DesktopHeader({
+    required this.isDark,
+    required this.w,
+    required this.isTablet,
+  });
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppProvider>();
     final now = DateTime.now();
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Row(
-        children: [
-          // Logo + Order Info
-          _LogoOrderBlock(isDark: isDark, w: w),
-          const SizedBox(width: 16),
-          // Customer Info Block
-          Expanded(
-            child: _CustomerInfoBlock(isDark: isDark, w: w, compact: isTablet),
+
+    return Row(
+      children: [
+        // ── 1. Left: Back Button + BPOS / WHOLESALE & B2B ────────
+        _LogoBlock(isDark: isDark, compact: isTablet),
+
+        // Flexible empty space pushing Customer Box to the right-center
+        const Spacer(),
+
+        // ── 2. Customer Profile Box (Matching Screenshot) ─────────
+        _CustomerBox(isDark: isDark, w: w, compact: isTablet),
+
+        const SizedBox(width: 16),
+
+        // ── 3. Right: Time & Date ────────────────────────────────
+        _TimeBlock(isDark: isDark, now: now, compact: isTablet),
+        const SizedBox(width: 12),
+
+        // ── 4. Theme Switch Pill (Sun / Moon) ────────────────────
+        _ThemeSwitchPill(isDark: isDark, onToggle: () => app.toggleTheme()),
+        const SizedBox(width: 10),
+
+        // ── 5. Fullscreen Toggle Button ──────────────────────────
+        FullscreenButton(
+          builder: (context, isFull, toggle) => _SquareBtn(
+            icon: isFull
+                ? Icons.fullscreen_exit_rounded
+                : Icons.fullscreen_rounded,
+            isDark: isDark,
+            onTap: toggle,
           ),
-          if (!isTablet) ...[
-            const SizedBox(width: 12),
-            // Credit tiles
-            _CreditTile(
-              label: 'Credit Limit',
-              value: '৳${_fmt(w.customer.creditLimit)}',
-              color: WholesalerColors.textSecondary(isDark),
-              isDark: isDark,
-            ),
-            const SizedBox(width: 8),
-            _CreditTile(
-              label: 'Available Credit',
-              value: '৳${_fmt(w.customer.availableCredit)}',
-              color: WholesalerColors.accentGreen,
-              isDark: isDark,
-            ),
-            const SizedBox(width: 8),
-            _CreditTile(
-              label: 'Outstanding',
-              value: '৳${_fmt(w.customer.outstanding)}',
-              color: WholesalerColors.accentRed,
-              isDark: isDark,
-            ),
-          ],
-          const SizedBox(width: 12),
-          // Time + Settings
-          _TimeBlock(isDark: isDark, now: now),
-          const SizedBox(width: 10),
-          _HeaderActions(isDark: isDark, app: app),
-        ],
-      ),
+        ),
+      ],
     );
   }
-
-  String _fmt(double v) => NumberFormat('#,##0.00').format(v);
 }
 
+// ─────────────────────────────────────────────────────────────────
+// MOBILE HEADER (Exact Match to User's Previous Mobile Screenshot)
+// ─────────────────────────────────────────────────────────────────
 class _MobileHeader extends StatelessWidget {
   final bool isDark;
   final WholesalerProvider w;
@@ -114,74 +101,86 @@ class _MobileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppProvider>();
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+      padding: const EdgeInsets.fromLTRB(12, 6, 12, 4),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              _LogoOrderBlock(isDark: isDark, w: w, compact: true),
+              _MobileLogoOrderBlock(isDark: isDark, w: w),
               const Spacer(),
-              _HeaderActions(isDark: isDark, app: app, isMobile: true, w: w),
+              _MobileHeaderActions(isDark: isDark, app: app, w: w),
             ],
           ),
-          const SizedBox(height: 8),
-          _CustomerInfoBlock(isDark: isDark, w: w, compact: true),
+          const SizedBox(height: 6),
+          _MobileCustomerInfoBlock(isDark: isDark, w: w),
         ],
       ),
     );
   }
 }
 
-class _LogoOrderBlock extends StatelessWidget {
+class _MobileLogoOrderBlock extends StatelessWidget {
   final bool isDark;
   final WholesalerProvider w;
-  final bool compact;
-  const _LogoOrderBlock({required this.isDark, required this.w, this.compact = false});
+  const _MobileLogoOrderBlock({required this.isDark, required this.w});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Blue/Purple gradient icon box with soft shadow matching screenshot
         Container(
-          width: compact ? 36 : 42,
-          height: compact ? 36 : 42,
+          width: 32,
+          height: 32,
           decoration: BoxDecoration(
-            gradient: WholesalerColors.primaryGradient,
-            borderRadius: BorderRadius.circular(12),
+            gradient: const LinearGradient(
+              colors: [Color(0xFF5C52EE), Color(0xFF4338CA)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: WholesalerColors.primary.withValues(alpha: 0.4),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: const Color(0xFF4F46E5).withValues(alpha: 0.35),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
-          child: const Icon(Icons.inventory_2_rounded, color: Colors.white, size: 22),
+          child: const Icon(
+            Icons.all_inbox_rounded,
+            color: Colors.white,
+            size: 18,
+          ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'New Sales Order',
+              'BPOS',
               style: TextStyle(
-                fontSize: compact ? 14 : 16,
-                fontWeight: FontWeight.w900,
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
                 color: WholesalerColors.textPrimary(isDark),
-                letterSpacing: -0.3,
+                letterSpacing: -0.2,
+                height: 1.15,
               ),
             ),
+            const SizedBox(height: 1),
             Text(
-              w.orderNo,
+              'WHOLESALE & B2B',
               style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: WholesalerColors.textSecondary(isDark),
-                letterSpacing: 0.3,
+                fontSize: 8.5,
+                fontWeight: FontWeight.w700,
+                color: isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1),
+                letterSpacing: 0.5,
+                height: 1.15,
               ),
             ),
           ],
@@ -191,20 +190,162 @@ class _LogoOrderBlock extends StatelessWidget {
   }
 }
 
-class _CustomerInfoBlock extends StatelessWidget {
+class _MobileHeaderActions extends StatelessWidget {
   final bool isDark;
+  final AppProvider app;
   final WholesalerProvider w;
-  final bool compact;
-  const _CustomerInfoBlock({required this.isDark, required this.w, this.compact = false});
+  const _MobileHeaderActions({
+    required this.isDark,
+    required this.app,
+    required this.w,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final tierColor = switch (w.customer.tier) {
-      WCustomerTier.platinum => WholesalerColors.accentOrange,
-      WCustomerTier.gold => const Color(0xFFFFD700),
-      WCustomerTier.silver => Colors.grey.shade400,
-      WCustomerTier.regular => WholesalerColors.accentBlue,
-    };
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 1. Dashboard customize / apps button
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => showWholesalerMobileOptions(context, w, isDark),
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: isDark ? WholesalerColors.cardBg(isDark) : Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.25 : 0.12),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+                border: Border.all(
+                  color: isDark ? WholesalerColors.border(isDark) : const Color(0xFFE2E8F0),
+                ),
+              ),
+              child: const Icon(
+                Icons.grid_view_rounded,
+                size: 16,
+                color: Color(0xFF818CF8),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+
+        // 2. Dark mode button
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => app.toggleTheme(),
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: isDark ? WholesalerColors.cardBg(isDark) : Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: (app.isDarkMode
+                            ? const Color(0xFFF59E0B)
+                            : const Color(0xFF6366F1))
+                        .withValues(alpha: isDark ? 0.25 : 0.12),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+                border: Border.all(
+                  color: isDark ? WholesalerColors.border(isDark) : const Color(0xFFE2E8F0),
+                ),
+              ),
+              child: Center(
+                child: app.isDarkMode
+                    ? ShaderMask(
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [Color(0xFFFBBF24), Color(0xFFF59E0B)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ).createShader(bounds),
+                        child: const Icon(
+                          Icons.wb_sunny_rounded,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      )
+                    : ShaderMask(
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [Color(0xFF6366F1), Color(0xFF4338CA)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ).createShader(bounds),
+                        child: Transform.rotate(
+                          angle: -0.25,
+                          child: const Icon(
+                            Icons.dark_mode_rounded,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+
+        // 3. Home button
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => Navigator.of(context).maybePop(),
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: isDark ? WholesalerColors.surfaceBg(isDark) : Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.25 : 0.12),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+                border: Border.all(
+                  color: isDark ? WholesalerColors.border(isDark) : const Color(0xFFE2E8F0),
+                ),
+              ),
+              child: const Icon(
+                Icons.home_rounded,
+                size: 17,
+                color: Color(0xFF4338CA),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MobileCustomerInfoBlock extends StatelessWidget {
+  final bool isDark;
+  final WholesalerProvider w;
+  const _MobileCustomerInfoBlock({required this.isDark, required this.w});
+
+  @override
+  Widget build(BuildContext context) {
+    final customer = w.customer.id.isNotEmpty ? w.customer : w.customers.first;
+    final customerName = customer.name;
+    final customerSub = '${customer.customerId} • ${customer.phone}';
+    final tierText = customer.tierLabel;
 
     return GestureDetector(
       onTap: () => showDialog(
@@ -215,36 +356,44 @@ class _CustomerInfoBlock extends StatelessWidget {
         ),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
-          color: isDark
-              ? WholesalerColors.primary.withValues(alpha: 0.1)
-              : WholesalerColors.primaryLight,
+          color: isDark ? WholesalerColors.cardBg(isDark) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: WholesalerColors.primary.withValues(alpha: 0.25),
+            color: isDark ? WholesalerColors.border(isDark) : const Color(0xFFD8E2F5),
+            width: 1.1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF4F46E5).withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.business_rounded, size: 16, color: WholesalerColors.primary),
+            const Icon(
+              Icons.apartment_rounded,
+              size: 18,
+              color: Color(0xFF4F46E5),
+            ),
             const SizedBox(width: 8),
-            Flexible(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Flexible(
                         child: Text(
-                          w.customer.name,
+                          customerName,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
                             color: WholesalerColors.textPrimary(isDark),
                           ),
                         ),
@@ -253,27 +402,31 @@ class _CustomerInfoBlock extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: tierColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: tierColor.withValues(alpha: 0.4)),
+                          color: const Color(0xFFFEF3E6),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: const Color(0xFFF59E0B).withValues(alpha: 0.7),
+                            width: 0.9,
+                          ),
                         ),
                         child: Text(
-                          w.customer.tierLabel,
-                          style: TextStyle(
-                            fontSize: 8,
-                            fontWeight: FontWeight.w800,
-                            color: tierColor,
+                          tierText,
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFFD97706),
                           ),
                         ),
                       ),
                     ],
                   ),
+                  const SizedBox(height: 2),
                   Text(
-                    '${w.customer.customerId}  •  ${w.customer.phone}',
+                    customerSub,
                     style: TextStyle(
-                      fontSize: 9,
-                      color: WholesalerColors.textSecondary(isDark),
+                      fontSize: 10,
                       fontWeight: FontWeight.w500,
+                      color: WholesalerColors.textSecondary(isDark),
                     ),
                   ),
                 ],
@@ -286,185 +439,370 @@ class _CustomerInfoBlock extends StatelessWidget {
   }
 }
 
-class _CreditTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
+// ─────────────────────────────────────────────────────────────────
+// LOGO BLOCK (<- button + BPOS + WHOLESALE & B2B)
+// ─────────────────────────────────────────────────────────────────
+class _LogoBlock extends StatelessWidget {
   final bool isDark;
-  const _CreditTile({
-    required this.label,
-    required this.value,
-    required this.color,
-    required this.isDark,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: isDark ? WholesalerColors.inputBg(true) : Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: WholesalerColors.border(isDark)),
-        boxShadow: WholesalerColors.softShadow(isDark),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 9,
-              fontWeight: FontWeight.w600,
-              color: WholesalerColors.textSecondary(isDark),
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w900,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TimeBlock extends StatelessWidget {
-  final bool isDark;
-  final DateTime now;
-  const _TimeBlock({required this.isDark, required this.now});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Text(
-          DateFormat('h:mm a').format(now),
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w900,
-            color: WholesalerColors.textPrimary(isDark),
-          ),
-        ),
-        Text(
-          DateFormat('d MMM, yyyy').format(now),
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-            color: WholesalerColors.textSecondary(isDark),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _HeaderActions extends StatelessWidget {
-  final bool isDark;
-  final AppProvider app;
-  final bool isMobile;
-  final WholesalerProvider? w;
-  const _HeaderActions({
-    required this.isDark,
-    required this.app,
-    this.isMobile = false,
-    this.w,
-  });
+  final bool compact;
+  const _LogoBlock({required this.isDark, this.compact = false});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // On mobile: Quick Actions & Footer Options Button
-        if (isMobile && w != null) ...[
-          _HeaderBtn(
-            icon: Icons.dashboard_customize_rounded,
-            isDark: isDark,
-            isPrimary: true,
-            onTap: () => showWholesalerMobileOptions(context, w!, isDark),
+        // Square back button
+        InkWell(
+          onTap: () => Navigator.of(context).maybePop(),
+          borderRadius: BorderRadius.circular(4),
+          child: Container(
+            width: compact ? 32 : 36,
+            height: compact ? 32 : 36,
+            decoration: BoxDecoration(
+              color: WholesalerColors.surfaceBg(isDark),
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: WholesalerColors.border(isDark)),
+            ),
+            child: Icon(
+              Icons.arrow_back_rounded,
+              color: isDark ? Colors.white70 : const Color(0xFF475569),
+              size: compact ? 16 : 18,
+            ),
           ),
-          const SizedBox(width: 6),
-        ],
-        FullscreenButton(
-          builder: (context, isFull, toggle) => _HeaderBtn(
-            icon: isFull ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
-            isDark: isDark,
-            onTap: toggle,
-          ),
         ),
-        const SizedBox(width: 6),
-        _HeaderBtn(
-          icon: Icons.receipt_long_rounded,
-          isDark: isDark,
-          onTap: () => showLiveSalesHistoryDialog(context, businessType: 'wholesaler'),
+        const SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'BPOS',
+              style: TextStyle(
+                fontSize: compact ? 17 : 20,
+                fontWeight: FontWeight.w900,
+                color: WholesalerColors.textPrimary(isDark),
+                letterSpacing: -0.5,
+                height: 1.1,
+              ),
+            ),
+            const SizedBox(height: 1),
+            Text(
+              'WHOLESALE & B2B',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                color: WholesalerColors.primary,
+                letterSpacing: 0.7,
+                height: 1.1,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 6),
-        _HeaderBtn(
-          icon: app.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-          isDark: isDark,
-          onTap: () => app.toggleTheme(),
-        ),
-        const SizedBox(width: 6),
-        _HeaderBtn(icon: Icons.home_rounded, isDark: isDark, onTap: () => Navigator.of(context).maybePop()),
       ],
     );
   }
 }
 
-class _HeaderBtn extends StatelessWidget {
-  final IconData icon;
+// ─────────────────────────────────────────────────────────────────
+// CUSTOMER PROFILE BOX (Exact Match to Web Screenshot)
+// ─────────────────────────────────────────────────────────────────
+class _CustomerBox extends StatelessWidget {
   final bool isDark;
-  final bool isPrimary;
-  final VoidCallback onTap;
-  const _HeaderBtn({
-    required this.icon,
+  final WholesalerProvider w;
+  final bool compact;
+  const _CustomerBox({
     required this.isDark,
-    this.isPrimary = false,
-    required this.onTap,
+    required this.w,
+    this.compact = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: isDark
-                ? WholesalerColors.primary.withValues(alpha: 0.12)
-                : WholesalerColors.primaryLight,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isPrimary
-                  ? Colors.transparent
-                  : WholesalerColors.border(isDark),
-            ),
-            boxShadow: isPrimary
-                ? [
-                    BoxShadow(
-                      color: WholesalerColors.primary.withValues(alpha: 0.4),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+    final customerName = w.customer.name.trim().isNotEmpty
+        ? w.customer.name
+        : 'No Customer Selected';
+    final customerTier = w.customer.tierName.toUpperCase();
+    final customerSub =
+        '${w.customer.customerId.isNotEmpty ? w.customer.customerId : 'N/A'} • ${w.customer.phone.isNotEmpty ? w.customer.phone : 'N/A'}';
+
+    return InkWell(
+      onTap: () => showDialog(
+        context: context,
+        builder: (_) => ChangeNotifierProvider.value(
+          value: context.read<WholesalerProvider>(),
+          child: const WCustomerDialog(),
+        ),
+      ),
+      borderRadius: BorderRadius.circular(4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: WholesalerColors.surfaceBg(isDark),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: WholesalerColors.border(isDark)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Left: Name + Tier Badge + Subtitle
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      customerName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : const Color(0xFF10213D),
+                      ),
                     ),
-                  ]
-                : null,
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEBF3FE),
+                        borderRadius: BorderRadius.circular(3),
+                        border: Border.all(color: const Color(0xFFBEDCFD)),
+                      ),
+                      child: Text(
+                        '$customerTier CUSTOMER',
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF146EF5),
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  customerSub,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
+                  ),
+                ),
+              ],
+            ),
+
+            if (!compact) ...[
+              _vDivider(isDark),
+              _MetricCol(
+                label: 'Credit Limit',
+                value: '৳${_fmt(w.customer.creditLimit)}',
+                color: isDark ? Colors.white70 : const Color(0xFF10213D),
+              ),
+              _vDivider(isDark),
+              _MetricCol(
+                label: 'Available Credit',
+                value: '৳${_fmt(w.customer.availableCredit)}',
+                color: const Color(0xFF059669),
+              ),
+              _vDivider(isDark),
+              _MetricCol(
+                label: 'Outstanding',
+                value: '৳${_fmt(w.customer.outstanding)}',
+                color: const Color(0xFFE11D48),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _vDivider(bool isDark) {
+    return Container(
+      width: 1,
+      height: 28,
+      margin: const EdgeInsets.symmetric(horizontal: 14),
+      color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+    );
+  }
+
+  String _fmt(double v) => NumberFormat('#,##0.00').format(v);
+}
+
+class _MetricCol extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+  const _MetricCol({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF64748B),
+            height: 1.1,
           ),
-          child: Icon(
-            icon,
-            size: 18,
-            color: isPrimary ? Colors.white : WholesalerColors.primary,
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            color: color,
+            height: 1.1,
           ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TIME & DATE BLOCK (Matching Screenshot)
+// ─────────────────────────────────────────────────────────────────
+class _TimeBlock extends StatelessWidget {
+  final bool isDark;
+  final DateTime now;
+  final bool compact;
+  const _TimeBlock({
+    required this.isDark,
+    required this.now,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final timeStr = DateFormat('h:mm a').format(now);
+    final dateStr = DateFormat('d MMM yyyy').format(now);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          timeStr,
+          style: TextStyle(
+            fontSize: compact ? 12 : 13.5,
+            fontWeight: FontWeight.w900,
+            color: isDark ? Colors.white : const Color(0xFF10213D),
+            height: 1.1,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          dateStr,
+          style: TextStyle(
+            fontSize: compact ? 9 : 10,
+            fontWeight: FontWeight.w600,
+            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+            height: 1.1,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SUN / MOON SWITCH PILL (Exact 68x36 Switch from Screenshot)
+// ─────────────────────────────────────────────────────────────────
+class _ThemeSwitchPill extends StatelessWidget {
+  final bool isDark;
+  final VoidCallback onToggle;
+  const _ThemeSwitchPill({required this.isDark, required this.onToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onToggle,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        width: 66,
+        height: 36,
+        padding: const EdgeInsets.all(3.5),
+        decoration: BoxDecoration(
+          color: WholesalerColors.surfaceBg(isDark),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: WholesalerColors.border(isDark)),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 6),
+                  child: Icon(
+                    Icons.wb_sunny_rounded,
+                    size: 11,
+                    color: isDark
+                        ? const Color(0xFF475569)
+                        : const Color(0xFFD97706),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: Icon(
+                    Icons.nightlight_round,
+                    size: 11,
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF94A3B8),
+                  ),
+                ),
+              ],
+            ),
+            AnimatedAlign(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              alignment: isDark ? Alignment.centerRight : Alignment.centerLeft,
+              child: Container(
+                width: 27,
+                height: 27,
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF146EF5) : Colors.white,
+                  shape: BoxShape.circle,
+                  border: isDark
+                      ? null
+                      : Border.all(color: const Color(0xFFCBD5E1)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  isDark ? Icons.nightlight_round : Icons.wb_sunny_rounded,
+                  size: 13,
+                  color: isDark ? Colors.white : const Color(0xFFF59E0B),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -472,7 +810,44 @@ class _HeaderBtn extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// STATS BAR  (Today's Sales, Orders, Delivery, Customers, Pending, Low Stock)
+// SQUARE ACTION BUTTON (Fullscreen Toggle)
+// ─────────────────────────────────────────────────────────────────
+class _SquareBtn extends StatelessWidget {
+  final IconData icon;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _SquareBtn({
+    required this.icon,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(4),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: WholesalerColors.surfaceBg(isDark),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: WholesalerColors.border(isDark)),
+        ),
+        child: Icon(
+          icon,
+          size: 16,
+          color: isDark ? Colors.white70 : const Color(0xFF475569),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STATS BAR (Adaptive: Mobile Pills vs Desktop Cards)
 // ─────────────────────────────────────────────────────────────────
 class WholesalerStatsBar extends StatelessWidget {
   const WholesalerStatsBar({super.key});
@@ -481,136 +856,270 @@ class WholesalerStatsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = context.watch<AppProvider>().isDarkMode;
     final w = context.watch<WholesalerProvider>();
+    final width = MediaQuery.of(context).size.width;
+    final isMobile = width < 700;
+
+    if (isMobile) {
+      final mobileStats = [
+        _MobileStat(
+          Icons.trending_up_rounded,
+          "Today's Sales",
+          '৳${NumberFormat('#,##0.00').format(w.todaysSales)}',
+          const Color(0xFF00B67A),
+          const Color(0xFFE6F9F0),
+          isGreenValue: true,
+        ),
+        _MobileStat(
+          Icons.receipt_long_rounded,
+          'Orders',
+          w.ordersCount.toString(),
+          const Color(0xFF3B82F6),
+          const Color(0xFFEBF3FE),
+        ),
+        _MobileStat(
+          Icons.local_shipping_rounded,
+          'Delivery',
+          w.deliveryCount.toString(),
+          const Color(0xFFF59E0B),
+          const Color(0xFFFEF3E6),
+        ),
+        _MobileStat(
+          Icons.people_rounded,
+          'Customers',
+          w.customersCount.toString(),
+          const Color(0xFF8B5CF6),
+          const Color(0xFFF3EEFE),
+        ),
+        _MobileStat(
+          Icons.warning_amber_rounded,
+          'Low Stock Alerts',
+          w.lowStockAlerts.toString(),
+          const Color(0xFFEF4444),
+          const Color(0xFFFEE2E2),
+        ),
+        _MobileStat(
+          Icons.account_balance_wallet_rounded,
+          'Due / Rec.',
+          '৳${NumberFormat('#,##0.00').format(w.totalReceivables)}',
+          const Color(0xFFF59E0B),
+          const Color(0xFFFEF3E6),
+        ),
+      ];
+
+      return Container(
+        height: 44,
+        color: Colors.transparent,
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          itemCount: mobileStats.length,
+          separatorBuilder: (_, _) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: VerticalDivider(
+              color: isDark
+                  ? WholesalerColors.border(isDark)
+                  : const Color(0xFFDCE4F2),
+              width: 1,
+              thickness: 1,
+            ),
+          ),
+          itemBuilder: (_, i) =>
+              _MobileStatItem(s: mobileStats[i], isDark: isDark),
+        ),
+      );
+    }
 
     final stats = [
-      _Stat(Icons.trending_up_rounded, "Today's Sales",
-          '৳${NumberFormat('#,##0.00').format(w.todaysSales)}',
-          WholesalerColors.accentGreen, true),
-      _Stat(Icons.receipt_long_rounded, 'Orders',
-          w.ordersCount.toString(), WholesalerColors.accentBlue, false),
-      _Stat(Icons.local_shipping_rounded, 'Delivery',
-          w.deliveryCount.toString(), WholesalerColors.accentOrange, false),
-      _Stat(Icons.people_rounded, 'Customers',
-          w.customersCount.toString(), WholesalerColors.accentPurple, false),
-      _Stat(Icons.pending_actions_rounded, 'Pending Orders',
-          w.pendingOrdersCount.toString(), WholesalerColors.primary, false),
-      _Stat(Icons.warning_amber_rounded, 'Low Stock Alerts',
-          w.lowStockAlerts.toString(), WholesalerColors.accentRed, false),
-      _Stat(Icons.account_balance_wallet_rounded, 'Due / Rec.',
-          '৳${NumberFormat('#,##0.00').format(w.totalReceivables)}',
-          const Color(0xFFF59E0B), true),
-      _Stat(Icons.payments_rounded, 'Collected Cash',
-          '৳${NumberFormat('#,##0.00').format(w.collectedCash)}',
-          const Color(0xFF10B981), false),
-      _Stat(Icons.assignment_return_rounded, 'Returns',
-          '${w.returnsCount} Req', const Color(0xFFEC4899), false),
-      _Stat(Icons.warehouse_rounded, 'Warehouses',
-          '${w.activeWarehouses} Active', const Color(0xFF06B6D4), false),
+      _StatCardDef(
+        label: "TODAY'S SALES",
+        value: '৳${NumberFormat('#,##0.00').format(w.todaysSales)}',
+        icon: Icons.trending_up_rounded,
+      ),
+      _StatCardDef(
+        label: 'ORDERS',
+        value: w.ordersCount.toString(),
+        icon: Icons.shopping_bag_outlined,
+      ),
+      _StatCardDef(
+        label: 'DELIVERY',
+        value: w.deliveryCount.toString(),
+        icon: Icons.local_shipping_outlined,
+      ),
+      _StatCardDef(
+        label: 'CUSTOMERS',
+        value: w.customersCount.toString(),
+        icon: Icons.people_outline_rounded,
+      ),
+      _StatCardDef(
+        label: 'PENDING ORDERS',
+        value: w.pendingOrdersCount.toString(),
+        icon: Icons.assignment_outlined,
+      ),
+      _StatCardDef(
+        label: 'LOW STOCK ALERTS',
+        value: w.lowStockAlerts.toString(),
+        icon: Icons.warning_amber_rounded,
+      ),
     ];
 
-    return Container(
-      height: 58,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: isDark
-            ? WholesalerColors.inputBg(true).withValues(alpha: 0.7)
-            : WholesalerColors.panelBg(false),
-        border: Border(bottom: BorderSide(color: WholesalerColors.border(isDark))),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= 700;
-          if (isWide) {
-            return Row(
-              children: [
-                for (int i = 0; i < stats.length; i++) ...[
-                  if (i > 0)
-                    Container(
-                      width: 1,
-                      height: 28,
-                      color: WholesalerColors.border(isDark),
-                      margin: const EdgeInsets.symmetric(horizontal: 2),
-                    ),
-                  Expanded(
-                    child: _StatItem(s: stats[i], isDark: isDark),
-                  ),
-                ],
-              ],
-            );
-          }
-          return ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: stats.length,
-            separatorBuilder: (_, _) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              child: VerticalDivider(
-                color: WholesalerColors.border(isDark),
-                width: 1,
-              ),
-            ),
-            itemBuilder: (_, i) => _StatItem(s: stats[i], isDark: isDark),
-          );
-        },
-      ),
+    return Row(
+      children: [
+        for (int i = 0; i < stats.length; i++) ...[
+          if (i > 0) const SizedBox(width: 8),
+          Expanded(
+            child: _IndividualStatCard(stat: stats[i], isDark: isDark),
+          ),
+        ],
+      ],
     );
   }
 }
 
-class _Stat {
+class _MobileStat {
   final IconData icon;
   final String label;
   final String value;
-  final Color color;
-  final bool large;
-  const _Stat(this.icon, this.label, this.value, this.color, this.large);
+  final Color iconColor;
+  final Color lightBgColor;
+  final bool isGreenValue;
+  const _MobileStat(
+    this.icon,
+    this.label,
+    this.value,
+    this.iconColor,
+    this.lightBgColor, {
+    this.isGreenValue = false,
+  });
 }
 
-class _StatItem extends StatelessWidget {
-  final _Stat s;
+class _MobileStatItem extends StatelessWidget {
+  final _MobileStat s;
   final bool isDark;
-  const _StatItem({required this.s, required this.isDark});
+  const _MobileStatItem({required this.s, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: s.color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            color: isDark
+                ? s.iconColor.withValues(alpha: 0.18)
+                : s.lightBgColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(child: Icon(s.icon, size: 15, color: s.iconColor)),
+        ),
+        const SizedBox(width: 6),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              s.value,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: s.isGreenValue
+                    ? (isDark
+                          ? const Color(0xFF10B981)
+                          : const Color(0xFF00B67A))
+                    : (isDark ? Colors.white : const Color(0xFF1E293B)),
+                height: 1.15,
+              ),
             ),
-            child: Icon(s.icon, size: 14, color: s.color),
+            const SizedBox(height: 1),
+            Text(
+              s.label,
+              style: TextStyle(
+                fontSize: 9.5,
+                fontWeight: FontWeight.w500,
+                color: isDark
+                    ? const Color(0xFF94A3B8)
+                    : const Color(0xFF64748B),
+                height: 1.1,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _StatCardDef {
+  final String label;
+  final String value;
+  final IconData icon;
+  const _StatCardDef({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+}
+
+class _IndividualStatCard extends StatelessWidget {
+  final _StatCardDef stat;
+  final bool isDark;
+  const _IndividualStatCard({required this.stat, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: WholesalerColors.cardBg(isDark),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: WholesalerColors.border(isDark)),
+        boxShadow: WholesalerColors.softShadow(isDark, elevation: 0.8),
+      ),
+      child: Row(
+        children: [
+          // Square icon box (36x36 in #EBF3FE with primary icon)
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: WholesalerColors.surfaceBg(isDark),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Icon(stat.icon, size: 17, color: WholesalerColors.primary),
           ),
           const SizedBox(width: 8),
-          Flexible(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  s.value,
+                  stat.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: s.large ? 13 : 12,
-                    fontWeight: FontWeight.w900,
-                    color: s.large ? s.color : WholesalerColors.textPrimary(isDark),
-                    height: 1.1,
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w800,
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
+                    letterSpacing: 0.4,
                   ),
                 ),
+                const SizedBox(height: 1),
                 Text(
-                  s.label,
+                  stat.value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w500,
-                    color: WholesalerColors.textSecondary(isDark),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : const Color(0xFF10213D),
                   ),
                 ),
               ],

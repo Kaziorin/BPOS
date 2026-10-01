@@ -10,11 +10,11 @@ class WholesalerSearchBar extends StatelessWidget {
   const WholesalerSearchBar({super.key});
 
   static const List<(String, IconData)> _tabs = [
-    ('Sales Order', Icons.receipt_long_rounded),
-    ('Warehouse', Icons.warehouse_rounded),
-    ('Credit', Icons.account_balance_wallet_rounded),
-    ('Delivery', Icons.local_shipping_rounded),
-    ('Commission', Icons.percent_rounded),
+    ('Sales Order', Icons.description_outlined),
+    ('Warehouse', Icons.warehouse_outlined),
+    ('Credit', Icons.credit_card_outlined),
+    ('Delivery', Icons.local_shipping_outlined),
+    ('% Commission', Icons.percent_rounded),
   ];
 
   @override
@@ -25,19 +25,19 @@ class WholesalerSearchBar extends StatelessWidget {
     final isMobile = width < 700;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
       child: Row(
         children: [
-          // Search Box (flex: 42)
+          // Search Box
           Expanded(
-            flex: 42,
+            flex: 44,
             child: _SearchInput(isDark: isDark, w: w),
           ),
           if (!isMobile) ...[
-            const SizedBox(width: 10),
-            // Nav Tabs (flex: 58 - stretches across all remaining width)
+            const SizedBox(width: 8),
+            // Quick Action Buttons
             Expanded(
-              flex: 58,
+              flex: 56,
               child: _NavTabs(isDark: isDark, tabs: _tabs),
             ),
           ],
@@ -54,28 +54,41 @@ class _SearchInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 700;
+
     return Container(
-      height: 42,
+      height: isMobile ? 44 : 36,
       decoration: BoxDecoration(
-        color: WholesalerColors.inputBg(isDark),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: WholesalerColors.border(isDark)),
-        boxShadow: WholesalerColors.softShadow(isDark),
+        color: isDark ? WholesalerColors.surfaceBg(isDark) : Colors.white,
+        borderRadius: BorderRadius.circular(isMobile ? 16 : 4),
+        border: Border.all(
+          color: isDark ? WholesalerColors.border(isDark) : const Color(0xFFE2E8F0),
+          width: isMobile ? 1.2 : 1.0,
+        ),
       ),
       child: Row(
         children: [
           const SizedBox(width: 12),
-          Icon(Icons.search_rounded, size: 18, color: WholesalerColors.textSecondary(isDark)),
+          Icon(
+            Icons.search_rounded,
+            size: isMobile ? 20 : 16,
+            color: isDark ? WholesalerColors.textSecondary(isDark) : const Color(0xFF64748B),
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
               onChanged: (v) => context.read<WholesalerProvider>().setSearchQuery(v),
-              style: TextStyle(fontSize: 13, color: WholesalerColors.textPrimary(isDark)),
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: WholesalerColors.textPrimary(isDark),
+              ),
               decoration: InputDecoration(
                 hintText: 'Search by product name, SKU, barcode',
                 hintStyle: TextStyle(
-                  fontSize: 12,
-                  color: WholesalerColors.textSecondary(isDark).withValues(alpha: 0.7),
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w400,
+                  color: isDark ? WholesalerColors.textSecondary(isDark) : const Color(0xFF94A3B8),
                 ),
                 border: InputBorder.none,
                 isDense: true,
@@ -87,13 +100,25 @@ class _SearchInput extends StatelessWidget {
           GestureDetector(
             onTap: () => _showSnack(context, '📷 Barcode scanner activated'),
             child: Container(
-              margin: const EdgeInsets.all(5),
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                color: WholesalerColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+              margin: const EdgeInsets.only(right: 6),
+              width: isMobile ? 32 : null,
+              height: isMobile ? 32 : null,
+              padding: EdgeInsets.all(isMobile ? 0 : 4),
+              decoration: isMobile
+                  ? BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF4F46E5).withValues(alpha: 0.22)
+                          : const Color(0xFFEEF2FF),
+                      borderRadius: BorderRadius.circular(10),
+                    )
+                  : null,
+              child: Center(
+                child: Icon(
+                  isMobile ? Icons.qr_code_scanner_rounded : Icons.crop_free_rounded,
+                  size: isMobile ? 18 : 16,
+                  color: isDark ? const Color(0xFF818CF8) : const Color(0xFF4F46E5),
+                ),
               ),
-              child: Icon(Icons.qr_code_scanner_rounded, size: 16, color: WholesalerColors.primary),
             ),
           ),
         ],
@@ -105,8 +130,8 @@ class _SearchInput extends StatelessWidget {
     ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
       content: Text(msg),
       behavior: SnackBarBehavior.floating,
-      backgroundColor: WholesalerColors.primary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      backgroundColor: const Color(0xFF146EF5),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ));
   }
 }
@@ -119,7 +144,7 @@ class _NavTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 42,
+      height: 36,
       child: Row(
         children: [
           for (int i = 0; i < tabs.length; i++) ...[
@@ -127,7 +152,6 @@ class _NavTabs extends StatelessWidget {
             Expanded(
               child: _NavTabItem(
                 tab: tabs[i],
-                isFirst: i == 0,
                 isDark: isDark,
               ),
             ),
@@ -140,48 +164,39 @@ class _NavTabs extends StatelessWidget {
 
 class _NavTabItem extends StatelessWidget {
   final (String, IconData) tab;
-  final bool isFirst;
   final bool isDark;
-  const _NavTabItem({required this.tab, required this.isFirst, required this.isDark});
+  const _NavTabItem({required this.tab, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 42,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      height: 36,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        gradient: isFirst ? WholesalerColors.primaryGradient : null,
-        color: isFirst ? null : (isDark ? WholesalerColors.inputBg(true) : Colors.white),
-        borderRadius: BorderRadius.circular(10),
+        color: WholesalerColors.cardBg(isDark),
+        borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: isFirst
-              ? Colors.transparent
-              : WholesalerColors.border(isDark),
+          color: WholesalerColors.border(isDark),
         ),
-        boxShadow: isFirst
-            ? [BoxShadow(color: WholesalerColors.primary.withValues(alpha: 0.3), blurRadius: 6, offset: const Offset(0, 2))]
-            : WholesalerColors.softShadow(isDark),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             tab.$2,
-            size: 13.5,
-            color: isFirst ? Colors.white : WholesalerColors.textSecondary(isDark),
+            size: 13,
+            color: WholesalerColors.primary,
           ),
           const SizedBox(width: 4),
           Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                tab.$1,
-                maxLines: 1,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: isFirst ? Colors.white : WholesalerColors.textSecondary(isDark),
-                ),
+            child: Text(
+              tab.$1,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: isDark ? const Color(0xFFF1F5F9) : const Color(0xFF10213D),
               ),
             ),
           ),
@@ -202,38 +217,50 @@ class WholesalerFilterToolbar extends StatelessWidget {
     final isDark = context.watch<AppProvider>().isDarkMode;
     final w = context.watch<WholesalerProvider>();
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isNarrow = constraints.maxWidth < 620;
-          if (isNarrow) {
-            return SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              child: Row(
-                children: [
-                  // Left side
-                  _DropBtn(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 620;
+        if (isNarrow) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 37,
+                  child: _DropBtn(
                     label: w.selectedWarehouse,
                     isDark: isDark,
+                    compact: true,
                     onTap: () => _showWarehousePicker(context, w, isDark),
                   ),
-                  const SizedBox(width: 8),
-                  _LowStockToggle(isDark: isDark, w: w),
-                  const SizedBox(width: 16),
-                  // Right side
-                  _DropBtn(label: 'Sort by: Popular', isDark: isDark, onTap: () {}),
-                  const SizedBox(width: 8),
-                  _FilterBtn(isDark: isDark),
-                  const SizedBox(width: 8),
-                  _ViewToggle(isDark: isDark, w: w),
-                ],
-              ),
-            );
-          }
+                ),
+                const SizedBox(width: 5),
+                Expanded(
+                  flex: 33,
+                  child: _LowStockToggle(
+                    isDark: isDark,
+                    w: w,
+                    compact: true,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Expanded(
+                  flex: 30,
+                  child: _DropBtn(
+                    label: 'Sort: Pop',
+                    isDark: isDark,
+                    compact: true,
+                    onTap: () => _showSortPicker(context, isDark),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
 
-          return Row(
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: Row(
             children: [
               // ── Left side: All Warehouses & Low stock ───────────
               _DropBtn(
@@ -247,14 +274,60 @@ class WholesalerFilterToolbar extends StatelessWidget {
               const Spacer(),
 
               // ── Right side: Sort by Popular, Filter & Grid/List ──
-              _DropBtn(label: 'Sort by: Popular', isDark: isDark, onTap: () {}),
+              _DropBtn(
+                label: 'Sort by: Popular',
+                isDark: isDark,
+                onTap: () => _showSortPicker(context, isDark),
+              ),
               const SizedBox(width: 8),
               _FilterBtn(isDark: isDark),
               const SizedBox(width: 8),
               _ViewToggle(isDark: isDark, w: w),
             ],
-          );
-        },
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSortPicker(BuildContext context, bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: WholesalerColors.cardBg(isDark),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Sort Products',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: WholesalerColors.textPrimary(isDark),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...['Popular', 'Price: Low to High', 'Price: High to Low', 'Name (A-Z)', 'Stock Level'].map(
+              (s) => ListTile(
+                leading: const Icon(Icons.sort_rounded, color: WholesalerColors.primary),
+                title: Text(
+                  s,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: WholesalerColors.textPrimary(isDark),
+                  ),
+                ),
+                onTap: () => Navigator.pop(context),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
@@ -320,12 +393,13 @@ class _FilterBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: isDark ? WholesalerColors.inputBg(true) : Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: WholesalerColors.border(isDark)),
-        boxShadow: WholesalerColors.softShadow(isDark),
+        color: WholesalerColors.cardBg(isDark),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: WholesalerColors.border(isDark),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -334,7 +408,8 @@ class _FilterBtn extends StatelessWidget {
           const SizedBox(width: 5),
           Text('Filters',
               style: TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w700,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
                 color: WholesalerColors.textPrimary(isDark),
               )),
         ],
@@ -347,33 +422,52 @@ class _DropBtn extends StatelessWidget {
   final String label;
   final bool isDark;
   final VoidCallback onTap;
-  const _DropBtn({required this.label, required this.isDark, required this.onTap});
+  final bool compact;
+  const _DropBtn({
+    required this.label,
+    required this.isDark,
+    required this.onTap,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        padding: EdgeInsets.symmetric(
+          horizontal: compact ? 6 : 10,
+          vertical: compact ? 5 : 6,
+        ),
         decoration: BoxDecoration(
-          color: isDark ? WholesalerColors.inputBg(true) : Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: WholesalerColors.border(isDark)),
-          boxShadow: WholesalerColors.softShadow(isDark),
+          color: WholesalerColors.cardBg(isDark),
+          borderRadius: BorderRadius.circular(compact ? 6 : 4),
+          border: Border.all(
+            color: WholesalerColors.border(isDark),
+          ),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w600,
-                color: WholesalerColors.textPrimary(isDark),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: compact ? 10 : 11,
+                  fontWeight: FontWeight.w600,
+                  color: WholesalerColors.textPrimary(isDark),
+                ),
               ),
             ),
-            const SizedBox(width: 4),
-            Icon(Icons.keyboard_arrow_down_rounded, size: 14,
-                color: WholesalerColors.textSecondary(isDark)),
+            SizedBox(width: compact ? 2 : 4),
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: compact ? 13 : 14,
+              color: WholesalerColors.textSecondary(isDark),
+            ),
           ],
         ),
       ),
@@ -384,57 +478,57 @@ class _DropBtn extends StatelessWidget {
 class _LowStockToggle extends StatelessWidget {
   final bool isDark;
   final WholesalerProvider w;
-  const _LowStockToggle({required this.isDark, required this.w});
+  final bool compact;
+  const _LowStockToggle({
+    required this.isDark,
+    required this.w,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => context.read<WholesalerProvider>().toggleLowStock(),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: compact ? 6 : 10,
+          vertical: compact ? 5 : 6,
+        ),
         decoration: BoxDecoration(
-          color: w.showLowStockOnly
-              ? WholesalerColors.accentOrange.withValues(alpha: 0.15)
-              : (isDark ? WholesalerColors.inputBg(true) : Colors.white),
-          borderRadius: BorderRadius.circular(10),
+          color: WholesalerColors.cardBg(isDark),
+          borderRadius: BorderRadius.circular(compact ? 6 : 4),
           border: Border.all(
-            color: w.showLowStockOnly
-                ? WholesalerColors.accentOrange.withValues(alpha: 0.5)
-                : WholesalerColors.border(isDark),
+            color: WholesalerColors.border(isDark),
           ),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Checkbox style
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              width: 14,
-              height: 14,
+            Container(
+              width: compact ? 12 : 14,
+              height: compact ? 12 : 14,
               decoration: BoxDecoration(
-                color: w.showLowStockOnly ? WholesalerColors.accentOrange : Colors.transparent,
-                borderRadius: BorderRadius.circular(4),
+                color: w.showLowStockOnly ? WholesalerColors.primary : Colors.transparent,
+                borderRadius: BorderRadius.circular(2),
                 border: Border.all(
                   color: w.showLowStockOnly
-                      ? WholesalerColors.accentOrange
-                      : WholesalerColors.textSecondary(isDark),
+                      ? WholesalerColors.primary
+                      : WholesalerColors.border(isDark),
                   width: 1.5,
                 ),
               ),
               child: w.showLowStockOnly
-                  ? const Icon(Icons.check_rounded, size: 10, color: Colors.white)
+                  ? Icon(Icons.check_rounded, size: compact ? 9 : 10, color: Colors.white)
                   : null,
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: compact ? 4 : 6),
             Text(
-              'Low Stock Only',
+              compact ? 'Low Stock' : 'Low Stock Only',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: compact ? 10 : 11,
                 fontWeight: FontWeight.w600,
-                color: w.showLowStockOnly
-                    ? WholesalerColors.accentOrange
-                    : WholesalerColors.textPrimary(isDark),
+                color: WholesalerColors.textPrimary(isDark),
               ),
             ),
           ],
@@ -453,10 +547,11 @@ class _ViewToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? WholesalerColors.inputBg(true) : Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: WholesalerColors.border(isDark)),
-        boxShadow: WholesalerColors.softShadow(isDark),
+        color: WholesalerColors.cardBg(isDark),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: WholesalerColors.border(isDark),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -490,15 +585,17 @@ class _ViewBtn extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.all(7),
+      child: Container(
+        padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
-          color: active ? WholesalerColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(9),
+          color: active ? const Color(0xFF146EF5) : Colors.transparent,
+          borderRadius: BorderRadius.circular(3),
         ),
-        child: Icon(icon, size: 16,
-            color: active ? Colors.white : WholesalerColors.textSecondary(isDark)),
+        child: Icon(
+          icon,
+          size: 15,
+          color: active ? Colors.white : WholesalerColors.textSecondary(isDark),
+        ),
       ),
     );
   }
@@ -512,19 +609,13 @@ class WholesalerCategoryChips extends StatelessWidget {
 
   static const _cats = [
     ('All Products', Icons.grid_view_rounded),
-    ('Electronics', Icons.electrical_services_rounded),
+    ('Electronics', Icons.headphones_outlined),
     ('Mobiles', Icons.smartphone_rounded),
-    ('Computers', Icons.computer_rounded),
-    ('Home Appliances', Icons.home_rounded),
-    ('Accessories', Icons.cable_rounded),
-    ('Office Supplies', Icons.business_center_rounded),
-    ('Networking', Icons.router_rounded),
-    ('Audio & Sound', Icons.headphones_rounded),
-    ('Security & CCTV', Icons.videocam_rounded),
-    ('Storage & Memory', Icons.sd_storage_rounded),
-    ('Smart Devices', Icons.watch_rounded),
-    ('Cables & Power', Icons.power_rounded),
-    ('Gaming Gear', Icons.sports_esports_rounded),
+    ('Computers', Icons.laptop_rounded),
+    ('Accessories', Icons.inventory_2_outlined),
+    ('Home Appliances', Icons.home_outlined),
+    ('Fashion', Icons.checkroom_rounded),
+    ('Sports', Icons.fitness_center_rounded),
   ];
 
   @override
@@ -533,22 +624,13 @@ class WholesalerCategoryChips extends StatelessWidget {
     final w = context.watch<WholesalerProvider>();
 
     return SizedBox(
-      height: 40,
+      height: 36,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: _cats.length + 1,
-        separatorBuilder: (_, _) => const SizedBox(width: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        itemCount: _cats.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 6),
         itemBuilder: (ctx, i) {
-          if (i == _cats.length) {
-            return _CategoryChip(
-              label: 'More',
-              icon: Icons.more_horiz_rounded,
-              selected: false,
-              isDark: isDark,
-              onTap: () {},
-            );
-          }
           final c = _cats[i];
           return _CategoryChip(
             label: c.$1,
@@ -576,35 +658,38 @@ class _CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 700;
+
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 14 : 12, vertical: isMobile ? 8 : 6),
         decoration: BoxDecoration(
-          gradient: selected ? WholesalerColors.primaryGradient : null,
-          color: selected ? null : (isDark ? WholesalerColors.inputBg(true) : Colors.white),
-          borderRadius: BorderRadius.circular(12),
+          color: selected
+              ? WholesalerColors.primary
+              : (isDark ? WholesalerColors.cardBg(isDark) : Colors.white),
+          borderRadius: BorderRadius.circular(isMobile ? 12 : 4),
           border: Border.all(
-            color: selected ? Colors.transparent : WholesalerColors.border(isDark),
+            color: selected
+                ? WholesalerColors.primary
+                : WholesalerColors.border(isDark),
           ),
-          boxShadow: selected
-              ? [BoxShadow(color: WholesalerColors.primary.withValues(alpha: 0.35), blurRadius: 10, offset: const Offset(0, 4))]
-              : WholesalerColors.softShadow(isDark),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14,
-                color: selected ? Colors.white : WholesalerColors.primary),
+            Icon(
+              icon,
+              size: 13.5,
+              color: selected ? Colors.white : WholesalerColors.primary,
+            ),
             const SizedBox(width: 5),
             Text(
               label,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: selected ? Colors.white : WholesalerColors.textPrimary(isDark),
+                color: selected ? Colors.white : (isDark ? Colors.white : const Color(0xFF10213D)),
               ),
             ),
           ],

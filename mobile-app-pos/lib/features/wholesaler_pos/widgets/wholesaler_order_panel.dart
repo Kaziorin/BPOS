@@ -46,7 +46,7 @@ class _OrderColumnHeaders extends StatelessWidget {
     final color = WholesalerColors.textSecondary(isDark);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1B4B) : const Color(0xFFF8FAFF),
         border: Border(
@@ -70,7 +70,7 @@ class _OrderColumnHeaders extends StatelessWidget {
             ),
           ),
           Expanded(
-            flex: 3,
+            flex: 4,
             child: Text(
               'PRICE',
               textAlign: TextAlign.center,
@@ -108,6 +108,7 @@ class _OrderColumnHeaders extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(width: 26), // Space for delete icon in row below
         ],
       ),
     );
@@ -123,54 +124,110 @@ class _OrderPanelHeader extends StatelessWidget {
     final isDark = context.watch<AppProvider>().isDarkMode;
     final w = context.watch<WholesalerProvider>();
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 12, 10, 10),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark ? WholesalerColors.surfaceBg(isDark) : const Color(0xFFF5FAFE),
+        border: Border(
+          bottom: BorderSide(
+            color: WholesalerColors.border(isDark),
+          ),
+        ),
+      ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              gradient: WholesalerColors.primaryGradient,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.shopping_bag_rounded, color: Colors.white, size: 14),
-          ),
-          const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              'Order Items (${w.totalItems})',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-                color: WholesalerColors.textPrimary(isDark),
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Order Items ',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF10213D),
+                    ),
+                  ),
+                  TextSpan(
+                    text: '(${w.totalItems})',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF146EF5),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          // Scan item
-          _SmallBtn(
-            icon: Icons.qr_code_scanner_rounded,
-            label: 'Scan Item',
-            color: WholesalerColors.primary,
-            isDark: isDark,
-            onTap: () => _snack(context, '📷 Scan Item activated'),
-          ),
-          const SizedBox(width: 6),
-          // Clear
-          if (w.items.isNotEmpty)
-            GestureDetector(
+          // Clear Cart
+          if (w.items.isNotEmpty) ...[
+            InkWell(
               onTap: () => _confirmClear(context, w),
+              borderRadius: BorderRadius.circular(4),
               child: Container(
-                padding: const EdgeInsets.all(7),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
-                  color: WholesalerColors.accentRed.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: isDark ? const Color(0xFF451A24) : const Color(0xFFFFF1F2),
+                  borderRadius: BorderRadius.circular(4),
                   border: Border.all(
-                      color: WholesalerColors.accentRed.withValues(alpha: 0.3)),
+                    color: isDark ? const Color(0xFF881337) : const Color(0xFFFECDD3),
+                  ),
                 ),
-                child: Icon(Icons.delete_outline_rounded,
-                    size: 16, color: WholesalerColors.accentRed),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.delete_outline_rounded,
+                      size: 13,
+                      color: Color(0xFFE11D48),
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'Clear Cart',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFFE11D48),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
+            const SizedBox(width: 6),
+          ],
+          // Scan Item
+          InkWell(
+            onTap: () => _snack(context, '📷 Scan Item activated'),
+            borderRadius: BorderRadius.circular(4),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5.5),
+              decoration: BoxDecoration(
+                color: const Color(0xFF146EF5),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.crop_free_rounded,
+                    size: 13,
+                    color: Colors.white,
+                  ),
+                  SizedBox(width: 5),
+                  Text(
+                    'Scan Item',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -202,39 +259,6 @@ class _OrderPanelHeader extends StatelessWidget {
       ),
     );
     if (ok == true) w.clearOrder();
-  }
-}
-
-class _SmallBtn extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final bool isDark;
-  final VoidCallback onTap;
-  const _SmallBtn({required this.icon, required this.label, required this.color, required this.isDark, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 12, color: color),
-            const SizedBox(width: 4),
-            Text(label,
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -273,7 +297,7 @@ class _OrderItemsList extends StatelessWidget {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       itemCount: w.items.length,
       separatorBuilder: (_, _) => Divider(
           height: 12, thickness: 1, color: WholesalerColors.divider(isDark)),
@@ -297,7 +321,7 @@ class _OrderItemRow extends StatefulWidget {
 }
 
 class _OrderItemRowState extends State<_OrderItemRow>
-    with SingleTickerProviderStateMixin {
+  with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _opacity;
   late Animation<Offset> _slide;
@@ -386,26 +410,27 @@ class _OrderItemRowState extends State<_OrderItemRow>
                     ClipRRect(
                       borderRadius: BorderRadius.circular(6),
                       child: Container(
-                        width: 32,
-                        height: 32,
+                        width: 28,
+                        height: 28,
                         color: WholesalerColors.primary.withValues(alpha: 0.08),
                         child: Center(
                           child: p.imageUrl.isNotEmpty
                               ? Image.network(
                                   p.imageUrl,
-                                  width: 32,
-                                  height: 32,
+                                  width: 28,
+                                  height: 28,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) => Text(p.emoji, style: const TextStyle(fontSize: 16)),
+                                  errorBuilder: (_, _, _) => Text(p.emoji, style: const TextStyle(fontSize: 14)),
                                 )
-                              : Text(p.emoji, style: const TextStyle(fontSize: 16)),
+                              : Text(p.emoji, style: const TextStyle(fontSize: 14)),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             p.name,
@@ -423,7 +448,7 @@ class _OrderItemRowState extends State<_OrderItemRow>
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 9,
+                              fontSize: 8.5,
                               color: WholesalerColors.textSecondary(isDark),
                             ),
                           ),
@@ -434,14 +459,14 @@ class _OrderItemRowState extends State<_OrderItemRow>
                 ),
               ),
 
-              // 2. PRICE COLUMN (flex 3)
+              // 2. PRICE COLUMN (flex 4)
               Expanded(
-                flex: 3,
+                flex: 4,
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.center,
                   child: Text(
-                    '৳${item.unitPrice.toStringAsFixed(2)}',
+                    '৳${NumberFormat('#,##0.00').format(item.unitPrice)}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 11.5,
@@ -455,118 +480,119 @@ class _OrderItemRowState extends State<_OrderItemRow>
               // 3. QTY COLUMN (flex 4)
               Expanded(
                 flex: 4,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          w.decrementQty(p.id);
-                          setState(() {
-                            _qtyCtrl.text = '${item.qty}';
-                          });
-                        },
-                        borderRadius: BorderRadius.circular(4),
-                        child: Container(
-                          width: 19,
-                          height: 19,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF2E2B6B) : Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                              color: isDark ? const Color(0xFF3E3A85) : const Color(0xFFE2E8F0),
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.remove,
-                            size: 11,
-                            color: isDark ? Colors.white70 : const Color(0xFF64748B),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 2.5),
-                      // Editable QTY Box (Type directly inline or double-tap for preset numpad dialog)
-                      Tooltip(
-                        message: 'Type quantity or double tap for presets',
-                        child: InkWell(
-                          onDoubleTap: () => _showWholesaleQtyDialog(context, w, p.id, p.name, item.qty),
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            w.decrementQty(p.id);
+                            setState(() {
+                              _qtyCtrl.text = '${item.qty}';
+                            });
+                          },
                           borderRadius: BorderRadius.circular(4),
                           child: Container(
-                            width: 32,
-                            height: 19,
+                            width: 18,
+                            height: 18,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: isDark
-                                  ? const Color(0xFF1E1B4B)
-                                  : const Color(0xFFEEF2FF),
+                              color: isDark ? const Color(0xFF2E2B6B) : Colors.white,
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: isDark
-                                    ? WholesalerColors.primary.withValues(alpha: 0.6)
-                                    : const Color(0xFFCBD5E1),
-                                width: 1,
+                                color: isDark ? const Color(0xFF3E3A85) : const Color(0xFFE2E8F0),
                               ),
                             ),
-                            child: TextField(
-                              controller: _qtyCtrl,
-                              focusNode: _qtyFocus,
-                              textAlign: TextAlign.center,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: WholesalerColors.primary,
-                                height: 1.1,
-                              ),
-                              cursorColor: WholesalerColors.primary,
-                              cursorWidth: 1.5,
-                              cursorHeight: 11,
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                isDense: true,
-                                contentPadding: EdgeInsets.zero,
-                              ),
-                              onSubmitted: (_) {
-                                _commitQty();
-                                _qtyFocus.unfocus();
-                              },
+                            child: Icon(
+                              Icons.remove,
+                              size: 11,
+                              color: isDark ? Colors.white70 : const Color(0xFF64748B),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 2.5),
-                      InkWell(
-                        onTap: () {
-                          w.incrementQty(p.id);
-                          setState(() {
-                            _qtyCtrl.text = '${item.qty}';
-                          });
-                        },
-                        borderRadius: BorderRadius.circular(4),
-                        child: Container(
-                          width: 19,
-                          height: 19,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF2E2B6B) : Colors.white,
+                        const SizedBox(width: 2),
+                        // Editable QTY Box (Type directly inline or double-tap for preset numpad dialog)
+                        Tooltip(
+                          message: 'Type quantity or double tap for presets',
+                          child: InkWell(
+                            onDoubleTap: () => _showWholesaleQtyDialog(context, w, p.id, p.name, item.qty),
                             borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                              color: isDark ? const Color(0xFF3E3A85) : const Color(0xFFE2E8F0),
+                            child: Container(
+                              width: 28,
+                              height: 18,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? const Color(0xFF1E1B4B)
+                                    : const Color(0xFFEEF2FF),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: isDark
+                                      ? WholesalerColors.primary.withValues(alpha: 0.6)
+                                      : const Color(0xFFCBD5E1),
+                                  width: 1,
+                                ),
+                              ),
+                              child: TextField(
+                                controller: _qtyCtrl,
+                                focusNode: _qtyFocus,
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: WholesalerColors.primary,
+                                  height: 1.1,
+                                ),
+                                cursorColor: WholesalerColors.primary,
+                                cursorWidth: 1.5,
+                                cursorHeight: 11,
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                                onSubmitted: (_) {
+                                  _commitQty();
+                                  _qtyFocus.unfocus();
+                                },
+                              ),
                             ),
                           ),
-                          child: Icon(
-                            Icons.add,
-                            size: 11,
-                            color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                        ),
+                        const SizedBox(width: 2),
+                        InkWell(
+                          onTap: () {
+                            w.incrementQty(p.id);
+                            setState(() {
+                              _qtyCtrl.text = '${item.qty}';
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(4),
+                          child: Container(
+                            width: 18,
+                            height: 18,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF2E2B6B) : Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF3E3A85) : const Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.add,
+                              size: 11,
+                              color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -574,37 +600,40 @@ class _OrderItemRowState extends State<_OrderItemRow>
               // 4. TOTAL COLUMN (flex 4)
               Expanded(
                 flex: 4,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Flexible(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          '৳${item.lineTotal.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w900,
-                            color: WholesalerColors.textPrimary(isDark),
-                          ),
-                        ),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      '৳${NumberFormat('#,##0.00').format(item.lineTotal)}',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: WholesalerColors.textPrimary(isDark),
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    InkWell(
-                      onTap: () => w.removeItem(p.id),
-                      borderRadius: BorderRadius.circular(4),
-                      child: Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: Icon(
-                          Icons.delete_outline_rounded,
-                          size: 16,
-                          color: isDark ? Colors.grey.shade500 : const Color(0xFFCBD5E1),
-                        ),
+                  ),
+                ),
+              ),
+
+              // 5. DELETE COLUMN (26px matching header SizedBox)
+              SizedBox(
+                width: 26,
+                child: Center(
+                  child: InkWell(
+                    onTap: () => w.removeItem(p.id),
+                    borderRadius: BorderRadius.circular(4),
+                    child: Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: Icon(
+                        Icons.delete_outline_rounded,
+                        size: 16,
+                        color: WholesalerColors.accentRed,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],

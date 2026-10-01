@@ -60,13 +60,15 @@ class _WholesalerPOSScreenState extends State<WholesalerPOSScreen>
               ),
               floatingActionButton: isMobile && !_showMobileCart
                   ? _MobileCartFab(
-                      onTap: () => setState(() => _showMobileCart = true))
+                      onTap: () => setState(() => _showMobileCart = true),
+                    )
                   : null,
               body: SafeArea(
                 child: isMobile
                     ? _MobileLayout(
                         showCart: _showMobileCart,
-                        onCloseCart: () => setState(() => _showMobileCart = false),
+                        onCloseCart: () =>
+                            setState(() => _showMobileCart = false),
                       )
                     : _DesktopTabletLayout(isTablet: isTablet),
               ),
@@ -91,23 +93,41 @@ class _DesktopTabletLayout extends StatelessWidget {
 
     return Column(
       children: [
-        // Top header
-        const WholesalerHeader(),
-        const WholesalerStatsBar(),
+        // ── Standalone Top Header Panel matching Screenshot ──
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            isTablet ? 8 : 12,
+            8,
+            isTablet ? 8 : 12,
+            4,
+          ),
+          child: const WholesalerHeader(),
+        ),
 
-        // Main body
+        // ── Standalone 6-Metric Stats Bar below Header ──
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            isTablet ? 8 : 12,
+            0,
+            isTablet ? 8 : 12,
+            4,
+          ),
+          child: const WholesalerStatsBar(),
+        ),
+
+        // Main body (Left: Catalog Panel, Right: Order Panel)
         Expanded(
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               isTablet ? 8 : 12,
-              6,
+              2,
               isTablet ? 8 : 12,
-              8,
+              6,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // ── Left: Catalog + Footer ─────────────────────────────
+                // ── Left: Catalog Panel ─────────────────────────────
                 Expanded(
                   flex: isTablet ? 65 : 70,
                   child: _CatalogPanel(isDark: isDark),
@@ -122,13 +142,24 @@ class _DesktopTabletLayout extends StatelessWidget {
             ),
           ),
         ),
+
+        // ── Full-width standalone Footer below BOTH Left & Right panels ──
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            isTablet ? 8 : 12,
+            0,
+            isTablet ? 8 : 12,
+            8,
+          ),
+          child: const WholesalerFooterBar(),
+        ),
       ],
     );
   }
 }
 
 // ─────────────────────────────────────────────────────────────────
-// CATALOG PANEL (left side)
+// CATALOG PANEL (left side without extra footer inside)
 // ─────────────────────────────────────────────────────────────────
 class _CatalogPanel extends StatelessWidget {
   final bool isDark;
@@ -139,28 +170,27 @@ class _CatalogPanel extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: WholesalerColors.cardBg(isDark),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(4),
         border: Border.all(color: WholesalerColors.border(isDark)),
         boxShadow: WholesalerColors.elevatedShadow(isDark),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Column(
+        borderRadius: BorderRadius.circular(4),
+        child: const Column(
           children: [
             // Search + tabs
-            const WholesalerSearchBar(),
+            WholesalerSearchBar(),
             // Category chips
-            const WholesalerCategoryChips(),
-            const SizedBox(height: 6),
+            WholesalerCategoryChips(),
+            SizedBox(height: 6),
             // Filter Toolbar (All Warehouses & Low stock on left; Sort, Filters & Grid/List on right)
-            const WholesalerFilterToolbar(),
-            const SizedBox(height: 6),
+            WholesalerFilterToolbar(),
+            SizedBox(height: 6),
             // Product grid / list
-            const Expanded(child: WholesalerProductGrid()),
+            Expanded(child: WholesalerProductGrid()),
             // Pagination dots
-            const WholesalerPaginationDots(),
-            // Integrated Footer Bar (Quick Actions + Order Meta Info)
-            const WholesalerFooterBar(),
+            WholesalerPaginationDots(),
+            SizedBox(height: 4),
           ],
         ),
       ),
@@ -194,12 +224,14 @@ class _MobileLayout extends StatelessWidget {
                   icon: const Icon(Icons.arrow_back_rounded),
                   color: WholesalerColors.primary,
                 ),
-                Text('Order Details',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: WholesalerColors.textPrimary(isDark),
-                    )),
+                Text(
+                  'Order Details',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: WholesalerColors.textPrimary(isDark),
+                  ),
+                ),
               ],
             ),
           ),
@@ -219,7 +251,7 @@ class _MobileLayout extends StatelessWidget {
         const WholesalerStatsBar(),
         Expanded(
           child: Container(
-            margin: const EdgeInsets.all(8),
+            margin: const EdgeInsets.fromLTRB(10, 6, 10, 8),
             decoration: BoxDecoration(
               color: WholesalerColors.cardBg(isDark),
               borderRadius: BorderRadius.circular(20),
@@ -237,6 +269,7 @@ class _MobileLayout extends StatelessWidget {
                   SizedBox(height: 6),
                   Expanded(child: WholesalerProductGrid()),
                   WholesalerPaginationDots(),
+                  SizedBox(height: 4),
                 ],
               ),
             ),
@@ -270,13 +303,17 @@ class _MobileCartFabState extends State<_MobileCartFab>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
-    _pulse = Tween<double>(begin: 0.97, end: 1.03).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-    );
+    _pulse = Tween<double>(
+      begin: 0.97,
+      end: 1.03,
+    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
   }
 
   @override
-  void dispose() { _pulseCtrl.dispose(); super.dispose(); }
+  void dispose() {
+    _pulseCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -302,7 +339,11 @@ class _MobileCartFabState extends State<_MobileCartFab>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.shopping_bag_rounded, color: Colors.white, size: 20),
+              const Icon(
+                Icons.shopping_bag_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
               const SizedBox(width: 8),
               Text(
                 'View Order  •  ৳${w.grandTotal.toStringAsFixed(2)}',
@@ -315,7 +356,10 @@ class _MobileCartFabState extends State<_MobileCartFab>
               if (w.totalItems > 0) ...[
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),

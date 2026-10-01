@@ -24,18 +24,20 @@ class WCustomer {
     required this.outstanding,
   });
 
-  String get tierLabel {
+  String get tierName {
     switch (tier) {
       case WCustomerTier.platinum:
-        return 'Platinum Customer';
+        return 'Platinum';
       case WCustomerTier.gold:
-        return 'Gold Customer';
+        return 'Gold';
       case WCustomerTier.silver:
-        return 'Silver Customer';
+        return 'Silver';
       case WCustomerTier.regular:
-        return 'Regular Customer';
+        return 'Standard';
     }
   }
+
+  String get tierLabel => '$tierName Customer';
 }
 
 enum WStockStatus { inStock, lowStock, outOfStock }
@@ -148,16 +150,7 @@ class WholesalerProvider extends ChangeNotifier {
     ),
   ];
 
-  WCustomer _selectedCustomer = const WCustomer(
-    id: 'c1',
-    name: 'ABC Traders Ltd.',
-    phone: '01712-345678',
-    customerId: 'CUST-10025',
-    tier: WCustomerTier.platinum,
-    creditLimit: 50000,
-    availableCredit: 18750,
-    outstanding: 12250,
-  );
+  late WCustomer _selectedCustomer = _customers.first;
 
   List<WCustomer> get customers => _customers;
   WCustomer get customer => _selectedCustomer;
@@ -446,13 +439,13 @@ class WholesalerProvider extends ChangeNotifier {
   double get todaysSales => 12540.0;
   int get ordersCount => 18;
   int get deliveryCount => 12;
-  int get customersCount => 86;
-  int get pendingOrdersCount => 15;
-  int get lowStockAlerts => 24;
+  int get customersCount => 24;
+  int get pendingOrdersCount => 0;
+  int get lowStockAlerts => 0;
   double get totalReceivables => 34850.0;
   double get collectedCash => 9750.0;
-  int get returnsCount => 3;
-  int get activeWarehouses => 4;
+  int get returnsCount => 0;
+  int get activeWarehouses => 1;
 
   // ── Hold Order ────────────────────────────────────────────────
   final List<WHeldOrder> _heldOrders = [];
@@ -491,6 +484,10 @@ class WholesalerProvider extends ChangeNotifier {
   String get salesRep => _salesRep;
   void setSalesRep(String s) { _salesRep = s; notifyListeners(); }
 
+  String _deliveryDate = '20 May, 2025 • 10:00 AM';
+  String get deliveryDate => _deliveryDate;
+  void setDeliveryDate(String d) { _deliveryDate = d; notifyListeners(); }
+
   String _deliveryMethod = 'Our Delivery';
   String get deliveryMethod => _deliveryMethod;
   void setDeliveryMethod(String d) { _deliveryMethod = d; notifyListeners(); }
@@ -499,11 +496,16 @@ class WholesalerProvider extends ChangeNotifier {
   String get paymentTerm => _paymentTerm;
   void setPaymentTerm(String p) { _paymentTerm = p; notifyListeners(); }
 
-  final double _commission = 2.5;
+  double _commission = 2.5;
   double get commission => _commission;
   double get commissionAmount => grandTotal * (_commission / 100);
+  void setCommission(double c) { _commission = c; notifyListeners(); }
 
   String _note = '';
   String get note => _note;
   void setNote(String n) { _note = n; notifyListeners(); }
+
+  int _attachmentsCount = 0;
+  int get attachmentsCount => _attachmentsCount;
+  void setAttachmentsCount(int c) { _attachmentsCount = c; notifyListeners(); }
 }

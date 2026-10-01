@@ -146,6 +146,7 @@ class _ProductCardState extends State<_ProductCard>
   Widget build(BuildContext context) {
     final p = widget.product;
     final isDark = widget.isDark;
+    final isMobile = MediaQuery.of(context).size.width < 700;
 
     return FadeTransition(
       opacity: _opacity,
@@ -164,30 +165,24 @@ class _ProductCardState extends State<_ProductCard>
                 duration: const Duration(milliseconds: 180),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? (_hovered ? const Color(0xFF262262) : const Color(0xFF1E1B4B))
+                      ? (_hovered ? const Color(0xFF252262) : WholesalerColors.cardBg(isDark))
                       : Colors.white,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(isMobile ? 14 : 4),
                   border: Border.all(
                     color: _hovered
-                        ? WholesalerColors.primary.withValues(alpha: 0.5)
+                        ? WholesalerColors.primary
                         : WholesalerColors.border(isDark),
-                    width: _hovered ? 1.5 : 1,
+                    width: 1,
                   ),
                   boxShadow: _hovered
                       ? [
                           BoxShadow(
-                            color: WholesalerColors.primary.withValues(alpha: 0.25),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+                            color: WholesalerColors.primary.withValues(alpha: 0.15),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
                         ]
-                      : [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                      : WholesalerColors.softShadow(isDark),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,10 +197,10 @@ class _ProductCardState extends State<_ProductCard>
                             width: double.infinity,
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? WholesalerColors.primary.withValues(alpha: 0.08)
+                                  ? WholesalerColors.surfaceBg(isDark)
                                   : const Color(0xFFF1F5FF),
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(13),
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(isMobile ? 13 : 3),
                               ),
                             ),
                             padding: const EdgeInsets.fromLTRB(12, 22, 12, 8),
@@ -421,21 +416,23 @@ class _ProductListTileState extends State<_ProductListTile>
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: isDark
-                  ? (_hovered ? const Color(0xFF252262) : WholesalerColors.inputBg(true))
+                  ? (_hovered ? const Color(0xFF252262) : WholesalerColors.cardBg(isDark))
                   : Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(4),
               border: Border.all(
-                color: _hovered ? WholesalerColors.primary.withValues(alpha: 0.4) : WholesalerColors.border(isDark),
+                color: _hovered
+                    ? WholesalerColors.primary
+                    : WholesalerColors.border(isDark),
               ),
               boxShadow: WholesalerColors.softShadow(isDark),
             ),
             child: Row(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(3),
                   child: Container(
                     width: 48, height: 48,
-                    color: WholesalerColors.primary.withValues(alpha: 0.08),
+                    color: isDark ? WholesalerColors.surfaceBg(isDark) : const Color(0xFFF1F5FF),
                     child: CachedNetworkImage(
                       imageUrl: p.imageUrl, fit: BoxFit.cover,
                       placeholder: (_, _) => Center(child: Text(p.emoji, style: const TextStyle(fontSize: 24))),

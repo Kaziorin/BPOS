@@ -28,7 +28,7 @@ class WholesalerColors {
       isDark ? const Color(0xFF13103A) : const Color(0xFFF1F5F9);
 
   static Color scaffoldBg(bool isDark) =>
-      isDark ? const Color(0xFF0D0B2A) : const Color(0xFFE8EBF5);
+      isDark ? const Color(0xFF0D0B2A) : const Color(0xFFEFF3FA);
 
   static Color inputBg(bool isDark) =>
       isDark ? const Color(0xFF1E1B4B) : Colors.white;
@@ -101,18 +101,18 @@ class WholesalerColors {
   // 3D card effect decoration
   static BoxDecoration card3dDecoration(bool isDark) => BoxDecoration(
         gradient: isDark
-            ? LinearGradient(
+            ? const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  const Color(0xFF252262),
-                  const Color(0xFF1E1B4B),
-                  const Color(0xFF161337),
+                  Color(0xFF252262),
+                  Color(0xFF1E1B4B),
+                  Color(0xFF161337),
                 ],
               )
             : null,
         color: isDark ? null : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(4),
         border: Border.all(
           color: isDark
               ? const Color(0xFF3730A3).withValues(alpha: 0.5)
