@@ -132,9 +132,10 @@ class SalesOrder {
     final branchName = json['branchName']?.toString() ?? '';
 
     final totalVal = ((json['total'] ?? 0) as num).toDouble();
-    final paidVal = ((json['paidTotal'] ?? totalVal) as num).toDouble();
+    final rawPaidVal = ((json['paidTotal'] ?? totalVal) as num).toDouble();
+    final paidVal = rawPaidVal > totalVal && totalVal > 0 ? totalVal : rawPaidVal;
     final dueVal = ((json['dueTotal'] ?? 0) as num).toDouble();
-    final changeVal = ((json['changeReturn'] ?? json['change'] ?? 0) as num).toDouble();
+    final changeVal = ((json['changeReturn'] ?? json['change'] ?? (rawPaidVal > totalVal ? rawPaidVal - totalVal : 0)) as num).toDouble();
 
     return SalesOrder(
       id: json['id']?.toString() ?? 'so_1',

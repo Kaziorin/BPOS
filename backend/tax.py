@@ -96,6 +96,23 @@ async def resolve_tax_rate(
         ).first()
 
     if not row:
+        row = (
+            await db.execute(
+                text(
+                    "SELECT NULL AS ruleId, name AS ruleName, 'STANDARD' AS ruleType, 'BOTH' AS appliesTo, "
+                    "id AS taxRateId, 0 AS priority, "
+                    "id AS rateId2, name AS rateName, code, rate, rateType, "
+                    "taxInclusive, effectiveFrom, effectiveTo "
+                    "FROM tax_rates "
+                    "WHERE (tenantId = :t OR tenantId IS NULL) "
+                    "AND (status = 'ACTIVE' OR isActive = 1 OR status IS NULL) "
+                    "ORDER BY isDefault DESC, rate DESC, createdAt DESC LIMIT 1"
+                ),
+                {"t": tenantId},
+            )
+        ).first()
+
+    if not row:
         return None
 
     return {

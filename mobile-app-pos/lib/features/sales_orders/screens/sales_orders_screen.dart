@@ -2402,15 +2402,15 @@ class _OrdersTableView extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    locale == 'bn' ? 'মোট টাকা' : 'Order Total',
-                    textAlign: TextAlign.right,
+                    locale == 'bn' ? 'পদ্ধতি' : 'Payment Method',
+                    textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: textSecondary),
                   ),
                 ),
                 Expanded(
                   flex: 2,
                   child: Text(
-                    locale == 'bn' ? 'পরিশোধ / বকেয়া' : 'Paid / Due',
+                    locale == 'bn' ? 'মোট / বকেয়া' : 'Total / Due',
                     textAlign: TextAlign.right,
                     style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: textSecondary),
                   ),
@@ -2540,41 +2540,59 @@ class _OrdersTableView extends StatelessWidget {
                         ),
                       ),
 
-                      // Order Total
+                      // Payment Method
                       Expanded(
                         flex: 2,
-                        child: Text(
-                          NumberUtils.formatCurrency(order.total, locale),
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w900,
-                            color: textPrimary,
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                            decoration: BoxDecoration(
+                              color: borderColor.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              order.paymentMethod,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: textPrimary,
+                              ),
+                            ),
                           ),
                         ),
                       ),
 
-                      // Paid / Due
+                      // Total / Due
                       Expanded(
                         flex: 2,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              NumberUtils.formatCurrency(order.paidTotal, locale),
-                              style: const TextStyle(
-                                fontSize: 12.5,
+                              NumberUtils.formatCurrency(order.total, locale),
+                              style: TextStyle(
+                                fontSize: 13.5,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF10B981),
+                                color: textPrimary,
                               ),
                             ),
+                            const SizedBox(height: 2),
                             if (order.dueTotal > 0)
                               Text(
-                                'Due: ${NumberUtils.formatCurrency(order.dueTotal, locale)}',
+                                '- ${NumberUtils.formatCurrency(order.dueTotal, locale)}',
                                 style: const TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.w800,
                                   color: Color(0xFFEF4444),
+                                ),
+                              )
+                            else
+                              Text(
+                                NumberUtils.formatCurrency(0, locale),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF10B981),
                                 ),
                               ),
                           ],
@@ -2831,11 +2849,20 @@ class _OrdersCardList extends StatelessWidget {
                             ),
                             if (order.dueTotal > 0)
                               Text(
-                                'Due: ${NumberUtils.formatCurrency(order.dueTotal, locale)}',
+                                '- ${NumberUtils.formatCurrency(order.dueTotal, locale)}',
                                 style: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w800,
                                   color: Color(0xFFEF4444),
+                                ),
+                              )
+                            else
+                              Text(
+                                NumberUtils.formatCurrency(0, locale),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF10B981),
                                 ),
                               ),
                           ],

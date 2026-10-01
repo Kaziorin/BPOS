@@ -9,6 +9,7 @@ export interface CartItem {
   image?: string;
   imageUrl?: string;
   sku?: string;
+  taxRate?: number;
 }
 
 export interface PaymentLine {

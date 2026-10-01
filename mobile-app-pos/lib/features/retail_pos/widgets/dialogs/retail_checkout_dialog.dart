@@ -320,7 +320,7 @@ class _RetailCheckoutPaymentModalState extends State<RetailCheckoutPaymentModal>
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
-                                    const Text('Tax (5%):   ', style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
+                                    Text('Tax (${widget.retailProvider.taxRatePct}%):   ', style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
                                     Text(
                                       '৳${tax.toStringAsFixed(2)}',
                                       style: TextStyle(

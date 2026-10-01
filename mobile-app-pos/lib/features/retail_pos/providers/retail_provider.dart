@@ -419,9 +419,11 @@ class RetailProvider extends ChangeNotifier {
   String _orderNote = '';
   double _discountTotal = 0.0;
   double _serviceCharge = 0.0;
-  final double _taxRate = 0.05; // 5% VAT / Tax
+  final double _taxRate = 0.15; // 15% System Standard VAT
 
   // Getters
+  double get taxRate => _taxRate;
+  int get taxRatePct => (_taxRate * 100).round();
   List<RetailProduct> get allProducts => _allProducts;
   List<RetailCartItem> get cart => _cart;
   List<HeldRetailSale> get heldSales => _heldSales;

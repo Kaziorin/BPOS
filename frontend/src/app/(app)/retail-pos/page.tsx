@@ -357,6 +357,8 @@ export default function PosPage() {
 
   // Categories state from API
   const [apiCategories, setApiCategories] = useState<{ id: string; name: string }[]>([]);
+  // System Default Tax Rate (from /api/v1/tax/rates, default 15%)
+  const [systemTaxRate, setSystemTaxRate] = useState<number>(15);
 
   // ── Extra Features State ──
   const [showRecentOrders, setShowRecentOrders] = useState(false);
@@ -405,6 +407,27 @@ export default function PosPage() {
         setApiCategories(catRows);
       } catch {
         setApiCategories([]);
+      }
+
+      try {
+        const taxRes: any = await api.get("/api/v1/tax/rates");
+        const taxRows = Array.isArray(taxRes?.data?.data)
+          ? taxRes.data.data
+          : Array.isArray(taxRes?.data)
+          ? taxRes.data
+          : Array.isArray(taxRes)
+          ? taxRes
+          : [];
+        const activeRates = taxRows.filter((r: any) => r && (r.status === "ACTIVE" || r.isActive === 1 || r.isActive === true || r.status == null));
+        const defaultRate = activeRates.find((r: any) => r.isDefault) || activeRates[0];
+        if (defaultRate && defaultRate.rate !== undefined && defaultRate.rate !== null) {
+          const parsed = parseFloat(defaultRate.rate);
+          if (!isNaN(parsed) && parsed >= 0) {
+            setSystemTaxRate(parsed);
+          }
+        }
+      } catch {
+        // Keep default 15%
       }
 
       try {
@@ -543,9 +566,28 @@ export default function PosPage() {
 
   // ── Totals ──
   const subtotal = useMemo(() => cart.reduce((s, i) => s + i.lineTotal, 0), [cart]);
-  const TAX_RATE = 0.05; // 5% tax
+  
+  // Dynamic VAT/Tax calculation per product or system default rate
+  const taxTotal = useMemo(() => {
+    return cart.reduce((acc, item) => {
+      const rate = item.taxRate !== undefined && item.taxRate !== null && !isNaN(Number(item.taxRate))
+        ? Number(item.taxRate)
+        : systemTaxRate;
+      const lineNet = Math.max(item.lineTotal, 0);
+      return acc + (lineNet * (rate / 100));
+    }, 0);
+  }, [cart, systemTaxRate]);
+
+  const effectiveTaxPct = useMemo(() => {
+    if (cart.length === 0) return systemTaxRate;
+    const rates = cart.map((i) => (i.taxRate !== undefined && i.taxRate !== null && !isNaN(Number(i.taxRate))) ? Number(i.taxRate) : systemTaxRate);
+    const allSame = rates.every((r) => r === rates[0]);
+    if (allSame) return rates[0];
+    const taxableAmount = Math.max(subtotal - discountTotal, 0);
+    return taxableAmount > 0 ? Number(((taxTotal / taxableAmount) * 100).toFixed(1)) : systemTaxRate;
+  }, [cart, subtotal, discountTotal, taxTotal, systemTaxRate]);
+
   const taxable = Math.max(subtotal - discountTotal, 0);
-  const taxTotal = taxable * TAX_RATE;
   const total = Math.max(taxable + taxTotal + serviceCharge, 0);
 
   // ── Customer name lookup ──
@@ -601,6 +643,10 @@ export default function PosPage() {
         unitPrice: Number(p.sellingPrice),
         discountAmount: 0, lineTotal: Number(p.sellingPrice),
         image: (p as any).imageUrl || (p as any).image,
+        sku: p.sku,
+        taxRate: (p as any).taxRate !== undefined && (p as any).taxRate !== null && !isNaN(Number((p as any).taxRate))
+          ? Number((p as any).taxRate)
+          : systemTaxRate,
       } as any)];
     });
   }
@@ -1662,7 +1708,7 @@ export default function PosPage() {
                   <span className="font-bold">-{fmt(discountTotal)}</span>
                 </div>
                 <div className="flex justify-between text-slate-600 font-medium">
-                  <span>Tax (5%)</span>
+                  <span>Tax ({effectiveTaxPct}%)</span>
                   <span className="font-bold text-gray-600">{fmt(taxTotal)}</span>
                 </div>
               </div>
@@ -2231,7 +2277,7 @@ export default function PosPage() {
                 </div>
               )}
               <div className="flex justify-between gap-4">
-                <span className="text-slate-400">Tax (5%):</span>
+                <span className="text-slate-400">Tax ({effectiveTaxPct}%):</span>
                 <span>{fmt(taxTotal)}</span>
               </div>
             </div>

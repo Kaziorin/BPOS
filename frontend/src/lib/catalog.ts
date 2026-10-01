@@ -30,6 +30,7 @@ export interface RegisterProduct {
   brandName?: string | null;
   genericName?: string | null;
   attributes?: any;
+  taxRate?: number;
 }
 
 export interface ApiProductRow {
@@ -48,6 +49,7 @@ export interface ApiProductRow {
   imageUrl?: string | null;
   genericName?: string | null;
   attributes?: any;
+  taxRate?: string | number;
   _count?: { variants?: number; stockRows?: number } | null;
 }
 
@@ -117,6 +119,7 @@ export function toRegisterProduct(row: ApiProductRow): RegisterProduct {
     brandName: row.brand?.name ?? null,
     genericName,
     attributes: attr,
+    taxRate: row.taxRate !== undefined && row.taxRate !== null && row.taxRate !== "" ? Number(row.taxRate) : undefined,
   };
 }
 

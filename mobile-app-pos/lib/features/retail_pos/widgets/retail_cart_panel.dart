@@ -555,7 +555,7 @@ class RetailCartPanel extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Tax (5%)',
+                                'Tax (${retailProvider.taxRatePct}%)',
                                 style: TextStyle(
                                   fontSize: 11.5,
                                   fontWeight: FontWeight.w500,

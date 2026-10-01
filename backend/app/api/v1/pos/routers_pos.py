@@ -189,11 +189,11 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     service = float(body.get("serviceCharge", 0) or 0)
     delivery = float(body.get("deliveryFee") or body.get("shipping") or body.get("shippingTotal") or 0)
     tips = float(body.get("tips", 0) or 0)
-    roundOff = float(body.get("roundOff", 0) or 0)
     total = round(max(subtotal - discountTotal + exclusive_tax_total + service + delivery + tips + roundOff, 0), 2)
-    paid = round(sum(float(p.get("amount", 0)) for p in payments), 2)
+    tendered = round(sum(float(p.get("amount", 0)) for p in payments), 2)
+    paid = min(tendered, total)
     credit_amt = sum(float(p.get("amount", 0)) for p in payments if p.get("method") == "CREDIT")
-    due = max(round(total - paid, 2), 0)
+    due = max(round(total - tendered, 2), 0)
 
     # credit limit check for CREDIT payments (§10.13)
     customerId = body.get("customerId")
@@ -615,15 +615,18 @@ async def pos_sales(
         for r in rows:
             r["grandTotal"] = float(r.get("total", 0) or 0)
             r["totalAmount"] = float(r.get("total", 0) or 0)
-            r["total"] = float(r.get("total", 0) or 0)
+            tot = float(r.get("total", 0) or 0)
+            r["total"] = tot
+            raw_paid = float(r.get("paidTotal", 0) or 0)
+            raw_due = float(r.get("dueTotal", 0) or 0)
             pm = r.get("paymentMethod") or "CASH"
             if pm != "CREDIT":
-                r["paidTotal"] = max(float(r.get("paidTotal", 0) or 0), r["total"])
-                r["dueTotal"] = 0.0
+                r["paidTotal"] = min(raw_paid, tot) if raw_paid > 0 else tot
+                r["dueTotal"] = max(round(tot - r["paidTotal"], 2), 0.0)
             else:
-                r["paidTotal"] = float(r.get("paidTotal", 0) or 0)
-                r["dueTotal"] = float(r.get("dueTotal", 0) or 0)
-            r["changeReturn"] = max(r["paidTotal"] - r["total"], 0.0)
+                r["paidTotal"] = min(raw_paid, tot)
+                r["dueTotal"] = max(raw_due, round(tot - r["paidTotal"], 2))
+            r["changeReturn"] = max(raw_paid - tot, 0.0)
             cust_name = r.get("customerName")
             r["customer"] = {
                 "id": r.get("customerId"),
