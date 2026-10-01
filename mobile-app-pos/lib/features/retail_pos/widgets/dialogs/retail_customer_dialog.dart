@@ -106,24 +106,33 @@ class _RetailSelectCustomerModalState extends State<RetailSelectCustomerModal> {
       return;
     }
     try {
-      await ApiService.instance.createCustomer(
+      final res = await ApiService.instance.createCustomer(
         businessType: 'retail',
         payload: {
           'name': name,
-          'phone': phone.isNotEmpty ? phone : 'N/A',
+          if (phone.isNotEmpty) 'phone': phone,
           if (_emailCtrl.text.trim().isNotEmpty) 'email': _emailCtrl.text.trim(),
           if (_addressCtrl.text.trim().isNotEmpty) 'address': _addressCtrl.text.trim(),
           'segmentation': 'RETAIL',
         },
       );
+      if (res != null && mounted) {
+        setState(() {
+          _customers.insert(0, {'name': name, 'phone': phone.isNotEmpty ? phone : 'N/A'});
+        });
+        _selectCustomer(name);
+      }
     } catch (e) {
-      debugPrint('Error creating retail customer: $e');
-    }
-    if (mounted) {
-      setState(() {
-        _customers.insert(0, {'name': name, 'phone': phone.isNotEmpty ? phone : 'N/A'});
-      });
-      _selectCustomer(name);
+      if (mounted) {
+        final errText = e.toString().replaceAll('Exception: ', '').trim();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errText),
+            backgroundColor: const Color(0xFFEF4444),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 

@@ -157,7 +157,9 @@ class WholesalerProvider extends ChangeNotifier {
 
   void selectCustomer(WCustomer c) {
     _selectedCustomer = c;
+    _lastLocalEdit = DateTime.now();
     notifyListeners();
+    _pushCartToBackend();
   }
 
   bool _isLoadingCustomers = false;
@@ -207,7 +209,11 @@ class WholesalerProvider extends ChangeNotifier {
         if (found.isNotEmpty) {
           _selectedCustomer = found.first;
         } else if (_customers.isNotEmpty) {
-          _selectedCustomer = _customers.first;
+          if (_selectedCustomer.id.isEmpty ||
+              _selectedCustomer.id == 'c0' ||
+              _selectedCustomer.id == 'CUST-001') {
+            _selectedCustomer = _customers.first;
+          }
         }
       }
     } catch (e) {
@@ -225,41 +231,44 @@ class WholesalerProvider extends ChangeNotifier {
     String? address,
     String businessType = 'wholesaler',
   }) async {
-    try {
-      final payload = {
-        'name': name.trim(),
-        'phone': phone.trim(),
-        if (email != null && email.trim().isNotEmpty) 'email': email.trim(),
-        if (address != null && address.trim().isNotEmpty) 'address': address.trim(),
-        'segmentation': 'WHOLESALE',
-      };
-      final res = await ApiService.instance.createCustomer(
-        businessType: businessType,
-        payload: payload,
-      );
+    final payload = {
+      'name': name.trim(),
+      'phone': phone.trim(),
+      if (email != null && email.trim().isNotEmpty) 'email': email.trim(),
+      if (address != null && address.trim().isNotEmpty) 'address': address.trim(),
+      'segmentation': 'WHOLESALE',
+    };
+    final res = await ApiService.instance.createCustomer(
+      businessType: businessType,
+      payload: payload,
+    );
 
-      final newId = (res != null && res['id'] != null)
-          ? res['id'].toString()
-          : 'CUST-${DateTime.now().millisecondsSinceEpoch}';
-      final newCust = WCustomer(
-        id: newId,
-        name: name.trim(),
-        phone: phone.trim(),
-        customerId: 'CUST-${newId.length > 5 ? newId.substring(0, 5) : newId}',
-        tier: WCustomerTier.regular,
-        creditLimit: 0,
-        availableCredit: 0,
-        outstanding: 0,
-      );
-
-      _customers.insert(0, newCust);
-      _selectedCustomer = newCust;
-      notifyListeners();
-      return newCust;
-    } catch (e) {
-      debugPrint('Error adding customer: $e');
-      return null;
+    if (res == null || res['id'] == null) {
+      throw Exception('Server did not return customer ID');
     }
+
+    final newId = res['id'].toString();
+    final newCust = WCustomer(
+      id: newId,
+      name: (res['name'] ?? name).toString().trim(),
+      phone: (res['phone'] ?? phone).toString().trim(),
+      customerId: 'CUST-${newId.length > 5 ? newId.substring(0, 5) : newId}',
+      tier: WCustomerTier.regular,
+      creditLimit: 0,
+      availableCredit: 0,
+      outstanding: 0,
+    );
+
+    _customers.insert(0, newCust);
+    _selectedCustomer = newCust;
+    _lastLocalEdit = DateTime.now();
+    notifyListeners();
+    _pushCartToBackend();
+
+    // Re-fetch all customers from server so memory and DB are 100% synchronized
+    loadCustomers(businessType: businessType);
+
+    return newCust;
   }
 
   // ── Warehouse ──────────────────────────────────────────────────
@@ -489,8 +498,8 @@ class WholesalerProvider extends ChangeNotifier {
     bool isPolling = false,
   }) async {
     if (_isSyncingCart) return;
-    // When polling in background, don't overwrite if user locally edited within last 4 seconds
-    if (isPolling && DateTime.now().difference(_lastLocalEdit).inSeconds < 4) {
+    // When polling in background, don't overwrite if user locally edited within last 6 seconds
+    if (isPolling && DateTime.now().difference(_lastLocalEdit).inSeconds < 6) {
       return;
     }
     _isSyncingCart = true;

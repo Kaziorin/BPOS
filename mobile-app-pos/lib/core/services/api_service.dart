@@ -326,20 +326,33 @@ class ApiService {
         uri,
         headers: reqHeaders,
         body: jsonEncode(payload),
-      ).timeout(const Duration(seconds: 8));
+      ).timeout(const Duration(seconds: 10));
 
       if (resp.statusCode == 200 || resp.statusCode == 201) {
         final data = jsonDecode(resp.body);
         if (data is Map && data['data'] is Map) {
-          return data['data'] as Map<String, dynamic>;
+          return Map<String, dynamic>.from(data['data']);
         } else if (data is Map) {
-          return data as Map<String, dynamic>;
+          return Map<String, dynamic>.from(data);
         }
+        return null;
+      } else {
+        String errorMsg = 'Failed to create customer (Status ${resp.statusCode})';
+        try {
+          final err = jsonDecode(resp.body);
+          if (err is Map) {
+            final msg = err['error'] ?? err['detail'] ?? err['message'];
+            if (msg != null && msg.toString().isNotEmpty) {
+              errorMsg = msg.toString();
+            }
+          }
+        } catch (_) {}
+        throw Exception(errorMsg);
       }
     } catch (e) {
       debugPrint('Error creating customer in backend: $e');
+      rethrow;
     }
-    return null;
   }
 
   // ── CONFIRM / SUBMIT POS SALE ─────────────────────────────────────────────

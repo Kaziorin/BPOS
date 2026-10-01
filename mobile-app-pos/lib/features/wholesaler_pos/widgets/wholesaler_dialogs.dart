@@ -89,8 +89,9 @@ class _WCustomerDialogState extends State<WCustomerDialog> {
     } catch (e) {
       if (mounted) {
         setState(() => _isSubmitting = false);
+        final errText = e.toString().replaceAll('Exception: ', '').trim();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(errText), backgroundColor: Colors.red),
         );
       }
     }

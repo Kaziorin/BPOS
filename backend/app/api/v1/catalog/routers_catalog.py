@@ -940,6 +940,10 @@ async def create_customer(
     if not name: return err("Name is required", 400)
     phone = body.get("phone")
     if phone:
+        phone = str(phone).strip()
+        if not phone or phone.upper() == "N/A":
+            phone = None
+    if phone:
         dup = (await db.execute(text("SELECT id FROM customers WHERE tenantId=:t AND phone=:p"), {"t": tenantId, "p": phone})).first()
         if dup: return err("Customer with this phone already exists", 409)
     import uuid
